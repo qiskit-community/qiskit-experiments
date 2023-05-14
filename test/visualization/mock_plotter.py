@@ -22,8 +22,8 @@ from qiskit_experiments.visualization.drawers import SeriesName
 class MockPlotter(BasePlotter):
     """Mock plotter for visualization tests.
 
-    If :attr:`plotting_enabled` is true, :class:`MockPlotter` will plot formatted data.
-    :attr:`plotting_enabled` defaults to false as most test usage of the class uses :class:`MockDrawer`,
+    If :attr:`plotting_enabled` is true, :class:`.MockPlotter` will plot formatted data.
+    :attr:`plotting_enabled` defaults to false as most test usage of the class uses :class:`.MockDrawer`,
     which doesn't generate a useful figure.
     """
 

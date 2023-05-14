@@ -10,12 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-# pylint: disable=invalid-name
-# Configuration file for the Sphinx documentation builder.
-#
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+"""
+Sphinx documentation builder.
+"""
+
+import os
+import sys
+import subprocess
+import datetime
 
 # -- Path setup --------------------------------------------------------------
 
@@ -23,67 +25,27 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-import subprocess
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.append(os.path.abspath("./_ext"))
 sys.path.append(os.path.abspath(".."))
-
-"""
-Sphinx documentation builder
-"""
 
 # Set env flag so that we can doc functions that may otherwise not be loaded
 # see for example interactive visualizations in qiskit.visualization.
 os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
-project = "Qiskit Experiments"
-copyright = "2021, Qiskit Development Team"  # pylint: disable=redefined-builtin
-author = "Qiskit Development Team"
-
 # The short X.Y version
-version = "0.5"
+version = "0.6"
 # The full version, including alpha/beta/rc tags
-release = "0.5.0"
-
-rst_prolog = """
-.. raw:: html
-
-    <br><br><br>
-
-.. |version| replace:: {0}
-""".format(
-    release
-)
-
-nbsphinx_prolog = """
-{% set docname = env.doc2path(env.docname, base=None) %}
-.. only:: html
-
-    .. role:: raw-html(raw)
-        :format: html
-
-    .. raw:: html
-
-        <br><br><br>
-
-    .. note::
-        Run interactively in jupyter notebook.
-"""
+release = "0.6.0"
+project = "Qiskit Experiments"
+copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
+author = "Qiskit Development Team"
 
 
 # -- General configuration ---------------------------------------------------
 
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -91,46 +53,57 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx_copybutton",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
-    "sphinx_panels",
+    "sphinx_design",
     "sphinx.ext.intersphinx",
     "nbsphinx",
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
     "autodoc_visualization",
-    "jupyter-execute-checkenv",
+    "jupyter_execute_custom",
 ]
+
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_css_files = ["style.css", "custom.css", "gallery.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
-nbsphinx_thumbnails = {}
+
+# Thumbnails for experiment manuals from output images
+# These should ideally be automatically generated using a custom macro to specify
+# chosen cells for thumbnails, like the nbsphinx-gallery tag
+nbsphinx_thumbnails = {
+    "manuals/verification/quantum_volume": "_images/quantum_volume_2_0.png",
+    "manuals/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
+    "manuals/verification/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
+    "manuals/measurement/restless_measurements": "_images/restless_shots.png",
+    "manuals/verification/state_tomography": "_images/state_tomography_3_0.png",
+    "manuals/characterization/t1": "_images/t1_0_0.png",
+    "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
+    "manuals/characterization/tphi": "_images/tphi_5_1.png",
+    "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "**": "_static/no_image.png",
+}
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
 # visualization module and `default_style` method in `PlotStyle` respectively.
 napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
 
-# -----------------------------------------------------------------------------
-# Autosummary
-# -----------------------------------------------------------------------------
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autosummary_generate = True
 
-# -----------------------------------------------------------------------------
-# Autodoc
-# -----------------------------------------------------------------------------
-
-autodoc_default_options = {
-    "inherited-members": None,
-}
-
+autodoc_default_options = {"inherited-members": None}
 
 # If true, figures, tables and code-blocks are automatically numbered if they
 # have a caption.
@@ -140,11 +113,7 @@ numfig = True
 # strings that are used for format of figure numbers. As a special character,
 # %s will be replaced to figure number.
 numfig_format = {"table": "Table %s"}
-# The language for content autogenerated by Sphinx. Refer to documentation
-# for a list of supported languages.
-#
-# This is also used if you do content translation via gettext catalogs.
-# Usually you set "language" from the command line for these cases.
+
 language = "en"
 
 # List of patterns, relative to source directory, that match files and
@@ -177,7 +146,11 @@ modindex_common_prefix = ["qiskit_experiments."]
 #
 html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
 
-# html_sidebars = {'**': ['globaltoc.html']}
+html_context = {
+    "analytics_enabled": True,
+    "expandable_sidebar": True,
+}
+
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
@@ -192,26 +165,16 @@ autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "uncertainties": ("https://pythonhosted.org/uncertainties", None),
+    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
+    "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
 }
 
 
-# Current scipy hosted docs are missing the object.inv file so leaving this
-# commented out until the missing file is added back.
-#                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}
-
 # Prepend warning for development docs:
 
-if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
+if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
-.. raw:: html
-    <br><br><br>
-""".format(
-        release
-    )
-else:
-    rst_prolog = """
-.. raw:: html
-    <br><br><br>
 .. note::
     This is the documentation for the current state of the development branch
     of Qiskit Experiments. The documentation or APIs here can change prior to being
@@ -222,14 +185,10 @@ else:
 def _get_versions(app, config):
     context = config.html_context
     start_version = (0, 5, 0)
-    proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
-    proc.check_returncode()
-    current_version = proc.stdout.decode("utf8")
+    current_version = release
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = [
-            "0.%s" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
-        ]
+        version_list = ["0.%s" % x for x in range(start_version[1], int(current_version_info[1]))]
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []
@@ -247,3 +206,39 @@ def _get_version_label(current_version):
 
 def setup(app):
     app.connect("config-inited", _get_versions)
+    app.connect("autodoc-skip-member", maybe_skip_member)
+
+
+# Hardcoded list of class variables to skip in autodoc to avoid warnings
+# Should come up with better way to address this
+
+from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.curve_analysis import SeriesDef
+
+
+def maybe_skip_member(app, what, name, obj, skip, options):
+    skip_names = [
+        "analysis",
+        "set_run_options",
+        "data_allocation",
+        "labels",
+        "shots",
+        "x",
+        "y",
+        "y_err",
+        "name",
+        "filter_kwargs",
+        "fit_func",
+        "signature",
+    ]
+    skip_members = [
+        ParameterRepr.repr,
+        ParameterRepr.unit,
+        SeriesDef.plot_color,
+        SeriesDef.plot_symbol,
+        SeriesDef.model_description,
+        SeriesDef.canvas,
+    ]
+    if not skip:
+        return (name in skip_names or obj in skip_members) and what == "attribute"
+    return skip

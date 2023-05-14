@@ -17,6 +17,7 @@ Documentation extension for experiment class.
 from typing import Any
 
 from docs._ext.custom_styles.styles import ExperimentDocstring
+from docs._ext.custom_styles.option_parser import process_default_options
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from sphinx.application import Sphinx
@@ -39,12 +40,26 @@ class ExperimentDocumenter(ClassDocumenter):
         sourcename = self.get_sourcename()
 
         try:
-            class_doc, init_doc = self.get_doc()
+            if self.get_doc() is not None:
+                class_doc, init_doc = self.get_doc()
+            else:
+                return
         except ValueError:
             raise QiskitError(
-                f"Documentation of {self.name} doesn't match with the expected format."
+                f"Documentation of {self.fullname} doesn't match with the expected format."
                 "Please run sphinx build without using the experiment template."
             )
+
+        option_doc = process_default_options(
+            current_class=self.object,
+            default_option_method="_default_experiment_options",
+            section_repr="Experiment Options:",
+            app=self.env.app,
+            options=self.options,
+            config=self.env.app.config,
+            indent=self.content_indent,
+        )
+        init_doc = list(self.process_doc([init_doc]))
 
         # format experiment documentation into the experiment style
         class_doc_parser = ExperimentDocstring(
@@ -52,17 +67,13 @@ class ExperimentDocumenter(ClassDocumenter):
             docstring_lines=class_doc,
             config=self.env.app.config,
             indent=self.content_indent,
+            experiment_opts=option_doc,
+            init=init_doc,
         )
 
         # write introduction
-        for i, line in enumerate(self.process_doc(class_doc_parser.generate_class_docs())):
-            self.add_line(line, sourcename, i)
-        self.add_line("", sourcename)
-
-        # write init method documentation
-        self.add_line(".. rubric:: Initialization", sourcename)
-        self.add_line("", sourcename)
-        for i, line in enumerate(self.process_doc([init_doc])):
+        custom_docs = class_doc_parser.generate_class_docs()
+        for i, line in enumerate(self.process_doc(custom_docs)):
             self.add_line(line, sourcename, i)
         self.add_line("", sourcename)
 
@@ -76,3 +87,4 @@ def setup(app: Sphinx):
     existing_documenter = app.registry.documenters.get(ExperimentDocumenter.objtype)
     if existing_documenter is None or not issubclass(existing_documenter, ExperimentDocumenter):
         app.add_autodocumenter(ExperimentDocumenter, override=True)
+    return {"parallel_read_safe": True}

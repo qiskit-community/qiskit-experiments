@@ -42,7 +42,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                qubits=(0, 1),
+                physical_qubits=(0, 1),
                 flat_top_widths=[1000],
                 amp=0.1,
                 sigma=64,
@@ -117,7 +117,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                qubits=(0, 1),
+                physical_qubits=(0, 1),
                 flat_top_widths=[1000],
                 cr_gate=FakeCRGate,
                 amp=0.1,
@@ -161,7 +161,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
 
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             sigma=sigma,
             # A hack to avoild local function in pickle, i.e. in transpile.
             cr_gate=functools.partial(
@@ -179,7 +179,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         # Thus at least one of these values should be round-trip tested.
         res_ix = exp_data.analysis_results("omega_ix")
         self.assertAlmostEqual(res_ix.value.n, ix, delta=delta)
-        self.assertRoundTripSerializable(res_ix.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(res_ix.value)
         self.assertEqual(res_ix.extra["unit"], "Hz")
 
         self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=delta)
@@ -241,7 +241,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=[0, 1],
+            physical_qubits=[0, 1],
             durations=[1000],
             amp=0.1,
             sigma=64,
@@ -249,15 +249,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
         loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=[0, 1],
+            physical_qubits=[0, 1],
             durations=[1000],
             amp=0.1,
             sigma=64,
             risefall=2,
         )
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

@@ -154,7 +154,7 @@ class TestAveraging(BaseDataProcessorTest):
     def test_json(self):
         """Check if the node is serializable."""
         node = AverageData(axis=3)
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
 
 class TestToAbs(QiskitExperimentsTestCase):
@@ -228,7 +228,7 @@ class TestNormalize(QiskitExperimentsTestCase):
     def test_json(self):
         """Check if the node is serializable."""
         node = MinMaxNormalize()
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
 
 class TestSVD(BaseDataProcessorTest):
@@ -401,7 +401,7 @@ class TestSVD(BaseDataProcessorTest):
     def test_json(self):
         """Check if the node is serializable."""
         node = SVD()
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
     def test_json_trained(self):
         """Check if the trained node is serializable."""
@@ -409,7 +409,7 @@ class TestSVD(BaseDataProcessorTest):
         node.set_parameters(
             main_axes=np.array([[1.0, 2.0]]), scales=[1.0], i_means=[2.0], q_means=[3.0]
         )
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
         loaded_node = json.loads(json.dumps(node, cls=ExperimentEncoder), cls=ExperimentDecoder)
         self.assertTrue(loaded_node.is_trained)
@@ -643,7 +643,7 @@ class TestMarginalize(QiskitExperimentsTestCase):
     def test_json(self):
         """Check if the node is serializable."""
         node = MarginalizeCounts(qubits_to_keep={0, 1})
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
 
 class TestProbability(QiskitExperimentsTestCase):
@@ -675,7 +675,7 @@ class TestProbability(QiskitExperimentsTestCase):
     def test_json(self):
         """Check if the node is serializable."""
         node = Probability(outcome="00", alpha_prior=0.2)
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(node)
 
 
 class TestRestless(QiskitExperimentsTestCase):

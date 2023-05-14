@@ -13,13 +13,14 @@
 Quantum Tomography experiment
 """
 
-import warnings
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
-from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
+from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
 from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
+
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 from .basis import PreparationBasis, MeasurementBasis
@@ -30,7 +31,7 @@ class TomographyExperiment(BaseExperiment):
     """Base experiment for quantum state and process tomography.
 
     # section: analysis_ref
-        :py:class:`TomographyAnalysis`
+        :class:`TomographyAnalysis`
     """
 
     @classmethod
@@ -38,19 +39,22 @@ class TomographyExperiment(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
-            measurement_basis (:class:`~basis.BaseTomographyMeasurementBasis`): The
-                Tomography measurement basis to use for the experiment.
-                The default basis is the :class:`~basis.PauliMeasurementBasis` which
-                performs measurements in the Pauli Z, X, Y bases for each qubit
-                measurement.
+            basis_indices (Iterable[Tuple[List[int], List[int]]]): The basis elements to be measured.
+                If None All basis elements will be measured.
 
         """
         options = super()._default_experiment_options()
-
         options.basis_indices = None
-
         return options
 
+    @deprecate_arguments(
+        {
+            "qubits": "physical_qubits",
+            "measurement_qubits": "measurement_indices",
+            "preparation_qubits": "preparation_indices",
+        },
+        "0.5",
+    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
@@ -58,12 +62,10 @@ class TomographyExperiment(BaseExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: Optional[MeasurementBasis] = None,
         measurement_indices: Optional[Sequence[int]] = None,
-        measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: Optional[PreparationBasis] = None,
         preparation_indices: Optional[Sequence[int]] = None,
-        preparation_qubits: Optional[Sequence[int]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Sequence[int]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a tomography experiment.
@@ -79,49 +81,24 @@ class TomographyExperiment(BaseExperiment):
             measurement_indices: Optional, the `physical_qubits` indices to be
                 measured as specified by the `measurement_basis`. If None all
                 circuit physical qubits will be measured.
-            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             preparation_basis: Tomography basis for measurements. If set to None
                 no tomography preparations will be performed.
             preparation_indices: Optional, the `physical_qubits` indices to be
                 prepared as specified by the `preparation_basis`. If None all
                 circuit physical qubits will be prepared.
-            preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
-            qubits: DEPRECATED, the physical qubits for the initial state circuit.
+            conditional_circuit_clbits: Specify any clbits in the input
+                circuit to treat as conditioning bits for conditional tomography.
+                If set to True all circuit clbits will be treated as conditional.
+                If False all circuit clbits will be marginalized over (Default: False).
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.TomographyAnalysis` will be used. If None no analysis
                 instance will be set.
 
         Raises:
-            QiskitError: if input params are invalid.
+            QiskitError: If input params are invalid.
         """
-        # Deprecated kwargs
-        if qubits is not None:
-            physical_qubits = qubits
-            warnings.warn(
-                "The `qubits` kwarg has been renamed to `physical_qubits`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if measurement_qubits is not None:
-            measurement_indices = measurement_qubits
-            warnings.warn(
-                "The `measurement_qubits` kwarg has been renamed to `measurement_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if preparation_qubits is not None:
-            preparation_indices = preparation_qubits
-            warnings.warn(
-                "The `preparation_qubits` kwarg has been renamed to `preparation_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
         # Initialize BaseExperiment
         if physical_qubits is None:
             physical_qubits = tuple(range(circuit.num_qubits))
@@ -138,6 +115,22 @@ class TomographyExperiment(BaseExperiment):
             target_circuit = QuantumCircuit(num_qubits)
             target_circuit.append(circuit, range(num_qubits))
         self._circuit = target_circuit
+
+        self._cond_clbits = None
+        if conditional_circuit_clbits is True:
+            conditional_circuit_clbits = self._circuit.clbits
+        if conditional_circuit_clbits:
+            cond_clbits = []
+            for i in conditional_circuit_clbits:
+                if isinstance(i, Clbit):
+                    cond_clbits.append(self._circuit.find_bit(i).index)
+                elif i < self._circuit.num_clbits:
+                    cond_clbits.append(i)
+                else:
+                    raise QiskitError(
+                        f"Circuit {self._circuit.name} does not contain conditional clbit {i}"
+                    )
+            self._cond_clbits = cond_clbits
 
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
@@ -185,8 +178,12 @@ class TomographyExperiment(BaseExperiment):
             analysis_options = {}
             if measurement_basis:
                 analysis_options["measurement_basis"] = measurement_basis
+                analysis_options["measurement_qubits"] = self._meas_physical_qubits
             if preparation_basis:
                 analysis_options["preparation_basis"] = preparation_basis
+                analysis_options["preparation_qubits"] = self._prep_physical_qubits
+            if conditional_circuit_clbits:
+                analysis_options["conditional_circuit_clbits"] = self._cond_clbits
             self.analysis.set_options(**analysis_options)
 
     def circuits(self):
@@ -196,13 +193,17 @@ class TomographyExperiment(BaseExperiment):
         template = QuantumCircuit(
             *self._circuit.qregs, *self._circuit.cregs, meas_creg, name=f"{self._type}"
         )
+        if self._circuit.metadata:
+            template.metadata = self._circuit.metadata.copy()
+        else:
+            template.metadata = {}
         meas_clbits = [template.find_bit(i).index for i in meas_creg]
 
         # Build circuits
         circuits = []
         for prep_element, meas_element in self._basis_indices():
             name = template.name
-            metadata = {"clbits": meas_clbits}
+            metadata = {"clbits": meas_clbits, "cond_clbits": self._cond_clbits}
             if meas_element:
                 name += f"_{meas_element}"
                 metadata["m_idx"] = list(meas_element)
@@ -217,7 +218,7 @@ class TomographyExperiment(BaseExperiment):
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
                 circ.reset(self._prep_indices)
                 circ.compose(prep_circ, self._prep_indices, inplace=True)
-                circ.barrier(self._prep_indices)
+                circ.barrier(*self._prep_indices)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
@@ -227,11 +228,11 @@ class TomographyExperiment(BaseExperiment):
             # Add tomography measurement
             if meas_element:
                 meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
-                circ.barrier(self._meas_indices)
+                circ.barrier(*self._meas_indices)
                 circ.compose(meas_circ, self._meas_indices, meas_clbits, inplace=True)
 
             # Add metadata
-            circ.metadata = metadata
+            circ.metadata.update(**metadata)
             circuits.append(circ)
         return circuits
 
@@ -248,9 +249,11 @@ class TomographyExperiment(BaseExperiment):
         basis_indices = self.experiment_options.basis_indices
         if basis_indices is not None:
             return basis_indices
+
         if self._meas_circ_basis:
             meas_shape = self._meas_circ_basis.index_shape(self._meas_physical_qubits)
-            meas_elements = product(*[range(i) for i in meas_shape])
+            ranges = [range(i) for i in meas_shape]
+            meas_elements = product(*ranges)
         else:
             meas_elements = [None]
         if self._prep_circ_basis:

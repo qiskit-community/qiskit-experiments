@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Utilities for using the Clifford group in randomized benchmarking
+Utilities for using the Clifford group in randomized benchmarking.
 """
 
 import itertools
@@ -124,7 +124,7 @@ def _synthesize_clifford_circuit(
 ) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
 
 
 @lru_cache(maxsize=None)
@@ -174,7 +174,7 @@ class WGate(Gate):
 
 
 class CliffordUtils:
-    """Utilities for generating 1 and 2 qubit clifford circuits and elements"""
+    """Utilities for generating one- and two-qubit Clifford circuits and elements."""
 
     NUM_CLIFFORD_1_QUBIT = 24
     NUM_CLIFFORD_2_QUBIT = 11520
@@ -197,13 +197,13 @@ class CliffordUtils:
     @classmethod
     @lru_cache(maxsize=11520)
     def clifford_2_qubit(cls, num):
-        """Return the 2-qubit clifford element corresponding to `num`
-        where `num` is between 0 and 11519.
+        """Return the 2-qubit clifford element corresponding to ``num``,
+        where ``num`` is between 0 and 11519.
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
-    @deprecated_function()
     @classmethod
+    @deprecated_function("0.6")
     def random_cliffords(
         cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
@@ -222,8 +222,8 @@ class CliffordUtils:
 
         return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
 
-    @deprecated_function()
     @classmethod
+    @deprecated_function("0.6")
     def random_clifford_circuits(
         cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
@@ -245,8 +245,8 @@ class CliffordUtils:
     @classmethod
     @lru_cache(maxsize=24)
     def clifford_1_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str, ...]] = None):
-        """Return the 1-qubit clifford circuit corresponding to `num`
-        where `num` is between 0 and 23.
+        """Return the 1-qubit clifford circuit corresponding to ``num``,
+        where ``num`` is between 0 and 23.
         """
         unpacked = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
         i, j, p = unpacked[0], unpacked[1], unpacked[2]
@@ -375,8 +375,8 @@ def _num_from_1q_gate(op: Instruction) -> int:
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0
@@ -402,7 +402,7 @@ def _deparameterized_name(inst: Instruction) -> str:
         elif np.isclose(inst.params[0], -np.pi / 2):
             return "sdg"
         else:
-            raise QiskitError("Wrong param {} for rz in clifford".format(inst.params[0]))
+            raise QiskitError(f"Wrong param {inst.params[0]} for rz in clifford")
 
     return inst.name
 
@@ -454,8 +454,8 @@ def _num_from_2q_gate(
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0

@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    Fixes a bug with JSON deserialization using the :class:`.ExperimentDecoder`
+    Fixed a bug with JSON deserialization using the :class:`.ExperimentDecoder`
     failing to decode custom user classes defined in the ``__main__`` scope of
     python scripts and notebooks.

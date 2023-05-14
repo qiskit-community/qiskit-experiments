@@ -14,22 +14,22 @@ Quantum process tomography analysis
 """
 
 
-from typing import List, Dict, Tuple, Union, Optional, Callable
+from typing import List, Union, Callable
+from collections import defaultdict
 import warnings
-import functools
-import time
 import numpy as np
 import scipy.linalg as la
+from uncertainties import ufloat
 
-from qiskit.result import marginal_counts, Counts
 from qiskit.quantum_info import DensityMatrix, Choi, Operator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
-from .basis import MeasurementBasis
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, numpy_version
 from .fitters import (
+    tomography_fitter_data,
+    postprocess_fitter,
     linear_inversion,
     scipy_linear_lstsq,
     scipy_gaussian_lstsq,
@@ -48,6 +48,10 @@ class TomographyAnalysis(BaseAnalysis):
         "cvxpy_linear_lstsq": cvxpy_linear_lstsq,
         "cvxpy_gaussian_lstsq": cvxpy_gaussian_lstsq,
     }
+    _cvxpy_fitters = (
+        cvxpy_linear_lstsq,
+        cvxpy_gaussian_lstsq,
+    )
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -80,20 +84,59 @@ class TomographyAnalysis(BaseAnalysis):
             rescale_trace (bool): If True rescale the state returned by the fitter
                 have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
                 or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
+            measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic measurements.
+            preparation_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                preparations. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
+            target_bootstrap_samples (int): Optional, number of outcome re-samples to draw
+                from measurement data for each basis for computing a bootstrapped standard
+                error of fidelity with the target state. If 0 no bootstrapping will be
+                performed and the target fidelity will not include a standard error
+                (Default: 0).
+            target_bootstrap_seed (int | None | Generator): Optional, RNG seed or
+                Generator to use for bootstrapping data for boostrapped fidelity
+                standard error calculation (Default: None).
+            conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
+                source circuit to be conditioned on when reconstructing the state.
+                Enabling this will return a list of reconstrated state components
+                conditional on the values of these clbit values. The integer value of the
+                conditioning clbits is stored in state analysis result extra field
+                `"conditional_circuit_outcome"`.
+            conditional_measurement_indices (list[int]): Optional, indices of tomography
+                measurement qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated state components conditioned on
+                the remaining tomographic bases conditional on the basis index, and outcome
+                value for these measurements. The conditionl measurement basis index and
+                integer value of the measurement outcome is stored in state analysis result
+                extra fields `"conditional_measurement_index"` and
+                `"conditional_measurement_outcome"` respectively.
+            conditional_preparation_indices (list[int]): Optional, indices of tomography
+                preparation qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated channel components conditioned on
+                the remaining tomographic bases conditional on the basis index. The
+                conditionl preparation basis index is stored in state analysis result
+                extra fields `"conditional_preparation_index"`.
         """
         options = super()._default_options()
 
         options.measurement_basis = None
         options.preparation_basis = None
-        options.measurement_qubits = None
-        options.preparation_qubits = None
         options.fitter = "linear_inversion"
         options.fitter_options = {}
         options.rescale_positive = True
         options.rescale_trace = True
+        options.measurement_qubits = None
+        options.preparation_qubits = None
         options.target = None
+        options.target_bootstrap_samples = 0
+        options.target_bootstrap_seed = None
+        options.conditional_circuit_clbits = None
+        options.conditional_measurement_indices = None
+        options.conditional_preparation_indices = None
         return options
 
     def set_options(self, **fields):
@@ -124,247 +167,288 @@ class TomographyAnalysis(BaseAnalysis):
         raise AnalysisError(f"Unrecognized tomography fitter {fitter}")
 
     def _run_analysis(self, experiment_data):
-        # Get option values.
-        measurement_basis = self.options.measurement_basis
-        measurement_qubits = self.options.measurement_qubits
-        if measurement_basis and measurement_qubits is None:
-            measurement_qubits = experiment_data.metadata.get("m_qubits")
-        preparation_basis = self.options.preparation_basis
-        preparation_qubits = self.options.preparation_qubits
-        if preparation_basis and preparation_qubits is None:
-            preparation_qubits = experiment_data.metadata.get("p_qubits")
+
+        # Get option values
+        meas_basis = self.options.measurement_basis
+        meas_qubits = self.options.measurement_qubits
+        if meas_basis and meas_qubits is None:
+            meas_qubits = experiment_data.metadata.get("m_qubits")
+        prep_basis = self.options.preparation_basis
+        prep_qubits = self.options.preparation_qubits
+        if prep_basis and prep_qubits is None:
+            prep_qubits = experiment_data.metadata.get("p_qubits")
+        cond_meas_indices = self.options.conditional_measurement_indices
+        if cond_meas_indices is True:
+            cond_meas_indices = list(range(len(meas_qubits)))
+        cond_prep_indices = self.options.conditional_preparation_indices
+        if cond_prep_indices is True:
+            cond_prep_indices = list(range(len(prep_qubits)))
 
         # Generate tomography fitter data
-        outcome_data, shot_data, measurement_data, preparation_data = self._fitter_data(
+        outcome_shape = None
+        if meas_basis and meas_qubits:
+            outcome_shape = meas_basis.outcome_shape(meas_qubits)
+
+        outcome_data, shot_data, meas_data, prep_data = tomography_fitter_data(
             experiment_data.data(),
-            measurement_basis=measurement_basis,
-            measurement_qubits=measurement_qubits,
+            outcome_shape=outcome_shape,
+        )
+        qpt = prep_data.size > 0
+
+        # Get fitter kwargs
+        fitter_kwargs = {}
+        if meas_basis:
+            fitter_kwargs["measurement_basis"] = meas_basis
+        if meas_qubits:
+            fitter_kwargs["measurement_qubits"] = meas_qubits
+        if cond_meas_indices:
+            fitter_kwargs["conditional_measurement_indices"] = cond_meas_indices
+        if prep_basis:
+            fitter_kwargs["preparation_basis"] = prep_basis
+        if prep_qubits:
+            fitter_kwargs["preparation_qubits"] = prep_qubits
+        if cond_prep_indices:
+            fitter_kwargs["conditional_preparation_indices"] = cond_prep_indices
+        fitter_kwargs.update(**self.options.fitter_options)
+        fitter = self._get_fitter(self.options.fitter)
+
+        # Fit state results
+        state_results = self._fit_state_results(
+            fitter,
+            outcome_data,
+            shot_data,
+            meas_data,
+            prep_data,
+            qpt=qpt,
+            **fitter_kwargs,
         )
 
-        # Construct default values for qubit options if not provided
-        if preparation_qubits is None:
-            preparation_qubits = tuple(range(preparation_data.shape[1]))
-        if measurement_qubits is None:
-            measurement_qubits = tuple(range(measurement_data.shape[1]))
+        other_results = []
 
-        # Get dimension of the preparation and measurement qubits subsystems
-        prep_dims = (1,)
-        if preparation_qubits:
-            prep_dims = preparation_basis.matrix_shape(preparation_qubits)
-        meas_dims = (1,)
-        if measurement_qubits:
-            meas_dims = measurement_basis.matrix_shape(measurement_qubits)
+        # Compute fidelity with target
+        if len(state_results) == 1:
+            other_results += self._fidelity_result(
+                state_results[0],
+                fitter,
+                outcome_data,
+                shot_data,
+                meas_data,
+                prep_data,
+                qpt=qpt,
+                **fitter_kwargs,
+            )
 
-        # Check for both preparation and measurement data to determine if we are
-        # fitting a channel via QPT or a density matrix via QST
-        qpt = preparation_data.shape[1] > 0
+        # Check positive
+        other_results += self._positivity_result(state_results, qpt=qpt)
 
-        # Compute the preparation dimension if we are performing QPT
+        # Check trace preserving
         if qpt:
-            input_dims = prep_dims
-            output_dims = meas_dims
-        else:
-            input_dims = (1,)
-            output_dims = meas_dims if measurement_qubits else prep_dims
+            output_dim = np.prod(state_results[0].value.output_dims())
+            other_results += self._tp_result(state_results, output_dim)
 
-        # Get tomography fitter function
-        fitter = self._get_fitter(self.options.fitter)
-        fitter_opts = self.options.fitter_options
+        # Finally format state result metadata to remove eigenvectors
+        # which are no longer needed to reduce size
+        for state_result in state_results:
+            state_result.extra.pop("eigvecs")
 
-        # Use preparation dim to set the expected trace of the fitted state.
-        # For QPT this is the input dimension, for QST this will always be 1.
-        trace = np.prod(input_dims) if self.options.rescale_trace else None
+        analysis_results = state_results + other_results
 
-        # Work around to set proper trace and trace preserving constraints for
-        # cvxpy fitter
-        if fitter in (cvxpy_linear_lstsq, cvxpy_gaussian_lstsq):
-            fitter_opts = fitter_opts.copy()
+        return analysis_results, []
 
-            # Add default value for CVXPY trace constraint if no user value is provided
-            if "trace" not in fitter_opts:
-                fitter_opts["trace"] = trace
-
-            # By default add trace preserving constraint to cvxpy QPT fit
-            if qpt and "trace_preserving" not in fitter_opts:
-                fitter_opts["trace_preserving"] = True
-
-        # Run tomography fitter
-        t_fitter_start = time.time()
+    def _fit_state_results(
+        self,
+        fitter: Callable,
+        outcome_data: np.ndarray,
+        shot_data: np.ndarray,
+        measurement_data: np.ndarray,
+        preparation_data: np.ndarray,
+        qpt: Union[bool, str, None] = "auto",
+        **fitter_kwargs,
+    ):
+        """Fit state results from tomography data,"""
         try:
-            fit, fitter_metadata = fitter(
+            fits, fitter_metadata = fitter(
                 outcome_data,
                 shot_data,
                 measurement_data,
                 preparation_data,
-                measurement_basis=measurement_basis,
-                preparation_basis=preparation_basis,
-                measurement_qubits=measurement_qubits,
-                preparation_qubits=preparation_qubits,
-                **fitter_opts,
+                **fitter_kwargs,
             )
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
-        t_fitter_stop = time.time()
-
-        # Add fitter metadata
-        if fitter_metadata is None:
-            fitter_metadata = {}
-        fitter_metadata["fitter"] = fitter.__name__
-        fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
 
         # Post process fit
-        analysis_results = self._postprocess_fit(
-            fit,
-            fitter_metadata=fitter_metadata,
-            trace=trace,
+        states, states_metadata = postprocess_fitter(
+            fits,
+            fitter_metadata,
             make_positive=self.options.rescale_positive,
-            input_dims=input_dims,
-            output_dims=output_dims,
-            target_state=self.options.target,
-        )
-        return analysis_results, []
-
-    @classmethod
-    def _postprocess_fit(
-        cls,
-        fit: np.ndarray,
-        fitter_metadata: Optional[Dict] = None,
-        trace: Optional[float] = None,
-        make_positive: bool = False,
-        input_dims: Optional[Tuple[int, ...]] = None,
-        output_dims: Optional[Tuple[int, ...]] = None,
-        target_state: Optional[Union[Choi, DensityMatrix]] = None,
-    ):
-        """Post-process raw fitter data"""
-        # Convert fitter matrix to state data for post-processing
-        input_dim = np.prod(input_dims) if input_dims else 1
-        qpt = input_dim > 1
-        state_result = cls._state_result(
-            fit,
-            make_positive=make_positive,
-            trace=trace,
-            input_dims=input_dims,
-            output_dims=output_dims,
+            trace="auto" if self.options.rescale_trace else None,
+            qpt=qpt,
         )
 
-        # Add fitter metadata
-        if fitter_metadata:
-            state_result.extra["fitter_metadata"] = fitter_metadata
+        # Convert to results
+        state_results = [
+            AnalysisResultData("state", state, extra=extra)
+            for state, extra in zip(states, states_metadata)
+        ]
+        return state_results
 
-        # Results list
-        analysis_results = [state_result]
+    def _fidelity_result(
+        self,
+        state_result: AnalysisResultData,
+        fitter: Callable,
+        outcome_data: np.ndarray,
+        shot_data: np.ndarray,
+        measurement_data: np.ndarray,
+        preparation_data: np.ndarray,
+        qpt: bool = False,
+        **fitter_kwargs,
+    ) -> List[AnalysisResultData]:
+        """Calculate fidelity result if a target has been set"""
+        target = self.options.target
+        if target is None:
+            return []
 
-        # Compute fidelity with target
-        if target_state is not None:
-            analysis_results.append(
-                cls._fidelity_result(state_result, target_state, input_dim=input_dim)
+        # Compute fidelity
+        name = "process_fidelity" if qpt else "state_fidelity"
+        fidelity = self._compute_fidelity(state_result, target, qpt=qpt)
+
+        if not self.options.target_bootstrap_samples:
+            # No bootstrapping
+            return [AnalysisResultData(name, fidelity)]
+
+        # Optionally, Estimate std error of fidelity via boostrapping
+        seed = self.options.target_bootstrap_seed
+        if isinstance(seed, np.random.Generator):
+            rng = seed
+        else:
+            rng = np.random.default_rng(seed)
+        prob_data = outcome_data / shot_data[None, :, None]
+        bs_fidelities = []
+        for _ in range(self.options.target_bootstrap_samples):
+            # TODO: remove conditional once numpy is pinned at 1.22 and above
+            if numpy_version() >= (1, 22):
+                sampled_data = rng.multinomial(shot_data, prob_data)
+            else:
+                sampled_data = np.zeros_like(outcome_data)
+                for i in range(prob_data.shape[0]):
+                    for j in range(prob_data.shape[1]):
+                        sampled_data[i, j] = rng.multinomial(shot_data[j], prob_data[i, j])
+
+            try:
+                state_results = self._fit_state_results(
+                    fitter,
+                    sampled_data,
+                    shot_data,
+                    measurement_data,
+                    preparation_data,
+                    qpt=qpt,
+                    **fitter_kwargs,
+                )
+                bs_fidelities.append(self._compute_fidelity(state_results[0], target, qpt=qpt))
+            except AnalysisError:
+                pass
+
+        bs_stderr = np.std(bs_fidelities)
+        return [
+            AnalysisResultData(
+                name,
+                ufloat(fidelity, bs_stderr),
+                extra={"bootstrap_samples": bs_fidelities},
             )
-
-        # Check positive
-        analysis_results.append(cls._positivity_result(state_result, qpt=qpt))
-
-        # Check trace preserving
-        if qpt:
-            analysis_results.append(cls._tp_result(state_result, input_dim=input_dim))
-
-        # Finally format state result metadata to remove eigenvectors
-        # which are no longer needed to reduce size
-        state_result.extra.pop("eigvecs")
-
-        return analysis_results
-
-    @classmethod
-    def _state_result(
-        cls,
-        fit: np.ndarray,
-        make_positive: bool = False,
-        trace: Optional[float] = None,
-        input_dims: Optional[Tuple[int, ...]] = None,
-        output_dims: Optional[Tuple[int, ...]] = None,
-    ) -> AnalysisResultData:
-        """Convert fit data to state result data"""
-        # Get eigensystem of state fit
-        raw_eigvals, eigvecs = cls._state_eigensystem(fit)
-
-        # Optionally rescale eigenvalues to be non-negative
-        if make_positive and np.any(raw_eigvals < 0):
-            eigvals = cls._make_positive(raw_eigvals)
-            fit = eigvecs @ (eigvals * eigvecs).T.conj()
-            rescaled_psd = True
-        else:
-            eigvals = raw_eigvals
-            rescaled_psd = False
-
-        # Optionally rescale fit trace
-        fit_trace = np.sum(eigvals)
-        if trace is not None and not np.isclose(fit_trace - trace, 0, atol=1e-12):
-            scale = trace / fit_trace
-            fit = fit * scale
-            eigvals = eigvals * scale
-        else:
-            trace = fit_trace
-
-        # Convert class of value
-        if input_dims and np.prod(input_dims) > 1:
-            value = Choi(fit, input_dims=input_dims, output_dims=output_dims)
-        else:
-            value = DensityMatrix(fit, dims=output_dims)
-
-        # Construct state result extra metadata
-        extra = {
-            "trace": trace,
-            "eigvals": eigvals,
-            "raw_eigvals": raw_eigvals,
-            "rescaled_psd": rescaled_psd,
-            "eigvecs": eigvecs,
-        }
-        return AnalysisResultData("state", value, extra=extra)
+        ]
 
     @staticmethod
     def _positivity_result(
-        state_result: AnalysisResultData, qpt: bool = False
-    ) -> AnalysisResultData:
+        state_results: List[AnalysisResultData], qpt: bool = False
+    ) -> List[AnalysisResultData]:
         """Check if eigenvalues are positive"""
-        evals = state_result.extra["eigvals"]
-        cond = np.sum(np.abs(evals[evals < 0]))
-        is_pos = bool(np.isclose(cond, 0))
+        total_cond = defaultdict(float)
+        comps_cond = defaultdict(list)
+        comps_pos = defaultdict(list)
         name = "completely_positive" if qpt else "positive"
-        result = AnalysisResultData(name, is_pos)
-        if not is_pos:
-            result.extra = {"delta": cond}
-        return result
+        for result in state_results:
+            cond_idx = result.extra.get("conditional_measurement_index", None)
+            evals = result.extra["eigvals"]
+
+            # Check if component is positive and add to extra if so
+            cond = np.sum(np.abs(evals[evals < 0]))
+            pos = bool(np.isclose(cond, 0))
+            result.extra[name] = pos
+
+            # Add component to combined result
+            comps_cond[cond_idx].append(cond)
+            comps_pos[cond_idx].append(pos)
+            total_cond[cond_idx] += cond * result.extra["conditional_probability"]
+
+        # Check if combined conditional state is positive
+        results = []
+        for key, delta in total_cond.items():
+            is_pos = bool(np.isclose(delta, 0))
+            result = AnalysisResultData(name, is_pos)
+            if not is_pos:
+                result.extra = {
+                    "delta": delta,
+                    "components": comps_pos[key],
+                    "components_delta": comps_cond[key],
+                }
+            if key:
+                result.extra["conditional_measurement_index"] = key
+            results.append(result)
+        return results
 
     @staticmethod
     def _tp_result(
-        state_result: AnalysisResultData,
-        input_dim: int = 1,
-    ) -> AnalysisResultData:
+        state_results: List[AnalysisResultData],
+        output_dim: int = 1,
+    ) -> List[AnalysisResultData]:
         """Check if QPT channel is trace preserving"""
-        evals = state_result.extra["eigvals"]
-        evecs = state_result.extra["eigvecs"]
-        size = len(evals)
-        output_dim = size // input_dim
-        mats = np.reshape(evecs.T, (size, output_dim, input_dim), order="F")
-        kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
-        cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(input_dim))))
-        is_tp = bool(np.isclose(cond, 0))
-        result = AnalysisResultData("trace_preserving", is_tp)
-        if not is_tp:
-            result.extra = {"delta": cond}
-        return result
+        # Construct the Kraus TP condition matrix sum_i K_i^dag K_i
+        # summed over all components k
+        kraus_cond = {}
+        for result in state_results:
+            evals = result.extra["eigvals"]
+            evecs = result.extra["eigvecs"]
+            prob = result.extra["conditional_probability"]
+            cond_meas_idx = result.extra.get("conditional_measurement_index", None)
+            cond_prep_idx = result.extra.get("conditional_preparation_index", None)
+            cond_idx = (cond_prep_idx, cond_meas_idx)
+            size = len(evals)
+            input_dim = size // output_dim
+            mats = np.reshape(evecs.T, (size, input_dim, output_dim), order="F")
+            comp_cond = np.einsum("i,iaj,ibj->ab", evals, mats.conj(), mats)
+            if cond_idx in kraus_cond:
+                kraus_cond[cond_idx] += prob * comp_cond
+            else:
+                kraus_cond[cond_idx] = prob * comp_cond
+
+        results = []
+        for key, val in kraus_cond.items():
+            tp_cond = np.sum(np.abs(la.eigvalsh(val - np.eye(input_dim))))
+            is_tp = bool(np.isclose(tp_cond, 0, atol=1e-5))
+            result = AnalysisResultData("trace_preserving", is_tp, extra={})
+            if not is_tp:
+                result.extra["delta"] = tp_cond
+            if key:
+                result.extra["conditional_measurement_index"] = key
+            results.append(result)
+        return results
 
     @staticmethod
-    def _fidelity_result(
+    def _compute_fidelity(
         state_result: AnalysisResultData,
         target: Union[Choi, DensityMatrix],
-        input_dim: int = 1,
-    ):
+        qpt: bool = False,
+    ) -> AnalysisResultData:
         """Faster computation of fidelity from eigen decomposition"""
+        if qpt:
+            input_dim = np.prod(state_result.value.input_dims())
+        else:
+            input_dim = 1
         evals = state_result.extra["eigvals"]
         evecs = state_result.extra["eigvecs"]
 
         # Format target to statevector or densitymatrix array
-        name = "process_fidelity" if input_dim > 1 else "state_fidelity"
         if target is None:
             raise AnalysisError("No target state provided")
         if isinstance(target, QuantumChannel):
@@ -382,151 +466,4 @@ class TomographyAnalysis(BaseAnalysis):
             sqrt_rho = evecs @ (np.sqrt(evals / input_dim) * evecs).T.conj()
             eig = la.eigvalsh(sqrt_rho @ target_state @ sqrt_rho)
             fidelity = np.sum(np.sqrt(np.maximum(eig, 0))) ** 2
-        return AnalysisResultData(name, fidelity)
-
-    @staticmethod
-    def _state_eigensystem(fit: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute the eigensystem of the fitted state.
-
-        The eigenvalues are returned as a real array ordered from
-        smallest to largest eigenvalues.
-
-        Args:
-            fit: the fitted state matrix.
-
-        Returns:
-            A pair of (eigenvalues, eigenvectors).
-        """
-        evals, evecs = la.eigh(fit)
-        # Truncate eigenvalues to real part
-        evals = np.real(evals)
-        # Sort eigensystem from largest to smallest eigenvalues
-        sort_inds = np.flip(np.argsort(evals))
-        return evals[sort_inds], evecs[:, sort_inds]
-
-    @staticmethod
-    def _make_positive(evals: np.ndarray, epsilon: float = 0) -> np.ndarray:
-        """Rescale a real vector to be non-negative.
-
-        This truncates any negative values to zero and rescales
-        the remaining eigenvectors such that the sum of the vector
-        is preserved.
-        """
-        if epsilon < 0:
-            raise AnalysisError("epsilon must be non-negative.")
-        ret = evals.copy()
-        dim = len(evals)
-        idx = dim - 1
-        accum = 0.0
-        while idx >= 0:
-            shift = accum / (idx + 1)
-            if evals[idx] + shift < epsilon:
-                ret[idx] = 0
-                accum = accum + evals[idx]
-                idx -= 1
-            else:
-                for j in range(idx + 1):
-                    ret[j] = evals[j] + shift
-                break
-        return ret
-
-    @staticmethod
-    def _fitter_data(
-        data: List[Dict[str, any]],
-        measurement_basis: Optional[MeasurementBasis] = None,
-        measurement_qubits: Optional[Tuple[int, ...]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Return list a tuple of basis, frequency, shot data"""
-        meas_size = None
-        prep_size = None
-
-        # Construct marginalized tomography count dicts
-        outcome_dict = {}
-        shots_dict = {}
-        for datum in data:
-            # Get basis data
-            metadata = datum["metadata"]
-            meas_element = tuple(metadata["m_idx"]) if "m_idx" in metadata else tuple()
-            prep_element = tuple(metadata["p_idx"]) if "p_idx" in metadata else tuple()
-            if meas_size is None:
-                meas_size = len(meas_element)
-            if prep_size is None:
-                prep_size = len(prep_element)
-
-            # Add outcomes
-            counts = Counts(marginal_counts(datum["counts"], metadata["clbits"]))
-            shots = datum.get("shots", sum(counts.values()))
-            basis_key = (meas_element, prep_element)
-            if basis_key in outcome_dict:
-                TomographyAnalysis._append_counts(outcome_dict[basis_key], counts)
-                shots_dict[basis_key] += shots
-            else:
-                outcome_dict[basis_key] = counts
-                shots_dict[basis_key] = shots
-
-        # Construct function for converting count outcome dit-strings into
-        # integers based on the specified number of outcomes of the measurement
-        # bases on each qubit
-        if meas_size == 0:
-            # Trivial case with no measurement
-            num_outcomes = 1
-            outcome_func = lambda _: 1
-        elif measurement_basis is None:
-            # If no basis is provided assume N-qubit measurement case
-            num_outcomes = 2**meas_size
-            outcome_func = lambda outcome: int(outcome, 2)
-        else:
-            # General measurement basis case for arbitrary outcome measurements
-            if measurement_qubits is None:
-                measurement_qubits = tuple(range(meas_size))
-            elif len(measurement_qubits) != meas_size:
-                raise AnalysisError("Specified number of measurementqubits does not match data.")
-            outcome_shape = measurement_basis.outcome_shape(measurement_qubits)
-            num_outcomes = np.prod(outcome_shape)
-            outcome_func = _int_outcome_function(outcome_shape)
-
-        num_basis = len(outcome_dict)
-        measurement_data = np.zeros((num_basis, meas_size), dtype=int)
-        preparation_data = np.zeros((num_basis, prep_size), dtype=int)
-        shot_data = np.zeros(num_basis, dtype=int)
-        outcome_data = np.zeros((num_basis, num_outcomes), dtype=int)
-
-        for i, (basis_key, counts) in enumerate(outcome_dict.items()):
-            measurement_data[i] = basis_key[0]
-            preparation_data[i] = basis_key[1]
-            shot_data[i] = shots_dict[basis_key]
-            for outcome, freq in counts.items():
-                outcome_data[i][outcome_func(outcome)] = freq
-        return outcome_data, shot_data, measurement_data, preparation_data
-
-    @staticmethod
-    def _append_counts(counts1, counts2):
-        for key, val in counts2.items():
-            if key in counts1:
-                counts1[key] += val
-            else:
-                counts1[key] = val
-        return counts1
-
-
-@functools.lru_cache(None)
-def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
-    """Generate function for converting string outcomes to ints"""
-    # Recursively extract leading bit(dit)
-    if len(set(outcome_shape)) == 1:
-        # All outcomes are the same shape, so we can use a constant base
-        base = outcome_shape[0]
-        return lambda outcome: int(outcome, base)
-
-    # General function where each dit could be a different base
-    @functools.lru_cache(2048)
-    def _int_outcome_general(outcome: str):
-        """Convert a general dit-string outcome to integer"""
-        # Recursively extract leading bit(dit)
-        value = 0
-        for i, base in zip(outcome, outcome_shape):
-            value *= base
-            value += int(i, base)
-        return value
-
-    return _int_outcome_general
+        return fidelity

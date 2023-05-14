@@ -103,13 +103,13 @@ class BaseDrawer(ABC):
 
     The recommended way to customize the legend entries is as follows:
 
-        1. Set the labels in the ``series_params`` option, keyed on the series names.
-        2. Initialize the canvas.
-        3. Call relevant drawing methods to create the figure. When calling the drawing
-           method that creates the graphic you would like to use in the legend, set
-           ``legend=True``. For example, ``drawer.scatter(...,legend=True)`` would use
-           the scatter points as the legend graphics for the given series.
-        4. Format the canvas and call :meth:`figure` to get the figure.
+    1. Set the labels in the ``series_params`` option, keyed on the series names.
+    2. Initialize the canvas.
+    3. Call relevant drawing methods to create the figure. When calling the drawing
+       method that creates the graphic you would like to use in the legend, set
+       ``legend=True``. For example, ``drawer.scatter(...,legend=True)`` would use
+       the scatter points as the legend graphics for the given series.
+    4. Format the canvas and call :meth:`figure` to get the figure.
 
     .. rubric:: Options and Figure Options
 
@@ -245,7 +245,7 @@ class BaseDrawer(ABC):
             fields: The fields to update the options
 
         Raises:
-            AttributeError: if an unknown options is encountered.
+            AttributeError: If an unknown options is encountered.
         """
         for field in fields:
             if not hasattr(self._options, field):
@@ -263,7 +263,7 @@ class BaseDrawer(ABC):
             fields: The fields to update the figure options
 
         Raises:
-            AttributeError: if an unknown figure option is encountered.
+            AttributeError: If an unknown figure option is encountered.
         """
         for field in fields:
             if not hasattr(self._figure_options, field):

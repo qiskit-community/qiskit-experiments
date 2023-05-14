@@ -12,11 +12,11 @@
 """
 Local readout error calibration experiment class.
 """
-import warnings
 from typing import Iterable, List, Optional
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
 from qiskit.exceptions import QiskitError
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis.local_readout_error_analysis import (
     LocalReadoutErrorAnalysis,
@@ -25,10 +25,11 @@ from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
-    r"""Class for local readout error characterization experiment
+    r"""An experiment for characterizing local readout error.
+
     # section: overview
 
-        This class constructs the a :class:`~qiskit.result.LocalReadoutMitigator` containing sequence
+        This class constructs a :class:`~qiskit.result.LocalReadoutMitigator` containing a sequence
         of assignment matrices :math:`A` characterizing the readout error for the given qubits
         from the experiment results. The full assignment matrix is accessible via the
         :meth:`~qiskit.result.LocalReadoutMitigator.assignment_matrix` method.
@@ -60,17 +61,20 @@ class LocalReadoutError(BaseExperiment):
         documentation for additional information on local readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`LocalReadoutErrorAnalysis`
+        :class:`LocalReadoutErrorAnalysis`
+
+    # section: manual
+        :doc:`/manuals/measurement/readout_mitigation`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Optional[Iterable[int]] = None,
         backend: Optional[Backend] = None,
-        qubits: Optional[Iterable[int]] = None,
     ):
         """Initialize a local readout error characterization experiment.
 
@@ -79,20 +83,10 @@ class LocalReadoutError(BaseExperiment):
                 for readout error. If None all qubits on the provided backend
                 will be characterized.
             backend: Optional, the backend to characterize.
-            qubits: DEPRECATED, equivalent to ``physical_qubits``.
 
         Raises:
-            QiskitError: if args are not valid.
+            QiskitError: If args are not valid.
         """
-        # Deprecated qubits kwarg
-        if qubits is not None:
-            physical_qubits = qubits
-            warnings.warn(
-                "The `qubits` kwarg has been renamed to `physical_qubits`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
         if physical_qubits is None:
             if backend is None:
                 raise QiskitError("`physical_qubits` and `backend` kwargs cannot both be None.")

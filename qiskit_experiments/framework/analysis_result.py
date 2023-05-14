@@ -41,33 +41,33 @@ LOG = logging.getLogger(__name__)
 class AnalysisResult:
     """Class representing an analysis result for an experiment.
 
-    Analysis results can also be stored in a database.
+    Analysis results can also be stored using the experiments service.
 
-    The field `db_data` is a dataclass (`ExperimentDataclass`) containing
-    all the data that can be stored in the database and loaded from it, and
+    The field ``db_data`` is a dataclass (`ExperimentDataclass`) containing
+    all the data that can be stored with the service and loaded from it, and
     as such is subject to strict conventions.
 
     Other data fields can be added and used freely, but they won't be saved
     to the database.
 
-    Note that the `result_data` field of the dataclass is by itself a dictioary
+    Note that the ``result_data`` field of the dataclass is by itself a dictionary
     capable of holding arbitrary values (in a dictionary indexed by a string).
 
-    The data fields in the `db_data` dataclass are:
+    The data fields in the ``db_data`` dataclass are:
 
-    * `experiment_id`: `str`
-    * `result_id`: `str`
-    * `result_type`: `str`
-    * `device_components`: `list` of `str`
-    * `quality`: `str`
-    * `verified`: `bool`
-    * `tags`: `list` of `str`
-    * `backend_name`: `str`
-    * `chisq`: `float`
-    * `result_data`: `dict` with `str` keys and unrestricted values
+    * ``experiment_id``: ``str``
+    * ``result_id``: ``str``
+    * ``result_type``: ``str``
+    * ``device_components``: ``List[str]``
+    * ``quality``: ``str``
+    * ``verified``: ``bool``
+    * ``tags``: ``List[str]``
+    * ``backend_name``: ``str``
+    * ``chisq``: ``float``
+    * ``result_data``: ``Dict[str]``
 
     Analysis data that does not fit into the other fields should be added to
-    the `result_data` dict, e.g. curve parameters in experiments doing a curve fit.
+    the ``result_data`` dict, e.g. curve parameters in experiments doing a curve fit.
     """
 
     version = 1
@@ -114,10 +114,10 @@ class AnalysisResult:
             verified: Whether the result quality has been verified.
             tags: Tags for this analysis result.
             service: Experiment service to be used to store result in database.
-            source: Class and qiskit version information when loading from an
+            source: Class and Qiskit version information when loading from an
                 experiment service.
         Returns:
-            The Analysis result object
+            The AnalysisResult object.
         """
         # Data to be stored in DB.
         self._db_data = AnalysisResultData(

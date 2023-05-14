@@ -17,11 +17,6 @@ Calibration Experiments (:mod:`qiskit_experiments.library.calibration`)
 
 .. currentmodule:: qiskit_experiments.library.calibration
 
-.. warning::
-    The calibrations interface is still in active development. It may have
-    breaking API changes without deprecation warnings in future releases until
-    otherwise indicated.
-
 Calibrating qubit setups is the task of finding the pulse shapes and parameter
 values that maximizes the fidelity of the resulting quantum operations. This
 therefore requires experiments which are analyzed to extract parameter values.
@@ -30,9 +25,9 @@ calibration module in Qiskit experiments allows users to run calibration
 experiments and manage the resulting schedules and parameter values.
 
 The following experiments are designed to calibrate parameter values. Some experiments such
-as :class:`QubitSpectroscopy` can both be seen as characterization and calibrations
+as :class:`.QubitSpectroscopy` can both be seen as characterization and calibrations
 experiments. Such experiments can be found in the
-:mod:`qiskit_experiments.library.characterization`
+:mod:`~qiskit_experiments.library.characterization`
 module.
 
 .. autosummary::
@@ -49,6 +44,7 @@ module.
     FineAmplitudeCal
     FineXAmplitudeCal
     FineSXAmplitudeCal
+    HalfAngleCal
     RoughAmplitudeCal
     RoughXSXAmplitudeCal
     EFRoughXSXAmplitudeCal
@@ -56,13 +52,14 @@ module.
 Calibrations management
 =======================
 
-See :mod:`qiskit_experiments.calibration_management`.
+See :mod:`.calibration_management`.
 """
 
-from .rough_frequency import RoughFrequencyCal
+from .rough_frequency import RoughFrequencyCal, RoughEFFrequencyCal
 from .rough_drag_cal import RoughDragCal
 from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
 from .fine_drag_cal import FineDragCal, FineXDragCal, FineSXDragCal
 from .frequency_cal import FrequencyCal
 from .fine_frequency_cal import FineFrequencyCal
+from .half_angle_cal import HalfAngleCal

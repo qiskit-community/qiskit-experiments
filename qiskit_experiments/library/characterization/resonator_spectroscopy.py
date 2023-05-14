@@ -12,22 +12,23 @@
 
 """Spectroscopy experiment class for resonators."""
 
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import Options, BackendData
+from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
+from qiskit_experiments.warnings import qubit_deprecate
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
 class ResonatorSpectroscopy(Spectroscopy):
-    """Perform spectroscopy on the readout resonator.
+    """An experiment to perform frequency spectroscopy of the readout resonator.
 
     # section: overview
         This experiment does spectroscopy on the readout resonator. It applies the following
@@ -41,9 +42,9 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/═╩═
                   0
 
-        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit can be
-        added before the measurement by setting the ``initial_circuit`` experiment option. If set, the
-        experiment applies the following circuit:
+        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit
+        can be added before the measurement by setting the ``initial_circuit`` experiment option. If
+        set, the experiment applies the following circuit:
 
         .. parsed-literal::
 
@@ -67,7 +68,11 @@ class ResonatorSpectroscopy(Spectroscopy):
 
             specs = []
             for slot, qubit in enumerate(qubits):
-                specs.append(ResonatorSpectroscopy(qubit=qubit, backend=backend2, memory_slot=slot))
+                specs.append(ResonatorSpectroscopy(
+                    physical_qubits=[qubit],
+                    backend=backend2,
+                    memory_slot=slot,
+                ))
 
             exp = ParallelExperiment(specs, backend=backend2)
 
@@ -83,7 +88,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         .. code:: python
 
             qubit = 1
-            spec = ResonatorSpectroscopy(qubit, backend)
+            spec = ResonatorSpectroscopy([qubit], backend)
             exp_data = spec.run().block_for_results()
             exp_data.figure(0)
 
@@ -91,10 +96,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         as well as the kappa, i.e. the line width, of the resonator.
 
     # section: analysis_ref
-        :py:class:`ResonatorSpectroscopyAnalysis`
-
-    # section: see_also
-        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+        :class:`ResonatorSpectroscopyAnalysis`
     """
 
     @classmethod
@@ -109,7 +111,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             duration (float): The duration in seconds of the spectroscopy pulse.
             sigma (float): The standard deviation of the spectroscopy pulse in seconds.
             width (float): The width of the flat-top part of the GaussianSquare pulse in
-                seconds. Defaults to 0.
+                seconds.
             initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
                 measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
                 classical bits. If None, no circuit is appended before the measurement. Defaults to None.
@@ -144,9 +146,10 @@ class ResonatorSpectroscopy(Spectroscopy):
                 )
         return super().set_experiment_options(**fields)
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         frequencies: Optional[Iterable[float]] = None,
         absolute: bool = True,
@@ -159,7 +162,8 @@ class ResonatorSpectroscopy(Spectroscopy):
         through the experiment options.
 
         Args:
-            qubit: The qubit on which to run readout spectroscopy.
+            physical_qubits: List containing the qubit on which to run readout
+                spectroscopy.
             backend: Optional, the backend to run the experiment on.
             frequencies: The frequencies to scan in the experiment, in Hz. The default values
                 range from -20 MHz to 20 MHz in 51 steps. If the ``absolute`` variable is
@@ -170,8 +174,8 @@ class ResonatorSpectroscopy(Spectroscopy):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if no frequencies are given and absolute frequencies are desired and
-                no backend is given.
+            QiskitError: If no frequencies are given and absolute frequencies are desired and
+                no backend is given or the backend does not have default measurement frequencies.
         """
         analysis = ResonatorSpectroscopyAnalysis()
 
@@ -179,15 +183,29 @@ class ResonatorSpectroscopy(Spectroscopy):
             frequencies = np.linspace(-20.0e6, 20.0e6, 51)
 
             if absolute:
-                if backend is None:
-                    raise QiskitError(
-                        "Cannot automatically compute absolute frequencies without a backend."
-                    )
+                frequencies += self._get_backend_meas_freq(
+                    BackendData(backend) if backend is not None else None,
+                    physical_qubits[0],
+                )
 
-                center_freq = BackendData(backend).meas_freqs[qubit]
-                frequencies += center_freq
+        super().__init__(
+            physical_qubits, frequencies, backend, absolute, analysis, **experiment_options
+        )
 
-        super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
+    @staticmethod
+    def _get_backend_meas_freq(backend_data: Optional[BackendData], qubit: int) -> float:
+        """Get backend meas_freq with error checking"""
+        if backend_data is None:
+            raise QiskitError(
+                "Cannot automatically compute absolute frequencies without a backend."
+            )
+
+        if len(backend_data.meas_freqs) < qubit + 1:
+            raise QiskitError(
+                "Cannot retrieve default measurement frequencies from backend. "
+                "Please set frequencies explicitly or set `absolute` to `False`."
+            )
+        return backend_data.meas_freqs[qubit]
 
     @property
     def _backend_center_frequency(self) -> float:
@@ -199,10 +217,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         Raises:
             QiskitError: If the experiment does not have a backend set.
         """
-        if self.backend is None:
-            raise QiskitError("backend not set. Cannot call center_frequency.")
-
-        return self._backend_data.meas_freqs[self.physical_qubits[0]]
+        return self._get_backend_meas_freq(self._backend_data, self.physical_qubits[0])
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -215,12 +230,14 @@ class ResonatorSpectroscopy(Spectroscopy):
 
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
+        timing = BackendTiming(self.backend)
 
-        dt, granularity = self._dt, self._granularity
+        if timing.dt is None:
+            raise QiskitError(f"{self.__class__.__name__} requires a backend with a dt value.")
 
-        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
-        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
-        width = granularity * (self.experiment_options.width / dt // granularity)
+        duration = timing.round_pulse(time=self.experiment_options.duration)
+        sigma = self.experiment_options.sigma / timing.dt
+        width = self.experiment_options.width / timing.dt
 
         qubit = self.physical_qubits[0]
 

@@ -15,12 +15,11 @@ from test.base import QiskitExperimentsTestCase
 import unittest
 import numpy as np
 
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.qobj.utils import MeasLevel
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi
@@ -53,7 +52,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         test_tol = 0.015
 
-        rabi = Rabi(self.qubit, self.sched, backend=self.backend)
+        rabi = Rabi([self.qubit], self.sched, backend=self.backend)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
@@ -67,7 +66,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
-        rabi = Rabi(self.qubit, self.sched, backend=self.backend)
+        rabi = Rabi([self.qubit], self.sched, backend=self.backend)
         fail_key = "fail_key"
 
         rabi.analysis.set_options(data_processor=DataProcessor(fail_key, []))
@@ -81,16 +80,16 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = Rabi(self.qubit, self.sched)
+        exp = Rabi([self.qubit], self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Rabi(self.qubit, self.sched)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        exp = Rabi([self.qubit], self.sched)
+        self.assertRoundTripSerializable(exp)
 
 
 class TestEFRabi(QiskitExperimentsTestCase):
@@ -119,7 +118,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
-        rabi = EFRabi(self.qubit, self.sched, backend=self.backend)
+        rabi = EFRabi([self.qubit], self.sched, backend=self.backend)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 11))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
@@ -137,7 +136,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
             pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(2))
             pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
 
-        rabi12 = EFRabi(2, sched)
+        rabi12 = EFRabi([2], sched)
         rabi12.set_experiment_options(amplitudes=[0.5])
         circ = rabi12.circuits()[0]
 
@@ -152,16 +151,16 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = EFRabi(0, self.sched)
+        exp = EFRabi([0], self.sched)
         loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = EFRabi(0, self.sched)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        exp = EFRabi([0], self.sched)
+        self.assertRoundTripSerializable(exp)
 
 
 class TestRabiCircuits(QiskitExperimentsTestCase):
@@ -178,7 +177,7 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
     def test_default_schedule(self):
         """Test the default schedule."""
-        rabi = Rabi(2, self.sched)
+        rabi = Rabi([2], self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
         circs = rabi.circuits()
 
@@ -196,7 +195,7 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
             pulse.play(pulse.Drag(160, amp, 40, 10), pulse.DriveChannel(2))
             pulse.play(pulse.Drag(160, amp, 40, 10), pulse.DriveChannel(2))
 
-        rabi = Rabi(2, self.sched)
+        rabi = Rabi([2], self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
         circs = rabi.circuits()
 
@@ -291,7 +290,7 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
             with pulse.build() as sched:
                 pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(qubit))
 
-            experiments.append(Rabi(qubit, sched, amplitudes=[0.5]))
+            experiments.append(Rabi([qubit], sched, amplitudes=[0.5]))
 
         par_exp = ParallelExperiment(experiments)
         par_circ = par_exp.circuits()[0]

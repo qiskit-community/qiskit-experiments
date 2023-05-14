@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds
+    Added
     :meth:`~qiskit_experiments.database_service.DbExperimentData.add_analysis_callback`
     method to :class:`~qiskit_experiments.framework.ExperimentData`
     for adding a post-processing analysis function to run as a callback after
@@ -44,14 +44,14 @@ features:
     :meth:`~qiskit_experiments.framework.ExperimentData.data` and
     metadata, but not the analysis results and figures.
   - |
-    Adds methods
+    Added methods
     :meth:`~qiskit_experiments.framework.ExperimentData.add_tags_recursive` and
     :meth:`~qiskit_experiments.framework.ExperimentData.remove_tags_recursive`
     to :class:`qiskit_experiments.framework.ExperimentData` for adding and
     removing tags of an experiment data object and all its
     :meth:`~qiskit_experiments.framework.ExperimentData.child_data`.
   - |
-    Adds support for saving and loading
+    Added support for saving and loading
     :class:`qiskit_experiments.framework.ParallelExperiment`
     and :class:`qiskit_experiments.framework.BatchExperiment` experiment data
     and all component experiment data and results from the IBM experiments
@@ -100,7 +100,7 @@ upgrade:
     method instead.
 fixes:
   - |
-    Fixes a bug where the 
+    Fixed a bug where the 
     :meth:`qiskit_experiments.framework.ExperimentData.load` method 
     would return an
     :class:`~qiskit_experiments.database_service.DbExperimentDataV1` object

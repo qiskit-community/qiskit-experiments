@@ -13,11 +13,11 @@ deprecations:
     has been deprecated. Please set `fixed_parameters` option instead.
     This is a python dictionary of fixed parameter values keyed on the fit parameter names.
   - |
-    Analysis class :class:`FineDragAnalysis` has been deprecated. Now you can directly
-    set fixed parameters to the :class:`ErrorAmplificationAnalysis` instance as an analysis option.
+    Analysis class ``FineDragAnalysis`` has been deprecated. Now you can directly
+    set fixed parameters to the :class:`.ErrorAmplificationAnalysis` instance as an analysis option.
   - |
-    Analysis class :class:`FineFrequencyAnalysis` has been deprecated. Now you can directly
-    set fixed parameters to the :class:`ErrorAmplificationAnalysis` instance as an analysis option.
+    Analysis class ``FineFrequencyAnalysis`` has been deprecated. Now you can directly
+    set fixed parameters to the :class:`.ErrorAmplificationAnalysis` instance as an analysis option.
   - |
-    Analysis class :class:`FineHalfAngleAnalysis` has been deprecated. Now you can directly
-    set fixed parameters to the :class:`ErrorAmplificationAnalysis` instance as an analysis option.
+    Analysis class ``FineHalfAngleAnalysis`` has been deprecated. Now you can directly
+    set fixed parameters to the :class:`.ErrorAmplificationAnalysis` instance as an analysis option.
