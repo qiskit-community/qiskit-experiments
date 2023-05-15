@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Test T1 experiment..
+Test T1 experiment
 """
 
 from test.base import QiskitExperimentsTestCase
