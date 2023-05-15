@@ -121,6 +121,18 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(ParameterValue(0.08, self.date_time), "amp", (3,), "y90p")
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "β", (3,), "xp")
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
         expected = {ParameterKey("amp", (), "xp"), ParameterKey("amp", (), "xm")}
@@ -444,6 +456,18 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(xp_drag, (3,))
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_parameter_value_adding_and_filtering(self):
         """Test that adding parameter values behaves in the expected way."""
 
@@ -703,6 +727,18 @@ class TestMeasurements(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(40, self.sigma_xp, schedule="xp")
         self.cals.add_parameter_value(160, self.duration_xp, schedule="xp")
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_meas_schedule(self):
         """Test that we get a properly assigned measure schedule without drive channels."""
         sched = self.cals.get_schedule("meas", (0,))
@@ -830,6 +866,18 @@ class TestInstructions(QiskitExperimentsTestCase):
 
         self.cals.add_parameter_value(ParameterValue(1.57, self.date_time), "φ", (3,), "xp12")
         self.cals.add_parameter_value(ParameterValue(200, self.date_time), "ν", (3,), "xp12")
+
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
 
     def test_call_registration(self):
         """Check that by registering the call we registered three schedules."""
@@ -983,6 +1031,18 @@ class TestControlChannels(CrossResonanceTest):
     support parameters with the same names.
     """
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_get_schedule(self):
         """Check that we can get a CR schedule with a built in Call."""
 
@@ -1113,6 +1173,18 @@ class TestAssignment(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(0.2, "amp", (2,), "xp")
         self.cals.add_parameter_value(0.3, "amp", (3,), "xp")
         self.cals.add_parameter_value(40, "σ", (), "xp")
+
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
 
     def test_short_key(self):
         """Test simple value assignment"""
@@ -1259,6 +1331,18 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(160, "duration", (4,), "xp")
         self.cals.add_parameter_value(40, "σ", (), "xp")
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_reference_replaced(self):
         """Test that we get an error when there is an inconsistency in subroutines."""
 
@@ -1341,6 +1425,18 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(40, "σ", (), "xp")
         self.cals.add_parameter_value(640, "w", (3, 2), "cr_p")
         self.cals.add_parameter_value(800, "duration", (3, 2), "cr_p")
+
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
 
     def test_assign_coupled_explicitly(self):
         """Test that we get the proper schedules when they are coupled."""
@@ -1467,6 +1563,18 @@ class TestFiltering(QiskitExperimentsTestCase):
             ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp"
         )
 
+    def test_calibration_save_json(self):
+        """Test that the calibration under test can be serialized through JSON."""
+        filename = self.__class__.__name__
+
+        try:
+            self.cals.save(file_type="json", file_prefix=filename)
+            loaded = self.cals.load(file_path=f"{filename}.json")
+            self.assertEqual(self.cals, loaded)
+        finally:
+            if os.path.exists(f"{filename}.json"):
+                os.remove(f"{filename}.json")
+
     def test_parameter_table_most_recent(self):
         """Test the most_recent argument to the parameter_table method."""
 
@@ -1592,7 +1700,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         """Test round trip test for JSON file format.
 
         This method guarantees full equality including parameterized template schedules
-        and we can still generate schedules with loaded calibration instane,
+        and we can still generate schedules with loaded calibration instance,
         even though calibrations is instantiated outside built-in library.
         """
         self.cals.save(file_type="json", overwrite="True", file_prefix=self._prefix)
