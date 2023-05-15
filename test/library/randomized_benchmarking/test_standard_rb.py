@@ -12,11 +12,13 @@
 
 """Test for randomized benchmarking experiments."""
 import copy
+import io
 
 from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
+from qiskit import qpy
 from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManilaV2
@@ -59,6 +61,17 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         """Test round trip JSON serialization"""
         exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_serialization(self):
+        """Test round trip qpy serialization"""
+        exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
+        circs = exp.circuits()
+        qpy_file = io.BytesIO()
+        qpy.dump(circs, qpy_file)
+        qpy_file.seek(0)
+        new_circs = qpy.load(qpy_file)
+
+        self.assertEqual(circs, new_circs)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
