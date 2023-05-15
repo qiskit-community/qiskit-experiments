@@ -188,6 +188,11 @@ class FigureData:
 class ExperimentData:
     """Experiment data container class.
 
+    .. note::
+        Saving experiment data to the cloud database is currently a limited access feature. You can
+        check whether you have access by logging into the IBM Quantum interface
+        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+
     This class handles the following:
 
     1. Storing the data related to an experiment: raw data, metadata, analysis results,
@@ -242,13 +247,14 @@ class ExperimentData:
             verbose: Whether to print messages.
             db_data: A prepared ExperimentDataclass of the experiment info.
                 This overrides other db parameters.
-            start_datetime: The time when the experiment was started.
-                If none, defaults to the current time
+            start_datetime: The time when the experiment started running.
+                If none, defaults to the current time.
 
         Additional info:
             In order to save the experiment data to the cloud service, the class
             needs access to the experiment service provider. It can be obtained
             via three different methods, given here by priority:
+
             1. Passing it directly via the ``service`` parameter.
             2. Implicitly obtaining it from the ``provider`` parameter.
             3. Implicitly obtaining it from the ``backend`` parameter, using that backend's provider.
@@ -395,7 +401,8 @@ class ExperimentData:
         """Return the creation datetime of this experiment data.
 
         Returns:
-            The creation datetime of this experiment data in the local timezone.
+            The timestamp when this experiment data was saved to the cloud service
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.creation_datetime)
@@ -405,7 +412,7 @@ class ExperimentData:
         """Return the start datetime of this experiment data.
 
         Returns:
-            The start datetime of this experiment data.
+            The timestamp when this experiment began running in the local timezone.
 
         """
         return utc_to_local(self._db_data.start_datetime)
@@ -419,7 +426,8 @@ class ExperimentData:
         """Return the update datetime of this experiment data.
 
         Returns:
-            The update datetime of this experiment data.
+            The timestamp when this experiment data was last updated in the service
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.updated_datetime)
@@ -431,7 +439,8 @@ class ExperimentData:
         added without errors; this can change as more jobs finish.
 
         Returns:
-            The end datetime of this experiment data.
+            The timestamp when the last job of this experiment finished
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.end_datetime)
