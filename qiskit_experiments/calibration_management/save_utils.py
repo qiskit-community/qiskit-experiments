@@ -22,13 +22,13 @@
     data model of the latest Qiskit Experiments implementation, the calibration loader
     must be aware of the data model version.
     CalibrationModel classes representing the data model must have
-    the version suffix and the `schema_version` field.
+    the version suffix, e.g., `CalibrationModelV1` and the `schema_version` field.
     This helps the loader to raise user-friendly error rather than being crashed by
     incompatible data, and possibly to dispatch the loader function based on the version number.
 
-    When the :class:`.Calibrations` class is refactored and starts to use new data model,
-    a developer also needs to define new CalibrationModel with new version number,
-    rather than modifying the existing CalibrationModel class to preserve backward compatibility.
+    When a developer refactors the :class:`.Calibrations` class to a new data model,
+    the developer must also define a corresponding CalibrationModel class with new version number.
+    Existing CalibrationModel classes should be preserved for backward compatibility.
 
 
 .. note::
@@ -92,7 +92,7 @@ class ParameterModelV1:
 
 @dataclass
 class CalibrationModelV1:
-    """A data schema of whole device representation.
+    """A data schema to represent instances of Calibrations.
 
     .. note::
         This is intentionally agnostic to the data structure of

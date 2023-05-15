@@ -1356,7 +1356,7 @@ class Calibrations:
     @deprecate_arg(
         name="file_type",
         since="0.6",
-        additional_msg="Full data saving is now supported through json format including parameters.",
+        additional_msg="Full calibration saving is now supported in json format. csv is deprecated.",
         package_name="qiskit-experiments",
         predicate=lambda file_type: file_type == "csv",
     )
@@ -1372,7 +1372,8 @@ class Calibrations:
 
         .. note::
 
-            Only JSON format supports full round-trip of :class:`.Calibrations` instance.
+            Full round-trip serialization of a :class:`.Calibrations` instance
+            is only supported in JSON format.
             This may be extended to other file formats in future version.
 
         Args:
@@ -1469,7 +1470,10 @@ class Calibrations:
 
     @deprecate_func(
         since="0.6",
-        additional_msg="Schedule serialization is natively performed in QPY format.",
+        additional_msg=(
+            "Saving calibration in csv format is deprecate "
+            "as well as functions that support this functionality."
+        ),
         package_name="qiskit-experiments",
     )
     def schedule_information(self) -> Tuple[List[str], List[Dict]]:
@@ -1492,7 +1496,7 @@ class Calibrations:
 
     @deprecate_func(
         since="0.6",
-        additional_msg="Loading file now retrieves full calibration data including parameters.",
+        additional_msg="Loading and saving calibrations in CSV format is deprecated.",
         package_name="qiskit-experiments",
     )
     def load_parameter_values(self, file_name: str = "parameter_values.csv"):
@@ -1650,7 +1654,11 @@ class Calibrations:
 
     @deprecate_func(
         since="0.6",
-        additional_msg="This method will be removed and no alternative will be provided.",
+        additional_msg=(
+            "Configuration data for Calibrations instance is deprecate. "
+            "Please use ExperimentEncoder and ExperimentDecoder to "
+            "serialize and deserialize this instance with JSON format."
+        ),
         package_name="qiskit-experiments",
     )
     def config(self) -> Dict[str, Any]:
