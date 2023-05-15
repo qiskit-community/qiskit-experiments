@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Decay analysis class."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -33,7 +33,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         defpar \rm amp:
            desc: Height of the decay curve.
-           init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.min_height`.
+           init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.guess.min_height`.
            bounds: None
 
         defpar \rm base:
@@ -43,19 +43,23 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         defpar \tau:
            desc: This is the fit parameter of main interest.
-           init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.
+           init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.
            bounds: None
 
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="amp * exp(-x/tau) + base",
                     name="exp_decay",
                 )
-            ]
+            ],
+            name=name,
         )
 
     def _generate_fit_guesses(
@@ -63,7 +67,7 @@ class DecayAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.

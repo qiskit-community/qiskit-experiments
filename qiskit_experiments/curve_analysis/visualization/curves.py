@@ -12,14 +12,21 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, List, Tuple, Optional
+from typing import Callable, List, Optional, Tuple
+
 import numpy as np
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+from qiskit_experiments.warnings import deprecated_function
 
 
+@deprecated_function(
+    "0.6",
+    msg="Plotting and drawing functionality has been moved to the new "
+    "`qiskit_experiments.visualization` module.",
+)
 def plot_curve_fit(
     func: Callable,
     result: FitData,
@@ -48,13 +55,13 @@ def plot_curve_fit(
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
 
     Raises:
-        ImportError: if matplotlib is not installed.
+        ImportError: If matplotlib is not installed.
     """
     if ax is None:
         ax = get_non_gui_ax()
 
     if fit_uncertainty is None:
-        fit_uncertainty = list()
+        fit_uncertainty = []
     elif isinstance(fit_uncertainty, tuple):
         fit_uncertainty = [fit_uncertainty]
 
@@ -94,6 +101,11 @@ def plot_curve_fit(
     return ax
 
 
+@deprecated_function(
+    "0.6",
+    msg="Plotting and drawing functionality has been moved to the new "
+    "`qiskit_experiments.visualization` module.",
+)
 def plot_scatter(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -138,6 +150,11 @@ def plot_scatter(
     return ax
 
 
+@deprecated_function(
+    "0.6",
+    msg="Plotting and drawing functionality has been moved to the new "
+    "`qiskit_experiments.visualization` module.",
+)
 def plot_errorbar(
     xdata: np.ndarray,
     ydata: np.ndarray,

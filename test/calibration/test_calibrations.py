@@ -11,11 +11,15 @@
 # that they have been altered from the originals.
 
 """Class to test the calibrations."""
+
 from test.base import QiskitExperimentsTestCase
 import os
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
+
+from ddt import data, ddt, unpack
+
 from qiskit.circuit import Parameter, Gate
 from qiskit.pulse import (
     Drag,
@@ -28,16 +32,49 @@ from qiskit.pulse import (
     RegisterSlot,
     Play,
 )
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit, pulse, transpile
+from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
-import qiskit.pulse as pulse
-from qiskit.providers.fake_provider import FakeArmonk, FakeBelem
+from qiskit.providers import BackendV2, Options
+from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit.transpiler import Target
+
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    FixedFrequencyTransmon,
+)
 from qiskit_experiments.exceptions import CalibrationError
 
 
+class MinimalBackend(BackendV2):
+    """Class for testing a backend with minimal data"""
+
+    def __init__(self, num_qubits=1):
+        super().__init__()
+        self._target = Target(num_qubits=num_qubits)
+
+    @property
+    def max_circuits(self):
+        """Maximum circuits to run at once"""
+        return 100
+
+    @classmethod
+    def _default_options(cls):
+        return Options()
+
+    @property
+    def target(self) -> Target:
+        """Target instance for the backend"""
+        return self._target
+
+    def run(self, run_input, **options):
+        """Empty method to satisfy abstract base class"""
+        pass
+
+
+@ddt
 class TestCalibrationsBasic(QiskitExperimentsTestCase):
     """Class to test the management of schedules and parameters for calibrations."""
 
@@ -143,7 +180,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             if sched_dict["schedule"].name == "xp":
                 schedule = sched_dict["schedule"]
 
-        for param in {self.amp_xp, self.sigma, self.beta, self.duration, self.chan}:
+        for param in (self.amp_xp, self.sigma, self.beta, self.duration, self.chan):
             self.assertTrue(param in schedule.parameters)
 
         self.assertEqual(len(schedule.parameters), 5)
@@ -244,10 +281,10 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
     def test_free_parameters(self):
         """Test that we can get a schedule with a free parameter."""
         xp = self.cals.get_schedule("xp", 3, assign_params={"amp": self.amp_xp})
-        self.assertEqual(xp.parameters, {self.amp_xp})
+        self.assertEqual(set(xp.parameters), {self.amp_xp})
 
         xp = self.cals.get_schedule("xp", 3, assign_params={"amp": self.amp_xp, "σ": self.sigma})
-        self.assertEqual(xp.parameters, {self.amp_xp, self.sigma})
+        self.assertEqual(set(xp.parameters), {self.amp_xp, self.sigma})
 
     def test_qubit_input(self):
         """Test the qubit input."""
@@ -269,6 +306,49 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
 
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
+
+    def test_from_backend(self):
+        """Test that when generating calibrations from backend
+        the data is passed correctly"""
+        backend = FakeBelemV2()
+        cals = Calibrations.from_backend(backend)
+        config_args = cals.config()["kwargs"]
+        control_channel_map_size = len(config_args["control_channel_map"].chan_map)
+        coupling_map_size = len(config_args["coupling_map"])
+        self.assertEqual(control_channel_map_size, 8)
+        self.assertEqual(coupling_map_size, 8)
+        self.assertEqual(cals.get_parameter_value("drive_freq", 0), 5090167234.445013)
+
+    @data(
+        (0, None, False),  # Edge case. Perhaps does not need to be supported
+        (1, None, False),  # Produces backend.target.qubit_properties is None
+        (2, None, False),
+        (1, "x", False),  # Produces backend.coupling_map is None
+        (1, "x", True),
+        (2, "x", True),
+        (2, "cx", True),  # backend.control_channel raises NotImplementedError
+    )
+    @unpack
+    def test_from_minimal_backend(self, num_qubits, gate_name, pass_properties):
+        """Test that from_backend works for a backend with minimal data"""
+        # We do not use Gate or dict test arguments directly because they do
+        # not translate to printable test case names, so we translate here.
+        properties = None
+        if gate_name == "x":
+            gate = XGate()
+            if pass_properties:
+                properties = {(i,): None for i in range(num_qubits)}
+        elif gate_name == "cx":
+            gate = CXGate()
+            if pass_properties:
+                properties = {(0, 1): None}
+        else:
+            gate = None
+
+        backend = MinimalBackend(num_qubits=num_qubits)
+        if gate is not None:
+            backend.target.add_instruction(gate, properties=properties)
+        Calibrations.from_backend(backend)
 
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
@@ -339,6 +419,13 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         self.assertEqual(len(params), 1)
         self.assertEqual(params[0]["value"], 0.25)
         self.assertEqual(params[0]["qubits"], (3,))
+
+    def test_complex_parameter_value_deprecation_warning(self):
+        """Test that complex parameter values raise PendingDeprecationWarning"""
+        with self.assertWarns(PendingDeprecationWarning):
+            ParameterValue(40j, self.date_time)
+        with self.assertWarns(PendingDeprecationWarning):
+            self.cals.add_parameter_value(40j, "amp", schedule="xp")
 
     def _add_parameters(self):
         """Helper function."""
@@ -508,7 +595,6 @@ class TestMeasurements(QiskitExperimentsTestCase):
         self.duration = Parameter("dur")
         self.duration_xp = Parameter("dur")
         ch0 = Parameter("ch0")
-        ch1 = Parameter("ch1")
         self.m0_ = MeasureChannel(ch0)
         self.d0_ = DriveChannel(ch0)
         self.delay = Parameter("delay")
@@ -525,16 +611,16 @@ class TestMeasurements(QiskitExperimentsTestCase):
             pulse.play(Gaussian(self.duration_xp, self.amp_xp, self.sigma_xp), self.d0_)
 
         with pulse.build(name="xp_meas") as xp_meas:
-            pulse.call(xp)
-            pulse.call(meas)
+            pulse.reference(xp.name, "q0")
+            pulse.reference(meas.name, "q0")
 
         with pulse.build(name="xt_meas") as xt_meas:
             with pulse.align_sequential():
-                pulse.call(xp)
-                pulse.call(meas)
+                pulse.reference(xp.name, "q0")
+                pulse.reference(meas.name, "q0")
             with pulse.align_sequential():
-                pulse.call(xp, value_dict={ch0: ch1})
-                pulse.call(meas, value_dict={ch0: ch1})
+                pulse.reference(xp.name, "q1")
+                pulse.reference(meas.name, "q1")
 
         self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(meas, num_qubits=1)
@@ -631,7 +717,7 @@ class TestMeasurements(QiskitExperimentsTestCase):
 
         sched = self.cals.get_schedule("xt_meas", (0, 2), assign_params=assign_dict)
 
-        self.assertEqual(sched.parameters, {amp1, amp2})
+        self.assertEqual(set(sched.parameters), {amp1, amp2})
 
         sched = block_to_schedule(sched)
 
@@ -672,8 +758,8 @@ class TestInstructions(QiskitExperimentsTestCase):
 
         # To make things more interesting we will use a call.
         with pulse.build(name="xp02") as xp02:
-            pulse.call(xp)
-            pulse.call(xp12)
+            pulse.reference(xp.name, "q0")
+            pulse.reference(xp12.name, "q0")
 
         self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(xp, num_qubits=1)
@@ -695,7 +781,7 @@ class TestInstructions(QiskitExperimentsTestCase):
 
         sched = self.cals.get_schedule("xp02", (3,))
 
-        self.assertEqual(sched.parameters, set())
+        self.assertEqual(set(sched.parameters), set())
 
         sched = inline_subroutines(sched)  # inline makes the check more transparent.
 
@@ -720,7 +806,7 @@ class TestRegistering(QiskitExperimentsTestCase):
             pulse.play(Gaussian(160, 0.5, 40), self.d0_)
 
         with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
+            pulse.reference(xp.name, "q0")
 
         with self.assertRaises(CalibrationError):
             self.cals.add_schedule(call_xp, num_qubits=1)
@@ -744,7 +830,7 @@ class TestRegistering(QiskitExperimentsTestCase):
         self.assertEqual(registered_xp, xp)
 
         with pulse.build(name="dxp") as dxp:
-            pulse.call(registered_xp)
+            pulse.reference(registered_xp.name, "q0")
             pulse.play(Gaussian(160, amp, 40), self.d0_)
 
         self.cals.add_schedule(dxp, num_qubits=1)
@@ -759,22 +845,6 @@ class TestRegistering(QiskitExperimentsTestCase):
             self.cals.get_template("not registered", (1,))
 
         self.cals.get_template("xp", (3,))
-
-    def test_register_schedule(self):
-        """Test that we cannot register a schedule in a call."""
-
-        xp = pulse.Schedule(name="xp")
-        xp.insert(0, pulse.Play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(0)), inplace=True)
-
-        with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
-
-        try:
-            self.cals.add_schedule(call_xp, num_qubits=1)
-        except CalibrationError as error:
-            self.assertEqual(
-                error.message, "Calling a Schedule is forbidden, call ScheduleBlock instead."
-            )
 
 
 class CrossResonanceTest(QiskitExperimentsTestCase):
@@ -816,11 +886,11 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
                 with pulse.align_left():
                     pulse.play(rotary_p, self.d1_)  # Rotary tone
                     pulse.play(cr_tone_p, self.c1_)  # CR tone.
-                pulse.call(xp)
+                pulse.reference("xp", "q0")
                 with pulse.align_left():
                     pulse.play(rotary_m, self.d1_)
                     pulse.play(cr_tone_m, self.c1_)
-                pulse.call(xp)
+                pulse.reference("xp", "q0")
 
         # Mimic a tunable coupler pulse that is just a pulse on a control channel.
         with pulse.build(name="tcp") as tcp:
@@ -873,7 +943,7 @@ class TestControlChannels(CrossResonanceTest):
         for idx, inst in enumerate(inline_schedule.instructions):
             self.assertTrue(inst == cr_32.instructions[idx])
 
-        self.assertEqual(schedule.parameters, set())
+        self.assertEqual(set(schedule.parameters), set())
 
         # Do the CR in the other direction
         with pulse.build(name="cr") as cr_23:
@@ -892,14 +962,15 @@ class TestControlChannels(CrossResonanceTest):
         for idx, inst in enumerate(inline_schedule.instructions):
             self.assertTrue(inst == cr_23.instructions[idx])
 
-        self.assertEqual(schedule.parameters, set())
+        self.assertEqual(set(schedule.parameters), set())
 
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("cr", (3, 2), assign_params={"amp": self.amp_cr})
+        assign_params = {("amp", (3, 2), "cr"): self.amp_cr}
+        schedule = self.cals.get_schedule("cr", (3, 2), assign_params=assign_params)
 
-        self.assertEqual(schedule.parameters, {self.amp_cr})
+        self.assertEqual(set(schedule.parameters), {self.amp_cr})
 
     def test_single_control_channel(self):
         """Test that getting a correct pulse on a control channel only works."""
@@ -972,8 +1043,8 @@ class TestAssignment(QiskitExperimentsTestCase):
 
         with pulse.build(name="xpxp") as xpxp:
             with pulse.align_left():
-                pulse.call(xp)
-                pulse.call(xp, value_dict={self.ch0: self.ch1})
+                pulse.reference("xp", "q0")
+                pulse.reference("xp", "q1")
 
         self.xp_ = xp
         self.cals.add_schedule(xp, num_qubits=1)
@@ -1002,10 +1073,10 @@ class TestAssignment(QiskitExperimentsTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_to_parameter_in_call(self):
-        """Test assigning to a Parameter instance in a call"""
+    def test_assign_to_parameter_in_reference(self):
+        """Test assigning to a Parameter instance in a reference."""
         with pulse.build(name="call_xp") as call_xp:
-            pulse.call(self.xp_)
+            pulse.reference(self.xp_.name, "q0")
         self.cals.add_schedule(call_xp, num_qubits=1)
 
         my_amp = Parameter("my_amp")
@@ -1018,10 +1089,10 @@ class TestAssignment(QiskitExperimentsTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
-        """Test assigning to a Parameter instances in a call and caller"""
+    def test_assign_to_parameter_in_reference_and_to_value_in_referencer(self):
+        """Test assigning to a Parameter instances in a reference and referencer."""
         with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp_)
+            pulse.reference(self.xp_.name, "q0")
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
         self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
@@ -1052,7 +1123,7 @@ class TestAssignment(QiskitExperimentsTestCase):
         schedule as that will re-bind the Parameter in the subschedule as well.
         """
         with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp_)
+            pulse.reference(self.xp_.name, "q0")
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
         self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
@@ -1119,7 +1190,7 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
             pulse.play(Gaussian(self.dur, self.amp, self.sigma), DriveChannel(self.ch0))
 
         with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
+            pulse.reference(xp.name, "q0")
 
         self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(call_xp, num_qubits=1)
@@ -1128,29 +1199,29 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(160, "duration", (4,), "xp")
         self.cals.add_parameter_value(40, "σ", (), "xp")
 
-    def test_call_replaced(self):
+    def test_reference_replaced(self):
         """Test that we get an error when there is an inconsistency in subroutines."""
 
         sched = self.cals.get_schedule("call_xp", (4,))
-        sched = block_to_schedule(sched)
 
         with pulse.build(name="xp") as expected:
             pulse.play(Gaussian(160, 0.2, 40), DriveChannel(4))
 
-        expected = block_to_schedule(expected)
+        self.assertEqual(block_to_schedule(sched), block_to_schedule(expected))
 
-        self.assertEqual(sched, expected)
-
-        # Now update the xp pulse without updating the call_xp schedule and ensure that
-        # an error is raised.
+        # Now update the xp pulse without updating the call_xp schedule and ensure consistency.
         with pulse.build(name="xp") as drag:
             pulse.play(Drag(self.dur, self.amp, self.sigma, self.beta), DriveChannel(self.ch0))
 
         self.cals.add_schedule(drag, num_qubits=1)
         self.cals.add_parameter_value(10.0, "β", (4,), "xp")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("call_xp", (4,))
+        sched = self.cals.get_schedule("call_xp", (4,))
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Drag(160, 0.2, 40, 10.0), DriveChannel(4))
+
+        self.assertEqual(block_to_schedule(sched), block_to_schedule(expected))
 
 
 class TestCoupledAssigning(QiskitExperimentsTestCase):
@@ -1186,17 +1257,17 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
 
         with pulse.build(name="ecr") as ecr:
             with pulse.align_sequential():
-                pulse.call(cr_p)
-                pulse.call(xp)
-                pulse.call(cr_m)
+                pulse.reference(cr_p.name, "q0", "q1")
+                pulse.reference(xp.name, "q0")
+                pulse.reference(cr_m.name, "q0", "q1")
 
         with pulse.build(name="cr_echo_both") as cr_echo_both:
             with pulse.align_sequential():
-                pulse.call(cr_p)
+                pulse.reference(cr_p.name, "q0", "q1")
                 with pulse.align_left():
-                    pulse.call(xp)
-                    pulse.call(xp, value_dict={self.ch0: self.ch1})
-                pulse.call(cr_m)
+                    pulse.reference(xp.name, "q0")
+                    pulse.reference(xp.name, "q1")
+                pulse.reference(cr_m.name, "q0", "q1")
 
         self.cals.add_schedule(cr_p, num_qubits=2)
         self.cals.add_schedule(cr_m, num_qubits=2)
@@ -1347,7 +1418,7 @@ class TestFiltering(QiskitExperimentsTestCase):
         self.assertTrue(table["data"][0]["value"], 0.2)
 
     def test_get_parameter_value(self):
-        """Test that getting parameter values funcions properly."""
+        """Test that getting parameter values functions properly."""
 
         amp = self.cals.get_parameter_value(self.amp, (0,), "xp")
         self.assertEqual(amp, 0.2)
@@ -1433,7 +1504,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         """
 
         library = FixedFrequencyTransmon()
-        backend = FakeArmonk()
+        backend = FakeArmonkV2()
         cals = Calibrations.from_backend(backend, libraries=[library])
 
         cals.parameters_table()
@@ -1446,7 +1517,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            backend.defaults().qubit_freq_est[0],
+            BackendData(backend).drive_freqs[0],
         )
 
 
@@ -1457,7 +1528,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can setup with a library."""
 
         cals = Calibrations.from_backend(
-            FakeArmonk(),
+            FakeArmonkV2(),
             libraries=[
                 FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
             ],
@@ -1478,7 +1549,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_instruction_schedule_map_export(self):
         """Test that exporting the inst map works as planned."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
 
         cals = Calibrations.from_backend(
             backend,
@@ -1492,12 +1563,12 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals.add_schedule(cr, num_qubits=2)
         cals.update_inst_map({"cr"})
 
-        for qubit in range(backend.configuration().num_qubits):
+        for qubit in range(BackendData(backend).num_qubits):
             self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
-        coupling_map = set(tuple(pair) for pair in backend.configuration().coupling_map)
+        coupling_map = set(tuple(pair) for pair in BackendData(backend).coupling_map)
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
@@ -1507,7 +1578,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can use the inst_map to inject the cals into the circuit."""
 
         cals = Calibrations.from_backend(
-            FakeArmonk(),
+            FakeArmonkV2(),
             libraries=[FixedFrequencyTransmon(basis_gates=["x"])],
         )
 
@@ -1557,7 +1628,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that updating a parameter will force an inst map update."""
 
         cals = Calibrations.from_backend(
-            FakeBelem(),
+            FakeBelemV2(),
             libraries=[FixedFrequencyTransmon(basis_gates=["sx", "x"])],
         )
 
@@ -1601,12 +1672,12 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         We use FakeBelem which has a linear coupling map and will restrict ourselves to
         qubits 0, 1, and 2. The Cals will define a template schedule for CX and CZ. We will
         mock this with GaussianSquare and Gaussian pulses since the nature of the schedules
-        is irrelevant here. The parameters for CX will only have values for qubis 0 and 1 while
-        the parameters for CZ will only have values for qubis 1 and 2. We therefore will have
+        is irrelevant here. The parameters for CX will only have values for qubits 0 and 1 while
+        the parameters for CZ will only have values for qubits 1 and 2. We therefore will have
         a CX on qubits 0, 1 in the inst. map and a CZ on qubits 1, 2.
         """
 
-        cals = Calibrations.from_backend(FakeBelem())
+        cals = Calibrations.from_backend(FakeBelemV2())
 
         sig = Parameter("σ")
         dur = Parameter("duration")
@@ -1653,14 +1724,19 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_alternate_initialization(self):
         """Test that we can initialize without a backend object."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
+
+        backend_data = BackendData(backend)
+        control_channel_map = {}
+        for qargs in backend_data.coupling_map:
+            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
 
         cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
             libraries=[library],
-            control_channel_map=backend.configuration().control_channels,
-            coupling_map=backend.configuration().coupling_map,
+            control_channel_map=control_channel_map,
+            coupling_map=backend_data.coupling_map,
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
@@ -1672,17 +1748,17 @@ class TestSerialization(QiskitExperimentsTestCase):
     def test_serialization(self):
         """Test the serialization."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals = Calibrations.from_backend(backend, libraries=[library])
         cals.add_parameter_value(0.12345, "amp", 3, "x")
 
-        self.assertRoundTripSerializable(cals, self.json_equiv)
+        self.assertRoundTripSerializable(cals)
 
     def test_equality(self):
         """Test the equal method on calibrations."""
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals1 = Calibrations.from_backend(

@@ -2,7 +2,7 @@
 
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2019.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-# Script for pushing the documentation to the qiskit.org repository.
+# Script for pushing the documentation to the qiskit.org/ecosystem
 set -e
 
 curl https://downloads.rclone.org/rclone-current-linux-amd64.deb -o rclone.deb
@@ -26,7 +26,14 @@ tox -edocs
 echo "show current dir: "
 pwd
 
-# Push to qiskit.org website
+CURRENT_TAG=`git describe --abbrev=0`
+IFS=. read -ra VERSION <<< "$CURRENT_TAG"
+STABLE_VERSION=${VERSION[0]}.${VERSION[1]}
+echo "Building for stable version $STABLE_VERSION"
+
+# Push to qiskit.org/ecosystem
 openssl aes-256-cbc -K $encrypted_rclone_key -iv $encrypted_rclone_iv -in tools/rclone.conf.enc -out $RCLONE_CONFIG_PATH -d
 echo "Pushing built docs to website"
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments
+rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments
+echo "Pushing $STABLE_VERSION built docs to website"
+rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments/stable/"$STABLE_VERSION"

@@ -213,7 +213,7 @@ def oscillation_exp_decay(
     This function first applies a Savitzky-Golay filter to y value,
     then run scipy peak search to extract peak positions.
     If ``freq_guess`` is provided, the search function will be robust to fake peaks due to noise.
-    This function calls :py:func:`exp_decay` function for extracted x and y values at peaks.
+    This function calls :func:`exp_decay` function for extracted x and y values at peaks.
 
     .. note::
 
@@ -351,7 +351,6 @@ def rb_decay(
     x: np.ndarray,
     y: np.ndarray,
     b: float = 0.5,
-    a: Optional[float] = None,
 ) -> float:
     r"""Get base of exponential decay function which is assumed to be close to 1.
 
@@ -361,51 +360,50 @@ def rb_decay(
 
         y(x) = a \alpha^x + b.
 
-    This model can be often seen in randomized benchmarking analysis.
-    Now we assume :math:`\alpha \simeq 1` and replace it with :math:`\alpha = 1 - p`
-    where :math:`p \ll 1`. Then, above function can be approximated to
+    To estimate the base of decay function :math:`\alpha`, we consider
 
     .. math::
 
-        y(x) = a \left(1 - px + \frac{x(x-1)}{2} p^2 + ...\right) + b,
+        y'(x) = y(x) - b = a \alpha^x,
 
-    here we assume :math:`px \ll 1` to ignore higher order terms of :math:`p`.
-    Likely parameter :math:`p` of interest can be solved as
-
-    .. math::
-
-        p(x) = \frac{a + b - y(x)}{ax}.
-
-    The :math:`p(x)` is averaged with the weight of :math:`1/x`.
-    When estimated :math:`\alpha = 1-p < 0.9`, this calcualtes following value instead.
+    and thus,
 
     .. math::
 
-        \alpha \simeq dy ^ {1 / dx},
+        y'(x+dx) = a \alpha^x \alpha^dx.
 
-    where :math:`dx = x[1] - x[0]` and :math:`dy = (y[1] - b) / (y[0] - b)`.
+    By considering the ratio of y values at :math:`x+dx` to :math:`x`,
+
+    .. math::
+
+        ry = \frac{a \alpha^x \alpha^dx}{a \alpha^x} = \alpha^dx.
+
+    From this relationship, we can estimate :math:`\alpha` as
+
+    .. math::
+
+        \alpha = ry^\frac{1}{dx}.
 
     Args:
         x: Array of x values.
         y: Array of y values.
-        a: Coefficient of decay function. If not provided this is defaults to :math:`1-b`.
-            :math:`y(0) = 1.0`.
         b: Asymptote of decay function.
 
     Returns:
          Base of decay function.
     """
-    if a is None:
-        a = 1 - b
+    valid_inds = y > b
 
-    a_guess_tmp = np.average(1 - (a + b - y) / (a * x), weights=1 / x)
+    # Remove y values below b
+    y = y[valid_inds]
+    x = x[valid_inds]
 
-    if a_guess_tmp > 0.9:
-        return a_guess_tmp
+    if len(x) < 2:
+        # If number of element is 1, assume y(0) = 1.0 and directly compute alpha.
+        a = 1.0 - b
+        return ((y[0] - b) / a) ** (1 / x[0])
 
-    # Violate assumption, then switch to the conventional method
-    # Use the first two points to guess the decay param
-    dx = x[1] - x[0]
-    dy = (y[1] - b) / (y[0] - b)
+    ry = (y[1:] - b) / (y[:-1] - b)
+    dx = np.diff(x)
 
-    return dy ** (1 / dx)
+    return np.average(ry ** (1 / dx))

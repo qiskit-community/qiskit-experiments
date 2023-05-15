@@ -12,7 +12,7 @@
 
 """Error amplification analysis."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -79,14 +79,18 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
                     name="ping_pong",
                 )
-            ]
+            ],
+            name=name,
         )
 
     @classmethod
@@ -101,7 +105,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Number of gates (n)",
             ylabel="Population",
             ylim=(0, 1.0),
@@ -116,7 +120,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.

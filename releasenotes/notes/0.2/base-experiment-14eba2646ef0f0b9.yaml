@@ -9,7 +9,7 @@ features:
     instance for that experiment will be used. Setting ``analysis=None`` disables
     analysis for the specific execution.
   - |
-    Add ``backend`` as an optional ``__init__`` kwarg for all experiments to
+    Added ``backend`` as an optional ``__init__`` kwarg for all experiments to
     allow setting the backend at initialization. The backand can also be set
     and retrieved from the experiment object after construction using the
     :meth:`~qiskit_experiments.framework.BaseExperiment.backend`
@@ -20,7 +20,7 @@ features:
     a backend this will temporarily override any currently set backends
     for that single execution.
   - |
-    Add :class:`~qiskit_experiments.framework.ExperimentConfig` dataclass
+    Added :class:`~qiskit_experiments.framework.ExperimentConfig` dataclass
     for storing the configuration of an experiment. This configuration can
     be obtained by using the
     :meth:`~qiskit_experiments.framework.BaseExperiment.config` property.
@@ -28,7 +28,7 @@ features:
     the :meth:`~qiskit_experiments.framework.BaseExperiment.from_config`
     class method.
   - |
-    Adds automatic job splitting to
+    Added automatic job splitting to
     :class:`~qiskit_experiments.framework.BaseExperiment` for execution of
     experiments with a larger number of circuits than can be run in a single
     job on the target backend. This enables running large experiments on
@@ -69,7 +69,7 @@ deprecations:
     Boolean values for the ``analysis`` kwarg in
     :meth:`qiskit_experiments.framework.BaseExperiment.run` have been deprecated.
     Use ``analysis="default"`` instead of ``analysis=True``, and
-    ``analysis=None``instead of ``analysis=False``.
+    ``analysis=None`` instead of ``analysis=False``.
   - |
     Using the ``__analysis_class__`` class attrbiute to define a default
     :class:`~qiskit_experiments.framework.BaseAnalysis` class in a

@@ -1,0 +1,142 @@
+T1 Characterization
+===================
+
+Background
+----------
+
+In a :math:`T_1` experiment, we measure an excited qubit after a delay.
+Due to decoherence processes (e.g. the amplitude damping channel), it is
+possible that, at the time of measurement, after the delay, the qubit
+will not be excited anymore. The larger the delay time is, the more
+likely is the qubit to fall to the ground state. The goal of the
+experiment is to characterize the decay rate of the qubit towards the
+ground state.
+
+We start by fixing a delay time :math:`t` and a number of shots
+:math:`s`. Then, by repeating :math:`s` times the procedure of exciting
+the qubit, waiting, and measuring, we estimate the probability to
+measure :math:`|1\rangle` after the delay. We repeat this process for a
+set of delay times, resulting in a set of probability estimates.
+
+In the absence of state preparation and measurement errors, the
+probability to measure :math:`|1\rangle` after time :math:`t` is :math:`e^{-t/T_1}`,
+for a constant :math:`T_1` (the coherence time), which is our target
+number. Since state preparation and measurement errors do exist, the
+qubit’s decay towards the ground state assumes the form
+:math:`Ae^{-t/T_1} + B`, for parameters :math:`A, T_1`, and :math:`B`,
+which we deduce from the probability estimates.
+
+The following code demonstrates a basic run of a :math:`T_1` experiment
+for qubit 0.
+
+.. note::
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
+.. jupyter-execute::
+
+    import numpy as np
+    from qiskit.qobj.utils import MeasLevel
+    from qiskit_experiments.framework import ParallelExperiment
+    from qiskit_experiments.library import T1
+    from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
+
+    # A T1 simulator
+    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_aer import AerSimulator
+    from qiskit_aer.noise import NoiseModel
+
+    # A kerneled data simulator
+    from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+    from qiskit_experiments.test.mock_iq_helpers import MockIQT1Helper
+    
+    # Create a pure relaxation noise model for AerSimulator
+    noise_model = NoiseModel.from_backend(
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
+    )
+    
+    # Create a fake backend simulator
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+    
+    # Look up target T1 of qubit-0 from device properties
+    qubit0_t1 = FakePerth().qubit_properties(0).t1
+    
+    # Time intervals to wait before measurement
+    delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
+    # Create an experiment for qubit 0
+    # with the specified time intervals
+    exp = T1(physical_qubits=(0,), delays=delays)
+    
+    # Set scheduling method so circuit is scheduled for delay noise simulation
+    exp.set_transpile_options(scheduling_method='asap')
+    
+    # Run the experiment circuits and analyze the result
+    exp_data = exp.run(backend=backend, seed_simulator=101).block_for_results()
+    
+    # Print the result
+    display(exp_data.figure(0))
+    for result in exp_data.analysis_results():
+        print(result)
+
+
+:math:`T_1` experiments with kerneled measurement
+-------------------------------------------------
+
+:math:`T_1` experiments can also be done with kerneled measurements.
+If we set the run option ``meas_level=MeasLevel.KERNELED``, the job
+will not discriminate the IQ data and will not label it. In the T1 experiment,
+since we know that :math:`P(1|t=0)=1`, we will add a circuit with delay=0,
+and another circuit with a very large delay. In this configuration we know that the data starts from
+a point [I,Q] that is close to a logical value '1' and ends at a point [I,Q]
+that is close to a logical value '0'.
+
+
+.. jupyter-execute::
+
+    # Experiment
+    ns = 1e-9
+    mu = 1e-6
+
+    # qubit properties
+    t1 = [45 * mu, 45 * mu]
+    t2 = [value/2 for value in t1]
+
+    # we will guess that our guess is 10% off the exact value of t1 for qubit 0.
+    t1_estimated_shift = t1[0]/10
+
+    # We use log space for the delays because of the noise properties
+    delays = np.logspace(1, 11, num=23, base=np.exp(1))
+    delays *= ns
+
+    # Adding circuits with delay=0 and long delays so the centers in the IQ plane won't be misplaced.
+    # Without this, the fitting can provide wrong results.
+    delays = np.insert(delays, 0, 0)
+    delays = np.append(delays, [t1[0]*3])
+
+    num_qubits = 2
+    num_shots = 2048
+
+    backend = MockIQBackend(
+        MockIQT1Helper(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))]
+                           , iq_cluster_width=[1.0, 2.0])
+    )
+
+    # Creating a T1 experiment
+    expT1_kerneled = T1((0,), delays)
+    expT1_kerneled.analysis = T1KerneledAnalysis()
+    expT1_kerneled.analysis.set_options(p0={"amp": 1, "tau": t1[0] + t1_estimated_shift, "base": 0})
+
+    # Running the experiment
+    expdataT1_kerneled = expT1_kerneled.run(backend=backend, meas_return="avg",
+                                            meas_level=MeasLevel.KERNELED,
+                                            shots=num_shots).block_for_results()
+
+    # Displaying results
+    display(expdataT1_kerneled.figure(0))
+    for result in expdataT1_kerneled.analysis_results():
+        print(result)
+
+See also
+--------
+
+* API documentation: :mod:`~qiskit_experiments.library.characterization.T1`

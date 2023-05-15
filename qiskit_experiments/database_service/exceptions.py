@@ -15,19 +15,25 @@
 from qiskit.exceptions import QiskitError
 
 
-class DbExperimentDataError(QiskitError):
+class ExperimentDataError(QiskitError):
     """Base class for errors raised by experiment service data."""
 
     pass
 
 
-class DbExperimentEntryNotFound(DbExperimentDataError):
+class ExperimentEntryNotFound(ExperimentDataError):
     """Errors raised when an experiment entry cannot be found."""
 
     pass
 
 
-class DbExperimentEntryExists(DbExperimentDataError):
+class ExperimentEntryExists(ExperimentDataError):
     """Errors raised when an experiment entry already exists."""
+
+    pass
+
+
+class ExperimentDataSaveFailed(ExperimentDataError):
+    """Errors raised when an experiment save fails."""
 
     pass

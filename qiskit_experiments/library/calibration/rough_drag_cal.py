@@ -12,9 +12,9 @@
 
 """Rough drag calibration experiment."""
 
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional, Sequence
 
-from qiskit.circuit import Parameter
+from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -24,18 +24,21 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.drag import RoughDrag
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
-    """A calibration version of the Drag experiment.
+    """A calibration version of the :class:`.RoughDrag` experiment.
 
-    # section: see_also
-        qiskit_experiments.library.characterization.rough_drag.RoughDrag
+    # section: manual
+        :ref:`DRAG Calibration`
+
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "x",
@@ -44,14 +47,15 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         auto_update: bool = True,
         group: str = "default",
     ):
-        r"""see class :class:`RoughDrag` for details.
+        r"""see class :class:`.RoughDrag` for details.
 
         Args:
-            qubit: The qubit for which to run the rough drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                rough DRAG calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate. Defaults to "x".
-            betas: A list of drag parameter values to scan. If None is given 51 betas ranging
+            betas: A list of DRAG parameter values to scan. If None is given 51 betas ranging
                 from -5 to 5 will be scanned.
             cal_parameter_name: The name of the parameter in the schedule to update.
                 Defaults to "β".
@@ -59,6 +63,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
                 default this variable is set to True.
             group: The group of calibration parameters to use. The default value is "default".
         """
+        qubit = physical_qubits[0]
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}, group=group
         )
@@ -68,7 +73,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
 
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             schedule=schedule,
             betas=betas,
             backend=backend,
@@ -77,7 +82,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each experiment's metadata:
@@ -86,15 +91,15 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             cal_schedule: The name of the schedule in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
         """
-
-        prev_beta = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name, self.physical_qubits, self._sched_name, self.experiment_options.group
         )
+        return metadata
 
-        experiment_data.metadata["cal_param_value"] = prev_beta
-        experiment_data.metadata["cal_param_name"] = self._param_name
-        experiment_data.metadata["cal_schedule"] = self._sched_name
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """RoughDrag already has the schedules attached in the program circuits."""
+        pass
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the beta using the value directly reported from the fit.

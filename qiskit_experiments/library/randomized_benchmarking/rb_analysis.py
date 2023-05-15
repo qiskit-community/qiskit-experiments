@@ -12,7 +12,6 @@
 """
 Standard RB analysis class.
 """
-import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
@@ -22,12 +21,12 @@ from qiskit.exceptions import QiskitError
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 if TYPE_CHECKING:
     from uncertainties import UFloat
 
-# A dictionary key of qubit aware quantum instruciton; type alias for better readability
+# A dictionary key of qubit aware quantum instruction; type alias for better readability
 QubitGateTuple = Tuple[Tuple[int, ...], str]
 
 
@@ -61,7 +60,7 @@ class RBAnalysis(curve.CurveAnalysis):
             bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
-            init_guess: Determined by :func:`~rb_decay`.
+            init_guess: Determined by :func:`~.guess.rb_decay`.
             bounds: [0, 1]
 
     # section: reference
@@ -91,12 +90,12 @@ class RBAnalysis(curve.CurveAnalysis):
                 The default value will use standard gate error ratios.
                 If you don't know accurate error ratio between your basis gates,
                 you can skip analysis of EPGs by setting this options to ``None``.
-            epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
-                2Q RB is corected to exclude the deporalization of underlying 1Q channels.
+                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Clifford Length",
             ylabel="P(0)",
         )
@@ -104,24 +103,16 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["alpha"]
         default_options.gate_error_ratio = "default"
         default_options.epg_1_qubit = None
+        default_options.average_method = "sample"
 
         return default_options
-
-    def set_options(self, **fields):
-        if "error_dict" in fields:
-            warnings.warn(
-                "Option 'error_dict' has been removed and merged into 'gate_error_ratio'.",
-                DeprecationWarning,
-            )
-            fields["gate_error_ratio"] = fields.pop("error_dict")
-        super().set_options(**fields)
 
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -137,8 +128,8 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
-        a_guess = 1 - b_guess
-        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
+        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
 
         user_opt.p0.set_if_empty(
             b=b_guess,
@@ -147,48 +138,6 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         return user_opt
-
-    def _format_data(
-        self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
-        """Postprocessing for the processed dataset.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        # TODO Eventually move this to data processor, then create RB data processor.
-
-        # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=curve_data.data_allocation,
-            xdata=curve_data.x,
-            ydata=curve_data.y,
-            sigma=curve_data.y_err,
-            shots=curve_data.shots,
-            method="sample",
-        )
-
-        # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=data_allocation,
-            xdata=xdata,
-            ydata=ydata,
-            sigma=sigma,
-            shots=shots,
-        )
-
-        return curve.CurveData(
-            x=xdata,
-            y=ydata,
-            y_err=sigma,
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=curve_data.labels,
-        )
 
     def _create_analysis_results(
         self,
@@ -403,7 +352,7 @@ def _calculate_epg(
     gate_error_ratio: Dict[str, float],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
 ) -> Dict[str, Union[float, "UFloat"]]:
-    """A helper mehtod to compute EPGs of basis gates from fit EPC value.
+    """A helper method to compute EPGs of basis gates from fit EPC value.
 
     Args:
         epc: Error per Clifford.
@@ -429,7 +378,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[DbAnalysisResultV1]],
+    extra_analyses: Optional[List[AnalysisResult]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
@@ -444,17 +393,17 @@ def _exclude_1q_error(
     """
     # Extract EPC of non-measured qubits from previous experiments
     epg_1qs = {}
-    for analyis_data in extra_analyses:
+    for analysis_data in extra_analyses:
         if (
-            not analyis_data.name.startswith("EPG_")
-            or len(analyis_data.device_components) > 1
-            or not str(analyis_data.device_components[0]).startswith("Q")
+            not analysis_data.name.startswith("EPG_")
+            or len(analysis_data.device_components) > 1
+            or not str(analysis_data.device_components[0]).startswith("Q")
         ):
             continue
-        qind = analyis_data.device_components[0]._index
-        gate = analyis_data.name[4:]
+        qind = analysis_data.device_components[0]._index
+        gate = analysis_data.name[4:]
         formatted_key = (qind,), gate
-        epg_1qs[formatted_key] = analyis_data.value
+        epg_1qs[formatted_key] = analysis_data.value
 
     if not epg_1qs:
         return epc

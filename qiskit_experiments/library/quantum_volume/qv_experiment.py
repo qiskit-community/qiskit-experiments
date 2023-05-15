@@ -28,12 +28,13 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
 from qiskit.providers.backend import Backend
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
-    """Quantum Volume Experiment class.
+    """An experiment to measure the largest random square circuit that can be run on a processor.
 
     # section: overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
@@ -53,7 +54,7 @@ class QuantumVolume(BaseExperiment):
         :math:`d` qubits, which contain :math:`d` layers, where each layer consists of random 2-qubit
         unitary gates from :math:`SU(4)`, followed by a random permutation on the :math:`d` qubits.
         Then these circuits run on the quantum backend and on an ideal simulator (either
-        :class:`~qiskit.providers.aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
+        :class:`~qiskit_aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
 
         A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
         confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
@@ -62,7 +63,10 @@ class QuantumVolume(BaseExperiment):
         information on QV experiment analysis.
 
     # section: analysis_ref
-        :py:class:`QuantumVolumeAnalysis`
+        :class:`QuantumVolumeAnalysis`
+
+    # section: manual
+        :doc:`/manuals/verification/quantum_volume`
 
     # section: reference
         .. ref_arxiv:: 1 1811.12926
@@ -70,9 +74,10 @@ class QuantumVolume(BaseExperiment):
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         trials: Optional[int] = 100,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
@@ -81,7 +86,7 @@ class QuantumVolume(BaseExperiment):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``
@@ -89,11 +94,11 @@ class QuantumVolume(BaseExperiment):
                   with this seed value everytime :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
-                method. If None :class:`AerSimulator` simulator will be used
-                (in case :class:`AerSimulator` is not
-                installed :class:`qiskit.quantum_info.Statevector` will be used).
+                method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
+                (in case :mod:`qiskit_aer` is not
+                installed, :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials, seed=seed)

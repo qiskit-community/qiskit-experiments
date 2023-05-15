@@ -17,31 +17,37 @@ from typing import List, Tuple
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.framework.composite.composite_analysis import CompositeAnalysis
-from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
-from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
+from qiskit_experiments.library.characterization.analysis import (
+    T1Analysis,
+    T2HahnAnalysis,
+    T2RamseyAnalysis,
+)
 from qiskit_experiments.exceptions import QiskitError
 
 
 class TphiAnalysis(CompositeAnalysis):
+    r"""A class to analyze :math:`T_\phi` experiments.
 
-    r"""
-    Tphi result analysis class.
-    A class to analyze :math:`T_\phi` experiments.
+    # section: see_also
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T1Analysis`
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T2HahnAnalysis`
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis`
+
     """
 
     def __init__(self, analyses=None):
         if analyses is None:
-            analyses = [T1Analysis(), T2RamseyAnalysis()]
+            analyses = [T1Analysis(), T2HahnAnalysis()]
 
         # Validate analyses kwarg
         if (
             len(analyses) != 2
             or not isinstance(analyses[0], T1Analysis)
-            or not isinstance(analyses[1], T2RamseyAnalysis)
+            or not isinstance(analyses[1], (T2RamseyAnalysis, T2HahnAnalysis))
         ):
             raise QiskitError(
-                "Invlaid component analyses for T2phi, analyses must be a pair of "
-                "T1Analysis and T2RamseyAnalysis instances."
+                "Invalid component analyses for Tphi, analyses must be a pair of "
+                "T1Analysis and T2HahnAnalysis or T2RamseyAnalysis instances."
             )
         super().__init__(analyses, flatten_results=True)
 
@@ -53,15 +59,16 @@ class TphiAnalysis(CompositeAnalysis):
         _run_analysis for the two sub-experiments.
         Based on the results, it computes the result for :math:`T_phi`.
         """
-        # Run composite analysis and extract T1 and T2star results
+
+        # Run composite analysis and extract T1 and T2 results
         analysis_results, figures = super()._run_analysis(experiment_data)
         t1_result = next(filter(lambda res: res.name == "T1", analysis_results))
-        t2star_result = next(filter(lambda res: res.name == "T2star", analysis_results))
+        t2_result = next(filter(lambda res: res.name in {"T2star", "T2"}, analysis_results))
 
-        # Calculate Tphi from T1 and T2star
-        tphi = 1 / (1 / t2star_result.value - 1 / (2 * t1_result.value))
+        # Calculate Tphi from T1 and T2
+        tphi = 1 / (1 / t2_result.value - 1 / (2 * t1_result.value))
         quality_tphi = (
-            "good" if (t1_result.quality == "good" and t2star_result.quality == "good") else "bad"
+            "good" if (t1_result.quality == "good" and t2_result.quality == "good") else "bad"
         )
         tphi_result = AnalysisResultData(
             name="T_phi",

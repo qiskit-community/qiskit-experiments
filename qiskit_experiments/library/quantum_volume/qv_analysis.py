@@ -20,7 +20,7 @@ from typing import Optional
 import numpy as np
 import uncertainties
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
+from qiskit_experiments.curve_analysis.visualization import plot_scatter, plot_errorbar
 from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResultData,
@@ -48,7 +48,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
+            ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
         options.plot = True
@@ -95,7 +95,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
              list: the bit strings of the heavy output
         """
 
-        format_spec = "{0:0%db}" % depth
+        format_spec = f"{{0:0{depth}b}}"
         # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
             format_spec.format(b): float(np.real(probabilities_vector[b]))
@@ -117,7 +117,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Calculate the probability of measuring heavy output string in the data
 
         Args:
-            data (dict): the result of the circuit exectution
+            data (dict): the result of the circuit execution
             heavy_outputs (list): the bit strings of the heavy output from the ideal simulation
 
         Returns:
@@ -126,7 +126,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         circ_shots = sum(data["counts"].values())
 
         # Calculate the number of heavy output counts in the experiment
-        heavy_output_counts = sum([data["counts"].get(value, 0) for value in heavy_outputs])
+        heavy_output_counts = sum(data["counts"].get(value, 0) for value in heavy_outputs)
 
         # Calculate the experimental heavy output probability
         return heavy_output_counts / circ_shots
@@ -140,7 +140,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             sigma (float): standard deviation
 
         Returns:
-            float: z_value in standard normal distibution.
+            float: z_value in standard normal distribution.
         """
 
         if sigma == 0:
@@ -161,7 +161,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         where z = (X - mu)/sigma = (hmean - 2/3)/sigma
 
         Args:
-            z_value (float): z value in in standard normal distibution.
+            z_value (float): z value in in standard normal distribution.
 
         Returns:
             float: confidence level in decimal (not percentage).

@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds a ``flatten_results`` init kwarg to :class:`.CompositeAnalysis`,
+    Added a ``flatten_results`` init kwarg to :class:`.CompositeAnalysis`,
     :class:`.CompositeExperiment`, :class:`.ParallelExperiment`, and
     :class:`.BatchExperiment` that if set to ``True`` flattens all analysis
     results and figures from component experiment analysis into the main

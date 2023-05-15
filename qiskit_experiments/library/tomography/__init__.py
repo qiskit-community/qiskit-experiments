@@ -24,8 +24,11 @@ Experiments
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    TomographyExperiment
     StateTomography
     ProcessTomography
+    MitigatedStateTomography
+    MitigatedProcessTomography
 
 
 Analysis
@@ -35,9 +38,10 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
+    TomographyAnalysis
     StateTomographyAnalysis
     ProcessTomographyAnalysis
-
+    MitigatedTomographyAnalysis
 
 Tomography Fitters
 ==================
@@ -88,8 +92,13 @@ Abstract base classes
 """
 
 # Experiment Classes
+from .tomography_experiment import TomographyExperiment
 from .qst_experiment import StateTomography, StateTomographyAnalysis
 from .qpt_experiment import ProcessTomography, ProcessTomographyAnalysis
+from .mit_qst_experiment import MitigatedStateTomography
+from .mit_qpt_experiment import MitigatedProcessTomography
+from .tomography_analysis import TomographyAnalysis
+from .mit_tomography_analysis import MitigatedTomographyAnalysis
 
 # Basis Classes
 from . import basis

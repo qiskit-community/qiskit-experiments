@@ -68,6 +68,10 @@ Data Processing Nodes
     AverageData
     BasisExpectationValue
     MinMaxNormalize
+    ShotOrder
+    RestlessNode
+    RestlessToCounts
+    RestlessToIQ
 
 
 Discriminators
@@ -75,7 +79,9 @@ Discriminators
 .. autosummary::
     :toctree: ../stubs/
 
+    BaseDiscriminator
     SkLDA
+    SkQDA
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -90,7 +96,12 @@ from .nodes import (
     AverageData,
     BasisExpectationValue,
     MinMaxNormalize,
+    ShotOrder,
+    RestlessNode,
+    RestlessToCounts,
+    RestlessToIQ,
 )
 
 from .data_processor import DataProcessor
-from .sklearn_discriminators import SkLDA
+from .discriminator import BaseDiscriminator
+from .sklearn_discriminators import SkLDA, SkQDA

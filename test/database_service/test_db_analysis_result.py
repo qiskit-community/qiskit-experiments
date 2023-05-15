@@ -18,18 +18,19 @@ from unittest import mock
 import json
 
 import math
+from ddt import ddt, data
 import numpy as np
 import uncertainties
 
-
-from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_ibm_experiment import IBMExperimentService, ExperimentData
+from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
-from qiskit_experiments.database_service.database_service import DatabaseServiceV1
-from qiskit_experiments.database_service.exceptions import DbExperimentDataError
+from qiskit_experiments.database_service.exceptions import ExperimentDataError
 
 
-class TestDbAnalysisResult(QiskitExperimentsTestCase):
-    """Test the DbAnalysisResult class."""
+@ddt
+class TestAnalysisResult(QiskitExperimentsTestCase):
+    """Test the AnalysisResult class."""
 
     def test_analysis_result_attributes(self):
         """Test analysis result attributes."""
@@ -41,7 +42,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "quality": "Good",
             "verified": False,
         }
-        result = DbAnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
+        result = AnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
         self.assertEqual({"foo": "bar"}, result.value)
         self.assertEqual(["tag1", "tag2"], result.tags)
         for key, val in attrs.items():
@@ -49,17 +50,29 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
 
     def test_save(self):
         """Test saving analysis result."""
-        mock_service = mock.create_autospec(DatabaseServiceV1)
+        mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result()
         result.service = mock_service
         result.save()
-        mock_service.create_analysis_result.assert_called_once()
+        mock_service.create_or_update_analysis_result.assert_called_once()
+
+    def test_load(self):
+        """Test loading analysis result."""
+        service = IBMExperimentService(local=True, local_save=False)
+        result = self._new_analysis_result()
+        service.create_experiment(ExperimentData(experiment_id=result.experiment_id))
+        result.service = service
+        result.save()
+        loaded_result = AnalysisResult.load(result_id=result.result_id, service=service)
+
+        self.assertEqual(repr(result), repr(loaded_result))
 
     def test_auto_save(self):
         """Test auto saving."""
-        mock_service = mock.create_autospec(DatabaseServiceV1)
+        mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
+        mock_service.reset_mock()  # since setting auto_save = True initiated save
 
         subtests = [
             # update function, update parameters, service called
@@ -72,23 +85,23 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
         for func, params in subtests:
             with self.subTest(func=func):
                 func(*params)
-                mock_service.update_analysis_result.assert_called_once()
+                mock_service.create_or_update_analysis_result.assert_called_once()
                 mock_service.reset_mock()
 
     def test_set_service_init(self):
         """Test setting service in init."""
-        mock_service = mock.create_autospec(DatabaseServiceV1)
+        mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result(service=mock_service)
         self.assertEqual(mock_service, result.service)
 
     def test_set_service_direct(self):
         """Test setting service directly."""
-        mock_service = mock.create_autospec(DatabaseServiceV1)
+        mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result()
         result.service = mock_service
         self.assertEqual(mock_service, result.service)
 
-        with self.assertRaises(DbExperimentDataError):
+        with self.assertRaises(ExperimentDataError):
             result.service = mock_service
 
     def test_set_data(self):
@@ -118,59 +131,97 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
     def test_data_serialization(self):
         """Test result data serialization."""
         result = self._new_analysis_result(value={"complex": 2 + 3j, "numpy": np.zeros(2)})
-        serialized = json.dumps(result._value, cls=result._json_encoder)
+        serialized = json.dumps(result.value, cls=result._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
     def test_source(self):
         """Test getting analysis result source."""
         result = self._new_analysis_result()
-        self.assertIn("DbAnalysisResultV1", result.source["class"])
+        self.assertIn("AnalysisResult", result.source["class"])
         self.assertTrue(result.source["qiskit_version"])
 
     def test_display_format_inf(self):
         """Test conversion of inf for display value"""
-        self.assertEqual(DbAnalysisResult._display_format(np.inf), "Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(-np.inf), "-Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(np.nan), "NaN")
-        self.assertEqual(DbAnalysisResult._display_format(math.inf), "Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(-math.inf), "-Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(math.nan), "NaN")
+        self.assertEqual(AnalysisResult._display_format(np.inf), "Infinity")
+        self.assertEqual(AnalysisResult._display_format(-np.inf), "-Infinity")
+        self.assertEqual(AnalysisResult._display_format(np.nan), "NaN")
+        self.assertEqual(AnalysisResult._display_format(math.inf), "Infinity")
+        self.assertEqual(AnalysisResult._display_format(-math.inf), "-Infinity")
+        self.assertEqual(AnalysisResult._display_format(math.nan), "NaN")
         self.assertEqual(
-            DbAnalysisResult._display_format(
-                uncertainties.ufloat(math.nan, math.nan).nominal_value
-            ),
+            AnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).nominal_value),
             "NaN",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).std_dev),
+            AnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).std_dev),
             "NaN",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(
-                uncertainties.ufloat(math.inf, -math.inf).nominal_value
-            ),
+            AnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).nominal_value),
             "Infinity",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).std_dev),
+            AnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).std_dev),
             "-Infinity",
         )
 
     def test_display_format_complex(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(1e-10j)
+        value = AnalysisResult._display_format(1e-10j)
         self.assertIsInstance(value, str)
 
     def test_display_format_list(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(list(range(5)))
+        value = AnalysisResult._display_format(list(range(5)))
         self.assertEqual(value, "(list)")
 
     def test_display_format_array(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(np.arange(5))
+        value = AnalysisResult._display_format(np.arange(5))
         self.assertEqual(value, "(ndarray)")
+
+    @data({"foo": "bar"}, uncertainties.ufloat(0.0, 0.5), 5.1e-6, 5)
+    def test_copy(self, value):
+        """Test copying of analysis result for various value types."""
+        value_type = type(value)
+        attrs = {
+            "name": "my_type",
+            "device_components": [Qubit(1), Qubit(2)],
+            "experiment_id": "1234",
+            "result_id": "5678",
+            "quality": "Good",
+            "verified": False,
+            "extra": {
+                "extra1": "value",
+                "extra2": 2.71828,
+                "extra3": [1, 1, 2, 3, 5],
+            },
+        }
+        attrs_should_differ = ["result_id"]
+        original_result = AnalysisResult(value=value, tags=["tag1", "tag2"], **attrs)
+        copied_result = original_result.copy()
+        if isinstance(value, uncertainties.UFloat):
+            self.assertEqualExtended(original_result.value, copied_result.value)
+        else:
+            self.assertEqual(
+                original_result.value,
+                copied_result.value,
+                f"Value of type {value_type.__name__}.",
+            )
+        self.assertEqual(original_result.tags, copied_result.tags)
+        for key, _ in attrs.items():
+            if key in attrs_should_differ:
+                # experiment_id must be different
+                self.assertNotEqual(
+                    getattr(original_result, key),
+                    getattr(copied_result, key),
+                )
+            else:
+                self.assertEqual(
+                    getattr(original_result, key),
+                    getattr(copied_result, key),
+                )
 
     def _new_analysis_result(self, **kwargs):
         """Return a new analysis result."""
@@ -181,7 +232,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "experiment_id": "1234",
         }
         values.update(kwargs)
-        return DbAnalysisResult(**values)
+        return AnalysisResult(**values)
 
 
 class TestDeviceComponent(QiskitExperimentsTestCase):

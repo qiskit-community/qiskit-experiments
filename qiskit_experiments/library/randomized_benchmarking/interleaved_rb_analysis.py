@@ -77,12 +77,12 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
             bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
-            init_guess: Determined by :func:`~rb_decay` with standard RB curve.
+            init_guess: Determined by :meth:`.rb_decay` with standard RB curve.
             bounds: [0, 1]
         defpar \alpha_c:
-            desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
-            init_guess: Determined by alpha of interleaved RB curve devided by one of
-                standard RB curve. Both alpha values are estimated by :func:`~rb_decay`.
+            desc: Ratio of the depolarizing parameter of interleaved RB to standard RB.
+            init_guess: Determined by alpha of interleaved RB curve divided by one of
+                standard RB curve. Both alpha values are estimated by :meth:`.rb_decay`.
             bounds: [0, 1]
 
     # section: reference
@@ -96,12 +96,10 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="a * alpha ** x + b",
                     name="standard",
-                    data_sort_key={"interleaved": False},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="a * (alpha_c * alpha) ** x + b",
                     name="interleaved",
-                    data_sort_key={"interleaved": True},
                 ),
             ]
         )
@@ -111,7 +109,12 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
+        default_options.data_subfit_map = {
+            "standard": {"interleaved": False},
+            "interleaved": {"interleaved": True},
+        }
         default_options.result_parameters = ["alpha", "alpha_c"]
+        default_options.average_method = "sample"
         return default_options
 
     def _generate_fit_guesses(
@@ -119,7 +122,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -136,68 +139,27 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         )
 
         b_guess = 1 / 2**self._num_qubits
-        a_guess = 1 - b_guess
 
         # for standard RB curve
         std_curve = curve_data.get_subset_of("standard")
-        alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
+        alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, b=b_guess)
+        a_std = (std_curve.y[0] - b_guess) / (alpha_std ** std_curve.x[0])
 
         # for interleaved RB curve
         int_curve = curve_data.get_subset_of("interleaved")
-        alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
+        alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, b=b_guess)
+        a_int = (int_curve.y[0] - b_guess) / (alpha_int ** int_curve.x[0])
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
 
         user_opt.p0.set_if_empty(
             b=b_guess,
-            a=a_guess,
+            a=np.mean([a_std, a_int]),
             alpha=alpha_std,
             alpha_c=alpha_c,
         )
 
         return user_opt
-
-    def _format_data(
-        self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
-        """Postprocessing for the processed dataset.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        # TODO Eventually move this to data processor, then create RB data processor.
-
-        # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=curve_data.data_allocation,
-            xdata=curve_data.x,
-            ydata=curve_data.y,
-            sigma=curve_data.y_err,
-            shots=curve_data.shots,
-            method="sample",
-        )
-
-        # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=data_allocation,
-            xdata=xdata,
-            ydata=ydata,
-            sigma=sigma,
-            shots=shots,
-        )
-
-        return curve.CurveData(
-            x=xdata,
-            y=ydata,
-            y_err=sigma,
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=curve_data.labels,
-        )
 
     def _create_analysis_results(
         self,

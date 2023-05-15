@@ -12,8 +12,9 @@
 
 """Ramsey XY frequency calibration experiment."""
 
-from typing import List, Optional
+from typing import Dict, List, Optional, Sequence
 
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -23,18 +24,16 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
 )
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
-    """A qubit frequency calibration experiment based on the Ramsey XY experiment.
+    """A qubit frequency calibration experiment based on the Ramsey XY experiment."""
 
-    # section: see_also
-        qiskit_experiments.library.characterization.ramsey_xy.RamseyXY
-    """
-
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
@@ -43,7 +42,8 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     ):
         """
         Args:
-            qubit: The qubit on which to run the frequency calibration.
+            physical_qubits: Sequence containing the qubit on which to run the
+                frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             delays: The list of delays that will be scanned in the experiment, in seconds.
@@ -54,7 +54,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         """
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             backend=backend,
             delays=delays,
             osc_freq=osc_freq,
@@ -62,18 +62,22 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add the oscillation frequency of the experiment to the metadata."""
-
-        param_val = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["osc_freq"] = self.experiment_options.osc_freq
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name,
             self.physical_qubits,
             group=self.experiment_options.group,
         )
 
-        experiment_data.metadata["cal_param_value"] = param_val
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
-        experiment_data.metadata["osc_freq"] = self.experiment_options.osc_freq
+        return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        schedule = self._cals.get_schedule("sx", self.physical_qubits)
+        circuit.add_calibration("sx", self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the frequency using the reported frequency less the imparted oscillation."""

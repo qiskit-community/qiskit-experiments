@@ -17,19 +17,14 @@ import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
 
 
-class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
-    """T2 Ramsey result analysis class.
-
-    # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.oscillation.DumpedOscillationAnalysis
-
-    """
+class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
+    """T2 Ramsey result analysis class."""
 
     @classmethod
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_drawer.set_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",

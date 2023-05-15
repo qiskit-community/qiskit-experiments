@@ -12,21 +12,22 @@
 
 """Ramsey XY frequency characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
-from qiskit.providers.fake_provider import FakeBackend
+from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BackendTiming, BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RamseyXY(BaseExperiment, RestlessMixin):
-    r"""Ramsey XY experiment to measure the frequency of a qubit.
+    r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview
 
@@ -52,13 +53,13 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             measure: 1/════════════════════════════════════════════╩═
                                                                    0
 
-        The first and second circuits measure the expectation value along the X and Y axis,
-        respectively. This experiment therefore draws the dynamics of the Bloch vector as a
-        Lissajous figure. Since the control electronics tracks the frame of qubit at the
-        reference frequency, which differs from the true qubit frequency by :math:`\Delta\omega`,
-        we can describe the dynamics of two circuits as follows. The Hamiltonian during the
+        The first and second circuits measure the expectation value along the -Y and X axes,
+        respectively. This experiment therefore tracks the dynamics of the Bloch vector
+        around the equator. The drive frequency of the control electronics defines a reference frame,
+        which differs from the true qubit frequency by :math:`\Delta\omega`.
+        The Hamiltonian during the
         ``Delay`` instruction is :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
-        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
+        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau / \hbar)` where :math:`\tau` is the
         duration of the delay. By scanning this duration, we can get
 
         .. math::
@@ -74,14 +75,14 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on the sign and
         the magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the measured
         data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
-        i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
+        because :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
 
         The experiment also allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
         circuit above it appears as the delay-dependent angle θ(τ).
 
     # section: analysis_ref
-        :py:class:`RamseyXYAnalysis`
+        :class:`RamseyXYAnalysis`
     """
 
     @classmethod
@@ -99,9 +100,10 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         osc_freq: float = 2e6,
@@ -109,29 +111,18 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         """Create new experiment.
 
         Args:
-            qubit: The qubit on which to run the Ramsey XY experiment.
+            physical_qubits: List containing the qubit on which to run the
+                Ramsey XY experiment.
             backend: Optional, the backend to run the experiment on.
             delays: The delays to scan, in seconds.
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
-        super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=RamseyXYAnalysis(), backend=backend)
 
-        delays = delays or self.experiment_options.delays
+        if delays is None:
+            delays = self.experiment_options.delays
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
-
-    def _set_backend(self, backend: Backend):
-        super()._set_backend(backend)
-
-        # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -147,18 +138,14 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         Returns:
             A list of circuits with a variable delay.
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        timing = BackendTiming(self.backend)
 
-        # Compute the rz rotation angle to add a modulation.
-        p_delay_sec = Parameter("delay_sec")
-        if dt_unit:
-            p_delay_dt = Parameter("delay_dt")
+        p_delay = Parameter("delay")
 
-        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * p_delay_sec
+        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * p_delay
+
+        if timing.delay_unit == "dt":
+            rotation_angle = rotation_angle * timing.dt
 
         # Create the X and Y circuits.
         metadata = {
@@ -170,12 +157,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         ram_x = self._pre_circuit()
         ram_x.sx(0)
-
-        if dt_unit:
-            ram_x.delay(p_delay_dt, 0, "dt")
-        else:
-            ram_x.delay(p_delay_sec, 0, "s")
-
+        ram_x.delay(p_delay, 0, timing.delay_unit)
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
@@ -183,12 +165,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
-
-        if dt_unit:
-            ram_y.delay(p_delay_dt, 0, "dt")
-        else:
-            ram_y.delay(p_delay_sec, 0, "s")
-
+        ram_y.delay(p_delay, 0, timing.delay_unit)
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
@@ -196,41 +173,32 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         circs = []
         for delay in self.experiment_options.delays:
-            if dt_unit:
-                delay_dt = round(delay / dt_factor)
-                real_delay_in_sec = delay_dt * dt_factor
-            else:
-                real_delay_in_sec = delay
-
-            # create ramsey x
-            if dt_unit:
-                assigned_x = ram_x.assign_parameters(
-                    {p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False
-                )
-            else:
-                assigned_x = ram_x.assign_parameters(
-                    {p_delay_sec: real_delay_in_sec}, inplace=False
-                )
-
+            assigned_x = ram_x.assign_parameters(
+                {p_delay: timing.round_delay(time=delay)}, inplace=False
+            )
             assigned_x.metadata["series"] = "X"
-            assigned_x.metadata["xval"] = real_delay_in_sec
+            assigned_x.metadata["xval"] = timing.delay_time(time=delay)
 
-            # create ramsey y
-            if dt_unit:
-                assigned_y = ram_y.assign_parameters(
-                    {p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False
-                )
-            else:
-                assigned_y = ram_y.assign_parameters(
-                    {p_delay_sec: real_delay_in_sec}, inplace=False
-                )
-
+            assigned_y = ram_y.assign_parameters(
+                {p_delay: timing.round_delay(time=delay)}, inplace=False
+            )
             assigned_y.metadata["series"] = "Y"
-            assigned_y.metadata["xval"] = real_delay_in_sec
+            assigned_y.metadata["xval"] = timing.delay_time(time=delay)
 
             circs.extend([assigned_x, assigned_y])
 
         return circs
+
+    def _finalize(self):
+        # Set initial guess for sinusoidal offset when meas level is 2.
+        # This returns probability P1 thus offset=0.5 is obvious.
+        # This guarantees reasonable fit especially when data contains only less than half cycle.
+        meas_level = self.run_options.get("meas_level", MeasLevel.CLASSIFIED)
+        if meas_level == MeasLevel.CLASSIFIED:
+            init_guess = self.analysis.options.get("p0", {})
+            if "base" not in init_guess:
+                init_guess["base"] = 0.5
+            self.analysis.set_options(p0=init_guess)
 
     def _metadata(self):
         metadata = super()._metadata()

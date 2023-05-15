@@ -21,9 +21,8 @@ import numpy as np
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis
 from qiskit_experiments.curve_analysis.curve_data import (
-    SeriesDef,
     CurveFitResult,
     ParameterRepr,
     FitOptions,
@@ -86,7 +85,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
     def test_roundtrip_serialize(self):
         """A testcase for serializing analysis instance."""
         analysis = CurveAnalysis(models=[ExpressionModel(expr="par0 * x + par1", name="test")])
-        self.assertRoundTripSerializable(analysis, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(analysis)
 
     def test_parameters(self):
         """A testcase for getting fit parameters with attribute."""
@@ -119,17 +118,19 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 ExpressionModel(
                     expr="par0 * x + par1",
                     name="s1",
-                    data_sort_key={"series": 1},
                 ),
                 ExpressionModel(
                     expr="par2 * x + par3",
                     name="s2",
-                    data_sort_key={"series": 2},
                 ),
             ]
         )
         analysis.set_options(
             data_processor=DataProcessor("counts", [Probability("1")]),
+            data_subfit_map={
+                "s1": {"series": 1},
+                "s2": {"series": 2},
+            },
         )
 
         curve_data = analysis._run_data_processing(
@@ -205,7 +206,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             analysis.set_options(data_processor=InvalidClass())
 
         with self.assertRaises(TypeError):
-            analysis.set_options(curve_drawer=InvalidClass())
+            analysis.set_options(plotter=InvalidClass())
 
     def test_end_to_end_single_function(self):
         """Integration test for single function."""
@@ -235,17 +236,19 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 ExpressionModel(
                     expr="amp * cos(2 * pi * freq * x + phi) + base",
                     name="m1",
-                    data_sort_key={"series": "cos"},
                 ),
                 ExpressionModel(
                     expr="amp * sin(2 * pi * freq * x + phi) + base",
                     name="m2",
-                    data_sort_key={"series": "sin"},
                 ),
             ]
         )
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            data_subfit_map={
+                "m1": {"series": "cos"},
+                "m2": {"series": "sin"},
+            },
             p0={"amp": 0.5, "freq": 2.1, "phi": 0.3, "base": 0.1},
             result_parameters=["amp", "freq", "phi", "base"],
             plot=False,
@@ -456,6 +459,82 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_ref = 0.45 * np.exp(-x / 0.25)
         y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
         np.testing.assert_array_almost_equal(y_ref, y_reproduced)
+
+    def test_multi_composite_curve_analysis(self):
+        """Integration test for composite curve analysis.
+
+        This analysis consists of two curve fittings for cos and sin series.
+        This experiment is executed twice for different setups of "A" and "B".
+        """
+        analyses = []
+
+        group_names = ["group_A", "group_B"]
+        setups = ["setup_A", "setup_B"]
+        for group_name, setup in zip(group_names, setups):
+            analysis = CurveAnalysis(
+                models=[
+                    ExpressionModel(
+                        expr="amp * cos(2 * pi * freq * x) + b",
+                        name="m1",
+                    ),
+                    ExpressionModel(
+                        expr="amp * sin(2 * pi * freq * x) + b",
+                        name="m2",
+                    ),
+                ],
+                name=group_name,
+            )
+            analysis.set_options(
+                filter_data={"setup": setup},
+                data_subfit_map={
+                    "m1": {"type": "cos"},
+                    "m2": {"type": "sin"},
+                },
+                result_parameters=["amp"],
+                data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            )
+            analyses.append(analysis)
+
+        group_analysis = CompositeCurveAnalysis(analyses)
+        group_analysis.analyses("group_A").set_options(p0={"amp": 0.3, "freq": 2.1, "b": 0.5})
+        group_analysis.analyses("group_B").set_options(p0={"amp": 0.5, "freq": 3.2, "b": 0.5})
+        group_analysis.set_options(plot=False)
+
+        amp1 = 0.2
+        amp2 = 0.4
+        b1 = 0.5
+        b2 = 0.5
+        freq1 = 2.1
+        freq2 = 3.2
+
+        x = np.linspace(0, 1, 100)
+        y1a = amp1 * np.cos(2 * np.pi * freq1 * x) + b1
+        y2a = amp1 * np.sin(2 * np.pi * freq1 * x) + b1
+        y1b = amp2 * np.cos(2 * np.pi * freq2 * x) + b2
+        y2b = amp2 * np.sin(2 * np.pi * freq2 * x) + b2
+
+        # metadata must contain key for filtering, specified in filter_data option.
+        test_data1a = self.single_sampler(x, y1a, type="cos", setup="setup_A")
+        test_data2a = self.single_sampler(x, y2a, type="sin", setup="setup_A")
+        test_data1b = self.single_sampler(x, y1b, type="cos", setup="setup_B")
+        test_data2b = self.single_sampler(x, y2b, type="sin", setup="setup_B")
+
+        expdata = ExperimentData(experiment=FakeExperiment())
+        expdata.add_data(test_data1a.data())
+        expdata.add_data(test_data2a.data())
+        expdata.add_data(test_data1b.data())
+        expdata.add_data(test_data2b.data())
+        expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
+
+        result = group_analysis.run(expdata).block_for_results()
+        amps = result.analysis_results("amp")
+
+        # two entries are generated for group A and group B
+        self.assertEqual(len(amps), 2)
+        self.assertEqual(amps[0].extra["group"], "group_A")
+        self.assertEqual(amps[1].extra["group"], "group_B")
+        self.assertAlmostEqual(amps[0].value.n, 0.2, delta=0.1)
+        self.assertAlmostEqual(amps[1].value.n, 0.4, delta=0.1)
 
 
 class TestFitOptions(QiskitExperimentsTestCase):
@@ -673,67 +752,33 @@ class TestFitOptions(QiskitExperimentsTestCase):
 class TestBackwardCompatibility(QiskitExperimentsTestCase):
     """Test case for backward compatibility."""
 
-    def test_old_fixed_param_attributes(self):
-        """Test if old class structure for fixed param is still supported."""
+    def test_lmfit_model_with_data_sort_key(self):
+        """Test providing LMFIT model with legacy 'data_sort_key' option."""
 
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(
-                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
+        class _DeprecatedAnalysis(CurveAnalysis):
+            def __init__(self):
+                super().__init__(
+                    models=[
+                        ExpressionModel(
+                            expr="x + a",
+                            name="experiment1",
+                            data_sort_key={"tag": 1},
                         ),
-                    )
-                ]
-
-                __fixed_parameters__ = ["par1"]
-
-                @classmethod
-                def _default_options(cls):
-                    opts = super()._default_options()
-                    opts.par1 = 2
-
-                    return opts
-
-        with self.assertWarns(DeprecationWarning):
-            instance = _DeprecatedAnalysis()
-
-        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
-
-    def test_loading_data_with_deprecated_fixed_param(self):
-        """Test loading old data with fixed parameters as standalone options."""
-
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(
-                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
+                        ExpressionModel(
+                            expr="x + b",
+                            name="experiment2",
+                            data_sort_key={"tag": 2},
                         ),
-                    )
-                ]
+                    ]
+                )
+
+        instance = _DeprecatedAnalysis()
+        experiment_data = ExperimentData()
 
         with self.assertWarns(DeprecationWarning):
-            # old option data structure, i.e. fixed param as a standalone option
-            # the analysis instance fixed parameters might be set via the experiment instance
-            instance = _DeprecatedAnalysis.from_config({"options": {"par1": 2}})
+            instance._initialize(experiment_data)
 
-        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
-
-    def test_instantiating_series_def_in_old_format(self):
-        """Test instantiating curve analysis with old series def format."""
-
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(fit_func=lambda x, par0: fit_function.exponential_decay(x, amp=par0))
-                ]
-
-        with self.assertWarns(DeprecationWarning):
-            instance = _DeprecatedAnalysis()
-
-        # Still works.
-        self.assertListEqual(instance.parameters, ["par0"])
+        self.assertDictEqual(
+            instance.options.data_subfit_map,
+            {"experiment1": {"tag": 1}, "experiment2": {"tag": 2}},
+        )
