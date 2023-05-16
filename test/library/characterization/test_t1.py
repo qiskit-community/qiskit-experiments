@@ -131,7 +131,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(physical_qubits=[qubit0], delays=delays)
         exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
@@ -179,7 +179,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp2.analysis = T1KerneledAnalysis()
 
         par_exp_list = [exp0, exp2]
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
 
         # Helpers
         exp_helper = [
@@ -245,7 +245,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp1 = T1([1], delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
-        par_exp = ParallelExperiment([exp0, exp1])
+        par_exp = ParallelExperiment([exp0, exp1], flatten_results=False)
         res = par_exp.run(backend=backend, seed_simulator=4)
         self.assertExperimentDone(res)
 
@@ -347,7 +347,7 @@ class TestT1(QiskitExperimentsTestCase):
 
         exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
         exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
-        parexp = ParallelExperiment([exp1, exp2])
+        parexp = ParallelExperiment([exp1, exp2], flatten_results=False)
         parexp.set_transpile_options(
             basis_gates=basis_gates,
             instruction_durations=instruction_durations,
