@@ -15,6 +15,7 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
+import warnings
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
@@ -29,6 +30,12 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.data_processing.nodes import (
+    MemoryToCounts,
+    Probability,
+    TrainableDiscriminatorNode,
+)
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -310,6 +317,12 @@ class BaseExperiment(ABC, StoreInitArgs):
         # generation
 
     def _add_spam_circuits(self, circuits):
+        """
+        Adds SPAM circuits at the start of the circuit list of the experiment, and tag them
+        SPAM circuits are 2 circuits as followed:
+        * circuit with only measurement on all the qubits
+        * circuit with X gate followed by measurement, on all the qubits
+        """
         circ = QuantumCircuit(self.num_qubits)
         circ.measure_all()
         circ.metadata = {
@@ -328,6 +341,37 @@ class BaseExperiment(ABC, StoreInitArgs):
         circuits.insert(0, circ)
         return circuits
 
+    def _add_discriminator_to_experiment(self, discriminator=None):
+        """
+        Adds discriminator training and usage as data processing node to the experiment
+        If a discriminator object is not supplied, uses sklearn LinearDiscriminantAnalysis
+        """
+        if not discriminator:
+            from qiskit_experiments.data_processing import SkLDA
+            from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+            discriminator = SkLDA(LinearDiscriminantAnalysis())
+        # add return_data_points option in order to have both of level 1 and level 2 data
+        self.analysis.set_options(return_data_points=True)
+        data_processor = DataProcessor(
+            input_key="memory",
+            data_actions=[
+                TrainableDiscriminatorNode(discriminator),
+                MemoryToCounts(),
+                Probability("1"),
+            ],
+        )
+        exp_data_processor = self.analysis.options["data_processor"]
+        if not exp_data_processor:
+            warnings.warn(
+                "Using a discriminator inserts nodes at the start of the data processing "
+                "chain. Your data processing nodes will be appended afer a 'Probability' "
+                "node."
+            )
+            for node in exp_data_processor._nodes:
+                data_processor.append(node)
+        self.analysis.set_options(data_processor=data_processor)
+
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled.
 
@@ -335,11 +379,14 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self.physical_qubits)
-        if self._experiment_options['add_SPAM_circuits']:
+        if self._experiment_options["use_discriminator"]:
             circuits = self.circuits()
             circuits = self._add_spam_circuits(circuits)
+            if self._experiment_options["discriminator"]:
+                self._add_discriminator_to_experiment(self._experiment_options["discriminator"])
             transpiled = transpile(circuits, self.backend, **transpile_opts)
-            # assuming the analysis uses curve_analysis, so the SPAM circuits can be filtered out using filter_data
+            # assuming the analysis uses curve_analysis, so the SPAM circuits can be filtered out
+            # using filter_data
             filter_data = self.analysis.options.filter_data
             filter_data["experiment_type"] = self.experiment_type
             self.analysis.set_options(filter_data=filter_data)
@@ -361,7 +408,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # that experiment and their default values. Only options listed
         # here can be modified later by the different methods for
         # setting options.
-        return Options(max_circuits=None, add_SPAM_circuits=False)
+        return Options(max_circuits=None, use_discriminator=False, discriminator=None)
 
     @property
     def experiment_options(self) -> Options:

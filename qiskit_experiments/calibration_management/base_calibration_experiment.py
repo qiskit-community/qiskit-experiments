@@ -302,6 +302,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
             transpiled.append(circ)
 
+        if self._experiment_options["use_discriminator"]:
+            transpiled = self._add_spam_circuits(transpiled)
+            if self._experiment_options["discriminator"]:
+                self._add_discriminator_to_experiment(self._experiment_options["discriminator"])
+            # assuming the analysis uses curve_analysis, so the SPAM circuits can be filtered out
+            # using filter_data
+            filter_data = self.analysis.options.filter_data
+            filter_data["experiment_type"] = self.experiment_type
+            self.analysis.set_options(filter_data=filter_data)
+
         return transpiled
 
     def _map_to_physical_qubits(self, circuit: QuantumCircuit) -> QuantumCircuit:
