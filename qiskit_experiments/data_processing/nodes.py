@@ -304,10 +304,7 @@ class SVD(TrainableDataAction):
             scales.append(mat_s[0])
 
         self.set_parameters(
-            main_axes=main_axes,
-            scales=scales,
-            i_means=i_means,
-            q_means=q_means,
+            main_axes=main_axes, scales=scales, i_means=i_means, q_means=q_means,
         )
 
 
@@ -316,9 +313,9 @@ class TrainableDiscriminatorNode(TrainableDataAction):
 
     This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
     subclass instance which must have a :meth:`predict` method that takes as input a list of lists
-    and returns a list of labels and a :meth:`fit` method that takes as input a list of lists and a list of labels and
-    trains the discriminator. Crucially, this node can be initialized with a single
-    discriminator which applies to each memory slot or it can be initialized with a list of
+    and returns a list of labels and a :meth:`fit` method that takes as input a list of lists and a
+    list of labels and trains the discriminator. Crucially, this node can be initialized with a
+    single discriminator which applies to each memory slot or it can be initialized with a list of
     discriminators, i.e., one for each slot.
 
     .. note::
@@ -329,9 +326,9 @@ class TrainableDiscriminatorNode(TrainableDataAction):
     """
 
     def __init__(
-            self,
-            discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
-            validate: bool = True,
+        self,
+        discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        validate: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
 
@@ -408,9 +405,14 @@ class TrainableDiscriminatorNode(TrainableDataAction):
 
         Returns:
             The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
+
+        Raises:
+            DataProcessorError: If the discriminator has not been previously trained on data.
         """
         if not self.is_trained:
-            raise DataProcessorError("The trainable discriminator must be trained on data before it can be used.")
+            raise DataProcessorError(
+                "The trainable discriminator must be trained on data before it can be used."
+            )
 
         # Case where one discriminator is applied to all the data.
         if not isinstance(self._discriminator, list):
@@ -461,10 +463,12 @@ class TrainableDiscriminatorNode(TrainableDataAction):
             if not isinstance(self._discriminator, list):
                 self._discriminator.fit(training_data, labels)
             else:
-                for idx, discriminator in enumerate(self._discriminator):
+                for idx, _ in enumerate(self._discriminator):
                     self._discriminator[idx].fit(training_data, labels)
         except Exception as ex:
-            raise DataProcessorError("The discriminator class must have a fit method in order to train it.")
+            raise DataProcessorError(
+                "The discriminator class must have a fit method in order to train it."
+            ) from ex
         self.set_parameters(trained=True)
 
 
@@ -834,10 +838,7 @@ class MarginalizeCounts(CountsAction):
     def __repr__(self):
         """String representation of the node."""
         options_str = ", ".join(
-            [
-                f"qubits_to_keep={self._qubits_to_keep}",
-                f"validate={self._validate}",
-            ]
+            [f"qubits_to_keep={self._qubits_to_keep}", f"validate={self._validate}",]
         )
         return f"{self.__class__.__name__}({options_str})"
 
@@ -885,10 +886,7 @@ class Probability(CountsAction):
     """
 
     def __init__(
-        self,
-        outcome: str,
-        alpha_prior: Union[float, Sequence[float]] = 0.5,
-        validate: bool = True,
+        self, outcome: str, alpha_prior: Union[float, Sequence[float]] = 0.5, validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.
 
