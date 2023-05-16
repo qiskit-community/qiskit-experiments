@@ -402,6 +402,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         Experiment Options:
             max_circuits (Optional[int]): The maximum number of circuits per job when
                 running an experiment on a backend.
+            use_discriminator (Optional[bool]): Whether to use discriminator to classify the
+                measured kerneled data into counts which will be used by the analysis class
+            discriminator (Optional[BaseDiscriminator]): If use_discriminator is True, this is the
+                discriminator class which will be used to classify the data
         """
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for

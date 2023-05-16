@@ -304,7 +304,10 @@ class SVD(TrainableDataAction):
             scales.append(mat_s[0])
 
         self.set_parameters(
-            main_axes=main_axes, scales=scales, i_means=i_means, q_means=q_means,
+            main_axes=main_axes,
+            scales=scales,
+            i_means=i_means,
+            q_means=q_means,
         )
 
 
@@ -838,7 +841,10 @@ class MarginalizeCounts(CountsAction):
     def __repr__(self):
         """String representation of the node."""
         options_str = ", ".join(
-            [f"qubits_to_keep={self._qubits_to_keep}", f"validate={self._validate}",]
+            [
+                f"qubits_to_keep={self._qubits_to_keep}",
+                f"validate={self._validate}",
+            ]
         )
         return f"{self.__class__.__name__}({options_str})"
 
@@ -886,7 +892,10 @@ class Probability(CountsAction):
     """
 
     def __init__(
-        self, outcome: str, alpha_prior: Union[float, Sequence[float]] = 0.5, validate: bool = True,
+        self,
+        outcome: str,
+        alpha_prior: Union[float, Sequence[float]] = 0.5,
+        validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.
 
