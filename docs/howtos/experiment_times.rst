@@ -29,7 +29,7 @@ are all of type ``datetime.datetime`` and in your local timezone:
 - :attr:`.ExperimentData.creation_datetime` is the time when the experiment data was saved via the
   service. This defaults to ``None`` if experiment data has not yet been saved.
 
-- :attr:`.ExperimentData.update_datetime` is the time the experiment data entry in the service was
+- :attr:`.ExperimentData.updated_datetime` is the time the experiment data entry in the service was
   last updated. This defaults to ``None`` if experiment data has not yet been saved.
 
 Discussion

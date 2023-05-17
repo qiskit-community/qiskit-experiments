@@ -47,6 +47,7 @@ author = "Qiskit Development Team"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
+    "qiskit_sphinx_theme",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -150,6 +151,8 @@ html_context = {
     "analytics_enabled": True,
     "expandable_sidebar": True,
 }
+
+docs_url_prefix = "ecosystem/experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
 
