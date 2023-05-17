@@ -47,6 +47,7 @@ author = "Qiskit Development Team"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
+    "qiskit_sphinx_theme",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
