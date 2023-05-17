@@ -19,7 +19,7 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 A library of of quantum characterization, calibration and verification
 experiments for calibrating and benchmarking quantum devices. See
-:mod:`qiskit_experiments.framework` for general information the framework
+:mod:`qiskit_experiments.framework` for general information on the framework
 for running experiments.
 
 
