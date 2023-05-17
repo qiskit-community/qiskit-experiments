@@ -151,6 +151,8 @@ html_context = {
     "expandable_sidebar": True,
 }
 
+docs_url_prefix = "ecosystem/experiments"
+
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
