@@ -31,7 +31,6 @@ from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit.transpiler import CouplingMap
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 

@@ -17,7 +17,6 @@ from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
 from .composite_analysis import CompositeAnalysis

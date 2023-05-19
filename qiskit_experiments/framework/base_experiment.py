@@ -28,7 +28,6 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
-from qiskit_experiments.warnings import deprecate_arguments
 
 
 class BaseExperiment(ABC, StoreInitArgs):

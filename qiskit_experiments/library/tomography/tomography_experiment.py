@@ -20,7 +20,6 @@ from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 from .basis import PreparationBasis, MeasurementBasis

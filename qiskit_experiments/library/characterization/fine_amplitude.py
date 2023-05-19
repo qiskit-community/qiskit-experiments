@@ -23,7 +23,6 @@ from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
-from qiskit_experiments.warnings import deprecate_arguments, qubit_deprecate
 
 
 class FineAmplitude(BaseExperiment, RestlessMixin):
@@ -260,7 +259,6 @@ class FineXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
@@ -299,7 +297,6 @@ class FineSXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)

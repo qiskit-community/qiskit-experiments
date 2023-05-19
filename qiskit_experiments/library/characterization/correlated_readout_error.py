@@ -16,7 +16,6 @@ from typing import Iterable, List, Optional
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis.correlated_readout_error_analysis import (
     CorrelatedReadoutErrorAnalysis,

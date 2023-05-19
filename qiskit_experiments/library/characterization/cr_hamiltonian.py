@@ -21,7 +21,6 @@ from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import (
     BaseExperiment,
     BackendTiming,

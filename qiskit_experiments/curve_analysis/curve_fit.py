@@ -19,13 +19,18 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import uncertainties
 import scipy.optimize as opt
+from qiskit.utils.deprecation import deprecate_func
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis.utils import filter_data
 from qiskit_experiments.curve_analysis.curve_data import FitData
-from qiskit_experiments.warnings import deprecated_function
 
 
-@deprecated_function("0.5", "This function has been replaced with the LMFIT library.")
+@deprecate_func(
+    since="0.4",
+    additional_msg="This function has been replaced with the LMFIT library.",
+    removal_timeline="in release 0.7",
+    package_name="qiskit-experiments",
+)
 def curve_fit(
     func: Callable,
     xdata: np.ndarray,

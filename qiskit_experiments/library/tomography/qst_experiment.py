@@ -19,7 +19,6 @@ from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment, TomographyAnalysis, BaseAnalysis
 from .qst_analysis import StateTomographyAnalysis
