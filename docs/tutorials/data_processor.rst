@@ -1,10 +1,6 @@
 Data Processor: Wrangling data
 ==============================
 
-.. note::
-    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
-    You can install it with ``python -m pip install qiskit-dynamics``.
-
 Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.
 It is implemented as a chain of data processing steps that transform various input data,
@@ -68,6 +64,9 @@ To illustrate the data processing module, we consider an example
 in which we measure a rabi oscillation with different data levels.
 The code below sets up the Rabi experiment.
 
+.. note::
+    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
+    You can install it with ``python -m pip install qiskit-dynamics``.
 
 .. jupyter-execute::
 
