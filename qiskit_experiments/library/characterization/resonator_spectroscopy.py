@@ -24,6 +24,7 @@ from qiskit.providers import Backend
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.warnings import qubit_deprecate
+from qiskit_experiments.database_service.device_component import Resonator
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -162,7 +163,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         through the experiment options.
 
         Args:
-            physical_qubits: List containing the qubit on which to run readout
+            physical_qubits: List containing the resonator on which to run readout
                 spectroscopy.
             backend: Optional, the backend to run the experiment on.
             frequencies: The frequencies to scan in the experiment, in Hz. The default values
@@ -257,6 +258,12 @@ class ResonatorSpectroscopy(Spectroscopy):
             pulse.acquire(duration, qubit, pulse.MemorySlot(self.experiment_options.memory_slot))
 
         return schedule, freq_param
+
+    def _metadata(self):
+        """Add the custom resonator components to the metadata."""
+        metadata = super()._metadata()
+        metadata["components"] = (Resonator(self.physical_qubits[0]),)
+        return metadata
 
     def circuits(self):
         """Create the circuit for the spectroscopy experiment.

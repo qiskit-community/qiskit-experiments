@@ -161,6 +161,29 @@ The corresponding custom analysis class template:
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.
 
+Additional considerations
+-------------------------
+
+This section describes some more considerations that are relevant for specific types of experiments.
+
+Non-qubit components
+====================
+
+Qiskit Experiments supports experiments on non-qubit components, such as resonators with 
+:class:`.ResonatorSpectroscopy`. If you would like to work on custom components in your
+experiment, they must be added to the experiment metadata as follows:
+
+.. jupyter-input::
+
+    from qiskit_experiments.database_service.device_component import Resonator
+
+    def _metadata(self):
+        """Add the custom resonator components to the metadata."""
+        metadata = super()._metadata()
+        metadata["components"] = (Resonator(self.physical_qubits[0]),)
+        return metadata
+
+
 Example custom experiment: randomized measurement
 -------------------------------------------------
 
