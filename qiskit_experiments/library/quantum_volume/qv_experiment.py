@@ -17,12 +17,7 @@ from typing import Union, Sequence, Optional, List
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-try:
-    from qiskit import Aer
-
-    HAS_SIMULATION_BACKEND = True
-except ImportError:
-    HAS_SIMULATION_BACKEND = False
+from qiskit.utils.optionals import HAS_AER
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
@@ -103,7 +98,9 @@ class QuantumVolume(BaseExperiment):
         # Set configurable options
         self.set_experiment_options(trials=trials, seed=seed)
 
-        if not simulation_backend and HAS_SIMULATION_BACKEND:
+        if not simulation_backend and HAS_AER:
+            from qiskit import Aer
+
             self._simulation_backend = Aer.get_backend("aer_simulator")
         else:
             self._simulation_backend = simulation_backend

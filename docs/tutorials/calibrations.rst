@@ -30,6 +30,10 @@ Note that the values of the parameters stored in the instance of the :class:`.Ca
 will automatically be updated by the calibration experiments. 
 This automatic updating can also be disabled using the ``auto_update`` flag.
 
+.. note::
+    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
+    You can install it with ``python -m pip install qiskit-dynamics``.
+
 .. jupyter-execute::
 
     import pandas as pd

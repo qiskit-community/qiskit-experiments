@@ -1,6 +1,10 @@
 Data Processor: Wrangling data
 ==============================
 
+.. note::
+    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
+    You can install it with ``python -m pip install qiskit-dynamics``.
+
 Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.
 It is implemented as a chain of data processing steps that transform various input data,

@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Qiskit Dynamics has been removed as a requirement and is now an optional developer-only dependency.
