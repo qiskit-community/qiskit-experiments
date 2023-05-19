@@ -182,7 +182,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
 
-            value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
+            # This implementation conserves the type, while working for both real and complex prev_amp
+            value = np.round(angle / rate, decimals=8) * prev_amp / np.abs(prev_amp)
 
             BaseUpdater.add_parameter_value(
                 self._cals, experiment_data, value, param, schedule, group
@@ -278,3 +279,12 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         circ = QuantumCircuit(1)
         circ.x(0)
         return circ
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach an x calibration if it is defined."""
+        # Attach the x calibration as well if it is in self._cals. We allow for
+        # it not to be present in case a user wants to rely on the default x
+        # calibration and only calibrate the pulses between levels 1 and 2.
+        if self._cals.has_template("x", self.physical_qubits):
+            schedule = self._cals.get_schedule("x", self.physical_qubits)
+            circuit.add_calibration("x", self.physical_qubits, schedule)

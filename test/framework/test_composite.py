@@ -61,7 +61,7 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2.set_transpile_options(optimization_level=1)
         exp2.analysis.set_options(dummyoption="test")
 
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
 
         self.assertEqual(par_exp.experiment_options, par_exp._default_experiment_options())
         self.assertEqual(par_exp.run_options, Options(meas_level=2))
@@ -80,8 +80,14 @@ class TestComposite(QiskitExperimentsTestCase):
         exp3 = FakeExperiment([3])
         comp_exp = ParallelExperiment(
             [
-                BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
-                BatchExperiment(3 * [ParallelExperiment([exp2, exp3])]),
+                BatchExperiment(
+                    2 * [ParallelExperiment([exp0, exp1], flatten_results=False)],
+                    flatten_results=False,
+                ),
+                BatchExperiment(
+                    3 * [ParallelExperiment([exp2, exp3], flatten_results=False)],
+                    flatten_results=False,
+                ),
             ],
             flatten_results=True,
         )
@@ -103,6 +109,7 @@ class TestComposite(QiskitExperimentsTestCase):
                 ParallelExperiment([exp0, exp1, exp2], flatten_results=True),
                 ParallelExperiment([exp2, exp3], flatten_results=True),
             ],
+            flatten_results=False,
         )
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
@@ -126,11 +133,11 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([2])
         exp2.set_run_options(shots=2000)
 
-        exp = BatchExperiment([exp1, exp2])
+        exp = BatchExperiment([exp1, exp2], flatten_results=False)
 
         loaded_exp = BatchExperiment.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -139,9 +146,9 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([2])
         exp2.set_run_options(shots=2000)
 
-        exp = BatchExperiment([exp1, exp2])
+        exp = BatchExperiment([exp1, exp2], flatten_results=False)
 
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
 
 @ddt
@@ -158,9 +165,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
-        par_exp = ParallelExperiment([exp1, exp2])
+        par_exp = ParallelExperiment([exp1, exp2], flatten_results=False)
         exp3 = FakeExperiment([0, 1, 2, 3])
-        batch_exp = BatchExperiment([par_exp, exp3])
+        batch_exp = BatchExperiment([par_exp, exp3], flatten_results=False)
 
         self.rootdata = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(self.rootdata)
@@ -259,7 +266,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2.analysis = Analysis()
 
         # Generate a copy
-        par_exp = ParallelExperiment([exp1, exp2]).copy()
+        par_exp = ParallelExperiment([exp1, exp2], flatten_results=False).copy()
         comp_exp0 = par_exp.component_experiment(0)
         comp_exp1 = par_exp.component_experiment(1)
         comp_an0 = par_exp.analysis.component_analysis(0)
@@ -275,10 +282,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
-        exp3 = ParallelExperiment([exp1, exp2])
-        exp4 = BatchExperiment([exp3, exp1])
-        exp5 = ParallelExperiment([exp4, FakeExperiment([4])])
-        nested_exp = BatchExperiment([exp5, exp3])
+        exp3 = ParallelExperiment([exp1, exp2], flatten_results=False)
+        exp4 = BatchExperiment([exp3, exp1], flatten_results=False)
+        exp5 = ParallelExperiment([exp4, FakeExperiment([4])], flatten_results=False)
+        nested_exp = BatchExperiment([exp5, exp3], flatten_results=False)
         expdata = nested_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
 
@@ -288,7 +295,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
-        par_exp = ParallelExperiment([exp1, exp2])
+        par_exp = ParallelExperiment([exp1, exp2], flatten_results=False)
         data1 = par_exp.run(FakeBackend())
         self.assertExperimentDone(data1)
 
@@ -312,7 +319,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
-        par_exp = BatchExperiment([exp1, exp2])
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
         data1 = par_exp.run(FakeBackend())
         self.assertExperimentDone(data1)
 
@@ -336,7 +343,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
-        par_exp = BatchExperiment([exp1, exp2])
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
         expdata = par_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
         data1 = expdata.child_data(0)
@@ -491,7 +498,14 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp3 = Experiment([3], 2)
         exp4 = Experiment([1, 3], 3)
         par_exp = ParallelExperiment(
-            [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
+            [
+                exp1,
+                BatchExperiment(
+                    [ParallelExperiment([exp2, exp3], flatten_results=False), exp4],
+                    flatten_results=False,
+                ),
+            ],
+            flatten_results=False,
         )
         expdata = par_exp.run(Backend(num_qubits=4))
         self.assertExperimentDone(expdata)
@@ -567,7 +581,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1.analysis = Analysis()
         exp2 = FakeExperiment([1])
         exp2.analysis = Analysis()
-        par_exp = ParallelExperiment([exp1, exp2])
+        par_exp = ParallelExperiment([exp1, exp2], flatten_results=False)
 
         # Set new analysis classes to component exp objects
         opt1_val = 9000
@@ -607,7 +621,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         test_data.add_data(datum)
 
-        sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
+            test_data.data()
+        )
         expected = [
             [
                 {
@@ -657,7 +673,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         test_data.add_data(datum)
 
-        all_sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
+            test_data.data()
+        )
         for idx, sub_data in enumerate(all_sub_data):
             expected = {
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
@@ -699,7 +717,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         test_data.add_data(datum)
 
-        all_sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
+            test_data.data()
+        )
         for idx, sub_data in enumerate(all_sub_data):
             expected = {
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
@@ -780,8 +800,8 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         exp1 = self.SimpleExperiment(range(4))
         exp2 = self.SimpleExperiment(range(4))
         exp3 = self.SimpleExperiment(range(4))
-        batch1 = BatchExperiment([exp2, exp3])
-        self.batch2 = BatchExperiment([exp1, batch1])
+        batch1 = BatchExperiment([exp2, exp3], flatten_results=False)
+        self.batch2 = BatchExperiment([exp1, batch1], flatten_results=False)
 
         exp1.set_transpile_options(coupling_map=[[0, 1], [1, 3], [3, 2]])
         exp2.set_transpile_options(coupling_map=[[0, 1], [1, 2], [2, 3]])
@@ -834,7 +854,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         exp = Experiment([0])
 
         # test separate_jobs=False
-        batch_exp = BatchExperiment([exp, exp])
+        batch_exp = BatchExperiment([exp, exp], flatten_results=False)
         batch_data = batch_exp.run(backend)
         self.assertExperimentDone(batch_data)
         job_ids = batch_data.job_ids
@@ -849,7 +869,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
 
         # test a forbidden nested case, where a parent sets separate_jobs
         # to False while the child sets it to True
-        meta_exp = BatchExperiment([batch_exp])
+        meta_exp = BatchExperiment([batch_exp], flatten_results=False)
         with self.assertRaises(QiskitError):
             meta_exp.run(backend)
 

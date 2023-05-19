@@ -47,6 +47,7 @@ author = "Qiskit Development Team"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
+    "qiskit_sphinx_theme",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -68,7 +69,6 @@ extensions = [
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_css_files = ["gallery.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -88,6 +88,7 @@ nbsphinx_thumbnails = {
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "manuals/characterization/stark_experiment": "_images/stark_experiment_1_0.png",
     "**": "_static/no_image.png",
 }
 
@@ -151,6 +152,8 @@ html_context = {
     "analytics_enabled": True,
     "expandable_sidebar": True,
 }
+
+docs_url_prefix = "ecosystem/experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
 

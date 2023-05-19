@@ -202,11 +202,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         original_result = AnalysisResult(value=value, tags=["tag1", "tag2"], **attrs)
         copied_result = original_result.copy()
         if isinstance(value, uncertainties.UFloat):
-            # If the value is an uncertainties ufloat, compare using `ufloat_equiv`
-            self.assertTrue(
-                self.ufloat_equiv(original_result.value, copied_result.value),
-                f"{original_result.value}!={copied_result.value}",
-            )
+            self.assertEqualExtended(original_result.value, copied_result.value)
         else:
             self.assertEqual(
                 original_result.value,

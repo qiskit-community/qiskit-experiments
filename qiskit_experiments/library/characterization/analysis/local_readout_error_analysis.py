@@ -16,7 +16,7 @@ from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from qiskit.result import LocalReadoutMitigator
-from qiskit.result import marginal_counts
+from qiskit.result import marginal_distribution
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
@@ -94,7 +94,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
             marginalized_counts = []
             shots = []
             for i in range(2):
-                marginal_cts = marginal_counts(counts[i], [k])
+                marginal_cts = marginal_distribution(counts[i], [k])
                 marginalized_counts.append(marginal_cts)
                 shots.append(sum(marginal_cts.values()))
 

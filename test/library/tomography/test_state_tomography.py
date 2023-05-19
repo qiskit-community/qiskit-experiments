@@ -262,8 +262,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
         exp = StateTomography(XGate())
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -272,7 +272,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         )
         loaded_exp = StateTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""

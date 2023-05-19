@@ -46,7 +46,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
-        batch_exp = BatchExperiment(exps)
+        batch_exp = BatchExperiment(exps, flatten_results=False)
         batch_data = batch_exp.run(backend)
         self.assertExperimentDone(batch_data)
 
@@ -85,7 +85,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_data = par_exp.run(backend)
         self.assertExperimentDone(par_data)
 
@@ -130,7 +130,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
-        batch_exp = BatchExperiment(exps)
+        batch_exp = BatchExperiment(exps, flatten_results=False)
         batch_data = batch_exp.run(backend)
         self.assertExperimentDone(batch_data)
 
@@ -167,7 +167,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_data = par_exp.run(backend)
         self.assertExperimentDone(par_data)
 
@@ -199,7 +199,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
 
         state_exp = StateTomography(state_op)
         chan_exp = ProcessTomography(chan_op)
-        batch_exp = BatchExperiment([state_exp, chan_exp])
+        batch_exp = BatchExperiment([state_exp, chan_exp], flatten_results=False)
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
