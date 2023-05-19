@@ -114,7 +114,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         expt = FrequencyCal([0], self.cals, backend, auto_update=True)
         expt.analysis = NoResults()
         expdata = expt.run()
-        expdata.block_for_results(timeout=3)
+        self.assertExperimentDone(expdata, timeout=3)
         self.assertEqual(expdata.analysis_status(), AnalysisStatus.ERROR)
 
     def test_ramseyxy_experiment_config(self):

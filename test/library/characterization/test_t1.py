@@ -41,7 +41,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1([0], delays)
 
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
-        exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
+        exp_data = exp.run(backend, shots=10000, seed_simulator=1)
         self.assertExperimentDone(exp_data)
         self.assertRoundTripSerializable(exp_data)
         self.assertRoundTripPickle(exp_data)
@@ -114,7 +114,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
         par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
-        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
+        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1)
         self.assertExperimentDone(res)
 
         for i, qb in enumerate(quantum_bit):

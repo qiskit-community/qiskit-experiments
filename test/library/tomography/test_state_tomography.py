@@ -332,7 +332,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
             circ.cx(i - 1, i)
         exp = StateTomography(circ, measurement_basis=meas_basis)
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("state_fidelity").value
         self.assertGreater(fid, 0.95)
@@ -365,7 +365,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
             circ.cx(i - 1, i)
         exp = StateTomography(circ, measurement_basis=meas_basis)
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("state_fidelity").value
         self.assertGreater(fid, 0.945)

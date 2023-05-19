@@ -60,7 +60,7 @@ def create_qv_data_70_trials(dir_path: str):
     qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_experiment_options(trials=70)
     qv_data = qv_exp.run(backend)
-    qv_data.block_for_results()
+    self.assertExperimentDone(qv_data)
 
     result_file_path = os.path.join(dir_path, "qv_data_70_trials.json")
     with open(result_file_path, "w", encoding="utf-8") as json_file:
@@ -82,7 +82,7 @@ def create_qv_data_low_hop(dir_path: str):
     qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
-    qv_data.block_for_results()
+    self.assertExperimentDone(qv_data)
 
     result_file_path = os.path.join(dir_path, "qv_data_high_noise.json")
     with open(result_file_path, "w", encoding="utf-8") as json_file:
@@ -105,7 +105,7 @@ def create_qv_data_low_confidence(dir_path: str):
     qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
-    qv_data.block_for_results()
+    self.assertExperimentDone(qv_data)
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_100_trials.json")
     with open(result_file_path, "w", encoding="utf-8") as json_file:
@@ -129,7 +129,7 @@ def create_qv_data_high_confidence(dir_path: str):
     qv_exp.set_experiment_options(trials=300)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
-    qv_data.block_for_results()
+    self.assertExperimentDone(qv_data)
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_300_trials.json")
     with open(result_file_path, "w", encoding="utf-8") as json_file:

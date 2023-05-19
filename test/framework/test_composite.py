@@ -831,7 +831,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
 
         expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
-        expdata.block_for_results()
+        self.assertExperimentDone(expdata)
 
         self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
         self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
