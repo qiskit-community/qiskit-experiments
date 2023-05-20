@@ -23,7 +23,6 @@ from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
-from qiskit_experiments.warnings import qubit_deprecate
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -146,7 +145,6 @@ class ResonatorSpectroscopy(Spectroscopy):
                 )
         return super().set_experiment_options(**fields)
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

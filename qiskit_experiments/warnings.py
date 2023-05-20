@@ -12,10 +12,6 @@
 
 """A collection of typical warnings."""
 
-import functools
-import warnings
-from typing import Callable, Optional, Type, Dict
-
 from qiskit.utils.lazy_tester import LazyImportTester
 
 

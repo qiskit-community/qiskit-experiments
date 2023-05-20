@@ -25,13 +25,11 @@ from qiskit_experiments.calibration_management import (
     Calibrations,
 )
 from qiskit_experiments.library.characterization.fine_frequency import FineFrequency
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
     """A calibration version of the fine frequency experiment."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
