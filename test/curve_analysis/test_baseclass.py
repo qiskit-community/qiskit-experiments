@@ -392,7 +392,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y = 0.5 * amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
