@@ -99,7 +99,7 @@ class QuantumVolume(BaseExperiment):
         self.set_experiment_options(trials=trials, seed=seed)
 
         if not simulation_backend and HAS_AER:
-            from qiskit import Aer
+            from qiskit_aer import Aer
 
             self._simulation_backend = Aer.get_backend("aer_simulator")
         else:
