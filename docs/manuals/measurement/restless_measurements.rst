@@ -74,7 +74,7 @@ they use always starts with the qubits in the ground state.
 
     # Define the experiment
     qubit = 2
-    cal_drag = RoughDragCal(qubit, cals, schedule_name='sx', backend=backend)
+    cal_drag = RoughDragCal([qubit], cals, schedule_name='sx', backend=backend)
 
     # Enable restless measurements by setting the run options and data processor
     cal_drag.enable_restless(rep_delay=1e-6)
@@ -111,7 +111,7 @@ the standard data processor by providing it to the analysis options and telling
     # define a standard data processor.
     standard_processor = DataProcessor("counts", [Probability("1")])
 
-    cal_drag = RoughDragCal(qubit, cals, schedule_name='sx', backend=backend)
+    cal_drag = RoughDragCal([qubit], cals, schedule_name='sx', backend=backend)
     cal_drag.analysis.set_options(data_processor=standard_processor)
 
     # enable restless mode and set override_processor_by_restless to False.

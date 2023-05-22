@@ -354,7 +354,8 @@ minor releases and not on patch releases.
 
 #### Adding deprecation warnings
 
-We use the Qiskit deprecation wrappers [deprecate_func](https://qiskit.org/documentation/stubs/qiskit.utils.deprecate_func.html) and [deprecate_arg](https://qiskit.org/documentation/stubs/qiskit.utils.deprecate_arg.html) to add warnings:
+We use the deprecation wrappers in [Qiskit
+Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
 
 ```python
 
@@ -362,12 +363,13 @@ We use the Qiskit deprecation wrappers [deprecate_func](https://qiskit.org/docum
 
   @deprecate_func(
       since="0.5",
-      additional_msg="old_function has been replaced by new_function.",
+      additional_msg="Use ``new_function`` instead.",
       removal_timeline="after 0.7",
       package_name="qiskit-experiments",
   )
   def old_function(*args, **kwargs):
       pass
+  
   def new_function(*args, **kwargs):
       pass
 ```
