@@ -84,7 +84,7 @@ class BaseCurveDrawer(ABC):
         since="0.5",
         additional_msg="Plotting and drawing functionality has been moved to the new "
         "`qiskit_experiments.visualization` module.",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def __init__(self):

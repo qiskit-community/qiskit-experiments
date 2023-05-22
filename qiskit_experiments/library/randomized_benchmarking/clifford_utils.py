@@ -204,7 +204,7 @@ class CliffordUtils:
     @classmethod
     @deprecate_func(
         since="0.5",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def random_cliffords(
@@ -228,7 +228,7 @@ class CliffordUtils:
     @classmethod
     @deprecate_func(
         since="0.5",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def random_clifford_circuits(
@@ -564,7 +564,6 @@ _CLIFFORD_LAYER = (
     _create_cliff_2q_layer_1(),
     _create_cliff_2q_layer_2(),
 )
-_NUM_LAYER_0 = 36
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
 

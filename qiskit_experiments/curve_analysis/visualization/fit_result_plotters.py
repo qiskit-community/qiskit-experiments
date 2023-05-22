@@ -46,7 +46,7 @@ class MplDrawSingleCanvas:
         since="0.5",
         additional_msg="Plotting and drawing of analysis figures has been moved to the new "
         "`qiskit_experiments.visualization` module.",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def __init__(self):
@@ -162,7 +162,7 @@ class MplDrawMultiCanvasVstack:
         since="0.5",
         additional_msg="Plotting and drawing of analysis figures has been moved to the new "
         "`qiskit_experiments.visualization` module.",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def __init__(self):
@@ -327,7 +327,7 @@ class MplDrawMultiCanvasVstack:
     since="0.5",
     additional_msg="Plotting and drawing of analysis figures has been moved to the new "
     "`qiskit_experiments.visualization` module.",
-    removal_timeline="after 0.6.",
+    removal_timeline="after 0.6",
     package_name="qiskit-experiments",
 )
 def draw_single_curve_mpl(
@@ -387,7 +387,7 @@ def draw_single_curve_mpl(
     since="0.5",
     additional_msg="Plotting and drawing of analysis figures has been moved to the new "
     "`qiskit_experiments.visualization` module.",
-    removal_timeline="after 0.6.",
+    removal_timeline="after 0.6",
     package_name="qiskit-experiments",
 )
 def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
@@ -463,7 +463,7 @@ class FitResultPlotters(Enum):
         since="0.5",
         additional_msg="Plotting and drawing of analysis figures has been moved to the new "
         "`qiskit_experiments.visualization` module.",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def __post_init__(self):

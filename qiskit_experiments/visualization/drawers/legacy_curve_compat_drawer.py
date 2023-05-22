@@ -14,21 +14,16 @@
 
 import warnings
 from typing import Any, Optional, Sequence, Tuple, Union
-
 import numpy as np
 
+from qiskit.utils.deprecation import deprecate_func
+
 from qiskit_experiments.curve_analysis.visualization import BaseCurveDrawer
-from qiskit_experiments.warnings import deprecated_class
 
 from ..utils import ExtentTuple
 from .base_drawer import BaseDrawer
 
 
-@deprecated_class(
-    "0.6",
-    msg="Legacy drawers from `.curve_analysis.visualization are deprecated. This compatibility wrapper "
-    "will be removed alongside the deprecated modules removal",
-)
 class LegacyCurveCompatDrawer(BaseDrawer):
     """A compatibility wrapper for the legacy and deprecated :class:`BaseCurveDrawer`.
 
@@ -44,6 +39,13 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         :meth:`scatter`) are unsupported and do nothing.
     """
 
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Legacy drawers from ``curve_analysis.visualization`` are deprecated. This compatibility wrapper "
+        "will be removed alongside the deprecated modules removal",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
     def __init__(self, curve_drawer: BaseCurveDrawer):
         """Create a LegacyCurveCompatDrawer instance.
 

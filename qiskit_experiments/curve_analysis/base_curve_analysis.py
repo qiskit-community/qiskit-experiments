@@ -135,7 +135,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @deprecate_func(
         since="0.5",
         additional_msg="Use `plotter` from the new visualization module.",
-        removal_timeline="after 0.6.",
+        removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )
     def drawer(self) -> BaseDrawer:

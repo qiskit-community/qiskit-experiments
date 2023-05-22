@@ -27,7 +27,7 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
     since="0.5",
     additional_msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
-    removal_timeline="after 0.6.",
+    removal_timeline="after 0.6",
     package_name="qiskit-experiments",
 )
 def plot_curve_fit(
@@ -108,7 +108,7 @@ def plot_curve_fit(
     since="0.5",
     additional_msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
-    removal_timeline="after 0.6.",
+    removal_timeline="after 0.6",
     package_name="qiskit-experiments",
 )
 def plot_scatter(
@@ -159,7 +159,7 @@ def plot_scatter(
     since="0.5",
     additional_msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
-    removal_timeline="after 0.6.",
+    removal_timeline="after 0.6",
     package_name="qiskit-experiments",
 )
 def plot_errorbar(
