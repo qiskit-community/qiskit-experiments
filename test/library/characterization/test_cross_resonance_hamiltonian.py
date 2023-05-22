@@ -40,14 +40,13 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test generated circuits."""
         backend = FakeBogotaV2()
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                physical_qubits=(0, 1),
-                flat_top_widths=[1000],
-                amp=0.1,
-                sigma=64,
-                risefall=2,
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+            durations=[backend.dt * (1000 + 4 * 64)],
+        )
         expr.backend = backend
 
         with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
@@ -115,15 +114,14 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             def __init__(self, width):
                 super().__init__(data=np.eye(4), time=width)
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                physical_qubits=(0, 1),
-                flat_top_widths=[1000],
-                cr_gate=FakeCRGate,
-                amp=0.1,
-                sigma=64,
-                risefall=2,
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            cr_gate=FakeCRGate,
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+            durations=[1256],
+        )
 
         # Not raise an error
         expr.circuits()
@@ -189,7 +187,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=delta)
 
     def test_integration_backward_compat(self):
-        """Integration test for Hamiltonian tomography with implicitly setting flat_top_widths."""
+        """Integration test for Hamiltonian tomography."""
         ix, iy, iz, zx, zy, zz = 1e6, 2e6, 1e3, -3e6, -2e6, 1e4
 
         delta = 3e4
@@ -214,16 +212,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             )
         )
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                (0, 1),
-                np.linspace(0, 700, 50),
-                sigma=sigma,
-                # A hack to avoild local function in pickle, i.e. in transpile.
-                cr_gate=functools.partial(
-                    SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
-                ),
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            (0, 1),
+            np.linspace(0, 700, 50),
+            sigma=sigma,
+            # A hack to avoild local function in pickle, i.e. in transpile.
+            cr_gate=functools.partial(
+                SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+            ),
+        )
         expr.backend = backend
 
         exp_data = expr.run()
