@@ -21,6 +21,8 @@ import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
 
+from qiskit.utils.deprecation import deprecate_func
+
 from qiskit_experiments.framework import (
     AnalysisResultData,
     BaseAnalysis,
@@ -34,7 +36,6 @@ from qiskit_experiments.visualization import (
     LegacyCurveCompatDrawer,
     MplDrawer,
 )
-from qiskit_experiments.warnings import deprecated_function
 
 from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
@@ -142,9 +143,11 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return self._options.plotter
 
     @property
-    @deprecated_function(
-        last_version="0.6",
-        msg="Replaced by `plotter` from the new visualization submodule.",
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Use `plotter` from the new visualization module.",
+        removal_timeline="after 0.6.",
+        package_name="qiskit-experiments",
     )
     def drawer(self) -> BaseDrawer:
         """A short-cut for curve drawer instance, if set. ``None`` otherwise."""

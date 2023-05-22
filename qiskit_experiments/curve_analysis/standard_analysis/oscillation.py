@@ -18,7 +18,6 @@ import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.warnings import deprecated_class
 
 
 class OscillationAnalysis(curve.CurveAnalysis):
