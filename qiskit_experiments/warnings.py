@@ -25,3 +25,7 @@ HAS_SKLEARN = LazyImportTester(
     name="scikit-learn",
     install="pip install scikit-learn",
 )
+
+HAS_DYNAMICS = LazyImportTester(
+    "qiskit_dynamics", name="qiskit-dynamics", install="pip install qiskit-dynamics"
+)
