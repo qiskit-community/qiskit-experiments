@@ -41,8 +41,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
 
     @deprecate_func(
         since="0.5",
-        additional_msg="Legacy drawers from ``curve_analysis.visualization`` are deprecated. This compatibility wrapper "
-        "will be removed alongside the deprecated modules removal",
+        additional_msg="Legacy drawers from ``curve_analysis.visualization`` are deprecated. "
+        "This compatibility wrapper will be removed alongside the deprecated modules removal",
         removal_timeline="after 0.6",
         package_name="qiskit-experiments",
     )

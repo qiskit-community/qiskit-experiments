@@ -363,7 +363,7 @@ We use the Qiskit deprecation wrappers [deprecate_func](https://qiskit.org/docum
   @deprecate_func(
       since="0.5",
       additional_msg="old_function has been replaced by new_function.",
-      removal_timeline="after 0.7.",
+      removal_timeline="after 0.7",
       package_name="qiskit-experiments",
   )
   def old_function(*args, **kwargs):

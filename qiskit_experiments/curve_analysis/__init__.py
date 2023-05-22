@@ -128,6 +128,10 @@ from .curve_data import (
     ParameterRepr,
     SeriesDef,
 )
+from .curve_fit import (
+    process_curve_data,
+    process_multi_curve_data,
+)
 from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function
