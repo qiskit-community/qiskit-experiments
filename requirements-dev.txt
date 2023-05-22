@@ -13,6 +13,7 @@ nbsphinx
 arxiv
 ddt>=1.6.0
 qiskit-aer>=0.11.0
+qiskit_dynamics>=0.3.0
 pandas>=1.1.5
 cvxpy>=1.1.15
 pylatexenc

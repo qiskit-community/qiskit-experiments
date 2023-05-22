@@ -172,6 +172,7 @@ intersphinx_mapping = {
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
+    "qiskit_dynamics": ("https://qiskit.org/documentation/dynamics", None),
 }
 
 
