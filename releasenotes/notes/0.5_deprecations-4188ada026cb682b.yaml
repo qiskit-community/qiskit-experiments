@@ -4,18 +4,18 @@ upgrade:
     Several deprecated methods and options have been removed and will no longer work:
 
     * Passing the ``qubits`` keyword argument or an integer qubit index to experiments is no longer
-    allowed. Use ``physical_qubits`` keyword argument with a sequence type input.
+      allowed. Use ``physical_qubits`` keyword argument with a sequence type input.
     * The ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` fitters for the
-    :class:`.StateTomographyAnalysis` and :class:`.ProcessTomographyAnalysis`
-    classes have been removed. Use the :func:`.linear_lstsq`, :func:`.cvxpy_linear_lstsq`,
-    or :func:`.cvxpy_gaussian_lstsq` fitters instead.
+      :class:`.StateTomographyAnalysis` and :class:`.ProcessTomographyAnalysis`
+      classes have been removed. Use the :func:`.linear_lstsq`, :func:`.cvxpy_linear_lstsq`,
+      or :func:`.cvxpy_gaussian_lstsq` fitters instead.
     * Curve fit solvers ``curve_fit()`` and ``multi_curve_fit()``, the dataclass of
-    the curve fit result :func:`.FitData`, and fit functions ``bloch_oscillation_x()``,
-    ``bloch_oscillation_y()``, and ``bloch_oscillation_z()`` have been removed. Use the LMFIT
-    library instead.
+      the curve fit result :func:`.FitData`, and fit functions ``bloch_oscillation_x()``,
+      ``bloch_oscillation_y()``, and ``bloch_oscillation_z()`` have been removed. Use the LMFIT
+      library instead.
     * The scipy lstsq tomography fitters ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` have
-    been removed. Use the `linear_lstsq`, `cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter
-    instead.
+      been removed. Use the `linear_lstsq`, `cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter
+      instead.
     * The ``flat_top_widths`` argument and experiment option of the
-    :class:`.CrossResonanceHamiltonian` experiment and its subclass have been removed. Use
-    ``durations`` instead.
+      :class:`.CrossResonanceHamiltonian` experiment and its subclass have been removed. Use
+      ``durations`` instead.
