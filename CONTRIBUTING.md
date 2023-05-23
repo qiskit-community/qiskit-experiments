@@ -320,8 +320,10 @@ details.
 To check what the rendered html output of the API documentation, tutorials, and release
 notes will look like for the current state of the repo, run:
 
-    tox -edocs
-    
+    tox -e docs
+
+Sometimes Sphinx's caching can get in a bad state. First, try running `tox -e docs-clean`, which will remove Sphinx's cache. If you are still having issues, try adding `-r` your command, e.g. `tox -e docs -r`. `-r` tells Tox to reinstall the dependencies.
+
 This will build all the documentation into `docs/_build/html`. The main page
 `index.html` will link to the relevant pages in the subdirectories, or you can navigate
 manually:
