@@ -322,8 +322,6 @@ notes will look like for the current state of the repo, run:
 
     tox -e docs
 
-Sometimes Sphinx's caching can get in a bad state. First, try running `tox -e docs-clean`, which will remove Sphinx's cache. If you are still having issues, try adding `-r` your command, e.g. `tox -e docs -r`. `-r` tells Tox to reinstall the dependencies.
-
 This will build all the documentation into `docs/_build/html`. The main page
 `index.html` will link to the relevant pages in the subdirectories, or you can navigate
 manually:
@@ -334,12 +332,12 @@ manually:
 * `apidocs/`:  Contains the API docs automatically compiled from module docstrings.
 * `release_notes.html`: Contains the release notes.
 
-If you encounter a build error involving `config-inited`, you need to be in the root of
+Sometimes Sphinx's caching can get in a bad state. First, try running `tox -e docs-clean`, which 
+will remove Sphinx's cache. If you are still having issues, try adding `-r` your command, 
+e.g. `tox -e docs -r`. `-r` tells Tox to reinstall the dependencies. If you encounter a build 
+error involving `config-inited`, you need to be in the root of
 the qiskit-experiments git repository then run `git remote add upstream
 https://github.com/Qiskit/qiskit-experiments` and `git fetch upstream` before building.
-Trying to rebuild docs over a document tree that's changed can also lead to problems;
-in this case, you should delete the `docs/stubs` and `docs/_build` directories before
-rebuilding.
 
 There are a few other build options available:
 
