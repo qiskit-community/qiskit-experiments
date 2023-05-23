@@ -125,7 +125,7 @@ computed for other qubits.
 
 .. jupyter-execute::
 
-    exp_with_p0 = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=number_of_echoes)
+    exp_with_p0 = T2Hahn(physical_qubits=(qubit,), delays=delays, num_echoes=number_of_echoes)
     exp_with_p0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5})
     expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
     expdata_with_p0.block_for_results()

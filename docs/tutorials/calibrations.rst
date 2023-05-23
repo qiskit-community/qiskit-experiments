@@ -391,7 +391,7 @@ over/under rotations is the highest.
 
 .. jupyter-execute::
     
-    overamp_exp = FineXAmplitude(qubit, backend=backend)
+    overamp_exp = FineXAmplitude((qubit,), backend=backend)
     overamp_exp.set_transpile_options(inst_map=inst_map)
     overamp_exp.circuits()[4].draw(output='mpl')
 
@@ -415,7 +415,7 @@ experiment detects this error. We will compare the results to the over-rotation 
     inst_map.add("x", (qubit,), x_under)
 
     # do the experiment
-    underamp_exp = FineXAmplitude(qubit, backend=backend)
+    underamp_exp = FineXAmplitude((qubit,), backend=backend)
     underamp_exp.set_transpile_options(inst_map=inst_map)
         
     exp_data_under = underamp_exp.run(backend).block_for_results()

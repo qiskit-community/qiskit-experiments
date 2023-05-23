@@ -182,8 +182,9 @@ class TestFramework(QiskitExperimentsTestCase):
         failed_analysis = FakeFailedAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
         self.assertExperimentDone(expdata1)
-        expdata2 = failed_analysis.run(expdata1, replace_results=True, seed=12345)
-        self.assertExperimentDone(expdata2)
+        expdata2 = failed_analysis.run(
+            expdata1, replace_results=True, seed=12345
+        ).block_for_results()
         # check that the analysis is empty for the answer of the failed analysis.
         self.assertEqual(expdata2.analysis_results(), [])
         # confirming original analysis results is empty due to 'replace_results=True'
