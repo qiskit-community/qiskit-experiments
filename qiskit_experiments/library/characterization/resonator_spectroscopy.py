@@ -262,7 +262,7 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _metadata(self):
         """Add the custom resonator components to the metadata."""
         metadata = super()._metadata()
-        metadata["device_components"] = tuple(map(Resonator, self.physical_qubits))
+        metadata["device_components"] = list(map(Resonator, self.physical_qubits))
         return metadata
 
     def circuits(self):

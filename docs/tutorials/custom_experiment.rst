@@ -7,7 +7,7 @@ run an experiment that's similar to an existing experiment in the
 classes. You can also write your own experiment class from the ground up by subclassing
 the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
 
-Experiment Subclassing
+Experiment subclassing
 ----------------------
 
 In general, to subclass the :class:`.BaseExperiment` class, you should:
@@ -47,10 +47,10 @@ Optionally, to allow configuring experiment and execution options, you can overr
 .. note::
 
     Qiskit Experiments supports experiments on non-qubit components defined as subclasses of
-    :class:`.DeviceComponent`, such as :class:`Resonator`s in the :class:`.ResonatorSpectroscopy` experiment.
-    If you would like to work on these components in your experiment, they should be added to the
-    experiment metadata by overriding the ``_metadata()`` to add a ``device_components`` field. Here
-    is an example for an experiment that takes in :class:`.Resonator` components:
+    :class:`.DeviceComponent`, such as the :class:`.Resonator` in the :class:`.ResonatorSpectroscopy`
+    experiment. If you would like to work on these components in your experiment, they should be
+    added to the ``device_components`` field of experiment metadata using ``_metadata()``. Here is
+    an example for an experiment that takes in :class:`.Resonator` components:
 
     .. jupyter-input::
 
@@ -59,7 +59,7 @@ Optionally, to allow configuring experiment and execution options, you can overr
         def _metadata(self):
             """Add the custom resonator components to the metadata."""
             metadata = super()._metadata()
-            metadata["device_components"] = tuple(map(Resonator, self.physical_qubits))
+            metadata["device_components"] = list(map(Resonator, self.physical_qubits))
             return metadata
 
 Furthermore, some characterization and calibration experiments can be run with restless
@@ -67,7 +67,7 @@ measurements, i.e. measurements where the qubits are not reset and circuits are 
 immediately after the previous measurement. Here, the :class:`.RestlessMixin` class
 can help to set the appropriate run options and data processing chain.
 
-Analysis Subclassing
+Analysis subclassing
 --------------------
 
 To create an analysis subclass, one only needs to implement the abstract

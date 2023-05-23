@@ -24,6 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BackendData, ParallelExperiment
 from qiskit_experiments.library import ResonatorSpectroscopy
+from qiskit_experiments.database_service import Resonator
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQParallelExperimentHelper as ParallelExperimentHelper,
@@ -129,6 +130,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         self.assertAlmostEqual(result.value.n, res_freq + freq_shift, delta=0.1e6)
         self.assertEqual(str(result.device_components[0]), f"R{qubit}")
+        self.assertEqual(expdata.metadata["device_components"], [Resonator(qubit)])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
