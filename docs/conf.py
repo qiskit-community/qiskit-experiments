@@ -47,6 +47,7 @@ author = "Qiskit Development Team"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
+    "qiskit_sphinx_theme",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -87,6 +88,7 @@ nbsphinx_thumbnails = {
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "manuals/characterization/stark_experiment": "_images/stark_experiment_1_0.png",
     "**": "_static/no_image.png",
 }
 
@@ -151,6 +153,8 @@ html_context = {
     "expandable_sidebar": True,
 }
 
+docs_url_prefix = "ecosystem/experiments"
+
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
@@ -168,6 +172,7 @@ intersphinx_mapping = {
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
+    "qiskit_dynamics": ("https://qiskit.org/documentation/dynamics", None),
 }
 
 
