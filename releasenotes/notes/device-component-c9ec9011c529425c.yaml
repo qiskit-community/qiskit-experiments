@@ -1,0 +1,7 @@
+---
+developer:
+  - |
+    Going forward, the ``device_component`` experiment metadata field should be populated in
+    experiments that use non-qubit components. See the :doc:`custom experiments tutorial
+    </tutorials/getting_started>` for more details.
+

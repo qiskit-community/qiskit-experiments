@@ -16,7 +16,8 @@ from abc import ABC, abstractmethod
 
 
 class DeviceComponent(ABC):
-    """Class representing a device component."""
+    """Abstract class representing a device component. Custom components should be subclassed from
+    this class."""
 
     @abstractmethod
     def __str__(self):
@@ -56,7 +57,7 @@ class Resonator(DeviceComponent):
 
 
 class UnknownComponent(DeviceComponent):
-    """Class representing unknown device component."""
+    """Class representing an unknown device component."""
 
     def __init__(self, component: str):
         self._component = component
@@ -69,13 +70,13 @@ class UnknownComponent(DeviceComponent):
 
 
 def to_component(string: str) -> DeviceComponent:
-    """Convert the input string to a ``DeviceComponent`` instance.
+    """Convert the input string to a :class:`.DeviceComponent` instance.
 
     Args:
         string: String to be converted.
 
     Returns:
-        A ``DeviceComponent`` instance.
+        A :class:`.DeviceComponent` instance.
 
     Raises:
         ValueError: If input string is not a valid device component.

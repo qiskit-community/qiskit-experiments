@@ -24,7 +24,7 @@ from qiskit.providers import Backend
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.warnings import qubit_deprecate
-from qiskit_experiments.database_service.device_component import Resonator
+from qiskit_experiments.database_service import Resonator
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -262,7 +262,7 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _metadata(self):
         """Add the custom resonator components to the metadata."""
         metadata = super()._metadata()
-        metadata["components"] = (Resonator(self.physical_qubits[0]),)
+        metadata["device_components"] = tuple(map(Resonator, self.physical_qubits))
         return metadata
 
     def circuits(self):

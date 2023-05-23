@@ -7,7 +7,10 @@ run an experiment that's similar to an existing experiment in the
 classes. You can also write your own experiment class from the ground up by subclassing
 the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
 
-In general, to subclass :class:`.BaseExperiment` class, you should:
+Experiment Subclassing
+----------------------
+
+In general, to subclass the :class:`.BaseExperiment` class, you should:
 
 - Implement the abstract :meth:`.BaseExperiment.circuits` method.
   This should return a list of :class:`~qiskit.circuit.QuantumCircuit` objects defining
@@ -41,13 +44,31 @@ Optionally, to allow configuring experiment and execution options, you can overr
 - :meth:`.BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
+.. note::
+
+    Qiskit Experiments supports experiments on non-qubit components defined as subclasses of
+    :class:`.DeviceComponent`, such as :class:`Resonator`s in the :class:`.ResonatorSpectroscopy` experiment.
+    If you would like to work on these components in your experiment, they should be added to the
+    experiment metadata by overriding the ``_metadata()`` to add a ``device_components`` field. Here
+    is an example for an experiment that takes in :class:`.Resonator` components:
+
+    .. jupyter-input::
+
+        from qiskit_experiments.database_service import Resonator
+
+        def _metadata(self):
+            """Add the custom resonator components to the metadata."""
+            metadata = super()._metadata()
+            metadata["device_components"] = tuple(map(Resonator, self.physical_qubits))
+            return metadata
+
 Furthermore, some characterization and calibration experiments can be run with restless
 measurements, i.e. measurements where the qubits are not reset and circuits are executed
 immediately after the previous measurement. Here, the :class:`.RestlessMixin` class
 can help to set the appropriate run options and data processing chain.
 
-Analysis Subclasses
--------------------
+Analysis Subclassing
+--------------------
 
 To create an analysis subclass, one only needs to implement the abstract
 :meth:`.BaseAnalysis._run_analysis` method. This method takes an
@@ -161,27 +182,9 @@ The corresponding custom analysis class template:
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.
 
-Additional considerations
--------------------------
 
-This section describes some more considerations that are relevant for specific types of experiments.
 
-Non-qubit components
-====================
 
-Qiskit Experiments supports experiments on non-qubit components, such as resonators with 
-:class:`.ResonatorSpectroscopy`. If you would like to work on custom components in your
-experiment, they must be added to the experiment metadata as follows:
-
-.. jupyter-input::
-
-    from qiskit_experiments.database_service.device_component import Resonator
-
-    def _metadata(self):
-        """Add the custom resonator components to the metadata."""
-        metadata = super()._metadata()
-        metadata["components"] = (Resonator(self.physical_qubits[0]),)
-        return metadata
 
 
 Example custom experiment: randomized measurement
