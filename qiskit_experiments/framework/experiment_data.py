@@ -724,8 +724,6 @@ class ExperimentData:
             # Setting private variable directly to avoid duplicate save. This
             # can be removed when we start tracking changes.
             res._auto_save = save_val
-        for data in self.child_data():
-            data.auto_save = save_val
 
     @property
     def source(self) -> Dict:
@@ -1443,6 +1441,7 @@ class ExperimentData:
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
+        print("_save_experiment_metadata called for", self.experiment_id)
         if not self._service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
