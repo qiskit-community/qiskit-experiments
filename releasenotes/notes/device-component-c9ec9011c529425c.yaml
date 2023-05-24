@@ -1,7 +1,8 @@
 ---
 developer:
   - |
-    Going forward, the ``device_component`` experiment metadata field should be populated in with a
-    list of components used in the experiment. See the :doc:`custom experiments tutorial
+    A ``device_component`` field that contains a list of device components used in the experiment
+    has been added to experiment metadata. Experiments with non-qubit components should override the
+    default value of all qubit components. See the :doc:`custom experiments tutorial
     </tutorials/custom_experiment>` for more details.
 
