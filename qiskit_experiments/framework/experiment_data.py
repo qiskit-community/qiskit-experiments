@@ -717,13 +717,16 @@ class ExperimentData:
         Args:
             save_val: Whether to do auto-save.
         """
-        if save_val is True and not self._auto_save:
-            self.save()
+        # children will be saved once we set auto_save for them
+        if save_val is True:
+            self.save(save_children=False)
         self._auto_save = save_val
         for res in self._analysis_results.values():
             # Setting private variable directly to avoid duplicate save. This
             # can be removed when we start tracking changes.
             res._auto_save = save_val
+        for data in self.child_data():
+            data.auto_save = save_val
 
     @property
     def source(self) -> Dict:
@@ -1484,7 +1487,11 @@ class ExperimentData:
         return sys.getsizeof(self.metadata) > 10000
 
     def save(
-        self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
+        self,
+        suppress_errors: bool = True,
+        max_workers: int = 100,
+        save_figures: bool = True,
+        save_children=True,
     ) -> None:
         """Save the experiment data to a database service.
 
@@ -1493,6 +1500,7 @@ class ExperimentData:
             pass them on, potentially aborting the experiemnt (false)
             max_workers: Maximum number of concurrent worker threads
             save_figures: Whether to save figures in the database or not
+            save_children: For composite experiments, whether to save children as well
 
         Raises:
             ExperimentDataSaveFailed: If no experiment database service
@@ -1579,13 +1587,16 @@ class ExperimentData:
                 f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
-        for data in self._child_data.values():
-            original_verbose = data.verbose
-            data.verbose = False
-            data.save(
-                suppress_errors=suppress_errors, max_workers=max_workers, save_figures=save_figures
-            )
-            data.verbose = original_verbose
+        if save_children:
+            for data in self._child_data.values():
+                original_verbose = data.verbose
+                data.verbose = False
+                data.save(
+                    suppress_errors=suppress_errors,
+                    max_workers=max_workers,
+                    save_figures=save_figures,
+                )
+                data.verbose = original_verbose
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
