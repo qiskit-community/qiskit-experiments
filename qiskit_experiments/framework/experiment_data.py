@@ -1491,7 +1491,7 @@ class ExperimentData:
         suppress_errors: bool = True,
         max_workers: int = 100,
         save_figures: bool = True,
-        save_children=True,
+        save_children: bool = True,
     ) -> None:
         """Save the experiment data to a database service.
 
