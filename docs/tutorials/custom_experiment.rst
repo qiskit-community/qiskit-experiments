@@ -48,8 +48,8 @@ Optionally, to allow configuring experiment and execution options, you can overr
 
     Qiskit Experiments supports experiments on non-qubit components defined as subclasses of
     :class:`.DeviceComponent`, such as the :class:`.Resonator` in the :class:`.ResonatorSpectroscopy`
-    experiment. If you would like to work on these components in your experiment, they should be
-    added to the ``device_components`` field of experiment metadata using ``_metadata()``. Here is
+    experiment. If you would like to work on these components in your experiment, you should override
+    ``_metadata()`` to populate ``device_components`` with these components. Here is
     an example for an experiment that takes in :class:`.Resonator` components:
 
     .. jupyter-input::

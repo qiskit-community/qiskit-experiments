@@ -1,7 +1,7 @@
 ---
 developer:
   - |
-    Going forward, the ``device_component`` experiment metadata field should be populated in
-    experiments that use non-qubit components with a list of components. See the :doc:`custom
-    experiments tutorial </tutorials/custom_experiment>` for more details.
+    Going forward, the ``device_component`` experiment metadata field should be populated in with a
+    list of components used in the experiment. See the :doc:`custom experiments tutorial
+    </tutorials/custom_experiment>` for more details.
 

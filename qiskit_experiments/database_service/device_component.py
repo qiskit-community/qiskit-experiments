@@ -34,39 +34,39 @@ class Qubit(DeviceComponent):
     """Class representing a qubit device component."""
 
     def __init__(self, index: int):
-        self._index = index
+        self.index = index
 
     def __str__(self):
-        return f"Q{self._index}"
+        return f"Q{self.index}"
 
     def __json_encode__(self):
-        return {"index": self._index}
+        return {"index": self.index}
 
 
 class Resonator(DeviceComponent):
     """Class representing a resonator device component."""
 
     def __init__(self, index: int):
-        self._index = index
+        self.index = index
 
     def __str__(self):
-        return f"R{self._index}"
+        return f"R{self.index}"
 
     def __json_encode__(self):
-        return {"index": self._index}
+        return {"index": self.index}
 
 
 class UnknownComponent(DeviceComponent):
     """Class representing an unknown device component."""
 
     def __init__(self, component: str):
-        self._component = component
+        self.component = component
 
     def __str__(self):
-        return self._component
+        return self.component
 
     def __json_encode__(self):
-        return {"component": self._component}
+        return {"component": self.component}
 
 
 def to_component(string: str) -> DeviceComponent:

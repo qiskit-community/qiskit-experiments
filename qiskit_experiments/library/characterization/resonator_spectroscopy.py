@@ -260,7 +260,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         return schedule, freq_param
 
     def _metadata(self):
-        """Add the custom resonator components to the metadata."""
+        """Update metadata with the resonator components."""
         metadata = super()._metadata()
         metadata["device_components"] = list(map(Resonator, self.physical_qubits))
         return metadata
