@@ -1176,6 +1176,7 @@ class ExperimentData:
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
                 figure_data = figure.copy(new_name=fig_name)
+                figure = figure_data.figure
 
             else:
                 figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
