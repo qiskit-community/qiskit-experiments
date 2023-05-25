@@ -166,7 +166,7 @@ Instantiate the experiment and draw the first circuit in the sweep:
 
     freq01_estimate = backend.defaults().qubit_freq_est[qubit]
     frequencies = np.linspace(freq01_estimate-15e6, freq01_estimate+15e6, 51)
-    spec = RoughFrequencyCal([qubit], cals, frequencies, backend=backend)
+    spec = RoughFrequencyCal((qubit,), cals, frequencies, backend=backend)
     spec.set_experiment_options(amp=0.005)
 
 .. jupyter-execute::
@@ -459,7 +459,7 @@ error which we want to correct.
 
     from qiskit_experiments.library import FineSXAmplitudeCal
 
-    amp_cal = FineSXAmplitudeCal([qubit], cals, backend=backend, schedule_name="sx")
+    amp_cal = FineSXAmplitudeCal((qubit,), cals, backend=backend, schedule_name="sx")
     amp_cal.circuits()[4].draw(output="mpl")
 
 Let's run the calibration experiment:

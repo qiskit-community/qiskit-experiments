@@ -190,13 +190,13 @@ total delay time.
     estimated_t2hahn2 = 30 * conversion_factor
     
     # Create a T2Hahn experiment with 0 echoes
-    exp2_0echoes = T2Hahn([qubit2], delays2, num_echoes=0)
+    exp2_0echoes = T2Hahn((qubit2,), delays2, num_echoes=0)
     exp2_0echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
     print("The first circuit of hahn echo experiment with 0 echoes:")
     print(exp2_0echoes.circuits()[0])
     
     # Create a T2Hahn experiment with 1 echo. Print the first circuit as an example
-    exp2_1echoes = T2Hahn([qubit2], delays3, num_echoes=num_echoes)
+    exp2_1echoes = T2Hahn((qubit2,), delays3, num_echoes=num_echoes)
     exp2_1echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
     print("The first circuit of hahn echo experiment with 1 echo:")
     print(exp2_1echoes.circuits()[0])
