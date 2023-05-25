@@ -239,7 +239,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate2",
             sched_name="test",
         )
-        batch_exp = BatchExperiment([exp1, exp2], backend=backend)
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=False, backend=backend)
         batch_exp.run(backend).block_for_results()
 
         # Get new value
@@ -309,7 +309,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate2",
             sched_name="test2",
         )
-        batch_exp = ParallelExperiment([exp1, exp2], backend=backend)
+        batch_exp = ParallelExperiment([exp1, exp2], flatten_results=False, backend=backend)
         batch_exp.run(backend).block_for_results()
 
         # Get new value

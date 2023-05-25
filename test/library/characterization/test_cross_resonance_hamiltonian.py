@@ -179,7 +179,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         # Thus at least one of these values should be round-trip tested.
         res_ix = exp_data.analysis_results("omega_ix")
         self.assertAlmostEqual(res_ix.value.n, ix, delta=delta)
-        self.assertRoundTripSerializable(res_ix.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(res_ix.value)
         self.assertEqual(res_ix.extra["unit"], "Hz")
 
         self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=delta)
@@ -249,7 +249,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
         loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -260,4 +260,4 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             sigma=64,
             risefall=2,
         )
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

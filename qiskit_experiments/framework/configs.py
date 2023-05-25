@@ -22,15 +22,12 @@ from qiskit_experiments.version import __version__
 
 @dataclasses.dataclass(frozen=True)
 class ExperimentConfig:
-    """Store configuration settings for an Experiment
+    """Store configuration settings for an Experiment class.
 
-    This stores the current configuration of a
-    :class:~qiskit_experiments.framework.BaseExperiment` and
-    can be used to reconstruct the experiment using either the
-    :meth:`experiment` property if the experiment class type is
-    currently stored, or the
-    :meth:~qiskit_experiments.framework.BaseExperiment.from_config`
-    class method of the appropriate experiment.
+    This stores the current configuration of a :class:`.BaseExperiment` and can be used to
+    reconstruct the experiment using either the :meth:`experiment` property if the experiment class
+    type is currently stored, or the :meth:`~.BaseExperiment.from_config` class method of the
+    appropriate experiment.
     """
 
     cls: type = None
@@ -75,15 +72,12 @@ class ExperimentConfig:
 
 @dataclasses.dataclass(frozen=True)
 class AnalysisConfig:
-    """Store configuration settings for Analysis
+    """Store configuration settings for an Analysis class.
 
-    This stores the current configuration of a
-    :class:~qiskit_experiments.framework.BaseAnalysis` and
-    can be used to reconstruct the analysis class using either the
-    :meth:`analysis` property if the analysis class type is
-    currently stored, or the
-    :meth:~qiskit_experiments.framework.BaseAnalysis.from_config`
-    class method of the appropriate experiment.
+    This stores the current configuration of a :class:`.BaseAnalysis` and can be used to reconstruct
+    the analysis class using either the :meth:`analysis` property if the analysis class type is
+    currently stored, or the :meth:`~.BaseAnalysis.from_config` class method of the appropriate
+    experiment.
     """
 
     cls: type = None

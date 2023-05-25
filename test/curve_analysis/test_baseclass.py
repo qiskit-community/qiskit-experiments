@@ -85,7 +85,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
     def test_roundtrip_serialize(self):
         """A testcase for serializing analysis instance."""
         analysis = CurveAnalysis(models=[ExpressionModel(expr="par0 * x + par1", name="test")])
-        self.assertRoundTripSerializable(analysis, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(analysis)
 
     def test_parameters(self):
         """A testcase for getting fit parameters with attribute."""
