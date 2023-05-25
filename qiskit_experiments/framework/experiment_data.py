@@ -1013,7 +1013,10 @@ class ExperimentData:
                 ID connected by underscores. If `figures` is a list, then `figure_names` must also
                 be a list of the same length or ``None``.
             overwrite: Whether to overwrite the figure if one already exists with
-                the same name.
+                the same name. By default, overwrite is ``False`` and the figure will be renamed
+                with an incrementing numerical suffix. For example, trying to save ``figure.svg`` when
+                ``figure.svg`` already exists will save it as ``figure-1.svg``, and trying to save
+                ``figure-1.svg`` when ``figure-1.svg`` already exists will save it as ``figure-2.svg``.
             save_figure: Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
 
@@ -1058,11 +1061,7 @@ class ExperimentData:
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
-                raise ExperimentEntryExists(
-                    f"A figure with the name {fig_name} for this experiment "
-                    f"already exists. Specify overwrite=True if you "
-                    f"want to overwrite it."
-                )
+                # TODO remove any existing suffixes then generate new figure
             # figure_data = None
             if isinstance(figure, str):
                 with open(figure, "rb") as file:
