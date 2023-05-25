@@ -40,7 +40,6 @@ from qiskit_experiments.framework.experiment_data import local_to_utc
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
-    ExperimentEntryExists,
 )
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework.experiment_data import (
