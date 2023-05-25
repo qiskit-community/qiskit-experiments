@@ -1445,7 +1445,6 @@ class ExperimentData:
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
-        print("_save_experiment_metadata called for", self.experiment_id)
         if not self._service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
@@ -1725,7 +1724,6 @@ class ExperimentData:
 
         # Wait for futures
         self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
-
         # Clean up done job futures
         num_jobs = len(job_ids)
         for jid, fut in zip(job_ids, job_futs):
