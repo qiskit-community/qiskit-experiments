@@ -74,7 +74,7 @@ they use always starts with the qubits in the ground state.
 
     # Define the experiment
     qubit = 2
-    cal_drag = RoughDragCal(qubit,), cals, schedule_name='sx', backend=backend)
+    cal_drag = RoughDragCal((qubit,), cals, schedule_name='sx', backend=backend)
 
     # Enable restless measurements by setting the run options and data processor
     cal_drag.enable_restless(rep_delay=1e-6)
@@ -162,7 +162,7 @@ using the code below.
 
     dt = BackendData(backend).dt
     inst_map = backend.instruction_schedule_map
-    meas_length = inst_map.get("measure", (qubit, )).duration * dt
+    meas_length = inst_map.get("measure", (qubit,)).duration * dt
 
     # Compute the average duration of all circuits
     # Remove measurement instructions
