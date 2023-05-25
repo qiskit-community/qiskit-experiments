@@ -336,7 +336,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         self.assertEqual(
             exp_data.add_figures(friend_bytes, f"{fn_prefix}-a.svg"), f"{fn_prefix}-a.svg"
-        )        
+        )
 
     def test_add_figure_save(self):
         """Test saving a figure in the database."""
