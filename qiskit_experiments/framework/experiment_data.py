@@ -53,7 +53,6 @@ from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
-    ExperimentEntryExists,
     ExperimentDataSaveFailed,
 )
 
@@ -1116,9 +1115,9 @@ class ExperimentData:
             figures: Paths of the figure files or figure data.
             figure_names: Names of the figures. If ``None``, use the figure file
                 names, if given, or a generated name of the format ``experiment_type``, figure
-                index, first 5 elements of ``physical_qubits``, and first 8 digits of the experiment
-                ID connected by underscores. If `figures` is a list, then `figure_names` must also
-                be a list of the same length or ``None``.
+                index, first 5 elements of ``device_components``, and first 8 digits of the
+                experiment ID connected by underscores, such as ``T1_Q0_0123abcd.svg``. If `figures`
+                is a list, then `figure_names` must also be a list of the same length or ``None``.
             overwrite: Whether to overwrite the figure if one already exists with
                 the same name. By default, overwrite is ``False`` and the figure will be renamed
                 with an incrementing numerical suffix. For example, trying to save ``figure.svg`` when
@@ -1128,11 +1127,9 @@ class ExperimentData:
                 the ``auto-save`` attribute is used.
 
         Returns:
-            Figure names.
+            Figure names in SVG format.
 
         Raises:
-            ExperimentEntryExists: If the figure with the same name already exists,
-                and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
         if figure_names is not None and not isinstance(figure_names, list):
@@ -1153,22 +1150,36 @@ class ExperimentData:
                 elif not isinstance(figure, FigureData):
                     fig_name = (
                         f"{self.experiment_type}_"
-                        f"Fig-{len(self._figures)}_"
-                        f'{"_".join(f"Q{i}" for i in self.metadata.get("physical_qubits", [])[:5])}_'
-                        f"Exp-{self.experiment_id[:8]}.svg"
+                        f'{"_".join(str(i) for i in self.metadata.get("device_components", [])[:5])}_'
+                        f"{self.experiment_id[:8]}.svg"
                     )
                 else:
                     fig_name = figure.name
             else:
                 fig_name = figure_names[idx]
-
             if not fig_name.endswith(".svg"):
                 LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
                 fig_name += ".svg"
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
-                # TODO remove any existing suffixes then generate new figure
+                # Remove any existing suffixes then generate new figure name
+                fig_name_chunked = fig_name.rsplit("-", 1)
+                if len(fig_name_chunked) != 1:  # Figure name already has a suffix
+                    fig_name_prefix = fig_name_chunked[0]
+                    try:
+                        fig_name_suffix = int(fig_name_chunked[1].rsplit(".", 1)[0])
+                    except ValueError:  # the suffix is not an int, add our own suffix
+                        fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                        fig_name_suffix = 0
+                else:
+                    fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                    fig_name_suffix = 0
+                fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+                while fig_name in self._figures:  # Increment suffix until the name isn't taken
+                    fig_name_suffix += 1
+                    fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+
             # figure_data = None
             if isinstance(figure, str):
                 with open(figure, "rb") as file:
@@ -1181,6 +1192,7 @@ class ExperimentData:
             else:
                 figure_metadata = {
                     "qubits": self.metadata.get("physical_qubits"),
+                    "device_components": self.metadata.get("device_components"),
                     "experiment_type": self.experiment_type,
                 }
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
