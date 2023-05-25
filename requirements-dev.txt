@@ -3,16 +3,17 @@ stestr
 pylint~=2.16.2
 astroid~=2.14.2  # Must be kept aligned to what pylint wants
 jinja2==3.0.3
-sphinx~=5.0
+sphinx>=6.2.1,<=7
 jupyter-sphinx>=0.4.0
-qiskit-sphinx-theme~=1.11.0rc2
-sphinx-design==0.3.0
+qiskit-sphinx-theme~=1.12.0
+sphinx-design~=0.4.1
 pygments>=2.4
 reno>=4.0.0
 nbsphinx
 arxiv
 ddt>=1.6.0
 qiskit-aer>=0.11.0
+qiskit_dynamics>=0.3.0
 pandas>=1.1.5
 cvxpy>=1.1.15
 pylatexenc

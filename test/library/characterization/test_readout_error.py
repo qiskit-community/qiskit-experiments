@@ -179,7 +179,7 @@ class TestReadoutError(QiskitExperimentsTestCase):
         backend = FakeParisV2()
         exp1 = CorrelatedReadoutError([0, 2])
         exp2 = CorrelatedReadoutError([1, 3])
-        exp = ParallelExperiment([exp1, exp2])
+        exp = ParallelExperiment([exp1, exp2], flatten_results=False)
         expdata = exp.run(backend=backend).block_for_results()
         mit1 = expdata.child_data(0).analysis_results(0).value
         mit2 = expdata.child_data(1).analysis_results(0).value
