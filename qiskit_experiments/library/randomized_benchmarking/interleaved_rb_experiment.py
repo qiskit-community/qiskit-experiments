@@ -12,6 +12,7 @@
 """
 Interleaved RB Experiment class.
 """
+import itertools
 import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
 
@@ -198,7 +199,8 @@ class InterleavedRB(StandardRB):
                 "physical_qubits": self.physical_qubits,
                 "interleaved": True,
             }
-        return reference_circuits + interleaved_circuits
+        # arrange circuits as ref-int-ref-int-ref-int
+        return list(itertools.chain.from_iterable(zip(reference_circuits, interleaved_circuits)))
 
     def _to_instruction(
         self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
