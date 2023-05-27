@@ -67,14 +67,14 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         )
         loaded_exp = rb.InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(), physical_qubits=(0,), lengths=[10, 20, 30], seed=123
         )
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
@@ -387,5 +387,5 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)

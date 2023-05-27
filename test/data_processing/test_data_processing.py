@@ -387,14 +387,14 @@ class TestDataProcessor(BaseDataProcessorTest):
         """Check if the data processor is serializable."""
         node = MinMaxNormalize()
         processor = DataProcessor("counts", [node])
-        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(processor)
 
     def test_json_multi_node(self):
         """Check if the data processor with multiple nodes is serializable."""
         node1 = MinMaxNormalize()
         node2 = AverageData(axis=2)
         processor = DataProcessor("counts", [node1, node2])
-        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(processor)
 
     def test_json_trained(self):
         """Check if trained data processor is serializable and still work."""
@@ -405,7 +405,7 @@ class TestDataProcessor(BaseDataProcessorTest):
             main_axes=np.array([[1, 0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
         )
         processor = DataProcessor("memory", data_actions=[node])
-        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+        self.assertRoundTripSerializable(processor)
 
         serialized = json.dumps(processor, cls=ExperimentEncoder)
         loaded_processor = json.loads(serialized, cls=ExperimentDecoder)

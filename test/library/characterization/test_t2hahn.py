@@ -69,8 +69,8 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         exp.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         expdata = exp.run(backend=backend, shots=1000)
         self.assertExperimentDone(expdata, timeout=300)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)
         result = expdata.analysis_results("T2")
         fitval = result.value
         if num_of_echoes != 0:
@@ -94,7 +94,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         exp0.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True)
         exp2.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True)
 
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
 
         p0 = {
             "A": [0.5, None, 0.5],
@@ -172,7 +172,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         exp = T2Hahn([0], [1, 2, 3, 4, 5])
         loaded_exp = T2Hahn.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -180,7 +180,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         delays0 = list(range(1, 60, 2))
 
         exp = T2Hahn([0], delays0)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
         osc_freq = 0.08
         estimated_t2hahn = 30
@@ -196,10 +196,10 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

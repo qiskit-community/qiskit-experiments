@@ -53,12 +53,12 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
         loaded_exp = rb.StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
@@ -384,8 +384,8 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)
 
     def test_single_qubit_parallel(self):
         """Test single qubit RB in parallel."""
@@ -399,7 +399,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_exp.set_transpile_options(**self.transpiler_options)
 
         par_expdata = par_exp.run(backend=self.backend)
@@ -421,7 +421,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_exp.set_transpile_options(**self.transpiler_options)
 
         par_expdata = par_exp.run(backend=self.backend)
