@@ -17,7 +17,9 @@ import uuid
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+from unittest import mock
 from ddt import ddt, data
+
 
 from qiskit import QuantumCircuit, Aer
 from qiskit.result import Result
@@ -379,6 +381,22 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         expdata.auto_save = True
         expdata.block_for_results()
         self.assertExperimentDone(expdata)
+
+    def test_composite_auto_save(self):
+        """
+        Test setting autosave when using composite experiments
+        """
+        service = mock.create_autospec(IBMExperimentService, instance=True)
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
+        expdata = par_exp.run(FakeBackend())
+        expdata.service = service
+        expdata.block_for_results()
+        expdata.auto_save = True
+        self.assertEqual(service.create_or_update_experiment.call_count, 3)
+
+
 
 
     def test_composite_subexp_data(self):
