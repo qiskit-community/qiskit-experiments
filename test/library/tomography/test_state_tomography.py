@@ -13,7 +13,6 @@
 """
 StateTomography experiment tests
 """
-import io
 from test.base import QiskitExperimentsTestCase
 from math import sqrt
 
@@ -22,7 +21,7 @@ import numpy as np
 from uncertainties import UFloat
 
 import qiskit.quantum_info as qi
-from qiskit import QuantumCircuit, qpy
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate
 from qiskit.result import LocalReadoutMitigator
 
