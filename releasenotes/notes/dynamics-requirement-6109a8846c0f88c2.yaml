@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    Qiskit Dynamics has been removed as a requirement and is now an optional
+    dependency for running the tutorials and tests.

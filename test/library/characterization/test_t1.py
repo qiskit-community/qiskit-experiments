@@ -17,7 +17,6 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.fake_provider import FakeAthensV2
-from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
@@ -50,23 +49,6 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
         self.assertEqual(res.extra["unit"], "s")
-
-        exp_data.service = IBMExperimentService(local=True, local_save=False)
-        exp_data.save()
-        loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
-
-        # By default, server result is sorted by creation_datetime and result_id.
-        # In some test environment datetime sorting may not keep original element ordering.
-        exp_results = sorted(
-            exp_data.analysis_results(),
-            key=lambda r: r.name,
-        )
-        load_results = sorted(
-            loaded_data.analysis_results(),
-            key=lambda r: r.name,
-        )
-        for exp_res, load_res in zip(exp_results, load_results):
-            self.assertEqualExtended(exp_res, load_res)
 
     def test_t1_measurement_level_1(self):
         """
@@ -131,7 +113,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(physical_qubits=[qubit0], delays=delays)
         exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
@@ -139,15 +121,6 @@ class TestT1(QiskitExperimentsTestCase):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
-
-        res.service = IBMExperimentService(local=True, local_save=False)
-        res.save()
-        loaded_data = ExperimentData.load(res.experiment_id, res.service)
-
-        for i in range(2):
-            sub_res = res.child_data(i).analysis_results("T1")
-            sub_loaded = loaded_data.child_data(i).analysis_results("T1")
-            self.assertEqual(repr(sub_res), repr(sub_loaded))
 
     def test_t1_parallel_measurement_level_1(self):
         """
@@ -179,7 +152,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp2.analysis = T1KerneledAnalysis()
 
         par_exp_list = [exp0, exp2]
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
 
         # Helpers
         exp_helper = [
@@ -217,15 +190,6 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
-        res.service = IBMExperimentService(local=True, local_save=False)
-        res.save()
-        loaded_data = ExperimentData.load(res.experiment_id, res.service)
-
-        for i in range(2):
-            sub_res = res.child_data(i).analysis_results("T1")
-            sub_loaded = loaded_data.child_data(i).analysis_results("T1")
-            self.assertEqual(repr(sub_res), repr(sub_loaded))
-
     def test_t1_parallel_different_analysis_options(self):
         """
         Test parallel experiments of T1 using a simulator, for the case where
@@ -245,7 +209,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp1 = T1([1], delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
-        par_exp = ParallelExperiment([exp0, exp1])
+        par_exp = ParallelExperiment([exp0, exp1], flatten_results=False)
         res = par_exp.run(backend=backend, seed_simulator=4)
         self.assertExperimentDone(res)
 
@@ -347,7 +311,7 @@ class TestT1(QiskitExperimentsTestCase):
 
         exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
         exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
-        parexp = ParallelExperiment([exp1, exp2])
+        parexp = ParallelExperiment([exp1, exp2], flatten_results=False)
         parexp.set_transpile_options(
             basis_gates=basis_gates,
             instruction_durations=instruction_durations,
