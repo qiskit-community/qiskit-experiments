@@ -216,6 +216,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
+    _max_workers_cap = 10
 
     def __init__(
         self,
@@ -1525,7 +1526,12 @@ class ExperimentData:
                 return
             else:
                 raise ExperimentDataSaveFailed("No service found")
-
+        if max_workers > self._max_workers_cap:
+            LOG.warning(
+                f"max_workers cannot be larger than {self._max_workers_cap}."
+                f"Setting max_workers = {self._max_workers_cap} now."
+            )
+            max_workers = self._max_workers_cap
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
