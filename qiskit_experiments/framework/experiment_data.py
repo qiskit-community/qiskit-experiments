@@ -1489,7 +1489,7 @@ class ExperimentData:
     def save(
         self,
         suppress_errors: bool = True,
-        max_workers: int = 100,
+        max_workers: int = 3,
         save_figures: bool = True,
         save_children: bool = True,
     ) -> None:
