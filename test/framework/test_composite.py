@@ -365,6 +365,22 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(sorted(data1.tags), ["c", "d"])
         self.assertEqual(sorted(data2.tags), ["c", "d"])
 
+    def test_composite_figures(self):
+        """
+        Test adding figures from composite experiments
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        exp1.analysis.set_options(add_figures=True)
+        exp2.analysis.set_options(add_figures=True)
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=True)
+        expdata = par_exp.run(FakeBackend())
+        expdata.service = IBMExperimentService(local=True, local_save=False)
+        expdata.auto_save = True
+        expdata.block_for_results()
+        self.assertExperimentDone(expdata)
+
+
     def test_composite_subexp_data(self):
         """
         Verify that sub-experiment data of parallel and batch
