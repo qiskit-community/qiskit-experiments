@@ -12,13 +12,11 @@
 
 """Test for randomized benchmarking experiments."""
 import copy
-import io
 
 from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
-from qiskit import qpy
 from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManilaV2
