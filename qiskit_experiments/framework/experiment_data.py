@@ -1528,8 +1528,9 @@ class ExperimentData:
                 raise ExperimentDataSaveFailed("No service found")
         if max_workers > self._max_workers_cap:
             LOG.warning(
-                f"max_workers cannot be larger than {self._max_workers_cap}. "
-                f"Setting max_workers = {self._max_workers_cap} now."
+                f"max_workers cannot be larger than %s. " f"Setting max_workers = %s now.",
+                self._max_workers_cap,
+                self._max_workers_cap,
             )
             max_workers = self._max_workers_cap
         self._save_experiment_metadata(suppress_errors=suppress_errors)
