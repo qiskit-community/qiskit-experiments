@@ -396,9 +396,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         expdata.auto_save = True
         self.assertEqual(service.create_or_update_experiment.call_count, 3)
 
-
-
-
     def test_composite_subexp_data(self):
         """
         Verify that sub-experiment data of parallel and batch
