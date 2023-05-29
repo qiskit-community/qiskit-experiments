@@ -344,6 +344,11 @@ class TestT1(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T1([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp)
+        
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit round trip JSON serialization"""
+        exp = T1([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp.circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
