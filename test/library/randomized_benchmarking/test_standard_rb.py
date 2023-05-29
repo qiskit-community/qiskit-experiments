@@ -60,6 +60,11 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
         self.assertRoundTripSerializable(exp)
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits round trip JSON serialization"""
+        exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
+        self.assertRoundTripSerializable(exp.circuits())
+
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = rb.RBAnalysis()

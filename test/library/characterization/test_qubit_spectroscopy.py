@@ -288,3 +288,22 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         for child_data in par_data.child_data():
             self.assertRoundTripSerializable(child_data)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits round trip JSON serialization"""
+        exp_helper = SpectroscopyHelper(
+            line_width=2e6,
+            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+            iq_cluster_width=[0.2],
+        )
+        backend = MockIQBackend(
+            experiment_helper=exp_helper,
+        )
+        backend.target.add_instruction(XGate(), properties={(0,): None})
+
+        qubit = 1
+        freq01 = BackendData(backend).drive_freqs[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+        exp = QubitSpectroscopy([1], frequencies, backend=backend)
+        # Checking serialization of the experiment
+        self.assertRoundTripSerializable(exp.circuits())

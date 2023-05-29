@@ -75,16 +75,11 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqual(config, loaded_exp.config())
 
-    def test_roundtrip_serializable(self):
-        """Test round trip JSON serialization for the Experiment and ExperimentData objects."""
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits round trip JSON serialization for the Experiment and ExperimentData objects."""
         exp_helper = HalfAngleHelper()
         backend = MockIQBackend(exp_helper)
         error = -0.05
         exp_helper.error = error
         exp = HalfAngle([0])
-        self.assertRoundTripSerializable(exp)
-
-        exp_data = exp.run(backend)
-        self.assertExperimentDone(exp_data)
-
-        self.assertRoundTripSerializable(exp_data)
+        self.assertRoundTripSerializable(exp.circuits())
