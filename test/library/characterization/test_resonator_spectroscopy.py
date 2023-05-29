@@ -144,6 +144,25 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         exp = ResonatorSpectroscopy([1], frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp)
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits data JSON serialization"""
+        freq_shift = 0
+        qubit = 1
+        # need backend for dt value in the experiment
+        backend = MockIQBackendDefaults(
+            experiment_helper=ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
+            ),
+        )
+        res_freq = BackendData(backend).meas_freqs[qubit]
+        frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
+        exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
+
+        self.assertRoundTripSerializable(exp.circuits())
+
     @data(-5e6, 0, 3e6)
     def test_kerneled_expdata_serialization(self, freq_shift):
         """Test experiment data and analysis data JSON serialization"""
