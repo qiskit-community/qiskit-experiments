@@ -207,8 +207,23 @@ class TestReadoutError(QiskitExperimentsTestCase):
         qubits = [0, 1]
         backend = FakeParisV2()
         exp = LocalReadoutError(qubits)
+
+        # Checking serialization of the experiment obj
+        self.assertRoundTripSerializable(exp)
+
         exp_data = exp.run(backend).block_for_results()
+
+        # Checking serialization of the experiment data
+        self.assertRoundTripSerializable(exp_data)
+
         mitigator = exp_data.analysis_results(0).value
         serialized = json.dumps(mitigator, cls=ExperimentEncoder)
         loaded = json.loads(serialized, cls=ExperimentDecoder)
         self.assertTrue(matrix_equal(mitigator.assignment_matrix(), loaded.assignment_matrix()))
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits data JSON serialization"""
+        qubits = [0, 1]
+        exp = LocalReadoutError(qubits)
+
+        self.assertRoundTripSerializable(exp.circuits())
