@@ -96,7 +96,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         self.assertFalse(expdata.analysis_results())
 
-    def test_circuit_serialization(self):
+    def test_circuit_roundtrip_serializable(self):
         """Test simple circuit serialization"""
         circ = QuantumCircuit(2)
         circ.h(0)

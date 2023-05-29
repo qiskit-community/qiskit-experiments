@@ -238,7 +238,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         target_fid = qi.state_fidelity(state, target, validate=False)
         self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
-    def test_circuit_json_serialization(self):
+    def test_circuit_roundtrip_serializable(self):
         """Test a simple roundtrip experiment serialization"""
         circ = QuantumCircuit(2)
         circ.h(0)
