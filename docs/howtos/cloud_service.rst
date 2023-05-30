@@ -144,8 +144,8 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 
 Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
 
-When working with composite experiments, setting `auto_save` will affect this
-setting for the child experiments.
+When working with composite experiments, setting ``auto_save`` will propagate this
+setting to the child experiments.
 
 Deleting an experiment
 ~~~~~~~~~~~~~~~~~~~~~~
