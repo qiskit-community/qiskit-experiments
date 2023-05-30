@@ -19,7 +19,7 @@ from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 from unittest import mock
 from ddt import ddt, data
-
+from matplotlib.figure import Figure as MatplotlibFigure
 
 from qiskit import QuantumCircuit, Aer
 from qiskit.result import Result
@@ -379,7 +379,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         expdata = par_exp.run(FakeBackend())
         expdata.service = IBMExperimentService(local=True, local_save=False)
         expdata.auto_save = True
-        expdata.block_for_results()
+        new_figure = MatplotlibFigure()
+        expdata.add_figures([new_figure])
         self.assertExperimentDone(expdata)
 
     def test_composite_auto_save(self):
@@ -392,7 +393,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
         expdata = par_exp.run(FakeBackend())
         expdata.service = service
-        expdata.block_for_results()
+        self.assertExperimentDone(expdata)
         expdata.auto_save = True
         self.assertEqual(service.create_or_update_experiment.call_count, 3)
 
