@@ -26,6 +26,7 @@ from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
@@ -160,6 +161,21 @@ class InterleavedRB(StandardRB):
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default InterleavedRB experiment options.
+
+        Experiment Options:
+            circuit_order (str): How to order the reference and the interleaved circuits.
+                * ``"RIRIRI"``(default): Alternate a reference and an interleaved circuit.
+                * ``"RRRIII"``: Push all reference circuits first, then all interleaved ones.
+        """
+        options = super()._default_experiment_options()
+        options.update_options(
+            circuit_order="RIRIRI",
+        )
+        return options
+
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
@@ -199,7 +215,10 @@ class InterleavedRB(StandardRB):
                 "physical_qubits": self.physical_qubits,
                 "interleaved": True,
             }
-        # arrange circuits as ref-int-ref-int-ref-int
+
+        if self.experiment_options.circuit_order == "RRRIII":
+            return reference_circuits + interleaved_circuits
+        # Default order: RIRIRI
         return list(itertools.chain.from_iterable(zip(reference_circuits, interleaved_circuits)))
 
     def _to_instruction(
