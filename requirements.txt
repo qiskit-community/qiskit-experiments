@@ -1,7 +1,7 @@
 numpy>=1.17
 scipy>=1.4
 qiskit-terra>=0.24
-qiskit-ibm-experiment>=0.3.2
+qiskit-ibm-experiment>=0.3.3
 matplotlib>=3.4
 uncertainties
 lmfit
