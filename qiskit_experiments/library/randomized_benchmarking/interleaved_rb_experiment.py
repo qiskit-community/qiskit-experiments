@@ -68,6 +68,7 @@ class InterleavedRB(StandardRB):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
+        circuit_order: str = "RIRIRI",
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -92,6 +93,9 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
+            circuit_order: How to order the reference and the interleaved circuits.
+                ``"RIRIRI"`` (default) - Alternate a reference and an interleaved circuit. Or
+                ``"RRRIII"`` - Push all reference circuits first, then all interleaved ones.
 
         Raises:
             QiskitError: When interleaved_element has different number of qubits
@@ -158,6 +162,7 @@ class InterleavedRB(StandardRB):
             self._interleaved_cliff = interleaved_clifford.to_circuit()
         self._interleaved_element = interleaved_element  # Original interleaved element
         self._interleaved_op = None  # Transpiled interleaved element for speed
+        self.set_experiment_options(circuit_order=circuit_order)
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
@@ -167,8 +172,8 @@ class InterleavedRB(StandardRB):
 
         Experiment Options:
             circuit_order (str): How to order the reference and the interleaved circuits.
-                * ``"RIRIRI"``(default): Alternate a reference and an interleaved circuit.
-                * ``"RRRIII"``: Push all reference circuits first, then all interleaved ones.
+                ``"RIRIRI"`` (alternate a reference and an interleaved circuit) or
+                ``"RRRIII"`` (push all reference circuits first, then all interleaved ones).
         """
         options = super()._default_experiment_options()
         options.update_options(
