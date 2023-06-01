@@ -101,7 +101,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
             min_freq=min_freq,
             max_freq=max_freq,
         )
-        test_delays = exp.delays()
+        test_delays = exp.parameters()
         ref_delays = np.arange(0, 1 / min_freq, 1 / max_freq / 2)
         np.testing.assert_array_equal(test_delays, ref_delays)
 

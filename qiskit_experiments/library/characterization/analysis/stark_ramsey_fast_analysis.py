@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,9 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-Stark Ramsey fast experiment analysis.
-"""
+"""The analysis class for the Stark Ramsey fast experiment."""
 
 from typing import List, Union
 
@@ -25,13 +23,125 @@ from qiskit_experiments.framework import ExperimentData
 
 
 class StarkRamseyFastAnalysis(curve.CurveAnalysis):
-    """StarkRamseyAnalysis
+    r"""Ramsey XY analysis for the Stark shifted phase sweep.
 
-    TODO write docstring.
+    # section: overview
+
+        This analysis is a variant of :class:`RamseyXYAnalysis` in which
+        the data is fit for a trigonometric function model with a linear phase.
+        In this model, the phase is assumed to be a polynominal of the x-data,
+        and techniques to compute a good initial guess for these polynominal coefficients
+        are not trivial. For example, when the phase is a linear function of the x-data,
+        one may apply Fourier transform to the data to obtain the coefficient,
+        but this is not the case.
+
+        This analysis assumes the following polynominal for the phase imparted by the Stark shift.
+
+        .. math::
+
+            \theta_{\text Stark}(x) = 2 \pi t_S f_S(x),
+
+        where
+
+        .. math::
+
+            f_S(x) = c_2 x^2 + c_3 x^3 + f_\epsilon,
+
+        denotes the Stark shift. In the perturbation picture,
+        the Stark shift is a quadratic function of :math:`x`, but the cubit term and
+        offset are also empirically considered to account for the
+        effect of the strong drive and frequency mis-calibration, respectively.
+
+    # section: fit_model
+
+        .. math::
+
+            F_{X+} = \text{amp} \cdot \cos \left( dt f_S^+(x) \right) + \text{offset}, \\
+            F_{Y+} = \text{amp} \cdot \sin \left( dt f_S^+(x) \right) + \text{offset}, \\
+            F_{X-} = \text{amp} \cdot \cos \left( dt f_S^-(x) \right) + \text{offset}, \\
+            F_{Y-} = \text{amp} \cdot \sin \left( dt f_S^-(x) \right) + \text{offset},
+
+        where
+
+        .. math ::
+
+            f_S^\nu(x) = c_2^\nu x^2 + c_3^\nu x^3 + f_\epsilon.
+
+        The Stark shift is asymmetric with respect to :math:`x=0`, because of the
+        anti-crossings of higher energy levels. In a typical transmon qubit,
+        these levels appear only in :math:`f_S < 0` because of the negative anharmonicity.
+        To precisely fit the results, this analysis uses different model parameters
+        for positive (:math:`x > 0`) and negative (:math:`x < 0`) shift domains.
+
+        To obtain the initial guess, the following calculation is employed in this analysis.
+        First, oscillations in each quadrature are normalized and differentiated.
+
+        .. math ::
+
+            \dot{F}_X = \frac{\partial}{\partial x} \bar{F}_X = dt \frac{d}{dx} f_S \bar{F}_Y, \\
+            \dot{F}_Y = \frac{\partial}{\partial x} \bar{F}_Y = - dt \frac{d}{dx} f_S \bar{F}_X. \\
+
+        The root sum square of above quantities yields
+
+        .. math ::
+
+            \sqrt{\dot{F}_X + \dot{F}_Y} = dt \frac{d}{dx} f_S = dt (2 c_2 x + 3 c_3 x^2).
+
+        By using this synthesized data, one can estimate the initial guess of the
+        polynomial coefficients by the polynomial fit.
+        This fit protocol is independently conducted for the experiment data on the
+        positive and negative shift domain.
+
+    # section: fit_parameters
+
+        defpar \rm amp:
+            desc: Amplitude of both series.
+            init_guess: Median of root sum square of Ramsey X and Y oscillation.
+            bounds: [0, 1]
+
+        defpar \rm offset:
+            desc: Base line of all series.
+            init_guess: Roughly the average of the data.
+            bounds: [-1, 1]
+
+        defpar dt:
+            desc: Fixed parameter of :math:`2 \pi t_S`, where :math:`t_S` is
+                the ``stark_length`` experiment option.
+            init_guess: Automatically set from metadata when this analysis is run.
+            bounds: None
+
+        defpar c_2^+:
+            desc: The quadratic term coefficient of the positive Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_3^+:
+            desc: The cubit term coefficient of the positive Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_2^-:
+            desc: The quadratic term coefficient of the negative Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_3^-:
+            desc: The cubic term coefficient of the negative Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar f_\epsilon:
+            desc: Constant phase accumulation which is independent of the Stark tone amplitude.
+            init_guess: 0
+            bounds: None
+
+    # section: see_also
+
+        :class:`qiskit_experiments.library.characterization.analysis.ramsey_xy_analysis.RamseyXYAnalysis`
+
     """
 
     def __init__(self):
-
         super().__init__(
             # Ramsey phase := 2π Δf(x) Δt; Δf(x) = c2 x^2 + c3 x^3 + f_err
             # dt := 2π Δt (const.)
@@ -65,7 +175,7 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         ramsey_plotter = vis.CurvePlotter(vis.MplDrawer())
         ramsey_plotter.set_figure_options(
             xlabel="Stark tone amplitude",
-            ylabel="Ramsey P(1)",
+            ylabel="P(1)",
             ylim=(0, 1),
             series_params={
                 "Xpos": {"color": "blue", "symbol": "o", "label": "Ramsey X(+)"},
@@ -74,9 +184,7 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
                 "Yneg": {"color": "red", "symbol": "^", "label": "Ramsey Y(-)"},
             },
         )
-        ramsey_plotter.set_options(
-            style=vis.PlotStyle({"figsize": (12, 5)})
-        )
+        ramsey_plotter.set_options(style=vis.PlotStyle({"figsize": (12, 5)}))
 
         options = super()._default_options()
         options.update_options(
@@ -111,6 +219,10 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
             offset=np.mean(curve_data.y),
             f_err=0.0,
         )
+        user_opt.bounds.set_if_empty(
+            offset=(-1, 1),
+            amp=(0, 1),
+        )
         est_offs = user_opt.p0["offset"]
 
         # Compute amplitude guess
@@ -118,7 +230,7 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         for direction in ("pos", "neg"):
             ram_x_off = curve_data.get_subset_of(f"X{direction}").y - est_offs
             ram_y_off = curve_data.get_subset_of(f"Y{direction}").y - est_offs
-            amps = np.concatenate([amps, np.sqrt(ram_x_off ** 2 + ram_y_off ** 2)])
+            amps = np.concatenate([amps, np.sqrt(ram_x_off**2 + ram_y_off**2)])
         user_opt.p0.set_if_empty(amp=np.median(amps))
         est_a = user_opt.p0["amp"]
         d_const = user_opt.p0["dt"]
@@ -161,5 +273,5 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         super()._initialize(experiment_data)
 
         # Set scaling factor to convert phase to frequency
-        scale = 2 * np.pi * experiment_data.metadata["stark_delay"]
+        scale = 2 * np.pi * experiment_data.metadata["stark_length"]
         self.set_options(fixed_parameters={"dt": scale})
