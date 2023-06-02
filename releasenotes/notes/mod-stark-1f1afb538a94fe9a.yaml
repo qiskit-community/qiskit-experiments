@@ -4,3 +4,9 @@ features:
     New experiment :class:`.StarkRamseyXY` has been added.
     This is a variant of the :class:`.RamseyXY` experiment that characterizes 
     the qubit frequency offset under a Stark tone drive.
+  - |
+    New experiment :class:`.StarkRamseyFast` has been added.
+    This is a variant of the :class:`.StarkRamseyXY` experiment to estimate
+    the required tone amplitude to cause a particular Stark shift.
+    This experiment scans tone amplitude while fixing the Stark tone length,
+    and the fit the result with the dedicated fitter :class:`.StarkRamseyFastAnalysis`.
