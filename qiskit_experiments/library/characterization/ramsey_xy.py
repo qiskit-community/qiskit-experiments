@@ -800,10 +800,6 @@ class StarkRamseyFast(BaseExperiment):
 
         circs = []
         for amp in self.parameters():
-            if np.isclose(amp, 0.0):
-                # To avoid singular point in the fit guess function.
-                continue
-
             ramx_circ_assigned = ramx_circ.assign_parameters({param: amp}, inplace=False)
             ramx_circ_assigned.metadata["xval"] = amp
             ramx_circ_assigned.metadata["direction"] = "pos" if amp > 0 else "neg"

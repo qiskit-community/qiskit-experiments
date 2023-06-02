@@ -77,6 +77,7 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineSXDrag
     ~characterization.MultiStateDiscrimination
     ~characterization.StarkRamseyXY
+    ~characterization.StarkRamseyFast
 
 .. _characterization two qubits:
 
@@ -186,6 +187,7 @@ from .characterization import (
     ZZRamsey,
     MultiStateDiscrimination,
     StarkRamseyXY,
+    StarkRamseyFast,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import (

@@ -13,6 +13,7 @@
 """The analysis class for the Stark Ramsey fast experiment."""
 
 from typing import List, Union
+from itertools import product
 
 import lmfit
 import numpy as np
@@ -149,22 +150,18 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="amp * cos(dt * (c2_pos * x**2 + c3_pos * x**3 + f_err)) + offset",
                     name="Xpos",
-                    data_sort_key={"series": "X", "direction": "pos"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="amp * sin(dt * (c2_pos * x**2 + c3_pos * x**3 + f_err)) + offset",
                     name="Ypos",
-                    data_sort_key={"series": "Y", "direction": "pos"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="amp * cos(dt * (c2_neg * x**2 + c3_neg * x**3 + f_err)) + offset",
                     name="Xneg",
-                    data_sort_key={"series": "X", "direction": "neg"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="amp * sin(dt * (c2_neg * x**2 + c3_neg * x**3 + f_err)) + offset",
                     name="Yneg",
-                    data_sort_key={"series": "Y", "direction": "neg"},
                 ),
             ],
         )
@@ -193,8 +190,14 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
                 curve.ParameterRepr("c3_pos", "stark_pos_coef_o3", "Hz"),
                 curve.ParameterRepr("c2_neg", "stark_neg_coef_o2", "Hz"),
                 curve.ParameterRepr("c3_neg", "stark_neg_coef_o3", "Hz"),
-                curve.ParameterRepr("f_err", "stark_offset", "Hz"),
+                curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
             ],
+            data_subfit_map={
+                "Xpos": {"series": "X", "direction": "pos"},
+                "Ypos": {"series": "Y", "direction": "pos"},
+                "Xneg": {"series": "X", "direction": "neg"},
+                "Yneg": {"series": "Y", "direction": "neg"},
+            },
             plotter=ramsey_plotter,
         )
 
@@ -236,6 +239,7 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         d_const = user_opt.p0["dt"]
 
         # Compute polynominal coefficients
+        guesses = []
         for direction in ("pos", "neg"):
             ram_x_data = curve_data.get_subset_of(f"X{direction}")
             ram_y_data = curve_data.get_subset_of(f"Y{direction}")
@@ -252,19 +256,29 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
             # Eliminate sinusoidal
             phase_poly = np.sqrt(dx**2 + dy**2)
 
-            # Do polyfit up to 2rd order.
-            # This must correspond to the 3rd order coeff because of the derivative.
-            # The intercept is ignored.
-            vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:])).T
-            coeffs = np.linalg.lstsq(vmat_xpoly, phase_poly, rcond=-1)[0]
+            tmp = []
+            # Consider both signs to expand square root.
+            for sign in (1, -1):
+                # Do polyfit up to 2rd order.
+                # This must correspond to the 3rd order coeff because of the derivative.
+                # The intercept is ignored.
+                vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:])).T
+                coeffs = np.linalg.lstsq(vmat_xpoly, sign * phase_poly, rcond=-1)[0]
 
-            poly_guess = {
-                f"c2_{direction}": coeffs[1] / 2 / d_const,
-                f"c3_{direction}": coeffs[0] / 3 / d_const,
-            }
-            user_opt.p0.set_if_empty(**poly_guess)
+                poly_guess = {
+                    f"c2_{direction}": coeffs[1] / 2 / d_const,
+                    f"c3_{direction}": coeffs[0] / 3 / d_const,
+                }
+                tmp.append(poly_guess)
+            guesses.append(tmp)
 
-        return user_opt
+        fit_opts = []
+        for guess_pos, guess_neg in product(*guesses):
+            new_opt = user_opt.copy()
+            new_opt.p0.set_if_empty(**guess_pos, **guess_neg)
+            fit_opts.append(new_opt)
+
+        return fit_opts
 
     def _initialize(
         self,
@@ -273,5 +287,6 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         super()._initialize(experiment_data)
 
         # Set scaling factor to convert phase to frequency
-        scale = 2 * np.pi * experiment_data.metadata["stark_length"]
-        self.set_options(fixed_parameters={"dt": scale})
+        fixed_params = self.options.fixed_parameters.copy()
+        fixed_params["dt"] = 2 * np.pi * experiment_data.metadata["stark_length"]
+        self.set_options(fixed_parameters=fixed_params)
