@@ -689,8 +689,11 @@ class StarkRamseyFast(BaseExperiment):
         opt = self.experiment_options  # alias
 
         if opt.stark_amps is None:
-            return np.linspace(opt.min_stark_amp, opt.max_stark_amp, opt.num_stark_amps)
-        return opt.stark_amps
+            params = np.linspace(opt.min_stark_amp, opt.max_stark_amp, opt.num_stark_amps)
+        else:
+            params = np.asarray(opt.stark_amps, dtype=float)
+
+        return np.round(params, decimals=7)
 
     def parameterized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
         """Create circuits with parameters for Ramsey XY experiment with Stark tone.

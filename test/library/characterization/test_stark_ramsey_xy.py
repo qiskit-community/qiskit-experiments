@@ -211,6 +211,17 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
             stark_u = next(iter(circ.calibrations["StarkU"].values()))
             self.assertEqual(stark_u.duration % backend.target.granularity, 0)
 
+    def test_parameter_rounding(self):
+        """Test removing unnecessary parameter value precision."""
+        backend = FakeHanoiV2()
+        exp = StarkRamseyFast(
+            physical_qubits=[0],
+            backend=backend,
+            stark_amps=[0.12345678910111213],
+        )
+        params = exp.parameters()
+        self.assertEqual(params[0], 0.1234568)
+
     @named_data(
         ["Ideal quadratic", 0.5, 30e6, 0.0, -30e6, 0.0, 0.0, 0.5],
         ["With cubic and offset term", 0.5, 200e6, -100e6, -200e6, -100e6, 300e3, 0.5],
