@@ -225,6 +225,11 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp = T2Ramsey([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp)
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T2Ramsey([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp.circuits())
+
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T2RamseyAnalysis()
