@@ -59,7 +59,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         exp = ReadoutAngle([0])
 
         # Checking serialization of the experiment obj
-        self.assertRoundTripSerializable(exp)
+        self.assertRoundTripSerializable(exp.circuits())
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
         expdata = exp.run(backend).block_for_results()
@@ -70,8 +70,3 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
 
         # Checking serialization of the analysis
         self.assertRoundTripSerializable(expdata.analysis_results(0))
-
-    def test_circuit_roundtrip_serializable(self):
-        """Test circuits data JSON serialization"""
-        exp = ReadoutAngle([0])
-        self.assertRoundTripSerializable(exp.circuits())
