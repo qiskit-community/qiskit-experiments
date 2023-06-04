@@ -216,6 +216,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
+    _max_workers_cap = 10
 
     def __init__(
         self,
@@ -717,8 +718,9 @@ class ExperimentData:
         Args:
             save_val: Whether to do auto-save.
         """
-        if save_val is True and not self._auto_save:
-            self.save()
+        # children will be saved once we set auto_save for them
+        if save_val is True:
+            self.save(save_children=False)
         self._auto_save = save_val
         for res in self._analysis_results.values():
             # Setting private variable directly to avoid duplicate save. This
@@ -1175,6 +1177,7 @@ class ExperimentData:
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
                 figure_data = figure.copy(new_name=fig_name)
+                figure = figure_data.figure
 
             else:
                 figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
@@ -1485,15 +1488,20 @@ class ExperimentData:
         return sys.getsizeof(self.metadata) > 10000
 
     def save(
-        self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
+        self,
+        suppress_errors: bool = True,
+        max_workers: int = 3,
+        save_figures: bool = True,
+        save_children: bool = True,
     ) -> None:
         """Save the experiment data to a database service.
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiemnt (false)
-            max_workers: Maximum number of concurrent worker threads
+            max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
+            save_children: For composite experiments, whether to save children as well
 
         Raises:
             ExperimentDataSaveFailed: If no experiment database service
@@ -1518,7 +1526,13 @@ class ExperimentData:
                 return
             else:
                 raise ExperimentDataSaveFailed("No service found")
-
+        if max_workers > self._max_workers_cap:
+            LOG.warning(
+                "max_workers cannot be larger than %s. Setting max_workers = %s now.",
+                self._max_workers_cap,
+                self._max_workers_cap,
+            )
+            max_workers = self._max_workers_cap
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
@@ -1580,13 +1594,16 @@ class ExperimentData:
                 f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
-        for data in self._child_data.values():
-            original_verbose = data.verbose
-            data.verbose = False
-            data.save(
-                suppress_errors=suppress_errors, max_workers=max_workers, save_figures=save_figures
-            )
-            data.verbose = original_verbose
+        if save_children:
+            for data in self._child_data.values():
+                original_verbose = data.verbose
+                data.verbose = False
+                data.save(
+                    suppress_errors=suppress_errors,
+                    max_workers=max_workers,
+                    save_figures=save_figures,
+                )
+                data.verbose = original_verbose
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
@@ -1714,7 +1731,6 @@ class ExperimentData:
 
         # Wait for futures
         self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
-
         # Clean up done job futures
         num_jobs = len(job_ids)
         for jid, fut in zip(job_ids, job_futs):

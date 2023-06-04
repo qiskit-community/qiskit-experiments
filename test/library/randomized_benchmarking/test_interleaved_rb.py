@@ -111,10 +111,16 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             interleaved_element=interleaved_element,
             physical_qubits=qubits,
             lengths=[length],
-            num_samples=1,
+            num_samples=2,
         )
         circuits = exp.circuits()
         self.assertAllIdentity(circuits)
+        # check order of circuits
+        for i, circ in enumerate(circuits):
+            if i % 2 == 0:  # even <=> reference sequence
+                self.assertFalse(circ.metadata["interleaved"])
+            else:  # odd <=> interleaved sequence
+                self.assertTrue(circ.metadata["interleaved"])
 
     @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
