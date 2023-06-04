@@ -202,6 +202,12 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
 
+    def test_circuits_roundtrip_serializable(self):
+        """Test circuits serialization of the experiment."""
+        rabi = Rabi([2], self.sched)
+        rabi.set_experiment_options(amplitudes=[0.5])
+        self.assertRoundTripSerializable(rabi.circuits())
+
 
 class TestOscillationAnalysis(QiskitExperimentsTestCase):
     """Class to test the fitting."""
