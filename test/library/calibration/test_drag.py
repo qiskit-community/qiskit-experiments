@@ -191,7 +191,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = FakeWashingtonV2()
         self.assertRoundTripSerializable(drag._transpiled_circuits())
-        
+
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
 
