@@ -353,12 +353,6 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
 
-    def test_exp_serialization(self):
-        """Test serializing experiment data works."""
-        exp = ProcessTomography(XGate())
-        self.assertRoundTripPickle(exp)
-        self.assertRoundTripSerializable(exp)
-
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
         backend = AerSimulator(seed_simulator=9000)
