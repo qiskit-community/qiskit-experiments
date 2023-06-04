@@ -103,3 +103,8 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FineFrequency([0], 160)
         self.assertRoundTripSerializable(exp)
+
+    def test_circuits_roundtrip_serializable(self):
+        """Test circuits serialization of the experiment."""
+        exp = FineFrequency([0], 160)
+        self.assertRoundTripSerializable(exp.circuits())
