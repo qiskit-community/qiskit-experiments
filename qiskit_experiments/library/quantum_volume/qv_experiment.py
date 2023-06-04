@@ -152,7 +152,7 @@ class QuantumVolume(BaseExperiment):
 
             state_vector = Statevector(ideal_circuit)
             probabilities = state_vector.probabilities()
-        return probabilities
+        return list(probabilities)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
