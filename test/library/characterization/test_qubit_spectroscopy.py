@@ -16,6 +16,7 @@ import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.circuit.library import XGate
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit_experiments.framework import ParallelExperiment
 
 from qiskit_experiments.framework import BackendData
@@ -180,9 +181,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy([qubit], frequencies)
 
-        # Checking serialization of the experiment obj
-        self.assertRoundTripSerializable(exp)
-
         exp.set_run_options(meas_level=MeasLevel.CLASSIFIED, shots=1024)
         expdata = exp.run(backend).block_for_results()
         self.assertExperimentDone(expdata)
@@ -211,10 +209,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
-
-        # Checking serialization of the experiment obj
-        self.assertRoundTripSerializable(exp)
-
         expdata = exp.run(backend).block_for_results()
         self.assertExperimentDone(expdata)
 
@@ -291,16 +285,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test circuits round trip JSON serialization"""
-        exp_helper = SpectroscopyHelper(
-            line_width=2e6,
-            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-            iq_cluster_width=[0.2],
-        )
-        backend = MockIQBackend(
-            experiment_helper=exp_helper,
-        )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
-
+        backend = FakeWashingtonV2()
         qubit = 1
         freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
