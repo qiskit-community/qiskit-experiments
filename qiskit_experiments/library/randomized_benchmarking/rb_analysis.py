@@ -364,7 +364,6 @@ def _calculate_epg(
         A dictionary of gate errors keyed on the gate name.
     """
     norm = 0
-    print("epg", r_epg)
     for gate, r_epg in gate_error_ratio.items():
         formatted_key = tuple(sorted(qubits)), gate
         norm += r_epg * gate_counts_per_clifford.get(formatted_key, 0.0)
