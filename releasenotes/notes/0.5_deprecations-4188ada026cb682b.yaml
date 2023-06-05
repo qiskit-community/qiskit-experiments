@@ -10,8 +10,8 @@ upgrade:
       classes have been removed. Use the :func:`.linear_lstsq`, :func:`.cvxpy_linear_lstsq`,
       or :func:`.cvxpy_gaussian_lstsq` fitters instead.
     * Curve fit solvers ``curve_fit()`` and ``multi_curve_fit()`` as well as fit functions
-    ``bloch_oscillation_x()``, ``bloch_oscillation_y()``, and ``bloch_oscillation_z()`` have been
-    removed. Use the LMFIT library instead.
+      ``bloch_oscillation_x()``, ``bloch_oscillation_y()``, and ``bloch_oscillation_z()`` have been
+      removed. Use the LMFIT library instead.
     * The scipy lstsq tomography fitters ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` have
       been removed. Use the `linear_lstsq`, `cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter
       instead.

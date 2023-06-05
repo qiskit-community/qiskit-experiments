@@ -34,11 +34,7 @@ import scipy.sparse as sps
 import uncertainties
 from qiskit import qpy
 from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
-from qiskit.circuit.library import BlueprintCircuit
 from qiskit.pulse import ScheduleBlock
-from qiskit.quantum_info import DensityMatrix
-from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
-from qiskit.result import LocalReadoutMitigator, CorrelatedReadoutMitigator
 from qiskit_experiments.version import __version__
 
 
