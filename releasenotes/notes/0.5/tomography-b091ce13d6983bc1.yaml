@@ -76,7 +76,7 @@ fixes:
     would contain incorrect conditionals due to a bug in the
     :meth:`qiskit.circuit.QuantumCircuit.compose` method.
 
-    See `Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
+    See `Issue #942 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/943>`_
     for additional details.
 upgrade:
   - |
