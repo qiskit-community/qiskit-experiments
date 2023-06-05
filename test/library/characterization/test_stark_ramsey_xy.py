@@ -223,16 +223,16 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
         self.assertEqual(params[0], 0.1234568)
 
     @named_data(
-        ["Ideal quadratic", 0.5, 30e6, 0.0, -30e6, 0.0, 0.0, 0.5],
-        ["With cubic and offset term", 0.5, 200e6, -100e6, -200e6, -100e6, 300e3, 0.5],
-        ["With SPAM-like", 0.3, 30e6, 0.0, -30e6, 0.0, 0.0, 0.4],
-        ["Realistic asymmetric shift", 0.4, 200e6, -100e6, -180e6, -90e6, 200e3, 0.5],
-        ["Large cubic term", 0.5, 15e6, 30.0, -10e6, 40.0, 0.0, 0.5],
-        ["Unrealistic shift c2n > 0", 0.5, 50e6, 0.0, 50e6, 0.0, 0.0, 0.5],
-        ["Unrealistic shift c2p < 0", 0.5, -50e6, 0.0, -50e6, 0.0, 0.0, 0.5],
+        ["ideal_quadratic", 0.5, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.5],
+        ["with_all_terms", 0.5, 15e6, 200e6, -100e6, 15e6, -200e6, -100e6, 300e3, 0.5],
+        ["with_spam_like", 0.3, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.4],
+        ["asymmetric_shift", 0.4, -20e6, 200e6, -100e6, -15e6, -180e6, -90e6, 200e3, 0.5],
+        ["large_cubic_term", 0.5, 10e6, 15e6, 30e6, 5e6, -10e6, 40e6, 0.0, 0.5],
+        ["positive_c2n", 0.5, 0.0, 50e6, 0.0, 0.0, 50e6, 0.0, 0.0, 0.5],
+        ["negative_c2p", 0.5, 0.0, -50e6, 0.0, 0.0, -50e6, 0.0, 0.0, 0.5],
     )
     @unpack
-    def test_ramsey_fast_analysis(self, amp, c2p, c3p, c2n, c3n, ferr, off):
+    def test_ramsey_fast_analysis(self, amp, c1p, c2p, c3p, c1n, c2n, c3n, ferr, off):
         """End-to-end test for Ramsey fast analysis with artificial data."""
         rng = np.random.default_rng(seed=123)
         shots = 1000
@@ -245,10 +245,10 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
         # Generate fake data based on fit model.
         for x in xvals:
             if x >= 0.0:
-                fs = c2p * x**2 + c3p * x**3 + ferr
+                fs = c1p * x + c2p * x**2 + c3p * x**3 + ferr
                 direction = "pos"
             else:
-                fs = c2n * x**2 + c3n * x**3 + ferr
+                fs = c1n * x + c2n * x**2 + c3n * x**3 + ferr
                 direction = "neg"
 
             # Add some sampling error
@@ -273,8 +273,10 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
 
         # Check if fit parameters are consistent with input values
         to_test = {
+            "stark_pos_coef_o1": c1p,
             "stark_pos_coef_o2": c2p,
             "stark_pos_coef_o3": c3p,
+            "stark_neg_coef_o1": c1n,
             "stark_neg_coef_o2": c2n,
             "stark_neg_coef_o3": c3n,
             "stark_ferr": ferr,
@@ -282,4 +284,4 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
         for name, refv in to_test.items():
             # Error must be within 1 percent or 1 MHz
             val = exp_data.analysis_results(name).value.n
-            self.assertAlmostEqual(val, refv, delta=max(1e6, abs(0.01 * refv)))
+            self.assertAlmostEqual(val, refv, delta=3e6)

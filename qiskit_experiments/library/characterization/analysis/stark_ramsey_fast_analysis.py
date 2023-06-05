@@ -30,10 +30,10 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
 
         This analysis is a variant of :class:`RamseyXYAnalysis` in which
         the data is fit for a trigonometric function model with a linear phase.
-        In this model, the phase is assumed to be a polynominal of the x-data,
+        By contrast, in this model, the phase is assumed to be a polynominal of the x-data,
         and techniques to compute a good initial guess for these polynominal coefficients
         are not trivial. For example, when the phase is a linear function of the x-data,
-        one may apply Fourier transform to the data to obtain the coefficient,
+        one may apply Fourier transform to the data to estimate the coefficient,
         but this is not the case.
 
         This analysis assumes the following polynominal for the phase imparted by the Stark shift.
@@ -46,12 +46,13 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            f_S(x) = c_2 x^2 + c_3 x^3 + f_\epsilon,
+            f_S(x) = c_1 x + c_2 x^2 + c_3 x^3 + f_\epsilon,
 
         denotes the Stark shift. In the perturbation picture,
-        the Stark shift is a quadratic function of :math:`x`, but the cubit term and
-        offset are also empirically considered to account for the
-        effect of the strong drive and frequency mis-calibration, respectively.
+        the Stark shift is a quadratic function of :math:`x`, but linear and cubic term,
+        and also offset are also empirically considered to account for the
+        unwanted effect, e.g. strong drive, collisions, TLS, and so forth,
+        and frequency mis-calibration, respectively.
 
     # section: fit_model
 
@@ -66,7 +67,7 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
 
         .. math ::
 
-            f_S^\nu(x) = c_2^\nu x^2 + c_3^\nu x^3 + f_\epsilon.
+            f_S^\nu(x) = c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_\epsilon.
 
         The Stark shift is asymmetric with respect to :math:`x=0`, because of the
         anti-crossings of higher energy levels. In a typical transmon qubit,
@@ -86,10 +87,10 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
 
         .. math ::
 
-            \sqrt{\dot{F}_X + \dot{F}_Y} = dt \frac{d}{dx} f_S = dt (2 c_2 x + 3 c_3 x^2).
+            \sqrt{\dot{F}_X + \dot{F}_Y} = dt \frac{d}{dx} f_S = dt (c_1 + 2 c_2 x + 3 c_3 x^2).
 
         By using this synthesized data, one can estimate the initial guess of the
-        polynomial coefficients by the polynomial fit.
+        polynomial coefficients by quadratic regression.
         This fit protocol is independently conducted for the experiment data on the
         positive and negative shift domain.
 
@@ -111,13 +112,23 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
             init_guess: Automatically set from metadata when this analysis is run.
             bounds: None
 
+        defpar c_1^+:
+            desc: The linear term coefficient of the positive Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
         defpar c_2^+:
             desc: The quadratic term coefficient of the positive Stark shift.
             init_guess: See the fit model description.
             bounds: None
 
         defpar c_3^+:
-            desc: The cubit term coefficient of the positive Stark shift.
+            desc: The cubic term coefficient of the positive Stark shift.
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_1^-:
+            desc: The linear term coefficient of the negative Stark shift.
             init_guess: See the fit model description.
             bounds: None
 
@@ -143,28 +154,26 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
     """
 
     def __init__(self):
-        super().__init__(
-            # Ramsey phase := 2π Δf(x) Δt; Δf(x) = c2 x^2 + c3 x^3 + f_err
+
+        models = []
+        for direction in ("pos", "neg"):
+            # Ramsey phase := 2π Δf(x) Δt; Δf(x) = c1 x + c2 x^2 + c3 x^3 + f_err
             # dt := 2π Δt (const.)
-            models=[
-                lmfit.models.ExpressionModel(
-                    expr="amp * cos(dt * (c2_pos * x**2 + c3_pos * x**3 + f_err)) + offset",
-                    name="Xpos",
-                ),
-                lmfit.models.ExpressionModel(
-                    expr="amp * sin(dt * (c2_pos * x**2 + c3_pos * x**3 + f_err)) + offset",
-                    name="Ypos",
-                ),
-                lmfit.models.ExpressionModel(
-                    expr="amp * cos(dt * (c2_neg * x**2 + c3_neg * x**3 + f_err)) + offset",
-                    name="Xneg",
-                ),
-                lmfit.models.ExpressionModel(
-                    expr="amp * sin(dt * (c2_neg * x**2 + c3_neg * x**3 + f_err)) + offset",
-                    name="Yneg",
-                ),
-            ],
-        )
+            fs = f"(c1_{direction} * x + c2_{direction} * x**2 + c3_{direction} * x**3 + f_err)"
+            models.extend(
+                [
+                    lmfit.models.ExpressionModel(
+                        expr=f"amp * cos(dt * {fs}) + offset",
+                        name=f"X{direction}",
+                    ),
+                    lmfit.models.ExpressionModel(
+                        expr=f"amp * sin(dt * {fs}) + offset",
+                        name=f"Y{direction}",
+                    ),
+                ]
+            )
+
+        super().__init__(models=models)
 
     @classmethod
     def _default_options(cls):
@@ -175,10 +184,10 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
             ylabel="P(1)",
             ylim=(0, 1),
             series_params={
-                "Xpos": {"color": "blue", "symbol": "o", "label": "Ramsey X(+)"},
-                "Ypos": {"color": "blue", "symbol": "^", "label": "Ramsey Y(+)"},
-                "Xneg": {"color": "red", "symbol": "o", "label": "Ramsey X(-)"},
-                "Yneg": {"color": "red", "symbol": "^", "label": "Ramsey Y(-)"},
+                "Xpos": {"color": "#123FE8", "symbol": "o", "label": "Ramsey X(+)"},
+                "Ypos": {"color": "#6312E8", "symbol": "^", "label": "Ramsey Y(+)"},
+                "Xneg": {"color": "#E83812", "symbol": "o", "label": "Ramsey X(-)"},
+                "Yneg": {"color": "#E89012", "symbol": "^", "label": "Ramsey Y(-)"},
             },
         )
         ramsey_plotter.set_options(style=vis.PlotStyle({"figsize": (12, 5)}))
@@ -186,8 +195,10 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
         options = super()._default_options()
         options.update_options(
             result_parameters=[
+                curve.ParameterRepr("c1_pos", "stark_pos_coef_o1", "Hz"),
                 curve.ParameterRepr("c2_pos", "stark_pos_coef_o2", "Hz"),
                 curve.ParameterRepr("c3_pos", "stark_pos_coef_o3", "Hz"),
+                curve.ParameterRepr("c1_neg", "stark_neg_coef_o1", "Hz"),
                 curve.ParameterRepr("c2_neg", "stark_neg_coef_o2", "Hz"),
                 curve.ParameterRepr("c3_neg", "stark_neg_coef_o3", "Hz"),
                 curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
@@ -260,12 +271,12 @@ class StarkRamseyFastAnalysis(curve.CurveAnalysis):
             # Consider both signs to expand square root.
             for sign in (1, -1):
                 # Do polyfit up to 2rd order.
-                # This must correspond to the 3rd order coeff because of the derivative.
-                # The intercept is ignored.
-                vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:])).T
+                # This must correspond to the 3rd order in the original function.
+                vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:], np.ones(xvals.size - 1))).T
                 coeffs = np.linalg.lstsq(vmat_xpoly, sign * phase_poly, rcond=-1)[0]
 
                 poly_guess = {
+                    f"c1_{direction}": coeffs[2] / 1 / d_const,
                     f"c2_{direction}": coeffs[1] / 2 / d_const,
                     f"c3_{direction}": coeffs[0] / 3 / d_const,
                 }
