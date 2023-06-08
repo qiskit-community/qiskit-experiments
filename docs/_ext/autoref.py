@@ -27,7 +27,7 @@ class WebSite(Directive):
 
     .. code-block::
 
-        .. ref_website:: qiskit-experiments, https://github.com/Qiskit/qiskit-experiments
+        .. ref_website:: qiskit-experiments, https://github.com/Qiskit-Extensions/qiskit-experiments
 
     """
 

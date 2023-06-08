@@ -10,6 +10,6 @@ fixes:
   - |
     Fixed a bug in the :class:`~.LocalReadoutError` experiment where analysis
     would fail when run on an ideal simulator with no readout error. See 
-    `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
+    `Issue #992 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/992>`_
     for additional details.
 
