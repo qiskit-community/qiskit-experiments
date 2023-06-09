@@ -124,7 +124,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
     # section: manual
         .. ref_website:: Qiskit Textbook 6.7,
-            https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html
+            https://learn.qiskit.org/course/quantum-hardware-pulses/hamiltonian-tomography
     """
 
     # Number of CR pulses. The flat top duration per pulse is divided by this number.

@@ -1,7 +1,7 @@
 # This is the configuration file to run sphinx linting for `tox -edocs-nitpick`.
 # It will output warnings for each missing reference.
 
-import sys, os, datetime, subprocess
+import sys, os, datetime
 
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.append(os.path.abspath("../_ext"))
@@ -34,9 +34,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
-    "sphinx_copybutton",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx_design",
     "sphinx.ext.intersphinx",
@@ -131,6 +129,14 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 
 ###
 
+linkcheck_ignore = [
+    r"manuals/index.html",
+    "tutorials/index.html",
+    "howtos/index.html",
+    "cloud_service.html",
+    "apidocs/index.html",
+]
+
 # Ignore these objects
 nitpick_ignore_regex = [
     ("py:.*", "qiskit.*"),
@@ -147,6 +153,7 @@ nitpick_ignore_regex = [
     ("py:.*", "typing.*"),
     ("py:.*", ".*Error"),
     ("py:.*", "Ellipsis"),
+    ("py:.*", "matplotlib.*"),
 ]
 
 # Deprecated objects that should be ignored in the release notes

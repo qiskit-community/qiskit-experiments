@@ -56,7 +56,7 @@ class MultiStateDiscrimination(BaseExperiment):
 
     # section: reference
         `Qiskit Textbook\
-        <https://qiskit.org/textbook/ch-quantum-hardware/accessing_higher_energy_states.html>`_
+        <https://learn.qiskit.org/course/quantum-hardware-pulses/accessing-higher-energy-states-with-qiskit-pulse>`_
 
     """
 

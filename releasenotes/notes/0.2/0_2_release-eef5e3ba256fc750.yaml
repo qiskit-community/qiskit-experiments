@@ -19,7 +19,7 @@ features:
     ``qiskit_experiments.framework.matplotlib.default_figure_canvas`` to the
     desired canvas. Note that it has to be a canvas for one of the
     `non-interactive backend
-    <https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_.
+    <https://matplotlib.org/stable/users/explain/backends.html#the-builtin-backends>`_.
     For example, you can set ``default_figure_canvas`` to
     :class:`~matplotlib.backends.backend_agg.FigureCanvasAgg` to use the
     ``AGG`` backend.
