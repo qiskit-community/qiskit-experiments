@@ -17,12 +17,7 @@ from typing import Union, Sequence, Optional, List
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-try:
-    from qiskit import Aer
-
-    HAS_SIMULATION_BACKEND = True
-except ImportError:
-    HAS_SIMULATION_BACKEND = False
+from qiskit.utils.optionals import HAS_AER
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
@@ -65,6 +60,9 @@ class QuantumVolume(BaseExperiment):
     # section: analysis_ref
         :class:`QuantumVolumeAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/quantum_volume`
+
     # section: reference
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571
@@ -91,16 +89,18 @@ class QuantumVolume(BaseExperiment):
                   with this seed value everytime :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
-                method. If None :class:`AerSimulator` simulator will be used
-                (in case :class:`AerSimulator` is not
-                installed :class:`qiskit.quantum_info.Statevector` will be used).
+                method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
+                (in case :mod:`qiskit_aer` is not
+                installed, :class:`qiskit.quantum_info.Statevector` will be used).
         """
         super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials, seed=seed)
 
-        if not simulation_backend and HAS_SIMULATION_BACKEND:
+        if not simulation_backend and HAS_AER:
+            from qiskit_aer import Aer
+
             self._simulation_backend = Aer.get_backend("aer_simulator")
         else:
             self._simulation_backend = simulation_backend

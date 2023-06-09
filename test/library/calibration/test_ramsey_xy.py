@@ -21,7 +21,7 @@ from qiskit_aer import AerSimulator
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus, BackendData
+from qiskit_experiments.framework import AnalysisStatus, BackendData, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
@@ -122,22 +122,22 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         exp = RamseyXY([0])
         loaded_exp = RamseyXY.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_ramseyxy_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = RamseyXY([0])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""
         exp = FrequencyCal([0], self.cals)
         loaded_exp = FrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Cal experiments are not yet JSON serializable")
     def test_freqcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FrequencyCal([0], self.cals)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

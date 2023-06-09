@@ -1,5 +1,6 @@
-name: Docs Publish
+name: Dev Docs Publish
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
 

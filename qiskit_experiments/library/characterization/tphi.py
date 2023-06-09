@@ -58,9 +58,9 @@ class Tphi(BatchExperiment):
         :doc:`/manuals/characterization/tphi`
 
     # section: see_also
-        qiskit_experiments.library.characterization.t1
-        qiskit_experiments.library.characterization.t2ramsey
-        qiskit_experiments.library.characterization.t2hahn
+        * :py:class:`qiskit_experiments.library.characterization.T1`
+        * :py:class:`qiskit_experiments.library.characterization.T2Ramsey`
+        * :py:class:`qiskit_experiments.library.characterization.T2Hahn`
 
     """
 
@@ -120,7 +120,12 @@ class Tphi(BatchExperiment):
         analysis = TphiAnalysis([exp_t1.analysis, exp_t2.analysis])
 
         # Create batch experiment
-        super().__init__([exp_t1, exp_t2], backend=backend, analysis=analysis)
+        super().__init__(
+            [exp_t1, exp_t2],
+            flatten_results=True,
+            backend=backend,
+            analysis=analysis,
+        )
         self.set_experiment_options(**exp_options)
 
     def set_experiment_options(self, **fields):

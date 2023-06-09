@@ -22,7 +22,6 @@ from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
-from qiskit import transpile
 
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
@@ -149,7 +148,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         )
 
         # Running experiment twice.
-        # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
+        # Reported by https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1086.
         expdata2 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
         self.assertEqual(len(analysis.models), 3)
 
@@ -176,14 +175,13 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = MockIQBackend(DragHelper(gate_name="Drag(xp)", frequency=0.005))
         drag = RoughDrag([0], self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = MockIQBackend(DragHelper(gate_name="Drag(xp)"))
-        circuits = drag.circuits()
+        circuits = drag._transpiled_circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = transpile(circuits[idx * 51], backend).count_ops()
+            ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
 
     def test_raise_multiple_parameter(self):
@@ -232,13 +230,13 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         exp = RoughDragCal([0], self.cals, backend=self.backend)
         loaded_exp = RoughDragCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Calibration experiments are not yet JSON serializable")
     def test_dragcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = RoughDragCal([0], self.cals)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_drag_experiment_config(self):
         """Test RoughDrag config can roundtrip"""
@@ -247,7 +245,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         exp = RoughDrag([0], backend=self.backend, schedule=sched)
         loaded_exp = RoughDrag.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_drag_roundtrip_serializable(self):
@@ -255,4 +253,4 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
         exp = RoughDrag([0], backend=self.backend, schedule=sched)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

@@ -32,11 +32,7 @@ AnglesSchedules = namedtuple(
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    """A calibration version of the Rabi experiment.
-
-    # section: see_also
-        :class:`.Rabi`
-    """
+    """A calibration version of the Rabi experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -186,7 +182,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
 
-            value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
+            # This implementation conserves the type, while working for both real and complex prev_amp
+            value = np.round(angle / rate, decimals=8) * prev_amp / np.abs(prev_amp)
 
             BaseUpdater.add_parameter_value(
                 self._cals, experiment_data, value, param, schedule, group
@@ -194,11 +191,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates.
-
-    # section: see_also
-        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
-    """
+    """A rough amplitude calibration of x and sx gates."""
 
     @qubit_deprecate()
     def __init__(
@@ -228,10 +221,8 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
-
-    # section: see_also
-        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
+    r"""A rough amplitude calibration of :math:`X` and :math:`SX` gates on the
+    :math:`|1\rangle` <-> :math:`|2\rangle` transition.
     """
 
     __outcome__ = "rabi_rate_12"
@@ -245,7 +236,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         backend: Optional[Backend] = None,
         ef_pulse_label: str = "12",
     ):
-        r"""A rough amplitude calibration that updates both the sx and x pulses on 1<->2.
+        r"""A rough amplitude calibration that updates both the sx and x pulses on the
+        :math:`|1\rangle` <-> :math:`|2\rangle` transition.
 
         Args:
             physical_qubits: Sequence containing the index of the qubit
@@ -255,7 +247,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             backend: Optional, the backend to run the experiment on.
             ef_pulse_label: A label that is post-pended to "x" and "sx" to obtain the name
                 of the pulses that drive a :math:`\pi` and :math:`\pi/2` rotation on
-                the 1<->2 transition.
+                the :math:`|1\rangle` <-> :math:`|2\rangle` transition.
         """
         super().__init__(
             physical_qubits,
@@ -287,3 +279,12 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         circ = QuantumCircuit(1)
         circ.x(0)
         return circ
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach an x calibration if it is defined."""
+        # Attach the x calibration as well if it is in self._cals. We allow for
+        # it not to be present in case a user wants to rely on the default x
+        # calibration and only calibrate the pulses between levels 1 and 2.
+        if self._cals.has_template("x", self.physical_qubits):
+            schedule = self._cals.get_schedule("x", self.physical_qubits)
+            circuit.add_calibration("x", self.physical_qubits, schedule)

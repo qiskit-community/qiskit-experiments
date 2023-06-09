@@ -20,6 +20,10 @@ superconducting qubits, :math:`T_2^*` tends to be significantly smaller than
 From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
 :math:`T_\varphi.`
 
+.. note::
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     import numpy as np
@@ -27,17 +31,17 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
     from qiskit_experiments.library.characterization import Tphi
 
     # An Aer simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
     
     # Time intervals to wait before measurement for t1 and t2
     delays_t1 = np.arange(1e-6, 300e-6, 10e-6)

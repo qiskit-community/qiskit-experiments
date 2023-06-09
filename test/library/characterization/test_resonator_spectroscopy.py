@@ -22,8 +22,9 @@ from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import CXGate, Measure, XGate
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ParallelExperiment
+from qiskit_experiments.framework import BackendData, ParallelExperiment
 from qiskit_experiments.library import ResonatorSpectroscopy
+from qiskit_experiments.database_service import Resonator
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQParallelExperimentHelper as ParallelExperimentHelper,
@@ -31,6 +32,34 @@ from qiskit_experiments.test.mock_iq_helpers import (
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQSpectroscopyHelper as ResonatorSpectroscopyHelper,
 )
+
+
+class MockIQBackendDefaults(MockIQBackend):
+    """MockIQBackend with defaults() method"""
+
+    def defaults(self):
+        """Pulse defaults
+
+        NOTE: ResonatorSpectroscopy still relies on defaults() so we add here.
+        Because defaults() is not in the BackendV2 base class, we do not add it
+        to Backend classes outside of this test module so that we do not
+        introduce new dependencies on it.
+        """
+        return self._defaults
+
+
+class MockIQParallelBackendDefaults(MockIQParallelBackend):
+    """MockIQParallelBackend with defaults() method"""
+
+    def defaults(self):
+        """Pulse defaults
+
+        NOTE: ResonatorSpectroscopy still relies on defaults() so we add here.
+        Because defaults() is not in the BackendV2 base class, we do not add it
+        to Backend classes outside of this test module so that we do not
+        introduce new dependencies on it.
+        """
+        return self._defaults
 
 
 def data_valid_initial_circuits() -> List[Tuple[Any, str]]:
@@ -80,7 +109,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         """Test the experiment from end to end."""
 
         qubit = 1
-        backend = MockIQBackend(
+        backend = MockIQBackendDefaults(
             experiment_helper=ResonatorSpectroscopyHelper(
                 gate_name="measure",
                 freq_offset=freq_shift,
@@ -88,9 +117,8 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_freq = backend.defaults().meas_freq_est[qubit]
+        res_freq = BackendData(backend).meas_freqs[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         spec = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
@@ -98,28 +126,29 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertAlmostEqual(result.value.n, res_freq + freq_shift, delta=0.1e6)
         self.assertEqual(str(result.device_components[0]), f"R{qubit}")
+        self.assertEqual(expdata.metadata["device_components"], [Resonator(qubit)])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = ResonatorSpectroscopy([1], frequencies=np.linspace(100, 150, 20) * 1e6)
         loaded_exp = ResonatorSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = ResonatorSpectroscopy([1], frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     @data(-5e6, 0, 3e6)
     def test_kerneled_expdata_serialization(self, freq_shift):
         """Test experiment data and analysis data JSON serialization"""
         qubit = 1
-        backend = MockIQBackend(
+        backend = MockIQBackendDefaults(
             experiment_helper=ResonatorSpectroscopyHelper(
                 gate_name="measure",
                 freq_offset=freq_shift,
@@ -127,9 +156,8 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_freq = backend.defaults().meas_freq_est[qubit]
+        res_freq = BackendData(backend).meas_freqs[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
@@ -140,10 +168,10 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
         expdata._experiment = None
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_parallel_experiment(self):
         """Test for parallel experiment"""
@@ -168,17 +196,17 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
             ),
         ]
 
-        parallel_backend = MockIQParallelBackend(
+        parallel_backend = MockIQParallelBackendDefaults(
             experiment_helper=None,
             rng_seed=0,
         )
-        parallel_backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit1 = 0
         qubit2 = 1
 
-        res_freq1 = parallel_backend.defaults().meas_freq_est[qubit1]
-        res_freq2 = parallel_backend.defaults().meas_freq_est[qubit2]
+        backend_data = BackendData(parallel_backend)
+        res_freq1 = backend_data.meas_freqs[qubit1]
+        res_freq2 = backend_data.meas_freqs[qubit2]
 
         frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 51)
         frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)
@@ -198,7 +226,9 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         # setting the helper into the backend
         parallel_backend.experiment_helper = parallel_helper
 
-        par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
+        par_experiment = ParallelExperiment(
+            exp_list, flatten_results=False, backend=parallel_backend
+        )
         par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
         par_data = par_experiment.run().block_for_results()
@@ -207,17 +237,17 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
         par_data._experiment = None
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(par_data, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(par_data)
 
         for child_data in par_data.child_data():
-            self.assertRoundTripSerializable(child_data, self.experiment_data_equiv)
+            self.assertRoundTripSerializable(child_data)
             for analysis_result in child_data.analysis_results():
-                self.assertRoundTripSerializable(analysis_result, self.analysis_result_equiv)
+                self.assertRoundTripSerializable(analysis_result)
 
     def test_initial_circuit_transpiled(self):
         """Test that the initial circuit is added to the experiment circuits correctly."""
         # Create backend to assist with circuit creation
-        backend = MockIQBackend(
+        backend = MockIQBackendDefaults(
             experiment_helper=ResonatorSpectroscopyHelper(
                 gate_name="measure",
                 freq_offset=1e6,
@@ -225,7 +255,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         # Create arbitrary initial circuit
         initial_circuit = QuantumCircuit(1, name="initial_circuit")
@@ -263,7 +292,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
             self.assertEqual(
                 circ.width(),
                 # Width is the number of qubits + 1 classical bit.
-                backend.configuration().num_qubits + 1,
+                backend.num_qubits + 1,
                 msg="Transpiled circuit width was not as expected.",
             )
             self.assertEqual(
@@ -275,7 +304,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
             self.assertEqual(
                 circ.width(),
                 # Width is the number of qubits + 1 classical bit.
-                backend.configuration().num_qubits + 1,
+                backend.num_qubits + 1,
                 msg="Transpiled circuit, with initial_circuit, width was not as expected.",
             )
             self.assertEqual(
@@ -288,7 +317,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
     def test_valid_initial_circuits(self, params):
         """Test successful setting of valid ``initial_circuit`` values."""
         circuit, circuit_label = params
-        backend = MockIQBackend(
+        backend = MockIQBackendDefaults(
             experiment_helper=ResonatorSpectroscopyHelper(
                 gate_name="measure",
                 freq_offset=1e6,
@@ -296,7 +325,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         res_spec = ResonatorSpectroscopy([0], backend)
         try:
@@ -310,7 +338,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
     def test_invalid_initial_circuits(self, params):
         """Test detection of invalid ``initial_circuit`` values."""
         circuit, circuit_label = params
-        backend = MockIQBackend(
+        backend = MockIQBackendDefaults(
             experiment_helper=ResonatorSpectroscopyHelper(
                 gate_name="measure",
                 freq_offset=1e6,
@@ -318,7 +346,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         res_spec = ResonatorSpectroscopy([0], backend)
         with self.assertRaises(

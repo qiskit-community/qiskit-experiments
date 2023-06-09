@@ -31,11 +31,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
-    """A calibration version of the fine drag experiment.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """A calibration version of the fine drag experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -112,6 +108,10 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         """Attach the calibrations to the circuit."""
         schedule = self._cals.get_schedule(self._sched_name, self.physical_qubits)
         circuit.add_calibration(self._sched_name, self.physical_qubits, schedule)
+        # FineDrag always uses sx so attach it if it is not sched_name
+        if self._sched_name != "sx":
+            schedule = self._cals.get_schedule("sx", self.physical_qubits)
+            circuit.add_calibration("sx", self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the drag parameter of the pulse in the calibrations."""
@@ -150,11 +150,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
 
 class FineXDragCal(FineDragCal):
-    """Fine drag calibration of X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Fine drag calibration of X gate."""
 
     @qubit_deprecate()
     def __init__(
@@ -187,11 +183,7 @@ class FineXDragCal(FineDragCal):
 
 
 class FineSXDragCal(FineDragCal):
-    """Fine drag calibration of X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Fine drag calibration of X gate."""
 
     @qubit_deprecate()
     def __init__(

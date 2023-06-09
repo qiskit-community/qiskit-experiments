@@ -90,7 +90,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
             \bar\delta(t) = {\rm d}\beta\, \Omega^2_x(t)
 
 
-        We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous Z-angle rotation error,
+        We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous :math:`Z`-angle rotation error,
         to obtain the total rotation angle error per pulse, :math:`{\rm d}\theta`:
 
         .. math::
@@ -103,7 +103,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
         :math:`A\sigma\sqrt{\pi/2}=\theta_\text{target}`, where :math:`\theta_\text{target}`
         is the target rotation angle, i.e. the area under the pulse. This last point allows
         us to rewrite :math:`A^2\sigma\sqrt{\pi}` as
-        :math:`\theta^2_\text{target}/(2\sigma\sqrt{\pi})`. The total Z angle error per pulse
+        :math:`\theta^2_\text{target}/(2\sigma\sqrt{\pi})`. The total :math:`Z` angle error per pulse
         is therefore
 
         .. math::
@@ -111,13 +111,13 @@ class FineDrag(BaseExperiment, RestlessMixin):
            {\rm d}\theta=
             \int\bar\delta(t){\rm d}t={\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
 
-        Here, :math:`{\rm d}\theta` is the Z angle error per pulse. The qubit population produced by
-        the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed, each
-        gate pair Rp - Rm will produce a small unwanted Z - rotation out of the ZX plane with a
-        magnitude :math:`2\,{\rm d}\theta`. The total rotation out of the ZX plane is then mapped
-        to a qubit population by the final Post gate. Inverting the relation above after cancelling
-        out the factor of two due to the Rp - Rm pulse pair yields the error in :math:`\beta` that
-        produced the rotation error :math:`{\rm d}\theta` as
+        Here, :math:`{\rm d}\theta` is the :math:`Z` angle error per pulse. The qubit population
+        produced by the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed,
+        each gate pair Rp - Rm will produce a small unwanted :math:`Z`-rotation out of the
+        :math:`ZX` plane with a magnitude :math:`2\,{\rm d}\theta`. The total rotation out of the
+        :math:`ZX` plane is then mapped to a qubit population by the final Post gate. Inverting the
+        relation above after cancelling out the factor of two due to the Rp - Rm pulse pair yields
+        the error in :math:`\beta` that produced the rotation error :math:`{\rm d}\theta` as
 
         .. math::
 
@@ -127,9 +127,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
-
-    # section: see_also
-        :class:`.DragCal`
 
     # section: reference
         .. ref_arxiv:: 1 1612.00858
@@ -245,11 +242,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Class to fine characterize the DRAG parameter of an X gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -275,11 +268,7 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an SX gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Class to fine characterize the DRAG parameter of an :math:`SX` gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

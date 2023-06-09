@@ -3,13 +3,6 @@
 Qiskit Experiments Documentation
 ================================
 
-.. warning::
-
-    This package is still under active development and it is very likely
-    that there will be breaking API changes in future releases.
-    If you encounter any bugs, please open an issue on
-    `GitHub <https://github.com/Qiskit/qiskit-experiments/issues>`_.
-
 Qiskit Experiments provides both a :doc:`library <apidocs/library>` of standard
 quantum characterization, calibration, and verification experiments, and a
 general :doc:`framework <apidocs/framework>` for implementing custom experiments
@@ -119,8 +112,8 @@ We've divided up the documentation into four sections with different purposes:
     manuals/index
     apidocs/index
     release_notes
-    GitHub <https://github.com/Qiskit/qiskit-experiments>
-    Development Branch Docs <https://qiskit.org/documentation/experiments/dev>
+    GitHub <https://github.com/Qiskit-Extensions/qiskit-experiments>
+    Development Branch Docs <https://qiskit.org/ecosystem/experiments/dev>
 
 |
 

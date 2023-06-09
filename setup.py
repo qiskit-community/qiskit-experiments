@@ -10,25 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"The Qiskit Terra setup file."
+"The Qiskit Experiments setup file."
 
 import os
-import sys
 from setuptools import setup, find_packages
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
 
 version_path = os.path.abspath(
     os.path.join(os.path.join(os.path.dirname(__file__), "qiskit_experiments"), "VERSION.txt")
 )
-with open(version_path, "r") as fd:
+with open(version_path, "r", encoding="utf-8") as fd:
     version = fd.read().rstrip()
 
 # Read long description from README.
 README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
-with open(README_PATH) as readme_file:
+with open(README_PATH, encoding="utf-8") as readme_file:
     README = readme_file.read()
 
 setup(
@@ -37,7 +36,7 @@ setup(
     description="Software for developing quantum computing programs",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/Qiskit/qiskit-experiments",
+    url="https://github.com/Qiskit-Extensions/qiskit-experiments",
     author="Qiskit Development Team",
     author_email="hello@qiskit.org",
     license="Apache 2.0",
@@ -50,7 +49,6 @@ setup(
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -61,11 +59,11 @@ setup(
     packages=find_packages(exclude=["test*"]),
     install_requires=REQUIREMENTS,
     include_package_data=True,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     project_urls={
-        "Bug Tracker": "https://github.com/Qiskit/qiskit-experiments/issues",
-        "Documentation": "https://qiskit.org/documentation/",
-        "Source Code": "https://github.com/Qiskit/qiskit-experiments",
+        "Bug Tracker": "https://github.com/Qiskit-Extensions/qiskit-experiments/issues",
+        "Documentation": "https://qiskit.org/ecosystem/experiments",
+        "Source Code": "https://github.com/Qiskit-Extensions/qiskit-experiments",
     },
     zip_safe=False,
 )

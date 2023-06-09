@@ -7,8 +7,8 @@ Installation
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
 Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`. Qiskit
-Experiments supports the same platforms and Python versions (currently **3.7+**) as
-Qiskit itself.
+Experiments supports the same platforms as Qiskit itself and Python versions 3.8,
+3.9, 3.10, and 3.11.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``:
 
@@ -21,14 +21,14 @@ install the latest main branch:
 
 .. jupyter-input::
 
-    python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. jupyter-input::
 
-    git clone https://github.com/Qiskit/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
@@ -47,29 +47,26 @@ the experiment from the Qiskit Experiments library:
     from qiskit_experiments.library import T1
 
 Experiments must be run on a backend. We're going to use a simulator,
-:class:`~qiskit.providers.fake_provider.FakeVigo`, for this example, but you can use any
-IBM backend, real or simulated, that you can access through Qiskit.
+:class:`~qiskit.providers.fake_provider.FakePerth`, for this example, but you can use any
+backend, real or simulated, that you can access through Qiskit.
+
+.. note::
+    This tutorial requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
-    from qiskit.providers.aer.noise import NoiseModel
-    import numpy as np
 
-    # Create a pure relaxation noise model for AerSimulator
-    noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
-    )
-
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth())
 
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
 Python sequence (usually a tuple or a list).
 
 .. note::
-    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an 
+    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an
     integer qubit index instead of a one-element sequence for a single-qubit experiment
     is deprecated.
 
@@ -81,9 +78,11 @@ good estimate for the sweep range of the delays.
 
 .. jupyter-execute::
 
-    qubit0_t1 = backend.properties().t1(0)
-
+    import numpy as np
+    
+    qubit0_t1 = FakePerth().qubit_properties(0).t1
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
+
     exp = T1(physical_qubits=(0,), delays=delays)
 
 The circuits encapsulated by the experiment can be accessed using the experiment's
@@ -210,6 +209,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
     See the how-tos for :doc:`rerunning the analysis </howtos/rerun_analysis>`
     for an existing experiment that finished execution.
 
+.. _guide_setting_options:
+
 Setting options for your experiment
 ===================================
 
@@ -223,21 +224,23 @@ These options are passed to the experiment's :meth:`~.BaseExperiment.run` method
 then to the ``run()`` method of your specified backend. Any run option that your backend
 supports can be set:
 
-.. jupyter-input::
+.. jupyter-execute::
+
+  from qiskit.qobj.utils import MeasLevel
 
   exp.set_run_options(shots=1000,
-                      meas_level=MeasLevel.CLASSIFIED,
-                      meas_return="avg")
+                      meas_level=MeasLevel.CLASSIFIED)
 
-Consult the documentation of :func:`qiskit.execute_function.execute` or the run method
-of your specific backend type for valid options.
+Consult the documentation of the run method of your
+specific backend type for valid options.
+For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
 These options are passed to the Terra transpiler to transpile the experiment circuits
 before execution:
 
-.. jupyter-input::
+.. jupyter-execute::
 
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
@@ -251,9 +254,10 @@ These options are unique to each experiment class. Many experiment options can b
 upon experiment instantiation, but can also be explicitly set via
 :meth:`~.BaseExperiment.set_experiment_options`:
 
-.. jupyter-input::
+.. jupyter-execute::
 
-    exp = T1(physical_qubits=(i,), delays=delays)
+    exp = T1(physical_qubits=(0,), delays=delays)
+    new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment
@@ -305,7 +309,7 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine
@@ -322,7 +326,7 @@ child experiments can be accessed via the
     parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
 
 The circuits of all experiments assume they're acting on virtual qubits starting from
-index 0. In the case of a parallel experiment, the child experiment 
+index 0. In the case of a parallel experiment, the child experiment
 circuits are composed together and then reassigned virtual qubit indices:
 
 .. jupyter-execute::
@@ -332,7 +336,7 @@ circuits are composed together and then reassigned virtual qubit indices:
 During experiment transpilation, a mapping is performed to place these circuits on the
 physical layout. We can see its effects by looking at the transpiled
 circuit, which is accessed via the internal method ``_transpiled_circuits()``. After
-transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2 
+transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2
 and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
@@ -352,6 +356,12 @@ The experiment data returned from a composite experiment contains individual ana
 results for each child experiment that can be accessed using
 :meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
 analysis results.
+
+.. note::
+
+    This behavior will be updated in Qiskit Experiments 0.7.
+    By default, all analysis results will be stored in the parent data object,
+    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
 
 .. jupyter-execute::
 

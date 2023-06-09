@@ -83,13 +83,13 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         exp = Rabi([self.qubit], self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = Rabi([self.qubit], self.sched)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
 
 class TestEFRabi(QiskitExperimentsTestCase):
@@ -154,13 +154,13 @@ class TestEFRabi(QiskitExperimentsTestCase):
         exp = EFRabi([0], self.sched)
         loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = EFRabi([0], self.sched)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
 
 class TestRabiCircuits(QiskitExperimentsTestCase):
@@ -292,7 +292,7 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
 
             experiments.append(Rabi([qubit], sched, amplitudes=[0.5]))
 
-        par_exp = ParallelExperiment(experiments)
+        par_exp = ParallelExperiment(experiments, flatten_results=False)
         par_circ = par_exp.circuits()[0]
 
         # If the calibrations are not there we will not be able to transpile

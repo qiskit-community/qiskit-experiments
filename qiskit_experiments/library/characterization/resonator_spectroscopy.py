@@ -24,6 +24,7 @@ from qiskit.providers import Backend
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.warnings import qubit_deprecate
+from qiskit_experiments.database_service import Resonator
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -97,9 +98,6 @@ class ResonatorSpectroscopy(Spectroscopy):
 
     # section: analysis_ref
         :class:`ResonatorSpectroscopyAnalysis`
-
-    # section: see_also
-        :class:`.QubitSpectroscopy`
     """
 
     @classmethod
@@ -165,7 +163,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         through the experiment options.
 
         Args:
-            physical_qubits: List containing the qubit on which to run readout
+            physical_qubits: List containing the resonator on which to run readout
                 spectroscopy.
             backend: Optional, the backend to run the experiment on.
             frequencies: The frequencies to scan in the experiment, in Hz. The default values
@@ -178,7 +176,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         Raises:
             QiskitError: If no frequencies are given and absolute frequencies are desired and
-                no backend is given.
+                no backend is given or the backend does not have default measurement frequencies.
         """
         analysis = ResonatorSpectroscopyAnalysis()
 
@@ -186,17 +184,29 @@ class ResonatorSpectroscopy(Spectroscopy):
             frequencies = np.linspace(-20.0e6, 20.0e6, 51)
 
             if absolute:
-                if backend is None:
-                    raise QiskitError(
-                        "Cannot automatically compute absolute frequencies without a backend."
-                    )
-
-                center_freq = BackendData(backend).meas_freqs[physical_qubits[0]]
-                frequencies += center_freq
+                frequencies += self._get_backend_meas_freq(
+                    BackendData(backend) if backend is not None else None,
+                    physical_qubits[0],
+                )
 
         super().__init__(
             physical_qubits, frequencies, backend, absolute, analysis, **experiment_options
         )
+
+    @staticmethod
+    def _get_backend_meas_freq(backend_data: Optional[BackendData], qubit: int) -> float:
+        """Get backend meas_freq with error checking"""
+        if backend_data is None:
+            raise QiskitError(
+                "Cannot automatically compute absolute frequencies without a backend."
+            )
+
+        if len(backend_data.meas_freqs) < qubit + 1:
+            raise QiskitError(
+                "Cannot retrieve default measurement frequencies from backend. "
+                "Please set frequencies explicitly or set `absolute` to `False`."
+            )
+        return backend_data.meas_freqs[qubit]
 
     @property
     def _backend_center_frequency(self) -> float:
@@ -208,10 +218,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         Raises:
             QiskitError: If the experiment does not have a backend set.
         """
-        if self.backend is None:
-            raise QiskitError("backend not set. Cannot call center_frequency.")
-
-        return self._backend_data.meas_freqs[self.physical_qubits[0]]
+        return self._get_backend_meas_freq(self._backend_data, self.physical_qubits[0])
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -251,6 +258,12 @@ class ResonatorSpectroscopy(Spectroscopy):
             pulse.acquire(duration, qubit, pulse.MemorySlot(self.experiment_options.memory_slot))
 
         return schedule, freq_param
+
+    def _metadata(self):
+        """Update metadata with the resonator components."""
+        metadata = super()._metadata()
+        metadata["device_components"] = list(map(Resonator, self.physical_qubits))
+        return metadata
 
     def circuits(self):
         """Create the circuit for the spectroscopy experiment.

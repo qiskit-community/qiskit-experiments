@@ -66,10 +66,10 @@ they use always starts with the qubits in the ground state.
         FixedFrequencyTransmon,
     )
     from qiskit_experiments.data_processing.data_processor import DataProcessor
-    from qiskit.providers.fake_provider import FakeBogota
+    from qiskit.providers.fake_provider import FakePerth
 
     # replace this lines with an IBM Quantum backend to run the experiment.
-    backend = FakeBogota()
+    backend = FakePerth()
     cals = Calibrations.from_backend(backend, libraries=[FixedFrequencyTransmon()])
 
     # Define the experiment
@@ -158,9 +158,10 @@ using the code below.
 .. jupyter-execute::
 
     from qiskit import schedule, transpile
+    from qiskit_experiments.framework import BackendData
 
-    dt = backend.configuration().dt
-    inst_map = backend.defaults().instruction_schedule_map
+    dt = BackendData(backend).dt
+    inst_map = backend.instruction_schedule_map
     meas_length = inst_map.get("measure", (qubit, )).duration * dt
 
     # Compute the average duration of all circuits
@@ -183,7 +184,9 @@ using the code below.
     tau = sum(durations) * dt / (len(durations))
 
     n_circs = len(cal_drag.circuits())
-    delay_s = backend.configuration().default_rep_delay
+    # can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-provider
+
+    delay_s = 0.0025
     delay_r = 1e-6  # restless delay
     reset = 4e-6  # Estimated reset duration
     speed_up = (meas_length + reset + delay_s + tau) / (meas_length + delay_r + tau)

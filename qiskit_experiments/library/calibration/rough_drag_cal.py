@@ -28,10 +28,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
-    """A calibration version of the Drag experiment.
-
-    # section: see_also
-        :class:`.RoughDrag`
+    """A calibration version of the :class:`.RoughDrag` experiment.
 
     # section: manual
         :ref:`DRAG Calibration`
@@ -50,15 +47,15 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         auto_update: bool = True,
         group: str = "default",
     ):
-        r"""see class :class:`RoughDrag` for details.
+        r"""see class :class:`.RoughDrag` for details.
 
         Args:
             physical_qubits: Sequence containing the qubit for which to run the
-                rough drag calibration.
+                rough DRAG calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate. Defaults to "x".
-            betas: A list of drag parameter values to scan. If None is given 51 betas ranging
+            betas: A list of DRAG parameter values to scan. If None is given 51 betas ranging
                 from -5 to 5 will be scanned.
             cal_parameter_name: The name of the parameter in the schedule to update.
                 Defaults to "β".

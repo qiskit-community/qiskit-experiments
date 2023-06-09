@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    A new method :meth:`.qiskit_experiments.calibration_management.Calibrations.has_template`
+    has been added to :class:`.qiskit_experiments.calibration_management.Calibrations`
+    to check if a template schedule exists for a particular set of qubits.
+fixes:
+  - |
+    :class:`.qiskit_experiments.library.FineXDragCal` and 
+    :class:`.qiskit_experiments.library.EFRoughXSXAmplitudeCal` were updated to
+    attach `"sx"` and `"x"` calibrations to their circuits, respectively.
+    Previously, they only attached the `"x"` and `"x12"` calibrations that they
+    were calibrating. See issue `#1158 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1158>`_.

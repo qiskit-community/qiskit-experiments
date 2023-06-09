@@ -64,6 +64,9 @@ To illustrate the data processing module, we consider an example
 in which we measure a rabi oscillation with different data levels.
 The code below sets up the Rabi experiment.
 
+.. note::
+    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
+    You can install it with ``python -m pip install qiskit-dynamics``.
 
 .. jupyter-execute::
 
@@ -82,7 +85,7 @@ The code below sets up the Rabi experiment.
             pulse.DriveChannel(0)
         )
 
-    backend = SingleTransmonTestBackend()
+    backend = SingleTransmonTestBackend(seed=100)
 
     exp = Rabi(
         qubit=0,

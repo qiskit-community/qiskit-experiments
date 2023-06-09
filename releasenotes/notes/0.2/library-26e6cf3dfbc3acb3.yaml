@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds a collection of experiments for performing single-qubit gate
+    Added a collection of experiments for performing single-qubit gate
     :mod:`~qiskit_experiments.library.characterization` and
     :mod:`~qiskit_experiments.library.calibration`. The new experiments are
 
@@ -103,7 +103,7 @@ features:
     or an echoed cross-resonance gate
     (:class:`~qiskit_experiments.library.EchoedResonanceHamiltonian`).
   - |
-    Adds a :class:`qiskit_experiments.library.ReadoutAngle` characterization
+    Added a :class:`qiskit_experiments.library.ReadoutAngle` characterization
     experiment. This experiment computes the average of the angles of the IQ
     clusters of the ground and excited states.
   - |
@@ -150,10 +150,10 @@ upgrade:
     using ``experiment.set_experiment_options(seed=value)``.
 fixes:
   - |
-    Fixes a bug in :class:`~qiskit_experiments.library.StandardRB` and
+    Fixed a bug in :class:`~qiskit_experiments.library.StandardRB` and
     :class:`~qiskit_experiments.library.InterleavedRB` where the variance in
     the estimated error per Clifford did not scale correctly with the number
     of sampled RB sequences.
 
-    See `Issue 428 <https://github.com/Qiskit/qiskit-experiments/issues/428>`_
+    See `Issue 428 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/428>`_
     for details.

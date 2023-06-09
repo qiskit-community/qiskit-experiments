@@ -19,7 +19,7 @@ Saving
 
 .. note::
     This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
-    consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    consult the `migration guide <https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
 
 You must run the experiment on a real IBM
 backend and not a simulator to be able to save the experiment data. This is done by calling
@@ -141,6 +141,11 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 
     You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
     <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
+
+Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
+
+When working with composite experiments, setting ``auto_save`` will propagate this
+setting to the child experiments.
 
 Deleting an experiment
 ~~~~~~~~~~~~~~~~~~~~~~

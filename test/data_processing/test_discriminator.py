@@ -79,7 +79,7 @@ class TestDiscriminator(QiskitExperimentsTestCase):
 
             return True
 
-        self.assertRoundTripSerializable(lda, check_lda)
+        self.assertRoundTripSerializable(lda, check_func=check_lda)
 
     @requires_sklearn
     def test_qda_serialization(self):
@@ -119,4 +119,4 @@ class TestDiscriminator(QiskitExperimentsTestCase):
 
             return True
 
-        self.assertRoundTripSerializable(qda, check_qda)
+        self.assertRoundTripSerializable(qda, check_func=check_qda)

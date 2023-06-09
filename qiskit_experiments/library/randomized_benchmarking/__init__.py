@@ -37,12 +37,16 @@ Analysis
     RBAnalysis
     InterleavedRBAnalysis
 
+Utilities
+=========
+
 .. autosummary::
     :toctree: ../stubs/
 
     RBUtils
+    CliffordUtils
 """
-from .rb_experiment import StandardRB
+from .standard_rb import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis

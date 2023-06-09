@@ -31,6 +31,8 @@ Mock backends for running simulated jobs.
 .. autosummary::
     :toctree: ../stubs/
 
+    PulseBackend
+    SingleTransmonTestBackend
     MockIQBackend
     MockIQParallelBackend
     T2HahnBackend

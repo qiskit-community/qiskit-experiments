@@ -30,6 +30,10 @@ assignment matrix, meaning it can only be used for small values of
 This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
+.. note::
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     import numpy as np
@@ -37,9 +41,9 @@ experiments to generate the corresponding mitigators.
     from qiskit import QuantumCircuit
     from qiskit.visualization import plot_histogram
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
-    # For simulation
+
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakeParis
+    from qiskit.providers.fake_provider import FakePerth
 
     from qiskit.result.mitigation.utils import (
         expval_with_stddev,
@@ -47,7 +51,7 @@ experiments to generate the corresponding mitigators.
         counts_probability_vector
     )
 
-    backend = AerSimulator.from_backend(FakeParis())
+    backend = AerSimulator.from_backend(FakePerth())
 
 .. jupyter-execute::
 

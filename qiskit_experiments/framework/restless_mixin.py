@@ -53,6 +53,10 @@ class RestlessMixin:
     complex restless data processing such as two-qubit calibrations. In addition, this
     class makes it easy to determine if restless measurements are supported for a given
     experiment.
+
+    User Manual
+        :doc:`/manuals/measurement/restless_measurements`
+
     """
 
     analysis: BaseAnalysis
@@ -201,7 +205,7 @@ class RestlessMixin:
 
         try:
             t1_values = [
-                self._backend.properties().qubit_property(physical_qubit)["T1"][0]
+                self._backend_data.qubit_t1(physical_qubit)
                 for physical_qubit in self._physical_qubits
             ]
 

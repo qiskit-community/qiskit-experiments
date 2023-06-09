@@ -14,16 +14,18 @@
 
 from test.base import QiskitExperimentsTestCase
 
+from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.pulse import Play, Constant, DriveChannel, ScheduleBlock
 
-from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
     Calibrations,
 )
 from qiskit_experiments.framework.composite import ParallelExperiment, BatchExperiment
+from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.test.fake_backend import FakeBackend
+
 from .utils import MockCalExperiment, DoNothingAnalysis
 
 
@@ -237,7 +239,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate2",
             sched_name="test",
         )
-        batch_exp = BatchExperiment([exp1, exp2], backend=backend)
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=False, backend=backend)
         batch_exp.run(backend).block_for_results()
 
         # Get new value
@@ -307,7 +309,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate2",
             sched_name="test2",
         )
-        batch_exp = ParallelExperiment([exp1, exp2], backend=backend)
+        batch_exp = ParallelExperiment([exp1, exp2], flatten_results=False, backend=backend)
         batch_exp.run(backend).block_for_results()
 
         # Get new value
@@ -324,3 +326,36 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         new_schedule2 = cals.get_schedule("test2", (1,))
         ref_schedule2 = schedule2.assign_parameters({param2: ref_new_value2}, inplace=False)
         self.assertEqual(new_schedule2, ref_schedule2)
+
+    def test_transpiled_circuits_no_coupling_map(self):
+        """Test transpilation of calibration experiment with no coupling map"""
+        # This test was added to catch errors found when running calibration
+        # experiments against DynamicsBackend from qiskit-dynamics for which
+        # the coupling map could be None. Previously, this led to
+        # BaseCalibrationExperiment's custom pass manager failing.
+        backend = FakeBackend(num_qubits=2)
+        # If the following fails, it should be reassessed if this test is still
+        # useful
+        self.assertTrue(backend.coupling_map is None)
+
+        cals = Calibrations()
+
+        # Build a circuit to be passed through transpilation pipeline
+        qc = QuantumCircuit(1, 1)
+        qc.x(0)
+        qc.measure(0, 0)
+
+        exp = MockCalExperiment(
+            physical_qubits=(1,),
+            calibrations=cals,
+            new_value=0.2,
+            param_name="amp",
+            sched_name="x",
+            backend=backend,
+            circuits=[qc],
+        )
+        transpiled = exp._transpiled_circuits()[0]
+        # Make sure circuit was expanded with the ancilla on qubit 0
+        self.assertEqual(len(transpiled.qubits), 2)
+        # Make sure instructions were unchanged
+        self.assertDictEqual(transpiled.count_ops(), qc.count_ops())

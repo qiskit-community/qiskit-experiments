@@ -49,6 +49,7 @@ Experiments
     ResonatorSpectroscopy
     MultiStateDiscrimination
     ZZRamsey
+    StarkRamseyXY
 
 
 Analysis
@@ -104,7 +105,7 @@ from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamil
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude, FineZXAmplitude
-from .ramsey_xy import RamseyXY
+from .ramsey_xy import RamseyXY, StarkRamseyXY
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle

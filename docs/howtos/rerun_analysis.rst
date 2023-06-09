@@ -14,7 +14,7 @@ Solution
 .. note::
     Some of this guide uses the :mod:`qiskit-ibm-provider` package. For how to migrate from 
     the deprecated ``qiskit-ibmq-provider`` to ``qiskit-ibm-provider``, consult the
-    `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    `migration guide <https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
 
 Once you recreate the exact experiment you ran and all of its parameters and options,
 you can call the :meth:`.add_jobs` method with a list of :class:`Job
@@ -84,9 +84,11 @@ previously to create it. It may sometimes be helpful instead to save an experime
 restore it later with the following lines of code:
 
 .. jupyter-input::
+    
+    from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
 
-    serialized_exp = json.dumps(Experiment.config())
-    Experiment.from_config(json.loads(serialized_exp))
+    serialized_exp = json.dumps(Experiment.config(), cls=ExperimentEncoder)
+    Experiment.from_config(json.loads(serialized_exp), cls=ExperimentDecoder)
 
 Rerunning with different analysis options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

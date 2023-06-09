@@ -160,12 +160,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
-            normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
+            normalization (bool): Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
-            average_method (str): Method to average the y values when the same x values
-                appear multiple times. One of "sample", "iwv" (i.e. inverse weighted variance),
-                "shots_weighted". See :func:`.mean_xy_data` for details. Default to
-                "shots_weighted".
+            average_method (Literal["sample", "iwv", "shots_weighted"]): Method
+                to average the y values when the same x values
+                appear multiple times. One of "sample", "iwv" (i.e. inverse
+                weighted variance), "shots_weighted". See :func:`.mean_xy_data`
+                for details. Default to "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.

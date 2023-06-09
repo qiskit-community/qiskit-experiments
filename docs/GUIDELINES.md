@@ -162,7 +162,7 @@ example and example outputs by printing relevant analysis results and plot figur
 Required and common parameters, such as experiment and analysis options, should be
 covered.
 
-See the [Randomized Benchmarking](https://qiskit.org/documentation/experiments/manuals/benchmarking/randomized_benchmarking.html)
+See the [Randomized Benchmarking](https://qiskit.org/ecosystem/experiments/manuals/benchmarking/randomized_benchmarking.html)
 guide and its [source code](docs/manuals/benchmarking/randomized_benchmarking.rst) for an
 example. Here is a simple template for a manual:
 
@@ -276,7 +276,7 @@ There are several predefined sections for the class docstring.
        
        For referring to the website,
        
-       .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
+       .. ref_website:: Qiskit Experiment GitHub, https://github.com/Qiskit-Extensions/qiskit-experiments
        
        you can use the above macro, where you can provide a string for the hyperlink and 
        the destination location separated by single comma.
@@ -380,9 +380,9 @@ header should be named `Analysis Options` to be parsed correctly.
 After you complete documentation of your classes, you must add documentation to the
 toctree so that it can be rendered as the API documentation. In Qiskit Experiments, we
 have a separate tables of contents for each experiment module (e.g. [characterization
-experiments](https://qiskit.org/documentation/experiments/apidocs/mod_characterization.html))
+experiments](https://qiskit.org/ecosystem/experiments/apidocs/mod_characterization.html))
 and for the [entire
-library](https://qiskit.org/documentation/experiments/apidocs/library.html). Thus we
+library](https://qiskit.org/ecosystem/experiments/apidocs/library.html). Thus we
 should add document to the tree of a particular module and then reference it to the
 entire module.
 

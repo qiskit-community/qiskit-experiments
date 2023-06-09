@@ -27,7 +27,7 @@ def deprecated_function(
     """A function or method decorator to show deprecation warning.
 
     Args:
-        last_version: The last Qiskit Experiment version that will have this fucntion.
+        last_version: The last Qiskit Experiment version that will have this function.
         msg: Extra message, for example, to indicate an alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
 
@@ -253,4 +253,8 @@ HAS_SKLEARN = LazyImportTester(
     },
     name="scikit-learn",
     install="pip install scikit-learn",
+)
+
+HAS_DYNAMICS = LazyImportTester(
+    "qiskit_dynamics", name="qiskit-dynamics", install="pip install qiskit-dynamics"
 )

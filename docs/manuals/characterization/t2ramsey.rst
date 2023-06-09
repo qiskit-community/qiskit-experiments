@@ -31,8 +31,6 @@ The circuits used for the experiment comprise the following steps:
 #. Hadamard gate
 #. Measurement
 
-|
-
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
 precess about the z-axis. If the p gate and the precession offset each
@@ -59,20 +57,24 @@ resulting function, and can analytically extract the desired values.
 We run the experiment on a simulated backend using Qiskit Aer with a
 pure T1/T2 relaxation noise model.
 
+.. note::
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 The resulting graph will have the form:
 :math:`f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is

@@ -26,13 +26,12 @@ from qiskit_experiments.exceptions import QiskitError
 
 
 class TphiAnalysis(CompositeAnalysis):
-
     r"""A class to analyze :math:`T_\phi` experiments.
 
     # section: see_also
-        qiskit_experiments.library.characterization.analysis.T1Analysis
-        qiskit_experiments.library.characterization.analysis.T2HahnAnalysis
-        qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T1Analysis`
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T2HahnAnalysis`
+        * :py:class:`qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis`
 
     """
 

@@ -47,8 +47,8 @@ class MitigatedStateTomography(BatchExperiment):
         :py:class:`MitigatedTomographyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.StateTomography
-        qiskit_experiments.library.LocalReadoutError
+        * :py:class:`qiskit_experiments.library.tomography.StateTomography`
+        * :py:class:`qiskit_experiments.library.characterization.LocalReadoutError`
 
     """
 

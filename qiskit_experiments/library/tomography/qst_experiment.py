@@ -45,8 +45,8 @@ class StateTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`StateTomographyAnalysis`
 
-    # section: see_also
-        :class:`.TomographyExperiment`
+    # section: manual
+        :doc:`/manuals/verification/state_tomography`
 
     """
 
