@@ -89,7 +89,7 @@ python when running. Additionally, the environment that tox sets up matches the 
 environment more closely and it runs the tests in parallel (resulting in much faster
 execution). To run tests on all installed supported python versions and lint/style
 checks you can simply run `tox`. Or if you just want to run the tests once for a
-specific python version such as 3.10: `tox -epy310`.
+specific python version such as 3.10: `tox -e py310`.
 
 If you just want to run a subset of tests you can pass a selection regex to the test
 runner. For example, if you want to run all tests that have "dag" in the test id you can
@@ -138,13 +138,13 @@ The qiskit-experiments repository uses `black` for code formatting and style and
 `pylint` for linting. You can run these checks locally with
 
 ```
-tox -elint
+tox -e lint
 ```
 
 If there is a code formatting issue identified by black you can just run ``black``
-locally to fix this (or ``tox -eblack`` which will install it and run it).
+locally to fix this (or ``tox -e black`` which will install it and run it).
 
-Because `pylint` analysis can be slow, there is also a `tox -elint-incr` target, which
+Because `pylint` analysis can be slow, there is also a `tox -e lint-incr` target, which
 only applies `pylint` to files which have changed from the source github. On rare
 occasions this will miss some issues that would have been caught by checking the
 complete source tree, but makes up for this by being much faster (and those rare
@@ -341,8 +341,9 @@ https://github.com/Qiskit-Extensions/qiskit-experiments` and `git fetch upstream
 
 There are a few other build options available:
 
-* `tox -edocs-minimal`: build documentation without executing Jupyter code cells
-* `tox -edocs-parallel`: do a full build with multiprocessing (may crash on Macs)
+* `tox -e docs-minimal`: build documentation without executing Jupyter code cells
+* `tox -e docs-parallel`: do a full build with multiprocessing (may crash on Macs)
+* `tox -e docs-lint`: lint docs and check for broken links
 
 ### Deprecation policy
 
