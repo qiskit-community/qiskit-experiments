@@ -129,6 +129,12 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         exp = RamseyXY([0])
         self.assertRoundTripSerializable(exp)
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        backend = FakeArmonkV2()
+        exp = RamseyXY([0], backend=backend)
+        self.assertRoundTripSerializable(exp.circuits())
+
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""
         exp = FrequencyCal([0], self.cals)
