@@ -7,7 +7,7 @@ upgrade:
     that can be combined to build a custom fitting process in the subclass.
     This allows more flexibility to write custom curve analysis by 
     directly inheriting from the new base class. See :class:`.BaseCurveAnalysis` for details.
-    See also `Issue 737 <https://github.com/Qiskit/qiskit-experiments/issues/737>`_ for discussion.
+    See also `Issue 737 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/737>`_ for discussion.
   - |
     The method :meth:`CurveAnalysis._generate_fit_guesses` has been upgraded with
     a new method signature. Now this method is called with ``curve_data`` argument

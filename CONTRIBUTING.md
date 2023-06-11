@@ -37,7 +37,7 @@ experimentalist community.
 
 If there is an experiment you would like to see added, you can propose it by creating a
 [new experiment proposal
-issue](https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
+issue](https://github.com/Qiskit-Extensions/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
 in GitHub. The issue template will ask you to fill in details about the experiment type,
 protocol, analysis, and implementation, which will give us the necessary information to
 decide whether the experiment is feasible to implement and useful to include in our
@@ -48,12 +48,12 @@ We use the following labels to help non-maintainers find issues best suited to t
 interests and experience level:
 
 * [good first
-  issue](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+  issue](https://github.com/Qiskit-Extensions/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
   - these issues are typically the simplest available to work on, perfect for newcomers.
   They should already be fully scoped, with a clear approach outlined in the
   descriptions.
 * [help
-  wanted](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
+  wanted](https://github.com/Qiskit-Extensions/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
   - these issues are generally more complex than good first issues. They typically cover
   work that core maintainers don't currently have capacity to implement and may require
   more investigation/discussion. These are a great option for experienced contributors
@@ -270,7 +270,7 @@ included with the code in your PR.
 
 ##### Linking to issues
 
-If you need to link to an issue or another Github artifact as part of the release note,
+If you need to link to an issue or another GitHub artifact as part of the release note,
 this should be done using an inline link with the text being the issue number. For
 example you would write a release note with a link to issue 12345 as:
 
@@ -278,7 +278,7 @@ example you would write a release note with a link to issue 12345 as:
 fixes:
   - |
     Fixed a race condition in the function ``foo()``. Refer to
-    `#12345 <https://github.com/Qiskit/qiskit-experiments/issues/12345>` for more
+    `#12345 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/12345>` for more
     details.
 ```
 
@@ -299,7 +299,7 @@ tagged):
 At release time, ``reno report`` is used to generate the release notes for the release,
 and the output will be submitted as a pull request to the documentation repository's
 [release notes file](
-https://github.com/Qiskit/qiskit-experiments/blob/main/docs/release_notes.rst).
+https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/docs/release_notes.rst).
 
 ### Documentation
 
@@ -337,7 +337,7 @@ will remove Sphinx's cache. If you are still having issues, try adding `-r` your
 e.g. `tox -e docs -r`. `-r` tells Tox to reinstall the dependencies. If you encounter a build 
 error involving `config-inited`, you need to be in the root of
 the qiskit-experiments git repository then run `git remote add upstream
-https://github.com/Qiskit/qiskit-experiments` and `git fetch upstream` before building.
+https://github.com/Qiskit-Extensions/qiskit-experiments` and `git fetch upstream` before building.
 
 There are a few other build options available:
 
@@ -386,10 +386,10 @@ class or function.
 ### Development cycle
 
 The development cycle for Qiskit Experiments is all handled in the open using project
-boards in Github for project management. We use
-[milestones](https://github.com/Qiskit/qiskit-experiments/milestones) in Github to track
+boards in GitHub for project management. We use
+[milestones](https://github.com/Qiskit-Extensions/qiskit-experiments/milestones) in GitHub to track
 work for specific releases. Features or other changes that we want to include in a
-release will be tagged and discussed in Github.
+release will be tagged and discussed in GitHub.
 
 ### Branches
 
