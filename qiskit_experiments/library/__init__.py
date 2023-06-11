@@ -67,6 +67,7 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineSXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
+    ~characterization.CrossResRabi
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
@@ -172,6 +173,7 @@ from .characterization import (
     FineSXDrag,
     Rabi,
     EFRabi,
+    CrossResRabi,
     HalfAngle,
     FineAmplitude,
     FineXAmplitude,
