@@ -44,7 +44,6 @@ class BaseCalibrations(ABC):
         param: Union[Parameter, str],
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[ScheduleBlock, str] = None,
-        **kwargs,
     ):
         """Add a parameter value to the stored parameters.
 
@@ -58,7 +57,6 @@ class BaseCalibrations(ABC):
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
-            kwargs: Extra key-word arguments that subclasses can provide.
         """
 
     @abstractmethod
