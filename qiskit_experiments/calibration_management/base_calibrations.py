@@ -1,0 +1,150 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2023.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Base calibrations class."""
+
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import Dict, Optional, Tuple, Union
+
+from qiskit.circuit import Parameter
+from qiskit.pulse import ScheduleBlock
+
+from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.calibration_key_types import (
+    ParameterKey,
+    ParameterValueType,
+)
+
+
+class BaseCalibrations(ABC):
+    """
+    TODO: add **kwargs to the methods?
+    """
+
+    # The name of the parameter under which the qubit frequencies are registered.
+    __drive_freq_parameter__ = "drive_freq"
+
+    # The name of the parameter under which the readout frequencies are registered.
+    __readout_freq_parameter__ = "meas_freq"
+
+    @abstractmethod
+    def add_parameter_value(
+        self,
+        value: Union[int, float, complex, ParameterValue],
+        param: Union[Parameter, str],
+        qubits: Union[int, Tuple[int, ...]] = None,
+        schedule: Union[ScheduleBlock, str] = None,
+        **kwargs,
+    ):
+        """Add a parameter value to the stored parameters.
+
+        This parameter value may be applied to several channels, for instance, all
+        DRAG pulses may have the same standard deviation.
+
+        Args:
+            value: The value of the parameter to add. If an int, float, or complex is given
+                then the timestamp of the parameter value will automatically be generated
+                and set to the current local time of the user.
+            param: The parameter or its name for which to add the measured value.
+            qubits: The qubits to which this parameter applies.
+            schedule: The schedule or its name for which to add the measured parameter value.
+            kwargs: Extra key-word arguments that subclasses can provide.
+        """
+
+    @abstractmethod
+    def get_parameter_value(
+        self,
+        param: Union[Parameter, str],
+        qubits: Union[int, Tuple[int, ...]],
+        schedule: Union[ScheduleBlock, str, None] = None,
+        valid_only: bool = True,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> Union[int, float, complex]:
+        """Retrieves the value of a parameter.
+
+        Parameters may be linked. :meth:`get_parameter_value` does the following steps:
+
+        Args:
+            param: The parameter or the name of the parameter for which to get the parameter value.
+            qubits: The qubits for which to get the value of the parameter.
+            schedule: The schedule or its name for which to get the parameter value.
+            valid_only: Use only parameters marked as valid.
+            group: The calibration group from which to draw the parameters.
+                If not specified this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+
+        Returns:
+            value: The value of the parameter.
+        """
+
+    @abstractmethod
+    def get_schedule(
+        self,
+        name: str,
+        qubits: Union[int, Tuple[int, ...]],
+        assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
+        group: Optional[str] = "default",
+        cutoff_date: datetime = None,
+    ) -> ScheduleBlock:
+        """Get the template schedule with parameters assigned to values.
+
+        All the parameters in the template schedule block will be assigned to the values managed
+        by the calibrations unless they are specified in assign_params. In this case the value in
+        assign_params will override the value stored by the calibrations. A parameter value in
+        assign_params may also be a :class:`ParameterExpression`.
+
+        .. code-block:: python
+
+            # Get an xp schedule with a parametric amplitude
+            sched = cals.get_schedule("xp", 3, assign_params={"amp": Parameter("amp")})
+
+            # Get an echoed-cross-resonance schedule between qubits (0, 2) where the xp echo gates
+            # are referenced schedules but leave their amplitudes as parameters.
+            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")}
+            sched = cals.get_schedule("cr", (0, 2), assign_params=assign_dict)
+
+        Args:
+            name: The name of the schedule to get.
+            qubits: The qubits for which to get the schedule.
+            assign_params: The parameters to assign manually. Each parameter is specified by a
+                ParameterKey which is a named tuple of the form (parameter name, qubits,
+                schedule name). Each entry in assign_params can also be a string corresponding
+                to the name of the parameter. In this case, the schedule name and qubits of the
+                corresponding ParameterKey will be the name and qubits given as arguments to
+                get_schedule.
+            group: The calibration group from which to draw the parameters. If not specified
+                this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+
+        Returns:
+            schedule: A copy of the template schedule with all parameters assigned.
+        """
+
+    @abstractmethod
+    def has_template(self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None) -> bool:
+        """Test if a template schedule is defined
+
+        Args:
+            schedule_name: The name of the template schedule.
+            qubits: The qubits under which the template schedule was registered.
+
+        Returns:
+            True if a template exists for the schedule name for the given qubits
+        """

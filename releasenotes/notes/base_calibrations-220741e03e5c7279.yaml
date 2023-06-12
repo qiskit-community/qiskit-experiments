@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    A BaseCalibrations class has been introduced. It is an abstract base class
+    and all calibration experiments should use this abstract base class. This
+    allows QiskitExperiments to further develop calibrations without breaking
+    user functionality.

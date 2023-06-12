@@ -37,6 +37,7 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.base_calibrations import BaseCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
@@ -54,19 +55,13 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
 from qiskit_experiments.framework import BackendData
 
 
-class Calibrations:
+class Calibrations(BaseCalibrations):
     """
     A class to manage schedules with calibrated parameter values. Schedules are
     intended to be fully parameterized, including the index of the channels. See
     the module-level documentation for extra details. Note that only instances of
     ScheduleBlock are supported.
     """
-
-    # The name of the parameter under which the qubit frequencies are registered.
-    __drive_freq_parameter__ = "drive_freq"
-
-    # The name of the parameter under which the readout frequencies are registered.
-    __readout_freq_parameter__ = "meas_freq"
 
     def __init__(
         self,

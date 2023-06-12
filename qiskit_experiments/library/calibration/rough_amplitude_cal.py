@@ -21,7 +21,8 @@ from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
+from qiskit_experiments.calibration_management import BaseCalibrationExperiment
+from qiskit_experiments.calibration_management.base_calibrations import BaseCalibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.warnings import qubit_deprecate
@@ -38,7 +39,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         schedule_name: str = "x",
         amplitudes: Iterable[float] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -197,7 +198,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
     ):
@@ -231,7 +232,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
         ef_pulse_label: str = "12",

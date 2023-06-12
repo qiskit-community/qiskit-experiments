@@ -21,10 +21,8 @@ from qiskit.pulse import Play
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework import ExperimentData, Options
-from qiskit_experiments.calibration_management import (
-    BaseCalibrationExperiment,
-    Calibrations,
-)
+from qiskit_experiments.calibration_management import BaseCalibrationExperiment
+from qiskit_experiments.calibration_management.base_calibrations import BaseCalibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
 from qiskit_experiments.warnings import qubit_deprecate
@@ -37,7 +35,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
@@ -156,7 +154,7 @@ class FineXDragCal(FineDragCal):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
@@ -189,7 +187,7 @@ class FineSXDragCal(FineDragCal):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        calibrations: Calibrations,
+        calibrations: BaseCalibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
