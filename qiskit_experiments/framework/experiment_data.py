@@ -188,6 +188,11 @@ class FigureData:
 class ExperimentData:
     """Experiment data container class.
 
+    .. note::
+        Saving experiment data to the cloud database is currently a limited access feature. You can
+        check whether you have access by logging into the IBM Quantum interface
+        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+
     This class handles the following:
 
     1. Storing the data related to an experiment: raw data, metadata, analysis results,
@@ -211,6 +216,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
+    _max_workers_cap = 10
 
     def __init__(
         self,
@@ -242,13 +248,14 @@ class ExperimentData:
             verbose: Whether to print messages.
             db_data: A prepared ExperimentDataclass of the experiment info.
                 This overrides other db parameters.
-            start_datetime: The time when the experiment was started.
-                If none, defaults to the current time
+            start_datetime: The time when the experiment started running.
+                If none, defaults to the current time.
 
         Additional info:
             In order to save the experiment data to the cloud service, the class
             needs access to the experiment service provider. It can be obtained
             via three different methods, given here by priority:
+
             1. Passing it directly via the ``service`` parameter.
             2. Implicitly obtaining it from the ``provider`` parameter.
             3. Implicitly obtaining it from the ``backend`` parameter, using that backend's provider.
@@ -395,7 +402,8 @@ class ExperimentData:
         """Return the creation datetime of this experiment data.
 
         Returns:
-            The creation datetime of this experiment data in the local timezone.
+            The timestamp when this experiment data was saved to the cloud service
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.creation_datetime)
@@ -405,7 +413,7 @@ class ExperimentData:
         """Return the start datetime of this experiment data.
 
         Returns:
-            The start datetime of this experiment data.
+            The timestamp when this experiment began running in the local timezone.
 
         """
         return utc_to_local(self._db_data.start_datetime)
@@ -419,7 +427,8 @@ class ExperimentData:
         """Return the update datetime of this experiment data.
 
         Returns:
-            The update datetime of this experiment data.
+            The timestamp when this experiment data was last updated in the service
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.updated_datetime)
@@ -431,7 +440,8 @@ class ExperimentData:
         added without errors; this can change as more jobs finish.
 
         Returns:
-            The end datetime of this experiment data.
+            The timestamp when the last job of this experiment finished
+            in the local timezone.
 
         """
         return utc_to_local(self._db_data.end_datetime)
@@ -708,8 +718,9 @@ class ExperimentData:
         Args:
             save_val: Whether to do auto-save.
         """
-        if save_val is True and not self._auto_save:
-            self.save()
+        # children will be saved once we set auto_save for them
+        if save_val is True:
+            self.save(save_children=False)
         self._auto_save = save_val
         for res in self._analysis_results.values():
             # Setting private variable directly to avoid duplicate save. This
@@ -889,7 +900,7 @@ class ExperimentData:
                 return jid, False
             if status == JobStatus.ERROR:
                 LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]\nError message: %s",
+                    "Job data not added for errored job [Job ID: %s]\nError message: %s",
                     jid,
                     job.error_message(),
                 )
@@ -1166,6 +1177,7 @@ class ExperimentData:
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
                 figure_data = figure.copy(new_name=fig_name)
+                figure = figure_data.figure
 
             else:
                 figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
@@ -1476,15 +1488,20 @@ class ExperimentData:
         return sys.getsizeof(self.metadata) > 10000
 
     def save(
-        self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
+        self,
+        suppress_errors: bool = True,
+        max_workers: int = 3,
+        save_figures: bool = True,
+        save_children: bool = True,
     ) -> None:
         """Save the experiment data to a database service.
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiemnt (false)
-            max_workers: Maximum number of concurrent worker threads
+            max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
+            save_children: For composite experiments, whether to save children as well
 
         Raises:
             ExperimentDataSaveFailed: If no experiment database service
@@ -1509,7 +1526,13 @@ class ExperimentData:
                 return
             else:
                 raise ExperimentDataSaveFailed("No service found")
-
+        if max_workers > self._max_workers_cap:
+            LOG.warning(
+                "max_workers cannot be larger than %s. Setting max_workers = %s now.",
+                self._max_workers_cap,
+                self._max_workers_cap,
+            )
+            max_workers = self._max_workers_cap
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
@@ -1571,13 +1594,16 @@ class ExperimentData:
                 f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
-        for data in self._child_data.values():
-            original_verbose = data.verbose
-            data.verbose = False
-            data.save(
-                suppress_errors=suppress_errors, max_workers=max_workers, save_figures=save_figures
-            )
-            data.verbose = original_verbose
+        if save_children:
+            for data in self._child_data.values():
+                original_verbose = data.verbose
+                data.verbose = False
+                data.save(
+                    suppress_errors=suppress_errors,
+                    max_workers=max_workers,
+                    save_figures=save_figures,
+                )
+                data.verbose = original_verbose
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
@@ -1705,7 +1731,6 @@ class ExperimentData:
 
         # Wait for futures
         self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
-
         # Clean up done job futures
         num_jobs = len(job_ids)
         for jid, fut in zip(job_ids, job_futs):
@@ -1760,7 +1785,7 @@ class ExperimentData:
             )
             value = False
 
-        # Check for futures that were cancelled or errorred
+        # Check for futures that were cancelled or errored
         excepts = ""
         for fut in waited.done:
             ex = fut.exception()

@@ -28,12 +28,14 @@ implemented by users to use alternative backends. As long as the backend is a su
 generate figures with the alternative backend.
 
 
-
-
 Generating and customizing a figure using a plotter
 ---------------------------------------------------
 
 First, we display the default figure from a :class:`.Rabi` experiment as a starting point:
+
+.. note::
+    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
+    You can install it with ``python -m pip install qiskit-dynamics``.
 
 .. jupyter-execute::
 

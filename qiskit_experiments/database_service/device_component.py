@@ -16,7 +16,8 @@ from abc import ABC, abstractmethod
 
 
 class DeviceComponent(ABC):
-    """Class representing a device component."""
+    """Abstract class representing a device component. Custom components should be subclassed from
+    this class."""
 
     @abstractmethod
     def __str__(self):
@@ -33,49 +34,49 @@ class Qubit(DeviceComponent):
     """Class representing a qubit device component."""
 
     def __init__(self, index: int):
-        self._index = index
+        self.index = index
 
     def __str__(self):
-        return f"Q{self._index}"
+        return f"Q{self.index}"
 
     def __json_encode__(self):
-        return {"index": self._index}
+        return {"index": self.index}
 
 
 class Resonator(DeviceComponent):
     """Class representing a resonator device component."""
 
     def __init__(self, index: int):
-        self._index = index
+        self.index = index
 
     def __str__(self):
-        return f"R{self._index}"
+        return f"R{self.index}"
 
     def __json_encode__(self):
-        return {"index": self._index}
+        return {"index": self.index}
 
 
 class UnknownComponent(DeviceComponent):
-    """Class representing unknown device component."""
+    """Class representing an unknown device component."""
 
     def __init__(self, component: str):
-        self._component = component
+        self.component = component
 
     def __str__(self):
-        return self._component
+        return self.component
 
     def __json_encode__(self):
-        return {"component": self._component}
+        return {"component": self.component}
 
 
 def to_component(string: str) -> DeviceComponent:
-    """Convert the input string to a ``DeviceComponent`` instance.
+    """Convert the input string to a :class:`.DeviceComponent` instance.
 
     Args:
         string: String to be converted.
 
     Returns:
-        A ``DeviceComponent`` instance.
+        A :class:`.DeviceComponent` instance.
 
     Raises:
         ValueError: If input string is not a valid device component.
