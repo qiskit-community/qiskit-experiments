@@ -27,8 +27,11 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
 
 
 class BaseCalibrations(ABC):
-    """
-    TODO: add **kwargs to the methods?
+    """An abstract base calibration class that defines the methods needed by cal. experiments.
+
+    A calibration experiment uses an instance of `BaseCalibrations` that defines where
+    to get parameter values from and where to save them. This class also defines a method from
+    which to retrieve pulse-schedules.
     """
 
     # The name of the parameter under which the qubit frequencies are registered.

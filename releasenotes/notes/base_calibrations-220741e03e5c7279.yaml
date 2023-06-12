@@ -1,10 +1,10 @@
 ---
 features:
   - |
-    A :class:`.BaseCalibrations` class has been introduced as an abstract base class
-    of Qiskit Experiments calibrations. All calibration subclasses must inherit from
-    the abstract base class and implement all defined methods.
-    
-    All calibration experiment classes can safely rely on the defined methods, 
-    but other custom methods in a particular subclass are not necessary implemented,
-    and such dependency may cause attribute error in execution.    
+    A :class:`.BaseCalibrations` class is introduced as an abstract base class
+    of Qiskit Experiments calibrations. All calibration subclasses must inherit 
+    from the abstract base class and implement all defined methods.
+    All calibration experiment classes can rely on the methods defined in 
+    :class:`.BaseCalibrations`. However, custom methods implemented in a
+    particular subclass may not necessarily be implemented in general and should
+    not be used in calibration experiments.
