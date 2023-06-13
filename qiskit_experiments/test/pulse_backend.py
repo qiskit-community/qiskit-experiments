@@ -633,7 +633,7 @@ class SingleTransmonTestBackend(PulseBackend):
         """
         return np.diag([np.exp(1.0j * idx * theta / 2) for idx in [-1, 1, 3]])
 
-
+@HAS_DYNAMICS.require_in_instance
 class ParallelTransmonTestBackend(PulseBackend):
     r"""A backend that corresponds to a three level anharmonic transmon qubit.
 
@@ -670,6 +670,8 @@ class ParallelTransmonTestBackend(PulseBackend):
             noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
                 The strength is given by ``gamma_1``.
         """
+        from qiskit_dynamics.pulse import InstructionToSignals
+
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
         ket1 = np.array([[0, 1, 0]]).T
