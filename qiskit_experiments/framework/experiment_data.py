@@ -1491,7 +1491,7 @@ class ExperimentData:
         refresh: bool = False,
         block: bool = True,
         timeout: Optional[float] = None,
-        verbosity: int = 2,
+        columns: Union[str, List[str]] = "default",
         dataframe: bool = False,
     ) -> Union[AnalysisResult, List[AnalysisResult], pd.DataFrame, pd.Series]:
         """Return analysis results associated with this experiment.
@@ -1509,11 +1509,14 @@ class ExperimentData:
                 an experiment service is available.
             block: If True block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
-            verbosity: Level of verbosity of returned data table (1, 2, 3):
+            columns: Specifying a set of columns to return. You can pass a list of each
+                column name to return, otherwise builtin column groups are available.
 
-                    * 1 (minimum): Return data from the analysis.
-                    * 2 (normal): With supplemental data about experiment.
-                    * 3 (finest): With extra data to communicate with experiment service.
+                    * "all": Return all columns, including metadata to communicate
+                        with experiment service, such as entry IDs.
+                    * "default": Return columns including analysis result with supplementary
+                        information about experiment.
+                    * "minimal": Return only analysis subroutine returns.
 
             dataframe: Set True to return analysis results in the dataframe format.
 
@@ -1541,7 +1544,7 @@ class ExperimentData:
                 raise ExperimentEntryNotFound("\n".join(msg))
 
         if dataframe:
-            valid_columns = self._analysis_results.filter_columns(verbosity)
+            valid_columns = self._analysis_results.filter_columns(columns)
             out = out[valid_columns]
             if len(out) == 1 and index is not None:
                 # For backward compatibility.

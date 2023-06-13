@@ -16,6 +16,7 @@ import io
 import logging
 import threading
 import traceback
+import warnings
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
@@ -449,10 +450,10 @@ class AnalysisResultTable(ThreadSafeDataFrame):
     def _default_columns(cls) -> List[str]:
         return [
             "name",
+            "experiment",
+            "components",
             "value",
             "quality",
-            "components",
-            "experiment",
             "experiment_id",
             "result_id",
             "tags",
@@ -461,54 +462,50 @@ class AnalysisResultTable(ThreadSafeDataFrame):
             "created_time",
         ]
 
-    @classmethod
-    def _tier1(cls) -> List[str]:
-        """The data group that the analysis class produces."""
-        return [
-            "name",
-            "value",
-            "components",
-            "quality",
-        ]
-
-    @classmethod
-    def _tier2(cls) -> List[str]:
-        """The data group of metadata that the experiment class provides."""
-        return [
-            "experiment",
-            "backend",
-            "run_time",
-        ]
-
-    @classmethod
-    def _tier3(cls) -> List[str]:
-        """The data group which is used to communicate with the experiment service."""
-        return [
-            "experiment_id",
-            "result_id",
-            "tags",
-            "created_time",
-        ]
-
-    def filter_columns(self, verbosity: int) -> List[str]:
-        """Return column names at given verbosity level.
-
-        Extra columns are always added.
+    def filter_columns(self, columns: Union[str, List[str]]) -> List[str]:
+        """Filter columns names available in this table.
 
         Args:
-            verbosity: Level of verbosity of returned data table (1, 2, 3):
+            columns: Specifying a set of columns to return. You can pass a list of each
+                column name to return, otherwise builtin column groups are available.
 
-                    * 1 (minimum): Return data from the analysis.
-                    * 2 (normal): With supplemental data experiment.
-                    * 3 (finest): With extra data to communicate with experiment service.
+                    * "all": Return all columns, including metadata to communicate
+                        with experiment service, such as entry IDs.
+                    * "default": Return columns including analysis result with supplementary
+                        information about experiment.
+                    * "minimal": Return only analysis subroutine returns.
 
-        Return:
-            Valid column names.
         """
-        if verbosity == 1:
-            return self._tier1() + self._extra
-        if verbosity == 2:
-            return self._tier1() + self._tier2() + self._extra
-        if verbosity == 3:
-            return self._tier1() + self._tier2() + self._tier3() + self._extra
-        raise ValueError(f"verbosity {verbosity} is not defined. Choose value from 1, 2, 3.")
+        if columns == "all":
+            return self._columns
+        if columns == "default":
+            return [
+                "name",
+                "experiment",
+                "components",
+                "value",
+                "quality",
+                "backend",
+                "run_time",
+            ] + self._extra
+        if columns == "minimal":
+            return [
+                "name",
+                "components",
+                "value",
+                "quality",
+            ] + self._extra
+        if not isinstance(columns, str):
+            out = []
+            for column in columns:
+                if column in self._columns:
+                    out.append(column)
+                else:
+                    warnings.warn(
+                        f"Specified column name {column} does not exist in this table.",
+                        UserWarning
+                    )
+            return out
+        raise ValueError(
+            f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
+        )
