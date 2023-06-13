@@ -35,14 +35,13 @@ from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
 
-from qiskit_dynamics import Solver
-from qiskit_dynamics.pulse import InstructionToSignals
-
+from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
 
+@HAS_DYNAMICS.require_in_instance
 class PulseBackend(BackendV2):
     r"""Abstract base class for pulse simulation backends in Qiskit Experiments.
 
@@ -87,6 +86,8 @@ class PulseBackend(BackendV2):
             seed: An optional seed given to the random number generator. If this argument is not
                 set then the seed defaults to 0.
         """
+        from qiskit_dynamics import Solver
+
         super().__init__(
             None,
             name="PulseBackendV2",
@@ -486,6 +487,7 @@ class PulseBackend(BackendV2):
         return FakeJob(self, Result.from_dict(result))
 
 
+@HAS_DYNAMICS.require_in_instance
 class SingleTransmonTestBackend(PulseBackend):
     r"""A backend that corresponds to a three level anharmonic transmon qubit.
 
@@ -521,6 +523,8 @@ class SingleTransmonTestBackend(PulseBackend):
             noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
                 The strength is given by ``gamma_1``.
         """
+        from qiskit_dynamics.pulse import InstructionToSignals
+
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
         ket1 = np.array([[0, 1, 0]]).T
