@@ -375,12 +375,24 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
             return container[self._default_columns()]
         return container
 
-    def add_entry(self, **kwargs):
+    def add_entry(
+        self,
+        index: str,
+        **kwargs,
+    ):
         """Add new entry to the dataframe.
 
         Args:
+            index: Name of this entry. Must be unique in this table.
             kwargs: Description of new entry to register.
+
+        Raises:
+            ValueError: When index is not unique in this table.
         """
+        with self.lock:
+            if index in self._container.index:
+                raise ValueError(f"Table index {index} already exists in the table.")
+
         columns = self.get_columns()
         missing = kwargs.keys() - set(columns)
         if missing:
@@ -389,21 +401,8 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         template = dict.fromkeys(self.get_columns())
         template.update(kwargs)
 
-        if not template["result_id"]:
-            template["result_id"] = uuid.uuid4().hex
-        name = self._unique_table_index(template["result_id"])
         with self._lock:
-            self._container.loc[name] = list(template.values())
-
-    def _unique_table_index(self, index_name: str):
-        """Generate unique index name with 8 characters."""
-        if not isinstance(index_name, str):
-            index_name = str(index_name)
-        truncated = index_name[:8]
-        with self.lock:
-            while truncated in self._container.index:
-                truncated = uuid.uuid4().hex[:8]
-        return truncated
+            self._container.loc[index] = list(template.values())
 
     def _repr_html_(self) -> Union[str, None]:
         """Return HTML representation of this dataframe."""
@@ -475,6 +474,8 @@ class AnalysisResultTable(ThreadSafeDataFrame):
                         information about experiment.
                     * "minimal": Return only analysis subroutine returns.
 
+        Raises:
+            ValueError: When column is given in string which doesn't match with any builtin group.
         """
         if columns == "all":
             return self._columns
@@ -502,10 +503,49 @@ class AnalysisResultTable(ThreadSafeDataFrame):
                     out.append(column)
                 else:
                     warnings.warn(
-                        f"Specified column name {column} does not exist in this table.",
-                        UserWarning
+                        f"Specified column name {column} does not exist in this table.", UserWarning
                     )
             return out
         raise ValueError(
             f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
+        )
+
+    # pylint: disable=arguments-renamed
+    def add_entry(
+        self,
+        result_id: Optional[str] = None,
+        **kwargs,
+    ):
+        """Add new entry to the table.
+
+        Args:
+            result_id: Result ID. Automatically generated when not provided.
+                This must be valid hexadecimal UUID string.
+            kwargs: Description of new entry to register.
+        """
+        if result_id:
+            try:
+                result_id = uuid.UUID(result_id, version=4).hex
+            except ValueError as ex:
+                raise ValueError(f"{result_id} is not a valid hexadecimal UUID string.") from ex
+        else:
+            result_id = self._unique_table_index()
+
+        super().add_entry(
+            index=result_id[:8],
+            result_id=result_id,
+            **kwargs,
+        )
+
+    def _unique_table_index(self):
+        """Generate unique UUID which is unique in the table with first 8 characters."""
+        with self.lock:
+            n = 0
+            while n < 1000:
+                tmp_id = uuid.uuid4().hex
+                if tmp_id[:8] not in self._container.index:
+                    return tmp_id
+        raise RuntimeError(
+            "Unique result_id string cannot be prepared for this table within 1000 trials. "
+            "Reduce number of entries, or manually provide a unique result_id."
         )

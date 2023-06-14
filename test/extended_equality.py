@@ -278,6 +278,7 @@ def _check_configurable_classes(
 def _check_dataframes(
     data1: Union[pd.DataFrame, ThreadSafeDataFrame],
     data2: Union[pd.DataFrame, ThreadSafeDataFrame],
+    **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
     return is_equivalent(data1.to_dict(orient="index"), data2.to_dict(orient="index"))

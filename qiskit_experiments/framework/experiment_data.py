@@ -1385,13 +1385,13 @@ class ExperimentData:
             backend = backend or self.backend_name
 
             self._analysis_results.add_entry(
+                result_id=result_id,
                 name=name,
                 value=value,
                 quality=quality,
                 components=components,
                 experiment=experiment,
                 experiment_id=experiment_id,
-                result_id=result_id,
                 tags=tags or [],
                 backend=backend,
                 run_time=run_time,  # TODO add job RUNNING time
@@ -1426,7 +1426,7 @@ class ExperimentData:
         to_delete = self.analysis_results(
             index=result_key,
             block=False,
-            verbosity=3,
+            columns="all",
             dataframe=True,
         )
         if not isinstance(to_delete, pd.Series):
