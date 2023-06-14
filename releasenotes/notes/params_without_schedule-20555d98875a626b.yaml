@@ -7,4 +7,5 @@ fixes:
     mechanism to define and add parameters without a schedule has been added to
     the basis gate library. This has the added benefit of making the API of 
     frequency calibration experiments more consistent with the other calibration
-    experiments.
+    experiments. Users can now add parameters to their library that are not 
+    attached to a schedule in a meaningful way.

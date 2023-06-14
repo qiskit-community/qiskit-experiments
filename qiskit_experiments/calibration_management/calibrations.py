@@ -179,6 +179,24 @@ class Calibrations:
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
 
+    @property
+    def drive_freq(self):
+        """Property only here to deprecate `drive_freq`."""
+        warnings.warn(
+            "The variable `drive_freq` has been deprecated and will be removed after "
+            "Qiskit Experiments 0.6 is released."
+        )
+        return self._parameter_map.get(("drive_freq", (), None), None)
+
+    @property
+    def meas_freq(self):
+        """Property only here to deprecate `meas_freq`."""
+        warnings.warn(
+            "The variable `meas_freq` has been deprecated and will be removed after "
+            "Qiskit Experiments 0.6 is released."
+        )
+        return self._parameter_map.get(("meas_freq", (), None), None)
+
     def _check_consistency(self):
         """Check that the attributes defined in self are consistent.
 
@@ -252,11 +270,13 @@ class Calibrations:
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(backend_data.drive_freqs):
-                cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
+            if ("drive_freq", (), None) in cals._parameter_map:
+                for qubit, freq in enumerate(backend_data.drive_freqs):
+                    cals.add_parameter_value(freq, "drive_freq", qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(backend_data.meas_freqs):
-                cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
+            if ("meas_freq", (), None) in cals._parameter_map:
+                for meas, freq in enumerate(backend_data.meas_freqs):
+                    cals.add_parameter_value(freq, "meas_freq", meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.
         cals.update_inst_map()
