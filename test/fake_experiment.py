@@ -13,6 +13,7 @@
 """A FakeExperiment for testing."""
 
 import numpy as np
+from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options, AnalysisResultData
 
 
@@ -25,13 +26,17 @@ class FakeAnalysis(BaseAnalysis):
         super().__init__()
         self._kwargs = kwargs
 
-    def _run_analysis(self, experiment_data, **options):
-        seed = options.get("seed", None)
+    def _run_analysis(self, experiment_data):
+        seed = self.options.get("seed", None)
         rng = np.random.default_rng(seed=seed)
         analysis_results = [
             AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
         ]
-        return analysis_results, None
+        figures = None
+        add_figures = self.options.get("add_figures", False)
+        if add_figures:
+            figures = [MatplotlibFigure()]
+        return analysis_results, figures
 
 
 class FakeExperiment(BaseExperiment):

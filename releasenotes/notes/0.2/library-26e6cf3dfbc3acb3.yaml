@@ -155,5 +155,5 @@ fixes:
     the estimated error per Clifford did not scale correctly with the number
     of sampled RB sequences.
 
-    See `Issue 428 <https://github.com/Qiskit/qiskit-experiments/issues/428>`_
+    See `Issue 428 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/428>`_
     for details.
