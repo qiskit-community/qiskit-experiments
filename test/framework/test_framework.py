@@ -31,11 +31,21 @@ from qiskit_experiments.framework import (
     AnalysisStatus,
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
+from qiskit_experiments.database_service import Qubit
 
 
 @ddt.ddt
 class TestFramework(QiskitExperimentsTestCase):
     """Test Base Experiment"""
+
+    def test_metadata(self):
+        """Test the metadata of a basic experiment."""
+        backend = FakeBackend()
+        exp = FakeExperiment((0, 2))
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        self.assertEqual(expdata.metadata["physical_qubits"], [0, 2])
+        self.assertEqual(expdata.metadata["device_components"], [Qubit(0), Qubit(2)])
 
     @ddt.data(None, 1, 2, 3)
     def test_job_splitting_max_experiments(self, max_experiments):

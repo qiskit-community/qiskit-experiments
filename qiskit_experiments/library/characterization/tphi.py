@@ -120,7 +120,12 @@ class Tphi(BatchExperiment):
         analysis = TphiAnalysis([exp_t1.analysis, exp_t2.analysis])
 
         # Create batch experiment
-        super().__init__([exp_t1, exp_t2], backend=backend, analysis=analysis)
+        super().__init__(
+            [exp_t1, exp_t2],
+            flatten_results=True,
+            backend=backend,
+            analysis=analysis,
+        )
         self.set_experiment_options(**exp_options)
 
     def set_experiment_options(self, **fields):

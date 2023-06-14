@@ -180,21 +180,46 @@ class BackendTiming:
                 }
     """
 
-    def __init__(self, backend: Backend):
+    def __init__(
+        self,
+        backend: Backend,
+        *,
+        acquire_alignment: Optional[int] = None,
+        granularity: Optional[int] = None,
+        min_length: Optional[int] = None,
+        pulse_alignment: Optional[int] = None,
+        dt: Optional[float] = None,
+    ):
         """Initialize backend timing object
 
+        .. note::
+            Backend may not accept user defined constraint value.
+            One may want to provide these values when the constraints data is missing in the backend,
+            or in some situation you can intentionally ignore the constraints.
+            Invalid constraint values may break experiment circuits, resulting in the
+            failure in or unexpected results from the execution.
+
         Args:
-            experiment: the experiment to provide timing help for
+            backend: the backend to provide timing help for.
+            acquire_alignment: Optional. Constraint for the acquisition instruction alignment
+                in units of dt. Default to the backend value.
+            granularity: Optional. Constraint for the pulse samples granularity
+                in units of dt. Defaults to the backend value.
+            min_length: Optional. Constraint for the minimum pulse samples
+                in units of dt. Defaults to the backend value.
+            pulse_alignment: Optional. Constraint for the pulse play instruction alignment
+                in units of dt. Default to the backend value.
+            dt: Optional. Time interval of pulse samples. Default to the backend value.
         """
         backend_data = BackendData(backend)
 
         # Pull all the timing data from the backend
-        self._acquire_alignment = backend_data.acquire_alignment
-        self._granularity = backend_data.granularity
-        self._min_length = backend_data.min_length
-        self._pulse_alignment = backend_data.pulse_alignment
+        self._acquire_alignment = acquire_alignment or backend_data.acquire_alignment
+        self._granularity = granularity or backend_data.granularity
+        self._min_length = min_length or backend_data.min_length
+        self._pulse_alignment = pulse_alignment or backend_data.pulse_alignment
         #: The backend's ``dt`` value, copied to :class:`.BackendTiming` for convenience
-        self.dt = backend_data.dt
+        self.dt = dt or backend_data.dt
 
     @property
     def delay_unit(self) -> str:

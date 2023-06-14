@@ -276,7 +276,7 @@ There are several predefined sections for the class docstring.
        
        For referring to the website,
        
-       .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
+       .. ref_website:: Qiskit Experiment GitHub, https://github.com/Qiskit-Extensions/qiskit-experiments
        
        you can use the above macro, where you can provide a string for the hyperlink and 
        the destination location separated by single comma.

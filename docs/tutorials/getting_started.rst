@@ -21,14 +21,14 @@ install the latest main branch:
 
 .. jupyter-input::
 
-    python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. jupyter-input::
 
-    git clone https://github.com/Qiskit/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
@@ -309,7 +309,7 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine
@@ -326,7 +326,7 @@ child experiments can be accessed via the
     parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
 
 The circuits of all experiments assume they're acting on virtual qubits starting from
-index 0. In the case of a parallel experiment, the child experiment 
+index 0. In the case of a parallel experiment, the child experiment
 circuits are composed together and then reassigned virtual qubit indices:
 
 .. jupyter-execute::
@@ -336,7 +336,7 @@ circuits are composed together and then reassigned virtual qubit indices:
 During experiment transpilation, a mapping is performed to place these circuits on the
 physical layout. We can see its effects by looking at the transpiled
 circuit, which is accessed via the internal method ``_transpiled_circuits()``. After
-transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2 
+transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2
 and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
@@ -356,6 +356,12 @@ The experiment data returned from a composite experiment contains individual ana
 results for each child experiment that can be accessed using
 :meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
 analysis results.
+
+.. note::
+
+    This behavior will be updated in Qiskit Experiments 0.7.
+    By default, all analysis results will be stored in the parent data object,
+    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
 
 .. jupyter-execute::
 
