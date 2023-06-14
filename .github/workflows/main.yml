@@ -41,15 +41,15 @@ jobs:
             ${{ runner.os }}-${{ matrix.python-version }}
       - name: Install Deps
         run: python -m pip install -U "tox==3.27.1" setuptools virtualenv wheel
-      - name: Install and Run Tests
+      - name: Install and Run Tests (Windows and Linux)
         run: tox -e py
         if: runner.os != 'macOS'
-      - name: Install and Run Tests
+      - name: Install and Run Tests (Macs only)
         run: tox -e cover
         if: runner.os == 'macOS'
         env:
           OMP_NUM_THREADS: 1
-      - name: Report coverage to coveralls.io
+      - name: Report coverage to coveralls.io (Macs only)
         if: runner.os == 'macOS'
         uses: coverallsapp/github-action@v2
         env:
