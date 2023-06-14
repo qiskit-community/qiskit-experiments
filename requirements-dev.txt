@@ -20,7 +20,7 @@ pylatexenc
 multimethod
 scikit-learn
 sphinx-copybutton
-coverage>=4.4.0,<7.0
+coverage>=5.5
 # Pin versions below because of build errors
 ipykernel<=6.21.3
 jupyter-client<=8.0.3
