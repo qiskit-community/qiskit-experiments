@@ -76,7 +76,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         tol = 1e4  # 10 kHz resolution
 
-        freq_name = self.cals.__drive_freq_parameter__
+        freq_name = "drive_freq"
 
         # Check qubit frequency before running the cal
         f01 = self.cals.get_parameter_value(freq_name, 0)

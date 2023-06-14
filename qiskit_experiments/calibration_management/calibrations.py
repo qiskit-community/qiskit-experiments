@@ -63,12 +63,6 @@ class Calibrations:
     ScheduleBlock are supported.
     """
 
-    # The name of the parameter under which the qubit frequencies are registered.
-    __drive_freq_parameter__ = "drive_freq"
-
-    # The name of the parameter under which the readout frequencies are registered.
-    __readout_freq_parameter__ = "meas_freq"
-
     def __init__(
         self,
         coupling_map: Optional[List[List[int]]] = None,
@@ -163,18 +157,16 @@ class Calibrations:
                     for param_conf in lib.default_values():
                         self.add_parameter_value(*param_conf, update_inst_map=False)
 
+                # Add the parameters that do not belong to a schedule.
+                for param_name, qubits in lib.parameters_without_schedule:
+                    self._register_parameter(Parameter(param_name), qubits)
+
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.
         self._has_manually_added_schedule = False
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
-
-        # Use the same naming convention as in backend.defaults()
-        self.drive_freq = Parameter(self.__drive_freq_parameter__)
-        self.meas_freq = Parameter(self.__readout_freq_parameter__)
-        self._register_parameter(self.drive_freq, ())
-        self._register_parameter(self.meas_freq, ())
 
         # Backends with a single qubit may not have a coupling map.
         self._coupling_map = coupling_map if coupling_map is not None else []
@@ -237,7 +229,7 @@ class Calibrations:
             libraries: A list of libraries from which to get template schedules to register as
                 well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
-                the given library should be used to populate the calibrations. By default this
+                the given library should be used to populate the calibrations. By default, this
                 value is ``True``.
 
         Returns:

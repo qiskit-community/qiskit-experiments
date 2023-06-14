@@ -36,10 +36,14 @@ class BasisGateLibrary(ABC, Mapping):
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = {}
 
+    # Parameters that do not belong to a schedule, set of (name: str, qubits: tuple)
+    __parameters_without_schedule__ = set()
+
     def __init__(
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
+        params_without_schedule: Optional[Set] = None,
         **extra_kwargs,
     ):
         """Setup the library.
@@ -47,6 +51,8 @@ class BasisGateLibrary(ABC, Mapping):
         Args:
             basis_gates: The basis gates to generate.
             default_values: A dictionary to override library default parameter values.
+            params_without_schedule: A set of parameters without a schedule to override the
+                library defaults.
             extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
                 to reconstruct the library using the :meth:`__init__` method.
 
@@ -56,8 +62,12 @@ class BasisGateLibrary(ABC, Mapping):
         # Update the default values.
         self._extra_kwargs = extra_kwargs
         self._default_values = self.__default_values__.copy()
+        self._params_without_schedule = self.__parameters_without_schedule__.copy()
         if default_values is not None:
             self._default_values.update(default_values)
+
+        if params_without_schedule is not None:
+            self._params_without_schedule.update(params_without_schedule)
 
         if basis_gates is None:
             basis_gates = list(self.__supported_gates__)
@@ -126,6 +136,11 @@ class BasisGateLibrary(ABC, Mapping):
             on the tuples.
         """
 
+    @property
+    def parameters_without_schedule(self) -> Set:
+        """Return the parameters that do not have a schedule."""
+        return self._params_without_schedule
+
     @abstractmethod
     def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules stored in the library.
@@ -146,7 +161,11 @@ class BasisGateLibrary(ABC, Mapping):
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
 
-        kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
+        kwargs = {
+            "basis_gates": self.basis_gates,
+            "default_values": self._default_values,
+            "params_without_schedule": self._params_without_schedule,
+        }
         kwargs.update(self._extra_kwargs)
 
         return {
@@ -204,16 +223,23 @@ class FixedFrequencyTransmon(BasisGateLibrary):
           The amplitude of the ``sx`` and ``sy`` pulses is half the provided value.
         - angle: The phase of the complex amplitude of the pulses.
 
+    Parameters without schedule:
+        - meas_freq: frequency of the measurement drives, applies to all qubits.
+        - drive_freq: frequency of the qubit drives, applies to all qubits.
+
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.
     """
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0, "angle": 0.0}
 
+    __parameters_without_schedule__ = [("meas_freq", ()), ("drive_freq", ())]
+
     def __init__(
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
+        params_without_schedule: Optional[Set] = None,
         link_parameters: bool = True,
     ):
         """Setup the schedules.
@@ -223,6 +249,8 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
+            params_without_schedule: A set of parameters without a schedule to override the
+                library defaults.
             link_parameters: If set to ``True``, then the amplitude and DRAG parameters of the
                 :math:`X` and :math:`Y` gates will be linked as well as those of
                 the :math:`SX` and :math:`SY` gates.
@@ -231,7 +259,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
         extra_kwargs = {"link_parameters": link_parameters}
 
-        super().__init__(basis_gates, default_values, **extra_kwargs)
+        super().__init__(basis_gates, default_values, params_without_schedule, **extra_kwargs)
 
     @property
     def __supported_gates__(self) -> Dict[str, int]:
