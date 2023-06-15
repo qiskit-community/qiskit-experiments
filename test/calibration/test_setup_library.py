@@ -92,7 +92,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertListEqual(library.basis_gates, ["x", "y", "sx", "sy"])
 
     def test_unlinked_parameters(self):
-        """Test the we get schedules with unlinked parameters."""
+        """Test that we get schedules with unlinked parameters."""
 
         library = FixedFrequencyTransmon(link_parameters=False)
 
@@ -133,11 +133,11 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
     def test_add_parameters_without_schedule(self):
         """Test that users can add parameters."""
 
-        library = FixedFrequencyTransmon(params_without_schedule={("new_param", ())})
+        library = FixedFrequencyTransmon(params_without_schedule={"new_param"})
 
         self.assertEqual(
             library.parameters_without_schedule,
-            {("drive_freq", ()), ("meas_freq", ()), ("new_param", ())},
+            {"drive_freq", "meas_freq",  "new_param"},
         )
 
     def test_setup_partial_gates(self):

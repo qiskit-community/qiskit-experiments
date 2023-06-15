@@ -158,8 +158,8 @@ class Calibrations:
                         self.add_parameter_value(*param_conf, update_inst_map=False)
 
                 # Add the parameters that do not belong to a schedule.
-                for param_name, qubits in lib.parameters_without_schedule:
-                    self._register_parameter(Parameter(param_name), qubits)
+                for param_name in lib.parameters_without_schedule:
+                    self._register_parameter(Parameter(param_name), tuple())
 
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.

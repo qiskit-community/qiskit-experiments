@@ -36,7 +36,7 @@ class BasisGateLibrary(ABC, Mapping):
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = {}
 
-    # Parameters that do not belong to a schedule, set of (name: str, qubits: tuple)
+    # Parameters that do not belong to a schedule, a set of names
     __parameters_without_schedule__ = set()
 
     def __init__(
@@ -224,8 +224,8 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         - angle: The phase of the complex amplitude of the pulses.
 
     Parameters without schedule:
-        - meas_freq: frequency of the measurement drives, applies to all qubits.
-        - drive_freq: frequency of the qubit drives, applies to all qubits.
+        - meas_freq: frequency of the measurement drives.
+        - drive_freq: frequency of the qubit drives.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.
@@ -233,7 +233,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0, "angle": 0.0}
 
-    __parameters_without_schedule__ = [("meas_freq", ()), ("drive_freq", ())]
+    __parameters_without_schedule__ = {"meas_freq", "drive_freq"}
 
     def __init__(
         self,
