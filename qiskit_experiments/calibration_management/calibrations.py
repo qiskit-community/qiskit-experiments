@@ -147,7 +147,6 @@ class Calibrations:
                 libraries = [libraries]
 
             for lib in libraries:
-
                 # Add the basis gates
                 for gate in lib.basis_gates:
                     self.add_schedule(lib[gate], num_qubits=lib.num_qubits(gate))
@@ -461,7 +460,6 @@ class Calibrations:
         """
         for key, circuit_inst_num_qubits in self._schedules_qubits.items():
             if key.schedule == schedule_name:
-
                 if len(partial_qubits) == circuit_inst_num_qubits:
                     return [partial_qubits]
 
@@ -900,7 +898,6 @@ class Calibrations:
 
             # Control channels name example ch1.0$1
             if isinstance(chan, ControlChannel):
-
                 channel_index_parts = chan.index.name[2:].split("$")
                 qubit_channels = channel_index_parts[0]
 

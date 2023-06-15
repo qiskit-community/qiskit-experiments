@@ -137,7 +137,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
         self.assertEqual(
             library.parameters_without_schedule,
-            {"drive_freq", "meas_freq",  "new_param"},
+            {"drive_freq", "meas_freq", "new_param"},
         )
 
     def test_setup_partial_gates(self):
