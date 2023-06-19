@@ -193,7 +193,6 @@ def lstsq_data(
     "beta",
     new_alias="outcome_prior",
     since="0.5",
-    additional_msg="Instead, use the ``outcome_prior`` argument.",
     package_name="qiskit-experiments",
 )
 def binomial_weights(
