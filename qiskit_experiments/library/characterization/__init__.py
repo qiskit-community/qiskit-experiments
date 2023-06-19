@@ -65,6 +65,7 @@ Analysis
     T2RamseyAnalysis
     T2HahnAnalysis
     TphiAnalysis
+    CrossResRabiAnalysis
     CrossResonanceHamiltonianAnalysis
     DragCalAnalysis
     FineAmplitudeAnalysis
@@ -87,6 +88,7 @@ from .analysis import (
     T1KerneledAnalysis,
     T2HahnAnalysis,
     TphiAnalysis,
+    CrossResRabiAnalysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
     ResonatorSpectroscopyAnalysis,

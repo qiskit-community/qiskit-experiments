@@ -363,11 +363,13 @@ class CrossResRoughAmplitudeCal(BaseCalibrationExperiment, CrossResRabi):
         pass
 
     def update_calibrations(self, experiment_data: ExperimentData):
-        rabi_rate = 2 * np.pi * BaseUpdater.get_value(experiment_data, "cross_res_rabi_rate")
+        rabi_rate_o1 = 2 * np.pi * BaseUpdater.get_value(experiment_data, "cross_res_rabi_rate_o1")
+        rabi_rate_o3 = 2 * np.pi * BaseUpdater.get_value(experiment_data, "cross_res_rabi_rate_o3")
         group = experiment_data.metadata["cal_group"]
 
         for angle, param, schedule, _ in experiment_data.metadata["angles_schedules"]:
-            value = np.round(angle / rabi_rate, decimals=8)
+            candidates = np.roots([rabi_rate_o3, 0.0, rabi_rate_o1, -angle])
+            value = min(candidates[candidates > 0])
             BaseUpdater.add_parameter_value(
                 self._cals,
                 experiment_data,

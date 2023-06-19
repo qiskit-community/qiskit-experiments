@@ -139,6 +139,7 @@ See :doc:`/tutorials/calibrations` for examples.
     ~calibration.RoughAmplitudeCal
     ~calibration.RoughXSXAmplitudeCal
     ~calibration.EFRoughXSXAmplitudeCal
+    ~calibration.CrossResRoughAmplitudeCal
 
 """
 from .calibration import (
@@ -149,6 +150,7 @@ from .calibration import (
     RoughAmplitudeCal,
     RoughXSXAmplitudeCal,
     EFRoughXSXAmplitudeCal,
+    CrossResRoughAmplitudeCal,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,

@@ -26,6 +26,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 from qiskit_experiments.warnings import qubit_deprecate
+from qiskit_experiments.library.characterization import CrossResRabiAnalysis
 
 
 class Rabi(BaseExperiment, RestlessMixin):
@@ -112,6 +113,7 @@ class Rabi(BaseExperiment, RestlessMixin):
         self.analysis.set_options(
             result_parameters=[ParameterRepr("freq", self.__outcome__)],
             normalization=True,
+
         )
         self.analysis.plotter.set_figure_options(
             xlabel="Amplitude",
@@ -297,18 +299,11 @@ class CrossResRabi(BaseExperiment):
         """
         super().__init__(
             physical_qubits=physical_qubits,
-            analysis=OscillationAnalysis(),
+            analysis=CrossResRabiAnalysis(),
             backend=backend,
         )
         if experiment_options:
             self.set_experiment_options(**experiment_options)
-        self._setup()
-
-    def _setup(self):
-        self.analysis.set_options(
-            result_parameters=[ParameterRepr("freq", "cross_res_rabi_rate")],
-        )
-        self.analysis.plotter.set_figure_options(xlabel="Amplitude", ylabel="Target P(1)")
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
