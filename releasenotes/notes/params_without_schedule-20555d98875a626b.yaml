@@ -1,5 +1,5 @@
 ---
-fixes:
+upgrade:
   - |
     The variables `__drive_freq_parameter__` and `__readout_freq_parameter__`
     have been removed from `Calibrations`. These variables were given special

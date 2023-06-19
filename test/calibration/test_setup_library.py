@@ -130,16 +130,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
         self.assertSetEqual(set(library.default_values()), set(expected))
 
-    def test_add_parameters_without_schedule(self):
-        """Test that users can add parameters."""
-
-        library = FixedFrequencyTransmon(params_without_schedule={"new_param"})
-
-        self.assertEqual(
-            library.parameters_without_schedule,
-            {"drive_freq", "meas_freq", "new_param"},
-        )
-
     def test_setup_partial_gates(self):
         """Check that we do not setup all gates if not required."""
 
