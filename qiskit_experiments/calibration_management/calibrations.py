@@ -179,12 +179,16 @@ class Calibrations:
         self.update_inst_map()
 
     @property
+    @deprecate_func(
+        is_property=True,
+        since="0.6",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "This attribute is moved to FixedFrequencyTransmon basis gate library."
+        ),
+    )
     def drive_freq(self):
-        """Property only here to deprecate `drive_freq`."""
-        warnings.warn(
-            "The variable `drive_freq` has been deprecated and will be removed after "
-            "Qiskit Experiments 0.6 is released."
-        )
+        """Parameter object for qubit drive frequency."""
         return self._parameter_map.get(("drive_freq", (), None), None)
 
     @property
