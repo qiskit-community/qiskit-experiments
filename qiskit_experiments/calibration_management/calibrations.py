@@ -197,7 +197,7 @@ class Calibrations:
         additional_msg="The meas_freq is moved to FixedFrequencyTransmon basis gate library.",
     )
     def meas_freq(self):
-        """Property only here to deprecate `meas_freq`."""
+        """Parameter object for qubit measure frequency."""
         return self._parameter_map.get(("meas_freq", (), None), None)
 
     def _check_consistency(self):
