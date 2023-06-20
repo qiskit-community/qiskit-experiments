@@ -184,7 +184,7 @@ class Calibrations:
         since="0.6",
         package_name="qiskit-experiments",
         additional_msg=(
-            "This attribute is moved to FixedFrequencyTransmon basis gate library."
+            "The drive_freq is moved to FixedFrequencyTransmon basis gate library."
         ),
     )
     def drive_freq(self):
@@ -192,12 +192,16 @@ class Calibrations:
         return self._parameter_map.get(("drive_freq", (), None), None)
 
     @property
+    @deprecate_func(
+        is_property=True,
+        since="0.6",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "The meas_freq is moved to FixedFrequencyTransmon basis gate library."
+        ),
+    )
     def meas_freq(self):
         """Property only here to deprecate `meas_freq`."""
-        warnings.warn(
-            "The variable `meas_freq` has been deprecated and will be removed after "
-            "Qiskit Experiments 0.6 is released."
-        )
         return self._parameter_map.get(("meas_freq", (), None), None)
 
     def _check_consistency(self):
