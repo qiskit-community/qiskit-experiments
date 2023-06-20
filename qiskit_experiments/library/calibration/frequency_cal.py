@@ -34,6 +34,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "drive_freq",
         delays: Optional[List] = None,
         osc_freq: float = 2e6,
         auto_update: bool = True,
@@ -44,6 +45,8 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
                 frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
+            cal_parameter_name: The name of the parameter to update in the calibrations.
+                This defaults to `drive_freq`.
             delays: The list of delays that will be scanned in the experiment, in seconds.
             osc_freq: A frequency shift in Hz that will be applied by means of
                 a virtual Z rotation to increase the frequency of the measured oscillation.
@@ -56,7 +59,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             backend=backend,
             delays=delays,
             osc_freq=osc_freq,
-            cal_parameter_name=calibrations.__drive_freq_parameter__,
+            cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
 

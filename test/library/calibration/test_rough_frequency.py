@@ -58,7 +58,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
         cals = Calibrations.from_backend(self.backend, libraries=[library])
 
-        prev_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
+        prev_freq = cals.get_parameter_value("drive_freq", (0,))
         self.assertEqual(prev_freq, freq01)
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 11)
@@ -69,7 +69,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Check the updated frequency which should be shifted by 5MHz.
-        post_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
+        post_freq = cals.get_parameter_value("drive_freq", (0,))
         self.assertTrue(abs(post_freq - freq01 - 5e6) < 1e6)
 
     def test_experiment_config(self):
