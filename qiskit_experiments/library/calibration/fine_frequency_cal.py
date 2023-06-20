@@ -37,6 +37,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "drive_freq",
         delay_duration: Optional[int] = None,
         repetitions: List[int] = None,
         auto_update: bool = True,
@@ -54,11 +55,13 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
                 fine frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
+            cal_parameter_name: The name of the parameter to update in the calibrations.
+                This defaults to `drive_freq`.
             delay_duration: The duration of the delay at :math:`n=1`. If this value is
                 not given then the duration of the gate named ``gate_name`` in the
                 calibrations will be used.
-            auto_update: Whether or not to automatically update the calibrations. By
-                default this variable is set to True.
+            auto_update: Whether to automatically update the calibrations or not. By
+                default, this variable is set to True.
             gate_name: This argument is only needed if ``delay_duration`` is None. This
                 should be the name of a valid schedule in the calibrations.
         """
@@ -72,7 +75,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             schedule_name=None,
             repetitions=repetitions,
             backend=backend,
-            cal_parameter_name=calibrations.__drive_freq_parameter__,
+            cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
 
