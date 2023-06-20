@@ -24,14 +24,12 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
 )
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
     transition frequency."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

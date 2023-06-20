@@ -20,7 +20,6 @@ from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 from .basis import PreparationBasis, MeasurementBasis
@@ -47,14 +46,6 @@ class TomographyExperiment(BaseExperiment):
         options.basis_indices = None
         return options
 
-    @deprecate_arguments(
-        {
-            "qubits": "physical_qubits",
-            "measurement_qubits": "measurement_indices",
-            "preparation_qubits": "preparation_indices",
-        },
-        "0.5",
-    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],

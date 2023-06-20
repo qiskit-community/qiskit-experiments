@@ -16,7 +16,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.basicaer import QasmSimulatorPy
-from qiskit_experiments.curve_analysis import curve_fit, multi_curve_fit, process_curve_data
+from qiskit_experiments.curve_analysis import process_curve_data
 from qiskit_experiments.curve_analysis.utils import (
     level2_probability,
     mean_xy_data,
@@ -84,44 +84,6 @@ class TestCurveFitting(QiskitExperimentsTestCase):
         ydiff = self.objective0(xdata, 0.5) - ydata
         self.assertTrue(np.allclose(xdiff, 0))
         self.assertTrue(np.allclose(ydiff, 0, atol=0.05))
-
-    def test_curve_fit(self):
-        """Test curve_fit function"""
-        thetas = thetas = np.linspace(0.5, 4 * np.pi - 0.5, 20)
-        data = self.simulate_experiment_data(thetas)
-        xdata, ydata, sigma = process_curve_data(data, data_processor=self.data_processor_p0)
-        p0 = [0.6]
-        bounds = ([0], [2])
-        with self.assertWarns(DeprecationWarning):
-            sol = curve_fit(self.objective0, xdata, ydata, p0, sigma=sigma, bounds=bounds)
-        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
-
-    def test_multi_curve_fit(self):
-        """Test multi_curve_fit function"""
-        thetas = thetas = np.linspace(0.5, 4 * np.pi - 0.5, 20)
-        data = self.simulate_experiment_data(thetas)
-        xdata0, ydata0, sigma0 = process_curve_data(data, data_processor=self.data_processor_p0)
-        xdata1, ydata1, sigma1 = process_curve_data(data, data_processor=self.data_processor_p1)
-
-        # Combine curve data
-        xdata = np.concatenate([xdata0, xdata1])
-        series = np.concatenate([np.zeros(len(xdata0)), np.ones(len(xdata1))])
-        ydata = np.concatenate([ydata0, ydata1])
-        sigma = np.concatenate([sigma0, sigma1])
-
-        p0 = [0.6]
-        bounds = ([0], [2])
-        with self.assertWarns(DeprecationWarning):
-            sol = multi_curve_fit(
-                [self.objective0, self.objective1],
-                series,
-                xdata,
-                ydata,
-                p0,
-                sigma=sigma,
-                bounds=bounds,
-            )
-        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_mean_xy_data(self):
         """Test mean_xy_data function"""

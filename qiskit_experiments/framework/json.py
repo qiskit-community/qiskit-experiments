@@ -34,11 +34,7 @@ import scipy.sparse as sps
 import uncertainties
 from qiskit import qpy
 from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
-from qiskit.circuit.library import BlueprintCircuit
 from qiskit.pulse import ScheduleBlock
-from qiskit.quantum_info import DensityMatrix
-from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
-from qiskit.result import LocalReadoutMitigator, CorrelatedReadoutMitigator
 from qiskit_experiments.version import __version__
 
 
@@ -508,9 +504,6 @@ class ExperimentEncoder(json.JSONEncoder):
             )
             return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, QuantumCircuit):
-            # TODO Remove the decompose when terra 6713 is released.
-            if isinstance(obj, BlueprintCircuit):
-                obj = obj.decompose()
             value = _serialize_and_encode(
                 data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
             )
@@ -527,31 +520,6 @@ class ExperimentEncoder(json.JSONEncoder):
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
-        if isinstance(obj, QuantumChannel):
-            # Temporary fix for incorrect settings in qiskit-terra
-            # See https://github.com/Qiskit/qiskit-terra/pull/7194
-            settings = {
-                "data": obj.data,
-                "input_dims": obj.input_dims(),
-                "output_dims": obj.output_dims(),
-            }
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, LocalReadoutMitigator):
-            # Temporary handling until serialization is added to terra stable release
-            settings = {"assignment_matrices": obj._assignment_mats, "qubits": obj.qubits}
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, CorrelatedReadoutMitigator):
-            # Temporary handling until serialization is added to terra stable release
-            settings = {"assignment_matrix": obj._assignment_mat, "qubits": obj.qubits}
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, DensityMatrix):
-            # Temporary fix for incorrect settings in qiskit-terra
-            # See https://github.com/Qiskit/qiskit-terra/pull/7194
-            settings = {
-                "data": obj.data,
-                "dims": obj.dims(),
-            }
-            return _serialize_object(obj, settings=settings)
         if istype(obj):
             return _serialize_type(obj)
         try:

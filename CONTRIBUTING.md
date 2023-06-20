@@ -354,34 +354,25 @@ minor releases and not on patch releases.
 
 #### Adding deprecation warnings
 
-We have a deprecation decorator for showing deprecation warnings. To
-deprecate a function, for example:
+We use the deprecation wrappers in [Qiskit
+Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
 
 ```python
 
-  from qiskit_experiments.warnings import deprecated_function
+  from qiskit.utils.deprecation import deprecate_func
 
-  @deprecated_function(last_version="0.3", msg="Use new_function instead.")
+  @deprecate_func(
+      since="0.5",
+      additional_msg="Use ``new_function`` instead.",
+      removal_timeline="after 0.7",
+      package_name="qiskit-experiments",
+  )
   def old_function(*args, **kwargs):
       pass
+  
   def new_function(*args, **kwargs):
       pass
 ```
-
-To deprecate a class:
-
-```python
-  from qiskit_experiments.warnings import deprecated_class
-
-  @deprecated_class(last_version="0.3", new_cls=NewCls)
-  class OldClass:
-      pass
-  class NewClass:
-      pass
-```
-
-This will inform the user which version of Qiskit Experiments will remove the deprecated
-class or function.
 
 ### Development cycle
 
