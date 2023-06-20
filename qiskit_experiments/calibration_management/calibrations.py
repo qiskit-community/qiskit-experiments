@@ -183,9 +183,7 @@ class Calibrations:
         is_property=True,
         since="0.6",
         package_name="qiskit-experiments",
-        additional_msg=(
-            "The drive_freq is moved to FixedFrequencyTransmon basis gate library."
-        ),
+        additional_msg="The drive_freq is moved to FixedFrequencyTransmon basis gate library.",
     )
     def drive_freq(self):
         """Parameter object for qubit drive frequency."""
@@ -196,9 +194,7 @@ class Calibrations:
         is_property=True,
         since="0.6",
         package_name="qiskit-experiments",
-        additional_msg=(
-            "The meas_freq is moved to FixedFrequencyTransmon basis gate library."
-        ),
+        additional_msg="The meas_freq is moved to FixedFrequencyTransmon basis gate library.",
     )
     def meas_freq(self):
         """Property only here to deprecate `meas_freq`."""
