@@ -20,7 +20,6 @@ from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Choi, Operator, Statevector, DensityMatrix, partial_trace
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment, TomographyAnalysis, BaseAnalysis
 from .qpt_analysis import ProcessTomographyAnalysis
@@ -49,14 +48,6 @@ class ProcessTomography(TomographyExperiment):
 
     """
 
-    @deprecate_arguments(
-        {
-            "qubits": "physical_qubits",
-            "measurement_qubits": "measurement_indices",
-            "preparation_qubits": "preparation_indices",
-        },
-        "0.5",
-    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],

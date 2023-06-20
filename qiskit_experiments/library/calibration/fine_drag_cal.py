@@ -27,13 +27,11 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
     """A calibration version of the fine drag experiment."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -152,7 +150,6 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 class FineXDragCal(FineDragCal):
     """Fine drag calibration of X gate."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -185,7 +182,6 @@ class FineXDragCal(FineDragCal):
 class FineSXDragCal(FineDragCal):
     """Fine drag calibration of X gate."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

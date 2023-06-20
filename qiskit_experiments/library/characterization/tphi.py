@@ -19,7 +19,6 @@ import numpy as np
 from qiskit import QiskitError
 from qiskit.providers import Backend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
-from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import (
     T1,
     T2Ramsey,
@@ -64,7 +63,6 @@ class Tphi(BatchExperiment):
 
     """
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

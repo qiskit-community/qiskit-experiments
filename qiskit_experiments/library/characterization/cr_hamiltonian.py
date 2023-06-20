@@ -13,15 +13,13 @@
 Cross resonance Hamiltonian tomography.
 """
 
-from typing import List, Tuple, Sequence, Iterable, Optional, Type
+from typing import List, Tuple, Sequence, Optional, Type
 
-import warnings
 import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import (
     BaseExperiment,
     BackendTiming,
@@ -136,11 +134,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
         def __init__(self, width: ParameterValueType):
             super().__init__("cr_gate", 2, [width])
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Tuple[int, int],
-        flat_top_widths: Optional[Iterable[float]] = None,
         backend: Optional[Backend] = None,
         cr_gate: Optional[Type[circuit.Gate]] = None,
         durations: Optional[Sequence[int]] = None,
@@ -151,10 +147,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Args:
             physical_qubits: Two-value tuple of qubit indices on which to run tomography.
                 The first index stands for the control qubit.
-            flat_top_widths: Deprecated. The total duration of the square part of
-                cross resonance pulse(s) to scan, in units of dt.
-                The total pulse duration including Gaussian rising and falling edges is
-                implicitly computed with experiment parameters ``sigma`` and ``risefall``.
             backend: Optional, the backend to run the experiment on.
             cr_gate: Optional, circuit gate class representing the cross resonance pulse.
                 Providing this object allows us to run this experiment with circuit simulator,
@@ -189,16 +181,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
         )
         self.set_experiment_options(durations=durations, **kwargs)
 
-        if flat_top_widths is not None:
-            # TODO remove this in Qiskit Experiments 0.6
-            self.set_experiment_options(flat_top_widths=flat_top_widths)
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:
-            flat_top_widths (np.ndarray): Deprecated. Length of Gaussian flat top to scan.
             durations (np.ndarray): The total duration of the cross resonance pulse(s) to scan,
                 in units of sec. Values should be longer than pulse ramps.
             min_durations (int): The minimum default pulse duration in samples.
@@ -212,7 +199,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
             risefall (float): Ratio of edge durations to sigma.
         """
         options = super()._default_experiment_options()
-        options.flat_top_widths = None  # to be removed in Qiskit Experiments 0.6
         options.durations = None
         options.min_durations = 60e-9
         options.max_durations = 1200e-9
@@ -223,18 +209,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
         options.risefall = 2
 
         return options
-
-    def set_experiment_options(self, **fields):
-        if "flat_top_widths" in fields:
-            # TODO remove this in Qiskit Experiments 0.6
-            warnings.warn(
-                "'flat_top_widths' argument has been deprecated and will be removed. "
-                "Use 'durations' instead. New variable includes pulse ramps, "
-                "and it cannot include zero in the sequence. "
-                "This argument will be dropped with this warning in Qiskit Experiments 0.6.",
-                DeprecationWarning,
-            )
-        super().set_experiment_options(**fields)
 
     def _set_backend(self, backend: Backend):
         """Set the backend for the experiment with timing analysis."""
@@ -268,11 +242,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def _get_durations(self) -> np.ndarray:
         """Return cross resonance pulse durations in units of sec."""
         opt = self.experiment_options
-
-        if opt.flat_top_widths is not None:
-            # TODO Remove this in Qiskit Experiments 0.6
-            widths = np.asarray(opt.flat_top_widths, dtype=float)
-            return self._get_dt() * (widths + 2 * opt.sigma * opt.risefall)
 
         if opt.durations is None:
             return np.linspace(opt.min_durations, opt.max_durations, opt.num_durations)

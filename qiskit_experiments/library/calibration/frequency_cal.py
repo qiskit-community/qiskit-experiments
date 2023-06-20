@@ -24,13 +24,11 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
 )
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     """A qubit frequency calibration experiment based on the Ramsey XY experiment."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
