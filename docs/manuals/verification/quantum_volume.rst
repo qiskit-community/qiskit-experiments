@@ -190,5 +190,5 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.quantum_volume`
-* Qiskit Textbook: `Measuring Quantum Volume <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`__
+* Qiskit Textbook: `Measuring Quantum Volume <https://learn.qiskit.org/course/quantum-hardware/measuring-quantum-volume>`__
 

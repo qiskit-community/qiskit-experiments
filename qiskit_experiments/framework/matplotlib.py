@@ -19,7 +19,7 @@ from matplotlib.backends.backend_svg import FigureCanvasSVG
 default_figure_canvas = FigureCanvasSVG  # pylint: disable=invalid-name
 """Matplotlib canvas to use when rendering a figure. This needs to be a
 canvas for a `non-interactive backend
-<https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_.
+https://matplotlib.org/stable/users/explain/backends.html#the-builtin-backends>`_.
 The default is `FigureCanvasSVG`."""
 
 

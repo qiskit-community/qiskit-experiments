@@ -16,7 +16,6 @@ Sphinx documentation builder.
 
 import os
 import sys
-import subprocess
 import datetime
 
 # -- Path setup --------------------------------------------------------------

@@ -180,4 +180,4 @@ See also
 
 * API documentation: :mod:`~qiskit_experiments.library.characterization.LocalReadoutError`, 
   :mod:`~qiskit_experiments.library.characterization.CorrelatedReadoutError`
-* Qiskit Textbook: `Measurement Error Mitigation <https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html>`__
+* Qiskit Textbook: `Measurement Error Mitigation <https://learn.qiskit.org/course/quantum-hardware/measurement-error-mitigation>`__
