@@ -23,6 +23,7 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment
 from qiskit_experiments.calibration_management.base_calibrations import BaseCalibrations
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
@@ -282,6 +283,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         # Attach the x calibration as well if it is in self._cals. We allow for
         # it not to be present in case a user wants to rely on the default x
         # calibration and only calibrate the pulses between levels 1 and 2.
-        if self._cals.has_template("x", self.physical_qubits):
+        try:
             schedule = self._cals.get_schedule("x", self.physical_qubits)
             circuit.add_calibration("x", self.physical_qubits, schedule)
+        except CalibrationError:
+            pass

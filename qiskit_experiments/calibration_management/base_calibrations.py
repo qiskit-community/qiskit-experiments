@@ -34,12 +34,6 @@ class BaseCalibrations(ABC):
     which to retrieve pulse-schedules.
     """
 
-    # The name of the parameter under which the qubit frequencies are registered.
-    __drive_freq_parameter__ = "drive_freq"
-
-    # The name of the parameter under which the readout frequencies are registered.
-    __readout_freq_parameter__ = "meas_freq"
-
     @abstractmethod
     def add_parameter_value(
         self,
@@ -68,9 +62,6 @@ class BaseCalibrations(ABC):
         param: Union[Parameter, str],
         qubits: Union[int, Tuple[int, ...]],
         schedule: Union[ScheduleBlock, str, None] = None,
-        valid_only: bool = True,
-        group: str = "default",
-        cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
         """Retrieves the value of a parameter.
 
@@ -80,13 +71,6 @@ class BaseCalibrations(ABC):
             param: The parameter or the name of the parameter for which to get the parameter value.
             qubits: The qubits for which to get the value of the parameter.
             schedule: The schedule or its name for which to get the parameter value.
-            valid_only: Use only parameters marked as valid.
-            group: The calibration group from which to draw the parameters.
-                If not specified this defaults to the 'default' group.
-            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
-                generated after the cutoff date will be ignored. If the cutoff_date is None then
-                all parameters are considered. This allows users to discard more recent values that
-                may be erroneous.
 
         Returns:
             value: The value of the parameter.
@@ -98,8 +82,6 @@ class BaseCalibrations(ABC):
         name: str,
         qubits: Union[int, Tuple[int, ...]],
         assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
-        group: Optional[str] = "default",
-        cutoff_date: datetime = None,
     ) -> ScheduleBlock:
         """Get the template schedule with parameters assigned to values.
 
@@ -127,25 +109,7 @@ class BaseCalibrations(ABC):
                 to the name of the parameter. In this case, the schedule name and qubits of the
                 corresponding ParameterKey will be the name and qubits given as arguments to
                 get_schedule.
-            group: The calibration group from which to draw the parameters. If not specified
-                this defaults to the 'default' group.
-            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
-                generated after the cutoff date will be ignored. If the cutoff_date is None then
-                all parameters are considered. This allows users to discard more recent values that
-                may be erroneous.
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned.
-        """
-
-    @abstractmethod
-    def has_template(self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None) -> bool:
-        """Test if a template schedule is defined
-
-        Args:
-            schedule_name: The name of the template schedule.
-            qubits: The qubits under which the template schedule was registered.
-
-        Returns:
-            True if a template exists for the schedule name for the given qubits
         """
