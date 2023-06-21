@@ -642,7 +642,7 @@ class ExperimentData:
                 project = creds.project
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
-                for hgp_string, hgp in self.backend.provider._hgps.items():
+                for hgp_string, hgp in provider._hgps.items():
                     if self.backend.name in hgp.backends:
                         hub, group, project = hgp_string.split("/")
                         break
@@ -651,6 +651,19 @@ class ExperimentData:
             self._db_data.project = self._db_data.project or project
         except (AttributeError, IndexError):
             return
+
+    @property
+    def hgp(self) -> str:
+        """Returns Hub/Group/Project data as a formatted string"""
+        return f"{self.hub}/{self.group}/{self.project}"
+
+    @hgp.setter
+    def hgp(self, new_hgp: str) -> None:
+        """Sets the Hub/Group/Project data from a formatted string"""
+        hub, group, project = new_hgp.split("/")
+        self._db_data.hub = self._db_data.hub or hub
+        self._db_data.group = self._db_data.group or group
+        self._db_data.project = self._db_data.project or project
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
