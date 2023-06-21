@@ -13,15 +13,13 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict, Union, Optional, Tuple
+from typing import List, Dict, Union, Optional, Iterator
 import warnings
-import numpy as np
-from qiskit.result import marginal_distribution
-from qiskit.result.postprocess import format_counts_memory
+
+from qiskit.result import marginal_distribution, marginal_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.base_analysis import _requires_copy
-from qiskit_experiments.exceptions import AnalysisError
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -112,225 +110,141 @@ class CompositeAnalysis(BaseAnalysis):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        if not self._flatten_results:
-            # Initialize child components if they are not initalized
-            # This only needs to be done if results are not being flattened
-            self._add_child_data(experiment_data)
-
         # Run analysis with replace_results = True since we have already
         # created the copy if it was required
         return super().run(experiment_data, replace_results=True, **options)
 
     def _run_analysis(self, experiment_data: ExperimentData):
-        # Return list of experiment data containers for each component experiment
-        # containing the marginalized data from the composite experiment
-        component_expdata = self._component_experiment_data(experiment_data)
 
-        # Run the component analysis on each component data
-        for i, sub_expdata in enumerate(component_expdata):
+        component_exp_data = []
+        iter_components = self._initialize_component_experiment_data(experiment_data)
+        for i, sub_exp_data in enumerate(iter_components):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            self._analyses[i].run(sub_expdata, replace_results=True)
+            self._analyses[i].run(sub_exp_data, replace_results=True)
+            component_exp_data.append(sub_exp_data)
 
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning
         # the parent experiment analysis results
-        for sub_expdata in component_expdata:
-            sub_expdata.block_for_results()
-        # Optionally flatten results from all component experiments
-        # for adding to the main experiment data container
-        if self._flatten_results:
-            return self._combine_results(component_expdata)
+        analysis_results = []
+        figures = []
+        for i, sub_exp_data in enumerate(component_exp_data):
+            sub_exp_data.block_for_results()
 
-        return [], []
+            if not self._flatten_results:
+                experiment_data.add_child_data(sub_exp_data)
+                continue
 
-    def _component_experiment_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
-        """Return a list of marginalized experiment data for component experiments.
+            # Convert table to AnalysisResultData lists for backward compatibility.
+            # In principle this is not necessary because data can be directly concatenated to
+            # the table of outer container, i.e. experiment_data._analysis_results, however
+            # some custom composite analysis class, such as TphiAnalysis overrides
+            # the _run_analysis method to perform further analysis on
+            # sub-analysis outcomes. This is indeed an overhead,
+            # and at some point we should restrict such subclass implementation.
+            analysis_table = sub_exp_data.analysis_results(columns="all", dataframe=True)
+            for _, series in analysis_table.iterrows():
+                data = AnalysisResultData.from_table_element(**series.to_dict())
+                data.experiment_id = experiment_data.experiment_id
+                analysis_results.append(data)
 
-        Args:
-            experiment_data: a composite experiment data container.
+            for fig_key in sub_exp_data.figure_names:
+                figures.append(sub_exp_data.figure(figure_key=fig_key))
 
-        Returns:
-            The list of analysis-ready marginalized experiment data for each
-            component experiment.
+            del sub_exp_data
 
-        Raises:
-            AnalysisError: If the component experiment data cannot be extracted.
-        """
-        if not self._flatten_results:
-            # Retrieve child data for component experiments for updating
-            component_index = experiment_data.metadata.get("component_child_index", [])
-            if not component_index:
-                raise AnalysisError("Unable to extract component child experiment data")
-            component_expdata = [experiment_data.child_data(i) for i in component_index]
-        else:
-            # Initialize temporary ExperimentData containers for
-            # each component experiment to analysis on. These will
-            # not be saved but results and figures will be collected
-            # from them
-            component_expdata = self._initialize_component_experiment_data(experiment_data)
+        return analysis_results, figures
 
-        # Compute marginalize data for each component experiment
-        marginalized_data = self._marginalized_component_data(experiment_data.data())
-
-        # Add the marginalized component data and component job metadata
-        # to each component child experiment. Note that this will clear
-        # any currently stored data in the experiment. Since copying of
-        # child data is handled by the `replace_results` kwarg of the
-        # parent container it is safe to always clear and replace the
-        # results of child containers in this step
-        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-            # Clear any previously stored data and add marginalized data
-            sub_expdata._result_data.clear()
-            sub_expdata.add_data(sub_data)
-
-        return component_expdata
-
-    def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
-        """Return marginalized data for component experiments.
+    def _marginalize_data(
+        self,
+        composite_data: List[Dict],
+        component_index: int,
+    ) -> List[Dict]:
+        """Return marginalized data for component with particular index.
 
         Args:
             composite_data: a list of composite experiment circuit data.
+            component_index: an index of component to return.
 
         Returns:
-            A List of lists of marginalized circuit data for each component
+            A lists of marginalized circuit data for each component
             experiment in the composite experiment.
         """
-        # Marginalize data
-        marginalized_data = {}
+        out = []
         for datum in composite_data:
             metadata = datum.get("metadata", {})
 
-            # Add marginalized data to sub experiments
+            if component_index not in metadata["composite_index"]:
+                # This circuit is not tied to the component experiment at "component_index".
+                continue
+            index = metadata["composite_index"].index(component_index)
+
             if "composite_clbits" in metadata:
                 composite_clbits = metadata["composite_clbits"]
             else:
                 composite_clbits = None
 
-            # Pre-process the memory if any to avoid redundant calls to format_counts_memory
-            f_memory = self._format_memory(datum, composite_clbits)
+            component_data = {"metadata": metadata["composite_metadata"][index]}
 
-            for i, index in enumerate(metadata["composite_index"]):
-                if index not in marginalized_data:
-                    # Initialize data list for marginalized
-                    marginalized_data[index] = []
-                sub_data = {"metadata": metadata["composite_metadata"][i]}
-                if "counts" in datum:
-                    if composite_clbits is not None:
-                        sub_data["counts"] = marginal_distribution(
-                            counts=datum["counts"],
-                            indices=composite_clbits[i],
-                        )
-                    else:
-                        sub_data["counts"] = datum["counts"]
-                if "memory" in datum:
-                    if composite_clbits is not None:
-                        # level 2
-                        if f_memory is not None:
-                            idx = slice(
-                                -1 - composite_clbits[i][-1], -composite_clbits[i][0] or None
-                            )
-                            sub_data["memory"] = [shot[idx] for shot in f_memory]
-                        # level 1
-                        else:
-                            mem = np.array(datum["memory"])
-
-                            # Averaged level 1 data
-                            if len(mem.shape) == 2:
-                                sub_data["memory"] = mem[composite_clbits[i]].tolist()
-                            # Single-shot level 1 data
-                            if len(mem.shape) == 3:
-                                sub_data["memory"] = mem[:, composite_clbits[i]].tolist()
-                    else:
-                        sub_data["memory"] = datum["memory"]
-                marginalized_data[index].append(sub_data)
-
-        # Sort by index
-        return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
-
-    @staticmethod
-    def _format_memory(datum: Dict, composite_clbits: List):
-        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
-        f_memory = None
-        if (
-            "memory" in datum
-            and composite_clbits is not None
-            and isinstance(datum["memory"][0], str)
-        ):
-            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
-            header = {"memory_slots": num_cbits}
-            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
-
-        return f_memory
-
-    def _add_child_data(self, experiment_data: ExperimentData):
-        """Save empty component experiment data as child data.
-
-        This will initialize empty ExperimentData objects for each component
-        experiment and add them as child data to the main composite experiment
-        ExperimentData container container for saving.
-
-        Args:
-            experiment_data: a composite experiment experiment data container.
-        """
-        component_index = experiment_data.metadata.get("component_child_index", [])
-        if component_index:
-            # Child components are already initialized
-            return
-
-        # Initialize the component experiment data containers and add them
-        # as child data to the current experiment data
-        child_components = self._initialize_component_experiment_data(experiment_data)
-        start_index = len(experiment_data.child_data())
-        for i, subdata in enumerate(child_components):
-            experiment_data.add_child_data(subdata)
-            component_index.append(start_index + i)
-
-        # Store the indices of the added child data in metadata
-        experiment_data.metadata["component_child_index"] = component_index
+            # Use terra result marginalization utils.
+            # These functions support parallel execution and are implemented in Rust.
+            if "counts" in datum:
+                if composite_clbits is not None:
+                    component_data["counts"] = marginal_distribution(
+                        counts=datum["counts"],
+                        indices=composite_clbits[index],
+                    )
+                else:
+                    component_data["counts"] = datum["counts"]
+            if "memory" in datum:
+                if composite_clbits is not None:
+                    component_data["memory"] = marginal_memory(
+                        memory=datum["memory"],
+                        indices=composite_clbits[index],
+                    )
+                else:
+                    component_data["memory"] = datum["memory"]
+            out.append(component_data)
+        return out
 
     def _initialize_component_experiment_data(
-        self, experiment_data: ExperimentData
-    ) -> List[ExperimentData]:
+        self,
+        experiment_data: ExperimentData,
+    ) -> Iterator[ExperimentData]:
         """Initialize empty experiment data containers for component experiments.
 
         Args:
-            experiment_data: a composite experiment experiment data container.
+            experiment_data: a composite experiment data container.
 
-        Returns:
-            The list of experiment data containers for each component experiment
-            containing the component metadata, and tags, share level, and
-            auto save settings of the composite experiment.
+        Yields:
+            Experiment data containers for each component experiment
+            containing the component metadata, and tags, share level.
         """
+        metadata = experiment_data.metadata
+
         # Extract component experiment types and metadata so they can be
         # added to the component experiment data containers
-        metadata = experiment_data.metadata
         num_components = len(self._analyses)
         experiment_types = metadata.get("component_types", [None] * num_components)
         component_metadata = metadata.get("component_metadata", [{}] * num_components)
 
         # Create component experiments and set the backend and
         # metadata for the components
-        component_expdata = []
-        for i, _ in enumerate(self._analyses):
-            subdata = ExperimentData(backend=experiment_data.backend)
-            subdata.experiment_type = experiment_types[i]
-            subdata.metadata.update(component_metadata[i])
+        composite_data = experiment_data.data()
+        child_data_ids = []
+        for i in range(num_components):
+            # Create empty container with metadata
+            sub_exp_data = ExperimentData(backend=experiment_data.backend)
+            sub_exp_data.experiment_type = experiment_types[i]
+            sub_exp_data.metadata.update(component_metadata[i])
+            sub_exp_data.auto_save = False
 
-            if self._flatten_results:
-                # Explicitly set auto_save to false so the temporary
-                # data can't accidentally be saved
-                subdata.auto_save = False
-            else:
-                # Copy tags, share_level and auto_save from the parent
-                # experiment data if results are not being flattened.
-                subdata.tags = experiment_data.tags
-                subdata.share_level = experiment_data.share_level
-                subdata.auto_save = experiment_data.auto_save
+            # Add marginalized experiment data
+            sub_exp_data.add_data(self._marginalize_data(composite_data, i))
+            child_data_ids.append(sub_exp_data.experiment_id)
 
-            component_expdata.append(subdata)
-
-        return component_expdata
+            yield sub_exp_data
 
     def _set_flatten_results(self):
         """Recursively set flatten_results to True for all composite components."""
@@ -338,54 +252,3 @@ class CompositeAnalysis(BaseAnalysis):
         for analysis in self._analyses:
             if isinstance(analysis, CompositeAnalysis):
                 analysis._set_flatten_results()
-
-    def _combine_results(
-        self, component_experiment_data: List[ExperimentData]
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        """Combine analysis results from component experiment data.
-
-        Args:
-            component_experiment_data: list of experiment data containers containing the
-                                       analysis results for each component experiment.
-
-        Returns:
-            A pair of the combined list of all analysis results from each of the
-            component experiments, and a list of all figures from each component
-            experiment.
-        """
-        analysis_results = []
-        figures = []
-        for sub_expdata in component_experiment_data:
-            figures += sub_expdata._figures.values()
-
-            # Convert Dataframe Series back into AnalysisResultData
-            # This is due to limitation that _run_analysis must return List[AnalysisResultData],
-            # and some composite analysis such as TphiAnalysis overrides this method to
-            # return extra quantity computed from sub analysis results.
-            # This produces unnecessary data conversion.
-            # The _run_analysis mechanism seems just complicating the entire logic.
-            # Since it's impossible to deprecate the usage of this protected method,
-            # we should implement new CompositeAnalysis class with much more efficient
-            # internal logic. Note that the child data structure is no longer necessary
-            # because dataframe offers more efficient data filtering mechanisms.
-            analysis_table = sub_expdata.analysis_results(verbosity=3, dataframe=True)
-            for _, series in analysis_table.iterrows():
-                data_dict = series.to_dict()
-                primary_info = {
-                    "name": data_dict.pop("name"),
-                    "value": data_dict.pop("value"),
-                    "quality": data_dict.pop("quality"),
-                    "device_components": data_dict.pop("components"),
-                }
-                chisq = data_dict.pop("chisq", np.nan)
-                if chisq:
-                    primary_info["chisq"] = chisq
-                data_dict["experiment"] = sub_expdata.experiment_type
-                if "experiment_id" in data_dict:
-                    # Use experiment ID of parent experiment data.
-                    # Sub experiment data is merged and discarded.
-                    del data_dict["experiment_id"]
-                analysis_result = AnalysisResultData(**primary_info, extra=data_dict)
-                analysis_results.append(analysis_result)
-
-        return analysis_results, figures
