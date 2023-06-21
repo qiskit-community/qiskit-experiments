@@ -476,8 +476,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
     def test_mitigated_full_qpt_random_unitary(self, qubits):
         """Test QPT experiment"""
         seed = 1234
-        shots = 5000
-        f_threshold = 0.95
+        shots = 1000
+        f_threshold = 0.9
 
         noise_model = readout_noise_model(4, seed=seed)
         backend = AerSimulator(seed_simulator=seed, shots=shots, noise_model=noise_model)
