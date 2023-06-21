@@ -13,8 +13,7 @@
 """Base calibrations class."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Tuple, Union
 
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
