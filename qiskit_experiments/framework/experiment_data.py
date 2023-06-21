@@ -334,6 +334,7 @@ class ExperimentData:
         # job handling related
         self._jobs = ThreadSafeOrderedDict(job_ids)
         self._job_futures = ThreadSafeOrderedDict()
+        self._running_time = None
         self._analysis_callbacks = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
         # Set 2 workers for analysis executor so there can be 1 actively running
@@ -443,8 +444,25 @@ class ExperimentData:
         return utc_to_local(self._db_data.updated_datetime)
 
     @property
+    def running_time(self) -> datetime:
+        """Return the running time of this experiment data.
+
+        The running time is the time the latest successful job was run on
+        the remote quantum machine. This can change as more jobs finish.
+
+        .. warning::
+
+            IBM job returns running time in tzlocal(),
+            but we don't know the local time of the remote quantum machine.
+            This may return wrong datetime if server and client are in different timezone.
+
+        """
+        return utc_to_local(self._running_time)
+
+    @property
     def end_datetime(self) -> datetime:
         """Return the end datetime of this experiment data.
+
         The end datetime is the time the latest job data was
         added without errors; this can change as more jobs finish.
 
@@ -893,6 +911,10 @@ class ExperimentData:
         jid = job.job_id()
         try:
             job_result = job.result()
+            try:
+                self._running_time = job.time_per_step().get("running", None)
+            except AttributeError:
+                pass
             self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
             # sets the endtime to be the time the last successful job was added
@@ -1360,7 +1382,7 @@ class ExperimentData:
                     extra_values["chisq"] = result.chisq
                 experiment = extra_values.pop("experiment", self.experiment_type)
                 backend = extra_values.pop("backend", self.backend_name)
-                run_time = extra_values.pop("run_time", None)
+                run_time = extra_values.pop("run_time", self.running_time)
                 created_time = extra_values.pop("created_time", None)
                 self._analysis_results.add_entry(
                     name=result.name,
@@ -2443,6 +2465,7 @@ class ExperimentData:
             "_jobs": self._safe_serialize_jobs(),  # Handle non-serializable objects
             "_experiment": self._experiment,
             "_child_data": self._child_data,
+            "_running_time": self._running_time,
         }
         # the attribute self._service in charge of the connection and communication with the
         #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
