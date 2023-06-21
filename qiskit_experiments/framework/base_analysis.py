@@ -21,9 +21,9 @@ from typing import List, Tuple, Union, Dict
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
-from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.experiment_data import ExperimentData, FigureData
 from qiskit_experiments.framework.configs import AnalysisConfig
-from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData, as_table_element
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -163,40 +163,42 @@ class BaseAnalysis(ABC, StoreInitArgs):
         def run_analysis(expdata: ExperimentData):
             # Clearing previous analysis data
             experiment_data._clear_results()
-            experiment_components = self._get_experiment_components(experiment_data)
 
             # Making new analysis
             results, figures = analysis._run_analysis(expdata)
 
             if results:
                 for result in results:
-                    supplementary = result.extra
-                    if result.chisq is not None:
-                        supplementary["chisq"] = result.chisq
-                    if "experiment" not in supplementary:
-                        supplementary["experiment"] = expdata.experiment_type
-                    if "experiment_id" not in supplementary:
-                        supplementary["experiment_id"] = expdata.experiment_id
-                    if "backend" not in supplementary:
-                        supplementary["backend"] = expdata.backend_name
-                    if "run_time" not in supplementary:
-                        # TODO add job RUNNING time
-                        supplementary["run_time"] = None
-                    if "created_time" not in supplementary:
-                        supplementary["created_time"] = datetime.now(timezone.utc)
-                    # Bypass generation of AnalysisResult, i.e. calling add_analysis_results.
-                    # AnalysisResult is a data container with experiment service API.
-                    # Since analysis is a local operation in the client,
-                    # we should directly populate analysis result dataframe.
-                    expdata.add_analysis_results(
-                        name=result.name,
-                        value=result.value,
-                        quality=result.quality,
-                        components=result.device_components or experiment_components,
-                        **supplementary,
-                    )
+                    # Populate missing data fields
+                    if not result.experiment_id:
+                        result.experiment_id = expdata.experiment_id
+                    if not result.experiment:
+                        result.experiment = expdata.experiment_type
+                    if not result.device_components:
+                        result.device_components = self._get_experiment_components(expdata)
+                    if not result.backend:
+                        result.backend = expdata.backend_name
+                    if not result.created_time:
+                        result.created_time = datetime.now(timezone.utc)
+                    if not result.run_time:
+                        result.run_time = expdata.running_time
+
+                    # To canonical kwargs to add to the analysis table.
+                    table_format = as_table_element(result)
+
+                    # Remove result_id to make sure the id is unique in the scope of the container.
+                    # This will let the container generate a unique id.
+                    del table_format["result_id"]
+
+                    expdata.add_analysis_results(**table_format)
+
             if figures:
-                expdata.add_figures(figures, figure_names=self.options.figure_names)
+                figure_to_add = []
+                for figure in figures:
+                    if not isinstance(figure, FigureData):
+                        figure = FigureData(figure=figure)
+                    figure_to_add.append(figure)
+                expdata.add_figures(figure_to_add, figure_names=self.options.figure_names)
 
         experiment_data.add_analysis_callback(run_analysis)
 

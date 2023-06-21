@@ -59,6 +59,7 @@ from qiskit_experiments.database_service.utils import (
 )
 from qiskit_experiments.database_service.device_component import to_component, DeviceComponent
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -2657,46 +2658,33 @@ def _series_to_service_result(
     """
     # TODO This must be done on experiment service rather than by client.
 
-    data_dict = series.to_dict()
-
-    # Format values
-    value = data_dict.pop("value")
-    result_id = data_dict.pop("result_id")
-    experiment_id = data_dict.pop("experiment_id")
-    result_type = data_dict.pop("name")
-    chisq = data_dict.pop("chisq", None)
-    components = list(map(to_component, data_dict.pop("components")))
-    quality_raw = data_dict.pop("quality") or "unknown"
-    try:
-        quality = ResultQuality(quality_raw.upper())
-    except ValueError:
-        quality = "unknown"
-    tags = data_dict.pop("tags")
-    backend_name = data_dict.pop("backend")
-    creation_datetime = data_dict.pop("created_time")
+    qe_result = AnalysisResultData.from_table_element(**series.to_dict())
 
     result_data = AnalysisResult.format_result_data(
-        value=value,
-        extra=data_dict,
-        chisq=chisq,
+        value=qe_result.value,
+        extra=qe_result.extra,
+        chisq=qe_result.chisq,
         source=source,
     )
-
-    ibm_payload = AnalysisResultDataclass(
-        result_id=result_id,
-        experiment_id=experiment_id,
-        result_type=result_type,
+    try:
+        quality = ResultQuality(str(qe_result.quality).upper())
+    except ValueError:
+        quality = "unknown"
+    experiment_service_payload = AnalysisResultDataclass(
+        result_id=qe_result.result_id,
+        experiment_id=qe_result.experiment_id,
+        result_type=qe_result.name,
         result_data=result_data,
-        device_components=components,
+        device_components=list(map(to_component, qe_result.device_components)),
         quality=quality,
-        tags=tags,
-        backend_name=backend_name,
-        creation_datetime=creation_datetime,
-        chisq=chisq,
+        tags=qe_result.tags,
+        backend_name=qe_result.backend,
+        creation_datetime=qe_result.created_time,
+        chisq=qe_result.chisq,
     )
 
     service_result = AnalysisResult()
-    service_result.set_data(ibm_payload)
+    service_result.set_data(experiment_service_payload)
 
     with contextlib.suppress(ExperimentDataError):
         service_result.service = service
