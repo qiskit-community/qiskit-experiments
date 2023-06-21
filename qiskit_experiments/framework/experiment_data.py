@@ -141,7 +141,8 @@ class FigureData:
         Args:
             figure: the raw figure itself. Can be SVG or matplotlib.Figure.
             name: Optional, the name of the figure.
-            metadata: Optional, any metadata to be stored with the figure."""
+            metadata: Optional, any metadata to be stored with the figure.
+        """
         self.figure = figure
         self._name = name
         self.metadata = metadata or {}
@@ -193,6 +194,9 @@ class FigureData:
         if isinstance(self.figure, bytes):
             return str(self.figure)
         return None
+
+
+_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -1136,9 +1140,9 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[str, bytes, pyplot.Figure, list],
-        figure_names: Optional[Union[str, list]] = None,
-        overwrite: Optional[bool] = False,
+        figures: Union[_FigureT, List[_FigureT]],
+        figure_names: Optional[Union[str, List[str]]] = None,
+        overwrite: bool = False,
         save_figure: Optional[bool] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
