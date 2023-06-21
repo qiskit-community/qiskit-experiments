@@ -738,7 +738,7 @@ class ExperimentData:
 
     def add_data(
         self,
-        data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
+        data: Union[Result, List[Result], Dict, List[Dict]],
     ) -> None:
         """Add experiment data.
 
@@ -749,8 +749,6 @@ class ExperimentData:
                 * List[Result]: Add data from the ``Result`` objects.
                 * Dict: Add this data.
                 * List[Dict]: Add this list of data.
-                * Job: (Deprecated) Add data from the job result.
-                * List[Job]: (Deprecated) Add data from the job results.
 
         Raises:
             TypeError: If the input data type is invalid.

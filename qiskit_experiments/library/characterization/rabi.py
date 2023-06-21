@@ -25,7 +25,6 @@ from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Rabi(BaseExperiment, RestlessMixin):
@@ -89,7 +88,6 @@ class Rabi(BaseExperiment, RestlessMixin):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

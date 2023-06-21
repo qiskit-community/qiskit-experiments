@@ -52,8 +52,6 @@ Fitter functions for state reconstruction in tomography analysis
     :toctree: ../stubs/
 
     fitters.linear_inversion
-    fitters.scipy_gaussian_lstsq
-    fitters.scipy_linear_lstsq
     fitters.cvxpy_gaussian_lstsq
     fitters.cvxpy_linear_lstsq
 

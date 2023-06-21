@@ -181,7 +181,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.CLASSIFIED, shots=1024)
-        expdata = exp.run(backend).block_for_results()
+        expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
@@ -208,7 +208,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
-        expdata = exp.run(backend).block_for_results()
+        expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
@@ -271,7 +271,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         )
         par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
-        par_data = par_experiment.run().block_for_results()
+        par_data = par_experiment.run()
         self.assertExperimentDone(par_data)
 
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.

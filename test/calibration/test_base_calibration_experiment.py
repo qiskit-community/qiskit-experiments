@@ -86,7 +86,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate",
             sched_name="test",
         )
-        exp.run(backend).block_for_results()
+        self.assertExperimentDone(exp.run(backend))
 
         # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
@@ -131,7 +131,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             sched_name="test",
         )
         exp.analysis.set_options(return_value=ref_new_value)  # Update analysis option here
-        exp.run(backend).block_for_results()
+        self.assertExperimentDone(exp.run(backend))
 
         # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
@@ -179,7 +179,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         user_analysis = DoNothingAnalysis()
         user_analysis.set_options(return_value=ref_new_value)
         exp.analysis = user_analysis  # Update analysis instance itself here
-        exp.run(backend).block_for_results()
+        self.assertExperimentDone(exp.run(backend))
 
         # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
@@ -238,7 +238,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             sched_name="test",
         )
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=False, backend=backend)
-        batch_exp.run(backend).block_for_results()
+        self.assertExperimentDone(batch_exp.run(backend))
 
         # Get new value
         new_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test")
@@ -308,7 +308,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             sched_name="test2",
         )
         batch_exp = ParallelExperiment([exp1, exp2], flatten_results=False, backend=backend)
-        batch_exp.run(backend).block_for_results()
+        self.assertExperimentDone(batch_exp.run(backend))
 
         # Get new value
         new_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test1")

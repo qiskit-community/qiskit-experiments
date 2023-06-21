@@ -148,7 +148,6 @@ class Calibrations(BaseCalibrations):
                 libraries = [libraries]
 
             for lib in libraries:
-
                 # Add the basis gates
                 for gate in lib.basis_gates:
                     self.add_schedule(lib[gate], num_qubits=lib.num_qubits(gate))
@@ -158,18 +157,16 @@ class Calibrations(BaseCalibrations):
                     for param_conf in lib.default_values():
                         self.add_parameter_value(*param_conf, update_inst_map=False)
 
+                # Add the parameters that do not belong to a schedule.
+                for param_name in lib.__parameters_without_schedule__:
+                    self._register_parameter(Parameter(param_name), tuple())
+
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.
         self._has_manually_added_schedule = False
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
-
-        # Use the same naming convention as in backend.defaults()
-        self.drive_freq = Parameter(self.__drive_freq_parameter__)
-        self.meas_freq = Parameter(self.__readout_freq_parameter__)
-        self._register_parameter(self.drive_freq, ())
-        self._register_parameter(self.meas_freq, ())
 
         # Backends with a single qubit may not have a coupling map.
         self._coupling_map = coupling_map if coupling_map is not None else []
@@ -181,6 +178,28 @@ class Calibrations(BaseCalibrations):
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
+
+    @property
+    @deprecate_func(
+        is_property=True,
+        since="0.6",
+        package_name="qiskit-experiments",
+        additional_msg="The drive_freq is moved to FixedFrequencyTransmon basis gate library.",
+    )
+    def drive_freq(self):
+        """Parameter object for qubit drive frequency."""
+        return self._parameter_map.get(("drive_freq", (), None), None)
+
+    @property
+    @deprecate_func(
+        is_property=True,
+        since="0.6",
+        package_name="qiskit-experiments",
+        additional_msg="The meas_freq is moved to FixedFrequencyTransmon basis gate library.",
+    )
+    def meas_freq(self):
+        """Parameter object for qubit measure frequency."""
+        return self._parameter_map.get(("meas_freq", (), None), None)
 
     def _check_consistency(self):
         """Check that the attributes defined in self are consistent.
@@ -232,7 +251,7 @@ class Calibrations(BaseCalibrations):
             libraries: A list of libraries from which to get template schedules to register as
                 well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
-                the given library should be used to populate the calibrations. By default this
+                the given library should be used to populate the calibrations. By default, this
                 value is ``True``.
 
         Returns:
@@ -255,11 +274,13 @@ class Calibrations(BaseCalibrations):
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(backend_data.drive_freqs):
-                cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
+            if ("drive_freq", (), None) in cals._parameter_map:
+                for qubit, freq in enumerate(backend_data.drive_freqs):
+                    cals.add_parameter_value(freq, "drive_freq", qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(backend_data.meas_freqs):
-                cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
+            if ("meas_freq", (), None) in cals._parameter_map:
+                for meas, freq in enumerate(backend_data.meas_freqs):
+                    cals.add_parameter_value(freq, "meas_freq", meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.
         cals.update_inst_map()
@@ -444,7 +465,6 @@ class Calibrations(BaseCalibrations):
         """
         for key, circuit_inst_num_qubits in self._schedules_qubits.items():
             if key.schedule == schedule_name:
-
                 if len(partial_qubits) == circuit_inst_num_qubits:
                     return [partial_qubits]
 
@@ -883,7 +903,6 @@ class Calibrations(BaseCalibrations):
 
             # Control channels name example ch1.0$1
             if isinstance(chan, ControlChannel):
-
                 channel_index_parts = chan.index.name[2:].split("$")
                 qubit_channels = channel_index_parts[0]
 

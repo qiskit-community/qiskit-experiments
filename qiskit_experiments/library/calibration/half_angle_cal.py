@@ -23,13 +23,11 @@ from qiskit_experiments.calibration_management import BaseCalibrationExperiment
 from qiskit_experiments.calibration_management.base_calibrations import BaseCalibrations
 from qiskit_experiments.library.characterization import HalfAngle
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
     """Calibration version of the half-angle experiment."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
