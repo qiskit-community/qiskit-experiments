@@ -531,8 +531,12 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         else:
             result_id = self._unique_table_index()
 
+        # Short unique index is generated from full UUID.
+        # Showing full UUID unnecessary occupies horizontal space of the html table.
+        short_index = result_id[:8]
+
         super().add_entry(
-            index=result_id[:8],
+            index=short_index,
             result_id=result_id,
             **kwargs,
         )
