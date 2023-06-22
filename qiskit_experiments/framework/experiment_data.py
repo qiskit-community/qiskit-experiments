@@ -338,6 +338,7 @@ class ExperimentData:
         self._result_data = ThreadSafeList()
         self._figures = ThreadSafeOrderedDict(self._db_data.figure_names)
         self._analysis_results = ThreadSafeOrderedDict()
+        self._completion_times = ThreadSafeOrderedDict()
 
         self._deleted_figures = deque()
         self._deleted_analysis_results = deque()
@@ -362,12 +363,7 @@ class ExperimentData:
     @property
     def completion_times(self) -> Dict[str, datetime]:
         """Returns the completion times of the jobs."""
-        job_times = {}
-        for job_id, job in self._jobs.items():
-            if job is not None and "COMPLETED" in job.time_per_step():
-                job_times[job_id] = job.time_per_step().get("COMPLETED")
-
-        return job_times
+        return dict(self._completion_times)
 
     @property
     def tags(self) -> List[str]:
@@ -887,8 +883,11 @@ class ExperimentData:
             job_result = job.result()
             self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
-            # sets the endtime to be the time the last successful job was added
-            self.end_datetime = datetime.now()
+            completed_at = datetime.now()
+            with self._completion_times.lock:
+                self._completion_times[jid] = completed_at
+                # sets the end time to be the time the last successful job was added
+                self.end_datetime = completed_at
             return jid, True
         except Exception as ex:  # pylint: disable=broad-except
             # Handle cancelled jobs
@@ -2275,6 +2274,7 @@ class ExperimentData:
             "_deleted_figures": self._deleted_figures,
             "_deleted_analysis_results": self._deleted_analysis_results,
             "_result_data": self._result_data,
+            "_completion_times": self._completion_times,
             "_extra_data": self._extra_data,
             "_created_in_db": self._created_in_db,
             "_figures": self._safe_serialize_figures(),  # Convert figures to SVG

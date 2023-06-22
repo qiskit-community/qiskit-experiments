@@ -724,6 +724,19 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
         self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
 
+    def test_completion_times(self):
+        """Test the completion_times property"""
+        jid = "1234"
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = jid
+        job.status = JobStatus.DONE
+
+        exp_data = ExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        completion_times = exp_data.completion_times
+        self.assertTrue(jid in completion_times)
+        self.assertTrue(isinstance(completion_times[jid], datetime))
+
     def test_partial_cancel_analysis(self):
         """Test canceling experiment analysis."""
 
