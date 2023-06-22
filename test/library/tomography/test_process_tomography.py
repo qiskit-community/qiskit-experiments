@@ -483,6 +483,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=seed, shots=shots, noise_model=noise_model)
         target = qi.random_unitary(2 ** len(qubits), seed=seed)
         exp = MitigatedProcessTomography(target, backend=backend)
+        exp.set_transpile_options(seed_transpiler=42)
         exp.analysis.set_options(unmitigated_fit=True)
         expdata = exp.run(analysis=None)
         self.assertExperimentDone(expdata)
