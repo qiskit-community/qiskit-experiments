@@ -88,7 +88,7 @@ The code below sets up the Rabi experiment.
     backend = SingleTransmonTestBackend(seed=100)
 
     exp = Rabi(
-        qubit=0,
+        physical_qubits=(0,),
         backend=backend,
         schedule=sched,
         amplitudes=np.linspace(-0.1, 0.1, 21)

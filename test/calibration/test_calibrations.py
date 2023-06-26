@@ -217,12 +217,12 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.cals.add_schedule(sched, num_qubits=1)
 
         self.assertEqual(len(self.cals.schedules()), 4)
-        self.assertEqual(len(self.cals.parameters), 9)
+        self.assertEqual(len(self.cals.parameters), 7)
 
         self.cals.remove_schedule(sched)
 
         self.assertEqual(len(self.cals.schedules()), 3)
-        self.assertEqual(len(self.cals.parameters), 8)
+        self.assertEqual(len(self.cals.parameters), 6)
         for param in [self.sigma, self.amp_xp, self.amp_x90p, self.amp_y90p, self.beta]:
             self.assertTrue(param in self.cals.parameters)
 
@@ -323,7 +323,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         """Test that when generating calibrations from backend
         the data is passed correctly"""
         backend = FakeBelemV2()
-        cals = Calibrations.from_backend(backend)
+        cals = Calibrations.from_backend(backend, libraries=[FixedFrequencyTransmon()])
         with self.assertWarns(DeprecationWarning):
             config_args = cals.config()["kwargs"]
         control_channel_map_size = len(config_args["control_channel_map"].chan_map)
@@ -565,8 +565,6 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
             self.sigma,
             self.beta,
             self.duration,
-            self.cals.drive_freq,
-            self.cals.meas_freq,
         }
         self.assertEqual(len(set(self.cals.parameters.keys())), len(expected))
 

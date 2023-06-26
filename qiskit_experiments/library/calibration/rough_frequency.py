@@ -24,14 +24,12 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
 )
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
     transition frequency."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -40,6 +38,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
         backend: Optional[Backend] = None,
         auto_update: bool = True,
         absolute: bool = True,
+        cal_parameter_name: Optional[str] = "drive_freq",
     ):
         """See :class:`.QubitSpectroscopy` for detailed documentation.
 
@@ -53,6 +52,8 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
                 automatically update the frequency in the calibrations.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
+            cal_parameter_name: The name of the parameter to update in the calibrations.
+                This defaults to `drive_freq`.
 
         Raises:
             QiskitError: If there are less than three frequency shifts.
@@ -66,6 +67,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             absolute=absolute,
             updater=Frequency,
             auto_update=auto_update,
+            cal_parameter_name=cal_parameter_name,
         )
 
     def _attach_calibrations(self, circuit: QuantumCircuit):

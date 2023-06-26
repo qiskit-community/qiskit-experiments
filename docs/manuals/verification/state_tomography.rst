@@ -168,7 +168,7 @@ For example if we want to perform 1-qubit QST on several qubits at once:
              for i in range(num_qubits)]
     
     subexps = [
-        StateTomography(gate, physical_qubits=[i])
+        StateTomography(gate, physical_qubits=(i,))
         for i, gate in enumerate(gates)
     ]
     parexp = ParallelExperiment(subexps)

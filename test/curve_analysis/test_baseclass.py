@@ -224,7 +224,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y = amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
@@ -270,7 +271,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         expdata.add_data(test_data2.data())
         expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
 
-        result = analysis.run(expdata).block_for_results()
+        result = analysis.run(expdata)
+        self.assertExperimentDone(result)
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("freq").value.nominal_value, freq, delta=0.1)
@@ -294,7 +296,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y = amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         self.assertEqual(result.analysis_results("amp").value.nominal_value, 0.5)
         self.assertEqual(result.analysis_results("amp").value.std_dev, 0.0)
@@ -334,7 +337,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y = amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         new_value = result.analysis_results("new_value").value
 
@@ -388,7 +392,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y = 0.5 * amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
@@ -423,7 +428,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y2 = amp2 * np.exp(-x / tau2)
 
         test_data = self.parallel_sampler(x, y1, y2)
-        result = composite.run(test_data).block_for_results()
+        result = composite.run(test_data)
+        self.assertExperimentDone(result)
 
         amps = result.analysis_results("amp")
         taus = result.analysis_results("tau")
@@ -450,7 +456,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_true = amp * np.exp(-x / tau)
 
         test_data = self.single_sampler(x, y_true)
-        result = analysis.run(test_data).block_for_results()
+        result = analysis.run(test_data)
+        self.assertExperimentDone(result)
 
         overview = result.analysis_results(0).value
 
@@ -526,7 +533,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         expdata.add_data(test_data2b.data())
         expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
 
-        result = group_analysis.run(expdata).block_for_results()
+        result = group_analysis.run(expdata)
+        self.assertExperimentDone(result)
         amps = result.analysis_results("amp")
 
         # two entries are generated for group A and group B

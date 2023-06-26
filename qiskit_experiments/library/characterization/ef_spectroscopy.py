@@ -19,7 +19,6 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class EFSpectroscopy(QubitSpectroscopy):
@@ -38,7 +37,6 @@ class EFSpectroscopy(QubitSpectroscopy):
 
     """
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
