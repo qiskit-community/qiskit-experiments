@@ -14,8 +14,7 @@
 
 from .drag_analysis import DragCalAnalysis
 from .fine_amplitude_analysis import FineAmplitudeAnalysis
-from .ramsey_xy_analysis import RamseyXYAnalysis
-from .stark_ramsey_fast_analysis import StarkRamseyFastAnalysis
+from .ramsey_xy_analysis import RamseyXYAnalysis, StarkRamseyXYAmpScanAnalysis
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .t2hahn_analysis import T2HahnAnalysis
 from .t1_analysis import T1Analysis

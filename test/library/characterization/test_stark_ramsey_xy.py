@@ -20,8 +20,8 @@ from ddt import ddt, unpack, named_data
 from qiskit import pulse
 from qiskit.providers.fake_provider import FakeHanoiV2
 
-from qiskit_experiments.library import StarkRamseyXY, StarkRamseyFast
-from qiskit_experiments.library.characterization.analysis import StarkRamseyFastAnalysis
+from qiskit_experiments.library import StarkRamseyXY, StarkRamseyXYAmpScan
+from qiskit_experiments.library.characterization.analysis import StarkRamseyXYAmpScanAnalysis
 from qiskit_experiments.framework import ExperimentData
 
 
@@ -140,8 +140,8 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
 
 
 @ddt
-class TestStarkRamseyFast(QiskitExperimentsTestCase):
-    """Test case for StarkRamseyFast experiment."""
+class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
+    """Test case for StarkRamseyXYAmpScan experiment."""
 
     def test_frequency_shift_direction(self):
         """Check frequency shift direction reflects abstracted amplitude policy.
@@ -151,7 +151,7 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
         lower (higher) than the qubit frequency f01. Tone amplitude is always positive.
         """
         backend = FakeHanoiV2()
-        exp = StarkRamseyFast(
+        exp = StarkRamseyXYAmpScan(
             physical_qubits=[0],
             backend=backend,
             stark_amps=[-0.1, 0.1],
@@ -198,7 +198,7 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
     def test_circuit_valid_delays(self):
         """Test Stark tone durations are valid."""
         backend = FakeHanoiV2()
-        exp = StarkRamseyFast(
+        exp = StarkRamseyXYAmpScan(
             physical_qubits=[0],
             backend=backend,
             stark_amps=[0.1],
@@ -214,7 +214,7 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
     def test_parameter_rounding(self):
         """Test removing unnecessary parameter value precision."""
         backend = FakeHanoiV2()
-        exp = StarkRamseyFast(
+        exp = StarkRamseyXYAmpScan(
             physical_qubits=[0],
             backend=backend,
             stark_amps=[0.12345678910111213],
@@ -267,7 +267,7 @@ class TestStarkRamseyFast(QiskitExperimentsTestCase):
                 }
             )
 
-        analysis = StarkRamseyFastAnalysis()
+        analysis = StarkRamseyXYAmpScanAnalysis()
         analysis.run(exp_data, replace_results=True)
         self.assertExperimentDone(exp_data)
 

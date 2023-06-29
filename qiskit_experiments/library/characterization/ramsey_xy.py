@@ -25,7 +25,7 @@ from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import (
     RamseyXYAnalysis,
-    StarkRamseyFastAnalysis,
+    StarkRamseyXYAmpScanAnalysis,
 )
 from qiskit_experiments.warnings import qubit_deprecate
 
@@ -546,7 +546,7 @@ class StarkRamseyXY(BaseExperiment):
         }
 
 
-class StarkRamseyFast(BaseExperiment):
+class StarkRamseyXYAmpScan(BaseExperiment):
     r"""A fast Stark shift characterization against tone amplitude.
 
     # section: overview
@@ -579,7 +579,7 @@ class StarkRamseyFast(BaseExperiment):
         On the one hand you can run :class:`.StarkRamseyXY` experiment at every amplitude
         to characterize the frequency shift, but on the other hand such two dimensional scan of
         the tone duration and amplitude may require massive amount of circuit execution.
-        To avoid this overhead, the :class:`.StarkRamseyFast` experiment fixes the
+        To avoid this overhead, the :class:`.StarkRamseyXYAmpScan` experiment fixes the
         tone duration and scans only amplitude.
 
         Recall that an observed Ramsey oscillation in each quadrature may be represented by
@@ -596,11 +596,11 @@ class StarkRamseyFast(BaseExperiment):
         However, since :math:`f_S` is usually a higher order polynominal of :math:`\Omega`,
         one must manage to fit the y-data for trigonometric functions with
         the phase which non-linearly changes with the x-data.
-        The :class:`.StarkRamseyFast` experiment drastically reduces the number of
+        The :class:`.StarkRamseyXYAmpScan` experiment drastically reduces the number of
         circuits to run in return for the complexity of the fitting model.
 
     # section: analysis_ref
-        :py:class:`StarkRamseyFastAnalysis`
+        :py:class:`StarkRamseyXYAmpScanAnalysis`
 
     # section: see_also
         :class:`qiskit_experiments.library.characterization.ramsey_xy.StarkRamseyXY`
@@ -629,7 +629,7 @@ class StarkRamseyFast(BaseExperiment):
 
         super().__init__(
             physical_qubits=physical_qubits,
-            analysis=StarkRamseyFastAnalysis(),
+            analysis=StarkRamseyXYAmpScanAnalysis(),
             backend=backend,
         )
         self.set_experiment_options(**experiment_options)
