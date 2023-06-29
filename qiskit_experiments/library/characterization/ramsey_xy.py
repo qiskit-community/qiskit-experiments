@@ -547,13 +547,13 @@ class StarkRamseyXY(BaseExperiment):
 
 
 class StarkRamseyXYAmpScan(BaseExperiment):
-    r"""A fast Stark shift characterization against tone amplitude.
+    r"""A fast characterization of Stark frequency shift by varying Stark tone amplitude.
 
     # section: overview
 
-        This experiment only scans Stark tone amplitude at a fixed tone duration.
+        This experiment scans Stark tone amplitude at a fixed tone duration.
         The experimental circuits are identical to the :class:`.StarkRamseyXY` experiment
-        except for the scanned parameters.
+        except that the Stark pulse amplitude is the scanned parameter rather than the pulse width.
 
         .. parsed-literal::
 
@@ -573,12 +573,10 @@ class StarkRamseyXYAmpScan(BaseExperiment):
                 c: 1/═════════════════════════════════════════════════════════════════════════╩═
                                                                                               0
 
-        To characterize a qubit parameter in the vicinity of the qubit frequency,
-        you must know the amplitude of Stark tone to cause a particular Stark shift in advance,
-        otherwise you cannot directly specify the qubit frequency to probe the parameter.
-        On the one hand you can run :class:`.StarkRamseyXY` experiment at every amplitude
-        to characterize the frequency shift, but on the other hand such two dimensional scan of
-        the tone duration and amplitude may require massive amount of circuit execution.
+        The AC Stark effect can be used to shift the frequency of a qubit with a microwave drive.
+        To calibrate a specific frequency shift, the :class:`.StarkRamseyXY` experiment can be run
+        to scan the Stark pulse duration at every amplitude, but such a two dimensional scan of
+        the tone duration and amplitude may require many circuit executions.
         To avoid this overhead, the :class:`.StarkRamseyXYAmpScan` experiment fixes the
         tone duration and scans only amplitude.
 
@@ -589,15 +587,15 @@ class StarkRamseyXYAmpScan(BaseExperiment):
             {\cal E}_X(\Omega, t_S) = A e^{-t_S/\tau} \cos \left( 2\pi f_S(\Omega) t_S \right), \\
             {\cal E}_Y(\Omega, t_S) = A e^{-t_S/\tau} \sin \left( 2\pi f_S(\Omega) t_S \right),
 
-        where :math:`\delta f_S(\Omega)` denotes the amount of Stark shift
-        at a tone amplitude :math:`\Omega`, and :math:`t_S` is the duration to accumulate
-        the phase imparted by the Stark shift. At a fixed accumulation time,
+        where :math:`f_S(\Omega)` denotes the amount of Stark shift
+        at a constant tone amplitude :math:`\Omega`, and :math:`t_S` is the duration of the
+        applied tone. For a fixed tone duration,
         one can still observe the Ramsey oscillation by scanning the tone amplitude.
         However, since :math:`f_S` is usually a higher order polynominal of :math:`\Omega`,
         one must manage to fit the y-data for trigonometric functions with
-        the phase which non-linearly changes with the x-data.
-        The :class:`.StarkRamseyXYAmpScan` experiment drastically reduces the number of
-        circuits to run in return for the complexity of the fitting model.
+        phase which non-linearly changes with the x-data.
+        The :class:`.StarkRamseyXYAmpScan` experiment thus drastically reduces the number of
+        circuits to run in return for greater complexity in the fitting model.
 
     # section: analysis_ref
         :py:class:`StarkRamseyXYAmpScanAnalysis`
@@ -620,7 +618,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         """Create new experiment.
 
         Args:
-            physical_qubits: Index of physical qubit.
+            physical_qubits: Sequence with the index of the physical qubit.
             backend: Optional, the backend to run the experiment on.
             experiment_options: Experiment options. See the class documentation or
                 ``self._default_experiment_options`` for descriptions.
@@ -639,7 +637,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
-            stark_channel (PulseChannel): Pulse channel to apply Stark tones.
+            stark_channel (PulseChannel): Pulse channel on which  to apply Stark tones.
                 If not provided, the same channel with the qubit drive is used.
                 See :ref:`stark_channel_consideration` for details.
             stark_freq_offset (float): Offset of Stark tone frequency from the qubit frequency.

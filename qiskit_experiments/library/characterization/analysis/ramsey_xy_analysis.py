@@ -221,8 +221,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         By contrast, in this model, the phase is assumed to be a polynominal of the x-data,
         and techniques to compute a good initial guess for these polynominal coefficients
         are not trivial. For example, when the phase is a linear function of the x-data,
-        one may apply Fourier transform to the data to estimate the coefficient,
-        but this is not the case.
+        one may apply a Fourier transform to the data to estimate the coefficient,
+        but this technique can not be used for a higher order polynomial.
 
         This analysis assumes the following polynominal for the phase imparted by the Stark shift.
 
@@ -236,10 +236,10 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
             f_S(x) = c_1 x + c_2 x^2 + c_3 x^3 + f_\epsilon,
 
-        denotes the Stark shift. In the perturbation picture,
-        the Stark shift is a quadratic function of :math:`x`, but linear and cubic term,
-        and also offset are also empirically considered to account for the
-        unwanted effect, e.g. strong drive, collisions, TLS, and so forth,
+        denotes the Stark shift. For the lowest order perturbative expansion of a single driven qubit,
+        the Stark shift is a quadratic function of :math:`x`, but linear and cubic terms
+        and a constant offset are also considered to account for
+        other effects, e.g. strong drive, collisions, TLS, and so forth,
         and frequency mis-calibration, respectively.
 
     # section: fit_model
@@ -271,7 +271,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             \dot{F}_X = \frac{\partial}{\partial x} \bar{F}_X = dt \frac{d}{dx} f_S \bar{F}_Y, \\
             \dot{F}_Y = \frac{\partial}{\partial x} \bar{F}_Y = - dt \frac{d}{dx} f_S \bar{F}_X. \\
 
-        The root sum square of above quantities yields
+        The square root of the sum of the squares of the above quantities yields
 
         .. math ::
 
@@ -291,7 +291,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         defpar \rm offset:
             desc: Base line of all series.
-            init_guess: Roughly the average of the data.
+            init_guess: The average of the data.
             bounds: [-1, 1]
 
         defpar dt:

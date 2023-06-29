@@ -9,4 +9,4 @@ features:
     This is a variant of the :class:`.StarkRamseyXY` experiment to estimate
     the required tone amplitude to cause a particular Stark shift.
     This experiment scans tone amplitude while fixing the Stark tone length,
-    and the fit the result with the dedicated fitter :class:`.StarkRamseyXYAmpScanAnalysis`.
+    and fits the result with the dedicated fitter :class:`.StarkRamseyXYAmpScanAnalysis`.
