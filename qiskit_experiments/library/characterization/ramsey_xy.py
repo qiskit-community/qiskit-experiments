@@ -691,7 +691,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         else:
             params = np.asarray(opt.stark_amps, dtype=float)
 
-        return np.round(params, decimals=7)
+        return params
 
     def parameterized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
         """Create circuits with parameters for Ramsey XY experiment with Stark tone.
@@ -801,6 +801,9 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
         circs = []
         for amp in self.parameters():
+            # Add metadata "direction" to ease the filtering of the data
+            # by curve analysis. Indeed, the fit parameters are amplitude sign dependent.
+
             ramx_circ_assigned = ramx_circ.assign_parameters({param: amp}, inplace=False)
             ramx_circ_assigned.metadata["xval"] = amp
             ramx_circ_assigned.metadata["direction"] = "pos" if amp > 0 else "neg"

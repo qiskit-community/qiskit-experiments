@@ -211,17 +211,6 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
             stark_u = next(iter(circ.calibrations["StarkU"].values()))
             self.assertEqual(stark_u.duration % backend.target.granularity, 0)
 
-    def test_parameter_rounding(self):
-        """Test removing unnecessary parameter value precision."""
-        backend = FakeHanoiV2()
-        exp = StarkRamseyXYAmpScan(
-            physical_qubits=[0],
-            backend=backend,
-            stark_amps=[0.12345678910111213],
-        )
-        params = exp.parameters()
-        self.assertEqual(params[0], 0.1234568)
-
     @named_data(
         ["ideal_quadratic", 0.5, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.5],
         ["with_all_terms", 0.5, 15e6, 200e6, -100e6, 15e6, -200e6, -100e6, 300e3, 0.5],
