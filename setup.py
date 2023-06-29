@@ -36,7 +36,7 @@ setup(
     description="Software for developing quantum computing programs",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/Qiskit/qiskit-experiments",
+    url="https://github.com/Qiskit-Extensions/qiskit-experiments",
     author="Qiskit Development Team",
     author_email="hello@qiskit.org",
     license="Apache 2.0",
@@ -61,9 +61,9 @@ setup(
     include_package_data=True,
     python_requires=">=3.8",
     project_urls={
-        "Bug Tracker": "https://github.com/Qiskit/qiskit-experiments/issues",
+        "Bug Tracker": "https://github.com/Qiskit-Extensions/qiskit-experiments/issues",
         "Documentation": "https://qiskit.org/ecosystem/experiments",
-        "Source Code": "https://github.com/Qiskit/qiskit-experiments",
+        "Source Code": "https://github.com/Qiskit-Extensions/qiskit-experiments",
     },
     zip_safe=False,
 )

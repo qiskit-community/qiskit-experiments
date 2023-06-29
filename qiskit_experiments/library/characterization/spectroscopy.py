@@ -24,7 +24,6 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseAnalysis, BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Spectroscopy(BaseExperiment, ABC):
@@ -62,7 +61,6 @@ class Spectroscopy(BaseExperiment, ABC):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

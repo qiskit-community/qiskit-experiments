@@ -142,6 +142,11 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
     You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
     <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
 
+Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
+
+When working with composite experiments, setting ``auto_save`` will propagate this
+setting to the child experiments.
+
 Deleting an experiment
 ~~~~~~~~~~~~~~~~~~~~~~
 

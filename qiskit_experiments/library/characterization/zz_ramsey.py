@@ -21,7 +21,6 @@ from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter, ParameterExpression
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 
@@ -127,7 +126,6 @@ class ZZRamsey(BaseExperiment):
         :class:`ZZRamseyAnalysis`
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Tuple[int, int],
