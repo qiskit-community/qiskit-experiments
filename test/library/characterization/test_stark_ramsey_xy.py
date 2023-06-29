@@ -238,7 +238,7 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         shots = 1000
 
         xvals = np.linspace(-1.0, 1.0, 101)
-        dt = 2 * np.pi * 50e-9
+        const_r = 2 * np.pi * 50e-9
         exp_data = ExperimentData()
         exp_data.metadata.update({"stark_length": 50e-9})
 
@@ -252,14 +252,14 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
                 direction = "neg"
 
             # Add some sampling error
-            ramx_count = rng.binomial(shots, amp * np.cos(dt * fs) + off)
+            ramx_count = rng.binomial(shots, amp * np.cos(const_r * fs) + off)
             exp_data.add_data(
                 {
                     "counts": {"0": shots - ramx_count, "1": ramx_count},
                     "metadata": {"xval": x, "series": "X", "direction": direction},
                 }
             )
-            ramy_count = rng.binomial(shots, amp * np.sin(dt * fs) + off)
+            ramy_count = rng.binomial(shots, amp * np.sin(const_r * fs) + off)
             exp_data.add_data(
                 {
                     "counts": {"0": shots - ramy_count, "1": ramy_count},

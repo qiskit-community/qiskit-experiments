@@ -234,7 +234,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            f_S(x) = c_1 x + c_2 x^2 + c_3 x^3 + f_\epsilon,
+            f_S(x) = c_1 x + c_2 x^2 + c_3 x^3 + f_{\rm err},
 
         denotes the Stark shift. For the lowest order perturbative expansion of a single driven qubit,
         the Stark shift is a quadratic function of :math:`x`, but linear and cubic terms
@@ -246,16 +246,16 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            F_{X+} = \text{amp} \cdot \cos \left( dt f_S^+(x) \right) + \text{offset}, \\
-            F_{Y+} = \text{amp} \cdot \sin \left( dt f_S^+(x) \right) + \text{offset}, \\
-            F_{X-} = \text{amp} \cdot \cos \left( dt f_S^-(x) \right) + \text{offset}, \\
-            F_{Y-} = \text{amp} \cdot \sin \left( dt f_S^-(x) \right) + \text{offset},
+            F_{X+} = \text{amp} \cdot \cos \left( r f_S^+(x) \right) + \text{offset}, \\
+            F_{Y+} = \text{amp} \cdot \sin \left( r f_S^+(x) \right) + \text{offset}, \\
+            F_{X-} = \text{amp} \cdot \cos \left( r f_S^-(x) \right) + \text{offset}, \\
+            F_{Y-} = \text{amp} \cdot \sin \left( r f_S^-(x) \right) + \text{offset},
 
-        where
+        where we put a constant :math:`r = 2 \pi t_S` and
 
         .. math ::
 
-            f_S^\nu(x) = c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_\epsilon.
+            f_S^\nu(x) = c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_{\rm err}.
 
         The Stark shift is asymmetric with respect to :math:`x=0`, because of the
         anti-crossings of higher energy levels. In a typical transmon qubit,
@@ -264,21 +264,31 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         for positive (:math:`x > 0`) and negative (:math:`x < 0`) shift domains.
 
         To obtain the initial guess, the following calculation is employed in this analysis.
-        First, oscillations in each quadrature are normalized and differentiated.
+        First, oscillations in each quadrature are normalized and the offset is subtracted.
+        The amplitude and offset can be accurately estimated from the experiment data
+        when the oscillation involves multiple cycles.
 
         .. math ::
 
-            \dot{F}_X = \frac{\partial}{\partial x} \bar{F}_X = dt \frac{d}{dx} f_S \bar{F}_Y, \\
-            \dot{F}_Y = \frac{\partial}{\partial x} \bar{F}_Y = - dt \frac{d}{dx} f_S \bar{F}_X. \\
+            {\cal F}_{X} = \cos \left( r f_S^+(x) \right), \\
+            {\cal F}_{Y} = \sin \left( r f_S^+(x) \right).
+
+        Next, these normalized oscillations are differentiated
+
+        .. math ::
+
+            \dot{{\cal F}}_X = r \frac{d}{dx} f_S \bar{{\cal F}}_Y, \\
+            \dot{{\cal F}}_Y = - r \frac{d}{dx} f_S \bar{{\cal F}}_X. \\
 
         The square root of the sum of the squares of the above quantities yields
 
         .. math ::
 
-            \sqrt{\dot{F}_X + \dot{F}_Y} = dt \frac{d}{dx} f_S = dt (c_1 + 2 c_2 x + 3 c_3 x^2).
+            \sqrt{\dot{{\cal F}}_X^2 + \dot{{\cal F}}_Y^2}
+                = r \frac{d}{dx} f_S = r (c_1 + 2 c_2 x + 3 c_3 x^2).
 
-        By using this synthesized data, one can estimate the initial guess of the
-        polynomial coefficients by quadratic regression.
+        By computing this synthesized data on the left hand side, one can estimate
+        the initial guess of the polynomial coefficients by quadratic regression.
         This fit protocol is independently conducted for the experiment data on the
         positive and negative shift domain.
 
@@ -294,7 +304,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             init_guess: The average of the data.
             bounds: [-1, 1]
 
-        defpar dt:
+        defpar r:
             desc: Fixed parameter of :math:`2 \pi t_S`, where :math:`t_S` is
                 the ``stark_length`` experiment option.
             init_guess: Automatically set from metadata when this analysis is run.
@@ -330,7 +340,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             init_guess: See the fit model description.
             bounds: None
 
-        defpar f_\epsilon:
+        defpar f_{\rm err}:
             desc: Constant phase accumulation which is independent of the Stark tone amplitude.
             init_guess: 0
             bounds: None
@@ -345,17 +355,17 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         models = []
         for direction in ("pos", "neg"):
-            # Ramsey phase := 2π Δf(x) Δt; Δf(x) = c1 x + c2 x^2 + c3 x^3 + f_err
-            # dt := 2π Δt (const.)
+            # Ramsey phase := 2π ts Δf(x); Δf(x) = c1 x + c2 x^2 + c3 x^3 + f_err
+            # r := 2π ts (const.)
             fs = f"(c1_{direction} * x + c2_{direction} * x**2 + c3_{direction} * x**3 + f_err)"
             models.extend(
                 [
                     lmfit.models.ExpressionModel(
-                        expr=f"amp * cos(dt * {fs}) + offset",
+                        expr=f"amp * cos(r * {fs}) + offset",
                         name=f"X{direction}",
                     ),
                     lmfit.models.ExpressionModel(
-                        expr=f"amp * sin(dt * {fs}) + offset",
+                        expr=f"amp * sin(r * {fs}) + offset",
                         name=f"Y{direction}",
                     ),
                 ]
@@ -435,7 +445,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             amps = np.concatenate([amps, np.sqrt(ram_x_off**2 + ram_y_off**2)])
         user_opt.p0.set_if_empty(amp=np.median(amps))
         est_a = user_opt.p0["amp"]
-        d_const = user_opt.p0["dt"]
+        r_const = user_opt.p0["r"]
 
         # Compute polynominal coefficients
         guesses = []
@@ -464,9 +474,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 coeffs = np.linalg.lstsq(vmat_xpoly, sign * phase_poly, rcond=-1)[0]
 
                 poly_guess = {
-                    f"c1_{direction}": coeffs[2] / 1 / d_const,
-                    f"c2_{direction}": coeffs[1] / 2 / d_const,
-                    f"c3_{direction}": coeffs[0] / 3 / d_const,
+                    f"c1_{direction}": coeffs[2] / 1 / r_const,
+                    f"c2_{direction}": coeffs[1] / 2 / r_const,
+                    f"c3_{direction}": coeffs[0] / 3 / r_const,
                 }
                 tmp.append(poly_guess)
             guesses.append(tmp)
@@ -487,5 +497,5 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # Set scaling factor to convert phase to frequency
         fixed_params = self.options.fixed_parameters.copy()
-        fixed_params["dt"] = 2 * np.pi * experiment_data.metadata["stark_length"]
+        fixed_params["r"] = 2 * np.pi * experiment_data.metadata["stark_length"]
         self.set_options(fixed_parameters=fixed_params)
