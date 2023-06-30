@@ -295,56 +295,68 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         defpar \rm amp:
             desc: Amplitude of both series.
-            init_guess: Median of root sum square of Ramsey X and Y oscillation.
+                (LMFIT name: ``amp``).
+            init_guess: Median of root sum square of Ramsey X and Y oscillation
             bounds: [0, 1]
 
         defpar \rm offset:
             desc: Base line of all series.
+                (LMFIT name: ``offset``).
             init_guess: The average of the data.
             bounds: [-1, 1]
 
         defpar r:
             desc: Fixed parameter of :math:`2 \pi t_S`, where :math:`t_S` is
-                the ``stark_length`` experiment option.
+                the ``stark_length`` experiment option
+                (LMFIT name: ``r``).
             init_guess: Automatically set from metadata when this analysis is run.
             bounds: None
 
         defpar c_1^+:
-            desc: The linear term coefficient of the positive Stark shift.
+            desc: The linear term coefficient of the positive Stark shift
+                (LMFIT name: ``c1_pos``).
             init_guess: See the fit model description.
             bounds: None
 
         defpar c_2^+:
             desc: The quadratic term coefficient of the positive Stark shift.
-            init_guess: See the fit model description. This parameter must be positive
-            because Stark amplitude is chosen to induce blue shift
-            when its sign is positive. Note that the quadratic term is the primary term.
+                This parameter must be positive because Stark amplitude is chosen to
+                induce blue shift when its sign is positive.
+                Note that the quadratic term is the primary term
+                (LMFIT name: ``c2_pos``).
+            init_guess: See the fit model description.
             bounds: [0, inf]
 
         defpar c_3^+:
-            desc: The cubic term coefficient of the positive Stark shift.
+            desc: The cubic term coefficient of the positive Stark shift
+                (LMFIT name: ``c3_pos``).
             init_guess: See the fit model description.
             bounds: None
 
         defpar c_1^-:
             desc: The linear term coefficient of the negative Stark shift.
+                (LMFIT name: ``c1_neg``).
             init_guess: See the fit model description.
             bounds: None
 
         defpar c_2^-:
             desc: The quadratic term coefficient of the negative Stark shift.
-            init_guess: See the fit model description. This parameter must be negative
-            because Stark amplitude is chosen to induce red shift
-            when its sign is negative. Note that the quadratic term is the primary term.
+                This parameter must be negative because Stark amplitude is chosen to
+                induce red shift when its sign is negative.
+                Note that the quadratic term is the primary term
+                (LMFIT name: ``c2_neg``).
+            init_guess: See the fit model description.
             bounds: [-inf, 0]
 
         defpar c_3^-:
-            desc: The cubic term coefficient of the negative Stark shift.
+            desc: The cubic term coefficient of the negative Stark shift
+                (LMFIT name: ``c3_neg``).
             init_guess: See the fit model description.
             bounds: None
 
         defpar f_{\rm err}:
             desc: Constant phase accumulation which is independent of the Stark tone amplitude.
+                (LMFIT name: ``f_err``).
             init_guess: 0
             bounds: None
 
