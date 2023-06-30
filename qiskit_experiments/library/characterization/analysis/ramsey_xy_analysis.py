@@ -245,12 +245,12 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            F_{X+} = \text{amp} \cdot \cos \left( r f_S^+(x) \right) + \text{offset}, \\
-            F_{Y+} = \text{amp} \cdot \sin \left( r f_S^+(x) \right) + \text{offset}, \\
-            F_{X-} = \text{amp} \cdot \cos \left( r f_S^-(x) \right) + \text{offset}, \\
-            F_{Y-} = \text{amp} \cdot \sin \left( r f_S^-(x) \right) + \text{offset},
+            F_{X+} = \text{amp} \cdot \cos \left( 2 \pi t_S f_S^+(x) \right) + \text{offset}, \\
+            F_{Y+} = \text{amp} \cdot \sin \left( 2 \pi t_S f_S^+(x) \right) + \text{offset}, \\
+            F_{X-} = \text{amp} \cdot \cos \left( 2 \pi t_S f_S^-(x) \right) + \text{offset}, \\
+            F_{Y-} = \text{amp} \cdot \sin \left( 2 \pi t_S f_S^-(x) \right) + \text{offset},
 
-        where we put a constant :math:`r = 2 \pi t_S` and
+        where
 
         .. math ::
 
@@ -269,22 +269,22 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math ::
 
-            {\cal F}_{X} = \cos \left( r f_S(x) \right), \\
-            {\cal F}_{Y} = \sin \left( r f_S(x) \right).
+            {\cal F}_{X} = \cos \left( 2 \pi t_S f_S(x) \right), \\
+            {\cal F}_{Y} = \sin \left( 2 \pi t_S f_S(x) \right).
 
         Next, these normalized oscillations are differentiated
 
         .. math ::
 
-            \dot{{\cal F}}_X = r \frac{d f_S}{dx} {\cal F}_Y, \\
-            \dot{{\cal F}}_Y = - r \frac{d f_S}{dx} {\cal F}_X. \\
+            \dot{{\cal F}}_X = 2 \pi t_S \frac{d f_S}{dx} {\cal F}_Y, \\
+            \dot{{\cal F}}_Y = - 2 \pi t_S \frac{d f_S}{dx} {\cal F}_X. \\
 
         The square root of the sum of the squares of the above quantities yields
 
         .. math ::
 
             \sqrt{\dot{{\cal F}}_X^2 + \dot{{\cal F}}_Y^2}
-                = r \frac{d}{dx} f_S = r (c_1 + 2 c_2 x + 3 c_3 x^2).
+                = 2 \pi t_S \frac{d}{dx} f_S = 2 \pi t_S (c_1 + 2 c_2 x + 3 c_3 x^2).
 
         By computing this synthesized data on the left hand side, one can estimate
         the initial guess of the polynomial coefficients by quadratic regression.
@@ -305,10 +305,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             init_guess: The average of the data.
             bounds: [-1, 1]
 
-        defpar r:
-            desc: Fixed parameter of :math:`2 \pi t_S`, where :math:`t_S` is
-                the ``stark_length`` experiment option
-                (LMFIT name: ``r``).
+        defpar t_S:
+            desc: Fixed parameter from the ``stark_length`` experiment option
+                (LMFIT name: ``ts``).
             init_guess: Automatically set from metadata when this analysis is run.
             bounds: None
 
@@ -371,16 +370,15 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         models = []
         for direction in ("pos", "neg"):
             # Ramsey phase := 2π ts Δf(x); Δf(x) = c1 x + c2 x^2 + c3 x^3 + f_err
-            # r := 2π ts (const.)
             fs = f"(c1_{direction} * x + c2_{direction} * x**2 + c3_{direction} * x**3 + f_err)"
             models.extend(
                 [
                     lmfit.models.ExpressionModel(
-                        expr=f"amp * cos(r * {fs}) + offset",
+                        expr=f"amp * cos(2 * pi * ts * {fs}) + offset",
                         name=f"X{direction}",
                     ),
                     lmfit.models.ExpressionModel(
-                        expr=f"amp * sin(r * {fs}) + offset",
+                        expr=f"amp * sin(2 * pi * ts * {fs}) + offset",
                         name=f"Y{direction}",
                     ),
                 ]
@@ -462,7 +460,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             amps = np.concatenate([amps, np.sqrt(ram_x_off**2 + ram_y_off**2)])
         user_opt.p0.set_if_empty(amp=np.median(amps))
         est_a = user_opt.p0["amp"]
-        r_const = user_opt.p0["r"]
+        const = 2 * np.pi * user_opt.p0["ts"]
 
         # Compute polynominal coefficients
         for direction in ("pos", "neg"):
@@ -493,9 +491,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:], np.ones(xvals.size - 1))).T
             coeffs = np.linalg.lstsq(vmat_xpoly, phase_poly, rcond=-1)[0]
             poly_guess = {
-                f"c1_{direction}": coeffs[2] / 1 / r_const,
-                f"c2_{direction}": coeffs[1] / 2 / r_const,
-                f"c3_{direction}": coeffs[0] / 3 / r_const,
+                f"c1_{direction}": coeffs[2] / 1 / const,
+                f"c2_{direction}": coeffs[1] / 2 / const,
+                f"c3_{direction}": coeffs[0] / 3 / const,
             }
             user_opt.p0.set_if_empty(**poly_guess)
 
@@ -509,5 +507,5 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # Set scaling factor to convert phase to frequency
         fixed_params = self.options.fixed_parameters.copy()
-        fixed_params["r"] = 2 * np.pi * experiment_data.metadata["stark_length"]
+        fixed_params["ts"] = experiment_data.metadata["stark_length"]
         self.set_options(fixed_parameters=fixed_params)
