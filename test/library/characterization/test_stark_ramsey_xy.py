@@ -217,8 +217,6 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         ["with_spam_like", 0.3, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.4],
         ["asymmetric_shift", 0.4, -20e6, 200e6, -100e6, -15e6, -180e6, -90e6, 200e3, 0.5],
         ["large_cubic_term", 0.5, 10e6, 15e6, 30e6, 5e6, -10e6, 40e6, 0.0, 0.5],
-        ["positive_c2n", 0.5, 0.0, 50e6, 0.0, 0.0, 50e6, 0.0, 0.0, 0.5],
-        ["negative_c2p", 0.5, 0.0, -50e6, 0.0, 0.0, -50e6, 0.0, 0.0, 0.5],
     )
     @unpack
     def test_ramsey_fast_analysis(self, amp, c1p, c2p, c3p, c1n, c2n, c3n, ferr, off):

@@ -13,7 +13,6 @@
 """The analysis class for the Ramsey XY experiment."""
 
 from typing import List, Union
-from itertools import product
 
 import lmfit
 import numpy as np
@@ -317,8 +316,10 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         defpar c_2^+:
             desc: The quadratic term coefficient of the positive Stark shift.
-            init_guess: See the fit model description.
-            bounds: None
+            init_guess: See the fit model description. This parameter must be positive
+            because Stark amplitude is chosen to induce blue shift
+            when its sign is positive. Note that the quadratic term is the primary term.
+            bounds: [0, inf]
 
         defpar c_3^+:
             desc: The cubic term coefficient of the positive Stark shift.
@@ -332,8 +333,10 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         defpar c_2^-:
             desc: The quadratic term coefficient of the negative Stark shift.
-            init_guess: See the fit model description.
-            bounds: None
+            init_guess: See the fit model description. This parameter must be negative
+            because Stark amplitude is chosen to induce red shift
+            when its sign is negative. Note that the quadratic term is the primary term.
+            bounds: [-inf, 0]
 
         defpar c_3^-:
             desc: The cubic term coefficient of the negative Stark shift.
@@ -434,6 +437,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         user_opt.bounds.set_if_empty(
             offset=(-1, 1),
             amp=(0, 1),
+            c2_pos=(0, np.inf),
+            c2_neg=(-np.inf, 0),
         )
         est_offs = user_opt.p0["offset"]
 
@@ -448,10 +453,16 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         r_const = user_opt.p0["r"]
 
         # Compute polynominal coefficients
-        guesses = []
         for direction in ("pos", "neg"):
             ram_x_data = curve_data.get_subset_of(f"X{direction}")
             ram_y_data = curve_data.get_subset_of(f"Y{direction}")
+
+            if not np.array_equal(ram_x_data.x, ram_y_data.x):
+                raise ValueError(
+                    f"The x values for {direction} direction are different in the scan "
+                    "in X and Y quadrature. The scan must be identical in both quadrature "
+                    "to compute initial guess."
+                )
             xvals = ram_x_data.x
 
             # Get normalized sinusoidals
@@ -465,29 +476,18 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             # Eliminate sinusoidal
             phase_poly = np.sqrt(dx**2 + dy**2)
 
-            tmp = []
-            # Consider both signs to expand square root.
-            for sign in (1, -1):
-                # Do polyfit up to 2rd order.
-                # This must correspond to the 3rd order in the original function.
-                vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:], np.ones(xvals.size - 1))).T
-                coeffs = np.linalg.lstsq(vmat_xpoly, sign * phase_poly, rcond=-1)[0]
+            # Do polyfit up to 2rd order.
+            # This must correspond to the 3rd order in the original function.
+            vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:], np.ones(xvals.size - 1))).T
+            coeffs = np.linalg.lstsq(vmat_xpoly, phase_poly, rcond=-1)[0]
+            poly_guess = {
+                f"c1_{direction}": coeffs[2] / 1 / r_const,
+                f"c2_{direction}": coeffs[1] / 2 / r_const,
+                f"c3_{direction}": coeffs[0] / 3 / r_const,
+            }
+            user_opt.p0.set_if_empty(**poly_guess)
 
-                poly_guess = {
-                    f"c1_{direction}": coeffs[2] / 1 / r_const,
-                    f"c2_{direction}": coeffs[1] / 2 / r_const,
-                    f"c3_{direction}": coeffs[0] / 3 / r_const,
-                }
-                tmp.append(poly_guess)
-            guesses.append(tmp)
-
-        fit_opts = []
-        for guess_pos, guess_neg in product(*guesses):
-            new_opt = user_opt.copy()
-            new_opt.p0.set_if_empty(**guess_pos, **guess_neg)
-            fit_opts.append(new_opt)
-
-        return fit_opts
+        return user_opt
 
     def _initialize(
         self,
