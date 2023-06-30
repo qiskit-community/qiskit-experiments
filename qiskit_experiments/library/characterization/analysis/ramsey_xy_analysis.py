@@ -296,7 +296,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         defpar \rm amp:
             desc: Amplitude of both series.
                 (LMFIT name: ``amp``).
-            init_guess: Median of root sum square of Ramsey X and Y oscillation
+            init_guess: Median of root sum square of Ramsey X and Y oscillation.
             bounds: [0, 1]
 
         defpar \rm offset:
