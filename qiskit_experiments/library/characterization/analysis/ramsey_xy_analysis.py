@@ -269,15 +269,15 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math ::
 
-            {\cal F}_{X} = \cos \left( r f_S^+(x) \right), \\
-            {\cal F}_{Y} = \sin \left( r f_S^+(x) \right).
+            {\cal F}_{X} = \cos \left( r f_S(x) \right), \\
+            {\cal F}_{Y} = \sin \left( r f_S(x) \right).
 
         Next, these normalized oscillations are differentiated
 
         .. math ::
 
-            \dot{{\cal F}}_X = r \frac{d}{dx} f_S \bar{{\cal F}}_Y, \\
-            \dot{{\cal F}}_Y = - r \frac{d}{dx} f_S \bar{{\cal F}}_X. \\
+            \dot{{\cal F}}_X = r \frac{d f_S}{dx} {\cal F}_Y, \\
+            \dot{{\cal F}}_Y = - r \frac{d f_S}{dx} {\cal F}_X. \\
 
         The square root of the sum of the squares of the above quantities yields
 
