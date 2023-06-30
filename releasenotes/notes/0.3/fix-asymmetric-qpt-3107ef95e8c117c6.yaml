@@ -6,12 +6,12 @@ fixes:
     prepared and measured, and the preparations and measurements were applied
     to different subsets of qubits.
 
-    See `Issue 758 <https://github.com/Qiskit/qiskit-experiments/issues/758>`_
+    See `Issue 758 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/758>`_
     for details.
   - |
     Fixed a bug with the :class:`.ProcessTomographyAnalysis` where analysis
     would raise an exception if the number of prepared and measurement qubits
     are not equal.
 
-    See `Issue 757 <https://github.com/Qiskit/qiskit-experiments/issues/757>`_
+    See `Issue 757 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/757>`_
     for details.

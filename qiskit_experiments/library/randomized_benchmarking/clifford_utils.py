@@ -30,8 +30,7 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
-from qiskit_experiments.warnings import deprecated_function
-
+from qiskit.utils.deprecation import deprecate_func
 
 _DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
@@ -203,7 +202,11 @@ class CliffordUtils:
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
     @classmethod
-    @deprecated_function("0.6")
+    @deprecate_func(
+        since="0.5",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
     def random_cliffords(
         cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
@@ -223,7 +226,11 @@ class CliffordUtils:
         return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
 
     @classmethod
-    @deprecated_function("0.6")
+    @deprecate_func(
+        since="0.5",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
     def random_clifford_circuits(
         cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
@@ -557,7 +564,6 @@ _CLIFFORD_LAYER = (
     _create_cliff_2q_layer_1(),
     _create_cliff_2q_layer_2(),
 )
-_NUM_LAYER_0 = 36
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
 

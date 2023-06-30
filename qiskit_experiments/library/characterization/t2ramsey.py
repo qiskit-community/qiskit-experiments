@@ -23,7 +23,6 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Ramsey(BaseExperiment):
@@ -79,7 +78,6 @@ class T2Ramsey(BaseExperiment):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

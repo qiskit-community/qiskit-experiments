@@ -18,7 +18,6 @@ import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.warnings import deprecated_class
 
 
 class OscillationAnalysis(curve.CurveAnalysis):
@@ -278,10 +277,3 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
-
-
-@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
-class DumpedOscillationAnalysis:
-    """Deprecated."""
-
-    pass

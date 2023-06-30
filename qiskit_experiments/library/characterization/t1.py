@@ -19,7 +19,6 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
-from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
@@ -53,7 +52,6 @@ class T1(BaseExperiment):
         options.delays = None
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

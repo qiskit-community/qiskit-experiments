@@ -17,6 +17,7 @@ import uuid
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+from unittest import mock
 from ddt import ddt, data
 
 from qiskit import QuantumCircuit, Aer
@@ -364,6 +365,36 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(sorted(expdata.tags), ["c", "d"])
         self.assertEqual(sorted(data1.tags), ["c", "d"])
         self.assertEqual(sorted(data2.tags), ["c", "d"])
+
+    def test_composite_figures(self):
+        """
+        Test adding figures from composite experiments
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        exp1.analysis.set_options(add_figures=True)
+        exp2.analysis.set_options(add_figures=True)
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
+        expdata = par_exp.run(FakeBackend())
+        self.assertExperimentDone(expdata)
+        expdata.service = IBMExperimentService(local=True, local_save=False)
+        expdata.auto_save = True
+        par_exp.analysis.run(expdata)
+        self.assertExperimentDone(expdata)
+
+    def test_composite_auto_save(self):
+        """
+        Test setting autosave when using composite experiments
+        """
+        service = mock.create_autospec(IBMExperimentService, instance=True)
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
+        expdata = par_exp.run(FakeBackend())
+        expdata.service = service
+        self.assertExperimentDone(expdata)
+        expdata.auto_save = True
+        self.assertEqual(service.create_or_update_experiment.call_count, 3)
 
     def test_composite_subexp_data(self):
         """
@@ -736,12 +767,14 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([1])
         exp2.analysis = FakeAnalysis()
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        exp_data = batch_exp.run(backend=self.backend)
+        self.assertExperimentDone(exp_data)
         # when flattening, individual analysis result share exp id
         for result in exp_data.analysis_results():
             self.assertEqual(result.experiment_id, exp_data.experiment_id)
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        exp_data = batch_exp.run(backend=self.backend)
+        self.assertExperimentDone(exp_data)
         self.assertEqual(exp_data.child_data(0).experiment_type, exp1.experiment_type)
         self.assertEqual(exp_data.child_data(1).experiment_type, exp2.experiment_type)
 
@@ -829,7 +862,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
 
         expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
-        expdata.block_for_results()
+        self.assertExperimentDone(expdata)
 
         self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
         self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)

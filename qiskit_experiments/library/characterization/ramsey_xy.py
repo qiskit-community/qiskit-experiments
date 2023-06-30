@@ -27,7 +27,6 @@ from qiskit_experiments.library.characterization.analysis import (
     RamseyXYAnalysis,
     StarkRamseyXYAmpScanAnalysis,
 )
-from qiskit_experiments.warnings import qubit_deprecate
 
 if _optional.HAS_SYMENGINE:
     import symengine as sym
@@ -109,7 +108,6 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

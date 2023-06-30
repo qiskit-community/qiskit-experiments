@@ -24,7 +24,6 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.warnings import qubit_deprecate
 
 AnglesSchedules = namedtuple(
     "AnglesSchedules", ["target_angle", "parameter", "schedule", "previous_value"]
@@ -34,7 +33,6 @@ AnglesSchedules = namedtuple(
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     """A calibration version of the Rabi experiment."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -193,7 +191,6 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -227,7 +224,6 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
 
     __outcome__ = "rabi_rate_12"
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

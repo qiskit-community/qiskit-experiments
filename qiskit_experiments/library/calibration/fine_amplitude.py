@@ -25,7 +25,6 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
@@ -39,7 +38,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
     """
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -160,7 +158,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -209,7 +206,6 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
