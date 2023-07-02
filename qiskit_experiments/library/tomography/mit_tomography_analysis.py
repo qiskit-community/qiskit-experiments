@@ -92,36 +92,36 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
     def _run_analysis(self, experiment_data):
         # Return list of experiment data containers for each component experiment
         # containing the marginalized data from the composite experiment
-        results, figures = [], []
-
         roerror_analysis, tomo_analysis = self._analyses
-        roerror_data, tomo_data = list(self._initialize_component_experiment_data(experiment_data))
+        roerror_data, tomo_data = self._component_experiment_data(experiment_data)
 
         # Run readout error analysis
-        roerror_results, roerror_figures = roerror_analysis._run_analysis(roerror_data)
+        roerror_analysis.run(roerror_data, replace_results=True).block_for_results()
 
         # Construct noisy measurement basis
-        mitigator = roerror_results[0].value
+        mitigator = roerror_data.analysis_results(0).value
+
+        # Construct noisy measurement basis
         measurement_basis = PauliMeasurementBasis(mitigator=mitigator)
         tomo_analysis.set_options(measurement_basis=measurement_basis)
 
         # Run mitigated tomography analysis
-        tomo_results, tomo_figures = tomo_analysis._run_analysis(tomo_data)
-        for data in tomo_results:
-            data.extra["mitigated"] = True
+        tomo_analysis.run(tomo_data, replace_results=True).block_for_results()
+        for res in tomo_data.analysis_results(block=False):
+            res.extra["mitigated"] = True
 
-        # Tomography results are ordered first
-        results.extend(tomo_results + roerror_results)
-        figures.extend(tomo_figures + roerror_figures)
+        # Combine results so that tomography results are ordered first
+        combined_data = [tomo_data, roerror_data]
 
         # Run unmitigated tomography analysis
         if self.options.unmitigated_fit:
-            nomit_data = tomo_data.copy()
             tomo_analysis.set_options(measurement_basis=PauliMeasurementBasis())
-            nomit_results, nomit_figures = tomo_analysis._run_analysis(nomit_data)
-            for data in nomit_results:
-                data.extra["mitigated"] = False
-            results.extend(nomit_results)
-            figures.extend(nomit_figures)
+            nomit_data = tomo_analysis.run(tomo_data, replace_results=False).block_for_results()
+            for res in nomit_data.analysis_results(block=False):
+                res.extra["mitigated"] = False
+            combined_data.append(nomit_data)
 
-        return results, figures
+        if self._flatten_results:
+            return self._combine_results(combined_data)
+
+        return [], []

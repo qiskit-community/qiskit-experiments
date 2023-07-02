@@ -1376,6 +1376,7 @@ class ExperimentData:
                 New dataframe columns are created in the analysis result table with added keys.
         """
         if results is not None:
+            # TODO deprecate this path
             if not isinstance(results, list):
                 results = [results]
             for result in results:

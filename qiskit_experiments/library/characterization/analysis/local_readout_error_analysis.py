@@ -78,7 +78,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
             )
             figures = [figure]
         else:
-            figures = []
+            figures = None
         return analysis_results, figures
 
     def _generate_matrices(self, data) -> List[np.array]:
