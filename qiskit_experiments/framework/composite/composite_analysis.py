@@ -140,8 +140,11 @@ class CompositeAnalysis(BaseAnalysis):
         # Optionally flatten results from all component experiments
         # for adding to the main experiment data container
         if self._flatten_results:
-            return self._combine_results(component_expdata)
-
+            analysis_results, figures = self._combine_results(component_expdata)
+            for res in analysis_results:
+                # Override experiment  ID because entries are flattened
+                res.experiment_id = experiment_data.experiment_id
+            return analysis_results, figures
         return [], []
 
     def _component_experiment_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
@@ -340,7 +343,8 @@ class CompositeAnalysis(BaseAnalysis):
                 analysis._set_flatten_results()
 
     def _combine_results(
-        self, component_experiment_data: List[ExperimentData]
+        self,
+        component_experiment_data: List[ExperimentData],
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Combine analysis results from component experiment data.
 
@@ -368,24 +372,9 @@ class CompositeAnalysis(BaseAnalysis):
             # we should implement new CompositeAnalysis class with much more efficient
             # internal logic. Note that the child data structure is no longer necessary
             # because dataframe offers more efficient data filtering mechanisms.
-            analysis_table = sub_expdata.analysis_results(verbosity=3, dataframe=True)
+            analysis_table = sub_expdata.analysis_results(columns="all", dataframe=True)
             for _, series in analysis_table.iterrows():
-                data_dict = series.to_dict()
-                primary_info = {
-                    "name": data_dict.pop("name"),
-                    "value": data_dict.pop("value"),
-                    "quality": data_dict.pop("quality"),
-                    "device_components": data_dict.pop("components"),
-                }
-                chisq = data_dict.pop("chisq", np.nan)
-                if chisq:
-                    primary_info["chisq"] = chisq
-                data_dict["experiment"] = sub_expdata.experiment_type
-                if "experiment_id" in data_dict:
-                    # Use experiment ID of parent experiment data.
-                    # Sub experiment data is merged and discarded.
-                    del data_dict["experiment_id"]
-                analysis_result = AnalysisResultData(**primary_info, extra=data_dict)
-                analysis_results.append(analysis_result)
+                data = AnalysisResultData.from_table_element(**series.to_dict())
+                analysis_results.append(data)
 
         return analysis_results, figures
