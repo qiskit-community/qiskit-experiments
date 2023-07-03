@@ -154,7 +154,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             durations=[1256],
         )
 
-
         # Not raise an error
         expr.circuits()
 
