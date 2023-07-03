@@ -376,16 +376,57 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
             return container[self._default_columns()]
         return container
 
+    def drop_entry(
+        self,
+        index: str,
+    ):
+        """Drop entry from the dataframe.
+
+        Args:
+            index: Name of entry to drop.
+
+        Raises:
+            ValueError: When index is not in this table.
+        """
+        with self._lock:
+            if index not in self._container.index:
+                raise ValueError(f"Table index {index} doesn't exist in this table.")
+            self._container.drop(index, inplace=True)
+
+    def get_entry(
+        self,
+        index: str,
+    ) -> pd.Series:
+        """Get entry from the dataframe.
+
+        Args:
+            index: Name of entry to acquire.
+
+        Returns:
+            Pandas Series of acquired entry. This doesn't mutate the table.
+
+        Raises:
+            ValueError: When index is not in this table.
+        """
+        with self._lock:
+            if index not in self._container.index:
+                raise ValueError(f"Table index {index} doesn't exist in this table.")
+
+            return self._container.loc[index]
+
     def add_entry(
         self,
         index: str,
         **kwargs,
-    ):
+    ) -> pd.Series:
         """Add new entry to the dataframe.
 
         Args:
             index: Name of this entry. Must be unique in this table.
             kwargs: Description of new entry to register.
+
+        Returns:
+            Pandas Series of added entry. This doesn't mutate the table.
 
         Raises:
             ValueError: When index is not unique in this table.
@@ -406,21 +447,13 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
                 index = str(index)
             self._container.loc[index] = list(template.values())
 
+            return self._container.iloc[-1]
+
     def _repr_html_(self) -> Union[str, None]:
         """Return HTML representation of this dataframe."""
         with self._lock:
             # Remove underscored columns.
             return self._container._repr_html_()
-
-    def __getattr__(self, item):
-        lock = object.__getattribute__(self, "_lock")
-
-        with lock:
-            # Lock when access to container's member.
-            container = object.__getattribute__(self, "_container")
-            if hasattr(container, item):
-                return getattr(container, item)
-        raise AttributeError(f"'ThreadSafeDataFrame' object has no attribute '{item}'")
 
     def __json_encode__(self) -> Dict[str, Any]:
         with self._lock:

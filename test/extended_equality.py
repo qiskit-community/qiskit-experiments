@@ -281,6 +281,10 @@ def _check_dataframes(
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
+    if isinstance(data1, ThreadSafeDataFrame):
+        data1 = data1.container(collapse_extra=False)
+    if isinstance(data2, ThreadSafeDataFrame):
+        data2 = data2.container(collapse_extra=False)
     return is_equivalent(
         data1.to_dict(orient="index"),
         data2.to_dict(orient="index"),

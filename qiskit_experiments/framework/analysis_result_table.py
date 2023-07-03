@@ -17,6 +17,8 @@ import uuid
 import warnings
 from typing import List, Union, Optional
 
+import pandas as pd
+
 from qiskit_experiments.database_service.utils import ThreadSafeDataFrame
 
 LOG = logging.getLogger(__name__)
@@ -52,6 +54,11 @@ class AnalysisResultTable(ThreadSafeDataFrame):
             "created_time",
         ]
 
+    def result_ids(self) -> List[str]:
+        """Return all result IDs in this table."""
+        with self._lock:
+            return self._container["result_id"].to_list()
+
     def filter_columns(self, columns: Union[str, List[str]]) -> List[str]:
         """Filter columns names available in this table.
 
@@ -68,35 +75,37 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         Raises:
             ValueError: When column is given in string which doesn't match with any builtin group.
         """
-        if columns == "all":
-            return self._columns
-        if columns == "default":
-            return [
-                "name",
-                "experiment",
-                "components",
-                "value",
-                "quality",
-                "backend",
-                "run_time",
-            ] + self._extra
-        if columns == "minimal":
-            return [
-                "name",
-                "components",
-                "value",
-                "quality",
-            ] + self._extra
-        if not isinstance(columns, str):
-            out = []
-            for column in columns:
-                if column in self._columns:
-                    out.append(column)
-                else:
-                    warnings.warn(
-                        f"Specified column name {column} does not exist in this table.", UserWarning
-                    )
-            return out
+        with self._lock:
+            if columns == "all":
+                return self._columns
+            if columns == "default":
+                return [
+                    "name",
+                    "experiment",
+                    "components",
+                    "value",
+                    "quality",
+                    "backend",
+                    "run_time",
+                ] + self._extra
+            if columns == "minimal":
+                return [
+                    "name",
+                    "components",
+                    "value",
+                    "quality",
+                ] + self._extra
+            if not isinstance(columns, str):
+                out = []
+                for column in columns:
+                    if column in self._columns:
+                        out.append(column)
+                    else:
+                        warnings.warn(
+                            f"Specified column name {column} does not exist in this table.",
+                            UserWarning,
+                        )
+                return out
         raise ValueError(
             f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
         )
@@ -106,16 +115,19 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         self,
         result_id: Optional[str] = None,
         **kwargs,
-    ):
+    ) -> pd.Series:
         """Add new entry to the table.
 
         Args:
             result_id: Result ID. Automatically generated when not provided.
                 This must be valid hexadecimal UUID string.
             kwargs: Description of new entry to register.
+
+        Returns:
+            Pandas Series of added entry. This doesn't mutate the table.
         """
         if result_id:
-            with self.lock:
+            with self._lock:
                 if result_id[:8] in self._container.index:
                     raise ValueError(
                         f"The short ID of the result_id '{result_id[:8]}' already exists in the "
@@ -129,7 +141,7 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         # This mechanism is similar with the github commit hash.
         short_index = result_id[:8]
 
-        super().add_entry(
+        return super().add_entry(
             index=short_index,
             result_id=result_id,
             **kwargs,
@@ -137,7 +149,7 @@ class AnalysisResultTable(ThreadSafeDataFrame):
 
     def _unique_table_index(self):
         """Generate unique UUID which is unique in the table with first 8 characters."""
-        with self.lock:
+        with self._lock:
             n = 0
             while n < 1000:
                 tmp_id = uuid.uuid4().hex

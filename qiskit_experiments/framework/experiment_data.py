@@ -691,7 +691,7 @@ class ExperimentData:
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
         # Schedule existing analysis results for deletion next save call
-        self._deleted_analysis_results.extend(list(self._analysis_results["result_id"]))
+        self._deleted_analysis_results.extend(list(self._analysis_results.result_ids()))
         self._analysis_results.clear()
         # Schedule existing figures for deletion next save call
         for key in self._figures.keys():
@@ -1411,7 +1411,7 @@ class ExperimentData:
             tags = tags or []
             backend = backend or self.backend_name
 
-            self._analysis_results.add_entry(
+            series = self._analysis_results.add_entry(
                 result_id=result_id,
                 name=name,
                 value=value,
@@ -1427,7 +1427,7 @@ class ExperimentData:
             )
             if self.auto_save:
                 service_result = _series_to_service_result(
-                    series=self._analysis_results.iloc[-1],
+                    series=series,
                     service=self._service,
                     auto_save=False,
                 )
@@ -1462,7 +1462,7 @@ class ExperimentData:
                 "Try another key that can uniquely determine entry to delete."
             )
 
-        self._analysis_results.drop(to_delete.name, inplace=True)
+        self._analysis_results.drop_entry(str(to_delete.name))
         if self._service and self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_analysis_result(result_id=to_delete.result_id)
@@ -1737,8 +1737,6 @@ class ExperimentData:
                 json_encoder=self._json_encoder,
                 max_workers=max_workers,
             )
-            for result in self._analysis_results.values():
-                result._created_in_db = True
         except Exception as ex:  # pylint: disable=broad-except
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
