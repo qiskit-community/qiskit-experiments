@@ -7,7 +7,7 @@ issues:
     This sometimes result in the overestimation of the confidence interval of fit curves,
     or overestimation of the standard error of some analysis values computed with
     multiple fitting parameters. This issue will be solved in the version 0.3.
-    See `qiskit-experiments/#551 <https://github.com/Qiskit/qiskit-experiments/pull/551>`_
+    See `qiskit-experiments/#551 <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/551>`_
     for details.
 developer:
   - |

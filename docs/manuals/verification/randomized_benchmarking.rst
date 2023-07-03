@@ -175,7 +175,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     # Run a 1-qubit RB experiment on qubits 1, 2 to determine the error-per-gate of 1-qubit gates
     single_exps = BatchExperiment(
         [
-            StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
+            StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
         ],
         flatten_results=True,

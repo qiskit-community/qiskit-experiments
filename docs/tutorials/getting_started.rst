@@ -21,14 +21,14 @@ install the latest main branch:
 
 .. jupyter-input::
 
-    python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. jupyter-input::
 
-    git clone https://github.com/Qiskit/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
 The ``-e`` option will keep your installed package up to date as you make or pull new

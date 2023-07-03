@@ -23,7 +23,6 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
 from qiskit.providers.backend import Backend
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -69,7 +68,6 @@ class QuantumVolume(BaseExperiment):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],

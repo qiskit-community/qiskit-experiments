@@ -1,0 +1,4 @@
+# Numpy 1.25 deprecated some behaviours that we used, and caused some
+# tests to flake. See https://github.com/Qiskit/qiskit-terra/issues/10305,
+# remove pin when resolving that.
+numpy<1.25

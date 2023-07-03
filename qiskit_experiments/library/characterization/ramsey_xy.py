@@ -23,7 +23,6 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RamseyXY(BaseExperiment, RestlessMixin):
@@ -100,7 +99,6 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

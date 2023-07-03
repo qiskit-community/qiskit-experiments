@@ -23,6 +23,7 @@ import math
 import traceback
 import warnings
 import zlib
+from datetime import datetime
 from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
@@ -33,10 +34,7 @@ import scipy.sparse as sps
 import uncertainties
 from qiskit import qpy
 from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
-from qiskit.circuit.library import BlueprintCircuit
-from qiskit.quantum_info import DensityMatrix
-from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
-from qiskit.result import LocalReadoutMitigator, CorrelatedReadoutMitigator
+from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.version import __version__
 
 
@@ -460,6 +458,8 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "spmatrix", "__value__": value}
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
+        if isinstance(obj, datetime):
+            return {"__type__": "datetime", "__value__": obj.isoformat()}
         if isinstance(obj, np.number):
             return obj.item()
         if dataclasses.is_dataclass(obj):
@@ -504,13 +504,15 @@ class ExperimentEncoder(json.JSONEncoder):
             )
             return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, QuantumCircuit):
-            # TODO Remove the decompose when terra 6713 is released.
-            if isinstance(obj, BlueprintCircuit):
-                obj = obj.decompose()
             value = _serialize_and_encode(
                 data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
             )
             return {"__type__": "QuantumCircuit", "__value__": value}
+        if isinstance(obj, ScheduleBlock):
+            value = _serialize_and_encode(
+                data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
+            )
+            return {"__type__": "ScheduleBlock", "__value__": value}
         if isinstance(obj, ParameterExpression):
             value = _serialize_and_encode(
                 data=obj,
@@ -518,31 +520,6 @@ class ExperimentEncoder(json.JSONEncoder):
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
-        if isinstance(obj, QuantumChannel):
-            # Temporary fix for incorrect settings in qiskit-terra
-            # See https://github.com/Qiskit/qiskit-terra/pull/7194
-            settings = {
-                "data": obj.data,
-                "input_dims": obj.input_dims(),
-                "output_dims": obj.output_dims(),
-            }
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, LocalReadoutMitigator):
-            # Temporary handling until serialization is added to terra stable release
-            settings = {"assignment_matrices": obj._assignment_mats, "qubits": obj.qubits}
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, CorrelatedReadoutMitigator):
-            # Temporary handling until serialization is added to terra stable release
-            settings = {"assignment_matrix": obj._assignment_mat, "qubits": obj.qubits}
-            return _serialize_object(obj, settings=settings)
-        if isinstance(obj, DensityMatrix):
-            # Temporary fix for incorrect settings in qiskit-terra
-            # See https://github.com/Qiskit/qiskit-terra/pull/7194
-            settings = {
-                "data": obj.data,
-                "dims": obj.dims(),
-            }
-            return _serialize_object(obj, settings=settings)
         if istype(obj):
             return _serialize_type(obj)
         try:
@@ -581,6 +558,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
+            if obj_type == "datetime":
+                return datetime.fromisoformat(obj_val)
             if obj_type == "LMFIT.Model":
                 tmp = lmfit.Model(func=None)
                 load_obj = tmp.loads(s=obj_val)
@@ -589,6 +568,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 circuit = _decode_and_deserialize(obj_val, qpy.load, name="QuantumCircuit")[0]
                 return circuit.data[0][0]
             if obj_type == "QuantumCircuit":
+                return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
+            if obj_type == "ScheduleBlock":
                 return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":
                 return _decode_and_deserialize(
