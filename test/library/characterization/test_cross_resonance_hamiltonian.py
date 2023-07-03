@@ -154,6 +154,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             durations=[1256],
         )
 
+
         # Not raise an error
         expr.circuits()
 
@@ -297,7 +298,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
                 physical_qubits=(0, 1),
-                flat_top_widths=[1000],
                 amp=0.1,
                 sigma=64,
                 risefall=2,
