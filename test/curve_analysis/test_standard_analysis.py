@@ -69,7 +69,8 @@ class TestErrorAmplificationAnalysis(QiskitExperimentsTestCase):
         analysis = FakeAmpAnalysis()
         analysis.set_options(data_processor=processor)
 
-        fake_data = analysis.run(fake_data).block_for_results()
+        fake_data = analysis.run(fake_data)
+        self.assertExperimentDone(fake_data)
 
         self.assertAlmostEqual(
             fake_data.analysis_results("d_theta").value.n, d_theta_targ, delta=0.01

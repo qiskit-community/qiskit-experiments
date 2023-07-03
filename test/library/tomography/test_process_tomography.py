@@ -430,7 +430,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             CXGate(), measurement_basis=meas_basis, preparation_basis=prep_basis
         )
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("process_fidelity").value
         self.assertGreater(fid, 0.95)
@@ -459,7 +459,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Run experiment
         exp = ProcessTomography(CXGate(), measurement_basis=meas_basis)
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("process_fidelity").value
         self.assertGreater(fid, 0.95)

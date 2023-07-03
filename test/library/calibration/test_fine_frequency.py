@@ -80,14 +80,14 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         fine_freq = FineFrequencyCal([0], self.cals, backend)
         armonk_freq = BackendData(FakeArmonkV2()).drive_freqs[0]
 
-        freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
+        freq_before = self.cals.get_parameter_value("drive_freq", 0)
 
         self.assertAlmostEqual(freq_before, armonk_freq)
 
         expdata = fine_freq.run()
         self.assertExperimentDone(expdata)
 
-        freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
+        freq_after = self.cals.get_parameter_value("drive_freq", 0)
 
         # Test equality up to 10kHz on a 100 kHz shift
         self.assertAlmostEqual(freq_after, armonk_freq + exp_helper.freq_shift, delta=1e4)

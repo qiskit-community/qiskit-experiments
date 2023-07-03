@@ -30,12 +30,8 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
 
         * ``"linear_inversion"``:
           :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion` (Default)
-        * ``"scipy_linear_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq`
         * ``"cvxpy_linear_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq`
-        * ``"scipy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq`
         * ``"cvxpy_gaussian_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 

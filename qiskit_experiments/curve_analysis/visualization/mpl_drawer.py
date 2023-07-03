@@ -21,23 +21,28 @@ from matplotlib.figure import Figure
 from matplotlib.markers import MarkerStyle
 from matplotlib.ticker import Formatter, ScalarFormatter
 from qiskit.utils import detach_prefix
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-from qiskit_experiments.warnings import deprecated_class
 
 from .base_drawer import BaseCurveDrawer
 
 
-@deprecated_class(
-    "0.6",
-    msg="Plotting and drawing of analysis figures has been replaced with the new"
-    "`qiskit_experiments.visualization` module.",
-)
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
 
     DefaultMarkers = MarkerStyle.filled_markers
     DefaultColors = tab10.colors
+
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Plotting and drawing of analysis figures has been moved to the new "
+        "`qiskit_experiments.visualization` module.",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
+    def __init__(self):
+        super().__init__()
 
     class PrefixFormatter(Formatter):
         """Matplotlib axis formatter to detach prefix.
