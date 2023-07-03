@@ -281,7 +281,11 @@ def _check_dataframes(
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
-    return is_equivalent(data1.to_dict(orient="index"), data2.to_dict(orient="index"))
+    return is_equivalent(
+        data1.to_dict(orient="index"),
+        data2.to_dict(orient="index"),
+        **kwargs,
+    )
 
 
 @_is_equivalent_dispatcher.register
@@ -331,4 +335,8 @@ def _check_all_attributes(
     **kwargs,
 ):
     """Helper function to check all attributes."""
+    test = {}
+    for att in attrs:
+        test[att] = is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs)
+
     return all(is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs) for att in attrs)

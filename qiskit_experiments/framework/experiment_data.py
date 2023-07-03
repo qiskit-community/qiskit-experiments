@@ -2670,6 +2670,16 @@ def _series_to_service_result(
         chisq=qe_result.chisq,
         source=source,
     )
+
+    # Overwrite formatted result data dictionary with original objects.
+    # The format_result_data method implicitly deep copies input value and extra field,
+    # but it means the dictionary stores input objects with different object id.
+    # This affects computation of error propagation with ufloats, because it
+    # recognizes the value correlation with object id.
+    # See test.curve_analysis.test_baseclass.TestCurveAnalysis.test_end_to_end_compute_new_entry.
+    result_data["_value"] = qe_result.value
+    result_data["_extra"] = qe_result.extra
+
     try:
         quality = ResultQuality(str(qe_result.quality).upper())
     except ValueError:

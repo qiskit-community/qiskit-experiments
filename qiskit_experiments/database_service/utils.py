@@ -402,6 +402,8 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         template.update(kwargs)
 
         with self._lock:
+            if not isinstance(index, str):
+                index = str(index)
             self._container.loc[index] = list(template.values())
 
     def _repr_html_(self) -> Union[str, None]:
@@ -524,15 +526,18 @@ class AnalysisResultTable(ThreadSafeDataFrame):
             kwargs: Description of new entry to register.
         """
         if result_id:
-            try:
-                result_id = uuid.UUID(result_id, version=4).hex
-            except ValueError as ex:
-                raise ValueError(f"{result_id} is not a valid hexadecimal UUID string.") from ex
+            with self.lock:
+                if result_id[:8] in self._container.index:
+                    raise ValueError(
+                        f"The short ID of the result_id '{result_id[:8]}' already exists in the "
+                        "experiment data. Please use another ID to avoid index collision."
+                    )
         else:
             result_id = self._unique_table_index()
 
-        # Short unique index is generated from full UUID.
-        # Showing full UUID unnecessary occupies horizontal space of the html table.
+        # Short unique index is generated from result id.
+        # Showing full result id unnecessary occupies horizontal space of the html table.
+        # This mechanism is similar with the github commit hash.
         short_index = result_id[:8]
 
         super().add_entry(

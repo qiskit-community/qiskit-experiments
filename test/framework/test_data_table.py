@@ -155,12 +155,6 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
         table.add_entry(result_id="9a0bdec8c0104ef7bb7db84939717a6b", value=0.123)
         self.assertEqual(table.loc["9a0bdec8"].value, 0.123)
 
-    def test_raises_adding_entry_with_invalid_result_id(self):
-        """Test adding entry with non-hexadecimal UUID result id."""
-        table = AnalysisResultTable()
-        with self.assertRaises(ValueError):
-            table.add_entry(result_id="12345678910")
-
     def test_extra_column_name_is_always_returned(self):
         """Test extra column names are always returned in filtered column names."""
         table = AnalysisResultTable()
