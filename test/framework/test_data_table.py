@@ -22,6 +22,12 @@ from qiskit_experiments.database_service.utils import ThreadSafeDataFrame
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 
 
+def _callable_thread_local_add_entry(args, thread_table):
+    """A test callable that is called from multi-thread."""
+    index, kwargs = args
+    thread_table.add_entry(index, **kwargs)
+
+
 class TestBaseTable(QiskitExperimentsTestCase):
     """Test case for data frame base class."""
 
@@ -118,13 +124,9 @@ class TestBaseTable(QiskitExperimentsTestCase):
         """Test add entry with parallel thread access."""
         table = TestBaseTable.TestTable()
 
-        def _test_thread_local_add_entry(args, thread_table):
-            index, kwargs = args
-            thread_table.add_entry(index, **kwargs)
-
         # Mutate thread safe table in parallel thread. No race should occur.
         parallel_map(
-            _test_thread_local_add_entry,
+            _callable_thread_local_add_entry,
             [
                 ["x", {"value1": 0.0, "value2": 1.0, "value3": 2.0}],
                 ["y", {"value1": 3.0, "value2": 4.0, "value3": 5.0}],
