@@ -294,13 +294,12 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test generated circuits."""
         backend = FakeBogotaV2()
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                physical_qubits=(0, 1),
-                amp=0.1,
-                sigma=64,
-                risefall=2,
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+        )
         expr.backend = backend
 
         with pulse.build(default_alignment="left", name="cr") as _:
