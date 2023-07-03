@@ -16,13 +16,11 @@ import io
 import logging
 import threading
 import traceback
-import warnings
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
 from typing import Callable, Tuple, List, Dict, Any, Union, Type, Optional
 import json
-import uuid
 
 import pandas as pd
 import dateutil.parser
@@ -435,126 +433,10 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         if not value.get("class", None) == "ThreadSafeDataFrame":
             raise ValueError("JSON decoded value for ThreadSafeDataFrame is not valid class type.")
 
-        instance = object.__new__(AnalysisResultTable)
+        instance = object.__new__(cls)
         # Need to update self._columns first to set extra columns in the dataframe container.
         instance._columns = value.get("columns", cls._default_columns())
         instance._extra = value.get("extra", [])
         instance._lock = threading.RLock()
         instance._container = instance._init_container(init_values=value.get("data", {}))
         return instance
-
-
-class AnalysisResultTable(ThreadSafeDataFrame):
-    """Thread safe dataframe to store the analysis results."""
-
-    @classmethod
-    def _default_columns(cls) -> List[str]:
-        return [
-            "name",
-            "experiment",
-            "components",
-            "value",
-            "quality",
-            "experiment_id",
-            "result_id",
-            "tags",
-            "backend",
-            "run_time",
-            "created_time",
-        ]
-
-    def filter_columns(self, columns: Union[str, List[str]]) -> List[str]:
-        """Filter columns names available in this table.
-
-        Args:
-            columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
-
-                    * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                        information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
-
-        Raises:
-            ValueError: When column is given in string which doesn't match with any builtin group.
-        """
-        if columns == "all":
-            return self._columns
-        if columns == "default":
-            return [
-                "name",
-                "experiment",
-                "components",
-                "value",
-                "quality",
-                "backend",
-                "run_time",
-            ] + self._extra
-        if columns == "minimal":
-            return [
-                "name",
-                "components",
-                "value",
-                "quality",
-            ] + self._extra
-        if not isinstance(columns, str):
-            out = []
-            for column in columns:
-                if column in self._columns:
-                    out.append(column)
-                else:
-                    warnings.warn(
-                        f"Specified column name {column} does not exist in this table.", UserWarning
-                    )
-            return out
-        raise ValueError(
-            f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
-        )
-
-    # pylint: disable=arguments-renamed
-    def add_entry(
-        self,
-        result_id: Optional[str] = None,
-        **kwargs,
-    ):
-        """Add new entry to the table.
-
-        Args:
-            result_id: Result ID. Automatically generated when not provided.
-                This must be valid hexadecimal UUID string.
-            kwargs: Description of new entry to register.
-        """
-        if result_id:
-            with self.lock:
-                if result_id[:8] in self._container.index:
-                    raise ValueError(
-                        f"The short ID of the result_id '{result_id[:8]}' already exists in the "
-                        "experiment data. Please use another ID to avoid index collision."
-                    )
-        else:
-            result_id = self._unique_table_index()
-
-        # Short unique index is generated from result id.
-        # Showing full result id unnecessary occupies horizontal space of the html table.
-        # This mechanism is similar with the github commit hash.
-        short_index = result_id[:8]
-
-        super().add_entry(
-            index=short_index,
-            result_id=result_id,
-            **kwargs,
-        )
-
-    def _unique_table_index(self):
-        """Generate unique UUID which is unique in the table with first 8 characters."""
-        with self.lock:
-            n = 0
-            while n < 1000:
-                tmp_id = uuid.uuid4().hex
-                if tmp_id[:8] not in self._container.index:
-                    return tmp_id
-        raise RuntimeError(
-            "Unique result_id string cannot be prepared for this table within 1000 trials. "
-            "Reduce number of entries, or manually provide a unique result_id."
-        )

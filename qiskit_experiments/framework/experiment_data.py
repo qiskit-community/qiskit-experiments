@@ -55,11 +55,11 @@ from qiskit_experiments.database_service.utils import (
     plot_to_svg_bytes,
     ThreadSafeOrderedDict,
     ThreadSafeList,
-    AnalysisResultTable,
 )
 from qiskit_experiments.database_service.device_component import to_component, DeviceComponent
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,

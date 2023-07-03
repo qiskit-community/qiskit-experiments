@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,7 +18,8 @@ import numpy as np
 import pandas as pd
 from qiskit.tools import parallel_map
 
-from qiskit_experiments.database_service.utils import ThreadSafeDataFrame, AnalysisResultTable
+from qiskit_experiments.database_service.utils import ThreadSafeDataFrame
+from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 
 
 class TestBaseTable(QiskitExperimentsTestCase):
