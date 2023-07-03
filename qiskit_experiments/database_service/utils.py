@@ -326,7 +326,8 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         Returns:
             List of column names.
         """
-        return self._columns.copy()
+        with self._lock:
+            return self._columns.copy()
 
     def add_columns(self, *new_columns: str, default_value: Any = None):
         """Add new columns to the table.
@@ -337,15 +338,17 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
             new_columns: Name of columns to add.
             default_value: Default value to fill added columns.
         """
-        # Order sensitive
-        new_columns = [c for c in new_columns if c not in self.get_columns()]
-        self._extra.extend(new_columns)
-
-        # Update current table
         with self._lock:
+            # Order sensitive
+            new_columns = [c for c in new_columns if c not in self.get_columns()]
+            if len(new_columns) == 0:
+                return
+
+            # Update columns
             for new_column in new_columns:
                 self._container.insert(len(self._container.columns), new_column, default_value)
-        self._columns.extend(new_columns)
+            self._columns.extend(new_columns)
+            self._extra.extend(new_columns)
 
     def clear(self):
         """Remove all elements from this container."""
@@ -367,7 +370,7 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
             Bare pandas dataframe. This object is no longer thread safe.
         """
         with self._lock:
-            container = self._container
+            container = self._container.copy()
 
         if collapse_extra:
             return container[self._default_columns()]
@@ -387,19 +390,18 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         Raises:
             ValueError: When index is not unique in this table.
         """
-        with self.lock:
+        with self._lock:
             if index in self._container.index:
                 raise ValueError(f"Table index {index} already exists in the table.")
 
-        columns = self.get_columns()
-        missing = kwargs.keys() - set(columns)
-        if missing:
-            self.add_columns(*sorted(missing))
+            columns = self.get_columns()
+            missing = kwargs.keys() - set(columns)
+            if missing:
+                self.add_columns(*sorted(missing))
 
-        template = dict.fromkeys(self.get_columns())
-        template.update(kwargs)
+            template = dict.fromkeys(self.get_columns())
+            template.update(kwargs)
 
-        with self._lock:
             if not isinstance(index, str):
                 index = str(index)
             self._container.loc[index] = list(template.values())
@@ -421,12 +423,13 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
         raise AttributeError(f"'ThreadSafeDataFrame' object has no attribute '{item}'")
 
     def __json_encode__(self) -> Dict[str, Any]:
-        return {
-            "class": "ThreadSafeDataFrame",
-            "data": self._container.to_dict(orient="index"),
-            "columns": self._columns,
-            "extra": self._extra,
-        }
+        with self._lock:
+            return {
+                "class": "ThreadSafeDataFrame",
+                "data": self._container.to_dict(orient="index"),
+                "columns": self._columns,
+                "extra": self._extra,
+            }
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "ThreadSafeDataFrame":

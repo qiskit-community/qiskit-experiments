@@ -140,6 +140,70 @@ class TestBaseTable(QiskitExperimentsTestCase):
         self.assertListEqual(table.loc["y"].to_list(), [3.0, 4.0, 5.0])
         self.assertListEqual(table.loc["z"].to_list(), [6.0, 7.0, 8.0])
 
+    def test_multi_thread_add_entry_with_new_column(self):
+        """Test add entry with parallel thread access, each thread adds new column."""
+        table = TestBaseTable.TestTable()
+
+        # Mutate thread safe table in parallel thread. No race should occur.
+        parallel_map(
+            _callable_thread_local_add_entry,
+            [
+                ["x", {"value1": 0.0, "value2": 1.0, "value3": 2.0, "new_x": "x_val"}],
+                ["y", {"value1": 3.0, "value2": 4.0, "value3": 5.0, "new_y": "y_val"}],
+                ["z", {"value1": 6.0, "value2": 7.0, "value3": 8.0, "new_z": "z_val"}],
+            ],
+            task_kwargs={"thread_table": table},
+        )
+        self.assertEqual(len(table), 3)
+
+        self.assertDictEqual(
+            table.loc["x"].to_dict(),
+            {
+                "value1": 0.0,
+                "value2": 1.0,
+                "value3": 2.0,
+                "new_x": "x_val",
+                "new_y": None,
+                "new_z": None,
+            },
+        )
+        self.assertDictEqual(
+            table.loc["y"].to_dict(),
+            {
+                "value1": 3.0,
+                "value2": 4.0,
+                "value3": 5.0,
+                "new_x": None,
+                "new_y": "y_val",
+                "new_z": None,
+            },
+        )
+        self.assertDictEqual(
+            table.loc["z"].to_dict(),
+            {
+                "value1": 6.0,
+                "value2": 7.0,
+                "value3": 8.0,
+                "new_x": None,
+                "new_y": None,
+                "new_z": "z_val",
+            },
+        )
+
+    def test_container_is_immutable(self):
+        """Test modifying container doesn't mutate the original payload."""
+        table = TestBaseTable.TestTable()
+        table.add_entry(index="x", value1=0.1, value2=0.2, value3=0.3)
+
+        dataframe = table.container()
+        dataframe.at["x", "value1"] = 100
+
+        # Local object can be modified
+        self.assertListEqual(dataframe.loc["x"].to_list(), [100, 0.2, 0.3])
+
+        # Original object in the experiment payload is preserved
+        self.assertListEqual(table.loc["x"].to_list(), [0.1, 0.2, 0.3])
+
     def test_round_trip(self):
         """Test JSON roundtrip serialization with the experiment encoder."""
         table = TestBaseTable.TestTable()
