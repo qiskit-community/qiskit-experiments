@@ -50,6 +50,7 @@ Experiments
     MultiStateDiscrimination
     ZZRamsey
     StarkRamseyXY
+    StarkRamseyXYAmpScan
 
 
 Analysis
@@ -68,6 +69,7 @@ Analysis
     DragCalAnalysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
+    StarkRamseyXYAmpScanAnalysis
     ReadoutAngleAnalysis
     ResonatorSpectroscopyAnalysis
     LocalReadoutErrorAnalysis
@@ -81,6 +83,7 @@ from .analysis import (
     DragCalAnalysis,
     FineAmplitudeAnalysis,
     RamseyXYAnalysis,
+    StarkRamseyXYAmpScanAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
     T1KerneledAnalysis,
@@ -105,7 +108,7 @@ from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamil
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude, FineZXAmplitude
-from .ramsey_xy import RamseyXY, StarkRamseyXY
+from .ramsey_xy import RamseyXY, StarkRamseyXY, StarkRamseyXYAmpScan
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
