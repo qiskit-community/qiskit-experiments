@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    New figure options were added to the visualization module: `xscale` and `yscale`. They
+    represent parameters to the functions `set_xscale` and `set_yscale`, like `log` and
+    `linear`. With the addition of a home-made parameter `quadratic`, for quadratic scaling.

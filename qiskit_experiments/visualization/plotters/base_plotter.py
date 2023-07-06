@@ -446,6 +446,9 @@ class BasePlotter(ABC):
                 provided, the axis numbers will be displayed in the scientific notation.
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
+            xscale (str): a parameter to the function `set_xscale`, like `log` and `linear`.
+                With the addition of a home-made parameter `quadratic`.
+            yscale (str): like `xscale`, for the y-axis.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
             series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot
@@ -464,6 +467,8 @@ class BasePlotter(ABC):
             yval_unit=None,
             xval_unit_scale=True,
             yval_unit_scale=True,
+            xscale=None,
+            yscale=None,
             figure_title=None,
             series_params={},
         )
