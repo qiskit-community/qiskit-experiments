@@ -1622,7 +1622,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         with self.assertWarns(DeprecationWarning):
             self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1)
 
         self.cals._params = defaultdict(list)
 
@@ -1634,8 +1634,7 @@ class TestSavingAndLoading(CrossResonanceTest):
             self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
 
         val = self.cals.get_parameter_value("amp", (3,), "xp")
-        self.assertEqual(val, 0.1 + 0.01j)
-        self.assertTrue(isinstance(val, complex))
+        self.assertEqual(val, 0.1)
 
         val = self.cals.get_parameter_value("σ", (3,), "xp")
         self.assertEqual(val, 40)
