@@ -12,13 +12,10 @@ reno>=4.0.0
 nbsphinx
 arxiv
 ddt>=1.6.0
-qiskit-aer>=0.11.0
 qiskit_dynamics>=0.4.0
 pandas>=1.1.5
-cvxpy>=1.1.15
 pylatexenc
 multimethod
-scikit-learn
 sphinx-copybutton
 coverage>=5.5
 # Pin versions below because of build errors
