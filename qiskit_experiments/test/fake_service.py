@@ -18,8 +18,9 @@ import json
 from datetime import datetime, timedelta
 import uuid
 
-from qiskit_experiments.test.fake_backend import FakeBackend
+from qiskit_ibm_experiment import AnalysisResultData
 
+from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.database_service.device_component import DeviceComponent
 from qiskit_experiments.database_service.exceptions import (
     ExperimentEntryExists,
@@ -101,7 +102,6 @@ class FakeService:
                 "result_id",
                 "chisq",
                 "creation_datetime",
-                "service",
                 "backend_name",
             ]
         )
@@ -422,7 +422,7 @@ class FakeService:
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[Dict]:
+    ) -> List[AnalysisResultData]:
         """Returns a list of analysis results filtered by the given criteria"""
         # pylint: disable = unused-argument
         df = self.results
@@ -479,7 +479,7 @@ class FakeService:
         )
 
         df = df.iloc[:limit]
-        return df.to_dict("records")
+        return [AnalysisResultData(**res) for res in df.to_dict("records")]
 
     def delete_analysis_result(self, result_id: str) -> None:
         """Deletes an analysis result"""

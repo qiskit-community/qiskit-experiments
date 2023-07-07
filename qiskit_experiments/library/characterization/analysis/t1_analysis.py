@@ -268,8 +268,9 @@ class StarkP1SpectAnalysis(BaseAnalysis):
                 )
                 if len(results) == 0:
                     return None
-                out[name] = results[0].result_data["value"]
-        except (IBMApiError, ValueError):
+                result_data = getattr(results[0], "result_data")
+                out[name] = result_data["value"]
+        except (IBMApiError, ValueError, KeyError, AttributeError):
             return None
         return out
 
@@ -287,27 +288,16 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         Returns:
             An array of amount of Stark shift.
         """
-        pos_inds = xdata >= 0
-        pos_coeffs = self.stark_coefficients_names[0:3]
-        neg_inds = xdata < 0
-        neg_coeffs = self.stark_coefficients_names[3:6]
-        offset = self.stark_coefficients_names[6]
+        names = self.stark_coefficients_names  # alias
+        positive = np.poly1d([coefficients[names[idx]] for idx in [2, 1, 0, 6]])
+        negative = np.poly1d([coefficients[names[idx]] for idx in [5, 4, 3, 6]])
 
-        for inds, coeff_names in zip((pos_inds, neg_inds), (pos_coeffs, neg_coeffs)):
-            sub_data = xdata[inds]
-            freqs = (
-                coefficients[coeff_names[0]] * sub_data
-                + coefficients[coeff_names[1]] * sub_data**2
-                + coefficients[coeff_names[2]] * sub_data**3
-                + coefficients[offset]
-            )
-            xdata[inds] = freqs
-
+        new_xdata = np.where(xdata > 0, positive(xdata), negative(xdata))
         self.plotter.set_figure_options(
             xlabel="Stark shift",
             xval_unit="Hz",
         )
-        return xdata
+        return new_xdata
 
     def _run_analysis(
         self,
