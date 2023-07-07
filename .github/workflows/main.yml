@@ -72,11 +72,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-lint-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-lint-
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-
-            ${{ runner.os }}-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-lint-
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
       - name: Install Deps
         run: python -m pip install -U tox
       - name: Run lint
@@ -96,7 +96,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-docs-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
+          key: ${{ runner.os }}-pip-docs-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-docs-
             ${{ runner.os }}-pip-
