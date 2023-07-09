@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/github/license/Qiskit-Extensions/qiskit-experiments.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Release](https://img.shields.io/github/release/Qiskit-Extensions/qiskit-experiments.svg)](https://github.com/Qiskit-Extensions/qiskit-experiments/releases)
 ![Python](https://img.shields.io/pypi/pyversions/qiskit-experiments.svg)
+[![Coverage Status](https://coveralls.io/repos/github/Qiskit-Extensions/qiskit-experiments/badge.svg?branch=main)](https://coveralls.io/github/Qiskit-Extensions/qiskit-experiments?branch=main)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.05329/status.svg)](https://doi.org/10.21105/joss.05329)
 
 **Qiskit Experiments** is a repository that builds tools for building, running,
