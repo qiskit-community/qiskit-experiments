@@ -284,4 +284,3 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
             # Error must be within 1 percent or 1 MHz
             val = exp_data.analysis_results(name).value.n
             self.assertAlmostEqual(val, refv, delta=3e6)
-
