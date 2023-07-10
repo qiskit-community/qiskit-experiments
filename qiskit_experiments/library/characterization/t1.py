@@ -33,6 +33,28 @@ class T1(BaseExperiment):
         wait time is fitted to an exponential curve to obtain an estimate for
         :math:`T_1`.
 
+    # section: example
+
+        Here's a minimal working example:
+
+        .. jupyter-execute::
+            :hide-code:
+
+            from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
+
+            t1 = 25e-6
+            backend = NoisyDelayAerBackend([t1], [t1 / 2])
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import T1
+
+            exp = T1(physical_qubits = (0,),
+                     delays = [1e-6, 5e-6, 10e-6])
+
+            exp_data = exp.run(backend).block_for_results()
+            exp_data.figure(0)
+
     # section: analysis_ref
         :class:`.T1Analysis`
 
@@ -66,6 +88,11 @@ class T1(BaseExperiment):
                 estimated.
             delays: Delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
+
+        Default Arg Vals:
+            physical_qubits = 0
+            delays = np.arange(1e-6, 40e-6, 3e-6)
+            backend = NoisyDelayAerBackend([25e-6], [25e-6 / 2])
 
         Raises:
             ValueError: If the number of delays is smaller than 3
