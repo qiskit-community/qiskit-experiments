@@ -89,11 +89,6 @@ class T1(BaseExperiment):
             delays: Delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
 
-        Default Arg Vals:
-            physical_qubits = 0
-            delays = np.arange(1e-6, 40e-6, 3e-6)
-            backend = NoisyDelayAerBackend([25e-6], [25e-6 / 2])
-
         Raises:
             ValueError: If the number of delays is smaller than 3
         """
