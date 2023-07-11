@@ -146,7 +146,7 @@ modindex_common_prefix = ["qiskit_experiments."]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
+html_theme = "qiskit"  # use the theme in subdir 'theme'
 
 html_context = {
     "analytics_enabled": True,
@@ -156,14 +156,6 @@ html_context = {
 docs_url_prefix = "ecosystem/experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
-
-html_theme_options = {
-    "logo_only": True,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": True,
-}
-
 
 autoclass_content = "both"
 intersphinx_mapping = {
