@@ -85,6 +85,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         if isinstance(backend, Backend):
             self._set_backend(backend)
 
+        # Optional user-defined custom transpiled circuits
+        self._custom_transpiled_circuits = None
+
     @property
     def experiment_type(self) -> str:
         """Return experiment type."""
@@ -132,6 +135,26 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         self._backend = backend
         self._backend_data = BackendData(backend)
+
+    @property
+    def custom_transpiled_circuits(self):
+        """Custom transpiled circuits as defined by the user. The user is responsible for providing
+        the circuit metadata expected by experiment analysis."""
+        return self._custom_transpiled_circuits
+
+    @custom_transpiled_circuits.setter
+    def custom_transpiled_circuits(self, circuits: List[QuantumCircuit]):
+        """Set custom transpiled circuits."""
+        if not isinstance(circuits, List) and all(isinstance(i, QuantumCircuit) for i in circuits):
+            raise TypeError("Custom transpiled circuits must be a list of QuantumCircuit objects.")
+        self._set_custom_transpiled_circuits(circuits)
+
+    def _set_custom_transpiled_circuits(self, circuits: List[QuantumCircuit]):
+        """Set custom transpiled circuits.
+
+        Subclasses can override this method to add circuit verification or modify
+        the user-provided circuit and/or its metadata."""
+        self._custom_transpiled_circuits = circuits
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
@@ -233,8 +256,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Finalize experiment before executions
         experiment._finalize()
 
-        # Generate and transpile circuits
-        transpiled_circuits = experiment._transpiled_circuits()
+        if self.custom_transpiled_circuits:
+            transpiled_circuits = self.custom_transpiled_circuits
+        else:
+            # Generate and transpile circuits
+            transpiled_circuits = experiment._transpiled_circuits()
 
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()

@@ -15,6 +15,7 @@
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 from itertools import product
+import unittest
 import ddt
 
 from qiskit import QuantumCircuit
@@ -115,6 +116,16 @@ class TestFramework(QiskitExperimentsTestCase):
             if num_circuits % max_circuits:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
+
+    def test_custom_transpiled_circuits(self):
+        """Test that custom transpiled circuits can be injected."""
+        exp = FakeExperiment((0,))
+        backend = FakeBackend()
+        exp._transpiled_circuits = unittest.mock.Mock()
+        exp.custom_transpiled_circuits = [QuantumCircuit(0)]
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        exp._transpiled_circuits.assert_not_called()
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
