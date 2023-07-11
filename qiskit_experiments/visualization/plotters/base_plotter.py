@@ -458,7 +458,7 @@ class BasePlotter(ABC):
                 (when multi-canvas plot is set), "color" is the color of the curve, and
                 "symbol" is the marker Style of the curve for scatter plots.
         """
-        return Options(
+        options = Options(
             xlabel=None,
             ylabel=None,
             xlim=None,
@@ -472,6 +472,11 @@ class BasePlotter(ABC):
             figure_title=None,
             series_params={},
         )
+
+        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic"])
+        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic"])
+
+        return options
 
     def set_options(self, **fields):
         """Set the plotter options.
