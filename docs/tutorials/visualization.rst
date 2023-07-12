@@ -191,10 +191,13 @@ options that have not been demonstrated until now in this tutorial:
 
    from qiskit_experiments.library import T1
    from qiskit.providers.fake_provider import FakePerth
+   from qiskit_aer import AerSimulator
+
+   backend = AerSimulator.from_backend(FakePerth())
 
    t1 = T1(physical_qubits=(0,),
 	   delays=np.linspace(0, 300e-6, 30),
-	   backend=FakePerth()
+	   backend=backend
 	  )
 
    plotter = t1.analysis.plotter
