@@ -16,7 +16,6 @@ Sphinx documentation builder.
 
 import os
 import sys
-import subprocess
 import datetime
 
 # -- Path setup --------------------------------------------------------------
@@ -65,7 +64,11 @@ extensions = [
     "autodoc_analysis",
     "autodoc_visualization",
     "jupyter_execute_custom",
+    "sphinx_remove_toctrees",
 ]
+
+# Only remove for dev builds
+remove_from_toctrees = ["stubs/*"]
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
