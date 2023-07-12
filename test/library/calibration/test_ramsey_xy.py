@@ -56,7 +56,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         This test also checks that we can pickup frequency shifts with different signs.
         """
-        test_tol = 0.01
+        test_tol = 0.03
         abs_tol = max(1e3, abs(freq_shift) * test_tol)
 
         exp_helper = RamseyXYHelper()

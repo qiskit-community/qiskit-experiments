@@ -316,20 +316,30 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
 
+        model_weights = {}
+        if valid_uncertainty:
+            for model in models:
+                sub_yerr = curve_data.get_subset_of(model._name).y_err
+                if len(sub_yerr) == 0:
+                    continue
+                nonzero_yerr = np.where(np.isclose(sub_yerr, 0.0), np.finfo(float).eps, sub_yerr)
+                raw_weights = 1 / nonzero_yerr
+                # Remove outlier. When all sample values are the same with sample average,
+                # or sampling error is zero with shot-weighted average,
+                # some yerr values might be very close to zero, yielding significant weights.
+                # With such outlier, the fit doesn't sense residual of other data points.
+                maximum_weight = np.percentile(raw_weights, 90)
+                model_weights[model._name] = np.clip(raw_weights, 0.0, maximum_weight)
+
         # Objective function for minimize. This computes composite residuals of sub models.
         def _objective(_params):
             ys = []
             for model in models:
                 sub_data = curve_data.get_subset_of(model._name)
-                with np.errstate(divide="ignore"):
-                    # Ignore numpy runtime warning.
-                    # Zero y_err point introduces infinite weight,
-                    # but this should be managed by LMFIT.
-                    weights = 1.0 / sub_data.y_err if valid_uncertainty else None
                 yi = model._residual(
                     params=_params,
                     data=sub_data.y,
-                    weights=weights,
+                    weights=model_weights.get(model._name, None),
                     x=sub_data.x,
                 )
                 ys.append(yi)
