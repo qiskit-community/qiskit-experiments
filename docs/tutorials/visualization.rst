@@ -208,7 +208,6 @@ options that have not been demonstrated until now in this tutorial:
    t1_data = t1.run().block_for_results()
    t1_data.figure(0)
 
-
 Customizing plotting in your experiment
 ---------------------------------------
 
