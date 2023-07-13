@@ -48,12 +48,19 @@ class T1(BaseExperiment):
         .. jupyter-execute::
 
             from qiskit_experiments.library import T1
+            import numpy as np
 
             exp = T1(physical_qubits = (0,),
-                     delays = [1e-6, 5e-6, 10e-6])
+                     delays = np.arange(1e-6, 30e-5, 3e-5))
 
             exp_data = exp.run(backend).block_for_results()
             exp_data.figure(0)
+
+        The experiment executes a series of circuits with this form:
+
+        .. jupyter-execute::
+
+            exp.circuits()[0].draw("mpl")
 
     # section: analysis_ref
         :class:`.T1Analysis`
