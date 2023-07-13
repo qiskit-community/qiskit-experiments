@@ -96,6 +96,7 @@ We've divided up the documentation into four sections with different purposes:
     :hidden:
 
     Qiskit Experiments Home <self>
+    Getting Started <tutorials/getting_started>
     tutorials/index
     howtos/index
     manuals/index

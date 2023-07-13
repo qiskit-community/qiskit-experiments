@@ -25,3 +25,4 @@ coverage>=5.5
 ipykernel<=6.21.3
 jupyter-client<=8.0.3
 ipython<8.13.0 ; python_version<"3.9"  # for python 3.8 compatibility
+sphinx-remove-toctrees

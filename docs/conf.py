@@ -35,9 +35,11 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = "0.6"
+version = os.getenv("VERSION_STRING", "0.6")
+
 # The full version, including alpha/beta/rc tags
-release = "0.6.0"
+release = os.getenv("RELEASE_STRING", "0.6.0")
+
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
@@ -67,8 +69,10 @@ extensions = [
     "sphinx_remove_toctrees",
 ]
 
-# Only remove for dev builds
-remove_from_toctrees = ["stubs/*"]
+# Remove stubs from the toctree by default because the full build is slow
+# This is turned off for docs deployment
+if not os.getenv("FULL_TOCTREE", None):
+    remove_from_toctrees = ["stubs/*"]
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
