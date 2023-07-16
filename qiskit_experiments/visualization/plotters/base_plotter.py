@@ -446,8 +446,9 @@ class BasePlotter(ABC):
                 provided, the axis numbers will be displayed in the scientific notation.
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
-            xscale (str): a parameter to the function `set_xscale`, like `log` and `linear`.
-                With the addition of a home-made parameter `quadratic`.
+            xscale (str): A parameter to the function ``set_xscale()`` to set the
+                x-axis scaling. Available options are ``log``, ``linear``, ``symlog``,
+                ``logit``, and ``quadratic``.
             yscale (str): See ``xscale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
