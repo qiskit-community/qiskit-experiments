@@ -211,8 +211,7 @@ class BaseDrawer(ABC):
                 provided, the axis numbers will be displayed in the scientific notation.
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
-            xscale (str): a parameter to the function `set_xscale`, like `log` and `linear`.
-                With the addition of a home-made parameter `quadratic`.
+            xscale (str): The scaling of the x-axis, such as ``log`` or ``linear``.
             yscale (str): like `xscale`, for the y-axis.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
