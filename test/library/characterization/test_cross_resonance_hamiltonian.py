@@ -26,7 +26,7 @@ from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
 
 
-def is_equivalent_circuits(circ1: QuantumCircuit, circ2: QuantumCircuit) -> bool:
+def is_equivalent_circuit(circ1: QuantumCircuit, circ2: QuantumCircuit) -> bool:
     """
     Check if two circuits are the same.
     We use it due to the field 'operation' under 'circ.data[i]' wich its '__qe__'
@@ -338,4 +338,4 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             decoded = qpy.load(buff)
 
         for circ1, circ2 in zip(circuits, decoded):
-            self.assertTrue(is_equivalent_circuits(circ1, circ2))
+            self.assertTrue(is_equivalent_circuit(circ1, circ2))
