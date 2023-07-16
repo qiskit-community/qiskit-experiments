@@ -30,7 +30,7 @@ def is_equivalent_circuit(circ1: QuantumCircuit, circ2: QuantumCircuit) -> bool:
     """
     Check if two circuits are the same.
     We use it due to the field 'operation' under 'circ.data[i]' wich its '__qe__'
-    method isn't good for reconstructed circuits (by using qpy) with costume pulse gates.
+    method isn't good for reconstructed circuits (by using qpy) with custom pulse gates.
     """
     check = (
         is_equivalent(circ1.calibrations, circ2.calibrations)
