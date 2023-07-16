@@ -212,7 +212,7 @@ class BaseDrawer(ABC):
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
             xscale (str): The scaling of the x-axis, such as ``log`` or ``linear``.
-            yscale (str): like `xscale`, for the y-axis.
+            yscale (str): See ``xscale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
             series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for
