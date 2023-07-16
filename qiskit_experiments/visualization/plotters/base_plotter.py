@@ -448,7 +448,7 @@ class BasePlotter(ABC):
                 needed. See ``xval_unit_scale`` for details.
             xscale (str): a parameter to the function `set_xscale`, like `log` and `linear`.
                 With the addition of a home-made parameter `quadratic`.
-            yscale (str): like `xscale`, for the y-axis.
+            yscale (str): See ``xscale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
             series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot
