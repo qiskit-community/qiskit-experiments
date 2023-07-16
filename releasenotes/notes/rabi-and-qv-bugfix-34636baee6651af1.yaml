@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Rabi experiment amplitudes are casted to `float` type for serialization purposes.
+  - |
+    QV experiment probabilities are casted to `list` type for serialization purposes.
