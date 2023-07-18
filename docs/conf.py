@@ -160,6 +160,8 @@ html_context = {
     "expandable_sidebar": True,
 }
 
+html_title = f"{project} {release}"
+
 docs_url_prefix = "ecosystem/experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"

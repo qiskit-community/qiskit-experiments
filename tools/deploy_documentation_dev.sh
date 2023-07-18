@@ -21,7 +21,7 @@ sudo apt-get install -y ./rclone.deb
 RCLONE_CONFIG_PATH=$(rclone config file | tail -1)
 
 # Build the documentation.
-EXPERIMENTS_DEV_DOCS=1 FULL_TOCTREE=1 VERSION_STRING=`git describe` tox -edocs
+EXPERIMENTS_DEV_DOCS=1 FULL_TOCTREE=1 RELEASE_STRING=`git describe` tox -edocs
 
 echo "show current dir: "
 pwd
