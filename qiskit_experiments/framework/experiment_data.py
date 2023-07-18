@@ -16,6 +16,7 @@ Experiment Data class
 from __future__ import annotations
 import logging
 import dataclasses
+import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
@@ -637,18 +638,13 @@ class ExperimentData:
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):
                 creds = provider.credentials
-                hub = creds.hub
-                group = creds.group
-                project = creds.project
+                self.hgp = f"{creds.hub}/{creds.group}/{creds.project}"
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
                 for hgp_string, hgp in provider._hgps.items():
                     if self.backend.name in hgp.backends:
-                        hub, group, project = hgp_string.split("/")
+                        self.hgp = hgp_string
                         break
-            self._db_data.hub = self._db_data.hub or hub
-            self._db_data.group = self._db_data.group or group
-            self._db_data.project = self._db_data.project or project
         except (AttributeError, IndexError):
             return
 
@@ -660,10 +656,12 @@ class ExperimentData:
     @hgp.setter
     def hgp(self, new_hgp: str) -> None:
         """Sets the Hub/Group/Project data from a formatted string"""
+        if re.match(r"\w+/\w+/\w+$", new_hgp) is None:
+            raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
         hub, group, project = new_hgp.split("/")
-        self._db_data.hub = self._db_data.hub or hub
-        self._db_data.group = self._db_data.group or group
-        self._db_data.project = self._db_data.project or project
+        self._db_data.hub = hub
+        self._db_data.group = group
+        self._db_data.project = project
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
