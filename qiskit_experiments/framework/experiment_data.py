@@ -642,7 +642,7 @@ class ExperimentData:
                     if self.backend.name in hgp.backends:
                         self.hgp = hgp_string
                         break
-        except (AttributeError, IndexError):
+        except (AttributeError, IndexError, QiskitError):
             return
 
     @property
