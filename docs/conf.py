@@ -144,16 +144,9 @@ add_module_names = False
 # package. Works only for the HTML builder currently.
 modindex_common_prefix = ["qiskit_experiments."]
 
-# -- Configuration for extlinks extension ------------------------------------
-# Refer to https://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html
-
-
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "qiskit-ecosystem"  # use the theme in subdir 'theme'
+html_theme = "qiskit-ecosystem"
 
 html_context = {
     "analytics_enabled": True,
