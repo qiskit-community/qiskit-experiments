@@ -24,6 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BackendData, ParallelExperiment
 from qiskit_experiments.library import ResonatorSpectroscopy
+from qiskit_experiments.database_service import Resonator
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQParallelExperimentHelper as ParallelExperimentHelper,
@@ -129,6 +130,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         self.assertAlmostEqual(result.value.n, res_freq + freq_shift, delta=0.1e6)
         self.assertEqual(str(result.device_components[0]), f"R{qubit}")
+        self.assertEqual(expdata.metadata["device_components"], [Resonator(qubit)])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -160,7 +162,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
 
-        expdata = exp.run(backend).block_for_results()
+        expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
@@ -229,7 +231,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
-        par_data = par_experiment.run().block_for_results()
+        par_data = par_experiment.run()
         self.assertExperimentDone(par_data)
 
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.

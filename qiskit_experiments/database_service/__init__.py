@@ -20,6 +20,17 @@ Database Service (:mod:`qiskit_experiments.database_service`)
 This subpackage provides database-specific utility functions and exceptions which
 are used with the :class:`.ExperimentData` and :class:`.AnalysisResult` classes.
 
+Device Components
+=================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   DeviceComponent
+   Qubit
+   Resonator
+   UnknownComponent
+   to_component
 
 Exceptions
 ==========
@@ -33,3 +44,4 @@ Exceptions
 """
 
 from .exceptions import ExperimentDataError, ExperimentEntryExists, ExperimentEntryNotFound
+from .device_component import DeviceComponent, Qubit, Resonator, UnknownComponent, to_component

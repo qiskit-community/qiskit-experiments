@@ -70,7 +70,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
-        expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
+        expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None)
+        self.assertExperimentDone(expdata_1qrb_q0, timeout=300)
 
         exp_1qrb_q1 = rb.StandardRB(
             physical_qubits=(1,),
@@ -79,7 +80,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_1qrb_q1.set_transpile_options(**transpiler_options)
-        expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results(timeout=300)
+        expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None)
+        self.assertExperimentDone(expdata_1qrb_q1, timeout=300)
 
         exp_2qrb = rb.StandardRB(
             physical_qubits=(0, 1),
@@ -88,7 +90,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_2qrb.set_transpile_options(**transpiler_options)
-        expdata_2qrb = exp_2qrb.run(analysis=None).block_for_results(timeout=300)
+        expdata_2qrb = exp_2qrb.run(analysis=None)
+        self.assertExperimentDone(expdata_2qrb, timeout=300)
 
         self.expdata_1qrb_q0 = expdata_1qrb_q0
         self.expdata_1qrb_q1 = expdata_1qrb_q1

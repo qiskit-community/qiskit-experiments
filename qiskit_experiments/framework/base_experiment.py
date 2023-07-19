@@ -28,13 +28,12 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
-from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.database_service import Qubit
 
 
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -413,10 +412,13 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
-        Subclasses can override this method to add custom experiment
-        metadata to the returned experiment result data.
+        By default, this assumes the experiment is running on qubits only. Subclasses can override
+        this method to add custom experiment metadata to the returned experiment result data.
         """
-        metadata = {"physical_qubits": list(self.physical_qubits)}
+        metadata = {
+            "physical_qubits": list(self.physical_qubits),
+            "device_components": list(map(Qubit, self.physical_qubits)),
+        }
         return metadata
 
     def __json_encode__(self):

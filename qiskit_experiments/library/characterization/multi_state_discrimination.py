@@ -21,7 +21,6 @@ from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
@@ -87,7 +86,6 @@ class MultiStateDiscrimination(BaseExperiment):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

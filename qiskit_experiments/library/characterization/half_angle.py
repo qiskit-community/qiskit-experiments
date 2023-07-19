@@ -21,7 +21,6 @@ from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngle(BaseExperiment):
@@ -79,7 +78,6 @@ class HalfAngle(BaseExperiment):
         options.inst_map = None
         return options
 
-    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Setup a half angle experiment on the given qubit.
 

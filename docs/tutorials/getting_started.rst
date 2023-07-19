@@ -10,25 +10,26 @@ Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`
 Experiments supports the same platforms as Qiskit itself and Python versions 3.8,
 3.9, 3.10, and 3.11.
 
-Qiskit Experiments releases can be installed via the Python package manager ``pip``:
+Qiskit Experiments releases can be installed via the Python package manager ``pip``
+in your shell environment:
 
-.. jupyter-input::
+.. code-block::
 
     python -m pip install qiskit-experiments
 
 If you want to run the most up-to-date version instead (may not be stable), you can
 install the latest main branch:
 
-.. jupyter-input::
+.. code-block::
 
-    python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
-.. jupyter-input::
+.. code-block::
 
-    git clone https://github.com/Qiskit/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
 The ``-e`` option will keep your installed package up to date as you make or pull new

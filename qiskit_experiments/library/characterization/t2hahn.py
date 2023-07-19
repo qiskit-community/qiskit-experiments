@@ -22,7 +22,6 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Hahn(BaseExperiment):
@@ -78,7 +77,6 @@ class T2Hahn(BaseExperiment):
         options.num_echoes = 1
         return options
 
-    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],

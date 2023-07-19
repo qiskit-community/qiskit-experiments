@@ -11,7 +11,7 @@ upgrade:
     This ratio has been extracted from backend properties with 
     :meth:`RBUtils.get_error_dict_from_backend`, but this approach may result in 
     unreproducible EPG outcomes under certain circumstances.
-    See `PR 762 <https://github.com/Qiskit/qiskit-experiments/pull/762>`_ for more details.
+    See `PR 762 <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/762>`_ for more details.
     Not this error ratio is provided from a hard-coded lookup table, 
     and the user can still provide custom values with analysis option ``gate_error_ratio``.
     One can skip computation of EPGs by setting the option to ``False``.

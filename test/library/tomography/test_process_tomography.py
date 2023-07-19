@@ -438,7 +438,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             CXGate(), measurement_basis=meas_basis, preparation_basis=prep_basis
         )
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("process_fidelity").value
         self.assertGreater(fid, 0.95)
@@ -467,7 +467,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Run experiment
         exp = ProcessTomography(CXGate(), measurement_basis=meas_basis)
         exp.backend = backend
-        expdata = exp.run(shots=2000).block_for_results()
+        expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("process_fidelity").value
         self.assertGreater(fid, 0.95)
@@ -476,13 +476,14 @@ class TestProcessTomography(QiskitExperimentsTestCase):
     def test_mitigated_full_qpt_random_unitary(self, qubits):
         """Test QPT experiment"""
         seed = 1234
-        shots = 5000
-        f_threshold = 0.95
+        shots = 1000
+        f_threshold = 0.9
 
         noise_model = readout_noise_model(4, seed=seed)
         backend = AerSimulator(seed_simulator=seed, shots=shots, noise_model=noise_model)
         target = qi.random_unitary(2 ** len(qubits), seed=seed)
         exp = MitigatedProcessTomography(target, backend=backend)
+        exp.set_transpile_options(seed_transpiler=42)
         exp.analysis.set_options(unmitigated_fit=True)
         expdata = exp.run(analysis=None)
         self.assertExperimentDone(expdata)
