@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixed a bug in `ExperimentData` which caused experiment saves to fail when the metadata is large.
