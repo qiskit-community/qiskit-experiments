@@ -255,7 +255,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
 
         Returns:
             A dictionary of Stark coefficients to convert amplitude to frequency.
-            Nane value is returned when the dictionary is incomplete.
+            None value is returned when the dictionary is incomplete.
         """
         out = {}
         try:

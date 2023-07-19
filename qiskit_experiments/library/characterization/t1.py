@@ -206,7 +206,7 @@ class StarkP1Spectroscopy(BaseExperiment):
             max_stark_amp (float): Maximum Stark tone amplitude.
             num_stark_amps (int): Number of Stark tone amplitudes to scan.
             spacing (str): A policy for the spacing to create an amplitude list from
-                ``min_stark_amp`` to ``max_stark_amp``. Either ``linear`` and ``quadratic``
+                ``min_stark_amp`` to ``max_stark_amp``. Either ``linear`` or ``quadratic``
                 must be specified.
             stark_amps (list[float]): The list of amplitude that will be scanned in the experiment.
                 If not set, then ``num_stark_amps`` amplitudes spaced according to
