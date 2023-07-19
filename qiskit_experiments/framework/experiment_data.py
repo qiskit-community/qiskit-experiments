@@ -655,10 +655,7 @@ class ExperimentData:
         """Sets the Hub/Group/Project data from a formatted string"""
         if re.match(r"\w+/\w+/\w+$", new_hgp) is None:
             raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
-        hub, group, project = new_hgp.split("/")
-        self._db_data.hub = hub
-        self._db_data.group = group
-        self._db_data.project = project
+        self._db_data.hub, self._db_data.group, self._db_data.project = new_hgp.split("/")
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
