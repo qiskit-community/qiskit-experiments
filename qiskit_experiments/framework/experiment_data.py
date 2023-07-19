@@ -29,6 +29,7 @@ import enum
 import time
 import io
 import sys
+import json
 import traceback
 import numpy as np
 from dateutil import tz
@@ -1482,7 +1483,8 @@ class ExperimentData:
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
-        return sys.getsizeof(self.metadata) > 10000
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
 
     def save(
         self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
