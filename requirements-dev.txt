@@ -12,7 +12,6 @@ reno>=4.0.0
 nbsphinx
 arxiv
 ddt>=1.6.0
-qiskit_dynamics>=0.4.0
 pandas>=1.1.5
 pylatexenc
 multimethod
