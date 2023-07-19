@@ -211,6 +211,8 @@ class BaseDrawer(ABC):
                 provided, the axis numbers will be displayed in the scientific notation.
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
+            xscale (str): The scaling of the x-axis, such as ``log`` or ``linear``.
+            yscale (str): See ``xscale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
             series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for
@@ -233,6 +235,8 @@ class BaseDrawer(ABC):
             yval_unit=None,
             xval_unit_scale=True,
             yval_unit_scale=True,
+            xscale=None,
+            yscale=None,
             figure_title=None,
             series_params={},
             custom_style=PlotStyle(),
