@@ -174,6 +174,27 @@ class MplDrawer(BaseDrawer):
                     v1 = np.nanmax([v1, this_v1])
                 lim = (v0, v1)
 
+            # Format scaling (log, quadratic, linear, etc.)
+            def signed_sqrt(x):
+                return np.sign(x) * np.sqrt(abs(x))
+
+            def signed_square(x):
+                return np.sign(x) * x**2
+
+            for sub_ax in all_axes:
+                if ax_type == "x":
+                    scale_opt = self.figure_options.xscale
+                    scale_function = sub_ax.set_xscale
+                else:
+                    scale_opt = self.figure_options.yscale
+                    scale_function = sub_ax.set_yscale
+
+                if scale_opt is not None:
+                    if scale_opt == "quadratic":
+                        scale_function("function", functions=(signed_square, signed_sqrt))
+                    else:
+                        scale_function(scale_opt)
+
             # Format axis number notation
             if unit and unit_scale:
                 # If value is specified, automatically scale axis magnitude
