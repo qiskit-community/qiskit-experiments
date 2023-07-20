@@ -1,8 +1,13 @@
 numpy>=1.17
 scipy>=1.4
+<<<<<<< HEAD
 qiskit-terra>=0.22
 qiskit-ibm-experiment>=0.2.5
 qiskit_dynamics>=0.3.0
+=======
+qiskit-terra>=0.24
+qiskit-ibm-experiment>=0.3.4
+>>>>>>> 970b376 (Bugfix in ExperimentData's handling of metadata save (#1229))
 matplotlib>=3.4
 uncertainties
 lmfit

@@ -29,6 +29,7 @@ import enum
 import time
 import io
 import sys
+import json
 import traceback
 import numpy as np
 from matplotlib import pyplot
@@ -1358,7 +1359,10 @@ class ExperimentData:
 
             if handle_metadata_separately:
                 self.service.file_upload(
-                    self._db_data.experiment_id, self._metadata_filename, metadata
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
                 )
                 self._db_data.metadata = metadata
 
@@ -1371,7 +1375,8 @@ class ExperimentData:
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
-        return sys.getsizeof(self.metadata) > 10000
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
 
     def save(self, suppress_errors: bool = True) -> None:
         """Save the experiment data to a database service.
@@ -1880,7 +1885,9 @@ class ExperimentData:
         """
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
-            metadata = service.file_download(experiment_id, cls._metadata_filename)
+            metadata = service.file_download(
+                experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder
+            )
             data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data)
 
