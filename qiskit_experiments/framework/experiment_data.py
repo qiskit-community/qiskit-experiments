@@ -1471,7 +1471,7 @@ class ExperimentData:
 
             if handle_metadata_separately:
                 self.service.file_upload(
-                    self._db_data.experiment_id, self._metadata_filename, metadata
+                    self._db_data.experiment_id, self._metadata_filename, metadata, self._json_encoder
                 )
                 self._db_data.metadata = metadata
 
@@ -1485,6 +1485,8 @@ class ExperimentData:
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
         total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        print(self.metadata)
+        print("total_metadata_size=", total_metadata_size)
         return total_metadata_size > 10000
 
     def save(

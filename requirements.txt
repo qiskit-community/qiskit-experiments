@@ -3,7 +3,7 @@ numpy>=1.17
 # see https://github.com/cvxpy/cvxpy/issues/2158
 scipy>=1.4,<1.11.0
 qiskit-terra>=0.24
-qiskit-ibm-experiment>=0.3.3
+qiskit-ibm-experiment>=0.3.4
 matplotlib>=3.4
 uncertainties
 lmfit
