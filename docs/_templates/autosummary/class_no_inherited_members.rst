@@ -1,7 +1,4 @@
-{#
-   We show all the class's methods and attributes on the same page. By default, we document
-   all methods, including those defined by parent classes.
--#}
+{# This is identical to class.rst, except for the filtering in `set wanted_methods`. -#}
 
 {{ objname | escape | underline }}
 
@@ -9,7 +6,6 @@
 
 .. autoclass:: {{ objname }}
    :no-members:
-   :no-special-members:
    :show-inheritance:
 
 {% block attributes_summary %}
@@ -22,7 +18,7 @@
 {% endblock -%}
 
 {% block methods_summary %}
-  {% set wanted_methods = (methods | reject('==', '__init__') | list) %}
+  {% set wanted_methods = (methods | reject('in', inherited_members) | reject('==', '__init__') | list) %}
   {% if wanted_methods %}
    .. rubric:: Methods
     {% for item in wanted_methods %}
