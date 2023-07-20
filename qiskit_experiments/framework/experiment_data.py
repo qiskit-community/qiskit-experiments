@@ -1471,7 +1471,10 @@ class ExperimentData:
 
             if handle_metadata_separately:
                 self.service.file_upload(
-                    self._db_data.experiment_id, self._metadata_filename, metadata, json_encoder=self._json_encoder
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
                 )
                 self._db_data.metadata = metadata
 
@@ -2059,7 +2062,9 @@ class ExperimentData:
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
-            metadata = service.file_download(experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder)
+            metadata = service.file_download(
+                experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder
+            )
             data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data, provider=provider)
 
