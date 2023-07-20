@@ -123,6 +123,10 @@ instantiate an experiment entry in the database, but it will not have
 complete data. To fix this, you can call :meth:`~.ExperimentData.save` again once the
 experiment is done running.
 
+Sometimes the metadata of an experiment can be very large and cannot be stored directly in the database.
+In this case, a separate `metadata.json` file will be stored along with the experiment. Saving and loading
+this file is done automatically in :meth:`~.ExperimentData.save` and :meth:`~.ExperimentData.load`.
+
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
