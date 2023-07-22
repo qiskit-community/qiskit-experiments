@@ -1,0 +1,5 @@
+qiskit-ibm-provider>=0.6.1 # for submitting experiments to backends through the IBM provider
+cvxpy>=1.3.2 # for tomography
+scikit-learn # for discriminators
+qiskit-aer>=0.11.0 # for QV simulations
+qiskit_dynamics>=0.4.0 # for the PulseBackend

@@ -446,6 +446,10 @@ class BasePlotter(ABC):
                 provided, the axis numbers will be displayed in the scientific notation.
             yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
                 needed. See ``xval_unit_scale`` for details.
+            xscale (str): A parameter to the function ``set_xscale()`` to set the
+                x-axis scaling. Available options are ``log``, ``linear``, ``symlog``,
+                ``logit``, and ``quadratic``.
+            yscale (str): See ``xscale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
             series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot
@@ -455,7 +459,7 @@ class BasePlotter(ABC):
                 (when multi-canvas plot is set), "color" is the color of the curve, and
                 "symbol" is the marker Style of the curve for scatter plots.
         """
-        return Options(
+        options = Options(
             xlabel=None,
             ylabel=None,
             xlim=None,
@@ -464,9 +468,16 @@ class BasePlotter(ABC):
             yval_unit=None,
             xval_unit_scale=True,
             yval_unit_scale=True,
+            xscale=None,
+            yscale=None,
             figure_title=None,
             series_params={},
         )
+
+        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic"])
+        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic"])
+
+        return options
 
     def set_options(self, **fields):
         """Set the plotter options.

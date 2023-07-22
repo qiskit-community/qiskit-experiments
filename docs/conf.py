@@ -16,7 +16,6 @@ Sphinx documentation builder.
 
 import os
 import sys
-import subprocess
 import datetime
 
 # -- Path setup --------------------------------------------------------------
@@ -36,9 +35,11 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = "0.6"
+version = os.getenv("VERSION_STRING", "0.6")
+
 # The full version, including alpha/beta/rc tags
-release = "0.6.0"
+release = os.getenv("RELEASE_STRING", "0.6.0")
+
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
@@ -65,10 +66,21 @@ extensions = [
     "autodoc_analysis",
     "autodoc_visualization",
     "jupyter_execute_custom",
+    "sphinx_remove_toctrees",
 ]
+
+# Remove stubs from the toctree by default because the full build is slow
+# This is turned off for docs deployment
+if not os.getenv("FULL_TOCTREE", None):
+    remove_from_toctrees = ["stubs/*"]
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
+# Manually add the gallery CSS file for now
+# TODO: Figure out why the styling is not working by default
+html_css_files = [
+    "nbsphinx-gallery.css",
+]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -137,33 +149,20 @@ add_module_names = False
 # package. Works only for the HTML builder currently.
 modindex_common_prefix = ["qiskit_experiments."]
 
-# -- Configuration for extlinks extension ------------------------------------
-# Refer to https://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html
-
-
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
+html_theme = "qiskit-ecosystem"
 
 html_context = {
     "analytics_enabled": True,
     "expandable_sidebar": True,
 }
 
+html_title = f"{project} {release}"
+
 docs_url_prefix = "ecosystem/experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
-
-html_theme_options = {
-    "logo_only": True,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": True,
-}
-
 
 autoclass_content = "both"
 intersphinx_mapping = {

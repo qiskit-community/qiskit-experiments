@@ -16,6 +16,7 @@ Experiment Data class
 from __future__ import annotations
 import logging
 import dataclasses
+import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
@@ -29,6 +30,7 @@ import enum
 import time
 import io
 import sys
+import json
 import traceback
 import numpy as np
 from dateutil import tz
@@ -631,26 +633,30 @@ class ExperimentData:
 
     def _set_hgp_from_provider(self, provider):
         try:
-            hub = None
-            group = None
-            project = None
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):
                 creds = provider.credentials
-                hub = creds.hub
-                group = creds.group
-                project = creds.project
+                self.hgp = f"{creds.hub}/{creds.group}/{creds.project}"
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
-                for hgp_string, hgp in self.backend.provider._hgps.items():
+                for hgp_string, hgp in provider._hgps.items():
                     if self.backend.name in hgp.backends:
-                        hub, group, project = hgp_string.split("/")
+                        self.hgp = hgp_string
                         break
-            self._db_data.hub = self._db_data.hub or hub
-            self._db_data.group = self._db_data.group or group
-            self._db_data.project = self._db_data.project or project
-        except (AttributeError, IndexError):
+        except (AttributeError, IndexError, QiskitError):
             return
+
+    @property
+    def hgp(self) -> str:
+        """Returns Hub/Group/Project data as a formatted string"""
+        return f"{self.hub}/{self.group}/{self.project}"
+
+    @hgp.setter
+    def hgp(self, new_hgp: str) -> None:
+        """Sets the Hub/Group/Project data from a formatted string"""
+        if re.match(r"\w+/\w+/\w+$", new_hgp) is None:
+            raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
+        self._db_data.hub, self._db_data.group, self._db_data.project = new_hgp.split("/")
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -1470,7 +1476,10 @@ class ExperimentData:
 
             if handle_metadata_separately:
                 self.service.file_upload(
-                    self._db_data.experiment_id, self._metadata_filename, metadata
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
                 )
                 self._db_data.metadata = metadata
 
@@ -1483,7 +1492,8 @@ class ExperimentData:
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
-        return sys.getsizeof(self.metadata) > 10000
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
 
     def save(
         self,
@@ -2057,7 +2067,9 @@ class ExperimentData:
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
-            metadata = service.file_download(experiment_id, cls._metadata_filename)
+            metadata = service.file_download(
+                experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder
+            )
             data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data, provider=provider)
 

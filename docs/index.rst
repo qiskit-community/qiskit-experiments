@@ -94,20 +94,10 @@ We've divided up the documentation into four sections with different purposes:
 
 .. toctree::
     :hidden:
-    :caption: Tutorials
 
-    All Tutorials <tutorials/index>
-    tutorials/intro
-    tutorials/getting_started
-    Calibrations <tutorials/calibrations>
-    Data Processor <tutorials/data_processor>
-    Curve Analysis <tutorials/curve_analysis>
-    Visualization <tutorials/visualization>
-    Custom Experiments <tutorials/custom_experiment>
-
-.. toctree::
-    :hidden:
-
+    Qiskit Experiments Home <self>
+    Getting Started <tutorials/getting_started>
+    tutorials/index
     howtos/index
     manuals/index
     apidocs/index
