@@ -207,6 +207,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         p1spect_plotter.set_figure_options(
             xlabel="Stark amplitude",
             ylabel="P(1)",
+            xscale="quadratic",
         )
 
         options.update_options(
@@ -296,6 +297,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         self.plotter.set_figure_options(
             xlabel="Stark shift",
             xval_unit="Hz",
+            xscale="linear",
         )
         return new_xdata
 
