@@ -24,6 +24,7 @@ Experiments
     :template: autosummary/experiment.rst
 
     T1
+    StarkP1Spectroscopy
     T2Ramsey
     T2Hahn
     Tphi
@@ -62,6 +63,7 @@ Analysis
 
     T1Analysis
     T1KerneledAnalysis
+    StarkP1SpectAnalysis
     T2RamseyAnalysis
     T2HahnAnalysis
     TphiAnalysis
@@ -84,6 +86,7 @@ from .analysis import (
     FineAmplitudeAnalysis,
     RamseyXYAnalysis,
     StarkRamseyXYAmpScanAnalysis,
+    StarkP1SpectAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
     T1KerneledAnalysis,
@@ -98,7 +101,7 @@ from .analysis import (
     MultiStateDiscriminationAnalysis,
 )
 
-from .t1 import T1
+from .t1 import T1, StarkP1Spectroscopy
 from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey

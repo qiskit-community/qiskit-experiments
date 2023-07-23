@@ -160,6 +160,7 @@ from .calibration import (
 )
 from .characterization import (
     T1,
+    StarkP1Spectroscopy,
     T2Hahn,
     T2Ramsey,
     Tphi,
