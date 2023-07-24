@@ -82,9 +82,9 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         """Test generating parameters with linear spacing."""
         exp = StarkP1Spectroscopy((0,))
         exp.set_experiment_options(
-            min_stark_amp=-1,
-            max_stark_amp=1,
-            num_stark_amps=5,
+            min_xval=-1,
+            max_xval=1,
+            num_xvals=5,
             spacing="linear",
         )
         params = exp.parameters()
@@ -96,9 +96,9 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         """Test generating parameters with quadratic spacing."""
         exp = StarkP1Spectroscopy((0,))
         exp.set_experiment_options(
-            min_stark_amp=-1,
-            max_stark_amp=1,
-            num_stark_amps=5,
+            min_xval=-1,
+            max_xval=1,
+            num_xvals=5,
             spacing="quadratic",
         )
         params = exp.parameters()
@@ -111,6 +111,83 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         exp = StarkP1Spectroscopy((0,))
         with self.assertRaises(ValueError):
             exp.set_experiment_options(spacing="invalid_option")
+
+    def test_raises_scanning_frequency_without_service(self):
+        """Test raises error when frequency is set without having service or coefficients set."""
+        exp = StarkP1Spectroscopy((0,), backend=FakeHanoiV2())
+        exp.set_experiment_options(
+            xvals=[-100e6, -50e6, 0, 50e6, 100e6],
+            xval_type="frequency",
+            stark_coefficients="latest",
+        )
+        with self.assertRaises(RuntimeError):
+            exp.parameters()
+
+    def test_scanning_frequency(self):
+        """Test scanning frequency with experiment service."""
+        exp = StarkP1Spectroscopy((0,), backend=FakeHanoiV2())
+
+        ref_amplitudes = np.array([-0.50, -0.25, 0.0, 0.25, 0.50], dtype=float)
+        test_freqs = np.where(
+            ref_amplitudes > 0,
+            (
+                self.coeffs["stark_pos_coef_o1"] * ref_amplitudes
+                + self.coeffs["stark_pos_coef_o2"] * ref_amplitudes**2
+                + self.coeffs["stark_pos_coef_o3"] * ref_amplitudes**3
+                + self.coeffs["stark_ferr"]
+            ),
+            (
+                self.coeffs["stark_neg_coef_o1"] * ref_amplitudes
+                + self.coeffs["stark_neg_coef_o2"] * ref_amplitudes**2
+                + self.coeffs["stark_neg_coef_o3"] * ref_amplitudes**3
+                + self.coeffs["stark_ferr"]
+            ),
+        )
+        exp.set_experiment_options(
+            xvals=test_freqs,
+            xval_type="frequency",
+            service=self.service,
+        )
+        params = exp.parameters()
+
+        np.testing.assert_array_almost_equal(params, ref_amplitudes)
+
+    def test_scanning_frequency_with_coeffs(self):
+        """Test scanning frequency with manually provided Stark coefficients."""
+        exp = StarkP1Spectroscopy((0,), backend=FakeHanoiV2())
+
+        ref_amplitudes = np.array([-0.50, -0.25, 0.0, 0.25, 0.50], dtype=float)
+        test_freqs = np.where(
+            ref_amplitudes > 0,
+            (
+                self.coeffs["stark_pos_coef_o1"] * ref_amplitudes
+                + self.coeffs["stark_pos_coef_o2"] * ref_amplitudes**2
+                + self.coeffs["stark_pos_coef_o3"] * ref_amplitudes**3
+                + self.coeffs["stark_ferr"]
+            ),
+            (
+                self.coeffs["stark_neg_coef_o1"] * ref_amplitudes
+                + self.coeffs["stark_neg_coef_o2"] * ref_amplitudes**2
+                + self.coeffs["stark_neg_coef_o3"] * ref_amplitudes**3
+                + self.coeffs["stark_ferr"]
+            ),
+        )
+        exp.set_experiment_options(
+            xvals=test_freqs,
+            xval_type="frequency",
+            stark_coefficients={
+                "stark_pos_coef_o1": self.coeffs["stark_pos_coef_o1"],
+                "stark_pos_coef_o2": self.coeffs["stark_pos_coef_o2"],
+                "stark_pos_coef_o3": self.coeffs["stark_pos_coef_o3"],
+                "stark_neg_coef_o1": self.coeffs["stark_neg_coef_o1"],
+                "stark_neg_coef_o2": self.coeffs["stark_neg_coef_o2"],
+                "stark_neg_coef_o3": self.coeffs["stark_neg_coef_o3"],
+                "stark_ferr": self.coeffs["stark_ferr"],
+            },
+        )
+        params = exp.parameters()
+
+        np.testing.assert_array_almost_equal(params, ref_amplitudes)
 
     def test_circuits(self):
         """Test generated circuits."""
@@ -125,7 +202,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
 
         exp = StarkP1Spectroscopy((0,), backend)
         exp.set_experiment_options(
-            stark_amps=[-0.5, 0.5],
+            xvals=[-0.5, 0.5],
             stark_freq_offset=10e6,
             t1_delay=100,
             stark_sigma=15,

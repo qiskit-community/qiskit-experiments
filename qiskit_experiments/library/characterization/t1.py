@@ -21,7 +21,7 @@ from qiskit.circuit import QuantumCircuit, Gate, Parameter, ParameterExpression
 from qiskit.providers.backend import Backend
 from qiskit.utils import optionals as _optional
 
-from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, ExperimentData, Options
 from qiskit_experiments.library.characterization.analysis.t1_analysis import (
     T1Analysis,
     StarkP1SpectAnalysis,
@@ -202,16 +202,18 @@ class StarkP1Spectroscopy(BaseExperiment):
                 of the Stark tone, in seconds.
             stark_risefall (float): Ratio of sigma to the duration of
                 the rising and falling edges of the Stark tone.
-            min_stark_amp (float): Minimum Stark tone amplitude.
-            max_stark_amp (float): Maximum Stark tone amplitude.
-            num_stark_amps (int): Number of Stark tone amplitudes to scan.
+            min_xval (float): Minimum x value.
+            max_xval (float): Maximum x value.
+            num_xvals (int): Number of x-values to scan.
+            xval_type (str): Type of x-value. Either ``amplitude`` or ``frequency``.
+                Setting to frequency requires pre-calibration of Stark shift coefficients.
             spacing (str): A policy for the spacing to create an amplitude list from
                 ``min_stark_amp`` to ``max_stark_amp``. Either ``linear`` or ``quadratic``
                 must be specified.
-            stark_amps (list[float]): The list of amplitude that will be scanned in the experiment.
-                If not set, then ``num_stark_amps`` amplitudes spaced according to
-                the ``spacing`` policy between ``min_stark_amp`` and ``max_stark_amp`` are used.
-                If ``stark_amps`` is set, these parameters are ignored.
+            xvals (list[float]): The list of x-values that will be scanned in the experiment.
+                If not set, then ``num_xvals`` parameters spaced according to
+                the ``spacing`` policy between ``min_xval`` and ``max_xval`` are used.
+                If ``xvals`` is set, these parameters are ignored.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -220,13 +222,17 @@ class StarkP1Spectroscopy(BaseExperiment):
             stark_freq_offset=80e6,
             stark_sigma=15e-9,
             stark_risefall=2,
-            min_stark_amp=-1,
-            max_stark_amp=1,
-            num_stark_amps=201,
+            min_xval=-1,
+            max_xval=1,
+            num_xvals=201,
+            xval_type="amplitude",
             spacing="quadratic",
-            stark_amps=None,
+            xvals=None,
+            service=None,
+            stark_coefficients="latest",
         )
         options.set_validator("spacing", ["linear", "quadratic"])
+        options.set_validator("xval_type", ["amplitude", "frequency"])
         options.set_validator("stark_freq_offset", (0, np.inf))
         options.set_validator("stark_channel", pulse.channels.PulseChannel)
         return options
@@ -234,6 +240,10 @@ class StarkP1Spectroscopy(BaseExperiment):
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
         self._timing = BackendTiming(backend)
+        if self.experiment_options.service is not None:
+            self.set_experiment_options(
+                service=ExperimentData.get_service_from_backend(backend),
+            )
 
     def parameters(self) -> np.ndarray:
         """Stark tone amplitudes to use in circuits.
@@ -244,20 +254,109 @@ class StarkP1Spectroscopy(BaseExperiment):
         """
         opt = self.experiment_options  # alias
 
-        if opt.stark_amps is None:
+        if opt.xvals is None:
             if opt.spacing == "linear":
-                params = np.linspace(opt.min_stark_amp, opt.max_stark_amp, opt.num_stark_amps)
+                params = np.linspace(opt.min_xval, opt.max_xval, opt.num_xvals)
             elif opt.spacing == "quadratic":
-                min_sqrt = np.sign(opt.min_stark_amp) * np.sqrt(np.abs(opt.min_stark_amp))
-                max_sqrt = np.sign(opt.max_stark_amp) * np.sqrt(np.abs(opt.max_stark_amp))
-                lin_params = np.linspace(min_sqrt, max_sqrt, opt.num_stark_amps)
+                min_sqrt = np.sign(opt.min_xval) * np.sqrt(np.abs(opt.min_xval))
+                max_sqrt = np.sign(opt.max_xval) * np.sqrt(np.abs(opt.max_xval))
+                lin_params = np.linspace(min_sqrt, max_sqrt, opt.num_xvals)
                 params = np.sign(lin_params) * lin_params**2
             else:
                 raise ValueError(f"Spacing option {opt.spacing} is not valid.")
         else:
-            params = np.asarray(opt.stark_amps, dtype=float)
+            params = np.asarray(opt.xvals, dtype=float)
 
+        if opt.xval_type == "frequency":
+            return self._frequencies_to_amplitudes(params)
         return params
+
+    def _frequencies_to_amplitudes(self, params: np.ndarray) -> np.ndarray:
+        """A helper method to convert frequency values to amplitude.
+
+        Args:
+            params: Parameters representing a frequency of Stark shift.
+
+        Returns:
+            Corresponding Stark tone amplitudes.
+
+        Raises:
+            RuntimeError: When service or analysis results for Stark coefficients are not available.
+            TypeError: When attached analysis class is not valid.
+            KeyError: When stark_coefficients dictionary is provided but keys are missing.
+            ValueError: When specified Stark shift is not available.
+        """
+        opt = self.experiment_options  # alias
+
+        if not isinstance(self.analysis, StarkP1SpectAnalysis):
+            raise TypeError(
+                f"Analysis class {self.analysis.__class__.__name__} is not a subclass of "
+                "StarkP1SpectAnalysis. Use proper analysis class to scan frequencies."
+            )
+        coef_names = self.analysis.stark_coefficients_names
+
+        if opt.stark_coefficients == "latest":
+            if opt.service is None:
+                raise RuntimeError(
+                    "Experiment service is not available. Provide a dictionary of "
+                    "Stark coefficients in the experiment options."
+                )
+            coefficients = self.analysis.retrieve_coefficients_from_service(
+                service=opt.service,
+                qubit=self.physical_qubits[0],
+                backend=self._backend_data.name,
+            )
+            if coefficients is None:
+                raise RuntimeError(
+                    "Experiment results for the coefficients of the Stark shift is not found "
+                    f"for the backend {self._backend_data.name} qubit {self.physical_qubits}."
+                )
+        else:
+            missing = set(coef_names) - opt.stark_coefficients.keys()
+            if any(missing):
+                raise KeyError(
+                    f"Following coefficient data is missing in the 'stark_coefficients': {missing}."
+                )
+            coefficients = opt.stark_coefficients
+        positive = np.asarray([coefficients[coef_names[idx]] for idx in [2, 1, 0]])
+        negative = np.asarray([coefficients[coef_names[idx]] for idx in [5, 4, 3]])
+        offset = coefficients[coef_names[6]]
+
+        amplitudes = np.zeros_like(params)
+        for idx, param in enumerate(params):
+            constant = offset - param
+            if np.isclose(constant, 0.0):
+                # This is a point where Stark amplitude is expected to be zero.
+                # Because np.sign(0) = 0 as an exception, this requires special handling.
+                # https://numpy.org/doc/stable/reference/generated/numpy.sign.html
+                amplitudes[idx] = 0.0
+                continue
+            if param > 0:
+                amp_candidates = np.roots(np.append(positive, constant))
+            else:
+                amp_candidates = np.roots(np.append(negative, constant))
+            # Because the fit function is third order, we get three solutions here.
+            # Only one valid solution must exist because we assume
+            # a monotonic trend for Stark shift against tone amplitude in domain of definition.
+            #
+            # The criteria of the valid solution are
+            #   - Frequency shift and tone have the same sign (by definition)
+            #   - Tone amplitude is a real value
+            #   - The absolute value of tone amplitude must be less than 1.0
+            #
+            valid_amp = np.where(
+                (np.sign(amp_candidates.real) == np.sign(param))
+                & np.isclose(amp_candidates.imag, 0.0)
+                & (np.abs(amp_candidates.real) < 1.0)
+            )
+            try:
+                amplitudes[idx] = float(amp_candidates[valid_amp].real)
+            except TypeError as ex:
+                raise ValueError(
+                    f"Stark shift at frequency value of {param} Hz is not available on this device."
+                ) from ex
+
+        return amplitudes
 
     def parameterized_circuits(self) -> Tuple[QuantumCircuit, ...]:
         """Create circuits with parameters for P1 experiment with Stark shift.
