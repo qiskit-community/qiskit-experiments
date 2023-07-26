@@ -14,7 +14,6 @@ The Basics
     :maxdepth: 2
 
     intro
-    getting_started
     
 Exploring Modules
 -----------------
