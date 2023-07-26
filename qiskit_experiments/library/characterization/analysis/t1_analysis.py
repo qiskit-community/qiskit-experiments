@@ -275,6 +275,50 @@ class StarkP1SpectAnalysis(BaseAnalysis):
             return None
         return out
 
+    @classmethod
+    def estimate_minmax_frequencies(
+        cls,
+        service: IBMExperimentService,
+        qubit: int,
+        backend: str,
+        max_amplitudes: Tuple[float, float] = (-0.9, 0.9),
+    ) -> Tuple[float, float]:
+        """Inquire maximum and minimum Stark shfit available within specified amplitude range.
+
+        Args:
+            service: A valid experiment service instance.
+            qubit: Qubit index.
+            backend: Name of the backend.
+            max_amplitudes: Minimum and maximum amplitude.
+
+        Returns:
+              Tuple of minimum and maximum frequency.
+        """
+        coeffs = cls.retrieve_coefficients_from_service(service, qubit, backend)
+        names = cls.stark_coefficients_names  # alias
+        pos_idxs = [2, 1, 0]
+        neg_idxs = [5, 4, 3]
+
+        freqs = []
+        for idxs, max_amp in zip((neg_idxs, pos_idxs), max_amplitudes):
+            # Solve for inflection points by computing the point where derivertive becomes zero.
+            solutions = np.roots(
+                [deriv * coeffs[names[idx]] for deriv, idx in zip([3, 2, 1], idxs)]
+            )
+            inflection_points = solutions[
+                (solutions.imag == 0) & (np.sign(solutions) == np.sign(max_amp))
+            ]
+            if len(inflection_points) == 0:
+                amp = max_amp
+            else:
+                # When multiple inflection points are found, use the most outer one.
+                # There could be a small inflection point around amp=0,
+                # when the first order term is significant.
+                amp = min(max_amp, max(inflection_points, key=abs), key=abs)
+            polyfun = np.poly1d([coeffs[names[idx]] for idx in [*idxs, 6]])
+            freqs.append(polyfun(amp))
+        return freqs
+
     def _convert_axis(
         self,
         xdata: np.ndarray,
