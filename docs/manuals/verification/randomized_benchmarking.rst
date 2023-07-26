@@ -161,7 +161,7 @@ for the single qubit channel :math:`n=1`. Accordingly,
 
 as a composition of depolarization from every primitive gates per qubit.
 This correction will give you two EPC values as a result of the two-qubit RB experiment.
-The corrected EPC must be closer to the outcome of of interleaved RB.
+The corrected EPC must be closer to the outcome of interleaved RB.
 The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
@@ -175,7 +175,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     # Run a 1-qubit RB experiment on qubits 1, 2 to determine the error-per-gate of 1-qubit gates
     single_exps = BatchExperiment(
         [
-            StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
+            StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
         ],
         flatten_results=True,

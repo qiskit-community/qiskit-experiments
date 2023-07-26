@@ -303,7 +303,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         for result_type in range(2):
             resids = sorted(
                 [
-                    res["result_id"]
+                    res.result_id
                     for res in self.service.analysis_results(
                         result_type=str(result_type), limit=None
                     )
@@ -322,7 +322,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         for experiment_id in range(2):
             resids = sorted(
                 [
-                    res["result_id"]
+                    res.result_id
                     for res in self.service.analysis_results(
                         experiment_id=str(experiment_id), limit=None
                     )
@@ -341,7 +341,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         for quality in range(2):
             resids = sorted(
                 [
-                    res["result_id"]
+                    res.result_id
                     for res in self.service.analysis_results(quality=quality, limit=None)
                 ]
             )
@@ -354,7 +354,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         for verified in range(2):
             resids = sorted(
                 [
-                    res["result_id"]
+                    res.result_id
                     for res in self.service.analysis_results(verified=verified, limit=None)
                 ]
             )
@@ -367,7 +367,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         for backend_name in range(2):
             resids = sorted(
                 [
-                    res["result_id"]
+                    res.result_id
                     for res in self.service.analysis_results(
                         backend_name=str(backend_name), limit=None
                     )
@@ -385,7 +385,7 @@ class TestFakeService(QiskitExperimentsTestCase):
 
         resids = sorted(
             [
-                res["result_id"]
+                res.result_id
                 for res in self.service.analysis_results(
                     tags=["a1", "b1"], tags_operator="AND", limit=None
                 )
@@ -403,7 +403,7 @@ class TestFakeService(QiskitExperimentsTestCase):
 
         resids = sorted(
             [
-                res["result_id"]
+                res.result_id
                 for res in self.service.analysis_results(
                     tags=["a1", "c1"], tags_operator="AND", limit=None
                 )
@@ -412,10 +412,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertEqual(len(resids), 0)
 
         resids = sorted(
-            [
-                res["result_id"]
-                for res in self.service.analysis_results(tags=["a0", "c0"], limit=None)
-            ]
+            [res.result_id for res in self.service.analysis_results(tags=["a0", "c0"], limit=None)]
         )
         ref_resids = sorted(
             [res["result_id"] for res in self.resdict.values() if "a0" in res["tags"]]
@@ -423,13 +420,13 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertTrue(len(resids) > 0)
         self.assertEqual(resids, ref_resids)
 
-        datetimes = [res["creation_datetime"] for res in self.service.analysis_results(limit=None)]
+        datetimes = [res.creation_datetime for res in self.service.analysis_results(limit=None)]
         self.assertTrue(len(datetimes) > 0)
         for i in range(len(datetimes) - 1):
             self.assertTrue(datetimes[i] >= datetimes[i + 1])
 
         datetimes = [
-            res["creation_datetime"]
+            res.creation_datetime
             for res in self.service.analysis_results(sort_by="creation_datetime:asc", limit=None)
         ]
         self.assertTrue(len(datetimes) > 0)
@@ -442,7 +439,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         """Test FakeService.delete_analysis_result"""
         results = self.service.analysis_results(experiment_id="6")
         old_number = len(results)
-        to_delete = results[0]["result_id"]
+        to_delete = results[0].result_id
         self.service.delete_analysis_result(result_id=to_delete)
         results = self.service.analysis_results(experiment_id="6")
         self.assertEqual(len(results), old_number - 1)

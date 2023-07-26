@@ -14,37 +14,7 @@
 A library of fit functions.
 """
 # pylint: disable=invalid-name, no-member
-
-import functools
-from typing import Callable, Union
-
 import numpy as np
-from uncertainties import UFloat
-from qiskit_experiments.warnings import deprecated_function
-
-
-@deprecated_function("0.5", "LMFIT fitter does not take UFloat functions.")
-def typecast_float(fit_func: Callable) -> Callable:
-    """A decorator to typecast y values to a float array if the input parameters have no error.
-
-    Args:
-        fit_func: Fit function that returns a ufloat array or an array of float.
-
-    Returns:
-        Fit function with typecast.
-    """
-
-    @functools.wraps(fit_func)
-    def _wrapper(x, *args, **kwargs) -> Union[float, UFloat, np.ndarray]:
-        yvals = fit_func(x, *args, **kwargs)
-        try:
-            if isinstance(x, float):
-                return float(yvals)
-            return yvals.astype(float)
-        except TypeError:
-            return yvals
-
-    return _wrapper
 
 
 def cos(
@@ -149,57 +119,3 @@ def sin_decay(
         + {\rm phase}\right) + {\rm baseline}
     """
     return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline
-
-
-@deprecated_function("0.5", "Now fit function can be defined with Python string.")
-def bloch_oscillation_x(
-    x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
-):
-    r"""Bloch oscillation in x basis.
-
-    .. math::
-        y = \frac{\left( - p_z p_x + p_z p_x \cos (\omega x)
-        + \omega p_y \sin (\omega x) \right)}{\omega^2} + {\rm baseline},
-
-    where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
-    measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
-    """
-    w = np.sqrt(px**2 + py**2 + pz**2)
-
-    return (-pz * px + pz * px * np.cos(w * x) + w * py * np.sin(w * x)) / (w**2) + baseline
-
-
-@deprecated_function("0.5", "Now fit function can be defined with Python string.")
-def bloch_oscillation_y(
-    x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
-):
-    r"""Bloch oscillation in y basis.
-
-    .. math::
-        y = \frac{\left( p_z p_y - p_z p_y \cos (\omega x)
-        - \omega p_x \sin (\omega x) \right)}{\omega^2} + {\rm baseline},
-
-    where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
-    measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
-    """
-    w = np.sqrt(px**2 + py**2 + pz**2)
-
-    return (pz * py - pz * py * np.cos(w * x) - w * px * np.sin(w * x)) / (w**2) + baseline
-
-
-@deprecated_function("0.5", "Now fit function can be defined with Python string.")
-def bloch_oscillation_z(
-    x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
-):
-    r"""Bloch oscillation in z basis.
-
-    .. math::
-        y = \frac{\left( p_z^2 + (p_x^2 + p_y^2) \cos (\omega x) \right)}{\omega^2}
-        + {\rm baseline},
-
-    where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
-    measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
-    """
-    w = np.sqrt(px**2 + py**2 + pz**2)
-
-    return (pz**2 + (px**2 + py**2) * np.cos(w * x)) / (w**2) + baseline

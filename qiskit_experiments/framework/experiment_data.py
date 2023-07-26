@@ -16,6 +16,7 @@ Experiment Data class
 from __future__ import annotations
 import logging
 import dataclasses
+import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
@@ -29,6 +30,7 @@ import enum
 import time
 import io
 import sys
+import json
 import traceback
 import numpy as np
 from dateutil import tz
@@ -215,6 +217,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
+    _max_workers_cap = 10
 
     def __init__(
         self,
@@ -629,26 +632,30 @@ class ExperimentData:
 
     def _set_hgp_from_provider(self, provider):
         try:
-            hub = None
-            group = None
-            project = None
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):
                 creds = provider.credentials
-                hub = creds.hub
-                group = creds.group
-                project = creds.project
+                self.hgp = f"{creds.hub}/{creds.group}/{creds.project}"
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
-                for hgp_string, hgp in self.backend.provider._hgps.items():
+                for hgp_string, hgp in provider._hgps.items():
                     if self.backend.name in hgp.backends:
-                        hub, group, project = hgp_string.split("/")
+                        self.hgp = hgp_string
                         break
-            self._db_data.hub = self._db_data.hub or hub
-            self._db_data.group = self._db_data.group or group
-            self._db_data.project = self._db_data.project or project
-        except (AttributeError, IndexError):
+        except (AttributeError, IndexError, QiskitError):
             return
+
+    @property
+    def hgp(self) -> str:
+        """Returns Hub/Group/Project data as a formatted string"""
+        return f"{self.hub}/{self.group}/{self.project}"
+
+    @hgp.setter
+    def hgp(self, new_hgp: str) -> None:
+        """Sets the Hub/Group/Project data from a formatted string"""
+        if re.match(r"\w+/\w+/\w+$", new_hgp) is None:
+            raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
+        self._db_data.hub, self._db_data.group, self._db_data.project = new_hgp.split("/")
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -716,8 +723,9 @@ class ExperimentData:
         Args:
             save_val: Whether to do auto-save.
         """
-        if save_val is True and not self._auto_save:
-            self.save()
+        # children will be saved once we set auto_save for them
+        if save_val is True:
+            self.save(save_children=False)
         self._auto_save = save_val
         for res in self._analysis_results.values():
             # Setting private variable directly to avoid duplicate save. This
@@ -735,7 +743,7 @@ class ExperimentData:
 
     def add_data(
         self,
-        data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
+        data: Union[Result, List[Result], Dict, List[Dict]],
     ) -> None:
         """Add experiment data.
 
@@ -746,8 +754,6 @@ class ExperimentData:
                 * List[Result]: Add data from the ``Result`` objects.
                 * Dict: Add this data.
                 * List[Dict]: Add this list of data.
-                * Job: (Deprecated) Add data from the job result.
-                * List[Job]: (Deprecated) Add data from the job results.
 
         Raises:
             TypeError: If the input data type is invalid.
@@ -1198,6 +1204,7 @@ class ExperimentData:
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
                 figure_data = figure.copy(new_name=fig_name)
+                figure = figure_data.figure
 
             else:
                 figure_metadata = {
@@ -1460,7 +1467,7 @@ class ExperimentData:
         """Save this experiments metadata to a database service.
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
+            pass them on, potentially aborting the experiment (false)
         Raises:
             QiskitError: If the save to the database failed
         .. note::
@@ -1496,7 +1503,10 @@ class ExperimentData:
 
             if handle_metadata_separately:
                 self.service.file_upload(
-                    self._db_data.experiment_id, self._metadata_filename, metadata
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
                 )
                 self._db_data.metadata = metadata
 
@@ -1509,18 +1519,24 @@ class ExperimentData:
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
-        return sys.getsizeof(self.metadata) > 10000
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
 
     def save(
-        self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
+        self,
+        suppress_errors: bool = True,
+        max_workers: int = 3,
+        save_figures: bool = True,
+        save_children: bool = True,
     ) -> None:
         """Save the experiment data to a database service.
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
-            max_workers: Maximum number of concurrent worker threads
+            pass them on, potentially aborting the experiment (false)
+            max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
+            save_children: For composite experiments, whether to save children as well
 
         Raises:
             ExperimentDataSaveFailed: If no experiment database service
@@ -1545,7 +1561,13 @@ class ExperimentData:
                 return
             else:
                 raise ExperimentDataSaveFailed("No service found")
-
+        if max_workers > self._max_workers_cap:
+            LOG.warning(
+                "max_workers cannot be larger than %s. Setting max_workers = %s now.",
+                self._max_workers_cap,
+                self._max_workers_cap,
+            )
+            max_workers = self._max_workers_cap
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
@@ -1607,13 +1629,16 @@ class ExperimentData:
                 f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
-        for data in self._child_data.values():
-            original_verbose = data.verbose
-            data.verbose = False
-            data.save(
-                suppress_errors=suppress_errors, max_workers=max_workers, save_figures=save_figures
-            )
-            data.verbose = original_verbose
+        if save_children:
+            for data in self._child_data.values():
+                original_verbose = data.verbose
+                data.verbose = False
+                data.save(
+                    suppress_errors=suppress_errors,
+                    max_workers=max_workers,
+                    save_figures=save_figures,
+                )
+                data.verbose = original_verbose
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
@@ -1741,7 +1766,6 @@ class ExperimentData:
 
         # Wait for futures
         self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
-
         # Clean up done job futures
         num_jobs = len(job_ids)
         for jid, fut in zip(job_ids, job_futs):
@@ -2070,7 +2094,9 @@ class ExperimentData:
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
-            metadata = service.file_download(experiment_id, cls._metadata_filename)
+            metadata = service.file_download(
+                experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder
+            )
             data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data, provider=provider)
 
@@ -2215,7 +2241,7 @@ class ExperimentData:
         for data in self._child_data.values():
             data.remove_tags_recursive(tags2remove)
 
-    # represetnation and serialization
+    # representation and serialization
 
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"

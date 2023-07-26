@@ -1128,3 +1128,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         metadata = {"_source": "source_data"}
         data._db_data.metadata = metadata
         self.assertEqual(data.source, "source_data")
+
+    def test_metadata_too_large(self):
+        """Tests that ExperimentData can detect when the metadta
+        should be saved as a seperate file"""
+        exp_data = ExperimentData()
+        metadata_size = 100000
+        exp_data.metadata["components"] = [
+            {"physical_qubits": [0], "device_components": [f"Qubit{n}"]}
+            for n in range(metadata_size)
+        ]
+        self.assertTrue(exp_data._metadata_too_large())

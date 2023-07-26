@@ -34,6 +34,10 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
     This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
     You can install it with ``python -m pip install qiskit-dynamics``.
 
+.. note::
+    This tutorial requires the ``pandas`` package to visualize calibration tables.
+    You can install it with ``python -m pip install pandas``.
+
 .. jupyter-execute::
 
     import pandas as pd
@@ -166,7 +170,7 @@ Instantiate the experiment and draw the first circuit in the sweep:
 
     freq01_estimate = backend.defaults().qubit_freq_est[qubit]
     frequencies = np.linspace(freq01_estimate-15e6, freq01_estimate+15e6, 51)
-    spec = RoughFrequencyCal([qubit], cals, frequencies, backend=backend)
+    spec = RoughFrequencyCal((qubit,), cals, frequencies, backend=backend)
     spec.set_experiment_options(amp=0.005)
 
 .. jupyter-execute::
@@ -391,7 +395,7 @@ over/under rotations is the highest.
 
 .. jupyter-execute::
     
-    overamp_exp = FineXAmplitude(qubit, backend=backend)
+    overamp_exp = FineXAmplitude((qubit,), backend=backend)
     overamp_exp.set_transpile_options(inst_map=inst_map)
     overamp_exp.circuits()[4].draw(output='mpl')
 
@@ -415,7 +419,7 @@ experiment detects this error. We will compare the results to the over-rotation 
     inst_map.add("x", (qubit,), x_under)
 
     # do the experiment
-    underamp_exp = FineXAmplitude(qubit, backend=backend)
+    underamp_exp = FineXAmplitude((qubit,), backend=backend)
     underamp_exp.set_transpile_options(inst_map=inst_map)
         
     exp_data_under = underamp_exp.run(backend).block_for_results()
@@ -459,7 +463,7 @@ error which we want to correct.
 
     from qiskit_experiments.library import FineSXAmplitudeCal
 
-    amp_cal = FineSXAmplitudeCal([qubit], cals, backend=backend, schedule_name="sx")
+    amp_cal = FineSXAmplitudeCal((qubit,), cals, backend=backend, schedule_name="sx")
     amp_cal.circuits()[4].draw(output="mpl")
 
 Let's run the calibration experiment:

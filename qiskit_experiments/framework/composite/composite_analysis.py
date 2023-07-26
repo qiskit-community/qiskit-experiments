@@ -35,7 +35,7 @@ class CompositeAnalysis(BaseAnalysis):
     Analysis of this composite circuit data involves constructing
     a list of experiment data containers for each component experiment containing
     the marginalized circuit result data for that experiment. These are saved as
-    :meth:.~ExperimentData.child_data` in the main :class:`.ExperimentData` container.
+    :meth:`~.ExperimentData.child_data` in the main :class:`.ExperimentData` container.
     Each component experiment data is then analyzed using the analysis class from
     the corresponding component experiment.
 

@@ -17,7 +17,7 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 .. currentmodule:: qiskit_experiments.library
 
-A library of of quantum characterization, calibration and verification
+A library of quantum characterization, calibration and verification
 experiments for calibrating and benchmarking quantum devices. See
 :mod:`qiskit_experiments.framework` for general information on the framework
 for running experiments.
@@ -77,6 +77,7 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineSXDrag
     ~characterization.MultiStateDiscrimination
     ~characterization.StarkRamseyXY
+    ~characterization.StarkRamseyXYAmpScan
 
 .. _characterization two qubits:
 
@@ -159,6 +160,7 @@ from .calibration import (
 )
 from .characterization import (
     T1,
+    StarkP1Spectroscopy,
     T2Hahn,
     T2Ramsey,
     Tphi,
@@ -186,6 +188,7 @@ from .characterization import (
     ZZRamsey,
     MultiStateDiscrimination,
     StarkRamseyXY,
+    StarkRamseyXYAmpScan,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import (

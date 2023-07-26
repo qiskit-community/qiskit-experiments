@@ -162,7 +162,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
 
-        expdata = exp.run(backend).block_for_results()
+        expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
@@ -231,7 +231,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
-        par_data = par_experiment.run().block_for_results()
+        par_data = par_experiment.run()
         self.assertExperimentDone(par_data)
 
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.

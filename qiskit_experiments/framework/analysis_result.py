@@ -211,7 +211,7 @@ class AnalysisResult:
         """Save this analysis result in the database.
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
+            pass them on, potentially aborting the experiment (false)
         Raises:
             ExperimentDataError: If the analysis result contains invalid data.
             QiskitError: If the save to the database failed

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,10 +15,14 @@
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
+from ddt import ddt, unpack, named_data
+
 from qiskit import pulse
 from qiskit.providers.fake_provider import FakeHanoiV2
 
-from qiskit_experiments.library import StarkRamseyXY
+from qiskit_experiments.library import StarkRamseyXY, StarkRamseyXYAmpScan
+from qiskit_experiments.library.characterization.analysis import StarkRamseyXYAmpScanAnalysis
+from qiskit_experiments.framework import ExperimentData
 
 
 class TestStarkRamseyXY(QiskitExperimentsTestCase):
@@ -101,7 +105,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
             min_freq=min_freq,
             max_freq=max_freq,
         )
-        test_delays = exp.delays()
+        test_delays = exp.parameters()
         ref_delays = np.arange(0, 1 / min_freq, 1 / max_freq / 2)
         np.testing.assert_array_equal(test_delays, ref_delays)
 
@@ -133,3 +137,138 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         exp = StarkRamseyXY(physical_qubits=[0], stark_amp=0.1)
         with self.assertRaises(ValueError):
             exp.set_experiment_options(stark_freq_offset=-10e6)
+
+
+@ddt
+class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
+    """Test case for StarkRamseyXYAmpScan experiment."""
+
+    def test_frequency_shift_direction(self):
+        """Check frequency shift direction reflects abstracted amplitude policy.
+
+        When amplitude is positive (negative), it must induce positive (negative) Stark shift
+        for simplicity. To achieve this, the spectral location of the tone must be
+        lower (higher) than the qubit frequency f01. Tone amplitude is always positive.
+        """
+        backend = FakeHanoiV2()
+        exp = StarkRamseyXYAmpScan(
+            physical_qubits=[0],
+            backend=backend,
+            stark_amps=[-0.1, 0.1],
+        )
+        f01 = backend.qubit_properties(0).frequency
+
+        circs = exp.circuits()
+
+        # Check circuit metadata
+        circs0_x_starkv = next(iter(circs[0].calibrations["StarkV"].values()))
+        self.assertDictEqual(circs[0].metadata, {"xval": -0.1, "series": "X", "direction": "neg"})
+        circs0_y_starkv = next(iter(circs[1].calibrations["StarkV"].values()))
+        self.assertDictEqual(circs[1].metadata, {"xval": -0.1, "series": "Y", "direction": "neg"})
+        circs1_x_starkv = next(iter(circs[2].calibrations["StarkV"].values()))
+        self.assertDictEqual(circs[2].metadata, {"xval": 0.1, "series": "X", "direction": "pos"})
+        circs1_y_starkv = next(iter(circs[3].calibrations["StarkV"].values()))
+        self.assertDictEqual(circs[3].metadata, {"xval": 0.1, "series": "Y", "direction": "pos"})
+
+        # Check frequency shift
+        circ0_x_set_freq = circs0_x_starkv.blocks[0].frequency
+        circ0_y_set_freq = circs0_y_starkv.blocks[0].frequency
+        # This must induce negative frequency shift.
+        # This tone frequency must be greater than f01.
+        self.assertGreater(circ0_x_set_freq, f01)
+        self.assertGreater(circ0_y_set_freq, f01)
+
+        circ1_x_set_freq = circs1_x_starkv.blocks[0].frequency
+        circ1_y_set_freq = circs1_y_starkv.blocks[0].frequency
+        # This must induce positive frequency shift.
+        # This tone frequency must be lower than f01.
+        self.assertLess(circ1_x_set_freq, f01)
+        self.assertLess(circ1_y_set_freq, f01)
+
+        # Check amplitude is always positive
+        circ0_x_set_amp = circs0_x_starkv.blocks[1].pulse.parameters["amp"]
+        circ0_y_set_amp = circs0_y_starkv.blocks[1].pulse.parameters["amp"]
+        self.assertEqual(circ0_x_set_amp, 0.1)
+        self.assertEqual(circ0_y_set_amp, 0.1)
+        circ1_x_set_amp = circs1_x_starkv.blocks[1].pulse.parameters["amp"]
+        circ1_y_set_amp = circs1_y_starkv.blocks[1].pulse.parameters["amp"]
+        self.assertEqual(circ1_x_set_amp, 0.1)
+        self.assertEqual(circ1_y_set_amp, 0.1)
+
+    def test_circuit_valid_delays(self):
+        """Test Stark tone durations are valid."""
+        backend = FakeHanoiV2()
+        exp = StarkRamseyXYAmpScan(
+            physical_qubits=[0],
+            backend=backend,
+            stark_amps=[0.1],
+        )
+        circs = exp.circuits()
+
+        for circ in circs:
+            stark_v = next(iter(circ.calibrations["StarkV"].values()))
+            self.assertEqual(stark_v.duration % backend.target.granularity, 0)
+            stark_u = next(iter(circ.calibrations["StarkU"].values()))
+            self.assertEqual(stark_u.duration % backend.target.granularity, 0)
+
+    @named_data(
+        ["ideal_quadratic", 0.5, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.5],
+        ["with_all_terms", 0.5, 15e6, 200e6, -100e6, 15e6, -200e6, -100e6, 300e3, 0.5],
+        ["with_spam_like", 0.3, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.4],
+        ["asymmetric_shift", 0.4, -20e6, 200e6, -100e6, -15e6, -180e6, -90e6, 200e3, 0.5],
+        ["large_cubic_term", 0.5, 10e6, 15e6, 30e6, 5e6, -10e6, 40e6, 0.0, 0.5],
+    )
+    @unpack
+    def test_ramsey_fast_analysis(self, amp, c1p, c2p, c3p, c1n, c2n, c3n, ferr, off):
+        """End-to-end test for Ramsey fast analysis with artificial data."""
+        rng = np.random.default_rng(seed=123)
+        shots = 1000
+
+        xvals = np.linspace(-1.0, 1.0, 101)
+        const = 2 * np.pi * 50e-9
+        exp_data = ExperimentData()
+        exp_data.metadata.update({"stark_length": 50e-9})
+
+        # Generate fake data based on fit model.
+        for x in xvals:
+            if x >= 0.0:
+                fs = c1p * x + c2p * x**2 + c3p * x**3 + ferr
+                direction = "pos"
+            else:
+                fs = c1n * x + c2n * x**2 + c3n * x**3 + ferr
+                direction = "neg"
+
+            # Add some sampling error
+            ramx_count = rng.binomial(shots, amp * np.cos(const * fs) + off)
+            exp_data.add_data(
+                {
+                    "counts": {"0": shots - ramx_count, "1": ramx_count},
+                    "metadata": {"xval": x, "series": "X", "direction": direction},
+                }
+            )
+            ramy_count = rng.binomial(shots, amp * np.sin(const * fs) + off)
+            exp_data.add_data(
+                {
+                    "counts": {"0": shots - ramy_count, "1": ramy_count},
+                    "metadata": {"xval": x, "series": "Y", "direction": direction},
+                }
+            )
+
+        analysis = StarkRamseyXYAmpScanAnalysis()
+        analysis.run(exp_data, replace_results=True)
+        self.assertExperimentDone(exp_data)
+
+        # Check if fit parameters are consistent with input values
+        to_test = {
+            "stark_pos_coef_o1": c1p,
+            "stark_pos_coef_o2": c2p,
+            "stark_pos_coef_o3": c3p,
+            "stark_neg_coef_o1": c1n,
+            "stark_neg_coef_o2": c2n,
+            "stark_neg_coef_o3": c3n,
+            "stark_ferr": ferr,
+        }
+        for name, refv in to_test.items():
+            # Error must be within 1 percent or 1 MHz
+            val = exp_data.analysis_results(name).value.n
+            self.assertAlmostEqual(val, refv, delta=3e6)

@@ -149,7 +149,7 @@ class Frequency(BaseUpdater):
         calibrations: Calibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
-        parameter: str = None,
+        parameter: str = "drive_freq",
         group: str = "default",
         fit_parameter: Optional[str] = None,
         **options,
@@ -163,16 +163,13 @@ class Frequency(BaseUpdater):
             exp_data: The experiment data from which to update.
             result_index: The result index to use which defaults to -1.
             parameter: The name of the parameter to update. If None is given this will default
-                to :code:`calibrations.__qubit_freq_parameter__`.
+                to `drive_freq`.
             group: The calibrations group to update. Defaults to "default."
             options: Trailing options.
             fit_parameter: The name of the fit parameter in the analysis result. This will default
                 to the class variable :code:`__fit_parameter__` if not given.
 
         """
-        if parameter is None:
-            parameter = calibrations.__drive_freq_parameter__
-
         super().update(
             calibrations=calibrations,
             exp_data=exp_data,
