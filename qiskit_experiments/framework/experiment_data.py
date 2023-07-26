@@ -1152,7 +1152,7 @@ class ExperimentData:
         for idx, figure in enumerate(figures):
             if figure_names is None:
                 if isinstance(figure, str):
-                    # figure is a file path, so we use it as the name
+                    # figure is a filename, so we use it as the name
                     fig_name = figure
                 elif not isinstance(figure, FigureData):
                     # Generate a name in the form StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
@@ -1162,6 +1162,7 @@ class ExperimentData:
                         f"{self.experiment_id[:8]}.svg"
                     )
                 else:
+                    # Keep the existing figure name if there is one
                     fig_name = figure.name
             else:
                 fig_name = figure_names[idx]
