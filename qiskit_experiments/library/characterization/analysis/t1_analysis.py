@@ -278,23 +278,28 @@ class StarkP1SpectAnalysis(BaseAnalysis):
     @classmethod
     def estimate_minmax_frequencies(
         cls,
-        service: IBMExperimentService,
-        qubit: int,
-        backend: str,
+        coefficients: Dict[str, float],
         max_amplitudes: Tuple[float, float] = (-0.9, 0.9),
     ) -> Tuple[float, float]:
         """Inquire maximum and minimum Stark shfit available within specified amplitude range.
 
         Args:
-            service: A valid experiment service instance.
-            qubit: Qubit index.
-            backend: Name of the backend.
+            coefficients: A dictionary of Stark coefficients.
             max_amplitudes: Minimum and maximum amplitude.
 
         Returns:
               Tuple of minimum and maximum frequency.
+
+        Raises:
+            KeyError: When coefficients are incomplete.
         """
-        coeffs = cls.retrieve_coefficients_from_service(service, qubit, backend)
+        missing = set(cls.stark_coefficients_names) - coefficients.keys()
+        if any(missing):
+            raise KeyError(
+                "Following coefficient data is missing in the "
+                f"'stark_coefficients' dictionary: {missing}."
+            )
+
         names = cls.stark_coefficients_names  # alias
         pos_idxs = [2, 1, 0]
         neg_idxs = [5, 4, 3]
@@ -303,7 +308,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         for idxs, max_amp in zip((neg_idxs, pos_idxs), max_amplitudes):
             # Solve for inflection points by computing the point where derivertive becomes zero.
             solutions = np.roots(
-                [deriv * coeffs[names[idx]] for deriv, idx in zip([3, 2, 1], idxs)]
+                [deriv * coefficients[names[idx]] for deriv, idx in zip([3, 2, 1], idxs)]
             )
             inflection_points = solutions[
                 (solutions.imag == 0) & (np.sign(solutions) == np.sign(max_amp))
@@ -315,7 +320,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
                 # There could be a small inflection point around amp=0,
                 # when the first order term is significant.
                 amp = min(max_amp, max(inflection_points, key=abs), key=abs)
-            polyfun = np.poly1d([coeffs[names[idx]] for idx in [*idxs, 6]])
+            polyfun = np.poly1d([coefficients[names[idx]] for idx in [*idxs, 6]])
             freqs.append(polyfun(amp))
         return freqs
 

@@ -312,10 +312,10 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         service = self.create_service_helper(po1, po2, po3, no1, no2, no3, ferr, 0, "fake_hanoi")
         analysis = StarkP1SpectAnalysis()
 
-        minf, maxf = analysis.estimate_minmax_frequencies(service, 0, "fake_hanoi", (-0.9, 0.9))
+        coeffs = analysis.retrieve_coefficients_from_service(service, 0, "fake_hanoi")
+        minf, maxf = analysis.estimate_minmax_frequencies(coeffs, (-0.9, 0.9))
 
         amps = np.linspace(-0.9, 0.9, 101)
-        coeffs = analysis.retrieve_coefficients_from_service(service, 0, "fake_hanoi")
         freqs = analysis._convert_axis(amps, coeffs)
 
         self.assertAlmostEqual(minf, min(freqs), delta=1e6)
