@@ -1440,7 +1440,7 @@ class ExperimentData:
         """Save this experiments metadata to a database service.
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
+            pass them on, potentially aborting the experiment (false)
         Raises:
             QiskitError: If the save to the database failed
         .. note::
@@ -1506,7 +1506,7 @@ class ExperimentData:
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
+            pass them on, potentially aborting the experiment (false)
             max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
             save_children: For composite experiments, whether to save children as well
@@ -2214,7 +2214,7 @@ class ExperimentData:
         for data in self._child_data.values():
             data.remove_tags_recursive(tags2remove)
 
-    # represetnation and serialization
+    # representation and serialization
 
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"

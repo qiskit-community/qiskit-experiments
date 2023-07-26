@@ -98,7 +98,7 @@ jobs:
           python -m pip install -U tox
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
-        run: tox -edocs
+        run: tox -edocs-parallel
       - name: Compress Artifacts
         run: |
           mkdir artifacts
