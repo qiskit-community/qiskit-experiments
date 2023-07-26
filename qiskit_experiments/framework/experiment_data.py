@@ -1191,8 +1191,8 @@ class ExperimentData:
                     fig_name_suffix = 0
                 fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
                 while fig_name in self._figures:  # Increment suffix until the name isn't taken
-                    # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists, StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg
-                    # will be the name of this figure
+                    # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists,
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg will be the name of this figure
                     fig_name_suffix += 1
                     fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
 
