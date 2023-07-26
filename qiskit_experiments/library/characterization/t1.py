@@ -222,8 +222,8 @@ class StarkP1Spectroscopy(BaseExperiment):
             stark_freq_offset=80e6,
             stark_sigma=15e-9,
             stark_risefall=2,
-            min_xval=-1,
-            max_xval=1,
+            min_xval=-1.0,
+            max_xval=1.0,
             num_xvals=201,
             xval_type="amplitude",
             spacing="quadratic",
@@ -240,7 +240,7 @@ class StarkP1Spectroscopy(BaseExperiment):
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
         self._timing = BackendTiming(backend)
-        if self.experiment_options.service is not None:
+        if self.experiment_options.service is None:
             self.set_experiment_options(
                 service=ExperimentData.get_service_from_backend(backend),
             )
@@ -323,38 +323,46 @@ class StarkP1Spectroscopy(BaseExperiment):
         offset = coefficients[coef_names[6]]
 
         amplitudes = np.zeros_like(params)
-        for idx, param in enumerate(params):
-            constant = offset - param
-            if np.isclose(constant, 0.0):
-                # This is a point where Stark amplitude is expected to be zero.
-                # Because np.sign(0) = 0 as an exception, this requires special handling.
-                # https://numpy.org/doc/stable/reference/generated/numpy.sign.html
-                amplitudes[idx] = 0.0
+        for idx, tgt_freq in enumerate(params):
+            stark_shift = tgt_freq - offset
+            if np.isclose(stark_shift, 0):
+                amplitudes[idx] = 0
                 continue
-            if param > 0:
-                amp_candidates = np.roots(np.append(positive, constant))
+            elif np.sign(stark_shift) > 0:
+                fit_coeffs = [*positive, -stark_shift]
             else:
-                amp_candidates = np.roots(np.append(negative, constant))
+                fit_coeffs = [*negative, -stark_shift]
+            amp_candidates = np.roots(fit_coeffs)
             # Because the fit function is third order, we get three solutions here.
             # Only one valid solution must exist because we assume
             # a monotonic trend for Stark shift against tone amplitude in domain of definition.
-            #
-            # The criteria of the valid solution are
-            #   - Frequency shift and tone have the same sign (by definition)
-            #   - Tone amplitude is a real value
-            #   - The absolute value of tone amplitude must be less than 1.0
-            #
-            valid_amp = np.where(
-                (np.sign(amp_candidates.real) == np.sign(param))
-                & np.isclose(amp_candidates.imag, 0.0)
-                & (np.abs(amp_candidates.real) < 1.0)
+            criteria = np.all(
+                [
+                    # Frequency shift and tone have the same sign by definition
+                    np.sign(amp_candidates.real) == np.sign(stark_shift),
+                    # Tone amplitude is a real value
+                    np.isclose(amp_candidates.imag, 0.0),
+                    # The absolute value of tone amplitude must be less than 1.0
+                    np.abs(amp_candidates.real) < 1.0,
+                ],
+                axis=0,
             )
-            try:
-                amplitudes[idx] = float(amp_candidates[valid_amp].real)
-            except TypeError as ex:
+            valid_amps = amp_candidates[criteria]
+            if len(valid_amps) == 0:
                 raise ValueError(
-                    f"Stark shift at frequency value of {param} Hz is not available on this device."
-                ) from ex
+                    f"Stark shift at frequency value of {tgt_freq} Hz is not available on "
+                    f"the backend {self._backend_data.name} qubit {self.physical_qubits}."
+                )
+            elif len(valid_amps) > 1:
+                # We assume a monotonic trend but sometimes a large third-order term causes
+                # inflection point and inverts the trend in larger amplitudes.
+                # In this case we would have more than one solutions, but we can
+                # take the smallerst amplitude before reaching to the inflection point.
+                before_inflection = np.argmin(np.abs(valid_amps.real))
+                valid_amp = float(valid_amps[before_inflection].real)
+            else:
+                valid_amp = float(valid_amps.real)
+            amplitudes[idx] = valid_amp
 
         return amplitudes
 
