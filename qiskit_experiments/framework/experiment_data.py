@@ -1105,9 +1105,9 @@ class ExperimentData:
     def add_figures(
         self,
         figures: Union[str, bytes, pyplot.Figure, list],
-        figure_names: Union[str, list] = None,
-        overwrite: bool = False,
-        save_figure: bool = None,
+        figure_names: Optional[Union[str, list]] = None,
+        overwrite: Optional[bool] = False,
+        save_figure: Optional[bool] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
@@ -1146,8 +1146,10 @@ class ExperimentData:
         for idx, figure in enumerate(figures):
             if figure_names is None:
                 if isinstance(figure, str):
+                    # figure is a file path, so we use it as the name
                     fig_name = figure
                 elif not isinstance(figure, FigureData):
+                    # Generate a name in the form StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
                     fig_name = (
                         f"{self.experiment_type}_"
                         f'{"_".join(str(i) for i in self.metadata.get("device_components", [])[:5])}_'
@@ -1164,19 +1166,27 @@ class ExperimentData:
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
                 # Remove any existing suffixes then generate new figure name
+                # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg becomes StandardRB_Q0_Q1_Q2_b4f1d8ad
                 fig_name_chunked = fig_name.rsplit("-", 1)
                 if len(fig_name_chunked) != 1:  # Figure name already has a suffix
+                    # This extracts StandardRB_Q0_Q1_Q2_b4f1d8ad as the prefix from
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
                     fig_name_prefix = fig_name_chunked[0]
                     try:
                         fig_name_suffix = int(fig_name_chunked[1].rsplit(".", 1)[0])
                     except ValueError:  # the suffix is not an int, add our own suffix
+                        # my-custom-figure-name will be the prefix of my-custom-figure-name.svg
                         fig_name_prefix = fig_name.rsplit(".", 1)[0]
                         fig_name_suffix = 0
                 else:
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg has no hyphens so
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad would be its prefix
                     fig_name_prefix = fig_name.rsplit(".", 1)[0]
                     fig_name_suffix = 0
                 fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
                 while fig_name in self._figures:  # Increment suffix until the name isn't taken
+                    # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists, StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg
+                    # will be the name of this figure
                     fig_name_suffix += 1
                     fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
 
