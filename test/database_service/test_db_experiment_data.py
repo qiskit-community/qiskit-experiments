@@ -1139,3 +1139,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             for n in range(metadata_size)
         ]
         self.assertTrue(exp_data._metadata_too_large())
+
+    def test_hgp_setter(self):
+        """Tests usage of the hgp setter"""
+        exp_data = ExperimentData()
+        exp_data.hgp = "ibm-q-internal/deployed/default"
+        self.assertEqual("ibm-q-internal/deployed/default", exp_data.hgp)
+        self.assertEqual("ibm-q-internal", exp_data.hub)
+        self.assertEqual("deployed", exp_data.group)
+        self.assertEqual("default", exp_data.project)

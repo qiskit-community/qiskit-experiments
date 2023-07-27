@@ -653,7 +653,7 @@ class ExperimentData:
     @hgp.setter
     def hgp(self, new_hgp: str) -> None:
         """Sets the Hub/Group/Project data from a formatted string"""
-        if re.match(r"\w+/\w+/\w+$", new_hgp) is None:
+        if re.match(r"[^/]*/[^/]*/[^/]*$", new_hgp) is None:
             raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
         self._db_data.hub, self._db_data.group, self._db_data.project = new_hgp.split("/")
 
