@@ -55,7 +55,6 @@ from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
-    ExperimentEntryExists,
     ExperimentDataSaveFailed,
 )
 
@@ -1111,31 +1110,32 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures,
-        figure_names=None,
-        overwrite=False,
-        save_figure=None,
+        figures: Union[str, bytes, pyplot.Figure, list],
+        figure_names: Optional[Union[str, list]] = None,
+        overwrite: Optional[bool] = False,
+        save_figure: Optional[bool] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
         Args:
-            figures (str or bytes or pyplot.Figure or list): Paths of the figure
-                files or figure data.
-            figure_names (str or list): Names of the figures. If ``None``, use the figure file
-                names, if given, or a generated name. If `figures` is a list, then
-                `figure_names` must also be a list of the same length or ``None``.
-            overwrite (bool): Whether to overwrite the figure if one already exists with
-                the same name.
-            save_figure (bool): Whether to save the figure in the database. If ``None``,
+            figures: Paths of the figure files or figure data.
+            figure_names: Names of the figures. If ``None``, use the figure file
+                names, if given, or a generated name of the format ``experiment_type``, figure
+                index, first 5 elements of ``device_components``, and first 8 digits of the
+                experiment ID connected by underscores, such as ``T1_Q0_0123abcd.svg``. If `figures`
+                is a list, then `figure_names` must also be a list of the same length or ``None``.
+            overwrite: Whether to overwrite the figure if one already exists with
+                the same name. By default, overwrite is ``False`` and the figure will be renamed
+                with an incrementing numerical suffix. For example, trying to save ``figure.svg`` when
+                ``figure.svg`` already exists will save it as ``figure-1.svg``, and trying to save
+                ``figure-1.svg`` when ``figure-1.svg`` already exists will save it as ``figure-2.svg``.
+            save_figure: Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
 
         Returns:
-            str or list:
-                Figure names.
+            Figure names in SVG format.
 
         Raises:
-            ExperimentEntryExists: If the figure with the same name already exists,
-                and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
         if figure_names is not None and not isinstance(figure_names, list):
@@ -1152,27 +1152,51 @@ class ExperimentData:
         for idx, figure in enumerate(figures):
             if figure_names is None:
                 if isinstance(figure, str):
+                    # figure is a filename, so we use it as the name
                     fig_name = figure
-                else:
+                elif not isinstance(figure, FigureData):
+                    # Generate a name in the form StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
                     fig_name = (
                         f"{self.experiment_type}_"
-                        f"Fig-{len(self._figures)}_"
-                        f"Exp-{self.experiment_id[:8]}.svg"
+                        f'{"_".join(str(i) for i in self.metadata.get("device_components", [])[:5])}_'
+                        f"{self.experiment_id[:8]}.svg"
                     )
+                else:
+                    # Keep the existing figure name if there is one
+                    fig_name = figure.name
             else:
                 fig_name = figure_names[idx]
-
             if not fig_name.endswith(".svg"):
                 LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
                 fig_name += ".svg"
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
-                raise ExperimentEntryExists(
-                    f"A figure with the name {fig_name} for this experiment "
-                    f"already exists. Specify overwrite=True if you "
-                    f"want to overwrite it."
-                )
+                # Remove any existing suffixes then generate new figure name
+                # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg becomes StandardRB_Q0_Q1_Q2_b4f1d8ad
+                fig_name_chunked = fig_name.rsplit("-", 1)
+                if len(fig_name_chunked) != 1:  # Figure name already has a suffix
+                    # This extracts StandardRB_Q0_Q1_Q2_b4f1d8ad as the prefix from
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
+                    fig_name_prefix = fig_name_chunked[0]
+                    try:
+                        fig_name_suffix = int(fig_name_chunked[1].rsplit(".", 1)[0])
+                    except ValueError:  # the suffix is not an int, add our own suffix
+                        # my-custom-figure-name will be the prefix of my-custom-figure-name.svg
+                        fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                        fig_name_suffix = 0
+                else:
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg has no hyphens so
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad would be its prefix
+                    fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                    fig_name_suffix = 0
+                fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+                while fig_name in self._figures:  # Increment suffix until the name isn't taken
+                    # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists,
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg will be the name of this figure
+                    fig_name_suffix += 1
+                    fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+
             # figure_data = None
             if isinstance(figure, str):
                 with open(figure, "rb") as file:
@@ -1184,7 +1208,11 @@ class ExperimentData:
                 figure = figure_data.figure
 
             else:
-                figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
+                figure_metadata = {
+                    "qubits": self.metadata.get("physical_qubits"),
+                    "device_components": self.metadata.get("device_components"),
+                    "experiment_type": self.experiment_type,
+                }
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
 
             self._figures[fig_name] = figure_data

@@ -40,7 +40,6 @@ from qiskit_experiments.framework.experiment_data import local_to_utc
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
-    ExperimentEntryExists,
 )
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework.experiment_data import (
@@ -318,11 +317,25 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         fn = exp_data.add_figures(hello_bytes)
-        with self.assertRaises(ExperimentEntryExists):
-            exp_data.add_figures(friend_bytes, fn)
 
-        exp_data.add_figures(friend_bytes, fn, overwrite=True)
+        # pylint: disable=no-member
+        fn_prefix = fn.rsplit(".", 1)[0]
+
+        # Without overwrite on, the filename should have an incrementing suffix
+        self.assertEqual(exp_data.add_figures(friend_bytes, fn), f"{fn_prefix}-1.svg")
+
+        self.assertEqual(
+            exp_data.add_figures([friend_bytes, friend_bytes], [fn, fn]),
+            [f"{fn_prefix}-2.svg", f"{fn_prefix}-3.svg"],
+        )
+
+        self.assertEqual(exp_data.add_figures(friend_bytes, fn, overwrite=True), fn)
+
         self.assertEqual(friend_bytes, exp_data.figure(fn).figure)
+
+        self.assertEqual(
+            exp_data.add_figures(friend_bytes, f"{fn_prefix}-a.svg"), f"{fn_prefix}-a.svg"
+        )
 
     def test_add_figure_save(self):
         """Test saving a figure in the database."""
@@ -343,15 +356,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(
             backend=self.backend,
             experiment_type="qiskit_test",
-            metadata={"physical_qubits": qubits},
+            metadata={"physical_qubits": qubits, "device_components": list(map(Qubit, qubits))},
         )
         exp_data.add_figures(hello_bytes)
         exp_data.figure(0).metadata["foo"] = "bar"
         figure_data = exp_data.figure(0)
 
         self.assertEqual(figure_data.metadata["qubits"], qubits)
+        self.assertEqual(figure_data.metadata["device_components"], list(map(Qubit, qubits)))
         self.assertEqual(figure_data.metadata["foo"], "bar")
-        expected_name_prefix = "qiskit_test_Fig-0_Exp-"
+        expected_name_prefix = "qiskit_test_Q0_Q1_Q2_"
         self.assertEqual(figure_data.name[: len(expected_name_prefix)], expected_name_prefix)
 
         exp_data2 = ExperimentData(
