@@ -229,6 +229,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
+        self.assertEqual(len(result._figures), 0)
 
     def test_end_to_end_multi_objective(self):
         """Integration test for multi objective function."""

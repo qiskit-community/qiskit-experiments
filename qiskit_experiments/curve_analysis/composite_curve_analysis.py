@@ -279,6 +279,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
         experiment_data: ExperimentData,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
 
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
+
         analysis_results = []
 
         fit_dataset = {}
@@ -294,26 +303,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 models=analysis.models,
             )
 
-            if self.options.plot and analysis.options.plot_raw_data:
-                for model in analysis.models:
-                    sub_data = processed_data.get_subset_of(model._name)
-                    self.plotter.set_series_data(
-                        model._name + f"_{analysis.name}",
-                        x=sub_data.x,
-                        y=sub_data.y,
-                    )
-
             # Format data
             formatted_data = analysis._format_data(processed_data)
-            if self.options.plot:
-                for model in analysis.models:
-                    sub_data = formatted_data.get_subset_of(model._name)
-                    self.plotter.set_series_data(
-                        model._name + f"_{analysis.name}",
-                        x_formatted=sub_data.x,
-                        y_formatted=sub_data.y,
-                        y_formatted_err=sub_data.y_err,
-                    )
 
             # Run fitting
             fit_data = analysis._run_curve_fit(
@@ -326,6 +317,32 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 red_chi[analysis.name] = fit_data.reduced_chisq
             else:
                 quality = "bad"
+
+            # After the quality is determined, plot can become a boolean flag for whether
+            # to generate the figure
+            if plot == "always" or (plot == "selective" and quality == "bad"):
+                plot = True
+            else:
+                plot = False
+
+            if plot:
+                if analysis.options.plot_raw_data:
+                    for model in analysis.models:
+                        sub_data = processed_data.get_subset_of(model._name)
+                        self.plotter.set_series_data(
+                            model._name + f"_{analysis.name}",
+                            x=sub_data.x,
+                            y=sub_data.y,
+                        )
+                else:
+                    for model in analysis.models:
+                        sub_data = formatted_data.get_subset_of(model._name)
+                        self.plotter.set_series_data(
+                            model._name + f"_{analysis.name}",
+                            x_formatted=sub_data.x,
+                            y_formatted=sub_data.y,
+                            y_formatted_err=sub_data.y_err,
+                        )
 
             if self.options.return_fit_parameters:
                 overview = AnalysisResultData(
@@ -345,7 +362,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 )
 
                 # Draw fit result
-                if self.options.plot:
+                if plot:
                     x_interp = np.linspace(
                         np.min(formatted_data.x), np.max(formatted_data.x), num=100
                     )
@@ -395,7 +412,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             analysis_results.extend(primary_results)
             self.plotter.set_supplementary_data(primary_results=primary_results)
 
-        if self.options.plot:
+        if plot:
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
