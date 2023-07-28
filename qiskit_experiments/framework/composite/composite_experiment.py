@@ -32,6 +32,7 @@ class CompositeExperiment(BaseExperiment):
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
         flatten_results: bool = None,
+        generate_figures: Optional[str] = "always",
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
@@ -47,6 +48,9 @@ class CompositeExperiment(BaseExperiment):
                              component experiment results as a separate child
                              ExperimentData container. This kwarg is ignored
                              if the analysis kwarg is used.
+            generate_figures: Optional flag to set the figure generation behavior.
+                If ``always``, figures are always generated. If ``never``, figures are never generated.
+                If ``selective``, figures are generated if the analysis ``quality`` is ``bad``.
             analysis: Optional, the composite analysis class to use. If not
                       provided this will be initialized automatically from the
                       supplied experiments.
@@ -70,7 +74,9 @@ class CompositeExperiment(BaseExperiment):
         self._num_experiments = len(experiments)
         if analysis is None:
             analysis = CompositeAnalysis(
-                [exp.analysis for exp in self._experiments], flatten_results=flatten_results
+                [exp.analysis for exp in self._experiments],
+                flatten_results=flatten_results,
+                generate_figures=generate_figures,
             )
         super().__init__(
             physical_qubits,

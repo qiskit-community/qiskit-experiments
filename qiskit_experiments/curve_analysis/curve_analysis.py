@@ -375,6 +375,15 @@ class CurveAnalysis(BaseCurveAnalysis):
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
 
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
+
         # Prepare for fitting
         self._initialize(experiment_data)
 
@@ -386,26 +395,8 @@ class CurveAnalysis(BaseCurveAnalysis):
             models=self._models,
         )
 
-        if self.options.plot and self.options.plot_raw_data:
-            for model in self._models:
-                sub_data = processed_data.get_subset_of(model._name)
-                self.plotter.set_series_data(
-                    model._name,
-                    x=sub_data.x,
-                    y=sub_data.y,
-                )
-
         # Format data
         formatted_data = self._format_data(processed_data)
-        if self.options.plot:
-            for model in self._models:
-                sub_data = formatted_data.get_subset_of(model._name)
-                self.plotter.set_series_data(
-                    model._name,
-                    x_formatted=sub_data.x,
-                    y_formatted=sub_data.y,
-                    y_formatted_err=sub_data.y_err,
-                )
 
         # Run fitting
         fit_data = self._run_curve_fit(
@@ -415,9 +406,34 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
-            self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
         else:
             quality = "bad"
+
+        # After the quality is determined, plot can become a boolean flag for whether
+        # to generate the figure
+        if plot == "always" or (plot == "selective" and quality == "bad"):
+            plot = True
+        else:
+            plot = False
+
+        if plot:
+            self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
+            for model in self._models:
+                if self.options.plot_raw_data:
+                    sub_data = formatted_data.get_subset_of(model._name)
+                    self.plotter.set_series_data(
+                        model._name,
+                        x_formatted=sub_data.x,
+                        y_formatted=sub_data.y,
+                        y_formatted_err=sub_data.y_err,
+                    )
+                else:
+                    sub_data = processed_data.get_subset_of(model._name)
+                    self.plotter.set_series_data(
+                        model._name,
+                        x=sub_data.x,
+                        y=sub_data.y,
+                    )
 
         if self.options.return_fit_parameters:
             # Store fit status overview entry regardless of success.
@@ -440,7 +456,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             self.plotter.set_supplementary_data(primary_results=primary_results)
 
             # Draw fit curves and report
-            if self.options.plot:
+            if plot:
                 for model in self._models:
                     sub_data = formatted_data.get_subset_of(model._name)
                     if sub_data.x.size == 0:
@@ -478,7 +494,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
 
         # Finalize plot
-        if self.options.plot:
+        if plot:
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
