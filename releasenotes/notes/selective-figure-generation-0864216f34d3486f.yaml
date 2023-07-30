@@ -7,3 +7,7 @@ features:
     quality will be generated. If ``generate_figures`` is set to ``never``, then figures will never be
     generated. This behavior can be overridden for individual analyses by setting the analysis option
     ``plot``. In the next release, the default behavior of ``generate_figures`` will change to ``selective``.
+fixes:
+  - |
+    Fixed a bug where setting the analysis option ``plot_raw_data`` to ``True`` still caused formatted data
+    to be plotted.
