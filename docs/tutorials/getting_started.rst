@@ -17,6 +17,13 @@ in your shell environment:
 
     python -m pip install qiskit-experiments
 
+There are a number of optional packages that enable some experiments and features. If you 
+would like to install these optional dependencies, run:
+
+.. code-block::
+
+    python -m pip install "qiskit-experiments[extras]"
+
 If you want to run the most up-to-date version instead (may not be stable), you can
 install the latest main branch:
 
@@ -30,7 +37,7 @@ cloning the repository:
 .. code-block::
 
     git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
-    python -m pip install -e qiskit-experiments
+    python -m pip install -e "qiskit-experiments[extras]"
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
 changes.
