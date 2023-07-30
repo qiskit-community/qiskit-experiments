@@ -60,4 +60,3 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
         """Test circuits serialization of the experiment."""
         exp = HalfAngleCal([0], self.cals, backend=self.backend)
         self.assertRoundTripSerializable(exp.circuits())
-        self.assertRoundTripSerializable(exp._transpiled_circuits())

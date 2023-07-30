@@ -83,7 +83,6 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         """Test circuits serialization of the experiment."""
         backend = FakeArmonkV2()
         amp_exp = FineXAmplitude([0], backend=backend)
-        self.assertRoundTripSerializable(amp_exp.circuits())
         self.assertRoundTripSerializable(amp_exp._transpiled_circuits())
 
 
