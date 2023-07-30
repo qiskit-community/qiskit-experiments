@@ -274,7 +274,7 @@ class.
 Analysis options
 ----------------
 
-These options are unique to each analysis class. Unlike the other options, analyis
+These options are unique to each analysis class. Unlike the other options, analysis
 options are not directly set via the experiment object but use instead a method of the
 associated ``analysis``:
 
@@ -295,7 +295,7 @@ Running experiments on multiple qubits
 ======================================
 
 To run experiments across many qubits of the same device, we use **composite
-experiments**. A composite experiment is a parent object that contains one or more child
+experiments**. A :class:`.CompositeExperiment` is a parent object that contains one or more child
 experiments, which may themselves be composite. There are two core types of composite
 experiments:
 
@@ -323,7 +323,7 @@ Note that when the transpile and run options are set for a composite experiment,
 child experiments's options are also set to the same options recursively. Let's examine
 how the parallel experiment is constructed by visualizing child and parent circuits. The
 child experiments can be accessed via the
-:meth:`~.ParallelExperiment.component_experiment` method, which indexes from zero:
+:meth:`~.CompositeExperiment.component_experiment` method, which indexes from zero:
 
 .. jupyter-execute::
 
@@ -332,6 +332,16 @@ child experiments can be accessed via the
 .. jupyter-execute::
 
     parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
+
+Similarly, the child analyses can be accessed via :meth:`.CompositeAnalysis.component_analysis` or via
+the analysis of the child experiment class:
+
+.. jupyter-execute::
+
+    parallel_exp.component_experiment(0).analysis.set_options(plot = True)
+
+    # This should print out what we set because it's the same option
+    print(parallel_exp.analysis.component_analysis(0).options.get("plot"))
 
 The circuits of all experiments assume they're acting on virtual qubits starting from
 index 0. In the case of a parallel experiment, the child experiment
