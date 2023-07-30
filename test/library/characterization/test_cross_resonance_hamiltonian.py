@@ -28,7 +28,7 @@ from qiskit_experiments.library.characterization import cr_hamiltonian
 
 def is_equivalent_circuit(circ1: QuantumCircuit, circ2: QuantumCircuit) -> bool:
     """
-    Check if two circuits are the same.
+    Check if two circuits are structurally the same.
     We use it due to the field 'operation' under 'circ.data[i]' wich its '__qe__'
     method isn't good for reconstructed circuits (by using qpy) with custom pulse gates.
     """
