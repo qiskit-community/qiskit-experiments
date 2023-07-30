@@ -125,8 +125,8 @@ class QuantumVolume(BaseExperiment):
     def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
         """Return ideal measurement probabilities.
 
-        In case the user does not have Aer installed use Terra to calculate
-        the ideal state.
+        In case the user does not have Aer installed, use Qiskit's quantum info module
+        to calculate the ideal state.
 
         Args:
             circuit: the circuit to extract the ideal data from
