@@ -431,19 +431,19 @@ class CurveAnalysis(BaseCurveAnalysis):
             self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
             for model in self._models:
                 if self.options.plot_raw_data:
+                    sub_data = processed_data.get_subset_of(model._name)
+                    self.plotter.set_series_data(
+                        model._name,
+                        x=sub_data.x,
+                        y=sub_data.y,
+                    )
+                else:
                     sub_data = formatted_data.get_subset_of(model._name)
                     self.plotter.set_series_data(
                         model._name,
                         x_formatted=sub_data.x,
                         y_formatted=sub_data.y,
                         y_formatted_err=sub_data.y_err,
-                    )
-                else:
-                    sub_data = processed_data.get_subset_of(model._name)
-                    self.plotter.set_series_data(
-                        model._name,
-                        x=sub_data.x,
-                        y=sub_data.y,
                     )
 
         if self.options.return_fit_parameters:
