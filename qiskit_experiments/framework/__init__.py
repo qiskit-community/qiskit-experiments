@@ -100,6 +100,7 @@ Composite Experiment Classes
 .. autosummary::
     :toctree: ../stubs/
 
+    CompositeExperiment
     ParallelExperiment
     BatchExperiment
     CompositeAnalysis
@@ -141,6 +142,7 @@ from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
+    CompositeExperiment,
     CompositeAnalysis,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
