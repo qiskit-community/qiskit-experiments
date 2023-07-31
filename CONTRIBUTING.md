@@ -72,6 +72,10 @@ When submitting a pull request for review, please ensure that:
 5. If your change has an end user facing impact (new feature, deprecation, removal,
    etc.), you've added or updated a reno release note for that change and tagged the PR
    for the changelog.
+6. If your code requires a change to dependencies, you've updated the corresponding
+   requirements file: `requirements.txt` contain core dependencies,
+   `requirements-extras.txt` for dependencies for optional features, and `requirements-dev.txt`
+   for dependencies required for running tests and building documentation.
 
 The sections below go into more detail on the guidelines for each point.
 
@@ -341,8 +345,8 @@ https://github.com/Qiskit-Extensions/qiskit-experiments` and `git fetch upstream
 
 There are a few other build options available:
 
-* `tox -edocs-minimal`: build documentation without executing Jupyter code cells
-* `tox -edocs-parallel`: do a full build with multiprocessing (may crash on Macs)
+* `tox -e docs-minimal`: build documentation without executing Jupyter code cells
+* `tox -e docs-parallel`: do a full build with multiprocessing (may crash on Macs)
 
 ### Deprecation policy
 

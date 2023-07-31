@@ -93,6 +93,16 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
                 f"in '{actual_label}'.",
             )
 
+    def test_scale(self):
+        """Test the xscale and yscale figure options."""
+        plotter = MockPlotter(MplDrawer(), plotting_enabled=True)
+        plotter.set_figure_options(xscale="quadratic", yscale="log")
+
+        plotter.figure()
+        ax = plotter.drawer._axis
+        self.assertEqual(ax.get_xscale(), "function")
+        self.assertEqual(ax.get_yscale(), "log")
+
     @ddt.data(
         {str: ["0", "1", "2"], int: [0, 1, 2]},
         {str: [str(0.0), str(1.0), str(2.0)], float: [0.0, 1.0, 2.0]},

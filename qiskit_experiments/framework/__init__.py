@@ -24,10 +24,9 @@ The experiment framework broadly defines an experiment as the execution of one o
 circuits on a device, and analysis of the resulting measurement data
 to return one or more derived results.
 
-The interface for running an experiment is through the *Experiment* classes,
-such as those contained in the :mod:`~qiskit_experiments.library`.
-The following pseudo-code illustrates the typical workflow in Qiskit Experiments
-for
+The interface for running an experiment is through the ``Experiment`` classes subclassed from
+:class:`.BaseExperiment`, such as those contained in the :mod:`~qiskit_experiments.library`. The
+following pseudo-code illustrates the typical workflow in Qiskit Experiments for
 
 - Initializing a new experiment
 - Running the experiment on a backend

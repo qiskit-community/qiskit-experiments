@@ -420,7 +420,7 @@ class StarkRamseyXY(BaseExperiment):
             return np.arange(0, max_period, interval)
         return opt.delays
 
-    def parameterized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
+    def parameterized_circuits(self) -> Tuple[QuantumCircuit, ...]:
         """Create circuits with parameters for Ramsey XY experiment with Stark tone.
 
         Returns:
@@ -538,10 +538,11 @@ class StarkRamseyXY(BaseExperiment):
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData."""
-        return {
-            "stark_amp": self.experiment_options.stark_amp,
-            "stark_freq_offset": self.experiment_options.stark_freq_offset,
-        }
+        metadata = super()._metadata()
+        metadata["stark_amp"] = self.experiment_options.stark_amp
+        metadata["stark_freq_offset"] = self.experiment_options.stark_freq_offset
+
+        return metadata
 
 
 class StarkRamseyXYAmpScan(BaseExperiment):
@@ -691,7 +692,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
         return params
 
-    def parameterized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
+    def parameterized_circuits(self) -> Tuple[QuantumCircuit, ...]:
         """Create circuits with parameters for Ramsey XY experiment with Stark tone.
 
         Returns:
@@ -816,7 +817,10 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData."""
-        return {
-            "stark_length": self._timing.pulse_time(time=self.experiment_options.stark_length),
-            "stark_freq_offset": self.experiment_options.stark_freq_offset,
-        }
+        metadata = super()._metadata()
+        metadata["stark_length"] = self._timing.pulse_time(
+            time=self.experiment_options.stark_length
+        )
+        metadata["stark_freq_offset"] = self.experiment_options.stark_freq_offset
+
+        return metadata
