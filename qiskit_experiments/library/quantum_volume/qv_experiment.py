@@ -84,7 +84,7 @@ class QuantumVolume(BaseExperiment):
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
@@ -112,7 +112,7 @@ class QuantumVolume(BaseExperiment):
                 circuits and calculate their heavy output.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
-                The ``default_rng`` will be initialized with this seed value everytime
+                The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
