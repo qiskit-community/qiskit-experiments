@@ -12,6 +12,7 @@
 
 """Curve drawer for matplotlib backend."""
 
+import numbers
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -79,6 +80,9 @@ class MplDrawer(BaseDrawer):
         else:
             axis = self.options.axis
 
+        sharex = self.figure_options.sharex
+        sharey = self.figure_options.sharey
+
         n_rows, n_cols = self.options.subplots
         n_subplots = n_cols * n_rows
         if n_subplots > 1:
@@ -99,9 +103,9 @@ class MplDrawer(BaseDrawer):
                         inset_ax_h,
                     ]
                     sub_ax = axis.inset_axes(bounds, transform=axis.transAxes, zorder=1)
-                    if j != 0:
+                    if j != 0 and sharey:
                         # remove y axis except for most-left plot
-                        sub_ax.set_yticklabels([])
+                        sub_ax.yaxis.set_tick_params(labelleft=False)
                     else:
                         # this axis locates at left, write y-label
                         if self.figure_options.ylabel:
@@ -110,9 +114,9 @@ class MplDrawer(BaseDrawer):
                                 # Y label can be given as a list for each sub axis
                                 label = label[i]
                             sub_ax.set_ylabel(label, fontsize=self.style["axis_label_size"])
-                    if i != n_rows - 1:
+                    if i != n_rows - 1 and sharex:
                         # remove x axis except for most-bottom plot
-                        sub_ax.set_xticklabels([])
+                        sub_ax.xaxis.set_tick_params(labelleft=False)
                     else:
                         # this axis locates at bottom, write x-label
                         if self.figure_options.xlabel:
@@ -151,7 +155,7 @@ class MplDrawer(BaseDrawer):
             unit_scale = self.figure_options.get(f"{ax_type}val_unit_scale")
 
             # Format options to a list for each axis
-            if limit is None or isinstance(limit[0], float):
+            if limit is None or isinstance(limit[0], numbers.Number):
                 limit = [limit] * len(all_axes)
             if unit is None or isinstance(unit, str):
                 unit = [unit] * len(all_axes)
@@ -201,13 +205,11 @@ class MplDrawer(BaseDrawer):
                 if ax_type == "x":
                     mpl_setscale = sub_ax.set_xscale
                     mpl_axis_obj = getattr(sub_ax, "xaxis")
-                    mpl_ticklabels = sub_ax.get_xticklabels()
                     mpl_setlimit = sub_ax.set_xlim
                     mpl_share = sub_ax.sharex
                 else:
                     mpl_setscale = sub_ax.set_yscale
                     mpl_axis_obj = getattr(sub_ax, "yaxis")
-                    mpl_ticklabels = sub_ax.get_yticklabels()
                     mpl_setlimit = sub_ax.set_ylim
                     mpl_share = sub_ax.sharey
 
@@ -243,10 +245,7 @@ class MplDrawer(BaseDrawer):
                     formatter.set_scientific(True)
                     formatter.set_powerlimits((-3, 3))
                     units_str = f" [{unit}]" if unit else ""
-
-                # Set formatter only when tick labels exist
-                if mpl_ticklabels:
-                    mpl_axis_obj.set_major_formatter(formatter)
+                mpl_axis_obj.set_major_formatter(formatter)
 
                 # Add units to axis label if both exist
                 if units_str:
@@ -264,7 +263,7 @@ class MplDrawer(BaseDrawer):
                         # get_shared_*_axes() is immutable from matplotlib>=3.6.0.
                         # Must use Axis.share*() instead, but this can only be called once per axis.
                         # Here we call share* on all axes in a chain, which should have the same effect.
-                        mpl_share(all_axes[i-1])
+                        mpl_share(all_axes[i - 1])
                 else:
                     mpl_setlimit(limit)
 

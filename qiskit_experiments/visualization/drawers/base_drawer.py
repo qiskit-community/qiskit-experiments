@@ -237,7 +237,7 @@ class BaseDrawer(ABC):
                 overwrites style parameters in ``default_style`` in :attr:`options`.
                 Defaults to an empty PlotStyle instance (i.e., ``PlotStyle()``).
         """
-        return Options(
+        options = Options(
             xlabel=None,
             ylabel=None,
             xlim=None,
@@ -254,8 +254,10 @@ class BaseDrawer(ABC):
             series_params={},
             custom_style=PlotStyle(),
         )
-        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic"])
-        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic"])
+        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic", None])
+        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic", None])
+
+        return options
 
     def set_options(self, **fields):
         """Set the drawer options.

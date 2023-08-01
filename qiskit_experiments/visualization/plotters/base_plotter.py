@@ -481,8 +481,8 @@ class BasePlotter(ABC):
             figure_title=None,
             series_params={},
         )
-        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic"])
-        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic"])
+        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic", None])
+        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic", None])
 
         return options
 
