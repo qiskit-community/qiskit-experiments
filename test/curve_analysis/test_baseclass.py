@@ -367,7 +367,6 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 return options
 
             def _initialize(self, experiment_data):
-                super()._initialize(experiment_data)
 
                 # Generate model with `model_var` option
                 self._models = [
@@ -376,6 +375,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                         name="test",
                     )
                 ]
+                super()._initialize(experiment_data)
 
         analysis = CustomAnalysis()
         analysis.set_options(

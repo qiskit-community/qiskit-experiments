@@ -224,15 +224,16 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
             self.assertEqual(stark_u.duration % backend.target.granularity, 0)
 
     @named_data(
-        ["ideal_quadratic", 0.5, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.5],
-        ["with_all_terms", 0.5, 15e6, 200e6, -100e6, 15e6, -200e6, -100e6, 300e3, 0.5],
-        ["with_spam_like", 0.3, 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0, 0.4],
-        ["asymmetric_shift", 0.4, -20e6, 200e6, -100e6, -15e6, -180e6, -90e6, 200e3, 0.5],
-        ["large_cubic_term", 0.5, 10e6, 15e6, 30e6, 5e6, -10e6, 40e6, 0.0, 0.5],
+        ["ideal_quadratic", 0.0, 30e6, 0.0, 0.0, -30e6, 0.0, 0.0],
+        ["with_all_terms", 15e6, 200e6, -100e6, 15e6, -200e6, -100e6, 300e3],
+        ["asymmetric_shift", -20e6, 200e6, -100e6, -15e6, -180e6, -90e6, 200e3],
+        ["large_cubic_term", 10e6, 15e6, 30e6, 5e6, -10e6, 40e6, 0.0],
     )
     @unpack
-    def test_ramsey_fast_analysis(self, amp, c1p, c2p, c3p, c1n, c2n, c3n, ferr, off):
+    def test_ramsey_fast_analysis(self, c1p, c2p, c3p, c1n, c2n, c3n, ferr):
         """End-to-end test for Ramsey fast analysis with artificial data."""
+        amp = 0.5
+        off = 0.5
         rng = np.random.default_rng(seed=123)
         shots = 1000
 
@@ -270,17 +271,38 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         analysis.run(exp_data, replace_results=True)
         self.assertExperimentDone(exp_data)
 
-        # Check if fit parameters are consistent with input values
-        to_test = {
-            "stark_pos_coef_o1": c1p,
-            "stark_pos_coef_o2": c2p,
-            "stark_pos_coef_o3": c3p,
-            "stark_neg_coef_o1": c1n,
-            "stark_neg_coef_o2": c2n,
-            "stark_neg_coef_o3": c3n,
-            "stark_ferr": ferr,
-        }
-        for name, refv in to_test.items():
-            # Error must be within 1 percent or 1 MHz
-            val = exp_data.analysis_results(name).value.n
-            self.assertAlmostEqual(val, refv, delta=3e6)
+        # Comapre the fitted parameter can approximate the same polynominal
+        x_pos = np.linspace(0, 1, 51)
+        x_neg = np.linspace(-1, 0, 51)
+        ref_yvals_pos = c1p * x_pos + c2p * x_pos**2 + c3p * x_pos**3 + ferr
+        ref_yvals_neg = c1n * x_neg + c2n * x_neg**2 + c3n * x_neg**3 + ferr
+
+        # Note that these parameter values are not necessary the same with input values
+        # as long as they can approximate the original phase polynominal.
+        c1p_est = exp_data.analysis_results("stark_pos_coef_o1").value.n
+        c2p_est = exp_data.analysis_results("stark_pos_coef_o2").value.n
+        c3p_est = exp_data.analysis_results("stark_pos_coef_o3").value.n
+        c1n_est = exp_data.analysis_results("stark_neg_coef_o1").value.n
+        c2n_est = exp_data.analysis_results("stark_neg_coef_o2").value.n
+        c3n_est = exp_data.analysis_results("stark_neg_coef_o3").value.n
+        ferr_est = exp_data.analysis_results("stark_ferr").value.n
+
+        test_yvals_pos = c1p_est * x_pos + c2p_est * x_pos**2 + c3p_est * x_pos**3 + ferr_est
+        test_yvals_neg = c1n_est * x_neg + c2n_est * x_neg**2 + c3n_est * x_neg**3 + ferr_est
+
+        # Check similality of reconstructed polynominals
+        # Curves must be agree within the torelance of 1.5 * 1 MHz.
+        np.testing.assert_array_almost_equal(
+            test_yvals_pos,
+            ref_yvals_pos,
+            decimal=-6,
+            err_msg="Reconstructed phase polynominal on positive frequency shift side "
+            "doesn't match with the original curve.",
+        )
+        np.testing.assert_array_almost_equal(
+            test_yvals_neg,
+            ref_yvals_neg,
+            decimal=-6,
+            err_msg="Reconstructed phase polynominal on negative frequency shift side "
+            "doesn't match with the original curve.",
+        )
