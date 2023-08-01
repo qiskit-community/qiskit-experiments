@@ -14,7 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 
-from ddt import ddt, data, named_data, unpack
+from ddt import ddt, named_data, unpack
 import numpy as np
 from qiskit import pulse
 from qiskit.circuit import QuantumCircuit, Gate
@@ -313,6 +313,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         analysis = StarkP1SpectAnalysis()
 
         coeffs = analysis.retrieve_coefficients_from_service(service, 0, "fake_hanoi")
+        # pylint: disable=unbalanced-tuple-unpacking
         minf, maxf = analysis.estimate_minmax_frequencies(coeffs, (-0.9, 0.9))
 
         amps = np.linspace(-0.9, 0.9, 101)

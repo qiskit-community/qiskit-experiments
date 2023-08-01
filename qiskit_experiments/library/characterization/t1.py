@@ -214,6 +214,18 @@ class StarkP1Spectroscopy(BaseExperiment):
                 If not set, then ``num_xvals`` parameters spaced according to
                 the ``spacing`` policy between ``min_xval`` and ``max_xval`` are used.
                 If ``xvals`` is set, these parameters are ignored.
+            service (IBMExperimentService): A valid experiment service instance that can
+                provide the Stark coefficients for the qubit to run experiment.
+                This is required only when ``stark_coefficients`` is ``latest`` and
+                ``xval_type`` is ``frequency``. This value is automatically set when
+                a backend is attached to this experiment instance.
+            stark_coefficients (Union[Dict, str]): Dictionary of Stark shift coefficients to
+                convert tone amplitudes into amount of Stark shift. This dictionary must include
+                all keys defined in :attr:`.StarkP1SpectAnalysis.stark_coefficients_names`,
+                which are calibrated with :class:`.StarkRamseyXYAmpScan`.
+                Alternatively, it searches for these coefficients in the result database
+                when "latest" is set. This requires having the experiment service set in
+                the experiment data to analyze.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -328,7 +340,7 @@ class StarkP1Spectroscopy(BaseExperiment):
             if np.isclose(stark_shift, 0):
                 amplitudes[idx] = 0
                 continue
-            elif np.sign(stark_shift) > 0:
+            if np.sign(stark_shift) > 0:
                 fit_coeffs = [*positive, -stark_shift]
             else:
                 fit_coeffs = [*negative, -stark_shift]
@@ -353,7 +365,7 @@ class StarkP1Spectroscopy(BaseExperiment):
                     f"Stark shift at frequency value of {tgt_freq} Hz is not available on "
                     f"the backend {self._backend_data.name} qubit {self.physical_qubits}."
                 )
-            elif len(valid_amps) > 1:
+            if len(valid_amps) > 1:
                 # We assume a monotonic trend but sometimes a large third-order term causes
                 # inflection point and inverts the trend in larger amplitudes.
                 # In this case we would have more than one solutions, but we can

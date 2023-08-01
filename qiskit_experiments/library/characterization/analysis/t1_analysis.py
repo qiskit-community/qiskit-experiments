@@ -322,7 +322,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
                 amp = min(max_amp, max(inflection_points, key=abs), key=abs)
             polyfun = np.poly1d([coefficients[names[idx]] for idx in [*idxs, 6]])
             freqs.append(polyfun(amp))
-        return freqs
+        return tuple(freqs)
 
     def _convert_axis(
         self,
