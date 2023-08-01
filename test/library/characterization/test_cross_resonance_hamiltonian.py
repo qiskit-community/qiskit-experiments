@@ -317,7 +317,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         width_sec = 1000 * backend.dt
         cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=width_sec)
-        circuits = expr.circuits()
+        circuits = expr._transpiled_circuits()
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])

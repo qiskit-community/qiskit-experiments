@@ -277,4 +277,4 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """Test expdata round trip JSON serialization"""
         num_of_qubits = 4
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
-        self.assertRoundTripSerializable(qv_exp.circuits())
+        self.assertRoundTripSerializable(qv_exp._transpiled_circuits())

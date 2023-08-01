@@ -206,7 +206,7 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
         """Test circuits serialization of the experiment."""
         rabi = Rabi([2], self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        self.assertRoundTripSerializable(rabi.circuits())
+        self.assertRoundTripSerializable(rabi._transpiled_circuits())
 
 
 class TestOscillationAnalysis(QiskitExperimentsTestCase):

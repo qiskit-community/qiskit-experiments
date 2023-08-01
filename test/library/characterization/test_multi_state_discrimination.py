@@ -110,4 +110,4 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         exp = MultiStateDiscrimination(
             [self.qubit], n_states=3, backend=self.backend, schedules=self.schedules
         )
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

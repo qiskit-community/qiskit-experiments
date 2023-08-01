@@ -221,4 +221,4 @@ class TestReadoutError(QiskitExperimentsTestCase):
         qubits = [0, 1]
         exp = LocalReadoutError(qubits)
 
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

@@ -291,4 +291,4 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy([1], frequencies, backend=backend)
         # Checking serialization of the experiment
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

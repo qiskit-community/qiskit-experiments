@@ -209,7 +209,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         # backend is needed for serialization of the delays in the metadata of the experiment.
         backend = FakeVigoV2()
         exp = T2Hahn([0], delays0, backend=backend)
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

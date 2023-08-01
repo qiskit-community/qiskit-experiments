@@ -148,7 +148,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
             backend=backend,
             delays=np.linspace(0, 10e-6, 5),
         )
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
 
 @ddt

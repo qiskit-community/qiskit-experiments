@@ -81,7 +81,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(), physical_qubits=(0,), lengths=[10, 20, 30], seed=123
         )
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

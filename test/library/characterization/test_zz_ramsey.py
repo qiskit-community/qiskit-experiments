@@ -141,4 +141,4 @@ class TestZZRamsey(QiskitExperimentsTestCase):
             num_delays=num,
         )
         # Check that the circuit are serializable
-        self.assertRoundTripSerializable(ramsey_min_max.circuits())
+        self.assertRoundTripSerializable(ramsey_min_max._transpiled_circuits())

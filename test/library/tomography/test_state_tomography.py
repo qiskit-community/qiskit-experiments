@@ -246,7 +246,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         circ.cx(0, 1)
 
         exp = StateTomography(circ)
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""

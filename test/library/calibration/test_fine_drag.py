@@ -71,7 +71,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag = FineDrag([0], Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.backend = FakeArmonkV2()
-        self.assertRoundTripSerializable(drag.circuits())
+        self.assertRoundTripSerializable(drag._transpiled_circuits())
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
