@@ -134,9 +134,7 @@ class AnalysisResultTable(ThreadSafeDataFrame):
 
         matched = self.VALID_ID_REGEX.match(result_id)
         if matched is None:
-            raise ValueError(
-                f"The result ID {result_id} is not a valid result ID string."
-            )
+            raise ValueError(f"The result ID {result_id} is not a valid result ID string.")
 
         # Short unique index is generated from result id.
         # Showing full result id unnecessary occupies horizontal space of the html table.

@@ -15,9 +15,10 @@ Base analysis class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from datetime import datetime, timezone
-from dateutil import tz
+from datetime import datetime
 from typing import List, Tuple, Union, Dict
+
+from dateutil import tz
 
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
@@ -197,7 +198,14 @@ class BaseAnalysis(ABC, StoreInitArgs):
                 figure_to_add = []
                 for figure in figures:
                     if not isinstance(figure, FigureData):
-                        figure = FigureData(figure=figure)
+                        qubits_repr = "_".join(
+                            map(str, expdata.metadata.get("device_components", [])[:5])
+                        )
+                        short_id = expdata.experiment_id[:8]
+                        figure = FigureData(
+                            figure=figure,
+                            name=f"{expdata.experiment_type}_{qubits_repr}_{short_id}.svg",
+                        )
                     figure_to_add.append(figure)
                 expdata.add_figures(figure_to_add, figure_names=self.options.figure_names)
 
