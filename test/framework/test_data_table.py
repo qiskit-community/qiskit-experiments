@@ -87,6 +87,16 @@ class TestBaseTable(QiskitExperimentsTestCase):
         self.assertListEqual(table.get_columns(), ["value1", "value2", "value3", "extra"])
         self.assertListEqual(table.get_entry("x").to_list(), [0.0, 1.0, 2.0, 3.0])
 
+    def test_add_entry_with_multiple_new_keys(self):
+        """Test new keys are added to column and the key order is preserved."""
+        table = TestBaseTable.TestTable()
+        table.add_entry(index="x", phi=0.1, lamb=0.2, theta=0.3)
+
+        self.assertListEqual(
+            table.get_columns(),
+            ["value1", "value2", "value3", "phi", "lamb", "theta"],
+        )
+
     def test_add_entry_with_new_key_with_existing_entry(self):
         """Test adding new key will expand existing entry."""
         table = TestBaseTable.TestTable()

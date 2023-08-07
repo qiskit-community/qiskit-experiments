@@ -435,10 +435,8 @@ class ThreadSafeDataFrame(ThreadSafeContainer):
             if index in self._container.index:
                 raise ValueError(f"Table index {index} already exists in the table.")
 
-            columns = self.get_columns()
-            missing = kwargs.keys() - set(columns)
-            if missing:
-                self.add_columns(*sorted(missing))
+            if kwargs.keys() - set(self.get_columns()):
+                self.add_columns(*kwargs.keys())
 
             template = dict.fromkeys(self.get_columns())
             template.update(kwargs)
