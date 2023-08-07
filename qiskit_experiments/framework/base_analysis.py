@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from datetime import datetime, timezone
+from dateutil import tz
 from typing import List, Tuple, Union, Dict
 
 from qiskit_experiments.database_service.device_component import Qubit
@@ -179,7 +180,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                     if not result.backend:
                         result.backend = expdata.backend_name
                     if not result.created_time:
-                        result.created_time = datetime.now(timezone.utc)
+                        result.created_time = datetime.now(tz.tzlocal())
                     if not result.run_time:
                         result.run_time = expdata.running_time
 

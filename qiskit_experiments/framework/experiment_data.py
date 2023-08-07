@@ -421,7 +421,7 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.creation_datetime)
+        return self._db_data.creation_datetime
 
     @property
     def start_datetime(self) -> datetime:
@@ -431,11 +431,11 @@ class ExperimentData:
             The timestamp when this experiment began running in the local timezone.
 
         """
-        return utc_to_local(self._db_data.start_datetime)
+        return self._db_data.start_datetime
 
     @start_datetime.setter
     def start_datetime(self, new_start_datetime: datetime) -> None:
-        self._db_data.start_datetime = local_to_utc(new_start_datetime)
+        self._db_data.start_datetime = new_start_datetime
 
     @property
     def updated_datetime(self) -> datetime:
@@ -446,7 +446,7 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.updated_datetime)
+        return self._db_data.updated_datetime
 
     @property
     def running_time(self) -> datetime:
@@ -462,7 +462,7 @@ class ExperimentData:
             This may return wrong datetime if server and client are in different timezone.
 
         """
-        return utc_to_local(self._running_time)
+        return self._running_time
 
     @property
     def end_datetime(self) -> datetime:
@@ -476,11 +476,11 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.end_datetime)
+        return self._db_data.end_datetime
 
     @end_datetime.setter
     def end_datetime(self, new_end_datetime: datetime) -> None:
-        self._db_data.end_datetime = local_to_utc(new_end_datetime)
+        self._db_data.end_datetime = new_end_datetime
 
     @property
     def hub(self) -> str:
