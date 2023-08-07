@@ -2659,8 +2659,7 @@ def _series_to_service_result(
         Legacy AnalysisResult payload.
     """
     # TODO This must be done on experiment service rather than by client.
-
-    qe_result = AnalysisResultData.from_table_element(**series.to_dict())
+    qe_result = AnalysisResultData.from_table_element(**series.replace({np.nan: None}).to_dict())
 
     result_data = AnalysisResult.format_result_data(
         value=qe_result.value,
@@ -2682,6 +2681,7 @@ def _series_to_service_result(
         quality = ResultQuality(str(qe_result.quality).upper())
     except ValueError:
         quality = "unknown"
+
     experiment_service_payload = AnalysisResultDataclass(
         result_id=qe_result.result_id,
         experiment_id=qe_result.experiment_id,

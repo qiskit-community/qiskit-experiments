@@ -168,7 +168,7 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
     def test_add_entry_with_result_id(self):
         """Test adding entry with result_id. Index is created by truncating long string."""
         table = AnalysisResultTable()
-        table.add_entry(result_id="9a0bdec8c0104ef7bb7db84939717a6b", value=0.123)
+        table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.123)
         self.assertEqual(table.get_entry("9a0bdec8").value, 0.123)
 
     def test_extra_column_name_is_always_returned(self):
@@ -189,7 +189,7 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
         """Test returning result IDs of all stored entries."""
         table = AnalysisResultTable()
 
-        ref_ids = [uuid.uuid4().hex for _ in range(10)]
+        ref_ids = [str(uuid.uuid4()) for _ in range(10)]
         for ref_id in ref_ids:
             table.add_entry(result_id=ref_id, value=0)
 

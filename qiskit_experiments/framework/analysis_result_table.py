@@ -13,6 +13,7 @@
 """Table representation of analysis results."""
 
 import logging
+import re
 import uuid
 import warnings
 from typing import List, Union, Optional
@@ -37,6 +38,8 @@ class AnalysisResultTable(ThreadSafeDataFrame):
     See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
     for more details.
     """
+
+    VALID_ID_REGEX = re.compile(r"\A(?P<short_id>\w{8})-\w{4}-\w{4}-\w{4}-\w{12}\Z")
 
     @classmethod
     def _default_columns(cls) -> List[str]:
@@ -126,23 +129,29 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         Returns:
             Pandas Series of added entry. This doesn't mutate the table.
         """
-        if result_id:
-            with self._lock:
-                if result_id[:8] in self._container.index:
-                    raise ValueError(
-                        f"The short ID of the result_id '{result_id[:8]}' already exists in the "
-                        "experiment data. Please use another ID to avoid index collision."
-                    )
-        else:
+        if not result_id:
             result_id = self._unique_table_index()
+
+        matched = self.VALID_ID_REGEX.match(result_id)
+        if matched is None:
+            raise ValueError(
+                f"The result ID {result_id} is not a valid result ID string."
+            )
 
         # Short unique index is generated from result id.
         # Showing full result id unnecessary occupies horizontal space of the html table.
         # This mechanism is similar with the github commit hash.
-        short_index = result_id[:8]
+        short_id = matched.group("short_id")
+
+        with self._lock:
+            if short_id in self._container.index:
+                raise ValueError(
+                    f"The short ID of the result_id '{short_id}' already exists in the "
+                    "experiment data. Please use another ID to avoid index collision."
+                )
 
         return super().add_entry(
-            index=short_index,
+            index=short_id,
             result_id=result_id,
             **kwargs,
         )
@@ -152,7 +161,7 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         with self._lock:
             n = 0
             while n < 1000:
-                tmp_id = uuid.uuid4().hex
+                tmp_id = str(uuid.uuid4())
                 if tmp_id[:8] not in self._container.index:
                     return tmp_id
         raise RuntimeError(
