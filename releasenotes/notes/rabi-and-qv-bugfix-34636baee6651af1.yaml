@@ -1,6 +1,8 @@
 ---
 fixes:
   - |
-    Rabi experiment amplitudes are casted to `float` type for serialization purposes.
+    Resolved a serialization issue that affected Rabi experiments when running it through 
+    `qiskit-ibm-provider` using custom amplitudes provided as a numpy array.
   - |
-    QV experiment probabilities are casted to `list` type for serialization purposes.
+    Resolved an issue that caused QV experiments to fail when executed via `qiskit-ibm-provider` using
+    Qiskit Terra for calculating ideal probabilities, instead of Aer.
