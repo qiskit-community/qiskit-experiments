@@ -2677,6 +2677,11 @@ def _series_to_service_result(
     result_data["_value"] = qe_result.value
     result_data["_extra"] = qe_result.extra
 
+    # IBM Experiment Service doesn't have data field for experiment and run time.
+    # These are added to extra field so that these data can be saved.
+    result_data["_extra"]["experiment"] = qe_result.experiment
+    result_data["_extra"]["run_time"] = qe_result.run_time
+
     try:
         quality = ResultQuality(str(qe_result.quality).upper())
     except ValueError:
