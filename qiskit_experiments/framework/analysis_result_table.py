@@ -128,18 +128,26 @@ class AnalysisResultTable(ThreadSafeDataFrame):
 
         Returns:
             Pandas Series of added entry. This doesn't mutate the table.
+
+        Raises:
+            ValueError: When the truncated result id causes a collision in the table.
         """
         if not result_id:
             result_id = self._unique_table_index()
 
         matched = self.VALID_ID_REGEX.match(result_id)
         if matched is None:
-            raise ValueError(f"The result ID {result_id} is not a valid result ID string.")
-
-        # Short unique index is generated from result id.
-        # Showing full result id unnecessary occupies horizontal space of the html table.
-        # This mechanism is similar with the github commit hash.
-        short_id = matched.group("short_id")
+            warnings.warn(
+                f"The result ID {result_id} is not a valid result ID string. "
+                "This entry might fail in saving with the experiment service.",
+                UserWarning,
+            )
+            short_id = result_id[:8]
+        else:
+            # Short unique index is generated from result id.
+            # Showing full result id unnecessary occupies horizontal space of the html table.
+            # This mechanism is similar with the github commit hash.
+            short_id = matched.group("short_id")
 
         with self._lock:
             if short_id in self._container.index:
