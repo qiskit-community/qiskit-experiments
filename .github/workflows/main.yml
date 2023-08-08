@@ -43,11 +43,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-          ~/.stestr/0
-          ~/.stestr/f*
-          ~/.stestr/m*
-          ~/.stestr/n*
-          ~/.stestr/t*
+            ~/.stestr/0
+            ~/.stestr/f*
+            ~/.stestr/m*
+            ~/.stestr/n*
+            ~/.stestr/t*
           key: ${{ runner.os }}-${{ matrix.python-version }}-stestr-tests-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-stestr-tests-
