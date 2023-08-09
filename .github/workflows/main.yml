@@ -57,10 +57,20 @@ jobs:
         run: tox -e py
         if: runner.os != 'macOS'
       - name: Install and Run Tests
-        run: tox -e py
+        run: tox -e cover
         if: runner.os == 'macOS'
         env:
           OMP_NUM_THREADS: 1
+      - name: Report coverage to coveralls.io (Macs only)
+        if: runner.os == 'macOS'
+        uses: coverallsapp/github-action@v2
+        env:
+          ACTIONS_RUNNER_DEBUG: 1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: unit-tests_python${{ matrix.python-version }}-${{ matrix.os }}
+          path-to-lcov: coverage.lcov
+  
 
   lint:
     name: lint
