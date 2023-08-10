@@ -104,7 +104,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         circ.cx(0, 1)
 
         exp = ProcessTomography(circ)
-        self.assertRoundTripSerializable(exp.circuits())
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_cvxpy_gaussian_lstsq_cx(self):
         """Test fitter with high fidelity threshold"""
