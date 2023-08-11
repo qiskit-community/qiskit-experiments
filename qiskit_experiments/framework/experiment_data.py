@@ -21,7 +21,7 @@ from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECK
 from datetime import datetime, timezone
 from concurrent import futures
 from threading import Event
-from functools import wraps
+from functools import wraps, singledispatch
 from collections import deque
 import contextlib
 import copy
@@ -33,6 +33,7 @@ import sys
 import json
 import traceback
 import numpy as np
+import pandas as pd
 from dateutil import tz
 from matplotlib import pyplot
 from matplotlib.figure import Figure as MatplotlibFigure
@@ -40,9 +41,14 @@ from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
+from qiskit.utils.deprecation import deprecate_arg
 
-from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
+from qiskit_ibm_experiment import (
+    IBMExperimentService,
+    ExperimentData as ExperimentDataclass,
+    AnalysisResultData as AnalysisResultDataclass,
+    ResultQuality,
+)
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
     qiskit_version,
@@ -50,7 +56,10 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
+from qiskit_experiments.database_service.device_component import to_component, DeviceComponent
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -132,7 +141,8 @@ class FigureData:
         Args:
             figure: the raw figure itself. Can be SVG or matplotlib.Figure.
             name: Optional, the name of the figure.
-            metadata: Optional, any metadata to be stored with the figure."""
+            metadata: Optional, any metadata to be stored with the figure.
+        """
         self.figure = figure
         self._name = name
         self.metadata = metadata or {}
@@ -184,6 +194,9 @@ class FigureData:
         if isinstance(self.figure, bytes):
             return str(self.figure)
         return None
+
+
+_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -326,6 +339,7 @@ class ExperimentData:
         # job handling related
         self._jobs = ThreadSafeOrderedDict(job_ids)
         self._job_futures = ThreadSafeOrderedDict()
+        self._running_time = None
         self._analysis_callbacks = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
         # Set 2 workers for analysis executor so there can be 1 actively running
@@ -338,7 +352,7 @@ class ExperimentData:
         # data storage
         self._result_data = ThreadSafeList()
         self._figures = ThreadSafeOrderedDict(self._db_data.figure_names)
-        self._analysis_results = ThreadSafeOrderedDict()
+        self._analysis_results = AnalysisResultTable()
 
         self._deleted_figures = deque()
         self._deleted_analysis_results = deque()
@@ -407,7 +421,7 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.creation_datetime)
+        return self._db_data.creation_datetime
 
     @property
     def start_datetime(self) -> datetime:
@@ -417,11 +431,11 @@ class ExperimentData:
             The timestamp when this experiment began running in the local timezone.
 
         """
-        return utc_to_local(self._db_data.start_datetime)
+        return self._db_data.start_datetime
 
     @start_datetime.setter
     def start_datetime(self, new_start_datetime: datetime) -> None:
-        self._db_data.start_datetime = local_to_utc(new_start_datetime)
+        self._db_data.start_datetime = new_start_datetime
 
     @property
     def updated_datetime(self) -> datetime:
@@ -432,11 +446,22 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.updated_datetime)
+        return self._db_data.updated_datetime
+
+    @property
+    def running_time(self) -> datetime:
+        """Return the running time of this experiment data.
+
+        The running time is the time the latest successful job started running on
+        the remote quantum machine. This can change as more jobs finish.
+
+        """
+        return self._running_time
 
     @property
     def end_datetime(self) -> datetime:
         """Return the end datetime of this experiment data.
+
         The end datetime is the time the latest job data was
         added without errors; this can change as more jobs finish.
 
@@ -445,11 +470,11 @@ class ExperimentData:
             in the local timezone.
 
         """
-        return utc_to_local(self._db_data.end_datetime)
+        return self._db_data.end_datetime
 
     @end_datetime.setter
     def end_datetime(self, new_end_datetime: datetime) -> None:
-        self._db_data.end_datetime = local_to_utc(new_end_datetime)
+        self._db_data.end_datetime = new_end_datetime
 
     @property
     def hub(self) -> str:
@@ -660,9 +685,8 @@ class ExperimentData:
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
         # Schedule existing analysis results for deletion next save call
-        for key in self._analysis_results.keys():
-            self._deleted_analysis_results.append(key)
-        self._analysis_results = ThreadSafeOrderedDict()
+        self._deleted_analysis_results.extend(list(self._analysis_results.result_ids()))
+        self._analysis_results.clear()
         # Schedule existing figures for deletion next save call
         for key in self._figures.keys():
             self._deleted_figures.append(key)
@@ -727,10 +751,6 @@ class ExperimentData:
         if save_val is True:
             self.save(save_children=False)
         self._auto_save = save_val
-        for res in self._analysis_results.values():
-            # Setting private variable directly to avoid duplicate save. This
-            # can be removed when we start tracking changes.
-            res._auto_save = save_val
         for data in self.child_data():
             data.auto_save = save_val
 
@@ -890,6 +910,10 @@ class ExperimentData:
         jid = job.job_id()
         try:
             job_result = job.result()
+            try:
+                self._running_time = job.time_per_step().get("running", None)
+            except AttributeError:
+                pass
             self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
             # sets the endtime to be the time the last successful job was added
@@ -1110,9 +1134,9 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[str, bytes, pyplot.Figure, list],
-        figure_names: Optional[Union[str, list]] = None,
-        overwrite: Optional[bool] = False,
+        figures: Union[_FigureT, List[_FigureT]],
+        figure_names: Optional[Union[str, List[str]]] = None,
+        overwrite: bool = False,
         save_figure: Optional[bool] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
@@ -1302,28 +1326,106 @@ class ExperimentData:
                 return num_bytes
         return figure_data
 
+    @deprecate_arg(
+        name="results",
+        since="0.6",
+        additional_msg="Use keyword arguments rather than creating an AnalysisResult object.",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
     @do_auto_save
     def add_analysis_results(
         self,
-        results: Union[AnalysisResult, List[AnalysisResult]],
+        results: Optional[Union[AnalysisResult, List[AnalysisResult]]] = None,
+        *,
+        name: Optional[str] = None,
+        value: Optional[Any] = None,
+        quality: Optional[str] = None,
+        components: Optional[List[DeviceComponent]] = None,
+        experiment: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        result_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        backend: Optional[str] = None,
+        run_time: Optional[datetime] = None,
+        created_time: Optional[datetime] = None,
+        **extra_values,
     ) -> None:
         """Save the analysis result.
 
         Args:
             results: Analysis results to be saved.
+            name: Name of the result entry.
+            value: Analyzed quantity.
+            quality: Quality of the data.
+            components: Associated device components.
+            experiment: String identifier of the associated experiment.
+            experiment_id: ID of the associated experiment.
+            result_id: ID of this analysis entry. If not set a random UUID is generated.
+            tags: List of arbitrary tags.
+            backend: Name of associated backend.
+            run_time: The date time when the experiment started to run on the device.
+            created_time: The date time when this analysis is performed.
+            extra_values: Arbitrary keyword arguments for supplementary information.
+                New dataframe columns are created in the analysis result table with added keys.
         """
-        if not isinstance(results, list):
-            results = [results]
+        if results is not None:
+            # TODO deprecate this path
+            if not isinstance(results, list):
+                results = [results]
+            for result in results:
+                extra_values = result.extra.copy()
+                if result.chisq is not None:
+                    # Move chisq to extra.
+                    # This is not global outcome, e.g. QPT doesn't provide chisq.
+                    extra_values["chisq"] = result.chisq
+                experiment = extra_values.pop("experiment", self.experiment_type)
+                backend = extra_values.pop("backend", self.backend_name)
+                run_time = extra_values.pop("run_time", self.running_time)
+                created_time = extra_values.pop("created_time", None)
+                self._analysis_results.add_entry(
+                    name=result.name,
+                    value=result.value,
+                    quality=result.quality,
+                    components=result.device_components,
+                    experiment=experiment,
+                    experiment_id=result.experiment_id,
+                    result_id=result.result_id,
+                    tags=result.tags,
+                    backend=backend,
+                    run_time=run_time,
+                    created_time=created_time,
+                    **extra_values,
+                )
+                if self.auto_save:
+                    result.save()
+        else:
+            experiment = experiment or self.experiment_type
+            experiment_id = experiment_id or self.experiment_id
+            tags = tags or []
+            backend = backend or self.backend_name
 
-        for result in results:
-            self._analysis_results[result.result_id] = result
-
-            with contextlib.suppress(ExperimentDataError):
-                result.service = self.service
-                result.auto_save = self.auto_save
-
-            if self.auto_save and self._service:
-                result.save()
+            series = self._analysis_results.add_entry(
+                result_id=result_id,
+                name=name,
+                value=value,
+                quality=quality,
+                components=components,
+                experiment=experiment,
+                experiment_id=experiment_id,
+                tags=tags or [],
+                backend=backend,
+                run_time=run_time,  # TODO add job RUNNING time
+                created_time=created_time,
+                **extra_values,
+            )
+            if self.auto_save:
+                service_result = _series_to_service_result(
+                    series=series,
+                    service=self._service,
+                    auto_save=False,
+                )
+                service_result.save()
 
     @do_auto_save
     def delete_analysis_result(
@@ -1339,24 +1441,29 @@ class ExperimentData:
             Analysis result ID.
 
         Raises:
-            ExperimentEntryNotFound: If analysis result not found.
+            ExperimentEntryNotFound: If analysis result not found or multiple entries are found.
         """
+        # Retrieve from DB if needed.
+        to_delete = self.analysis_results(
+            index=result_key,
+            block=False,
+            columns="all",
+            dataframe=True,
+        )
+        if not isinstance(to_delete, pd.Series):
+            raise ExperimentEntryNotFound(
+                f"Multiple entries are found with result_key = {result_key}. "
+                "Try another key that can uniquely determine entry to delete."
+            )
 
-        if isinstance(result_key, int):
-            result_key = self._analysis_results.keys()[result_key]
-        else:
-            # Retrieve from DB if needed.
-            result_key = self.analysis_results(result_key, block=False).result_id
-
-        del self._analysis_results[result_key]
-        self._deleted_analysis_results.append(result_key)
-
+        self._analysis_results.drop_entry(str(to_delete.name))
         if self._service and self.auto_save:
             with service_exception_to_warning():
-                self.service.delete_analysis_result(result_id=result_key)
-            self._deleted_analysis_results.remove(result_key)
+                self.service.delete_analysis_result(result_id=to_delete.result_id)
+        else:
+            self._deleted_analysis_results.append(to_delete.result_id)
 
-        return result_key
+        return to_delete.result_id
 
     def _retrieve_analysis_results(self, refresh: bool = False):
         """Retrieve service analysis results.
@@ -1366,24 +1473,48 @@ class ExperimentData:
                 an experiment service is available.
         """
         # Get job results if missing experiment data.
-        if self.service and (not self._analysis_results or refresh):
+        if self.service and (len(self._analysis_results) == 0 or refresh):
             retrieved_results = self.service.analysis_results(
                 experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
-                result_id = result.result_id
+                # Canonicalize IBM specific data structure.
+                # TODO define proper data schema on frontend and delegate this to service.
+                cano_quality = AnalysisResult.RESULT_QUALITY_TO_TEXT.get(result.quality, "unknown")
+                cano_components = [to_component(c) for c in result.device_components]
+                extra = result.result_data["_extra"]
+                if result.chisq is not None:
+                    extra["chisq"] = result.chisq
+                self._analysis_results.add_entry(
+                    name=result.result_type,
+                    value=result.result_data["_value"],
+                    quality=cano_quality,
+                    components=cano_components,
+                    experiment_id=result.experiment_id,
+                    result_id=result.result_id,
+                    tags=result.tags,
+                    backend=result.backend_name,
+                    created_time=result.creation_datetime,
+                    **extra,
+                )
 
-                self._analysis_results[result_id] = AnalysisResult(service=self.service)
-                self._analysis_results[result_id].set_data(result)
-                self._analysis_results[result_id]._created_in_db = True
-
+    @deprecate_arg(
+        name="dataframe",
+        deprecation_description="Setting ``dataframe`` to False in analysis_results",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+        predicate=lambda dataframe: not dataframe,
+    )
     def analysis_results(
         self,
         index: Optional[Union[int, slice, str]] = None,
         refresh: bool = False,
         block: bool = True,
         timeout: Optional[float] = None,
-    ) -> Union[AnalysisResult, List[AnalysisResult]]:
+        columns: Union[str, List[str]] = "default",
+        dataframe: bool = False,
+    ) -> Union[AnalysisResult, List[AnalysisResult], pd.DataFrame, pd.Series]:
         """Return analysis results associated with this experiment.
 
         Args:
@@ -1394,16 +1525,26 @@ class ExperimentData:
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
                     * str: ID or name of the analysis result.
+
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
             block: If True block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
+            columns: Specifying a set of columns to return. You can pass a list of each
+                column name to return, otherwise builtin column groups are available.
+
+                    * "all": Return all columns, including metadata to communicate
+                        with experiment service, such as entry IDs.
+                    * "default": Return columns including analysis result with supplementary
+                        information about experiment.
+                    * "minimal": Return only analysis subroutine returns.
+
+            dataframe: Set True to return analysis results in the dataframe format.
 
         Returns:
             Analysis results for this experiment.
 
         Raises:
-            TypeError: If the input `index` has an invalid type.
             ExperimentEntryNotFound: If the entry cannot be found.
         """
         if block:
@@ -1411,42 +1552,41 @@ class ExperimentData:
                 self._analysis_futures.values(), name="analysis", timeout=timeout
             )
         self._retrieve_analysis_results(refresh=refresh)
-        if index is None:
-            return self._analysis_results.values()
 
-        def _make_not_found_message(index: Union[int, slice, str]) -> str:
-            """Helper to make error message for index not found"""
-            msg = [f"Analysis result {index} not found."]
-            errors = self.errors()
-            if errors:
-                msg.append(f"Errors: {errors}")
-            return "\n".join(msg)
+        out = self._analysis_results.container(collapse_extra=False)
 
-        if isinstance(index, int):
-            if index >= len(self._analysis_results.values()):
-                raise ExperimentEntryNotFound(_make_not_found_message(index))
-            return self._analysis_results.values()[index]
-        if isinstance(index, slice):
-            results = self._analysis_results.values()[index]
-            if not results:
-                raise ExperimentEntryNotFound(_make_not_found_message(index))
-            return results
-        if isinstance(index, str):
-            # Check by result ID
-            if index in self._analysis_results:
-                return self._analysis_results[index]
-            # Check by name
-            filtered = [
-                result for result in self._analysis_results.values() if result.name == index
-            ]
-            if not filtered:
-                raise ExperimentEntryNotFound(_make_not_found_message(index))
-            if len(filtered) == 1:
-                return filtered[0]
-            else:
-                return filtered
+        if index is not None:
+            out = _filter_analysis_results(index, out)
+            if out is None:
+                msg = [f"Analysis result {index} not found."]
+                errors = self.errors()
+                if errors:
+                    msg.append(f"Errors: {errors}")
+                raise ExperimentEntryNotFound("\n".join(msg))
 
-        raise TypeError(f"Invalid index type {type(index)}.")
+        if dataframe:
+            valid_columns = self._analysis_results.filter_columns(columns)
+            out = out[valid_columns]
+            if len(out) == 1 and index is not None:
+                # For backward compatibility.
+                # One can directly access attributes with Series. e.g. out.value
+                return out.iloc[0]
+            return out
+
+        # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
+        # This will be removed in future version.
+        service_results = []
+        for _, series in out.iterrows():
+            service_results.append(
+                _series_to_service_result(
+                    series=series,
+                    service=self._service,
+                    auto_save=self._auto_save,
+                )
+            )
+        if len(service_results) == 1 and index is not None:
+            return service_results[0]
+        return service_results
 
     # Save and load from the database
 
@@ -1575,8 +1715,15 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        for result in self._analysis_results.values():
-            analysis_results_to_create.append(result._db_data)
+        for _, series in self._analysis_results.container(collapse_extra=False).iterrows():
+            # TODO We should support saving entire dataframe
+            #  Calling API per entry takes huge amount of time.
+            legacy_result = _series_to_service_result(
+                series=series,
+                service=self._service,
+                auto_save=False,
+            )
+            analysis_results_to_create.append(legacy_result._db_data)
         try:
             self.service.create_analysis_results(
                 data=analysis_results_to_create,
@@ -1584,8 +1731,6 @@ class ExperimentData:
                 json_encoder=self._json_encoder,
                 max_workers=max_workers,
             )
-            for result in self._analysis_results.values():
-                result._created_in_db = True
         except Exception as ex:  # pylint: disable=broad-except
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
@@ -2181,9 +2326,7 @@ class ExperimentData:
         # Copy results and figures.
         # This requires analysis callbacks to finish
         self._wait_for_futures(self._analysis_futures.values(), name="analysis")
-        with self._analysis_results.lock:
-            new_instance._analysis_results = ThreadSafeOrderedDict()
-            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+        new_instance._analysis_results = self._analysis_results.copy_object()
         with self._figures.lock:
             new_instance._figures = ThreadSafeOrderedDict()
             new_instance.add_figures(self._figures.values())
@@ -2215,8 +2358,6 @@ class ExperimentData:
         if self._service and not replace:
             raise ExperimentDataError("An experiment service is already being used.")
         self._service = service
-        for result in self._analysis_results.values():
-            result.service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
         for data in self.child_data():
@@ -2321,6 +2462,7 @@ class ExperimentData:
             "_jobs": self._safe_serialize_jobs(),  # Handle non-serializable objects
             "_experiment": self._experiment,
             "_child_data": self._child_data,
+            "_running_time": self._running_time,
         }
         # the attribute self._service in charge of the connection and communication with the
         #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
@@ -2485,3 +2627,143 @@ class AnalysisCallback:
 
     def __json_encode__(self):
         return self.__getstate__()
+
+
+def _series_to_service_result(
+    series: pd.Series,
+    service: IBMExperimentService,
+    auto_save: bool,
+    source: Optional[Dict[str, Any]] = None,
+) -> AnalysisResult:
+    """Helper function to convert dataframe to AnalysisResult payload for IBM experiment service.
+
+    .. note::
+
+        Now :class:`.AnalysisResult` is only used to save data in the experiment service.
+        All local operations must be done with :class:`.AnalysisResultTable` dataframe.
+        ExperimentData._analysis_results are totally decoupled from
+        the model of IBM experiment service until this function is implicitly called.
+
+    Args:
+        series: Pandas dataframe Series (a row of dataframe).
+        service: Experiment service.
+        auto_save: Do auto save when entry value changes.
+
+    Returns:
+        Legacy AnalysisResult payload.
+    """
+    # TODO This must be done on experiment service rather than by client.
+    qe_result = AnalysisResultData.from_table_element(**series.replace({np.nan: None}).to_dict())
+
+    result_data = AnalysisResult.format_result_data(
+        value=qe_result.value,
+        extra=qe_result.extra,
+        chisq=qe_result.chisq,
+        source=source,
+    )
+
+    # Overwrite formatted result data dictionary with original objects.
+    # The format_result_data method implicitly deep copies input value and extra field,
+    # but it means the dictionary stores input objects with different object id.
+    # This affects computation of error propagation with ufloats, because it
+    # recognizes the value correlation with object id.
+    # See test.curve_analysis.test_baseclass.TestCurveAnalysis.test_end_to_end_compute_new_entry.
+    result_data["_value"] = qe_result.value
+    result_data["_extra"] = qe_result.extra
+
+    # IBM Experiment Service doesn't have data field for experiment and run time.
+    # These are added to extra field so that these data can be saved.
+    result_data["_extra"]["experiment"] = qe_result.experiment
+    result_data["_extra"]["run_time"] = qe_result.run_time
+
+    try:
+        quality = ResultQuality(str(qe_result.quality).upper())
+    except ValueError:
+        quality = "unknown"
+
+    experiment_service_payload = AnalysisResultDataclass(
+        result_id=qe_result.result_id,
+        experiment_id=qe_result.experiment_id,
+        result_type=qe_result.name,
+        result_data=result_data,
+        device_components=list(map(to_component, qe_result.device_components)),
+        quality=quality,
+        tags=qe_result.tags,
+        backend_name=qe_result.backend,
+        creation_datetime=qe_result.created_time,
+        chisq=qe_result.chisq,
+    )
+
+    service_result = AnalysisResult()
+    service_result.set_data(experiment_service_payload)
+
+    with contextlib.suppress(ExperimentDataError):
+        service_result.service = service
+        service_result.auto_save = auto_save
+
+    return service_result
+
+
+def _filter_analysis_results(
+    search_key: Union[int, slice, str],
+    data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Helper function to search result data for given key.
+
+    Args:
+        search_key: Key to search for.
+        data: Full result dataframe.
+
+    Returns:
+        Truncated dataframe.
+    """
+    out = _search_data(search_key, data)
+    if isinstance(out, pd.Series):
+        return pd.DataFrame([out])
+    return out
+
+
+@singledispatch
+def _search_data(search_key, data):
+    if search_key is None:
+        return data
+    raise TypeError(
+        f"Invalid search key {search_key}. " f"This must be either int, slice or str type."
+    )
+
+
+@_search_data.register
+def _search_with_int(
+    search_key: int,
+    data: pd.DataFrame,
+):
+    if search_key >= len(data):
+        return None
+    return data.iloc[search_key]
+
+
+@_search_data.register
+def _search_with_slice(
+    search_key: slice,
+    data: pd.DataFrame,
+):
+    out = data[search_key]
+    if len(out) == 0:
+        return None
+    return out
+
+
+@_search_data.register
+def _search_with_str(
+    search_key: str,
+    data: pd.DataFrame,
+):
+    if search_key in data.index:
+        # This key is table entry hash
+        return data.loc[search_key]
+
+    # This key is name of entry
+    out = data[data["name"] == search_key]
+    if len(out) == 0:
+        return None
+    return out

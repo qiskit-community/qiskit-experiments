@@ -21,12 +21,14 @@ import dataclasses
 from typing import Any, List, Union
 
 import numpy as np
+import pandas as pd
 import uncertainties
 from lmfit import Model
 from multimethod import multimethod
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.utils import (
+    ThreadSafeDataFrame,
     ThreadSafeList,
     ThreadSafeOrderedDict,
 )
@@ -273,6 +275,24 @@ def _check_configurable_classes(
 
 
 @_is_equivalent_dispatcher.register
+def _check_dataframes(
+    data1: Union[pd.DataFrame, ThreadSafeDataFrame],
+    data2: Union[pd.DataFrame, ThreadSafeDataFrame],
+    **kwargs,
+):
+    """Check equality of data frame which may involve Qiskit Experiments class value."""
+    if isinstance(data1, ThreadSafeDataFrame):
+        data1 = data1.container(collapse_extra=False)
+    if isinstance(data2, ThreadSafeDataFrame):
+        data2 = data2.container(collapse_extra=False)
+    return is_equivalent(
+        data1.to_dict(orient="index"),
+        data2.to_dict(orient="index"),
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
 def _check_experiment_data(
     data1: ExperimentData,
     data2: ExperimentData,
@@ -319,4 +339,8 @@ def _check_all_attributes(
     **kwargs,
 ):
     """Helper function to check all attributes."""
+    test = {}
+    for att in attrs:
+        test[att] = is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs)
+
     return all(is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs) for att in attrs)

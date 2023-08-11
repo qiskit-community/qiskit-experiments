@@ -36,7 +36,6 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.framework.experiment_data import local_to_utc
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -148,7 +147,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
             exp_data.add_figures(str.encode("hello world"))
-            exp_data.add_analysis_results(mock.MagicMock())
+            res = mock.MagicMock()
+            res.result_id = str(uuid.uuid4())
+            exp_data.add_analysis_results(res)
             nonlocal called_back
             called_back = True
 
@@ -450,28 +451,47 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test adding and getting analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
-            exp_data.add_analysis_results(res)
+            with self.assertWarns(UserWarning):
+                # This is invalid result ID string and cause a warning
+                exp_data.add_analysis_results(res)
 
-        self.assertEqual(results, exp_data.analysis_results())
-        self.assertEqual(results[1], exp_data.analysis_results(1))
-        self.assertEqual(results[2:4], exp_data.analysis_results(slice(2, 4)))
-        self.assertEqual(results[4], exp_data.analysis_results(results[4].result_id))
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results()],
+            result_ids,
+        )
+        self.assertEqual(
+            exp_data.analysis_results(1).result_id,
+            result_ids[1],
+        )
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+            result_ids[2:4],
+        )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
-        exp_data.add_analysis_results(results)
+        with self.assertWarns(UserWarning):
+            # This is invalid result ID string and cause a warning
+            exp_data.add_analysis_results(results)
+        get_result_ids = [res.result_id for res in exp_data.analysis_results()]
 
-        self.assertEqual(results, exp_data.analysis_results())
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(get_result_ids, result_ids)
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
@@ -480,7 +500,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for idx in range(3):
             res = mock.MagicMock()
             res.result_id = id_template.format(idx)
-            exp_data.add_analysis_results(res)
+            with self.assertWarns(UserWarning):
+                # This is invalid result ID string and cause a warning
+                exp_data.add_analysis_results(res)
 
         subtests = [(0, id_template.format(0)), (id_template.format(2), id_template.format(2))]
         for del_key, res_id in subtests:
@@ -504,6 +526,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
         analysis_result = mock.MagicMock()
+        analysis_result.result_id = str(uuid.uuid4())
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
         exp_data.save()
@@ -516,7 +539,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
-        exp_data.add_analysis_results(mock.MagicMock())
+        res = mock.MagicMock()
+        res.result_id = str(uuid.uuid4())
+        exp_data.add_analysis_results()
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
         exp_data.service = service
@@ -545,6 +570,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         )
         exp_data.auto_save = True
         mock_result = mock.MagicMock()
+        mock_result.result_id = str(uuid.uuid4())
 
         subtests = [
             # update function, update parameters, service called
@@ -1006,6 +1032,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_data(self._get_job_result(1))
         result = mock.MagicMock()
+        result.result_id = str(uuid.uuid4())
         exp_data.add_analysis_results(result)
         copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
@@ -1081,16 +1108,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         data = ExperimentData()
         test_time = datetime.now()
         data._db_data.creation_datetime = test_time
-        self.assertEqual(data.creation_datetime, local_to_utc(test_time))
+        self.assertEqual(data.creation_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.start_datetime = test_time
-        self.assertEqual(data.start_datetime, local_to_utc(test_time))
+        self.assertEqual(data.start_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.end_datetime = test_time
-        self.assertEqual(data.end_datetime, local_to_utc(test_time))
+        self.assertEqual(data.end_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.updated_datetime = test_time
-        self.assertEqual(data.updated_datetime, local_to_utc(test_time))
+        self.assertEqual(data.updated_datetime, test_time)
 
         data._db_data.hub = "hub_name"
         data._db_data.group = "group_name"
