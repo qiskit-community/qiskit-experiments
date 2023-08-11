@@ -452,14 +452,8 @@ class ExperimentData:
     def running_time(self) -> datetime:
         """Return the running time of this experiment data.
 
-        The running time is the time the latest successful job was run on
+        The running time is the time the latest successful job started running on
         the remote quantum machine. This can change as more jobs finish.
-
-        .. warning::
-
-            IBM job returns running time in tzlocal(),
-            but we don't know the local time of the remote quantum machine.
-            This may return wrong datetime if server and client are in different timezone.
 
         """
         return self._running_time
