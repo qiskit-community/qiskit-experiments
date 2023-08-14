@@ -13,33 +13,24 @@
 """Table representation of analysis results."""
 
 import logging
+import threading
 import re
 import uuid
 import warnings
-from typing import List, Union, Optional
+from typing import List, Dict, Union, Optional, Any
 
+import numpy as np
 import pandas as pd
 
-from qiskit_experiments.database_service.utils import ThreadSafeDataFrame
+from qiskit_experiments.database_service.utils import ThreadSafeContainer
+
+from .table_mixin import DefaultColumnsMixIn
 
 LOG = logging.getLogger(__name__)
 
 
-class AnalysisResultTable(ThreadSafeDataFrame):
-    """Table form container of analysis results.
-
-    This table is a dataframe wrapper with the thread-safe mechanism with predefined columns.
-    This object is attached to the :class:`.ExperimentData` container to store
-    analysis results. Each table row contains series of metadata in addition to the
-    result value itself.
-
-    User can rely on the dataframe filtering mechanism to analyze large scale experiment
-    results, e.g. massive parallel experiment and batch experiment outcomes, efficiently.
-    See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
-    for more details.
-    """
-
-    VALID_ID_REGEX = re.compile(r"\A(?P<short_id>\w{8})-\w{4}-\w{4}-\w{4}-\w{12}\Z")
+class AnalysisResultContainer(pd.DataFrame, DefaultColumnsMixIn):
+    """Data container of the thread-safe analysis result table."""
 
     @classmethod
     def _default_columns(cls) -> List[str]:
@@ -56,6 +47,33 @@ class AnalysisResultTable(ThreadSafeDataFrame):
             "run_time",
             "created_time",
         ]
+
+    @property
+    def _constructor(self):
+        # https://pandas.pydata.org/pandas-docs/stable/development/extending.html
+        return AnalysisResultContainer
+
+
+class AnalysisResultTable(ThreadSafeContainer):
+    """A thread-safe table form container of analysis results.
+
+    This table is a dataframe wrapper with the thread-safe mechanism with predefined columns.
+    This object is attached to the :class:`.ExperimentData` container to store
+    analysis results. Each table row contains series of metadata in addition to the
+    result value itself.
+
+    User can rely on the dataframe filtering mechanism to analyze large scale experiment
+    results, e.g. massive parallel experiment and batch experiment outcomes, efficiently.
+    See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
+    for more details.
+    """
+
+    VALID_ID_REGEX = re.compile(r"\A(?P<short_id>\w{8})-\w{4}-\w{4}-\w{4}-\w{12}\Z")
+
+    def _init_container(self, init_values: Any):
+        if init_values is None:
+            return AnalysisResultContainer()
+        return init_values
 
     def result_ids(self) -> List[str]:
         """Return all result IDs in this table."""
@@ -80,7 +98,7 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         """
         with self._lock:
             if columns == "all":
-                return self._columns
+                return self._container.columns
             if columns == "default":
                 return [
                     "name",
@@ -90,18 +108,18 @@ class AnalysisResultTable(ThreadSafeDataFrame):
                     "quality",
                     "backend",
                     "run_time",
-                ] + self._extra
+                ] + self._container.extra_columns()
             if columns == "minimal":
                 return [
                     "name",
                     "components",
                     "value",
                     "quality",
-                ] + self._extra
+                ] + self._container.extra_columns()
             if not isinstance(columns, str):
                 out = []
                 for column in columns:
-                    if column in self._columns:
+                    if column in self._container.columns:
                         out.append(column)
                     else:
                         warnings.warn(
@@ -112,6 +130,27 @@ class AnalysisResultTable(ThreadSafeDataFrame):
         raise ValueError(
             f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
         )
+
+    def get_entry(
+        self,
+        index: str,
+    ) -> pd.Series:
+        """Get entry from the dataframe.
+
+        Args:
+            index: Name of entry to acquire.
+
+        Returns:
+            Pandas Series of acquired entry. This doesn't mutate the table.
+
+        Raises:
+            ValueError: When index is not in this table.
+        """
+        with self._lock:
+            if index not in self._container.index:
+                raise ValueError(f"Table index {index} doesn't exist in this table.")
+
+            return self._container.loc[index]
 
     # pylint: disable=arguments-renamed
     def add_entry(
@@ -156,11 +195,35 @@ class AnalysisResultTable(ThreadSafeDataFrame):
                     "experiment data. Please use another ID to avoid index collision."
                 )
 
-        return super().add_entry(
-            index=short_id,
-            result_id=result_id,
-            **kwargs,
-        )
+            return self._container.add_entry(
+                index=short_id,
+                result_id=result_id,
+                **kwargs,
+            )
+
+    def drop(
+        self,
+        index: str,
+    ):
+        """Drop specified labels from rows or columns.
+
+        This directly calls :meth:`.drop` of the container object.
+
+        Args:
+            index: Name of entry to drop.
+
+        Raises:
+            ValueError: When index is not in this table.
+        """
+        with self._lock:
+            if index not in self._container.index:
+                raise ValueError(f"Table index {index} doesn't exist in this table.")
+            self._container.drop(index, inplace=True)
+
+    def clear(self):
+        """Remove all elements from this container."""
+        with self._lock:
+            self._container = AnalysisResultContainer()
 
     def _unique_table_index(self):
         """Generate unique UUID which is unique in the table with first 8 characters."""
@@ -174,3 +237,28 @@ class AnalysisResultTable(ThreadSafeDataFrame):
             "Unique result_id string cannot be prepared for this table within 1000 trials. "
             "Reduce number of entries, or manually provide a unique result_id."
         )
+
+    def _repr_html_(self) -> Union[str, None]:
+        """Return HTML representation of this dataframe."""
+        with self._lock:
+            return self._container._repr_html_()
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        with self._lock:
+            return {
+                "class": "AnalysisResultTable",
+                "data": self._container.to_dict(orient="index"),
+            }
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "AnalysisResultTable":
+        if not value.get("class", None) == "AnalysisResultTable":
+            raise ValueError("JSON decoded value for AnalysisResultTable is not valid class type.")
+
+        instance = object.__new__(cls)
+        instance._lock = threading.RLock()
+        instance._container = AnalysisResultContainer.from_dict(
+            data=value.get("data", {}),
+            orient="index",
+        ).replace({np.nan: None})
+        return instance

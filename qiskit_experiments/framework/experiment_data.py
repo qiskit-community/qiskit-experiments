@@ -1456,7 +1456,7 @@ class ExperimentData:
                 "Try another key that can uniquely determine entry to delete."
             )
 
-        self._analysis_results.drop_entry(str(to_delete.name))
+        self._analysis_results.drop(str(to_delete.name))
         if self._service and self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_analysis_result(result_id=to_delete.result_id)
@@ -1553,7 +1553,7 @@ class ExperimentData:
             )
         self._retrieve_analysis_results(refresh=refresh)
 
-        out = self._analysis_results.container(collapse_extra=False)
+        out = self._analysis_results.copy()
 
         if index is not None:
             out = _filter_analysis_results(index, out)
@@ -1715,7 +1715,7 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        for _, series in self._analysis_results.container(collapse_extra=False).iterrows():
+        for _, series in self._analysis_results.copy().iterrows():
             # TODO We should support saving entire dataframe
             #  Calling API per entry takes huge amount of time.
             legacy_result = _series_to_service_result(
