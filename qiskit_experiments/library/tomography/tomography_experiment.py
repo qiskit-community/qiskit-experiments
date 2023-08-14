@@ -207,7 +207,6 @@ class TomographyExperiment(BaseExperiment):
             if prep_element:
                 # Add tomography preparation
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
-                circ.reset(self._prep_indices)
                 circ.compose(prep_circ, self._prep_indices, inplace=True)
                 circ.barrier(*self._prep_indices)
 
