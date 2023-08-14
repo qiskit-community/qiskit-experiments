@@ -18,6 +18,7 @@ from ddt import ddt, data
 from qiskit import pulse
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
+from qiskit.providers.fake_provider import FakeArmonkV2
 from qiskit.pulse import DriveChannel, Drag
 
 from qiskit_experiments.library import (
@@ -77,6 +78,12 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
+
+    def test_circuits_serialization(self):
+        """Test circuits serialization of the experiment."""
+        backend = FakeArmonkV2()
+        amp_exp = FineXAmplitude([0], backend=backend)
+        self.assertRoundTripSerializable(amp_exp._transpiled_circuits())
 
 
 @ddt

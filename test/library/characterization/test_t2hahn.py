@@ -203,6 +203,14 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         # Checking serialization of the analysis
         self.assertRoundTripSerializable(expdata.analysis_results(1))
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        delays0 = list(range(1, 60, 2))
+        # backend is needed for serialization of the delays in the metadata of the experiment.
+        backend = FakeVigoV2()
+        exp = T2Hahn([0], delays0, backend=backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
+
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T2HahnAnalysis()

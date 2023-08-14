@@ -82,6 +82,12 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
             abs(self.cals.get_parameter_value("amp", 0, "sx") * (4 / 5) - default_amp / 2) < tol
         )
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        test_amps = [-0.5, 0, 0.5]
+        rabi = RoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps, backend=self.backend)
+        self.assertRoundTripSerializable(rabi._transpiled_circuits())
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = RoughXSXAmplitudeCal([0], self.cals)

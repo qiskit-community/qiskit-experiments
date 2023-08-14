@@ -13,7 +13,6 @@
 """
 ProcessTomography experiment tests
 """
-import io
 from test.base import QiskitExperimentsTestCase
 
 import ddt
@@ -21,7 +20,7 @@ import numpy as np
 from uncertainties import UFloat
 
 import qiskit.quantum_info as qi
-from qiskit import QuantumCircuit, qpy
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, CXGate
 from qiskit.result import LocalReadoutMitigator
 
@@ -97,7 +96,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         self.assertFalse(expdata.analysis_results())
 
-    def test_circuit_serialization(self):
+    def test_circuit_roundtrip_serializable(self):
         """Test simple circuit serialization"""
         circ = QuantumCircuit(2)
         circ.h(0)
@@ -105,14 +104,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         circ.cx(0, 1)
 
         exp = ProcessTomography(circ)
-        circs = exp.circuits()
-
-        qpy_file = io.BytesIO()
-        qpy.dump(circs, qpy_file)
-        qpy_file.seek(0)
-        new_circs = qpy.load(qpy_file)
-
-        self.assertEqual(circs, new_circs)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_cvxpy_gaussian_lstsq_cx(self):
         """Test fitter with high fidelity threshold"""

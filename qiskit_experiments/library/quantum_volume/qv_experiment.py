@@ -133,7 +133,7 @@ class QuantumVolume(BaseExperiment):
             run_options: backend run options.
 
         Returns:
-            list: list of the probabilities for each state in the circuit (as Numpy array)
+            list: list of the probabilities for each state in the circuit.
         """
         ideal_circuit = circuit.remove_final_measurements(inplace=False)
         if self._simulation_backend:
@@ -150,7 +150,7 @@ class QuantumVolume(BaseExperiment):
 
             state_vector = Statevector(ideal_circuit)
             probabilities = state_vector.probabilities()
-        return probabilities
+        return list(probabilities)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
