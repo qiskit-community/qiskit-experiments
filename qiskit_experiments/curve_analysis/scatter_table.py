@@ -37,7 +37,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
             "model_name",
             "model_id",
             "shots",
-            "type",
+            "format",
         ]
 
     @deprecate_func(
@@ -117,6 +117,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
     )
     def data_allocation(self) -> np.ndarray:
         """Index of corresponding fit model."""
+        # pylint: disable=no-member
         return self.model_id.to_numpy()
 
     @property
@@ -168,7 +169,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         instance = cls.from_dict(
             data=value.get("data", {}),
             orient="index",
-        )
+        ).replace({np.nan: None})
         return instance
 
     @property

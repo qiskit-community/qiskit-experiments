@@ -18,6 +18,8 @@ import time
 import asteval
 import lmfit
 import numpy as np
+import pandas as pd
+from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
 from uncertainties import unumpy
@@ -222,6 +224,166 @@ def eval_with_uncertainties(
     return wrapfunc(x=x, **sub_params)
 
 
+def shot_weighted_average(
+    group: Tuple[Tuple[str, float], pd.DataFrame],
+) -> List:
+    """Compute shot based variance and weighted average of the categorized data frame.
+
+    Sample is weighted by the shot number.
+
+    Args:
+        group: Data frame grouped by the model name and x value.
+
+    Returns:
+        A single row of the average.
+    """
+    (model_name, xval), grouped_df = group
+    values = grouped_df.values
+
+    if len(values) == 1:
+        out = values[0]
+        out[6] = "fit-ready"
+        return out
+
+    yval = values[:, 1]
+    yerr = values[:, 2]
+    shots = values[:, 5]
+    weights = shots / np.sum(shots)
+
+    out = [
+        # xval
+        xval,
+        # yval
+        np.sum(weights * yval),
+        # yerr
+        np.sqrt(np.sum(weights**2 * yerr**2)),
+        # model_name
+        model_name,
+        # model_id
+        values[:, 4][0],
+        # shots
+        np.sum(shots),
+        # format
+        "fit-ready",
+    ]
+    # Process extra columns. Use set operation to aggregate metadata.
+    for extra in list(map(set, list(values[:, 7:].T))):
+        if len(extra) == 1:
+            out.append(next(iter(extra)))
+        else:
+            out.append(extra)
+    return out
+
+
+def inverse_weighted_variance(
+    group: Tuple[Tuple[str, float], pd.DataFrame],
+) -> List:
+    """Compute inverse weighted variance and weighted average of the categorized data frame.
+
+    Sample is weighted by the inverse of the data variance.
+
+    Args:
+        group: Data frame grouped by the model name and x value.
+
+    Returns:
+        A single row of the average.
+    """
+    (model_name, xval), grouped_df = group
+    values = grouped_df.values
+
+    if len(values) == 1:
+        out = values[0]
+        out[6] = "fit-ready"
+        return out
+
+    yval = values[:, 1]
+    yerr = values[:, 2]
+    shots = values[:, 5]
+    weights = 1 / yerr**2
+    yvar = 1 / np.sum(weights)
+
+    out = [
+        # xval
+        xval,
+        # yval
+        yvar * np.sum(weights * yval),
+        # yerr
+        np.sqrt(yvar),
+        # model_name
+        model_name,
+        # model_id
+        values[:, 4][0],
+        # shots
+        np.sum(shots),
+        # format
+        "fit-ready",
+    ]
+    # Process extra columns. Use set operation to aggregate metadata.
+    for extra in list(map(set, list(values[:, 7:].T))):
+        if len(extra) == 1:
+            out.append(next(iter(extra)))
+        else:
+            out.append(extra)
+    return out
+
+
+def sample_average(
+    group: Tuple[Tuple[str, float], pd.DataFrame],
+) -> List:
+    """Compute sample based variance and average of the categorized data frame.
+
+    Original variance of the data is ignored and variance is computed with the y values.
+
+    Args:
+        group: Data frame grouped by the model name and x value.
+
+    Returns:
+        A single row of the average.
+    """
+    (model_name, xval), grouped_df = group
+    values = grouped_df.values
+
+    if len(values) == 1:
+        out = values[0]
+        out[2] = 0  # Because there is only 1 sample
+        out[6] = "fit-ready"
+        return out
+
+    yval = values[:, 1]
+    shots = values[:, 4]
+    ymean = np.mean(yval)
+
+    out = [
+        # xval
+        xval,
+        # yval
+        ymean,
+        # yerr
+        np.sqrt(np.mean((ymean - yval) ** 2) / yval.size),
+        # model_name
+        model_name,
+        # model_id
+        values[:, 4][0],
+        # shots
+        np.sum(shots),
+        # format
+        "fit-ready",
+    ]
+    # Process extra columns. Use set operation to aggregate metadata.
+    for extra in list(map(set, list(values[:, 7:].T))):
+        if len(extra) == 1:
+            out.append(next(iter(extra)))
+        else:
+            out.append(extra)
+    return out
+
+
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     """Return the list of filtered data
 
@@ -249,6 +411,12 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     return filtered_data
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def mean_xy_data(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -369,6 +537,12 @@ def mean_xy_data(
     raise QiskitError(f"Unsupported method {method}")
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def multi_mean_xy_data(
     series: np.ndarray,
     xdata: np.ndarray,
@@ -427,6 +601,12 @@ def multi_mean_xy_data(
     )
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def data_sort(
     series: np.ndarray,
     xdata: np.ndarray,
