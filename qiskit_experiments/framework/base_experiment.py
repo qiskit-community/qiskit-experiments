@@ -289,30 +289,34 @@ class BaseExperiment(ABC, StoreInitArgs):
         else:
             return max_circuits_backend
 
-    def job_info(self, backend: Backend =None):
+    def job_info(
+            self,
+            circuits: List[QuantumCircuit],
+            backend: Backend =None):
         """
         Get information about job distribution for the experiment on a specific
         backend.
 
         Args:
+            circuits (List[QuantumCircuit]): A list of QuantumCircuit objects.
             backend (Backend): The backend for which to get job distribution 
             information.
     
         Returns:
             dict: A dictionary containing information about job distribution.
                 - "Total Number of circuits in the experiment": Total number of
-                 circuits in the experiment.
-                - "Maximum Number of circuits": Maximum
-                 Number of circuits in one Job
+                circuits in the experiment.
+                - "Maximum Number of circuits": Maximum Number of circuits in 
+                one Job
                 - "Total Number of jobs": Number of jobs needed for
-                 distribution. 
+                distribution. 
 
         Raises:
             QiskitError: if backend is not specified.
 
         """
         max_circuits = self._max_circuits(backend)
-        total_circuits = len(self.circuits())
+        total_circuits = len(circuits)
         
         if total_circuits <= max_circuits:
             return {
