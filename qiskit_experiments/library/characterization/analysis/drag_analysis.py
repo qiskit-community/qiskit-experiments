@@ -104,7 +104,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
@@ -156,7 +156,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     def _run_curve_fit(
         self,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> curve.CurveFitResult:
         r"""Perform curve fitting on given data collection and fit models.
 
