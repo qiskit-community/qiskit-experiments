@@ -15,11 +15,10 @@
 from test.base import QiskitExperimentsTestCase
 
 import uuid
-import numpy as np
 import pandas as pd
 
-from qiskit_experiments.database_service.utils import ThreadSafeDataFrame
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
+from qiskit_experiments.framework.table_mixin import DefaultColumnsMixIn
 
 
 def _callable_thread_local_add_entry(args, thread_table):
@@ -29,9 +28,9 @@ def _callable_thread_local_add_entry(args, thread_table):
 
 
 class TestBaseTable(QiskitExperimentsTestCase):
-    """Test case for data frame base class."""
+    """Test case for default columns mix-in."""
 
-    class TestTable(ThreadSafeDataFrame):
+    class TestTable(pd.DataFrame, DefaultColumnsMixIn):
         """A table class under test with test columns."""
 
         @classmethod
@@ -39,53 +38,36 @@ class TestBaseTable(QiskitExperimentsTestCase):
             return ["value1", "value2", "value3"]
 
     def test_initializing_with_dict(self):
-        """Test initializing table with dictionary. Columns are filled with default."""
-        table = TestBaseTable.TestTable(
+        """Test initializing table with dictionary."""
+        table = TestBaseTable.TestTable.from_dict(
             {
-                "x": [1.0, 2.0, 3.0],
-                "y": [4.0, 5.0, 6.0],
-            }
-        )
-        self.assertListEqual(table.get_columns(), ["value1", "value2", "value3"])
-
-    def test_raises_initializing_with_wrong_table(self):
-        """Test table cannot be initialized with non-default columns."""
-        wrong_table = pd.DataFrame.from_dict(
-            data={"x": [1.0, 2.0], "y": [3.0, 4.0], "z": [5.0, 6.0]},
+                "x": {"value1": 1.0, "value2": 2.0, "value3": 3.0},
+                "y": {"value1": 4.0, "value2": 5.0, "value3": 6.0},
+            },
             orient="index",
-            columns=["wrong", "columns"],
         )
-        with self.assertRaises(ValueError):
-            # columns doesn't match with default_columns
-            TestBaseTable.TestTable(wrong_table)
-
-    def test_get_entry(self):
-        """Test getting an entry from the table."""
-        table = TestBaseTable.TestTable({"x": [1.0, 2.0, 3.0]})
-        self.assertListEqual(table.get_entry("x").to_list(), [1.0, 2.0, 3.0])
+        self.assertListEqual(list(table.columns), ["value1", "value2", "value3"])
 
     def test_add_entry(self):
         """Test adding data with default keys to table."""
         table = TestBaseTable.TestTable()
         table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
 
-        self.assertListEqual(table.get_entry("x").to_list(), [0.0, 1.0, 2.0])
+        self.assertListEqual(table.loc["x"].to_list(), [0.0, 1.0, 2.0])
 
     def test_add_entry_with_missing_key(self):
         """Test adding entry with partly specified keys."""
         table = TestBaseTable.TestTable()
         table.add_entry(index="x", value1=0.0, value3=2.0)
-
-        # NaN value cannot be compared with assert
-        np.testing.assert_equal(table.get_entry("x").to_list(), [0.0, float("nan"), 2.0])
+        self.assertListEqual(table.loc["x"].to_list(), [0.0, None, 2.0])
 
     def test_add_entry_with_new_key(self):
         """Test adding data with new keys to table."""
         table = TestBaseTable.TestTable()
         table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0, extra=3.0)
 
-        self.assertListEqual(table.get_columns(), ["value1", "value2", "value3", "extra"])
-        self.assertListEqual(table.get_entry("x").to_list(), [0.0, 1.0, 2.0, 3.0])
+        self.assertListEqual(list(table.columns), ["value1", "value2", "value3", "extra"])
+        self.assertListEqual(table.loc["x"].to_list(), [0.0, 1.0, 2.0, 3.0])
 
     def test_add_entry_with_multiple_new_keys(self):
         """Test new keys are added to column and the key order is preserved."""
@@ -93,93 +75,91 @@ class TestBaseTable(QiskitExperimentsTestCase):
         table.add_entry(index="x", phi=0.1, lamb=0.2, theta=0.3)
 
         self.assertListEqual(
-            table.get_columns(),
-            ["value1", "value2", "value3", "phi", "lamb", "theta"],
+            list(table.columns), ["value1", "value2", "value3", "phi", "lamb", "theta"]
         )
 
-    def test_add_entry_with_new_key_with_existing_entry(self):
-        """Test adding new key will expand existing entry."""
+    def test_dtype_missing_value_is_none(self):
+        """Test if missing value is always None.
+
+        Deta frame implicitly convert None into NaN for numeric container.
+        This should not happen.
+        """
+        table = TestBaseTable.TestTable()
+        table.add_entry(index="x", value1=1.0)
+        table.add_entry(index="y", value2=1.0)
+
+        self.assertEqual(table.loc["x", "value2"], None)
+        self.assertEqual(table.loc["y", "value1"], None)
+
+    def test_dtype_adding_extra_later(self):
+        """Test adding new row later with a numeric value doesn't change None to NaN."""
+        table = TestBaseTable.TestTable()
+        table.add_entry(index="x")
+        table.add_entry(index="y", extra=1.0)
+
+        self.assertListEqual(table.loc["x"].to_list(), [None, None, None, None])
+
+    def test_dtype_adding_null_row(self):
+        """Test adding new row with empty value doesn't change dtype of the columns."""
+        table = TestBaseTable.TestTable()
+        table.add_entry(index="x", extra1=1, extra2=1.0, extra3=True, extra4="abc")
+        table.add_entry(index="y")
+
+        self.assertIsInstance(table.loc["x", "extra1"], int)
+        self.assertIsInstance(table.loc["x", "extra2"], float)
+        self.assertIsInstance(table.loc["x", "extra3"], bool)
+        self.assertIsInstance(table.loc["x", "extra4"], str)
+
+    def test_filter_columns(self):
+        """Test filtering table with columns."""
         table = TestBaseTable.TestTable()
         table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
-        table.add_entry(index="y", value1=0.0, value2=1.0, value3=2.0, extra=3.0)
 
-        self.assertListEqual(table.get_columns(), ["value1", "value2", "value3", "extra"])
-        self.assertListEqual(table.get_entry("y").to_list(), [0.0, 1.0, 2.0, 3.0])
-
-        # NaN value cannot be compared with assert
-        np.testing.assert_equal(table.get_entry("x").to_list(), [0.0, 1.0, 2.0, float("nan")])
-
-    def test_drop_entry(self):
-        """Test drop entry from the table."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
-        table.drop_entry("x")
-
-        self.assertEqual(len(table), 0)
-
-    def test_drop_non_existing_entry(self):
-        """Test dropping non-existing entry raises ValueError."""
-        table = TestBaseTable.TestTable()
-        with self.assertRaises(ValueError):
-            table.drop_entry("x")
-
-    def test_return_only_default_columns(self):
-        """Test extra entry is correctly recognized."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0, extra=3.0)
-
-        default_table = table.container(collapse_extra=True)
-        self.assertListEqual(default_table.loc["x"].to_list(), [0.0, 1.0, 2.0])
-
-    def test_raises_adding_duplicated_index(self):
-        """Test adding duplicated index should raise."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
-
-        with self.assertRaises(ValueError):
-            # index x is already used
-            table.add_entry(index="x", value1=3.0, value2=4.0, value3=5.0)
-
-    def test_clear_container(self):
-        """Test reset table."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
-        self.assertEqual(len(table), 1)
-
-        table.clear()
-        self.assertEqual(len(table), 0)
-
-    def test_container_is_immutable(self):
-        """Test modifying container doesn't mutate the original payload."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.1, value2=0.2, value3=0.3)
-
-        dataframe = table.container()
-        dataframe.at["x", "value1"] = 100
-
-        # Local object can be modified
-        self.assertListEqual(dataframe.loc["x"].to_list(), [100, 0.2, 0.3])
-
-        # Original object in the experiment payload is preserved
-        self.assertListEqual(table.get_entry("x").to_list(), [0.1, 0.2, 0.3])
-
-    def test_round_trip(self):
-        """Test JSON roundtrip serialization with the experiment encoder."""
-        table = TestBaseTable.TestTable()
-        table.add_entry(index="x", value1=0.0, value2=1.0, value3=2.0)
-        table.add_entry(index="y", value1=1.0, extra=2.0)
-
-        self.assertRoundTripSerializable(table)
+        filt_table = table[["value1", "value3"]]
+        self.assertListEqual(filt_table.loc["x"].to_list(), [0.0, 2.0])
 
 
 class TestAnalysisTable(QiskitExperimentsTestCase):
     """Test case for extra functionality of analysis table."""
 
-    def test_add_entry_with_result_id(self):
+    def test_add_get_entry_with_result_id(self):
         """Test adding entry with result_id. Index is created by truncating long string."""
         table = AnalysisResultTable()
         table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.123)
         self.assertEqual(table.get_entry("9a0bdec8").value, 0.123)
+
+    def test_drop_entry(self):
+        """Test drop entry from the table."""
+        table = AnalysisResultTable()
+        table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.123)
+        table.drop("9a0bdec8")
+
+        self.assertEqual(len(table), 0)
+
+    def test_drop_non_existing_entry(self):
+        """Test dropping non-existing entry raises ValueError."""
+        table = AnalysisResultTable()
+        with self.assertRaises(ValueError):
+            table.drop("9a0bdec8")
+
+    def test_raises_adding_duplicated_index(self):
+        """Test adding duplicated index should raise."""
+        table = AnalysisResultTable()
+        table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.0)
+
+        with self.assertRaises(ValueError):
+            # index 9a0bdec8 is already used
+            table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=1.0)
+
+    def test_clear_container(self):
+        """Test reset table."""
+        table = AnalysisResultTable()
+        table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.0, extra=123)
+        self.assertEqual(len(table), 1)
+
+        table.clear()
+        self.assertEqual(len(table), 0)
+        self.assertListEqual(table.copy().extra_columns(), [])
 
     def test_extra_column_name_is_always_returned(self):
         """Test extra column names are always returned in filtered column names."""
@@ -213,3 +193,29 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
             table.add_entry(value=i)
 
         self.assertEqual(len(table), 100)
+
+    def test_round_trip(self):
+        """Test JSON roundtrip serialization with the experiment encoder."""
+        table = AnalysisResultTable()
+        table.add_entry(result_id="30d5d05c-c074-4d3c-9530-07a83d48883a", name="x", value=0.0)
+        table.add_entry(result_id="7c305972-858d-42a0-9b5e-57162efe20a1", name="y", value=1.0)
+        table.add_entry(result_id="61d8d351-c0cf-4a0a-ae57-fde0f3baa00d", name="z", value=2.0)
+
+        self.assertRoundTripSerializable(table)
+
+    def test_round_trip_with_extra(self):
+        """Test JSON roundtrip serialization with extra columns containing missing value."""
+        table = AnalysisResultTable()
+        table.add_entry(
+            result_id="30d5d05c-c074-4d3c-9530-07a83d48883a",
+            name="x",
+            value=0.0,
+            extra1=2,
+        )
+        table.add_entry(
+            result_id="7c305972-858d-42a0-9b5e-57162efe20a1",
+            name="y",
+            value=1.0,
+            extra2=0.123,
+        )
+        self.assertRoundTripSerializable(table)
