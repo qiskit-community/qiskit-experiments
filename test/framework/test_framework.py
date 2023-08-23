@@ -267,3 +267,32 @@ class TestFramework(QiskitExperimentsTestCase):
         res = expdata.analysis_results()
         self.assertEqual(len(res), 0)
         self.assertEqual(expdata.analysis_status(), AnalysisStatus.CANCELLED)
+    
+    def test_job_info(self, num_circuits, max_experiments):
+        """Test job_info for specific backend"""
+
+        class MyExp(BaseExperiment):
+            """Some arbitraty experiment"""
+
+            def __init__(self, physical_qubits):
+                super().__init__(physical_qubits)
+                
+            def circuits(self):
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+                return num_circuits * [qc]
+
+        backend = FakeBackend(max_experiments=max_experiments)
+        exp = MyExp([0])
+        if num_circuits <= max_experiments:
+            num_jobs = 1
+        else:
+            num_jobs = (num_circuits + max_experiments - 1) // max_experiments
+        job_info = {
+                "Total Number of circuits in the experiment": num_circuits,
+                "Maximum Number of circuits": max_experiments,
+                "Total Number of jobs": num_jobs
+            }
+        
+        self.assertEqual(exp.job_info(backend=backend), job_info)
+        print("All test cases passed!")
