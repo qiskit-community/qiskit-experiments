@@ -223,7 +223,7 @@ class TomographyExperiment(BaseExperiment):
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
             # when circuit contains classical registers and conditionals
-            circ = circ.compose(self._circuit, circ_qubits, circ_clbits)
+            circ.compose(self._circuit, circ_qubits, circ_clbits, inplace=True)
 
             # Add tomography measurement
             if meas_element:
