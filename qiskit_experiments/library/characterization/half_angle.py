@@ -43,9 +43,48 @@ class HalfAngle(BaseExperiment):
         This sequence measures angle errors where the axis of the :code:`sx` and :code:`x`
         rotation are not parallel. A similar experiment is described in Ref.~[1] where the
         gate sequence :code:`x - y` is repeated to amplify errors caused by non-orthogonal
-        :code:`x` and :code:`y` rotation axes. Such errors can occur due to phase errors.
-        For example, the non-linearities in the mixer's skew for :math:`\pi/2` pulses may
-        be different from the :math:`\pi` pulse.
+        :code:`x` and :code:`y` rotation axes.
+
+        One cause of such errors is non-linearity in the microwave mixer used
+        to produce the pulses for the ``x`` and ``sx`` gates. Typically, these
+        gates are calibrated to have the same duration and so have different
+        pulse amplitudes. Non-linearities in the mixer's skew can cause the
+        angle to differ for these different pulse amplitudes.
+
+        The way the experiment works is that the initial ``Ry(π/2)`` puts the
+        qubit close to the :math:`+X` state, with a deviation :math:`δθ`, due
+        to the misalignment between ``sx`` and ``x`` (``Ry(π/2)`` is
+        implemented with ``sx`` as described below). The first ``sx - sx`` do
+        nothing as they should be rotations about the axis the qubit is
+        pointing along. The first ``y`` then mirrors the qubit about the
+        :math:`y` axis in the :math:`xy` plane of the Bloch sphere, so the
+        :math:`δθ` deviation from :math:`+X` becomes a :math:`-δθ` from
+        :math:`-X`. The next ``sx - sx`` sequence rotates about the axis that
+        is :math:`+δθ` rotated in the :math:`xy` plane from :math:`+X`, which
+        takes the deviation from :math:`-X` from :math:`-δθ` to :math:`+3 δθ`.
+        Then the next ``y`` mirrors this across the :math:`y` axis, taking the
+        state to :math:`-3 δθ` from :math:`+X`. This pattern continues with
+        each iteration, with the angular deviation in units of :math:`δθ`
+        following the sequence 1, 3, 5, 7, 9, etc. from :math:`+X` and
+        :math:`-X`. The final ``sx`` rotation serves mainly to rotate these
+        deviations from :math:`+X` and :math:`-X` in the :math:`xy` plane into
+        deviations out of the :math:`xy` plane, so that they appear as a signal
+        in the :math:`Z` basis.  Because ``sx`` has a :math:`δθ` deviation from
+        ``x``, the final ``sx`` adds an extra :math:δθ` to the deviations, so
+        the pattern ends up as 2, 4, 6, 8, etc., meaning that each iteration
+        adds :math:`2 δθ` to the deviation from the equator of the Bloch sphere
+        (with the sign alternating due to the ``y`` gates, so the deviations
+        are really -2, 4, -6, 8, etc.).
+
+        For the implementation of the circuits, the experiment uses ``Rz(π/2) -
+        sx - Rz(-π/2)`` to implement the ``Ry(π/2)`` and ``Rz(π/2) - x -
+        Rz(-π/2)`` to implement the ``y``. So the experiment makes use of only
+        ``sx``, ``x``, ``Rz(π/2)``, and ``Rz(-π/2)`` gates. For the
+        experiment's analysis to be valid, it is important that the ``sx`` and
+        ``x`` gates are not replaced (such as by a transpiler pass that
+        replaces ``x`` with ``sx - sx``), as it is the angle between them which
+        is being inferred. It is assumed that the angle between ``x`` and
+        ``Rz`` is exactly :math:`π/2`.
 
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
@@ -64,18 +103,6 @@ class HalfAngle(BaseExperiment):
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options.
-
-        The basis gates option should not be changed since it will affect the gates and
-        the pulses that are run on the hardware.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "rz", "y"]
-        options.inst_map = None
         return options
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -126,7 +153,9 @@ class HalfAngle(BaseExperiment):
             for _ in range(repetition):
                 circuit.sx(0)
                 circuit.sx(0)
-                circuit.y(0)
+                circuit.rz(np.pi / 2, 0)
+                circuit.x(0)
+                circuit.rz(-np.pi / 2, 0)
 
             circuit.sx(0)
             circuit.measure_all()
