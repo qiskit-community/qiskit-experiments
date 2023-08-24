@@ -905,7 +905,7 @@ class ExperimentData:
             A tuple (str, bool) of the job id and bool of if the job data was added.
 
         Raises:
-            Exception: If an error occured when adding job data.
+            Exception: If an error occurred when adding job data.
         """
         jid = job.job_id()
         try:
@@ -949,7 +949,7 @@ class ExperimentData:
                       The callback function will be called as
                       ``callback(expdata, **kwargs)`` where `expdata` is this
                       ``DbExperimentData`` object, and `kwargs` are any additional
-                      keywork arguments passed to this method.
+                      keyword arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
         with self._job_futures.lock and self._analysis_futures.lock:

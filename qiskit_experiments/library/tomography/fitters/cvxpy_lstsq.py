@@ -101,14 +101,14 @@ def cvxpy_linear_lstsq(
     Args:
         outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
-        measurement_data: measurement basis indice data.
-        preparation_data: preparation basis indice data.
+        measurement_data: measurement basis index data.
+        preparation_data: preparation basis index data.
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
         measurement_qubits: Optional, the physical qubits that were measured.
             If None they are assumed to be ``[0, ..., M-1]`` for M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
-            If None they are assumed to be ``[0, ..., N-1]`` for N preparated qubits.
+            If None they are assumed to be ``[0, ..., N-1]`` for N prepared qubits.
         conditional_measurement_indices: Optional, conditional measurement data
             indices. If set this will return a list of fitted states conditioned
             on a fixed basis measurement of these qubits.
@@ -218,7 +218,7 @@ def cvxpy_linear_lstsq(
             )
 
             # Since CVXPY only works with real variables we must specify the real
-            # and imaginary parts of matrices seperately: rho = rho_r + 1j * rho_i
+            # and imaginary parts of matrices separately: rho = rho_r + 1j * rho_i
 
             num_circ_components, num_tomo_components, _ = probability_data.shape
             dim = int(np.sqrt(basis_matrix.shape[1]))
@@ -308,7 +308,7 @@ def cvxpy_linear_lstsq(
                     idx += 1
 
             # Combine all variables and constraints into a joint optimization problem
-            # if tehre is a joint constraint
+            # if there is a joint constraint
             if joint_cons:
                 args = [cvxpy.hstack(args)]
                 for cons_i in cons:
@@ -391,7 +391,7 @@ def cvxpy_gaussian_lstsq(
     Additional Details
         The Gaussian weights are estimated from the observed frequency and shot data
         via a Bayesian update of a Dirichlet distribution with observed outcome data
-        frequences :math:`f_i(s)`, and Dirichlet prior :math:`\alpha_i(s)` for
+        frequencies :math:`f_i(s)`, and Dirichlet prior :math:`\alpha_i(s)` for
         tomography basis index `i` and measurement outcome `s`.
 
         The mean posterior probabilities are computed as
@@ -407,14 +407,14 @@ def cvxpy_gaussian_lstsq(
     Args:
         outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
-        measurement_data: measurement basis indice data.
-        preparation_data: preparation basis indice data.
+        measurement_data: measurement basis index data.
+        preparation_data: preparation basis index data.
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
         measurement_qubits: Optional, the physical qubits that were measured.
             If None they are assumed to be ``[0, ..., M-1]`` for M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
-            If None they are assumed to be ``[0, ..., N-1]`` for N preparated qubits.
+            If None they are assumed to be ``[0, ..., N-1]`` for N prepared qubits.
         conditional_measurement_indices: Optional, conditional measurement data
             indices. If set this will return a list of conditional fitted states
             conditioned on a fixed basis measurement of these qubits.
@@ -428,7 +428,7 @@ def cvxpy_gaussian_lstsq(
                           QPT and False for QST (default: "auto").
         partial_trace: Enforce conditional fitted Choi matrices to partial
                        trace to POVM matrices.
-        outcome_prior: The Baysian prior :math:`\alpha` to use computing Gaussian
+        outcome_prior: The Bayesian prior :math:`\alpha` to use computing Gaussian
             weights. See additional information.
         max_weight: Set the maximum value allowed for weights vector computed from
             tomography data variance.
