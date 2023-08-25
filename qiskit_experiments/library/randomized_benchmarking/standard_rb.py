@@ -31,7 +31,6 @@ from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit.transpiler import CouplingMap
 
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 
@@ -86,7 +85,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -105,7 +103,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for all lengths.
                            If False for sample of lengths longer sequences are constructed
                            by appending additional samples to shorter sequences.
@@ -144,7 +142,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples (int): Number of samples to generate for each sequence length.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
-                The ``default_rng`` will be initialized with this seed value everytime
+                The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
             full_sampling (bool): If True all Cliffords are independently sampled for
                 all lengths. If False for sample of lengths longer sequences are constructed

@@ -30,12 +30,8 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
 
         * ``"linear_inversion"``:
           :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion` (Default)
-        * ``"scipy_linear_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq`
         * ``"cvxpy_linear_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq`
-        * ``"scipy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq`
         * ``"cvxpy_gaussian_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 
@@ -103,13 +99,13 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 fitted process against (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the channel.
-                Enabling this will return a list of reconstrated channel components
+                Enabling this will return a list of reconstructed channel components
                 conditional on the values of these clbit values. The integer value of the
                 conditioning clbits is stored in state analysis result extra field
                 `"conditional_circuit_outcome"`.
             conditional_measurement_indices (list[int]): Optional, indices of tomography
                 measurement qubits to used for conditional state reconstruction. Enabling
-                this will return a list of reconstrated channel components conditioned on
+                this will return a list of reconstructed channel components conditioned on
                 the remaining tomographic bases conditional on the basis index, and outcome
                 value for these measurements. The conditional measurement basis index and
                 integer value of the measurement outcome is stored in state analysis result
@@ -117,7 +113,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 `"conditional_measurement_outcome"` respectively.
             conditional_preparation_indices (list[int]): Optional, indices of tomography
                 preparation qubits to used for conditional state reconstruction. Enabling
-                this will return a list of reconstrated channel components conditioned on
+                this will return a list of reconstructed channel components conditioned on
                 the remaining tomographic bases conditional on the basis index. The
                 conditional preparation basis index is stored in state analysis result
                 extra fields `"conditional_preparation_index"`.

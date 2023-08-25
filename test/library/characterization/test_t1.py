@@ -41,7 +41,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1([0], delays)
 
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
-        exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
+        exp_data = exp.run(backend, shots=10000, seed_simulator=1)
         self.assertExperimentDone(exp_data)
         self.assertRoundTripSerializable(exp_data)
         self.assertRoundTripPickle(exp_data)
@@ -84,7 +84,7 @@ class TestT1(QiskitExperimentsTestCase):
             meas_return="avg",
             meas_level=MeasLevel.KERNELED,
             shots=num_shots,
-        ).block_for_results()
+        )
         self.assertExperimentDone(expdata0)
 
         self.assertRoundTripSerializable(expdata0)
@@ -114,7 +114,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
         par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
-        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
+        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1)
         self.assertExperimentDone(res)
 
         for i, qb in enumerate(quantum_bit):
@@ -181,7 +181,7 @@ class TestT1(QiskitExperimentsTestCase):
             rng_seed=1,
             meas_level=MeasLevel.KERNELED,
             meas_return="avg",
-        ).block_for_results()
+        )
         self.assertExperimentDone(res)
 
         # Checking analysis
@@ -344,6 +344,11 @@ class TestT1(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T1([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit round trip JSON serialization"""
+        exp = T1([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

@@ -76,7 +76,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         tol = 1e4  # 10 kHz resolution
 
-        freq_name = self.cals.__drive_freq_parameter__
+        freq_name = "drive_freq"
 
         # Check qubit frequency before running the cal
         f01 = self.cals.get_parameter_value(freq_name, 0)
@@ -113,8 +113,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         expt = FrequencyCal([0], self.cals, backend, auto_update=True)
         expt.analysis = NoResults()
-        expdata = expt.run()
-        expdata.block_for_results(timeout=3)
+        expdata = expt.run().block_for_results(timeout=3)
         self.assertEqual(expdata.analysis_status(), AnalysisStatus.ERROR)
 
     def test_ramseyxy_experiment_config(self):
@@ -128,6 +127,12 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = RamseyXY([0])
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        backend = FakeArmonkV2()
+        exp = RamseyXY([0], backend=backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""

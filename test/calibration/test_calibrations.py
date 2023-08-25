@@ -217,12 +217,12 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.cals.add_schedule(sched, num_qubits=1)
 
         self.assertEqual(len(self.cals.schedules()), 4)
-        self.assertEqual(len(self.cals.parameters), 9)
+        self.assertEqual(len(self.cals.parameters), 7)
 
         self.cals.remove_schedule(sched)
 
         self.assertEqual(len(self.cals.schedules()), 3)
-        self.assertEqual(len(self.cals.parameters), 8)
+        self.assertEqual(len(self.cals.parameters), 6)
         for param in [self.sigma, self.amp_xp, self.amp_x90p, self.amp_y90p, self.beta]:
             self.assertTrue(param in self.cals.parameters)
 
@@ -323,7 +323,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         """Test that when generating calibrations from backend
         the data is passed correctly"""
         backend = FakeBelemV2()
-        cals = Calibrations.from_backend(backend)
+        cals = Calibrations.from_backend(backend, libraries=[FixedFrequencyTransmon()])
         with self.assertWarns(DeprecationWarning):
             config_args = cals.config()["kwargs"]
         control_channel_map_size = len(config_args["control_channel_map"].chan_map)
@@ -565,8 +565,6 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
             self.sigma,
             self.beta,
             self.duration,
-            self.cals.drive_freq,
-            self.cals.meas_freq,
         }
         self.assertEqual(len(set(self.cals.parameters.keys())), len(expected))
 
@@ -1009,9 +1007,7 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
         self.cals.add_schedule(tcp, num_qubits=2)
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(
-            ParameterValue(0.1 + 0.01j, self.date_time), "amp", (3,), "xp"
-        )
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.8, self.date_time), "amp", (3, 2), "tcp")
@@ -1051,11 +1047,11 @@ class TestControlChannels(CrossResonanceTest):
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, -0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, -0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
 
         # We inline to make the schedules comparable with the construction directly above.
         schedule = self.cals.get_schedule("cr", (3, 2))
@@ -1626,7 +1622,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         with self.assertWarns(DeprecationWarning):
             self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1)
 
         self.cals._params = defaultdict(list)
 
@@ -1638,8 +1634,7 @@ class TestSavingAndLoading(CrossResonanceTest):
             self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
 
         val = self.cals.get_parameter_value("amp", (3,), "xp")
-        self.assertEqual(val, 0.1 + 0.01j)
-        self.assertTrue(isinstance(val, complex))
+        self.assertEqual(val, 0.1)
 
         val = self.cals.get_parameter_value("σ", (3,), "xp")
         self.assertEqual(val, 40)

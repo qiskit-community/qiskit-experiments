@@ -58,8 +58,11 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
 
         exp = ReadoutAngle([0])
 
+        # Checking serialization of the experiment obj
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
+
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
-        expdata = exp.run(backend).block_for_results()
+        expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data

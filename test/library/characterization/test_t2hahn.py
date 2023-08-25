@@ -110,7 +110,8 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             readout0to1=0.02,
             readout1to0=0.02,
         )
-        expdata = par_exp.run(backend=backend, shots=1024).block_for_results()
+        expdata = par_exp.run(backend=backend, shots=1024)
+        self.assertExperimentDone(expdata)
 
         for i in range(2):
             res_t2 = expdata.child_data(i).analysis_results("T2")
@@ -141,14 +142,15 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
-        expdata0.block_for_results()
+        self.assertExperimentDone(expdata0)
 
         res_t2_0 = expdata0.analysis_results("T2")
         # second experiment
         delays1 = list(range(4, 180, 6))
         exp1 = T2Hahn([qubit], delays1)
         exp1.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
-        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000).block_for_results()
+        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
+        self.assertExperimentDone(expdata1)
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 
@@ -192,7 +194,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             readout1to0=[0.02],
         )
         exp.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=False)
-        expdata = exp.run(backend=backend, shots=1000).block_for_results()
+        expdata = exp.run(backend=backend, shots=1000)
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
@@ -200,6 +202,14 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         # Checking serialization of the analysis
         self.assertRoundTripSerializable(expdata.analysis_results(1))
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        delays0 = list(range(1, 60, 2))
+        # backend is needed for serialization of the delays in the metadata of the experiment.
+        backend = FakeVigoV2()
+        exp = T2Hahn([0], delays0, backend=backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

@@ -15,15 +15,11 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Sequence
 
+from qiskit.utils.deprecation import deprecate_func
+
 from qiskit_experiments.framework import Options
-from qiskit_experiments.warnings import deprecated_class
 
 
-@deprecated_class(
-    "0.6",
-    msg="Plotting and drawing of analysis figures has been moved to the new "
-    "`qiskit_experiments.visualization` module.",
-)
 class BaseCurveDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments curve drawer.
 
@@ -84,6 +80,13 @@ class BaseCurveDrawer(ABC):
 
     """
 
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Plotting and drawing functionality has been moved to the new "
+        "`qiskit_experiments.visualization` module.",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
     def __init__(self):
         self._options = self._default_options()
         self._set_options = set()
@@ -248,7 +251,7 @@ class BaseCurveDrawer(ABC):
         name: Optional[str] = None,
         **options,
     ):
-        """Draw cofidence interval.
+        """Draw confidence interval.
 
         Args:
             x_data: X values.

@@ -23,7 +23,6 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
 from qiskit.providers.backend import Backend
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -69,7 +68,6 @@ class QuantumVolume(BaseExperiment):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -86,7 +84,7 @@ class QuantumVolume(BaseExperiment):
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
@@ -114,7 +112,7 @@ class QuantumVolume(BaseExperiment):
                 circuits and calculate their heavy output.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
-                The ``default_rng`` will be initialized with this seed value everytime
+                The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
@@ -127,15 +125,15 @@ class QuantumVolume(BaseExperiment):
     def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
         """Return ideal measurement probabilities.
 
-        In case the user does not have Aer installed use Terra to calculate
-        the ideal state.
+        In case the user does not have Aer installed, use Qiskit's quantum info module
+        to calculate the ideal state.
 
         Args:
             circuit: the circuit to extract the ideal data from
             run_options: backend run options.
 
         Returns:
-            list: list of the probabilities for each state in the circuit (as Numpy array)
+            list: list of the probabilities for each state in the circuit.
         """
         ideal_circuit = circuit.remove_final_measurements(inplace=False)
         if self._simulation_backend:
@@ -152,7 +150,7 @@ class QuantumVolume(BaseExperiment):
 
             state_vector = Statevector(ideal_circuit)
             probabilities = state_vector.probabilities()
-        return probabilities
+        return list(probabilities)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.

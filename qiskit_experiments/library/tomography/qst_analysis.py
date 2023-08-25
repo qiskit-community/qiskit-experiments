@@ -29,12 +29,8 @@ class StateTomographyAnalysis(TomographyAnalysis):
 
         * ``"linear_inversion"``:
           :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion` (Default)
-        * ``"scipy_linear_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq`
         * ``"cvxpy_linear_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq`
-        * ``"scipy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq`
         * ``"cvxpy_gaussian_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 
@@ -92,15 +88,15 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 of the fitted state against (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the state.
-                Enabling this will return a list of reconstrated state components
+                Enabling this will return a list of reconstructed state components
                 conditional on the values of these clbit values. The integer value of the
                 conditioning clbits is stored in state analysis result extra field
                 `"conditional_circuit_outcome"`.
             conditional_measurement_indices (list[int]): Optional, indices of tomography
                 measurement qubits to used for conditional state reconstruction. Enabling
-                this will return a list of reconstrated state components conditioned on
+                this will return a list of reconstructed state components conditioned on
                 the remaining tomographic bases conditional on the basis index, and outcome
-                value for these measurements. The conditionl measurement basis index and
+                value for these measurements. The conditional measurement basis index and
                 integer value of the measurement outcome is stored in state analysis result
                 extra fields `"conditional_measurement_index"` and
                 `"conditional_measurement_outcome"` respectively.

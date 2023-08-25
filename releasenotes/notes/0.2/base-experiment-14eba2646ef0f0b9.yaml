@@ -89,7 +89,7 @@ developer:
   - |
     Added a ``_set_backend`` method to
     :class:`~qiskit_experiments.framework.BaseExperiment` that is called
-    when a backend is set via initalization or the ``backend`` setter. This
+    when a backend is set via initialization or the ``backend`` setter. This
     can be overridden in experiment subclasses if required. For example this
     could be used to extract any needed configuration or properties from the
     specified backend, or to update experiment options of configuration based

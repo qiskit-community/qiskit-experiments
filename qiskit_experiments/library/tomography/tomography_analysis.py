@@ -16,7 +16,6 @@ Quantum process tomography analysis
 
 from typing import List, Union, Callable
 from collections import defaultdict
-import warnings
 import numpy as np
 import scipy.linalg as la
 from uncertainties import ufloat
@@ -31,8 +30,6 @@ from .fitters import (
     tomography_fitter_data,
     postprocess_fitter,
     linear_inversion,
-    scipy_linear_lstsq,
-    scipy_gaussian_lstsq,
     cvxpy_linear_lstsq,
     cvxpy_gaussian_lstsq,
 )
@@ -43,8 +40,6 @@ class TomographyAnalysis(BaseAnalysis):
 
     _builtin_fitters = {
         "linear_inversion": linear_inversion,
-        "scipy_linear_lstsq": scipy_linear_lstsq,
-        "scipy_gaussian_lstsq": scipy_gaussian_lstsq,
         "cvxpy_linear_lstsq": cvxpy_linear_lstsq,
         "cvxpy_gaussian_lstsq": cvxpy_gaussian_lstsq,
     }
@@ -102,23 +97,23 @@ class TomographyAnalysis(BaseAnalysis):
                 standard error calculation (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the state.
-                Enabling this will return a list of reconstrated state components
+                Enabling this will return a list of reconstructed state components
                 conditional on the values of these clbit values. The integer value of the
                 conditioning clbits is stored in state analysis result extra field
                 `"conditional_circuit_outcome"`.
             conditional_measurement_indices (list[int]): Optional, indices of tomography
                 measurement qubits to used for conditional state reconstruction. Enabling
-                this will return a list of reconstrated state components conditioned on
+                this will return a list of reconstructed state components conditioned on
                 the remaining tomographic bases conditional on the basis index, and outcome
-                value for these measurements. The conditionl measurement basis index and
+                value for these measurements. The conditional measurement basis index and
                 integer value of the measurement outcome is stored in state analysis result
                 extra fields `"conditional_measurement_index"` and
                 `"conditional_measurement_outcome"` respectively.
             conditional_preparation_indices (list[int]): Optional, indices of tomography
                 preparation qubits to used for conditional state reconstruction. Enabling
-                this will return a list of reconstrated channel components conditioned on
+                this will return a list of reconstructed channel components conditioned on
                 the remaining tomographic bases conditional on the basis index. The
-                conditionl preparation basis index is stored in state analysis result
+                conditional preparation basis index is stored in state analysis result
                 extra fields `"conditional_preparation_index"`.
         """
         options = super()._default_options()
@@ -138,22 +133,6 @@ class TomographyAnalysis(BaseAnalysis):
         options.conditional_measurement_indices = None
         options.conditional_preparation_indices = None
         return options
-
-    def set_options(self, **fields):
-        if fields.get("fitter", None) in [
-            "scipy_linear_lstsq",
-            "scipy_gaussian_lstsq",
-            scipy_linear_lstsq,
-            scipy_gaussian_lstsq,
-        ]:
-            warnings.warn(
-                "The scipy lstsq tomography fitters are deprecated as of 0.4 and will "
-                "be removed after the 0.5 release. Use the `linear_lstsq`, "
-                "`cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        super().set_options(**fields)
 
     @classmethod
     def _get_fitter(cls, fitter: Union[str, Callable]) -> Callable:

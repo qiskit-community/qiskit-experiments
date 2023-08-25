@@ -75,7 +75,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         for user_p0 in [default_p0, {}]:
             exp.analysis.set_options(p0=user_p0)
-            expdata = exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
+            expdata = exp.run(backend=backend, shots=2000, seed_simulator=1)
             self.assertExperimentDone(expdata)
             self.assertRoundTripSerializable(expdata)
             self.assertRoundTripPickle(expdata)
@@ -137,7 +137,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp0.analysis.set_options(p0=exp0_p0)
         exp2.analysis.set_options(p0=exp2_p0)
 
-        expdata = par_exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
+        expdata = par_exp.run(backend=backend, shots=2000, seed_simulator=1)
         self.assertExperimentDone(expdata)
 
         for i, qb in enumerate(par_exp_qubits):
@@ -224,6 +224,12 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T2Ramsey([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        backend = FakeVigoV2()
+        exp = T2Ramsey([0], [1, 2, 3, 4, 5], backend=backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

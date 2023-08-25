@@ -14,15 +14,46 @@
 
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
-
+from test.extended_equality import is_equivalent
 import functools
+import io
 import numpy as np
 from ddt import ddt, data, unpack
-from qiskit import QuantumCircuit, pulse, quantum_info as qi
+from qiskit import QuantumCircuit, pulse, qpy, quantum_info as qi
 from qiskit.providers.fake_provider import FakeBogotaV2
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
+
+
+def is_equivalent_circuit(circ1: QuantumCircuit, circ2: QuantumCircuit) -> bool:
+    """
+    Check if two circuits are structurally the same.
+    We use it due to the field 'operation' under 'circ.data[i]' wich its '__qe__'
+    method isn't good for reconstructed circuits (by using qpy) with custom pulse gates.
+    """
+    check = (
+        is_equivalent(circ1.calibrations, circ2.calibrations)
+        and is_equivalent(circ1.qregs, circ2.qregs)
+        and is_equivalent(circ1.qubits, circ2.qubits)
+    )
+
+    for data1, data2 in zip(circ1.data, circ2.data):
+        circ1_op = data1.operation
+        circ2_op = data2.operation
+        check = (
+            check
+            and is_equivalent(data1.clbits, data2.clbits)
+            and is_equivalent(data1.qubits, data2.qubits)
+            and is_equivalent(circ1_op.definition, circ2_op.definition)
+            and is_equivalent(circ1_op.name, circ2_op.name)
+            and is_equivalent(circ1_op.params, circ2_op.params)
+            and is_equivalent(circ1_op.unit, circ2_op.unit)
+            and is_equivalent(circ1_op.num_clbits, circ2_op.num_clbits)
+            and is_equivalent(circ1_op.num_qubits, circ2_op.num_qubits)
+        )
+
+    return check
 
 
 class SimulatableCRGate(HamiltonianGate):
@@ -40,14 +71,13 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test generated circuits."""
         backend = FakeBogotaV2()
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                physical_qubits=(0, 1),
-                flat_top_widths=[1000],
-                amp=0.1,
-                sigma=64,
-                risefall=2,
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+            durations=[backend.dt * (1000 + 4 * 64)],
+        )
         expr.backend = backend
 
         with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
@@ -115,15 +145,14 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             def __init__(self, width):
                 super().__init__(data=np.eye(4), time=width)
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                physical_qubits=(0, 1),
-                flat_top_widths=[1000],
-                cr_gate=FakeCRGate,
-                amp=0.1,
-                sigma=64,
-                risefall=2,
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            cr_gate=FakeCRGate,
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+            durations=[1256],
+        )
 
         # Not raise an error
         expr.circuits()
@@ -189,7 +218,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=delta)
 
     def test_integration_backward_compat(self):
-        """Integration test for Hamiltonian tomography with implicitly setting flat_top_widths."""
+        """Integration test for Hamiltonian tomography."""
         ix, iy, iz, zx, zy, zz = 1e6, 2e6, 1e3, -3e6, -2e6, 1e4
 
         delta = 3e4
@@ -214,16 +243,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             )
         )
 
-        with self.assertWarns(DeprecationWarning):
-            expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                (0, 1),
-                np.linspace(0, 700, 50),
-                sigma=sigma,
-                # A hack to avoild local function in pickle, i.e. in transpile.
-                cr_gate=functools.partial(
-                    SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
-                ),
-            )
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            (0, 1),
+            np.linspace(0, 700, 50),
+            sigma=sigma,
+            # A hack to avoild local function in pickle, i.e. in transpile.
+            cr_gate=functools.partial(
+                SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+            ),
+        )
         expr.backend = backend
 
         exp_data = expr.run()
@@ -261,3 +289,53 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             risefall=2,
         )
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_serialization(self):
+        """Test generated circuits."""
+        backend = FakeBogotaV2()
+
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            physical_qubits=(0, 1),
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+        )
+        expr.backend = backend
+
+        with pulse.build(default_alignment="left", name="cr") as _:
+            pulse.play(
+                pulse.GaussianSquare(
+                    duration=1256,
+                    amp=0.1,
+                    sigma=64,
+                    width=1000,
+                ),
+                pulse.ControlChannel(0),
+            )
+            pulse.delay(1256, pulse.DriveChannel(0))
+            pulse.delay(1256, pulse.DriveChannel(1))
+
+        width_sec = 1000 * backend.dt
+        cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=width_sec)
+        circuits = expr._transpiled_circuits()
+
+        x0_circ = QuantumCircuit(2, 1)
+        x0_circ.append(cr_gate, [0, 1])
+        x0_circ.rz(np.pi / 2, 1)
+        x0_circ.sx(1)
+        x0_circ.measure(1, 0)
+
+        circuits.append(x0_circ)
+
+        with io.BytesIO() as buff:
+            qpy.dump(circuits, buff)
+            buff.seek(0)
+            serialized_data = buff.read()
+
+        with io.BytesIO() as buff:
+            buff.write(serialized_data)
+            buff.seek(0)
+            decoded = qpy.load(buff)
+
+        for circ1, circ2 in zip(circuits, decoded):
+            self.assertTrue(is_equivalent_circuit(circ1, circ2))

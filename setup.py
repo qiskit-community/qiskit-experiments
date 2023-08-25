@@ -18,6 +18,8 @@ from setuptools import setup, find_packages
 with open("requirements.txt", encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
+with open("requirements-extras.txt", encoding="utf-8") as f:
+    EXTRAS = f.read().splitlines()
 
 version_path = os.path.abspath(
     os.path.join(os.path.join(os.path.dirname(__file__), "qiskit_experiments"), "VERSION.txt")
@@ -58,6 +60,7 @@ setup(
     keywords="qiskit sdk quantum",
     packages=find_packages(exclude=["test*"]),
     install_requires=REQUIREMENTS,
+    extras_require={"extras": EXTRAS},
     include_package_data=True,
     python_requires=">=3.8",
     project_urls={

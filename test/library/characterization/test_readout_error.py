@@ -180,7 +180,8 @@ class TestReadoutError(QiskitExperimentsTestCase):
         exp1 = CorrelatedReadoutError([0, 2])
         exp2 = CorrelatedReadoutError([1, 3])
         exp = ParallelExperiment([exp1, exp2], flatten_results=False)
-        expdata = exp.run(backend=backend).block_for_results()
+        expdata = exp.run(backend=backend)
+        self.assertExperimentDone(expdata)
         mit1 = expdata.child_data(0).analysis_results(0).value
         mit2 = expdata.child_data(1).analysis_results(0).value
         assignment_matrix1 = mit1.assignment_matrix()
@@ -192,7 +193,8 @@ class TestReadoutError(QiskitExperimentsTestCase):
         qubits = [0, 1]
         backend = FakeParisV2()
         exp = LocalReadoutError(qubits)
-        exp_data = exp.run(backend).block_for_results()
+        exp_data = exp.run(backend)
+        self.assertExperimentDone(exp_data)
         exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
@@ -207,8 +209,16 @@ class TestReadoutError(QiskitExperimentsTestCase):
         qubits = [0, 1]
         backend = FakeParisV2()
         exp = LocalReadoutError(qubits)
-        exp_data = exp.run(backend).block_for_results()
+        exp_data = exp.run(backend)
+        self.assertExperimentDone(exp_data)
         mitigator = exp_data.analysis_results(0).value
         serialized = json.dumps(mitigator, cls=ExperimentEncoder)
         loaded = json.loads(serialized, cls=ExperimentDecoder)
         self.assertTrue(matrix_equal(mitigator.assignment_matrix(), loaded.assignment_matrix()))
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits data JSON serialization"""
+        qubits = [0, 1]
+        exp = LocalReadoutError(qubits)
+
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

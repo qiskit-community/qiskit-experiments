@@ -22,7 +22,6 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
-from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDrag(BaseExperiment, RestlessMixin):
@@ -30,7 +29,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
     # section: overview
 
-        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.DragCal`
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.RoughDrag`
         for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
         Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
         opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates
@@ -150,7 +149,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
         return options
 
-    @qubit_deprecate()
     def __init__(
         self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None
     ):
@@ -244,7 +242,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
 class FineXDrag(FineDrag):
     """Class to fine characterize the DRAG parameter of an X gate."""
 
-    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
@@ -270,7 +267,6 @@ class FineXDrag(FineDrag):
 class FineSXDrag(FineDrag):
     """Class to fine characterize the DRAG parameter of an :math:`SX` gate."""
 
-    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)

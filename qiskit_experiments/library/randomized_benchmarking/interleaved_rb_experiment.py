@@ -25,7 +25,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
@@ -58,7 +57,6 @@ class InterleavedRB(StandardRB):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
@@ -88,7 +86,7 @@ class InterleavedRB(StandardRB):
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional

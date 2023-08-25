@@ -166,7 +166,7 @@ class LocalPreparationBasis(PreparationBasis):
                 return states[index]
 
             # Look up custom 0 init state for specified qubits
-            # TODO: Add support for noisy instuctions
+            # TODO: Add support for noisy instructions
             if not self._instructions:
                 raise NotImplementedError(
                     f"Basis {self.name} does not define circuits to construct POVMs from"
@@ -489,7 +489,7 @@ class LocalMeasurementBasis(MeasurementBasis):
                 return povms[index]
 
             # Look up custom Z-default POVM for specified qubits
-            # TODO: Add support for noisy instuctions
+            # TODO: Add support for noisy instructions
             if not self._instructions:
                 raise NotImplementedError(
                     f"Basis {self.name} does not define circuits to construct POVMs from"

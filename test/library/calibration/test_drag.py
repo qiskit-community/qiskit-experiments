@@ -20,6 +20,7 @@ import numpy as np
 from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
 
@@ -136,7 +137,8 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # DRAG reps numbers might be different from the default value,
         # but the client doesn't know the original setting.
         analysis = DragCalAnalysis()
-        expdata1 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        expdata1 = analysis.run(expdata.copy(), replace_results=True)
+        self.assertExperimentDone(expdata1)
         # Check mapping of model name to circuit metadata.
         self.assertDictEqual(
             analysis.options.data_subfit_map,
@@ -148,8 +150,9 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         )
 
         # Running experiment twice.
-        # Reported by https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1086.
-        expdata2 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
+        expdata2 = analysis.run(expdata.copy(), replace_results=True)
+        self.assertExperimentDone(expdata2)
         self.assertEqual(len(analysis.models), 3)
 
         self.assertAlmostEqual(
@@ -183,6 +186,13 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         for idx, expected in enumerate([4, 8, 16]):
             ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit serializations for drag experiment."""
+        drag = RoughDrag([0], self.x_plus)
+        drag.set_experiment_options(reps=[2, 4, 8])
+        drag.backend = FakeWashingtonV2()
+        self.assertRoundTripSerializable(drag._transpiled_circuits())
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""

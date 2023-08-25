@@ -72,6 +72,10 @@ When submitting a pull request for review, please ensure that:
 5. If your change has an end user facing impact (new feature, deprecation, removal,
    etc.), you've added or updated a reno release note for that change and tagged the PR
    for the changelog.
+6. If your code requires a change to dependencies, you've updated the corresponding
+   requirements file: `requirements.txt` contain core dependencies,
+   `requirements-extras.txt` for dependencies for optional features, and `requirements-dev.txt`
+   for dependencies required for running tests and building documentation.
 
 The sections below go into more detail on the guidelines for each point.
 
@@ -341,8 +345,8 @@ https://github.com/Qiskit-Extensions/qiskit-experiments` and `git fetch upstream
 
 There are a few other build options available:
 
-* `tox -edocs-minimal`: build documentation without executing Jupyter code cells
-* `tox -edocs-parallel`: do a full build with multiprocessing (may crash on Macs)
+* `tox -e docs-minimal`: build documentation without executing Jupyter code cells
+* `tox -e docs-parallel`: do a full build with multiprocessing (may crash on Macs)
 
 ### Deprecation policy
 
@@ -354,34 +358,25 @@ minor releases and not on patch releases.
 
 #### Adding deprecation warnings
 
-We have a deprecation decorator for showing deprecation warnings. To
-deprecate a function, for example:
+We use the deprecation wrappers in [Qiskit
+Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
 
 ```python
 
-  from qiskit_experiments.warnings import deprecated_function
+  from qiskit.utils.deprecation import deprecate_func
 
-  @deprecated_function(last_version="0.3", msg="Use new_function instead.")
+  @deprecate_func(
+      since="0.5",
+      additional_msg="Use ``new_function`` instead.",
+      removal_timeline="after 0.7",
+      package_name="qiskit-experiments",
+  )
   def old_function(*args, **kwargs):
       pass
+  
   def new_function(*args, **kwargs):
       pass
 ```
-
-To deprecate a class:
-
-```python
-  from qiskit_experiments.warnings import deprecated_class
-
-  @deprecated_class(last_version="0.3", new_cls=NewCls)
-  class OldClass:
-      pass
-  class NewClass:
-      pass
-```
-
-This will inform the user which version of Qiskit Experiments will remove the deprecated
-class or function.
 
 ### Development cycle
 

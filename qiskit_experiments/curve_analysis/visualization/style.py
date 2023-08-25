@@ -15,14 +15,9 @@ Configurable stylesheet.
 import dataclasses
 from typing import List, Tuple
 
-from qiskit_experiments.warnings import deprecated_class
+from qiskit.utils.deprecation import deprecate_func
 
 
-@deprecated_class(
-    "0.6",
-    msg="Plotting and drawing of analysis figures has been replaced with the new"
-    "`qiskit_experiments.visualization` module.",
-)
 @dataclasses.dataclass
 class PlotterStyle:
     """A stylesheet for curve analysis figure."""
@@ -30,7 +25,7 @@ class PlotterStyle:
     # size of figure (width, height)
     figsize: Tuple[int, int] = (8, 5)
 
-    # legent location (vertical, horizontal)
+    # legend location (vertical, horizontal)
     legend_loc: str = "center right"
 
     # size of tick label
@@ -50,3 +45,13 @@ class PlotterStyle:
     plot_sigma: List[Tuple[float, float]] = dataclasses.field(
         default_factory=lambda: [(1.0, 0.7), (3.0, 0.3)]
     )
+
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Plotting and drawing of analysis figures has been replaced with the new"
+        "`qiskit_experiments.visualization` module.",
+        removal_timeline="after 0.6",
+        package_name="qiskit-experiments",
+    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

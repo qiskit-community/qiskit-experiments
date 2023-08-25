@@ -16,7 +16,7 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
 import numpy as np
-from qiskit.utils import deprecate_arguments
+from qiskit.utils.deprecation import deprecate_arg
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -189,7 +189,12 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
-@deprecate_arguments({"beta": "outcome_prior"})
+@deprecate_arg(
+    "beta",
+    new_alias="outcome_prior",
+    since="0.5",
+    package_name="qiskit-experiments",
+)
 def binomial_weights(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,
@@ -199,7 +204,7 @@ def binomial_weights(
     r"""Compute weights from tomography data variance.
 
     This is computed via a Bayesian update of a Dirichlet distribution
-    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    with observed outcome data frequencies :math:`f_i(s)`, and Dirichlet
     prior :math:`\alpha_i(s)` for tomography basis index `i` and
     measurement outcome `s`.
 
@@ -231,7 +236,7 @@ def binomial_weights(
         shot_data=shot_data,
         outcome_prior=outcome_prior,
     )
-    # Use max weights to determin a min variance value and clip variance
+    # Use max weights to determine a min variance value and clip variance
     min_variance = 1 / (max_weight**2)
     variance = np.clip(variance, min_variance, None)
     weights = 1.0 / np.sqrt(variance)
@@ -246,7 +251,7 @@ def dirichlet_mean_and_var(
     r"""Compute mean probabilities and variance from outcome data.
 
     This is computed via a Bayesian update of a Dirichlet distribution
-    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    with observed outcome data frequencies :math:`f_i(s)`, and Dirichlet
     prior :math:`\alpha_i(s)` for tomography basis index `i` and
     measurement outcome `s`.
 
