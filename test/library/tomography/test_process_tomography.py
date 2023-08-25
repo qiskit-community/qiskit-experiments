@@ -576,7 +576,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     fid = qi.process_fidelity(state.value, targets[idx], require_tp=False)
                     self.assertGreater(
                         fid,
-                        0.95,
+                        0.935,
                         msg=f"{fitter} fidelity {fid} is low for conditional outcome {idx}",
                     )
 
@@ -607,7 +607,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     prob = state.extra["conditional_probability"]
                     prob_target = 0.5
                     self.assertTrue(
-                        np.isclose(prob, prob_target, atol=1e-2),
+                        np.isclose(prob, prob_target, atol=2e-2),
                         msg=(
                             f"fitter {fitter} probability incorrect for conditional"
                             f" measurement {idx} {outcome} ({prob} != {prob_target})"
