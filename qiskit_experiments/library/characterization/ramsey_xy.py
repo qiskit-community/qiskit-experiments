@@ -590,7 +590,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         at a constant tone amplitude :math:`\Omega`, and :math:`t_S` is the duration of the
         applied tone. For a fixed tone duration,
         one can still observe the Ramsey oscillation by scanning the tone amplitude.
-        However, since :math:`f_S` is usually a higher order polynominal of :math:`\Omega`,
+        However, since :math:`f_S` is usually a higher order polynomial of :math:`\Omega`,
         one must manage to fit the y-data for trigonometric functions with
         phase which non-linearly changes with the x-data.
         The :class:`.StarkRamseyXYAmpScan` experiment thus drastically reduces the number of
