@@ -93,8 +93,8 @@ def linear_inversion(
     Args:
         outcome_data: basis outcome frequency data.
         shot_data: basis outcome total shot data.
-        measurement_data: measurement basis indice data.
-        preparation_data: preparation basis indice data.
+        measurement_data: measurement basis index data.
+        preparation_data: preparation basis index data.
         measurement_basis: the tomography measurement basis.
         preparation_basis: the tomography preparation basis.
         measurement_qubits: Optional, the physical qubits that were measured.

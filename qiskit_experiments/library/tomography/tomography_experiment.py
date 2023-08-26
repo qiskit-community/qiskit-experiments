@@ -207,14 +207,13 @@ class TomographyExperiment(BaseExperiment):
             if prep_element:
                 # Add tomography preparation
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
-                circ.reset(self._prep_indices)
                 circ.compose(prep_circ, self._prep_indices, inplace=True)
                 circ.barrier(*self._prep_indices)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
             # when circuit contains classical registers and conditionals
-            circ = circ.compose(self._circuit, circ_qubits, circ_clbits)
+            circ.compose(self._circuit, circ_qubits, circ_clbits, inplace=True)
 
             # Add tomography measurement
             if meas_element:
