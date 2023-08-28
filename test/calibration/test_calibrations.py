@@ -1447,14 +1447,8 @@ class TestSavingAndLoading(CrossResonanceTest):
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
-<<<<<<< HEAD
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
-=======
-        with self.assertWarns(DeprecationWarning):
-            self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1)
->>>>>>> ad8aa79 (Update tests with complex amp pulses (#1217))
 
         self.cals._params = defaultdict(list)
 
