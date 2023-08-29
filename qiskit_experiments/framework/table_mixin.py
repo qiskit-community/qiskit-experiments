@@ -25,6 +25,13 @@ class DefaultColumnsMixIn:
     Subclass must define _default_columns class method to provide default column names.
     This name list is order sensitive and the first element will show up at the
     most left column of the dataframe table.
+
+    .. note::
+
+        This Mix-in class is designed for use with the pandas DataFrame.
+        Implementation of this class may change in the future without notification
+        when we switch to other data container.
+
     """
 
     _default_columns: Callable
