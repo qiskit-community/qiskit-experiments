@@ -1456,7 +1456,7 @@ class ExperimentData:
                 "Try another key that can uniquely determine entry to delete."
             )
 
-        self._analysis_results.drop(str(to_delete.name))
+        self._analysis_results.drop_entry(str(to_delete.name))
         if self._service and self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_analysis_result(result_id=to_delete.result_id)

@@ -201,13 +201,13 @@ class AnalysisResultTable(ThreadSafeContainer):
                 **kwargs,
             )
 
-    def drop(
+    def drop_entry(
         self,
         index: str,
     ):
-        """Drop specified labels from rows or columns.
+        """Drop specified labels from rows.
 
-        This directly calls :meth:`.drop` of the container object.
+        This directly calls :meth:`.drop` of the DataFrame container object.
 
         Args:
             index: Name of entry to drop.

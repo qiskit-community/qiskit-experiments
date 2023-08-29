@@ -132,7 +132,7 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
         """Test drop entry from the table."""
         table = AnalysisResultTable()
         table.add_entry(result_id="9a0bdec8-c010-4ef7-bb7d-b84939717a6b", value=0.123)
-        table.drop("9a0bdec8")
+        table.drop_entry("9a0bdec8")
 
         self.assertEqual(len(table), 0)
 
@@ -140,7 +140,7 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
         """Test dropping non-existing entry raises ValueError."""
         table = AnalysisResultTable()
         with self.assertRaises(ValueError):
-            table.drop("9a0bdec8")
+            table.drop_entry("9a0bdec8")
 
     def test_raises_adding_duplicated_index(self):
         """Test adding duplicated index should raise."""
