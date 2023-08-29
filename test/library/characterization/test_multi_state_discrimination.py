@@ -65,9 +65,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         sigma_x = pulse_x.sigma
         with pulse.build(name="x12") as x12:
             pulse.shift_frequency(anharm, d0)
-            pulse.play(
-                pulse.Gaussian(dur_x, amp_x * self.backend.rabi_rate_12, sigma_x), d0
-            )
+            pulse.play(pulse.Gaussian(dur_x, amp_x * self.backend.rabi_rate_12, sigma_x), d0)
             pulse.shift_frequency(-anharm, d0)
 
         self.schedules = {"x12": x12}
