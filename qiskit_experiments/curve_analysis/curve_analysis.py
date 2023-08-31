@@ -361,14 +361,15 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
 
             try:
-                new = lmfit.minimize(
-                    fcn=_objective,
-                    params=guess_params,
-                    method=self.options.fit_method,
-                    scale_covar=not valid_uncertainty,
-                    nan_policy="omit",
-                    **fit_option.fitter_opts,
-                )
+                with np.errstate(all="ignore"):
+                    new = lmfit.minimize(
+                        fcn=_objective,
+                        params=guess_params,
+                        method=self.options.fit_method,
+                        scale_covar=not valid_uncertainty,
+                        nan_policy="omit",
+                        **fit_option.fitter_opts,
+                    )
             except Exception:  # pylint: disable=broad-except
                 continue
 
