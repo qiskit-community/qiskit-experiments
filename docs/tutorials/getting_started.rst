@@ -238,6 +238,8 @@ supports can be set:
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)
+  print(f"Shots set to {exp.run_options.get('shots')}, " 
+        "measurement level set to {exp.run_options.get('meas_level')}")
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
@@ -253,6 +255,7 @@ before execution:
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
                             basis_gates=["x", "sx", "rz"])
+  print(f"Transpile options are {exp.transpile_options}")
 
 Consult the documentation of :func:`qiskit.compiler.transpile` for valid options.
 
@@ -267,6 +270,7 @@ upon experiment instantiation, but can also be explicitly set via
     exp = T1(physical_qubits=(0,), delays=delays)
     new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
+    print(f"Experiment options are {exp.experiment_options}")
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment
 class.
