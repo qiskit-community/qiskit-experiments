@@ -482,7 +482,7 @@ class OptionsDict(dict):
     def format(value: Any) -> Any:
         """Format dictionary value.
 
-        Subcasses may override this method to provide their own validation.
+        Subclasses may override this method to provide their own validation.
 
         Args:
             value: New value to assign.

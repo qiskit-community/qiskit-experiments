@@ -88,7 +88,7 @@ class ProcessTomography(TomographyExperiment):
             conditional_circuit_clbits: Optional, the clbits in the source circuit to
                 be conditioned on when reconstructing the channel. If True all circuit
                 clbits will be conditioned on. Enabling this will return a list of
-                reconstrated channel components conditional on the values of these clbit
+                reconstructed channel components conditional on the values of these clbit
                 values.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis

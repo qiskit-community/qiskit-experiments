@@ -75,7 +75,7 @@ class ParameterValue:
         if isinstance(self.value, complex):
             warnings.warn(
                 "Support of complex parameters is now pending deprecation, following the"
-                "same transition in Qiskit Terra's Pulse module."
+                "same transition in Qiskit's Pulse module."
                 "The main use of complex parameters was the complex amplitude in SymbolicPulse"
                 "instances. This use could be removed by converting the pulses to the"
                 "ScalableSymbolicPulse class which uses two floats (amp,angle) for the"

@@ -173,7 +173,7 @@ def _basis_dimensions(
     qubits: Optional[Sequence[int]] = None,
     conditional_indices: Optional[Sequence[int]] = None,
 ) -> Tuple[int, ...]:
-    """Caculate input and output dimensions for basis and qubits"""
+    """Calculate input and output dimensions for basis and qubits"""
     if not qubits:
         return (1,)
 

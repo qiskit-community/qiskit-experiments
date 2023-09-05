@@ -247,7 +247,7 @@ For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
-These options are passed to the Terra transpiler to transpile the experiment circuits
+These options are passed to the Qiskit :mod:`~qiskit.transpiler` to transpile the experiment circuits
 before execution:
 
 .. jupyter-execute::

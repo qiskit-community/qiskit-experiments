@@ -150,7 +150,7 @@ class BackendTiming:
 
         def circuits(self):
             chan = pulse.DriveChannel(0)
-            dur = Paramater("duration")
+            dur = Parameter("duration")
 
             with pulse.build() as sched:
                 pulse.play(pulse.Gaussian(duration=dur, amp=1, sigma=dur / 4), chan)

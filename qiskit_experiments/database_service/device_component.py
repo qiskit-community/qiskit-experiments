@@ -81,9 +81,10 @@ def to_component(string: str) -> DeviceComponent:
     Raises:
         ValueError: If input string is not a valid device component.
     """
+    if isinstance(string, DeviceComponent):
+        return string
     if string.startswith("Q"):
         return Qubit(int(string[1:]))
-    elif string.startswith("R"):
+    if string.startswith("R"):
         return Resonator(int(string[1:]))
-    else:
-        return UnknownComponent(string)
+    return UnknownComponent(string)
