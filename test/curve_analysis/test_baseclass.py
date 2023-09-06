@@ -561,7 +561,9 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
         np.testing.assert_array_almost_equal(y_ref, y_reproduced)
 
-    def test_multi_composite_curve_analysis(self):
+    @data((False, "never", 0), (True, "never", 1), (None, "never", 0), (None, "always", 1))
+    @unpack
+    def test_multi_composite_curve_analysis(self, plot, gen_figures, n_figures):
         """Integration test for composite curve analysis.
 
         This analysis consists of two curve fittings for cos and sin series.
@@ -599,7 +601,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         group_analysis = CompositeCurveAnalysis(analyses)
         group_analysis.analyses("group_A").set_options(p0={"amp": 0.3, "freq": 2.1, "b": 0.5})
         group_analysis.analyses("group_B").set_options(p0={"amp": 0.5, "freq": 3.2, "b": 0.5})
-        group_analysis.set_options(plot=False)
+        group_analysis.set_options(plot=plot)
+        group_analysis._generate_figures = gen_figures
 
         amp1 = 0.2
         amp2 = 0.4
@@ -637,6 +640,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertEqual(amps[1].extra["group"], "group_B")
         self.assertAlmostEqual(amps[0].value.n, 0.2, delta=0.1)
         self.assertAlmostEqual(amps[1].value.n, 0.4, delta=0.1)
+        self.assertEqual(len(result._figures), n_figures)
 
 
 class TestFitOptions(QiskitExperimentsTestCase):

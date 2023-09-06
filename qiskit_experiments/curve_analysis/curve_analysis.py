@@ -502,7 +502,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
 
         # Finalize plot
-        if plot:
+        if plot_bool:
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []

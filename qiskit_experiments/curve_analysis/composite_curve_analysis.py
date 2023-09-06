@@ -409,7 +409,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             analysis_results.extend(primary_results)
             self.plotter.set_supplementary_data(primary_results=primary_results)
 
-        if plot:
+        if plot_bool:
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
