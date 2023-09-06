@@ -179,7 +179,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
 
-        delays0 = list(range(1, 60, 2))
+        delays0 = list(range(1, 60, 20))
 
         exp = T2Hahn([0], delays0)
         self.assertRoundTripSerializable(exp)

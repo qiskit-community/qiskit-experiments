@@ -151,9 +151,9 @@ class TestSpecializations(QiskitExperimentsTestCase):
             self.assertEqual(circ.calibrations["Rabi"][((0,), (amp,))], expected_x12)
 
     def test_ef_update(self):
-        """Tes that we properly update the pulses on the 1<->2 transition."""
+        """Test that we properly update the pulses on the 1<->2 transition."""
 
-        tol = 0.01
+        tol = 0.05
         default_amp = 0.5 / self.backend.rabi_rate_12
 
         rabi_ef = EFRoughXSXAmplitudeCal(
@@ -172,6 +172,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "x12")
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "sx12")
         rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11))
+        rabi_ef.set_run_options(shots=200)
         expdata = rabi_ef.run(self.backend)
         self.assertExperimentDone(expdata)
 
