@@ -197,7 +197,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
                 SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
             ),
         )
-        expr.set_run_options(shots=200)
+        expr.set_run_options(shots=500)
         expr.backend = backend
 
         exp_data = expr.run()
