@@ -422,9 +422,9 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # After the quality is determined, plot can become a boolean flag for whether
         # to generate the figure
-        plot = plot == "always" or (plot == "selective" and quality == "bad")
+        plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
-        if plot:
+        if plot_bool:
             self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
             for model in self._models:
                 if self.options.plot_raw_data:
@@ -464,7 +464,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             self.plotter.set_supplementary_data(primary_results=primary_results)
 
             # Draw fit curves and report
-            if plot:
+            if plot_bool:
                 for model in self._models:
                     sub_data = formatted_data.get_subset_of(model._name)
                     if sub_data.x.size == 0:
