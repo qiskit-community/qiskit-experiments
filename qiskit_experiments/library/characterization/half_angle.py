@@ -70,7 +70,7 @@ class HalfAngle(BaseExperiment):
         deviations from :math:`+X` and :math:`-X` in the :math:`xy` plane into
         deviations out of the :math:`xy` plane, so that they appear as a signal
         in the :math:`Z` basis.  Because ``sx`` has a :math:`δθ` deviation from
-        ``x``, the final ``sx`` adds an extra :math:δθ` to the deviations, so
+        ``x``, the final ``sx`` adds an extra :math:`δθ` to the deviations, so
         the pattern ends up as 2, 4, 6, 8, etc., meaning that each iteration
         adds :math:`2 δθ` to the deviation from the equator of the Bloch sphere
         (with the sign alternating due to the ``y`` gates, so the deviations
