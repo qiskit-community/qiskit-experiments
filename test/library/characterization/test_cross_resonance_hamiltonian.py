@@ -167,7 +167,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     @unpack
     def test_integration(self, ix, iy, iz, zx, zy, zz):
         """Integration test for Hamiltonian tomography."""
-        delta = 6e4
+        delta = 3e4
 
         dt = 0.222e-9
         sigma = 64
@@ -197,7 +197,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
                 SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
             ),
         )
-        expr.set_run_options(shots=500)
         expr.backend = backend
 
         exp_data = expr.run()
