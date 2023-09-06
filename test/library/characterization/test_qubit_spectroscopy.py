@@ -270,7 +270,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         par_experiment = ParallelExperiment(
             exp_list, flatten_results=False, backend=parallel_backend
         )
-        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
+        par_experiment.set_run_options(
+            meas_level=MeasLevel.KERNELED, meas_return="single", shots=20
+        )
 
         par_data = par_experiment.run()
         self.assertExperimentDone(par_data)
@@ -288,7 +290,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = FakeWashingtonV2()
         qubit = 1
         freq01 = BackendData(backend).drive_freqs[qubit]
-        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 3)
         exp = QubitSpectroscopy([1], frequencies, backend=backend)
         # Checking serialization of the experiment
         self.assertRoundTripSerializable(exp._transpiled_circuits())

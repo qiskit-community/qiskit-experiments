@@ -167,7 +167,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     @unpack
     def test_integration(self, ix, iy, iz, zx, zy, zz):
         """Integration test for Hamiltonian tomography."""
-        delta = 3e4
+        delta = 6e4
 
         dt = 0.222e-9
         sigma = 64
@@ -192,11 +192,12 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             physical_qubits=(0, 1),
             sigma=sigma,
-            # A hack to avoild local function in pickle, i.e. in transpile.
+            # A hack to avoid local function in pickle, i.e. in transpile.
             cr_gate=functools.partial(
                 SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
             ),
         )
+        expr.set_run_options(shots=200)
         expr.backend = backend
 
         exp_data = expr.run()

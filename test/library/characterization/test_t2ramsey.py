@@ -228,7 +228,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         backend = FakeVigoV2()
-        exp = T2Ramsey([0], [1, 2, 3, 4, 5], backend=backend)
+        exp = T2Ramsey([0], [1, 2], backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):

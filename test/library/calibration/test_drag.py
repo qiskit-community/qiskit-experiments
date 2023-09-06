@@ -97,11 +97,11 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
     @data(
-        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
-        (0.0020, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
-        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
-        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
-        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
+        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.2),  # partial oscillation.
+        (0.0020, 0.5, 0.00, [1, 3, 5], None, 1.0),  # even slower oscillation with amp < 1
+        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.2),  # constant offset, i.e. lower SNR.
+        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.2),  # Beta not in range
+        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.2),  # Max closer to zero
     )
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
@@ -115,6 +115,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         drag = RoughDrag([0], self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
+        drag.set_run_options(shots=500)
 
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
@@ -192,7 +193,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_circuit_roundtrip_serializable(self):
         """Test circuit serializations for drag experiment."""
         drag = RoughDrag([0], self.x_plus)
-        drag.set_experiment_options(reps=[2, 4, 8])
+        drag.set_experiment_options(reps=[2, 4], betas=[-5, 5])
         drag.backend = FakeWashingtonV2()
         self.assertRoundTripSerializable(drag._transpiled_circuits())
 

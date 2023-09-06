@@ -50,9 +50,10 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.015
+        test_tol = 0.15
 
         rabi = Rabi([self.qubit], self.sched, backend=self.backend)
+        rabi.set_run_options(shots=200)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)

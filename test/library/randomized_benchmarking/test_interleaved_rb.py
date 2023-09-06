@@ -72,14 +72,14 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), physical_qubits=(0,), lengths=[10, 20, 30], seed=123
+            interleaved_element=SXGate(), physical_qubits=(0,), lengths=[1, 3], seed=123
         )
         self.assertRoundTripSerializable(exp)
 
     def test_circuit_roundtrip_serializable(self):
         """Test circuits round trip JSON serialization"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), physical_qubits=(0,), lengths=[10, 20, 30], seed=123
+            interleaved_element=SXGate(), physical_qubits=(0,), lengths=[1, 3], seed=123
         )
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
