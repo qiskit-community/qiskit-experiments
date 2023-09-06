@@ -24,10 +24,18 @@ generated. There are three options:
 - ``selective``: Only generate figures for analysis results where ``quality`` is ``bad``. This is useful
   for large composite experiments where you only want to examine qubits with problems.
 
+This parameter should be set upon composite experiment instantiation:
+
+.. jupyter-input::
+
+    parallel_exp = ParallelExperiment(
+        [T1(physical_qubits=(i,), delays=delays) for i in range(2)], generate_figures="selective"
+    )
+
 Discussion
 ----------
 
-This guide is helpful for large composite experiments, where generating all figures incurs a significant
+These options are useful for large composite experiments, where generating all figures incurs a significant
 overhead.
 
 See Also
