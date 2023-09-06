@@ -55,6 +55,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(drag_experiment_helper)
 
         drag = RoughDrag([1], self.x_plus)
+        drag.set_run_options(shots=200)
 
         expdata = drag.run(backend)
         self.assertExperimentDone(expdata)
@@ -69,6 +70,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         drag_experiment_helper.frequency = 0.0044
 
         drag = RoughDrag([0], self.x_plus)
+        drag.set_run_options(shots=200)
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)

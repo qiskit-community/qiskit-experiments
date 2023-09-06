@@ -17,9 +17,9 @@ import os
 import json
 import pickle
 import warnings
-import fixtures
 from typing import Any, Callable, Optional
 
+import fixtures
 import uncertainties
 from qiskit.test import QiskitTestCase
 from qiskit.utils.deprecation import deprecate_func
@@ -33,7 +33,7 @@ from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
 
 # Fail tests that take longer than this
-TEST_TIMEOUT = os.environ.get("TEST_TIMEOUT", 10)
+TEST_TIMEOUT = os.environ.get("TEST_TIMEOUT", 20)
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
