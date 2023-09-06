@@ -21,6 +21,7 @@ import dataclasses
 from typing import Any, List, Union
 
 import numpy as np
+import pandas as pd
 import uncertainties
 from lmfit import Model
 from multimethod import multimethod
@@ -35,6 +36,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
     AnalysisResult,
+    AnalysisResultTable,
 )
 from qiskit_experiments.visualization import BaseDrawer
 
@@ -273,6 +275,34 @@ def _check_configurable_classes(
 
 
 @_is_equivalent_dispatcher.register
+def _check_dataframes(
+    data1: pd.DataFrame,
+    data2: pd.DataFrame,
+    **kwargs,
+):
+    """Check equality of data frame which may involve Qiskit Experiments class value."""
+    return is_equivalent(
+        data1.to_dict(orient="index"),
+        data2.to_dict(orient="index"),
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
+def _check_result_table(
+    data1: AnalysisResultTable,
+    data2: AnalysisResultTable,
+    **kwargs,
+):
+    """Check equality of data frame which may involve Qiskit Experiments class value."""
+    return is_equivalent(
+        data1.copy().to_dict(orient="index"),
+        data2.copy().to_dict(orient="index"),
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
 def _check_experiment_data(
     data1: ExperimentData,
     data2: ExperimentData,
@@ -319,4 +349,8 @@ def _check_all_attributes(
     **kwargs,
 ):
     """Helper function to check all attributes."""
+    test = {}
+    for att in attrs:
+        test[att] = is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs)
+
     return all(is_equivalent(getattr(data1, att), getattr(data2, att), **kwargs) for att in attrs)

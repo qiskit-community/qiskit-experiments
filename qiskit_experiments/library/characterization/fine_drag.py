@@ -29,7 +29,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
     # section: overview
 
-        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.DragCal`
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.RoughDrag`
         for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
         Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
         opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates

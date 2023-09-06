@@ -20,6 +20,7 @@ import numpy as np
 from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
 
@@ -187,6 +188,13 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         for idx, expected in enumerate([4, 8, 16]):
             ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit serializations for drag experiment."""
+        drag = RoughDrag([0], self.x_plus)
+        drag.set_experiment_options(reps=[2, 4, 8])
+        drag.backend = FakeWashingtonV2()
+        self.assertRoundTripSerializable(drag._transpiled_circuits())
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""

@@ -204,7 +204,7 @@ def binomial_weights(
     r"""Compute weights from tomography data variance.
 
     This is computed via a Bayesian update of a Dirichlet distribution
-    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    with observed outcome data frequencies :math:`f_i(s)`, and Dirichlet
     prior :math:`\alpha_i(s)` for tomography basis index `i` and
     measurement outcome `s`.
 
@@ -236,7 +236,7 @@ def binomial_weights(
         shot_data=shot_data,
         outcome_prior=outcome_prior,
     )
-    # Use max weights to determin a min variance value and clip variance
+    # Use max weights to determine a min variance value and clip variance
     min_variance = 1 / (max_weight**2)
     variance = np.clip(variance, min_variance, None)
     weights = 1.0 / np.sqrt(variance)
@@ -251,7 +251,7 @@ def dirichlet_mean_and_var(
     r"""Compute mean probabilities and variance from outcome data.
 
     This is computed via a Bayesian update of a Dirichlet distribution
-    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    with observed outcome data frequencies :math:`f_i(s)`, and Dirichlet
     prior :math:`\alpha_i(s)` for tomography basis index `i` and
     measurement outcome `s`.
 

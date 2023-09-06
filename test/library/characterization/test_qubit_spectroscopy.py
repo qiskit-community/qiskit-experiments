@@ -16,6 +16,7 @@ import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.circuit.library import XGate
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit_experiments.framework import ParallelExperiment
 
 from qiskit_experiments.framework import BackendData
@@ -184,7 +185,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
-        # Checking serialization of the experiment data
+        # Checking serialization of the experiment data obj
         self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
@@ -281,3 +282,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         for child_data in par_data.child_data():
             self.assertRoundTripSerializable(child_data)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits round trip JSON serialization"""
+        backend = FakeWashingtonV2()
+        qubit = 1
+        freq01 = BackendData(backend).drive_freqs[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+        exp = QubitSpectroscopy([1], frequencies, backend=backend)
+        # Checking serialization of the experiment
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

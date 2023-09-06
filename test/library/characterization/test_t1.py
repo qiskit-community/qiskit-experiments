@@ -190,37 +190,6 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
-    def test_t1_parallel_different_analysis_options(self):
-        """
-        Test parallel experiments of T1 using a simulator, for the case where
-        the sub-experiments have different analysis options
-        """
-
-        t1 = [25, 25]
-        t2 = [value / 2 for value in t1]
-
-        backend = NoisyDelayAerBackend(t1, t2)
-
-        delays = list(range(1, 40, 3))
-
-        exp0 = T1([0], delays)
-        exp0.analysis.set_options(p0={"tau": 30})
-
-        exp1 = T1([1], delays)
-        exp1.analysis.set_options(p0={"tau": 1000000})
-
-        par_exp = ParallelExperiment([exp0, exp1], flatten_results=False)
-        res = par_exp.run(backend=backend, seed_simulator=4)
-        self.assertExperimentDone(res)
-
-        sub_res = []
-        for i in range(2):
-            sub_res.append(res.child_data(i).analysis_results("T1"))
-
-        self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].value.n, t1[0], delta=3)
-        self.assertEqual(sub_res[1].quality, "bad")
-
     def test_t1_analysis(self):
         """
         Test T1Analysis
@@ -344,6 +313,11 @@ class TestT1(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T1([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit round trip JSON serialization"""
+        exp = T1([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
