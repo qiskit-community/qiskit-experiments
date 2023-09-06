@@ -17,6 +17,7 @@ from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
 import numpy as np
+from ddt import data, ddt, unpack
 
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
@@ -79,6 +80,7 @@ class CurveAnalysisTestCase(QiskitExperimentsTestCase):
         return expdata
 
 
+@ddt
 class TestCurveAnalysis(CurveAnalysisTestCase):
     """A collection of CurveAnalysis unit tests and integration tests."""
 
@@ -399,15 +401,18 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
 
-    def test_end_to_end_parallel_analysis(self):
-        """Integration test for running two curve analyses in parallel."""
+    @data((False, "always", 0), (True, "never", 2), (None, "always", 2), (None, "never", 0))
+    @unpack
+    def test_end_to_end_parallel_analysis(self, plot_flag, figure_flag, n_figures):
+        """Integration test for running two curve analyses in parallel, including
+           selective figure generation."""
 
         analysis1 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis1.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"amp": 0.5, "tau": 0.3},
             result_parameters=["amp", "tau"],
-            plot=False,
+            plot=plot_flag,
         )
 
         analysis2 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
@@ -415,10 +420,12 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"amp": 0.7, "tau": 0.5},
             result_parameters=["amp", "tau"],
-            plot=False,
+            plot=plot_flag,
         )
 
-        composite = CompositeAnalysis([analysis1, analysis2], flatten_results=True)
+        composite = CompositeAnalysis(
+            [analysis1, analysis2], flatten_results=True, generate_figures=figure_flag
+        )
         amp1 = 0.5
         tau1 = 0.3
         amp2 = 0.7
@@ -440,6 +447,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         self.assertAlmostEqual(taus[0].value.nominal_value, tau1, delta=0.1)
         self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
+
+        self.assertEqual(len(result._figures), n_figures)
 
     def test_end_to_end_zero_yerr(self):
         """Integration test for an edge case of having zero y error.
