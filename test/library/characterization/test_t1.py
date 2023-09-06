@@ -208,6 +208,7 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
+<<<<<<< HEAD
         res.service = IBMExperimentService(local=True, local_save=False)
         res.save()
         loaded_data = ExperimentData.load(res.experiment_id, res.service)
@@ -248,6 +249,8 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(sub_res[0].value.n, t1[0], delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
+=======
+>>>>>>> e9abdc4 (Removed test_t1_parallel_different_analysis_options (#1264))
     def test_t1_analysis(self):
         """
         Test T1Analysis
