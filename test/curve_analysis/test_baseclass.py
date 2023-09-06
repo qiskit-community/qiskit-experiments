@@ -31,6 +31,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
 from qiskit_experiments.data_processing import DataProcessor, Probability
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, CompositeAnalysis
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
 class CurveAnalysisTestCase(QiskitExperimentsTestCase):
@@ -405,7 +406,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
     @unpack
     def test_end_to_end_parallel_analysis(self, plot_flag, figure_flag, n_figures):
         """Integration test for running two curve analyses in parallel, including
-           selective figure generation."""
+        selective figure generation."""
 
         analysis1 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis1.set_options(
@@ -449,6 +450,46 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
 
         self.assertEqual(len(result._figures), n_figures)
+
+    def test_selective_figure_generation(self):
+        """Test that selective figure generation based on quality works as expected."""
+
+        # analysis with intentionally bad fit
+        analysis1 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x)", name="test")])
+        analysis1.set_options(
+            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            p0={"amp": 0.7},
+            result_parameters=["amp"],
+        )
+        analysis2 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
+        analysis2.set_options(
+            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            p0={"amp": 0.7, "tau": 0.5},
+            result_parameters=["amp", "tau"],
+        )
+        composite = CompositeAnalysis(
+            [analysis1, analysis2], flatten_results=True, generate_figures="selective"
+        )
+        amp1 = 0.7
+        tau1 = 0.5
+        amp2 = 0.7
+        tau2 = 0.5
+
+        x = np.linspace(0, 1, 100)
+        y1 = amp1 * np.exp(-x / tau1)
+        y2 = amp2 * np.exp(-x / tau2)
+
+        test_data = self.parallel_sampler(x, y1, y2)
+        result = composite.run(test_data)
+        self.assertExperimentDone(result)
+
+        for i, res in enumerate(result.analysis_results()):
+            # only generate a figure if the quality is bad
+            if res.quality == "bad":
+                result.figure(i)
+            else:
+                with self.assertRaises(ExperimentEntryNotFound):
+                    result.figure(i)
 
     def test_end_to_end_zero_yerr(self):
         """Integration test for an edge case of having zero y error.

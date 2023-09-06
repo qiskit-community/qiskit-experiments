@@ -320,9 +320,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             # After the quality is determined, plot can become a boolean flag for whether
             # to generate the figure
-            plot = plot == "always" or (plot == "selective" and quality == "bad")
+            plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
-            if plot:
+            if plot_bool:
                 if analysis.options.plot_raw_data:
                     for model in analysis.models:
                         sub_data = processed_data.get_subset_of(model._name)
@@ -359,7 +359,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 )
 
                 # Draw fit result
-                if plot:
+                if plot_bool:
                     x_interp = np.linspace(
                         np.min(formatted_data.x), np.max(formatted_data.x), num=100
                     )
