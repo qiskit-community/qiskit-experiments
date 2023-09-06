@@ -48,53 +48,35 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.x_plus = xp
         self.test_tol = 0.1
 
-    # pylint: disable=no-member
-    def test_end_to_end(self):
+    @data(
+        (None, None, None),
+        (0.0044, None, None),
+        (0.04, np.linspace(-4, 4, 31), {"beta": 1.8, "freq": 0.08}),
+    )
+    @unpack
+    def test_end_to_end(self, freq, betas, p0_opt):
         """Test the drag experiment end to end."""
 
         drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
+        if freq:
+            drag_experiment_helper.frequency = freq
         backend = MockIQBackend(drag_experiment_helper)
 
         drag = RoughDrag([1], self.x_plus)
         drag.set_run_options(shots=200)
 
+        if betas is not None:
+            drag.set_experiment_options(betas=betas)
+        if p0_opt:
+            drag.analysis.set_options(p0_opt={"beta": 1.8, "freq": 0.08})
+
         expdata = drag.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
-        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
-
-        # Small leakage will make the curves very flat, in this case one should
-        # rather increase beta.
-        drag_experiment_helper.frequency = 0.0044
-
-        drag = RoughDrag([0], self.x_plus)
-        drag.set_run_options(shots=200)
-        exp_data = drag.run(backend)
-        self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
-
-        # pylint: disable=no-member
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
-        self.assertEqual(result.quality, "good")
-
-        # Large leakage will make the curves oscillate quickly.
-        drag_experiment_helper.frequency = 0.04
-        drag = RoughDrag([1], self.x_plus, betas=np.linspace(-4, 4, 31))
-        # pylint: disable=no-member
-        drag.set_run_options(shots=200)
-        drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
-        exp_data = drag.run(backend)
-        self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
-
-        meas_level = exp_data.metadata["meas_level"]
-
-        self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
-        self.assertEqual(result.quality, "good")
+        self.assertEqual(expdata.metadata["meas_level"], MeasLevel.CLASSIFIED)
 
     @data(
         (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.2),  # partial oscillation.

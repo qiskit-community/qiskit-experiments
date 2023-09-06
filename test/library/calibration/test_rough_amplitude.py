@@ -159,6 +159,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         rabi_ef = EFRoughXSXAmplitudeCal(
             [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
         )
+        rabi_ef.set_run_options(shots=200)
         expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
