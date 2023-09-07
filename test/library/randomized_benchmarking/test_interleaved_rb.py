@@ -276,6 +276,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             lengths=[3],
             num_samples=4,
             backend=my_backend,
+            seed=1234,
         )
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
