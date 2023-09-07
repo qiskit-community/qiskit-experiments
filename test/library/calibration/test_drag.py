@@ -68,7 +68,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         if betas is not None:
             drag.set_experiment_options(betas=betas)
         if p0_opt:
-            drag.analysis.set_options(p0_opt={"beta": 1.8, "freq": 0.08})
+            drag.analysis.set_options(p0=p0_opt)
 
         expdata = drag.run(backend)
         self.assertExperimentDone(expdata)
