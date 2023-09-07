@@ -137,7 +137,13 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         exp_data.add_jobs(jobs)
         self.assertExperimentDone(exp_data)
-        self.assertEqual(expected, [sdata["counts"] for sdata in sorted(exp_data.data(), key=lambda x: x["metadata"]["label"])])
+        self.assertEqual(
+            expected,
+            [
+                sdata["counts"]
+                for sdata in sorted(exp_data.data(), key=lambda x: x["metadata"]["label"])
+            ],
+        )
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
     def test_add_data_job_callback(self):
