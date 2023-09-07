@@ -31,7 +31,6 @@ from qiskit_experiments.curve_analysis.curve_data import (
 from qiskit_experiments.data_processing import DataProcessor, Probability
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, CompositeAnalysis
-from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
 class CurveAnalysisTestCase(QiskitExperimentsTestCase):
