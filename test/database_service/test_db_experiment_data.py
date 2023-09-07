@@ -107,8 +107,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_add_data_result_metadata(self):
         """Test add result metadata."""
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        result1 = self._get_job_result(1, has_metadata=False)
-        result2 = self._get_job_result(1, has_metadata=True)
+        result1 = self._get_job_result(1, no_metadata=True)
+        result2 = self._get_job_result(1)
 
         exp_data.add_data(result1)
         exp_data.add_data(result2)
@@ -119,12 +119,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test add job data."""
         a_job = mock.create_autospec(Job, instance=True)
         a_job.result.return_value = self._get_job_result(3)
+        num_circs = 3
         jobs = []
         for _ in range(2):
             job = mock.create_autospec(Job, instance=True)
-            job.result.return_value = self._get_job_result(2)
+            job.result.return_value = self._get_job_result(2, label_from=num_circs)
             job.status.return_value = JobStatus.DONE
             jobs.append(job)
+            num_circs = num_circs + 2
 
         expected = a_job.result().get_counts()
         for job in jobs:
@@ -135,7 +137,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         exp_data.add_jobs(jobs)
         self.assertExperimentDone(exp_data)
-        self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
+        self.assertEqual(expected, [sdata["counts"] for sdata in sorted(exp_data.data(), key=lambda x: x["metadata"]["label"])])
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
     def test_add_data_job_callback(self):
@@ -1073,7 +1075,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.data(0)["counts"], [copied.data(0)["counts"], copied.data(1)["counts"]]
         )
 
-    def _get_job_result(self, circ_count, has_metadata=False):
+    def _get_job_result(self, circ_count, label_from=0, no_metadata=False):
         """Return a job result with random counts."""
         job_result = {
             "backend_name": BackendData(self.backend).name,
@@ -1085,12 +1087,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         }
         circ_result_template = {"shots": 1024, "success": True, "data": {}}
 
-        for _ in range(circ_count):
+        for i_circ in range(circ_count):
             counts = randrange(1024)
             circ_result = copy.copy(circ_result_template)
             circ_result["data"] = {"counts": {"0x0": counts, "0x3": 1024 - counts}}
-            if has_metadata:
-                circ_result["header"] = {"metadata": {"meas_basis": "pauli"}}
+            if not no_metadata:
+                circ_result["header"] = {"metadata": {"label": label_from + i_circ}}
             job_result["results"].append(circ_result)
 
         return Result.from_dict(job_result)
