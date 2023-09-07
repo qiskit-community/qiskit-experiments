@@ -468,7 +468,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             result_parameters=["amp", "tau"],
         )
         composite = CompositeAnalysis(
-            [analysis1, analysis2], flatten_results=True, generate_figures="selective"
+            [analysis1, analysis2], flatten_results=False, generate_figures="selective"
         )
         amp1 = 0.7
         tau1 = 0.5
@@ -483,13 +483,12 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = composite.run(test_data)
         self.assertExperimentDone(result)
 
-        for i, res in enumerate(result.analysis_results()):
+        for res in result.child_data():
             # only generate a figure if the quality is bad
-            if res.quality == "bad":
-                result.figure(i)
+            if res.analysis_results(0).quality == "bad":
+                self.assertEqual(len(res._figures), 1)
             else:
-                with self.assertRaises(ExperimentEntryNotFound):
-                    result.figure(i)
+                self.assertEqual(len(res._figures), 0)
 
     def test_end_to_end_zero_yerr(self):
         """Integration test for an edge case of having zero y error.
