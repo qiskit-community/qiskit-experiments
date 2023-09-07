@@ -41,7 +41,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
 
     def setUp(self):
         super().setUp()
-        self.useFixture(fixtures.Timeout(TEST_TIMEOUT, gentle=False))
+        self.useFixture(fixtures.Timeout(TEST_TIMEOUT, gentle=True))
 
     @classmethod
     def setUpClass(cls):
