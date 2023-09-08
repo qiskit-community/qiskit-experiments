@@ -42,8 +42,10 @@ jobs:
       - name: Stestr cache
         uses: actions/cache@v3
         with:
-          path: .stestr/times.*
-          key: stestr-${{ runner.os }}-${{ matrix.python-version }}-${{ env.GITHUB_RUN_NUMBER }}
+          path: |
+            .stestr/times.*
+            .stestr/format
+          key: stestr-${{ runner.os }}-${{ matrix.python-version }}-${{ github.run_number }}
           restore-keys: |
             stestr-${{ runner.os }}-${{ matrix.python-version }}-
             stestr-
