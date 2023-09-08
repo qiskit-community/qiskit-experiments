@@ -45,15 +45,14 @@ jobs:
           path: .stestr
           key: stestr-${{ runner.os }}-${{ matrix.python-version }}
           restore-keys: |
-            stestr-${{ runner.os }}-${{ matrix.python-version }}
             stestr-${{ runner.os }}-
             stestr-
       - name: Install Deps
-        run: python -m pip install -U tox setuptools virtualenv wheel
+        run: python -m pip install -U tox setuptools virtualenv wheel stestr
       - name: Install and Run Tests
         run: tox -e py
       - name: Clean up stestr cache
-        run: tox -e stestr-clean
+        run: stestr history remove all
 
   lint:
     name: lint
