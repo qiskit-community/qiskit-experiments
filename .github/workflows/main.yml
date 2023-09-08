@@ -45,6 +45,7 @@ jobs:
           path: |
             .stestr/times.*
             .stestr/format
+            .stestr/next-stream
           key: stestr-${{ runner.os }}-${{ matrix.python-version }}-${{ github.run_number }}
           restore-keys: |
             stestr-${{ runner.os }}-${{ matrix.python-version }}-
