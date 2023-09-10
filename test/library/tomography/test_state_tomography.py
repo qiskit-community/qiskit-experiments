@@ -13,7 +13,6 @@
 """
 StateTomography experiment tests
 """
-import io
 from test.base import QiskitExperimentsTestCase
 from math import sqrt
 
@@ -22,7 +21,7 @@ import numpy as np
 from uncertainties import UFloat
 
 import qiskit.quantum_info as qi
-from qiskit import QuantumCircuit, qpy
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate
 from qiskit.result import LocalReadoutMitigator
 
@@ -196,23 +195,6 @@ class TestStateTomography(QiskitExperimentsTestCase):
         fid = qi.state_fidelity(target_state, qi.Statevector(target_circ))
         self.assertGreater(fid, 0.99, msg="target_state is incorrect")
 
-    def test_circuit_serialization(self):
-        """Test simple circuit serialization"""
-        circ = QuantumCircuit(2)
-        circ.h(0)
-        circ.s(0)
-        circ.cx(0, 1)
-
-        exp = StateTomography(circ)
-        circs = exp.circuits()
-
-        qpy_file = io.BytesIO()
-        qpy.dump(circs, qpy_file)
-        qpy_file.seek(0)
-        new_circs = qpy.load(qpy_file)
-
-        self.assertEqual(circs, new_circs)
-
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
     def test_full_exp_measurement_indices(self, meas_qubits):
         """Test subset state tomography generation"""
@@ -255,6 +237,16 @@ class TestStateTomography(QiskitExperimentsTestCase):
         # Manually check fidelity
         target_fid = qi.state_fidelity(state, target, validate=False)
         self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test a simple roundtrip experiment serialization"""
+        circ = QuantumCircuit(2)
+        circ.h(0)
+        circ.s(0)
+        circ.cx(0, 1)
+
+        exp = StateTomography(circ)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""

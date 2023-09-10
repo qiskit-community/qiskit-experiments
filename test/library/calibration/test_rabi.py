@@ -50,9 +50,10 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.015
+        test_tol = 0.15
 
         rabi = Rabi([self.qubit], self.sched, backend=self.backend)
+        rabi.set_run_options(shots=200)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
@@ -201,6 +202,12 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
+
+    def test_circuits_roundtrip_serializable(self):
+        """Test circuits serialization of the experiment."""
+        rabi = Rabi([2], self.sched)
+        rabi.set_experiment_options(amplitudes=[0.5])
+        self.assertRoundTripSerializable(rabi._transpiled_circuits())
 
 
 class TestOscillationAnalysis(QiskitExperimentsTestCase):

@@ -52,7 +52,7 @@ class PulseBackend(BackendV2):
     schedules so that circuits that do not provide calibrations can also run, much like
     the hardware backends. In addition, the backends are also capable of simulating level-
     one (IQ data) and level-two (counts) data. Subclasses of these backends can have an
-    optional disciminator so that they can produce counts based on sampled IQ data. If
+    optional discriminator so that they can produce counts based on sampled IQ data. If
     a discriminator is not provided then the counts will be produced from a statevector
     or density matrix.
 

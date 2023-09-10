@@ -78,14 +78,14 @@ class MitigatedProcessTomography(BatchExperiment):
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a pair of
                 lists of preparation and measurement basis configurations
-                ``([p[0], p[1], ..], m[0], m[1], ...])``, where ``p[i]`` is the
+                ``([p[0], p[1], ...], [m[0], m[1], ...])``, where ``p[i]`` is the
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
             conditional_circuit_clbits: Optional, the clbits in the source circuit to
                 be conditioned on when reconstructing the state. If True all circuit
                 clbits will be conditioned on. Enabling this will return a list of
-                reconstrated state components conditional on the values of these clbit
+                reconstructed state components conditional on the values of these clbit
                 values.
             analysis: Optional, a custom tomography analysis instance to use.
                 If ``"default"`` :class:`~.ProcessTomographyAnalysis` will be

@@ -25,7 +25,7 @@ class PlotterStyle:
     # size of figure (width, height)
     figsize: Tuple[int, int] = (8, 5)
 
-    # legent location (vertical, horizontal)
+    # legend location (vertical, horizontal)
     legend_loc: str = "center right"
 
     # size of tick label

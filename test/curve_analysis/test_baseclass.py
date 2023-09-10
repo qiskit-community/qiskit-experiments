@@ -440,6 +440,49 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(taus[0].value.nominal_value, tau1, delta=0.1)
         self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
 
+    def test_end_to_end_zero_yerr(self):
+        """Integration test for an edge case of having zero y error.
+
+        When the error bar is zero, the fit weights to compute residual tend to become larger.
+        When the weight is too much significant, the result locally overfits to
+        certain data points with smaller or zero y error.
+        """
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="amp * x**2", name="test")])
+        analysis.set_options(
+            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            result_parameters=["amp"],
+            average_method="sample",  # Use sample average to make some yerr = 0
+            plot=False,
+            p0={"amp": 0.2},
+        )
+
+        amp = 0.3
+        x = np.linspace(0, 1, 100)
+        y = amp * x**2
+
+        # Replace small y values with zero.
+        # Since mock function samples count dictionary from binomial distribution,
+        # y=0 (or 1) yield always the same count dictionary
+        # and hence y error becomes zero with sample averaging.
+        # In this case, amp = 0 may yield the best result.
+        y[0] = 0
+        y[1] = 0
+        y[2] = 0
+
+        test_data1 = self.single_sampler(x, y, seed=123)
+        test_data2 = self.single_sampler(x, y, seed=124)
+        test_data3 = self.single_sampler(x, y, seed=125)
+
+        expdata = ExperimentData(experiment=FakeExperiment())
+        expdata.add_data(test_data1.data())
+        expdata.add_data(test_data2.data())
+        expdata.add_data(test_data3.data())
+
+        result = analysis.run(expdata)
+        self.assertExperimentDone(result)
+
+        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
+
     def test_get_init_params(self):
         """Integration test for getting initial parameter from overview entry."""
 
