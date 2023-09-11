@@ -1405,7 +1405,7 @@ class ExperimentData:
             tags = tags or []
             backend = backend or self.backend_name
 
-            series = self._analysis_results.add_entry(
+            self._analysis_results.add_entry(
                 result_id=result_id,
                 name=name,
                 value=value,
@@ -1420,8 +1420,9 @@ class ExperimentData:
                 **extra_values,
             )
             if self.auto_save:
+                last_index = self._analysis_results.result_ids()[-1][:8]
                 service_result = _series_to_service_result(
-                    series=series,
+                    series=self._analysis_results.get_entry(last_index),
                     service=self._service,
                     auto_save=False,
                 )
