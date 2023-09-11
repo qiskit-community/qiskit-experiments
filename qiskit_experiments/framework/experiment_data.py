@@ -67,6 +67,10 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
+from .containers.data_collection import DataCollection
+from .containers.elements import CanonicalResult, FigureData, _FigureT
+
+
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
@@ -131,75 +135,7 @@ def parse_utc_datetime(dt_str: str) -> datetime:
     return dt_utc
 
 
-class FigureData:
-    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
-    the ``figure`` attribute."""
-
-    def __init__(self, figure, name=None, metadata=None):
-        """Creates a new figure data object.
-
-        Args:
-            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
-            name: Optional, the name of the figure.
-            metadata: Optional, any metadata to be stored with the figure.
-        """
-        self.figure = figure
-        self._name = name
-        self.metadata = metadata or {}
-
-    # name is read only
-    @property
-    def name(self) -> str:
-        """The name of the figure"""
-        return self._name
-
-    @property
-    def metadata(self) -> dict:
-        """The metadata dictionary stored with the figure"""
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, new_metadata: dict):
-        """Set the metadata to new value; must be a dictionary"""
-        if not isinstance(new_metadata, dict):
-            raise ValueError("figure metadata must be a dictionary")
-        self._metadata = new_metadata
-
-    def copy(self, new_name: Optional[str] = None):
-        """Creates a copy of the figure data"""
-        name = new_name or self.name
-        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
-
-    def __json_encode__(self) -> Dict[str, Any]:
-        """Return the json representation of the figure data"""
-        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
-
-    @classmethod
-    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
-        """Initialize a figure data from the json representation"""
-        return cls(**args)
-
-    def _repr_png_(self):
-        if isinstance(self.figure, MatplotlibFigure):
-            b = io.BytesIO()
-            self.figure.savefig(b, format="png", bbox_inches="tight")
-            png = b.getvalue()
-            return png
-        else:
-            return None
-
-    def _repr_svg_(self):
-        if isinstance(self.figure, str):
-            return self.figure
-        if isinstance(self.figure, bytes):
-            return str(self.figure)
-        return None
-
-
-_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
-
-
-class ExperimentData:
+class ExperimentData(DataCollection):
     """Experiment data container class.
 
     .. note::
