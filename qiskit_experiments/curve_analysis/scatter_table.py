@@ -148,7 +148,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         Returns:
             New scatter table instance including both self and added data.
         """
-        other_index = [f"{prefix}-{i}" for i in range(len(other))]
+        other_index = [f"{prefix}-{i:04d}" for i in range(len(other))]
         return ScatterTable(
             data=[*self.values, *other],
             columns=self.columns,

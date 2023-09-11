@@ -234,14 +234,14 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for model_name, data in list(sub_data.groupby("model_name")):
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
-                    raw_data = data[data.format == "raw"]
+                    raw_data = data[data.format == "processed"]
                     self.plotter.set_series_data(
                         series_name=model_name,
                         x=raw_data.xval.to_numpy(),
                         y=raw_data.yval.to_numpy(),
                     )
                 # Plot formatted data scatters
-                formatted_data = data[data.format == "fit-ready"]
+                formatted_data = data[data.format == "formatted"]
                 self.plotter.set_series_data(
                     series_name=model_name,
                     x_formatted=formatted_data.xval.to_numpy(),
@@ -249,7 +249,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     y_formatted_err=formatted_data.yerr.to_numpy(),
                 )
                 # Plot fit lines
-                line_data = data[data.format == "fit"]
+                line_data = data[data.format == "fitted"]
                 if len(line_data) == 0:
                     continue
                 fit_stdev = line_data.yerr.to_numpy()
@@ -346,7 +346,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             curve_data = analysis._format_data(
                 analysis._run_data_processing(experiment_data.data())
             )
-            fit_data = analysis._run_curve_fit(curve_data[curve_data.format == "fit-ready"])
+            fit_data = analysis._run_curve_fit(curve_data[curve_data.format == "formatted"])
             fit_dataset[analysis.name] = fit_data
 
             if fit_data.success:
@@ -368,7 +368,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if fit_data.success:
                 # Add fit data to curve data table
                 fit_curves = []
-                formatted = curve_data[curve_data.format == "fit-ready"]
+                formatted = curve_data[curve_data.format == "formatted"]
                 columns = list(curve_data.columns)
                 for (i, name), sub_data in list(formatted.groupby(["model_id", "model_name"])):
                     xval = sub_data.xval.to_numpy()
@@ -391,10 +391,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
                     model_fit[:, columns.index("model_name")] = name
                     model_fit[:, columns.index("model_id")] = i
-                    model_fit[:, columns.index("format")] = "fit"
+                    model_fit[:, columns.index("format")] = "fitted"
                 curve_data = curve_data.append_list_values(
                     other=np.vstack(fit_curves),
-                    prefix="fit",
+                    prefix="fitted",
                 )
                 analysis_results.extend(
                     analysis._create_analysis_results(
@@ -408,7 +408,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 # Add raw data points
                 analysis_results.extend(
                     analysis._create_curve_data(
-                        curve_data=curve_data[curve_data.format == "fit-ready"],
+                        curve_data=curve_data[curve_data.format == "formatted"],
                         **metadata,
                     )
                 )
