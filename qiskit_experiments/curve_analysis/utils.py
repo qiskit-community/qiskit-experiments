@@ -252,10 +252,9 @@ def shot_weighted_average(
     out["model_name"] = model_name
     out["model_id"] = values_dict["model_id"][0]
     out["shots"] = np.sum(values_dict["shots"])
-    out["format"] = "formatted"
 
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[7:]:
+    for extra in grouped_df.columns[6:]:
         unique_values = set(values_dict[extra])
         if len(unique_values) == 1:
             out[extra] = next(iter(unique_values))
@@ -293,10 +292,9 @@ def inverse_weighted_variance(
     out["model_name"] = model_name
     out["model_id"] = values_dict["model_id"][0]
     out["shots"] = np.sum(values_dict["shots"])
-    out["format"] = "formatted"
 
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[7:]:
+    for extra in grouped_df.columns[6:]:
         unique_values = set(values_dict[extra])
         if len(unique_values) == 1:
             out[extra] = next(iter(unique_values))
@@ -335,10 +333,9 @@ def sample_average(
     out["model_name"] = model_name
     out["model_id"] = values_dict["model_id"][0]
     out["shots"] = np.sum(values_dict["shots"])
-    out["format"] = "formatted"
 
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[7:]:
+    for extra in grouped_df.columns[6:]:
         unique_values = set(values_dict[extra])
         if len(unique_values) == 1:
             out[extra] = next(iter(unique_values))

@@ -37,7 +37,6 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
             "model_name",
             "model_id",
             "shots",
-            "format",
         ]
 
     @deprecate_func(
@@ -138,7 +137,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         self,
         other: Sequence,
         prefix: str,
-    ):
+    ) -> "ScatterTable":
         """Add another list of dataframe values to this dataframe.
 
         Args:

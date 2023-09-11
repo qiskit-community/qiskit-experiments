@@ -178,10 +178,9 @@ class CurveAnalysis(BaseCurveAnalysis):
                     f"X value key {x_key} is not defined in the circuit metadata."
                 ) from ex
             out.add_entry(
-                index=f"circuit-{idx:04d}",
+                index=f"processed-{idx:04d}",
                 xval=xval,
                 shots=datum.get("shots", None),
-                format="processed",
                 **metadata,
             )
             to_process.append(datum)
@@ -401,14 +400,14 @@ class CurveAnalysis(BaseCurveAnalysis):
         for model_name, data in list(curve_data.groupby("model_name")):
             # Plot raw data scatters
             if self.options.plot_raw_data:
-                raw_data = data[data.format == "processed"]
+                raw_data = data.filter(like="processed", axis="index")
                 self.plotter.set_series_data(
                     series_name=model_name,
                     x=raw_data.xval.to_numpy(),
                     y=raw_data.yval.to_numpy(),
                 )
             # Plot formatted data scatters
-            formatted_data = data[data.format == "formatted"]
+            formatted_data = data.filter(like="formatted", axis="index")
             self.plotter.set_series_data(
                 series_name=model_name,
                 x_formatted=formatted_data.xval.to_numpy(),
@@ -416,7 +415,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 y_formatted_err=formatted_data.yerr.to_numpy(),
             )
             # Plot fit lines
-            line_data = data[data.format == "fitted"]
+            line_data = data.filter(like="fitted", axis="index")
             if len(line_data) == 0:
                 continue
             self.plotter.set_series_data(
@@ -444,7 +443,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         self._initialize(experiment_data)
 
         curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
-        fit_data = self._run_curve_fit(curve_data[curve_data.format == "formatted"])
+        fit_data = self._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
@@ -465,7 +464,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             fit_curves = []
-            formatted = curve_data[curve_data.format == "formatted"]
+            formatted = curve_data.filter(like="formatted", axis="index")
             columns = list(curve_data.columns)
             for (i, name), sub_data in list(formatted.groupby(["model_id", "model_name"])):
                 xval = sub_data.xval.to_numpy()
@@ -488,7 +487,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                     model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
                 model_fit[:, columns.index("model_name")] = name
                 model_fit[:, columns.index("model_id")] = i
-                model_fit[:, columns.index("format")] = "fitted"
             curve_data = curve_data.append_list_values(
                 other=np.vstack(fit_curves),
                 prefix="fitted",
@@ -505,7 +503,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             # Add raw data points
             analysis_results.extend(
                 self._create_curve_data(
-                    curve_data=curve_data[curve_data.format == "formatted"],
+                    curve_data=curve_data.filter(like="formatted", axis="index"),
                 )
             )
 
