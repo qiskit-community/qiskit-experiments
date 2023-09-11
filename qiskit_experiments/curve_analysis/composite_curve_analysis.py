@@ -369,6 +369,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 # Add fit data to curve data table
                 fit_curves = []
                 formatted = curve_data[curve_data.format == "fit-ready"]
+                columns = list(curve_data.columns)
                 for (i, name), sub_data in list(formatted.groupby(["model_id", "model_name"])):
                     xval = sub_data.xval.to_numpy()
                     if len(xval) == 0:
@@ -382,21 +383,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         model=analysis.models[i],
                         params=fit_data.ufloat_params,
                     )
-                    model_fit = np.full((100, len(curve_data.columns)), np.nan, dtype=object)
+                    model_fit = np.full((100, len(columns)), np.nan, dtype=object)
                     fit_curves.append(model_fit)
-                    # xval
-                    model_fit[:, 0] = xval_fit
-                    # yval
-                    model_fit[:, 1] = unp.nominal_values(yval_fit)
-                    # yerr
+                    model_fit[:, columns.index("xval")] = xval_fit
+                    model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
                     if fit_data.covar is not None:
-                        model_fit[:, 2] = unp.std_devs(yval_fit)
-                    # model_name
-                    model_fit[:, 3] = name
-                    # model_id
-                    model_fit[:, 4] = i
-                    # type
-                    model_fit[:, 6] = "fit"
+                        model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
+                    model_fit[:, columns.index("model_name")] = name
+                    model_fit[:, columns.index("model_id")] = i
+                    model_fit[:, columns.index("format")] = "fit"
                 curve_data = curve_data.append_list_values(
                     other=np.vstack(fit_curves),
                     prefix="fit",

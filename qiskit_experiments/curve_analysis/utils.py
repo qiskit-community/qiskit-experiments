@@ -238,41 +238,30 @@ def shot_weighted_average(
         A single row of the average.
     """
     (model_name, xval), grouped_df = group
-    values = grouped_df.values
 
-    if len(values) == 1:
-        out = values[0]
-        out[6] = "fit-ready"
-        return out
+    if len(grouped_df) == 1:
+        return grouped_df.iloc[0].to_list()
 
-    yval = values[:, 1]
-    yerr = values[:, 2]
-    shots = values[:, 5]
-    weights = shots / np.sum(shots)
+    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
+    weights = np.array(values_dict["shots"]) / np.sum(np.array(values_dict["shots"]))
 
-    out = [
-        # xval
-        xval,
-        # yval
-        np.sum(weights * yval),
-        # yerr
-        np.sqrt(np.sum(weights**2 * yerr**2)),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
+    out = dict.fromkeys(values_dict.keys())
+    out["xval"] = xval
+    out["yval"] = np.sum(weights * values_dict["yval"])
+    out["yerr"] = np.sqrt(np.sum(weights**2 * values_dict["yerr"] ** 2))
+    out["model_name"] = model_name
+    out["model_id"] = values_dict["model_id"][0]
+    out["shots"] = np.sum(values_dict["shots"])
+    out["format"] = "fit-ready"
+
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
+    for extra in grouped_df.columns[7:]:
+        unique_values = set(values_dict[extra])
+        if len(unique_values) == 1:
+            out[extra] = next(iter(unique_values))
         else:
-            out.append(extra)
-    return out
+            out[extra] = list(unique_values)
+    return list(out.values())
 
 
 def inverse_weighted_variance(
@@ -289,42 +278,31 @@ def inverse_weighted_variance(
         A single row of the average.
     """
     (model_name, xval), grouped_df = group
-    values = grouped_df.values
 
-    if len(values) == 1:
-        out = values[0]
-        out[6] = "fit-ready"
-        return out
+    if len(grouped_df) == 1:
+        return grouped_df.iloc[0].to_list()
 
-    yval = values[:, 1]
-    yerr = values[:, 2]
-    shots = values[:, 5]
-    weights = 1 / yerr**2
+    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
+    weights = 1 / values_dict["yerr"] ** 2
     yvar = 1 / np.sum(weights)
 
-    out = [
-        # xval
-        xval,
-        # yval
-        yvar * np.sum(weights * yval),
-        # yerr
-        np.sqrt(yvar),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
+    out = dict.fromkeys(values_dict.keys())
+    out["xval"] = xval
+    out["yval"] = yvar * np.sum(weights * values_dict["yval"])
+    out["yerr"] = np.sqrt(yvar)
+    out["model_name"] = model_name
+    out["model_id"] = values_dict["model_id"][0]
+    out["shots"] = np.sum(values_dict["shots"])
+    out["format"] = "fit-ready"
+
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
+    for extra in grouped_df.columns[7:]:
+        unique_values = set(values_dict[extra])
+        if len(unique_values) == 1:
+            out[extra] = next(iter(unique_values))
         else:
-            out.append(extra)
-    return out
+            out[extra] = list(unique_values)
+    return list(out.values())
 
 
 def sample_average(
@@ -341,41 +319,32 @@ def sample_average(
         A single row of the average.
     """
     (model_name, xval), grouped_df = group
-    values = grouped_df.values
 
-    if len(values) == 1:
-        out = values[0]
-        out[2] = 0  # Because there is only 1 sample
-        out[6] = "fit-ready"
-        return out
+    if len(grouped_df) == 1:
+        out = grouped_df.iloc[0].copy()
+        out.yerr = 0.0  # Because there is only 1 sample
+        return out.to_list()
 
-    yval = values[:, 1]
-    shots = values[:, 4]
-    ymean = np.mean(yval)
+    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
+    ymean = np.mean(values_dict["yval"])
 
-    out = [
-        # xval
-        xval,
-        # yval
-        ymean,
-        # yerr
-        np.sqrt(np.mean((ymean - yval) ** 2) / yval.size),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
+    out = dict.fromkeys(values_dict.keys())
+    out["xval"] = xval
+    out["yval"] = ymean
+    out["yerr"] = np.sqrt(np.mean((ymean - values_dict["yval"]) ** 2) / len(grouped_df))
+    out["model_name"] = model_name
+    out["model_id"] = values_dict["model_id"][0]
+    out["shots"] = np.sum(values_dict["shots"])
+    out["format"] = "fit-ready"
+
     # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
+    for extra in grouped_df.columns[7:]:
+        unique_values = set(values_dict[extra])
+        if len(unique_values) == 1:
+            out[extra] = next(iter(unique_values))
         else:
-            out.append(extra)
-    return out
+            out[extra] = list(unique_values)
+    return list(out.values())
 
 
 @deprecate_func(
