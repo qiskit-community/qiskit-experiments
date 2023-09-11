@@ -22,6 +22,7 @@ from dateutil import tz
 
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
+from qiskit_experiments.framework.artifact_data import ArtifactData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData, FigureData
 from qiskit_experiments.framework.configs import AnalysisConfig
@@ -171,28 +172,38 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
             if results:
                 for result in results:
-                    # Populate missing data fields
-                    if not result.experiment_id:
-                        result.experiment_id = expdata.experiment_id
-                    if not result.experiment:
-                        result.experiment = expdata.experiment_type
-                    if not result.device_components:
-                        result.device_components = self._get_experiment_components(expdata)
-                    if not result.backend:
-                        result.backend = expdata.backend_name
-                    if not result.created_time:
-                        result.created_time = datetime.now(tz.tzlocal())
-                    if not result.run_time:
-                        result.run_time = expdata.running_time
+                    if isinstance(result, AnalysisResultData):
+                        # Populate missing data fields
+                        if not result.experiment_id:
+                            result.experiment_id = expdata.experiment_id
+                        if not result.experiment:
+                            result.experiment = expdata.experiment_type
+                        if not result.device_components:
+                            result.device_components = self._get_experiment_components(expdata)
+                        if not result.backend:
+                            result.backend = expdata.backend_name
+                        if not result.created_time:
+                            result.created_time = datetime.now(tz.tzlocal())
+                        if not result.run_time:
+                            result.run_time = expdata.running_time
 
-                    # To canonical kwargs to add to the analysis table.
-                    table_format = as_table_element(result)
+                        # To canonical kwargs to add to the analysis table.
+                        table_format = as_table_element(result)
 
-                    # Remove result_id to make sure the id is unique in the scope of the container.
-                    # This will let the container generate a unique id.
-                    del table_format["result_id"]
+                        # Remove result_id to make sure the id is unique in the scope of the container.
+                        # This will let the container generate a unique id.
+                        del table_format["result_id"]
 
-                    expdata.add_analysis_results(**table_format)
+                        expdata.add_analysis_results(**table_format)
+                    elif isinstance(result, ArtifactData):
+                        if not result.experiment_id:
+                            result.experiment_id = experiment_data.experiment_id
+                        expdata.add_artifacts(result)
+                    else:
+                        raise TypeError(
+                            f"Invalid object type {result.__class__.__name__} for analysis results. "
+                            "This data cannot be stored in the experiment data."
+                        )
 
             if figures:
                 figure_to_add = []
@@ -228,7 +239,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:

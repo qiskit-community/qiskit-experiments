@@ -20,12 +20,12 @@ from typing import Dict, List, Optional, Tuple, Union
 import lmfit
 import numpy as np
 import pandas as pd
-from uncertainties import unumpy as unp
 
 from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import (
     AnalysisResultData,
+    ArtifactData,
     BaseAnalysis,
     ExperimentData,
     Options,
@@ -38,10 +38,9 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
+from .base_curve_analysis import BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
-from .utils import eval_with_uncertainties
 
 
 class CompositeCurveAnalysis(BaseAnalysis):
@@ -329,99 +328,38 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-
-        analysis_results = []
-        figures = []
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        figures: List["pyplot.Figure"] = []
 
         fit_dataset = {}
-        curve_data_set = []
-        for analysis in self._analyses:
-            analysis._initialize(experiment_data)
-            analysis.set_options(plot=False)
+        sub_dataset = []
+        for sub_analysis in self._analyses:
+            analysis = sub_analysis.copy()
+            extra = analysis.options.extra.copy()
+            extra["group"] = analysis.name
+            analysis.set_options(plot=False, extra=extra)
+            sub_result_data, _ = analysis._run_analysis(experiment_data)
+            for datum in sub_result_data:
+                if isinstance(datum, ArtifactData):
+                    if datum.name == "curve_data":
+                        sub_curve_data = datum.data
+                        sub_curve_data.model_name += f"_{analysis.name}"
+                        sub_dataset.append(sub_curve_data)
+                    elif datum.name == "fit_summary":
+                        fit_dataset[analysis.name] = datum.data
+                        result_data.append(datum)
+                else:
+                    result_data.append(datum)
 
-            metadata = analysis.options.extra.copy()
-            metadata["group"] = analysis.name
-
-            curve_data = analysis._format_data(
-                analysis._run_data_processing(experiment_data.data())
+        composite_curve_data = pd.concat(sub_dataset)
+        result_data.append(
+            ArtifactData(
+                name="curve_data",
+                data=composite_curve_data,
             )
-            fit_data = analysis._run_curve_fit(curve_data[curve_data.format == "fit-ready"])
-            fit_dataset[analysis.name] = fit_data
+        )
 
-            if fit_data.success:
-                quality = analysis._evaluate_quality(fit_data)
-            else:
-                quality = "bad"
-
-            if self.options.return_fit_parameters:
-                # Store fit status overview entry regardless of success.
-                # This is sometime useful when debugging the fitting code.
-                overview = AnalysisResultData(
-                    name=PARAMS_ENTRY_PREFIX + analysis.name,
-                    value=fit_data,
-                    quality=quality,
-                    extra=metadata,
-                )
-                analysis_results.append(overview)
-
-            if fit_data.success:
-                # Add fit data to curve data table
-                fit_curves = []
-                formatted = curve_data[curve_data.format == "fit-ready"]
-                for (i, name), sub_data in list(formatted.groupby(["model_id", "model_name"])):
-                    xval = sub_data.xval.to_numpy()
-                    if len(xval) == 0:
-                        # If data is empty, skip drawing this model.
-                        # This is the case when fit model exist but no data to fit is provided.
-                        continue
-                    # Compute X, Y values with fit parameters.
-                    xval_fit = np.linspace(np.min(xval), np.max(xval), num=100)
-                    yval_fit = eval_with_uncertainties(
-                        x=xval_fit,
-                        model=analysis.models[i],
-                        params=fit_data.ufloat_params,
-                    )
-                    model_fit = np.full((100, len(curve_data.columns)), np.nan, dtype=object)
-                    fit_curves.append(model_fit)
-                    # xval
-                    model_fit[:, 0] = xval_fit
-                    # yval
-                    model_fit[:, 1] = unp.nominal_values(yval_fit)
-                    # yerr
-                    if fit_data.covar is not None:
-                        model_fit[:, 2] = unp.std_devs(yval_fit)
-                    # model_name
-                    model_fit[:, 3] = name
-                    # model_id
-                    model_fit[:, 4] = i
-                    # type
-                    model_fit[:, 6] = "fit"
-                curve_data = curve_data.append_list_values(
-                    other=np.vstack(fit_curves),
-                    prefix="fit",
-                )
-                analysis_results.extend(
-                    analysis._create_analysis_results(
-                        fit_data=fit_data,
-                        quality=quality,
-                        **metadata.copy(),
-                    )
-                )
-
-            if self.options.return_data_points:
-                # Add raw data points
-                analysis_results.extend(
-                    analysis._create_curve_data(
-                        curve_data=curve_data[curve_data.format == "fit-ready"],
-                        **metadata,
-                    )
-                )
-
-            curve_data.model_name += f"_{analysis.name}"
-            curve_data_set.append(curve_data)
-
-        combined_curve_data = pd.concat(curve_data_set)
         total_quality = self._evaluate_quality(fit_dataset)
 
         # Create analysis results by combining all fit data
@@ -429,7 +367,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             composite_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-            analysis_results.extend(composite_results)
+            result_data.extend(composite_results)
         else:
             composite_results = []
 
@@ -438,6 +376,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 fit_red_chi={k: v.reduced_chisq for k, v in fit_dataset.items() if v.success},
                 primary_results=composite_results,
             )
-            figures.extend(self._create_figures(curve_data=combined_curve_data))
+            figures.extend(self._create_figures(curve_data=composite_curve_data))
 
-        return analysis_results, figures
+        return result_data, figures

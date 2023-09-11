@@ -162,9 +162,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 dataset without formatting, on canvas. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``True``.
-            return_data_points (bool): Set ``True`` to include in the analysis result
+            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
@@ -276,6 +276,22 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 plotter = self.options.plotter
                 plotter.drawer = compat_drawer
                 fields["plotter"] = plotter
+
+        if "return_fit_parameters" in fields:
+            warnings.warn(
+                "Now @Parameters_* result entry is moved to experiment data artifact "
+                "regardless of option value. Setting this value doesn't affect result data.",
+                DeprecationWarning,
+            )
+            del fields["return_fit_parameters"]
+
+        if "return_data_points" in fields:
+            warnings.warn(
+                "Now @Data_* result entry is moved to experiment data artifact "
+                "regardless of option value. Setting this value doesn't affect result data.",
+                DeprecationWarning,
+            )
+            del fields["return_data_points"]
 
         super().set_options(**fields)
 

@@ -13,6 +13,7 @@
 """
 Analysis class for curve fitting.
 """
+import warnings
 # pylint: disable=invalid-name
 
 from typing import Dict, List, Tuple, Union, Optional
@@ -22,10 +23,10 @@ import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData
+from qiskit_experiments.framework import ExperimentData, AnalysisResultData, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
-from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX, DATA_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
@@ -436,9 +437,9 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        analysis_results = []
-        figures = []
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        figures: List["pyplot.Figure"] = []
 
         # Prepare for fitting
         self._initialize(experiment_data)
@@ -454,13 +455,19 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.return_fit_parameters:
             # Store fit status overview entry regardless of success.
             # This is sometime useful when debugging the fitting code.
+            warnings.warn(
+                f"{PARAMS_ENTRY_PREFIX + self.name} is moved to experiment data artifact. "
+                "Saving this result with 'return_fit_parameters'=True will be disabled in "
+                "Qiskit Experiments 0.7.",
+                DeprecationWarning,
+            )
             overview = AnalysisResultData(
                 name=PARAMS_ENTRY_PREFIX + self.name,
                 value=fit_data,
                 quality=quality,
                 extra=self.options.extra,
             )
-            analysis_results.append(overview)
+            result_data.append(overview)
 
         if fit_data.success:
             # Add fit data to curve data table
@@ -498,7 +505,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 other=np.vstack(fit_curves),
                 prefix="fit",
             )
-            analysis_results.extend(
+            result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,
@@ -508,21 +515,43 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if self.options.return_data_points:
             # Add raw data points
-            analysis_results.extend(
+            warnings.warn(
+                f"{DATA_ENTRY_PREFIX + self.name} is moved to experiment data artifact. "
+                "Saving this result with 'return_data_points'=True will be disabled in "
+                "Qiskit Experiments 0.7.",
+                DeprecationWarning,
+            )
+            result_data.extend(
                 self._create_curve_data(
                     curve_data=curve_data[curve_data.format == "fit-ready"],
                 )
             )
 
+        result_data.append(
+            ArtifactData(
+                name="curve_data",
+                data=curve_data,
+            )
+        )
+        result_data.append(
+            ArtifactData(
+                name="fit_summary",
+                data=fit_data,
+            )
+        )
+
         if self.options.plot:
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[r for r in analysis_results if not r.name.startswith("@")],
+                    primary_results=[
+                        r for r in result_data
+                        if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))
+                    ],
                 )
             figures.extend(self._create_figures(curve_data=curve_data))
 
-        return analysis_results, figures
+        return result_data, figures
 
     def __getstate__(self):
         state = self.__dict__.copy()
