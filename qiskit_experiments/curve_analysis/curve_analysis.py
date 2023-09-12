@@ -20,6 +20,7 @@ from functools import partial
 
 import lmfit
 import numpy as np
+import pandas as pd
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
@@ -180,7 +181,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             out.add_entry(
                 index=f"processed-{idx:04d}",
                 xval=xval,
-                shots=datum.get("shots", None),
+                shots=datum.get("shots", pd.NA),
                 **metadata,
             )
             to_process.append(datum)
