@@ -26,7 +26,24 @@ LOG = logging.getLogger(__name__)
 
 
 class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
-    """A table to store x and y data with metadata associated with the data point."""
+    """A table to store x and y data with metadata associated with the data point.
+
+    This class is implemented upon the pandas dataframe.
+    See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
+    for the base class API documentation.
+
+    A single ``ScatterTable`` object can contain different kind of intermediate data
+    generated through the curve fitting, which are categorized by the fit model.
+    When an experiment has sub-data for ``model_abc``, the formatted x, y, and y-error
+    array data may be obtained from the original table object as follows:
+
+    .. code-block::python
+
+        formatted = table.filter(like="formatted", axis="index")
+        abc_data = formatted[formatted.model_name == "model_abc"]
+        x, y, e = abc_data.xval.to_numpy(), abc_data.yval.to_numpy(), abc_data.yerr.to_numpy()
+
+    """
 
     @classmethod
     def _default_columns(cls) -> List[str]:
