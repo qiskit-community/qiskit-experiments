@@ -45,6 +45,10 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
 
     """
 
+    # TODO Add this to toctree. In current mechanism all pandas DataFrame members are rendered
+    #  and it fails in the Sphinx build process. We may need a custom directive to
+    #  exclude class members from an external package.
+
     @classmethod
     def _default_columns(cls) -> List[str]:
         return [
