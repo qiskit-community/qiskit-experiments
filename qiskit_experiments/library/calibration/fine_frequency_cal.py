@@ -28,7 +28,54 @@ from qiskit_experiments.library.characterization.fine_frequency import FineFrequ
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
-    """A calibration version of the fine frequency experiment."""
+    """A calibration version of the fine frequency experiment.
+
+    # section: example
+        ..jupyter-execute::
+            
+            # mwc
+            import pandas as pd
+            import numpy as np
+            import qiskit.pulse as pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit import schedule
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+
+        ..jupyter-execute::
+            :hide-code:
+
+            # backend  
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, noise=False, seed=100)
+
+        ..jupyter-execute::
+
+            # mwc
+            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+
+            qubit = 0
+            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            cals = Calibrations.from_backend(backend, libraries=[library])
+
+            from qiskit_experiments.library import FineFrequencyCal
+
+            freq_cal = FineFrequencyCal([qubit],
+                                        cals, 
+                                        backend=backend, 
+                                        delay_duration=None, 
+                                        repetitions=None, 
+                                        auto_update=True, 
+                                        gate_name="sx",
+                                       )
+
+            freq_cal.set_transpile_options(scheduling_method="asap", 
+                                          optimization_level=3, 
+                                          basis_gates=["sx", "rz", "delay"]
+                                          )
+
+            exp_data_x90p = freq_cal.run().block_for_results()
+            exp_data_x90p.figure(0)
+    """
 
     def __init__(
         self,
