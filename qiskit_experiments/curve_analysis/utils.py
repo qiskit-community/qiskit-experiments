@@ -18,7 +18,6 @@ import time
 import asteval
 import lmfit
 import numpy as np
-import pandas as pd
 from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
@@ -225,123 +224,95 @@ def eval_with_uncertainties(
 
 
 def shot_weighted_average(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, float]:
     """Compute shot based variance and weighted average of the categorized data frame.
 
     Sample is weighted by the shot number.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
 
-    if len(grouped_df) == 1:
-        return grouped_df.iloc[0].to_list()
+    if np.any(shots < -1):
+        # Shot number is unknown
+        return np.mean(yvals), np.nan, -1
 
-    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
-    weights = np.array(values_dict["shots"]) / np.sum(np.array(values_dict["shots"]))
+    total_shots = np.sum(shots)
+    weights = shots / total_shots
 
-    out = dict.fromkeys(values_dict.keys())
-    out["xval"] = xval
-    out["yval"] = np.sum(weights * values_dict["yval"])
-    out["yerr"] = np.sqrt(np.sum(weights**2 * values_dict["yerr"] ** 2))
-    out["model_name"] = model_name
-    out["model_id"] = values_dict["model_id"][0]
-    out["shots"] = np.sum(values_dict["shots"])
+    avg_yval = np.sum(weights * yvals)
+    avg_yerr = np.sqrt(np.sum(weights**2 * yerrs**2))
 
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[6:]:
-        unique_values = set(values_dict[extra])
-        if len(unique_values) == 1:
-            out[extra] = next(iter(unique_values))
-        else:
-            out[extra] = list(unique_values)
-    return list(out.values())
+    return avg_yval, avg_yerr, total_shots
 
 
 def inverse_weighted_variance(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
     """Compute inverse weighted variance and weighted average of the categorized data frame.
 
     Sample is weighted by the inverse of the data variance.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
 
-    if len(grouped_df) == 1:
-        return grouped_df.iloc[0].to_list()
-
-    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
-    weights = 1 / values_dict["yerr"] ** 2
+    total_shots = np.sum(shots) if all(shots > 0) else -1
+    weights = 1 / yerrs**2
     yvar = 1 / np.sum(weights)
 
-    out = dict.fromkeys(values_dict.keys())
-    out["xval"] = xval
-    out["yval"] = yvar * np.sum(weights * values_dict["yval"])
-    out["yerr"] = np.sqrt(yvar)
-    out["model_name"] = model_name
-    out["model_id"] = values_dict["model_id"][0]
-    out["shots"] = np.sum(values_dict["shots"])
+    avg_yval = yvar * np.sum(weights * yvals)
+    avg_yerr = np.sqrt(yvar)
 
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[6:]:
-        unique_values = set(values_dict[extra])
-        if len(unique_values) == 1:
-            out[extra] = next(iter(unique_values))
-        else:
-            out[extra] = list(unique_values)
-    return list(out.values())
+    return avg_yval, avg_yerr, total_shots
 
 
+# pylint: disable=unused-argument
 def sample_average(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
     """Compute sample based variance and average of the categorized data frame.
 
     Original variance of the data is ignored and variance is computed with the y values.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average (ignored).
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
+    if len(yvals) == 1:
+        return yvals[0], 0.0, shots[0]
 
-    if len(grouped_df) == 1:
-        out = grouped_df.iloc[0].copy()
-        out.yerr = 0.0  # Because there is only 1 sample
-        return out.to_list()
+    total_shots = np.sum(shots) if all(shots > 0) else -1
 
-    values_dict = dict(zip(grouped_df.columns, grouped_df.values.T))
-    ymean = np.mean(values_dict["yval"])
+    avg_yval = np.mean(yvals)
+    avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))
 
-    out = dict.fromkeys(values_dict.keys())
-    out["xval"] = xval
-    out["yval"] = ymean
-    out["yerr"] = np.sqrt(np.mean((ymean - values_dict["yval"]) ** 2) / len(grouped_df))
-    out["model_name"] = model_name
-    out["model_id"] = values_dict["model_id"][0]
-    out["shots"] = np.sum(values_dict["shots"])
-
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in grouped_df.columns[6:]:
-        unique_values = set(values_dict[extra])
-        if len(unique_values) == 1:
-            out[extra] = next(iter(unique_values))
-        else:
-            out[extra] = list(unique_values)
-    return list(out.values())
+    return avg_yval, avg_yerr, total_shots
 
 
 @deprecate_func(
