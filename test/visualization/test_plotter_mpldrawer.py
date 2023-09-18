@@ -117,6 +117,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         string.
         """
 
+        plt.close("all")
         # Create Matplotlib axes that use a PNG backend. The default backend, FigureCanvasSVG, does not
         # have `tostring_rgb()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
