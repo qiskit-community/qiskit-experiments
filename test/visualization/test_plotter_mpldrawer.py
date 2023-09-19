@@ -32,6 +32,11 @@ from .mock_plotter import MockPlotter
 class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
     """Test generic plotter with Matplotlib drawer."""
 
+    def tearDown(self):
+        """Clean up test case state"""
+        plt.close("all")
+        super().tearDown()
+
     def test_end_to_end_short(self):
         """Test whether plotter with MplDrawer returns a figure."""
         plotter = MockPlotter(MplDrawer())
