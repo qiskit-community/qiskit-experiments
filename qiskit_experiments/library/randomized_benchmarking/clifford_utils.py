@@ -422,8 +422,9 @@ def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
     """Return the composition of 2-qubit clifford integers."""
     num = lhs
     for layer, idx in enumerate(_layer_indices_from_num(rhs)):
-        circ = _CLIFFORD_LAYER[layer][idx]
-        num = _compose_num_with_circuit_2q(num, circ)
+        gate_numbers = _CLIFFORD_LAYER_NUMS[layer][idx]
+        for n in gate_numbers:
+            num = _CLIFFORD_COMPOSE_2Q_DENSE[num, _clifford_num_to_dense[n]]
     return num
 
 
@@ -569,6 +570,20 @@ _CLIFFORD_LAYER = (
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
 
+# Construct a dense multiplication table
+_CLIFFORD_LAYER_NUMS=[]
+for layer in [0,1,2]:
+    _CLIFFORD_LAYER_NUMS.append([])
+    for idx, qc in enumerate(_CLIFFORD_LAYER[layer]):
+        nn = []
+        for inst in qc:
+            qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
+            rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
+            nn.append(rhs)
+        _CLIFFORD_LAYER_NUMS[layer].append(tuple(nn))
+_valid_indices=np.unique(list(itertools.chain(*itertools.chain(*_CLIFFORD_LAYER_NUMS))))
+_clifford_num_to_dense = { idx: ii for ii, idx in enumerate(_valid_indices)} 
+_CLIFFORD_COMPOSE_2Q_DENSE = (_CLIFFORD_COMPOSE_2Q[:, _valid_indices]).toarray()
 
 @lru_cache(maxsize=None)
 def _transformed_clifford_layer(
