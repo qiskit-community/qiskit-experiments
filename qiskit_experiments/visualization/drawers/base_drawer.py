@@ -200,14 +200,14 @@ class BaseDrawer(ABC):
                 this could be a list of xlims.
             ylim (Union[Tuple[float, float], List[Tuple[float, float]]): Min and max value
                 of the vertical axis. If not provided, it is automatically scaled based
-                on the input data points. If there are multiple columns in the canvas,
+                on the input data points. If there are multiple rows in the canvas,
                 this could be a list of ylims.
             xval_unit (Union[str, List[str]]): Unit of x values.
                 No scaling prefix is needed here as this is controlled by ``xval_unit_scale``.
                 If there are multiple columns in the canvas, this could be a list of xval_units.
             yval_unit (Union[str, List[str]]): Unit of y values.
                 No scaling prefix is needed here as this is controlled by ``yval_unit_scale``.
-                If there are multiple columns in the canvas, this could be a list of yval_units.
+                If there are multiple rows in the canvas, this could be a list of yval_units.
             xval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to
                 ``xval_unit`` if needed. For example, when the x values represent time and
                 ``xval_unit="s"``, ``xval_unit_scale=True`` adds an SI unit prefix to
@@ -219,7 +219,7 @@ class BaseDrawer(ABC):
                 If there are multiple columns in the canvas, this could be a list of xval_unit_scale.
             yval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to
                 ``yval_unit`` if needed. See ``xval_unit_scale`` for details.
-                If there are multiple columns in the canvas, this could be a list of yval_unit_scale.
+                If there are multiple rows in the canvas, this could be a list of yval_unit_scale.
             xscale (str): The scaling of the x-axis, such as ``log`` or ``linear``.
             yscale (str): The scaling of the y-axis, such as ``log`` or ``linear``.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
