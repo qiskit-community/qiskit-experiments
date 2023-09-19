@@ -118,7 +118,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         """
 
         # Create Matplotlib axes that use a PNG backend. The default backend, FigureCanvasSVG, does not
-        # have `tostring_rgb()` which is needed to compute the difference between two figures in this
+        # have `buffer_rgba()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
         plt.close("all")
@@ -162,8 +162,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
                 for plot_type in legend_plot_types:
                     plotter.enable_legend_for(series_name, plot_type)
 
-        # Generate figure and save to buffers for comparison. This requires a pixel backend, like AGG, so
-        # that `tostring_rgb()` is available.
+        # Generate figure and save to buffers for comparison.
         figure_data = {}
         for plotter_type, plotter in plotters.items():
             figure = plotter.figure().figure
