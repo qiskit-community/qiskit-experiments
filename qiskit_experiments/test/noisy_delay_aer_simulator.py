@@ -55,6 +55,7 @@ class NoisyDelayAerBackend(AerSimulator):
     def run(self, run_input: List[QuantumCircuit], **run_options) -> AerJob:
         """
         Add noise pass to all circuits and then run the circuits.
+
         Args:
             run_input: List of circuit to run.
             run_options (kwargs): additional run time backend options.

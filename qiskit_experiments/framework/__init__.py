@@ -86,6 +86,7 @@ Experiment Data Classes
     AnalysisStatus
     AnalysisResult
     AnalysisResultData
+    AnalysisResultTable
     ExperimentConfig
     AnalysisConfig
     ExperimentEncoder
@@ -137,6 +138,7 @@ from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
 from .configs import ExperimentConfig, AnalysisConfig
 from .analysis_result_data import AnalysisResultData
+from .analysis_result_table import AnalysisResultTable
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,

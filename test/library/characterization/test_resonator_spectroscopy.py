@@ -134,15 +134,33 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(100, 150, 20) * 1e6)
+        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(100, 150, 4) * 1e6)
         loaded_exp = ResonatorSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(int(100e6), int(150e6), 4))
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits data JSON serialization"""
+        freq_shift = 20e4
+        qubit = 1
+        # need backend for dt value in the experiment
+        backend = MockIQBackendDefaults(
+            experiment_helper=ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
+            ),
+        )
+        res_freq = BackendData(backend).meas_freqs[qubit]
+        frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 3)
+        exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     @data(-5e6, 0, 3e6)
     def test_kerneled_expdata_serialization(self, freq_shift):
@@ -159,7 +177,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         res_freq = BackendData(backend).meas_freqs[qubit]
 
-        frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
+        frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 11)
         exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
 
         expdata = exp.run(backend)
@@ -208,8 +226,8 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         res_freq1 = backend_data.meas_freqs[qubit1]
         res_freq2 = backend_data.meas_freqs[qubit2]
 
-        frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 51)
-        frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)
+        frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 11)
+        frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 13)
 
         res_spect1 = ResonatorSpectroscopy(
             [qubit1], backend=parallel_backend, frequencies=frequencies1

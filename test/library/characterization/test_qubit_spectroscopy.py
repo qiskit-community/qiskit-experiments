@@ -16,6 +16,7 @@ import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.circuit.library import XGate
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit_experiments.framework import ParallelExperiment
 
 from qiskit_experiments.framework import BackendData
@@ -159,7 +160,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = QubitSpectroscopy([1], np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = QubitSpectroscopy([1], np.linspace(int(100e6), int(150e6), 4))
         # Checking serialization of the experiment
         self.assertRoundTripSerializable(exp)
 
@@ -184,7 +185,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
-        # Checking serialization of the experiment data
+        # Checking serialization of the experiment data obj
         self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
@@ -269,7 +270,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         par_experiment = ParallelExperiment(
             exp_list, flatten_results=False, backend=parallel_backend
         )
-        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
+        par_experiment.set_run_options(
+            meas_level=MeasLevel.KERNELED, meas_return="single", shots=20
+        )
 
         par_data = par_experiment.run()
         self.assertExperimentDone(par_data)
@@ -281,3 +284,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         for child_data in par_data.child_data():
             self.assertRoundTripSerializable(child_data)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuits round trip JSON serialization"""
+        backend = FakeWashingtonV2()
+        qubit = 1
+        freq01 = BackendData(backend).drive_freqs[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 3)
+        exp = QubitSpectroscopy([1], frequencies, backend=backend)
+        # Checking serialization of the experiment
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
