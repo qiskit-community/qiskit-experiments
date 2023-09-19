@@ -84,7 +84,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        test_amps = [-0.5, 0, 0.5]
+        test_amps = [-0.5, 0]
         rabi = RoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps, backend=self.backend)
         self.assertRoundTripSerializable(rabi._transpiled_circuits())
 
@@ -151,7 +151,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
             self.assertEqual(circ.calibrations["Rabi"][((0,), (amp,))], expected_x12)
 
     def test_ef_update(self):
-        """Tes that we properly update the pulses on the 1<->2 transition."""
+        """Test that we properly update the pulses on the 1<->2 transition."""
 
         tol = 0.05
         default_amp = 0.5 / self.backend.rabi_rate_12

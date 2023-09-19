@@ -192,7 +192,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             physical_qubits=(0, 1),
             sigma=sigma,
-            # A hack to avoild local function in pickle, i.e. in transpile.
+            # A hack to avoid local function in pickle, i.e. in transpile.
             cr_gate=functools.partial(
                 SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
             ),
