@@ -119,9 +119,10 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
 
         plt.close("all")
         # Create Matplotlib axes that use a PNG backend. The default backend, FigureCanvasSVG, does not
-        # have `tostring_rgb()` which is needed to compute the difference between two figures in this
+        # have `buffer_rgba()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
+        plt.close("all")
         plt.switch_backend("Agg")
         axes = {}
         for key in series_names.keys():
@@ -162,16 +163,12 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
                 for plot_type in legend_plot_types:
                     plotter.enable_legend_for(series_name, plot_type)
 
-        # Generate figure and save to buffers for comparison. This requires a pixel backend, like AGG, so
-        # that `tostring_rgb()` is available.
+        # Generate figure and save to buffers for comparison.
         figure_data = {}
         for plotter_type, plotter in plotters.items():
             figure = plotter.figure().figure
             figure.canvas.draw()
-            figure_data[plotter_type] = np.frombuffer(
-                figure.canvas.tostring_rgb(),
-                dtype=np.uint8,
-            ).reshape(figure.canvas.get_width_height() + (3,))
+            figure_data[plotter_type] = np.asarray(figure.canvas.buffer_rgba(), dtype=np.uint8)
 
         # Compare root-mean-squared error between two images.
         for (fig1_type, fig1), (fig2_type, fig2) in combinations(figure_data.items(), 2):
