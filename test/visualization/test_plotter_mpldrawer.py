@@ -122,12 +122,10 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         string.
         """
 
-        plt.close("all")
         # Create Matplotlib axes that use a PNG backend. The default backend, FigureCanvasSVG, does not
         # have `buffer_rgba()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
-        plt.close("all")
         plt.switch_backend("Agg")
         axes = {}
         for key in series_names.keys():
