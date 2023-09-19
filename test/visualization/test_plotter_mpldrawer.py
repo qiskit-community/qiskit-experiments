@@ -121,6 +121,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         # have `tostring_rgb()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
+        plt.close("all")
         plt.switch_backend("Agg")
         axes = {}
         for key in series_names.keys():
@@ -167,10 +168,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         for plotter_type, plotter in plotters.items():
             figure = plotter.figure().figure
             figure.canvas.draw()
-            figure_data[plotter_type] = np.frombuffer(
-                figure.canvas.tostring_rgb(),
-                dtype=np.uint8,
-            ).reshape(figure.canvas.get_width_height() + (3,))
+            figure_data[plotter_type] = np.asarray(figure.canvas.buffer_rgba(), dtype=np.uint8)
 
         # Compare root-mean-squared error between two images.
         for (fig1_type, fig1), (fig2_type, fig2) in combinations(figure_data.items(), 2):
