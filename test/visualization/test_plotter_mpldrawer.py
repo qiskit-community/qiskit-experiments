@@ -32,6 +32,11 @@ from .mock_plotter import MockPlotter
 class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
     """Test generic plotter with Matplotlib drawer."""
 
+    def tearDown(self):
+        """Clean up test case state"""
+        plt.close("all")
+        super().tearDown()
+
     def test_end_to_end_short(self):
         """Test whether plotter with MplDrawer returns a figure."""
         plotter = MockPlotter(MplDrawer())
@@ -121,7 +126,6 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         # have `buffer_rgba()` which is needed to compute the difference between two figures in this
         # method. We need to set the axes as MplDrawer will use
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
-        plt.close("all")
         plt.switch_backend("Agg")
         axes = {}
         for key in series_names.keys():
