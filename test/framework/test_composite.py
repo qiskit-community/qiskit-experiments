@@ -667,7 +667,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         for exp in exp_list:
             self.assertEqual(exp.analysis.options.option1, opt1_new_val)
 
-
     @data(
         ["0x0", "0x2", "0x3", "0x0", "0x0", "0x1", "0x3", "0x0", "0x2", "0x3"],
         ["00", "10", "11", "00", "00", "01", "11", "00", "10", "11"],
