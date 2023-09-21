@@ -624,6 +624,50 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
         self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)
 
+    def test_composite_analysis_options_cascade(self):
+        """Test setting component analysis options"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
+
+        exp3 = FakeExperiment([0])
+        exp3.analysis = Analysis()
+        exp4 = FakeExperiment([1])
+        exp4.analysis = Analysis()
+        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
+
+        # Set a batch experiment
+        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
+
+        # Set new option to the experiment
+        exp_list = [exp1, exp2, exp3, exp4]
+        opt1_vals = [9000, 8000, 7000, 6000]
+        for exp, opt1_val in zip(exp_list, opt1_vals):
+            exp.analysis.set_options(option1=opt1_val)
+
+        opt1_new_val = 1000
+        batch_exp.analysis.set_options(option1=opt1_new_val, broadcast=False)
+
+        for exp in exp_list:
+            self.assertNotEqual(exp.analysis.options.option1, opt1_new_val)
+
+        batch_exp.analysis.set_options(option1=opt1_new_val, broadcast=True)
+        for exp in exp_list:
+            self.assertEqual(exp.analysis.options.option1, opt1_new_val)
+
+
     @data(
         ["0x0", "0x2", "0x3", "0x0", "0x0", "0x1", "0x3", "0x0", "0x2", "0x3"],
         ["00", "10", "11", "00", "00", "01", "11", "00", "10", "11"],
