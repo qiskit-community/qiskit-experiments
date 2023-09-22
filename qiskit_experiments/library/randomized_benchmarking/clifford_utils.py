@@ -36,7 +36,9 @@ _DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
 _CLIFFORD_COMPOSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_compose_1q.npz")["table"]
 _CLIFFORD_INVERSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_1q.npz")["table"]
-_CLIFFORD_COMPOSE_2Q = scipy.sparse.load_npz(f"{_DATA_FOLDER}/clifford_compose_2q_sparse.npz")
+_CLIFFORD_COMPOSE_2Q = scipy.sparse.lil_matrix(
+    scipy.sparse.load_npz(f"{_DATA_FOLDER}/clifford_compose_2q_sparse.npz")
+)
 _CLIFFORD_INVERSE_2Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_2q.npz")["table"]
 
 
