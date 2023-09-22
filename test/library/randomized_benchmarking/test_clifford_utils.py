@@ -199,10 +199,11 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             self.assertEqual(standard, layered)
 
     def test_num_from_2q_circuit(self):
+        """Check conversion of circuits to integers with num_from_2q_circuit"""
         qc = QuantumCircuit(2)
         qc.h(0)
         num = num_from_2q_circuit(qc)
-        self.assertEqual(num, 1)
+        self.assertEqual(num, 5760)
         qc = qc.decompose()
         with self.assertRaises(QiskitError):
             # raising an error is ok, num_from_2q_circuit does not support all 2-qubit gates
@@ -215,6 +216,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         self.assertEqual(num, 368)
 
     def test_clifford_inverse_table(self):
+        """Check correctness of the Clifford inversion table"""
         for lhs, rhs in enumerate(_CLIFFORD_INVERSE_2Q):
             c = compose_2q(lhs, rhs)
             self.assertEqual(c, 0)
