@@ -212,9 +212,9 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         qc = QuantumCircuit(2)
         qc.cz(1, 0)
         num = num_from_2q_circuit(qc)
+        self.assertEqual(num, 368)
 
     def test_clifford_inverse_table(self):
         for lhs, rhs in enumerate(_CLIFFORD_INVERSE_2Q):
             c = compose_2q(lhs, rhs)
             self.assertEqual(c, 0)
-            print(lhs, rhs, c)
