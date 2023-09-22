@@ -437,7 +437,7 @@ def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
     """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
     lhs = 0
     for rhs in _clifford_2q_nums_from_2q_circuit(qc):
-        lhs = _CLIFFORD_COMPOSE_2Q[lhs, rhs]
+        lhs = _CLIFFORD_COMPOSE_2Q_DENSE[lhs, _clifford_num_to_dense_index[rhs]]
     return lhs
 
 
