@@ -578,7 +578,7 @@ _CLIFFORD_LAYER_NUMS = [
     for layer in [0, 1, 2]
 ]
 
-_valid_sparse_indices = np.unique(list(itertools.chain(*itertools.chain(*_CLIFFORD_LAYER_NUMS))))
+_valid_sparse_indices = np.unique(list(itertools.chain(*itertools.chain(*_CLIFFORD_LAYER_NUMS)))+[0])
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
 _CLIFFORD_COMPOSE_2Q_DENSE = _CLIFFORD_COMPOSE_2Q[:, _valid_sparse_indices].toarray()
 
