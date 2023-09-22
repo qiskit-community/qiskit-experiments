@@ -20,6 +20,7 @@ from ddt import ddt
 from numpy.random import default_rng
 
 from qiskit import QuantumCircuit
+from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
     IGate,
     XGate,
@@ -43,6 +44,7 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     _num_from_layer_indices,
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
+    _CLIFFORD_INVERSE_2Q,
 )
 
 
@@ -195,3 +197,24 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
                 circ.compose(_CLIFFORD_LAYER[layer][idx], inplace=True)
             layered = Clifford(circ)
             self.assertEqual(standard, layered)
+
+    def test_num_from_2q_circuit(self):
+        qc = QuantumCircuit(2)
+        qc.h(0)
+        num = num_from_2q_circuit(qc)
+        self.assertEqual(num, 1)
+        qc = qc.decompose()
+        with self.assertRaises(QiskitError):
+            # raising an error is ok, num_from_2q_circuit does not support all 2-qubit gates
+            num_from_2q_circuit(qc)
+
+        # regression test for using the dense multiplication table
+        qc = QuantumCircuit(2)
+        qc.cz(1, 0)
+        num = num_from_2q_circuit(qc)
+
+    def test_clifford_inverse_table(self):
+        for lhs, rhs in enumerate(_CLIFFORD_INVERSE_2Q):
+            c = compose_2q(lhs, rhs)
+            self.assertEqual(c, 0)
+            print(lhs, rhs, c)
