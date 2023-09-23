@@ -20,7 +20,6 @@ from numbers import Integral
 from typing import Optional, Union, Tuple, Sequence, Iterable
 
 import numpy as np
-import scipy.sparse
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import CircuitInstruction, Qubit
@@ -36,11 +35,11 @@ _DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
 _CLIFFORD_COMPOSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_compose_1q.npz")["table"]
 _CLIFFORD_INVERSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_1q.npz")["table"]
-_CLIFFORD_COMPOSE_2Q = scipy.sparse.lil_matrix(
-    scipy.sparse.load_npz(f"{_DATA_FOLDER}/clifford_compose_2q_sparse.npz")
-)
 _CLIFFORD_INVERSE_2Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_2q.npz")["table"]
-
+_clifford_compose_2q_data = np.load(f"{_DATA_FOLDER}/clifford_compose_2q_dense_selected.npz")
+_CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
+_valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
+_clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -570,18 +569,11 @@ def _clifford_2q_nums_from_2q_circuit(qc: QuantumCircuit) -> Iterable[Integral]:
         yield _num_from_2q_gate(op=inst.operation, qubits=qubits)
 
 
-# Construct a dense multiplication table
+# Construct mapping from Clifford layers to series of Clifford numbers
 _CLIFFORD_LAYER_NUMS = [
     [tuple(_clifford_2q_nums_from_2q_circuit(qc)) for qc in _CLIFFORD_LAYER[layer]]
     for layer in [0, 1, 2]
 ]
-
-_valid_sparse_indices = np.unique(
-    list(itertools.chain(*itertools.chain(*_CLIFFORD_LAYER_NUMS)))
-    + list(_CLIFF_SINGLE_GATE_MAP_2Q.values())
-)
-_clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
-_CLIFFORD_COMPOSE_2Q_DENSE = _CLIFFORD_COMPOSE_2Q[:, _valid_sparse_indices].toarray()
 
 
 @lru_cache(maxsize=None)
