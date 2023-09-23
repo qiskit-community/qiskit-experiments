@@ -188,11 +188,13 @@ if __name__ == "__main__":
     _CLIFFORD_COMPOSE_2Q = gen_clifford_compose_2q_gate()
     scipy.sparse.save_npz("clifford_compose_2q_sparse.npz", _CLIFFORD_COMPOSE_2Q)
 
-    w = _CLIFFORD_COMPOSE_2Q.T
-    valid_sparse_indices = [num for num in range(11520) if w[num, :].nnz == 11520 - 1]
+    _CLIFFORD_COMPOSE_2Q_TRANSPOSED = _CLIFFORD_COMPOSE_2Q.T
+    valid_sparse_indices = [num for num in range(11520) if _CLIFFORD_COMPOSE_2Q_TRANSPOSED[num, :].nnz == 11520 - 1]
+    clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(valid_sparse_indices)}
 
     np.savez_compressed(
         "clifford_compose_2q_dense_selected.npz",
-        table=gen_clifford_inverse_2q(),
+        table=_CLIFFORD_COMPOSE_2Q[:, valid_sparse_indices].toarray(),
         valid_sparse_indices=valid_sparse_indices,
+        clifford_num_to_dense_index=clifford_num_to_dense_index,
     )
