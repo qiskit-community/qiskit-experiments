@@ -38,7 +38,9 @@ _CLIFFORD_INVERSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_1q.npz")["table
 _CLIFFORD_INVERSE_2Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_2q.npz")["table"]
 _clifford_compose_2q_data = np.load(f"{_DATA_FOLDER}/clifford_compose_2q_dense_selected.npz")
 _CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
+# valid indices for the columns of the _CLIFFORD_COMPOSE_2Q_DENSE table
 _valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
+# map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
 
 # Transpilation utilities

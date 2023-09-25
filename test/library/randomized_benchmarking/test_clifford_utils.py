@@ -204,7 +204,8 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         qc.h(0)
         num = num_from_2q_circuit(qc)
         self.assertEqual(num, 5760)
-        qc = qc.decompose()
+        qc = QuantumCircuit(2)
+        qc.u(0, 0, np.pi, 0)
         with self.assertRaises(QiskitError):
             # raising an error is ok, num_from_2q_circuit does not support all 2-qubit gates
             num_from_2q_circuit(qc)
