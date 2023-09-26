@@ -17,10 +17,9 @@ import itertools
 import os
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple, Sequence
+from typing import Optional, Union, Tuple, Sequence, Iterable
 
 import numpy as np
-import scipy.sparse
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import CircuitInstruction, Qubit
@@ -36,11 +35,13 @@ _DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
 _CLIFFORD_COMPOSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_compose_1q.npz")["table"]
 _CLIFFORD_INVERSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_1q.npz")["table"]
-_CLIFFORD_COMPOSE_2Q = scipy.sparse.lil_matrix(
-    scipy.sparse.load_npz(f"{_DATA_FOLDER}/clifford_compose_2q_sparse.npz")
-)
 _CLIFFORD_INVERSE_2Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_2q.npz")["table"]
-
+_clifford_compose_2q_data = np.load(f"{_DATA_FOLDER}/clifford_compose_2q_dense_selected.npz")
+_CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
+# valid indices for the columns of the _CLIFFORD_COMPOSE_2Q_DENSE table
+_valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
+# map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
+_clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -422,8 +423,9 @@ def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
     """Return the composition of 2-qubit clifford integers."""
     num = lhs
     for layer, idx in enumerate(_layer_indices_from_num(rhs)):
-        circ = _CLIFFORD_LAYER[layer][idx]
-        num = _compose_num_with_circuit_2q(num, circ)
+        gate_numbers = _CLIFFORD_LAYER_NUMS[layer][idx]
+        for n in gate_numbers:
+            num = _CLIFFORD_COMPOSE_2Q_DENSE[num, _clifford_num_to_dense_index[n]]
     return num
 
 
@@ -434,17 +436,9 @@ def inverse_2q(num: Integral) -> Integral:
 
 def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
     """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
-    return _compose_num_with_circuit_2q(0, qc)
-
-
-def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
-    """Compose a number that represents a Clifford, with a Clifford circuit, and return the
-    number that represents the resulting Clifford."""
-    lhs = num
-    for inst in qc:
-        qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
-        rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
-        lhs = _CLIFFORD_COMPOSE_2Q[lhs, rhs]
+    lhs = 0
+    for rhs in _clifford_2q_nums_from_2q_circuit(qc):
+        lhs = _CLIFFORD_COMPOSE_2Q_DENSE[lhs, _clifford_num_to_dense_index[rhs]]
     return lhs
 
 
@@ -568,6 +562,20 @@ _CLIFFORD_LAYER = (
 )
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
+
+
+def _clifford_2q_nums_from_2q_circuit(qc: QuantumCircuit) -> Iterable[Integral]:
+    """Yield Clifford numbers that represents the 2Q Clifford circuit."""
+    for inst in qc:
+        qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
+        yield _num_from_2q_gate(op=inst.operation, qubits=qubits)
+
+
+# Construct mapping from Clifford layers to series of Clifford numbers
+_CLIFFORD_LAYER_NUMS = [
+    [tuple(_clifford_2q_nums_from_2q_circuit(qc)) for qc in _CLIFFORD_LAYER[layer]]
+    for layer in [0, 1, 2]
+]
 
 
 @lru_cache(maxsize=None)
