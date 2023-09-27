@@ -1612,7 +1612,7 @@ class ExperimentData:
             pass them on, potentially aborting the experiment (false)
         Raises:
             ExperimentDataSaveFailed: If the save to the database failed.
-        
+
         .. note::
             This method does not save analysis results or figures.
             Use :meth:`save` for general saving of all experiment data.
@@ -1764,12 +1764,19 @@ class ExperimentData:
                     if isinstance(figure, pyplot.Figure):
                         figure = plot_to_svg_bytes(figure)
                     figures_to_create.append((figure, name))
-                self.service.create_figures(
-                    experiment_id=self.experiment_id,
-                    figure_list=figures_to_create,
-                    blocking=True,
-                    max_workers=max_workers,
-                )
+                try:
+                    self.service.create_figures(
+                        experiment_id=self.experiment_id,
+                        figure_list=figures_to_create,
+                        blocking=True,
+                        max_workers=max_workers,
+                    )
+                except Exception as ex:  # pylint: disable=broad-except
+                    LOG.error("Unable to save figures: %s", traceback.format_exc())
+                    if not suppress_errors:
+                        raise ExperimentDataSaveFailed(
+                            f"Figure save failed\nError Message:\n{str(ex)}"
+                        ) from ex
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
