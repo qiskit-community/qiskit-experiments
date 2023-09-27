@@ -1611,9 +1611,10 @@ class ExperimentData:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiment (false)
         Raises:
-            QiskitError: If the save to the database failed
+            ExperimentDataSaveFailed: If the save to the database failed.
+        
         .. note::
-            This method does not save analysis results nor figures.
+            This method does not save analysis results or figures.
             Use :meth:`save` for general saving of all experiment data.
 
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
@@ -1625,7 +1626,10 @@ class ExperimentData:
                 "An experiment service is available, for example, "
                 "when using an IBM Quantum backend."
             )
-            return
+            if suppress_errors:
+                return
+            else:
+                raise ExperimentDataSaveFailed("No service found")
         try:
             handle_metadata_separately = self._metadata_too_large()
             if handle_metadata_separately:
@@ -1656,7 +1660,9 @@ class ExperimentData:
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
             if not suppress_errors:
-                raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
+                raise ExperimentDataSaveFailed(
+                    f"Experiment data save failed\nError Message:\n{str(ex)}"
+                ) from ex
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
