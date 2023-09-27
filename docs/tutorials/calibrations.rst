@@ -34,10 +34,6 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
     This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
     You can install it with ``python -m pip install qiskit-dynamics``.
 
-.. note::
-    This tutorial requires the ``pandas`` package to visualize calibration tables.
-    You can install it with ``python -m pip install pandas``.
-
 .. jupyter-execute::
 
     import pandas as pd
