@@ -18,6 +18,7 @@ import time
 import asteval
 import lmfit
 import numpy as np
+from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
 from uncertainties import unumpy
@@ -222,6 +223,104 @@ def eval_with_uncertainties(
     return wrapfunc(x=x, **sub_params)
 
 
+def shot_weighted_average(
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, float]:
+    """Compute shot based variance and weighted average of the categorized data frame.
+
+    Sample is weighted by the shot number.
+
+    Args:
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
+
+    Returns:
+        Averaged Y value, Y error, and total shots.
+    """
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
+
+    if np.any(shots < -1):
+        # Shot number is unknown
+        return np.mean(yvals), np.nan, -1
+
+    total_shots = np.sum(shots)
+    weights = shots / total_shots
+
+    avg_yval = np.sum(weights * yvals)
+    avg_yerr = np.sqrt(np.sum(weights**2 * yerrs**2))
+
+    return avg_yval, avg_yerr, total_shots
+
+
+def inverse_weighted_variance(
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
+    """Compute inverse weighted variance and weighted average of the categorized data frame.
+
+    Sample is weighted by the inverse of the data variance.
+
+    Args:
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
+
+    Returns:
+        Averaged Y value, Y error, and total shots.
+    """
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
+
+    total_shots = np.sum(shots) if all(shots > 0) else -1
+    weights = 1 / yerrs**2
+    yvar = 1 / np.sum(weights)
+
+    avg_yval = yvar * np.sum(weights * yvals)
+    avg_yerr = np.sqrt(yvar)
+
+    return avg_yval, avg_yerr, total_shots
+
+
+# pylint: disable=unused-argument
+def sample_average(
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
+    """Compute sample based variance and average of the categorized data frame.
+
+    Original variance of the data is ignored and variance is computed with the y values.
+
+    Args:
+        yvals: Y values to average.
+        yerrs: Y errors to average (ignored).
+        shots: Number of shots used to obtain Y value and error.
+
+    Returns:
+        Averaged Y value, Y error, and total shots.
+    """
+    if len(yvals) == 1:
+        return yvals[0], 0.0, shots[0]
+
+    total_shots = np.sum(shots) if all(shots > 0) else -1
+
+    avg_yval = np.mean(yvals)
+    avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))
+
+    return avg_yval, avg_yerr, total_shots
+
+
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     """Return the list of filtered data
 
@@ -249,6 +348,12 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     return filtered_data
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def mean_xy_data(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -369,6 +474,12 @@ def mean_xy_data(
     raise QiskitError(f"Unsupported method {method}")
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def multi_mean_xy_data(
     series: np.ndarray,
     xdata: np.ndarray,
@@ -427,6 +538,12 @@ def multi_mean_xy_data(
     )
 
 
+@deprecate_func(
+    since="0.6",
+    additional_msg="The curve data representation is replaced with dataframe format.",
+    package_name="qiskit-experiments",
+    pending=True,
+)
 def data_sort(
     series: np.ndarray,
     xdata: np.ndarray,

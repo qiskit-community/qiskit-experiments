@@ -133,10 +133,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             },
         )
 
-        curve_data = analysis._run_data_processing(
-            raw_data=expdata1.data() + expdata2.data(),
-            models=analysis._models,
-        )
+        curve_data = analysis._run_data_processing(raw_data=expdata1.data() + expdata2.data())
         self.assertListEqual(curve_data.labels, ["s1", "s2"])
 
         # check data of series1
