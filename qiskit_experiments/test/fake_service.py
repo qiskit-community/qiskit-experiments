@@ -12,12 +12,12 @@
 
 """Fake service class for tests."""
 
-from typing import Optional, List, Dict, Type, Any, Union, Tuple, Callable
-import functools
+from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import json
 from datetime import datetime, timedelta
 import uuid
 
+import pandas as pd
 from qiskit_ibm_experiment import AnalysisResultData
 
 from qiskit_experiments.test.fake_backend import FakeBackend
@@ -28,41 +28,6 @@ from qiskit_experiments.database_service.exceptions import (
 )
 
 
-# Check if PANDAS package is installed
-try:
-    import pandas as pd
-
-    HAS_PANDAS = True
-except ImportError:
-    pd = None
-    HAS_PANDAS = False
-
-
-def requires_pandas(func: Callable) -> Callable:
-    """Function decorator for functions requiring Pandas.
-
-    Args:
-        func: a function requiring Pandas.
-
-    Returns:
-        The decorated function.
-
-    Raises:
-        QiskitError: If Pandas is not installed.
-    """
-
-    @functools.wraps(func)
-    def decorated_func(*args, **kwargs):
-        if not HAS_PANDAS:
-            raise ImportError(
-                f"The pandas python package is required for {func}."
-                "You can install it with 'pip install pandas'."
-            )
-        return func(*args, **kwargs)
-
-    return decorated_func
-
-
 class FakeService:
     """
     This extremely simple database is designated for testing and as a playground for developers.
@@ -71,7 +36,6 @@ class FakeService:
     It implements most of the methods of `DatabaseService`.
     """
 
-    @requires_pandas
     def __init__(self):
         self.exps = pd.DataFrame(
             columns=[

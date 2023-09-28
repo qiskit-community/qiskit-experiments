@@ -112,6 +112,15 @@ class CurveData:
     data_allocation: np.ndarray
     labels: List[str]
 
+    @deprecate_func(
+        since="0.6",
+        additional_msg="CurveData is replaced with 'ScatterTable' with dataframe representation.",
+        removal_timeline="after 0.7",
+        package_name="qiskit-experiments",
+    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def get_subset_of(self, index: Union[str, int]) -> "CurveData":
         """Filter data by series name or index.
 
