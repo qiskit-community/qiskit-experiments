@@ -49,7 +49,6 @@ class BatchExperiment(CompositeExperiment):
         backend: Optional[Backend] = None,
         flatten_results: bool = None,
         analysis: Optional[CompositeAnalysis] = None,
-        generate_figures: Optional[str] = "always",
     ):
         """Initialize a batch experiment.
 
@@ -62,9 +61,6 @@ class BatchExperiment(CompositeExperiment):
                              component experiment results as a separate child
                              ExperimentData container. This kwarg is ignored
                              if the analysis kwarg is used.
-            generate_figures: Optional flag to set the figure generation behavior.
-                If ``always``, figures are always generated. If ``never``, figures are never generated.
-                If ``selective``, figures are generated if the analysis ``quality`` is ``bad``.
             analysis: Optional, the composite analysis class to use. If not
                       provided this will be initialized automatically from the
                       supplied experiments.
@@ -90,12 +86,7 @@ class BatchExperiment(CompositeExperiment):
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
         super().__init__(
-            experiments,
-            qubits,
-            backend=backend,
-            analysis=analysis,
-            flatten_results=flatten_results,
-            generate_figures=generate_figures,
+            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
         )
 
     def circuits(self):
