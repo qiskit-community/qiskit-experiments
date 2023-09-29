@@ -22,7 +22,6 @@ from uncertainties import unumpy as unp
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
 import qiskit_experiments.visualization as vis
-from qiskit_experiments.curve_analysis.curve_data import CurveData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
@@ -122,8 +121,8 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
 
     def _format_data(
         self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
+        curve_data: curve.ScatterTable,
+    ) -> curve.ScatterTable:
         """Postprocessing for the processed dataset.
 
         Args:
@@ -133,20 +132,10 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
             Formatted data.
         """
         # check if the SVD decomposition categorized 0 as 1 by calculating the average slope
-        diff_y = np.diff(unp.nominal_values(curve_data.y), axis=0)
+        diff_y = np.diff(curve_data.yval)
         avg_slope = sum(diff_y) / len(diff_y)
-        if avg_slope[0] > 0:
-            new_y_data = 1 - curve_data.y
-            new_curve_data = CurveData(
-                x=curve_data.x,
-                y=new_y_data,
-                y_err=curve_data.y_err,
-                shots=curve_data.shots,
-                data_allocation=curve_data.data_allocation,
-                labels=curve_data.labels,
-            )
-
-            return super()._format_data(new_curve_data)
+        if avg_slope > 0:
+            curve_data.yval = 1 - curve_data.yval
         return super()._format_data(curve_data)
 
 

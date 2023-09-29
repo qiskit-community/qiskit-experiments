@@ -104,7 +104,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
@@ -156,8 +156,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     def _run_curve_fit(
         self,
-        curve_data: curve.CurveData,
-        models: List[lmfit.Model],
+        curve_data: curve.ScatterTable,
     ) -> curve.CurveFitResult:
         r"""Perform curve fitting on given data collection and fit models.
 
@@ -187,13 +186,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         Args:
             curve_data: Formatted data to fit.
-            models: A list of LMFIT models that are used to build a cost function
-                for the LMFIT minimizer.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        fit_result = super()._run_curve_fit(curve_data, models)
+        fit_result = super()._run_curve_fit(curve_data)
 
         if fit_result and fit_result.params is not None:
             beta = fit_result.params["beta"]

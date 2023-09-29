@@ -121,6 +121,8 @@ To run a method:
 tox -- -n test.python.test_examples.TestPythonExamples.test_all_examples
 ```
 
+Note that tests will fail automatically if they do not finish execution within 60 seconds.
+
 #### STDOUT/STDERR and logging capture
 
 When running tests in parallel using `stestr` either via tox, the Makefile (`make

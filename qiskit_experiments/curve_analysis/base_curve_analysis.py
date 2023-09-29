@@ -38,7 +38,8 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from .curve_data import CurveData, CurveFitResult, ParameterRepr
+from .curve_data import CurveFitResult, ParameterRepr
+from .scatter_table import ScatterTable
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -99,10 +100,15 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     .. rubric:: _create_curve_data
 
-    This method to creates analysis results for the formatted dataset, i.e. data used for the fitting.
+    This method creates analysis results for the formatted dataset, i.e. data used for the fitting.
     Entries are created when the analysis option ``return_data_points`` is ``True``.
     If analysis consists of multiple series, analysis result is created for
     each curve data in the series definitions.
+
+    .. rubric:: _create_figures
+
+    This method creates figures by consuming the scatter table data.
+    Figures are created when the analysis option ``plot`` is ``True``.
 
     .. rubric:: _initialize
 
@@ -276,29 +282,21 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_data_processing(
         self,
         raw_data: List[Dict],
-        models: List[lmfit.Model],
-    ) -> CurveData:
+    ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
-            models: A list of LMFIT models that provide the model name and
-                optionally data sorting keys.
 
         Returns:
             Processed data that will be sent to the formatter method.
-
-        Raises:
-            DataProcessorError: When model is multi-objective function but
-                data sorting option is not provided.
-            DataProcessorError: When key for x values is not found in the metadata.
         """
 
     @abstractmethod
     def _format_data(
         self,
-        curve_data: CurveData,
-    ) -> CurveData:
+        curve_data: ScatterTable,
+    ) -> ScatterTable:
         """Postprocessing for the processed dataset.
 
         Args:
@@ -311,15 +309,12 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @abstractmethod
     def _run_curve_fit(
         self,
-        curve_data: CurveData,
-        models: List[lmfit.Model],
+        curve_data: ScatterTable,
     ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
 
         Args:
             curve_data: Formatted data to fit.
-            models: A list of LMFIT models that are used to build a cost function
-                for the LMFIT minimizer.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
@@ -386,41 +381,52 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         return outcomes
 
+    # pylint: disable=unused-argument
     def _create_curve_data(
         self,
-        curve_data: CurveData,
-        models: List[lmfit.Model],
+        curve_data: ScatterTable,
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
         Args:
             curve_data: Formatted data that is used for the fitting.
-            models: A list of LMFIT models that provides model names
-                to extract subsets of experiment data.
 
         Returns:
             List of analysis result data.
         """
         samples = []
 
-        for model in models:
-            sub_data = curve_data.get_subset_of(model._name)
+        for model_name, sub_data in list(curve_data.groupby("model_name")):
             raw_datum = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value={
-                    "xdata": sub_data.x,
-                    "ydata": sub_data.y,
-                    "sigma": sub_data.y_err,
+                    "xdata": sub_data.xval.to_numpy(),
+                    "ydata": sub_data.yval.to_numpy(),
+                    "sigma": sub_data.yerr.to_numpy(),
                 },
                 extra={
-                    "name": model._name,
+                    "name": model_name,
                     **metadata,
                 },
             )
             samples.append(raw_datum)
 
         return samples
+
+    def _create_figures(
+        self,
+        curve_data: ScatterTable,
+    ) -> List["matplotlib.figure.Figure"]:
+        """Create a list of figures from the curve data.
+
+        Args:
+            curve_data: Scatter data table containing all data points.
+
+        Returns:
+            A list of figures.
+        """
+        return []
 
     def _initialize(
         self,
