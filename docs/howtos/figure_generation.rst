@@ -16,7 +16,7 @@ option ``plot`` to ``False``:
 
     experiment.analysis.set_options(plot = False)    
 
-For composite experiments, there is a ``generate_figures`` parameter which controls how child figures are
+For composite experiments, there is a ``generate_figures`` analysis option which controls how child figures are
 generated. There are three options:
 
 - ``always``: The default behavior, generate figures for each child experiment.
@@ -24,13 +24,14 @@ generated. There are three options:
 - ``selective``: Only generate figures for analysis results where ``quality`` is ``bad``. This is useful
   for large composite experiments where you only want to examine qubits with problems.
 
-This parameter should be set upon composite experiment instantiation:
+This parameter should be set on the analysis of a composite experiment before the analysis runs:
 
 .. jupyter-input::
 
     parallel_exp = ParallelExperiment(
-        [T1(physical_qubits=(i,), delays=delays) for i in range(2)], generate_figures="selective"
+        [T1(physical_qubits=(i,), delays=delays) for i in range(2)]
     )
+    parallel_exp.analysis.set_options(generate_figures="selective")
 
 Discussion
 ----------
