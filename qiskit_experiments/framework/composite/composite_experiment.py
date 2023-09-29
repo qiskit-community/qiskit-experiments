@@ -70,8 +70,7 @@ class CompositeExperiment(BaseExperiment):
         self._num_experiments = len(experiments)
         if analysis is None:
             analysis = CompositeAnalysis(
-                [exp.analysis for exp in self._experiments],
-                flatten_results=flatten_results
+                [exp.analysis for exp in self._experiments], flatten_results=flatten_results
             )
         super().__init__(
             physical_qubits,
