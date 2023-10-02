@@ -124,3 +124,21 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = ZZRamsey((0, 1))
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        # backend is needed for serialization of the metadata in the experiment.
+        backend = FakeVigoV2()
+        t_min = 0
+        t_max = 5e-6
+        num = 50
+
+        ramsey_min_max = ZZRamsey(
+            (0, 1),
+            backend,
+            min_delay=t_min,
+            max_delay=t_max,
+            num_delays=num,
+        )
+        # Check that the circuit are serializable
+        self.assertRoundTripSerializable(ramsey_min_max._transpiled_circuits())

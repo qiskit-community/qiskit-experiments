@@ -125,8 +125,8 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata2 = analysis.run(expdata1, replace_results=True, seed=12345)
         self.assertExperimentDone(expdata2)
 
-        self.assertEqual(expdata1, expdata2)
-        self.assertEqual(expdata1.analysis_results(), expdata2.analysis_results())
+        self.assertEqualExtended(expdata1, expdata2)
+        self.assertEqualExtended(expdata1.analysis_results(), expdata2.analysis_results())
         self.assertEqual(result_ids, list(expdata2._deleted_analysis_results))
 
     def test_analysis_replace_results_false(self):

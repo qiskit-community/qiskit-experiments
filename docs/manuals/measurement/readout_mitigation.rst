@@ -60,7 +60,7 @@ experiments to generate the corresponding mitigators.
     num_qubits = len(qubits)
 
 Standard mitigation experiment
-==============================
+------------------------------
 
 The default mitigation experiment is *local*, meaning error probability
 is measured individually for each qubit. The experiment generates two
@@ -99,7 +99,7 @@ The individual mitigation matrices can be read off the mitigator.
         print()
 
 
-Mitigation Example
+Mitigation example
 ------------------
 
 .. jupyter-execute::

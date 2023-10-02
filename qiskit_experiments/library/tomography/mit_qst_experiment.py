@@ -80,7 +80,7 @@ class MitigatedStateTomography(BatchExperiment):
             conditional_circuit_clbits: Optional, the clbits in the source circuit to
                 be conditioned on when reconstructing the state. If True all circuit
                 clbits will be conditioned on. Enabling this will return a list of
-                reconstrated state components conditional on the values of these clbit
+                reconstructed state components conditional on the values of these clbit
                 values.
             analysis: Optional, a custom tomography analysis instance to use.
                 If ``"default"`` :class:`~.ProcessTomographyAnalysis` will be

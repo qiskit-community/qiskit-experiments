@@ -34,10 +34,6 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
     This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
     You can install it with ``python -m pip install qiskit-dynamics``.
 
-.. note::
-    This tutorial requires the ``pandas`` package to visualize calibration tables.
-    You can install it with ``python -m pip install pandas``.
-
 .. jupyter-execute::
 
     import pandas as pd
@@ -382,7 +378,7 @@ instruction schedule map with this over/under-rotated pulse.
     over_amp = ideal_amp*1.02
     under_amp = ideal_amp*0.98
     print(f"The reported amplitude of the X pulse is {ideal_amp:.4f} which we set as ideal_amp.") 
-    print(f"we use {over_amp:.4f} amplitude for overroation pulse and {under_amp:.4f} for underrotation pulse.")
+    print(f"we use {over_amp:.4f} amplitude for overrotation pulse and {under_amp:.4f} for underrotation pulse.")
     # build the over rotated pulse and add it to the instruction schedule map
     with pulse.build(backend=backend, name="x") as x_over:
         pulse.play(pulse.Drag(x_pulse.duration, over_amp, x_pulse.sigma, x_pulse.beta), d0)
@@ -441,7 +437,7 @@ error but also its sign.
     scale_under = target_angle / (target_angle + dtheta_under)
     print(f"The ideal angle is {target_angle:.2f} rad. We measured a deviation of {dtheta_over:.3f} rad in over-rotated pulse case.")
     print(f"Thus, scale the {over_amp:.4f} pulse amplitude by {scale_over:.3f} to obtain {over_amp*scale_over:.5f}.")
-    print(f"On the other hand, we measued a deviation of {dtheta_under:.3f} rad in under-rotated pulse case.")
+    print(f"On the other hand, we measured a deviation of {dtheta_under:.3f} rad in under-rotated pulse case.")
     print(f"Thus, scale the {under_amp:.4f} pulse amplitude by {scale_under:.3f} to obtain {under_amp*scale_under:.5f}.")
 
 

@@ -266,6 +266,11 @@ every logic defined in ``AnalysisA``.
 Curve Analysis workflow
 -----------------------
 
+.. warning::
+
+    :class:`CurveData` dataclass is replaced with :class:`.ScatterTable` dataframe.
+    This class will be deprecated and removed in the future release.
+
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 

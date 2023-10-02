@@ -138,6 +138,18 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         with self.assertRaises(ValueError):
             exp.set_experiment_options(stark_freq_offset=-10e6)
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit round trip JSON serialization"""
+        # backend=None due to bug in serialization of backend obj.
+        backend = FakeHanoiV2()
+        exp = StarkRamseyXY(
+            physical_qubits=[0],
+            stark_amp=0.1,
+            backend=backend,
+            delays=np.linspace(0, 10e-6, 5),
+        )
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
+
 
 @ddt
 class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):

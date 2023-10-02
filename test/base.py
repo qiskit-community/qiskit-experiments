@@ -13,11 +13,13 @@
 Qiskit Experiments test case class
 """
 
+import os
 import json
 import pickle
 import warnings
 from typing import Any, Callable, Optional
 
+import fixtures
 import uncertainties
 from qiskit.test import QiskitTestCase
 from qiskit.utils.deprecation import deprecate_func
@@ -30,9 +32,16 @@ from qiskit_experiments.framework import (
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
 
+# Fail tests that take longer than this
+TEST_TIMEOUT = os.environ.get("TEST_TIMEOUT", 60)
+
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
+
+    def setUp(self):
+        super().setUp()
+        self.useFixture(fixtures.Timeout(TEST_TIMEOUT, gentle=True))
 
     @classmethod
     def setUpClass(cls):
