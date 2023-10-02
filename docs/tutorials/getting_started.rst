@@ -394,3 +394,16 @@ into one level:
 
     for result in parallel_data.analysis_results():
         print(result)
+
+Broadcating analysis option to child experiments
+-----------------------------
+
+If we would like to set analysis options to each of the child experiments, we can use the keyword
+'broadcast' when configuring an analysis option for a composite experiment.
+
+.. jupyter-execute::
+
+    parallel_exp.analysis.set_options(plot=False, broadcast=True)
+
+When the 'broadcast' flag is set, the specified option will be applied to each child experiment.
+In this instance, the analysis will not generate a figure for the child experiment after the analysis.
