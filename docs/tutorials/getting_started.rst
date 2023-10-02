@@ -396,7 +396,7 @@ into one level:
         print(result)
 
 Broadcating analysis option to child experiments
------------------------------
+------------------------------------------------
 
 If we would like to set analysis options to each of the child experiments, we can use the keyword
 'broadcast' when configuring an analysis option for a composite experiment.
