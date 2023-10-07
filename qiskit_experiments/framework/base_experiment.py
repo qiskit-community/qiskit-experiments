@@ -300,12 +300,15 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Returns:
             dict: A dictionary containing information about job distribution.
+            
                 - "Total number of circuits in the experiment": Total number of
-                circuits in the experiment.
-                - "Maximum number of circuits": Maximum number of circuits in
-                one Job
-                - "Total number of jobs": Number of jobs needed for
-                distribution.
+                  circuits in the experiment.
+                  
+                - "Maximum number of circuits per job": Maximum number of 
+                  circuits in one job based on backend and experiment settings.
+                  
+                - "Total number of jobs": Number of jobs needed to run this 
+                  experiment on the currently set backend.
 
         Raises:
             QiskitError: if backend is not specified.
