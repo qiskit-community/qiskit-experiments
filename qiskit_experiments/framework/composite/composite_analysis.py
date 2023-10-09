@@ -97,7 +97,7 @@ class CompositeAnalysis(BaseAnalysis):
         return self._analyses[index]
 
     def set_options(self, **fields):
-        """Set the analysis options for the experiment. If the `broadcast` key-word is passed, the
+        """Set the analysis options for the experiment. If the `broadcast` argument is passed and set to 'True', the
         analysis options will cascade to the children experiments."""
         super().set_options(**fields)
         if fields.get("broadcast", None):

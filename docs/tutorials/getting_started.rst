@@ -396,7 +396,7 @@ into one level:
         print(result)
 
 Broadcasting analysis options to child experiments
-------------------------------------------------
+--------------------------------------------------
 
 Use the `broadcast` parameter to set analysis options to each of the child experiments.
 
