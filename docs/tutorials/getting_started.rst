@@ -398,8 +398,7 @@ into one level:
 Broadcasting analysis options to child experiments
 ------------------------------------------------
 
-If we would like to set analysis options to each of the child experiments, we can use the keyword
-'broadcast' when configuring an analysis option for a composite experiment.
+Use the `broadcast` parameter to set analysis options to each of the child experiments.
 
 .. jupyter-execute::
 
