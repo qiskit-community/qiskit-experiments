@@ -395,7 +395,7 @@ into one level:
     for result in parallel_data.analysis_results():
         print(result)
 
-Broadcating analysis option to child experiments
+Broadcasting analysis options to child experiments
 ------------------------------------------------
 
 If we would like to set analysis options to each of the child experiments, we can use the keyword
