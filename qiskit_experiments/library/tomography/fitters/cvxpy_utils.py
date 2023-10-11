@@ -81,6 +81,7 @@ def solve_iteratively(
                        when solving the problem
         scale: Scale factor for increasing the initial_iters up to
                max_iters at each step (Default: 2).
+        solver: The solver to use. Defaults to the Splitting Conic Solver.
         solve_kwargs: kwargs for problem.solve method.
 
     Raises:
