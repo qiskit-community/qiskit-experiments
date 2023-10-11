@@ -1,27 +1,11 @@
 ---
 features:
   - |
-    Introducing the following methods to :class: `BaseExperiment`
-    -------------------------------------------------------------------
-    :math: `BaseExperiment._max_circuit`: This method will calculate the
-    maximum number of circuits that can be included in a single job.
-    :math:`BaseExperiment.job_info`: This method will give information about
-    job distribution for the experiment on a specific.
-  - |
-    Refactor :math:`BaseExperiment._run_jobs`
-    ----------------------------------------
-    :math:`BaseExperiment._run_jobs`:The existing _run_jobs() method will be 
-    refactored to make use of the _max_circuits() method. This change will
-    enhance code readability and maintainability by segregating the logic
-    related to job distribution from the actual job execution logic.
-  - |
-    Added unit test method to :class:`TestFramework`
-    ---------------------------------------------
-    :math:`TestFramework.test_max_circuits` and
-    :math:`TestFramework.test_job_info` these tests ensure that added methods 
-    functioning correctly.
+    A new method :meth:`BaseExperiment.job_info` has been added that will
+    output the number of jobs the experiment is expected to be split into
+    based on the provided backend.
   - |
     Refer to issue
     `#1247 https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1247`
     for more details.
-
+    

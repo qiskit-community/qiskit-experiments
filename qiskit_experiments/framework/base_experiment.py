@@ -277,9 +277,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             backend = self.backend
         self.backend = backend
         # Get max circuits for job splitting
-        max_circuits_option = getattr(self.experiment_options,
-                                      "max_circuits",
-                                      None)
+        max_circuits_option = getattr(self.experiment_options, "max_circuits", None)
         max_circuits_backend = self._backend_data.max_circuits
 
         if max_circuits_option and max_circuits_backend:
@@ -295,19 +293,20 @@ class BaseExperiment(ABC, StoreInitArgs):
         backend.
 
         Args:
-            backend (Backend): The backend for which to get job distribution
-            information.
+            backend: Optional, the backend for which to get job distribution
+            information. If not specified, the experiment must already have a
+            set backend.
 
         Returns:
             dict: A dictionary containing information about job distribution.
-            
+
                 - "Total number of circuits in the experiment": Total number of
                   circuits in the experiment.
-                  
-                - "Maximum number of circuits per job": Maximum number of 
+
+                - "Maximum number of circuits per job": Maximum number of
                   circuits in one job based on backend and experiment settings.
-                  
-                - "Total number of jobs": Number of jobs needed to run this 
+
+                - "Total number of jobs": Number of jobs needed to run this
                   experiment on the currently set backend.
 
         Raises:
@@ -324,35 +323,28 @@ class BaseExperiment(ABC, StoreInitArgs):
         return {
             "Total number of circuits in the experiment": total_circuits,
             "Maximum number of circuits per job": max_circuits,
-            "Total number of jobs": num_jobs
+            "Total number of jobs": num_jobs,
         }
 
-    def _run_jobs(
-            self,
-            circuits: List[QuantumCircuit],
-            backend: Backend = None,
-            **run_options) -> List[Job]:
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
-        max_circuits = self._max_circuits(backend)
+        max_circuits = self._max_circuits(self.backend)
 
         # Run experiment jobs
         if max_circuits and (len(circuits) > max_circuits):
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i:i + max_circuits] for i in range(0,
-                                                            len(circuits),
-                                                            max_circuits)
+                circuits[i : i + max_circuits] for i in range(0, len(circuits), max_circuits)
             ]
         else:
             # Run as single job
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = [self.backend.run(circs, **run_options) for circs in
-                job_circuits]
+        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
         return jobs
-    
+
     @abstractmethod
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.

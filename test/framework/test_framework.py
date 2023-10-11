@@ -292,13 +292,11 @@ class TestFramework(QiskitExperimentsTestCase):
         # set backend
         if backend is None:
             if exp.backend is None:
-                exp.assertRaise(QiskitError)
+                self.assertRaises(QiskitError)
             backend = exp.backend
         exp.backend = backend
         # Get max circuits for job splitting
-        max_circuits_option = getattr(exp.experiment_options,
-                                      "max_circuits",
-                                      None)
+        max_circuits_option = getattr(exp.experiment_options, "max_circuits", None)
         max_circuits_backend = exp._backend_data.max_circuits
         if max_circuits_option and max_circuits_backend:
             result = min(max_circuits_option, max_circuits_backend)
@@ -308,7 +306,6 @@ class TestFramework(QiskitExperimentsTestCase):
             result = max_circuits_backend
 
         self.assertEqual(exp._max_circuits(backend=backend), result)
-
 
     @ddt.data(None, 1, 10, 100)
     def test_job_info(self, max_experiments):
@@ -339,7 +336,7 @@ class TestFramework(QiskitExperimentsTestCase):
         job_info = {
             "Total number of circuits in the experiment": num_circuits,
             "Maximum number of circuits per job": max_experiments,
-            "Total number of jobs": num_jobs
+            "Total number of jobs": num_jobs,
         }
 
         self.assertEqual(exp.job_info(backend=backend), job_info)
