@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.8'
       - name: Install Deps
-        run: pip install -U twine wheel
+        run: pip install -U wheel
       - name: Build Artifacts
         run: |
           python setup.py sdist
@@ -28,5 +28,3 @@ jobs:
           path: ./dist/qiskit*
       - name: Publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
