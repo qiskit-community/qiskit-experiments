@@ -404,5 +404,6 @@ Use the `broadcast` parameter to set analysis options to each of the child exper
 
     parallel_exp.analysis.set_options(plot=False, broadcast=True)
 
-When the `broadcast` flag is set to `True`, the specified option will be applied to each child experiment.
+If the child experiment inherits from :class:`.CompositeExperiment` (such as :class:`.ParallelExperiment`
+and :class:`.BatchExperiment` classes), this process will continue to work recursively.
 In this instance, the analysis will not generate a figure for the child experiment after the analysis.
