@@ -100,14 +100,15 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 class TestSpecializations(QiskitExperimentsTestCase):
     """Test the specialized versions of the calibration."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Setup the tests"""
-        super().setUp()
+        super().setUpClass()
 
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
-        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
+        cls.backend = SingleTransmonTestBackend(noise=False)
+        cls.cals = Calibrations.from_backend(cls.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
@@ -119,12 +120,12 @@ class TestSpecializations(QiskitExperimentsTestCase):
             with pulse.frequency_offset(-300e6, d0):
                 pulse.play(pulse.Drag(Parameter("duration"), Parameter("amp"), 40, 0.0), d0)
 
-        self.cals.add_schedule(x12, 0)
-        self.cals.add_schedule(sx12, 0)
-        self.cals.add_parameter_value(0.4, "amp", 0, "x12")
-        self.cals.add_parameter_value(0.2, "amp", 0, "sx12")
-        self.cals.add_parameter_value(160, "duration", 0, "x12")
-        self.cals.add_parameter_value(160, "duration", 0, "sx12")
+        cls.cals.add_schedule(x12, 0)
+        cls.cals.add_schedule(sx12, 0)
+        cls.cals.add_parameter_value(0.4, "amp", 0, "x12")
+        cls.cals.add_parameter_value(0.2, "amp", 0, "sx12")
+        cls.cals.add_parameter_value(160, "duration", 0, "x12")
+        cls.cals.add_parameter_value(160, "duration", 0, "sx12")
 
     def test_ef_circuits(self):
         """Test that we get the expected circuits with calibrations for the EF experiment."""
