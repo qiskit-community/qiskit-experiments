@@ -38,6 +38,8 @@ from dateutil import tz
 from matplotlib import pyplot
 from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
+from qiskit.result import marginal_distribution
+from qiskit.result.postprocess import format_counts_memory
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
@@ -795,6 +797,116 @@ class ExperimentData:
                     self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
+    
+    def _add_data(
+            self,
+            component_expdata: List[ExperimentData],
+            data: Union[Result, List[Result], Dict, List[Dict]],
+        ) -> None:
+            """Add experiment data.
+
+            Args:
+                data: Experiment data to add. Several types are accepted for convenience:
+
+                    * Result: Add data from this ``Result`` object.
+                    * List[Result]: Add data from the ``Result`` objects.
+                    * Dict: Add this data.
+                    * List[Dict]: Add this list of data.
+
+            Raises:
+                TypeError: If the input data type is invalid.
+            """
+            #TODO: Continue from here
+
+            if not isinstance(data, list):
+                data = [data]
+            
+            # self._marginalized_component_data()
+            # Directly add non-job data
+            marginalized_data = self._marginalized_component_data(data)
+
+            with self._result_data.lock:
+                for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
+                    # Clear any previously stored data and add marginalized data
+                    sub_expdata._result_data.clear()
+                    sub_expdata.add_data(sub_data)
+
+    def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
+        """Return marginalized data for component experiments.
+
+        Args:
+            composite_data: a list of composite experiment circuit data.
+
+        Returns:
+            A List of lists of marginalized circuit data for each component
+            experiment in the composite experiment.
+        """
+        # Marginalize data
+        marginalized_data = {}
+        for datum in composite_data:
+            metadata = datum.get("metadata", {})
+
+            # Add marginalized data to sub experiments
+            if "composite_clbits" in metadata:
+                composite_clbits = metadata["composite_clbits"]
+            else:
+                composite_clbits = None
+
+            # Pre-process the memory if any to avoid redundant calls to format_counts_memory
+            f_memory = self._format_memory(datum, composite_clbits)
+
+            for i, index in enumerate(metadata["composite_index"]):
+                if index not in marginalized_data:
+                    # Initialize data list for marginalized
+                    marginalized_data[index] = []
+                sub_data = {"metadata": metadata["composite_metadata"][i]}
+                if "counts" in datum:
+                    if composite_clbits is not None:
+                        sub_data["counts"] = marginal_distribution(
+                            counts=datum["counts"],
+                            indices=composite_clbits[i],
+                        )
+                    else:
+                        sub_data["counts"] = datum["counts"]
+                if "memory" in datum:
+                    if composite_clbits is not None:
+                        # level 2
+                        if f_memory is not None:
+                            idx = slice(
+                                -1 - composite_clbits[i][-1], -composite_clbits[i][0] or None
+                            )
+                            sub_data["memory"] = [shot[idx] for shot in f_memory]
+                        # level 1
+                        else:
+                            mem = np.array(datum["memory"])
+
+                            # Averaged level 1 data
+                            if len(mem.shape) == 2:
+                                sub_data["memory"] = mem[composite_clbits[i]].tolist()
+                            # Single-shot level 1 data
+                            if len(mem.shape) == 3:
+                                sub_data["memory"] = mem[:, composite_clbits[i]].tolist()
+                    else:
+                        sub_data["memory"] = datum["memory"]
+                marginalized_data[index].append(sub_data)
+
+        # Sort by index
+        return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
+
+    @staticmethod
+    def _format_memory(datum: Dict, composite_clbits: List):
+        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
+        f_memory = None
+        if (
+            "memory" in datum
+            and composite_clbits is not None
+            and isinstance(datum["memory"][0], str)
+        ):
+            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
+            header = {"memory_slots": num_cbits}
+            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
+
+        return f_memory
 
     def add_jobs(
         self,

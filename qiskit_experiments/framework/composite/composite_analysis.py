@@ -124,13 +124,27 @@ class CompositeAnalysis(BaseAnalysis):
     def _run_analysis(self, experiment_data: ExperimentData):
         # Return list of experiment data containers for each component experiment
         # containing the marginalized data from the composite experiment
-        component_expdata = self._component_experiment_data(experiment_data)
+        component_expdata = []
+        if not self._flatten_results:
+            # Retrieve child data for component experiments for updating
+            component_index = experiment_data.metadata.get("component_child_index", [])
+            if not component_index:
+                raise AnalysisError("Unable to extract component child experiment data")
+            component_expdata = [experiment_data.child_data(i) for i in component_index]
+        else:
+            # Initialize temporary ExperimentData containers for
+            # each component experiment to analysis on. These will
+            # not be saved but results and figures will be collected
+            # from them
+            component_expdata = self._initialize_component_experiment_data(experiment_data)
+
+        experiment_data._add_data(experiment_data.child_data(),experiment_data.data())
 
         # Run the component analysis on each component data
         for i, sub_expdata in enumerate(component_expdata):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            self._analyses[i].run(sub_expdata, replace_results=True)
+            sub_expdata._result_data = self._analyses[i].run(sub_expdata, replace_results=True)._result_data
 
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning
@@ -146,48 +160,6 @@ class CompositeAnalysis(BaseAnalysis):
                 res.experiment_id = experiment_data.experiment_id
             return analysis_results, figures
         return [], []
-
-    def _component_experiment_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
-        """Return a list of marginalized experiment data for component experiments.
-
-        Args:
-            experiment_data: a composite experiment data container.
-
-        Returns:
-            The list of analysis-ready marginalized experiment data for each
-            component experiment.
-
-        Raises:
-            AnalysisError: If the component experiment data cannot be extracted.
-        """
-        if not self._flatten_results:
-            # Retrieve child data for component experiments for updating
-            component_index = experiment_data.metadata.get("component_child_index", [])
-            if not component_index:
-                raise AnalysisError("Unable to extract component child experiment data")
-            component_expdata = [experiment_data.child_data(i) for i in component_index]
-        else:
-            # Initialize temporary ExperimentData containers for
-            # each component experiment to analysis on. These will
-            # not be saved but results and figures will be collected
-            # from them
-            component_expdata = self._initialize_component_experiment_data(experiment_data)
-
-        # Compute marginalize data for each component experiment
-        marginalized_data = self._marginalized_component_data(experiment_data.data())
-
-        # Add the marginalized component data and component job metadata
-        # to each component child experiment. Note that this will clear
-        # any currently stored data in the experiment. Since copying of
-        # child data is handled by the `replace_results` kwarg of the
-        # parent container it is safe to always clear and replace the
-        # results of child containers in this step
-        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-            # Clear any previously stored data and add marginalized data
-            sub_expdata._result_data.clear()
-            sub_expdata.add_data(sub_data)
-
-        return component_expdata
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
