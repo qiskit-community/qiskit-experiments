@@ -1,5 +1,7 @@
 black~=22.0
+fixtures
 stestr
+testtools
 pylint~=2.16.2
 astroid~=2.14.2  # Must be kept aligned to what pylint wants
 jinja2==3.0.3
