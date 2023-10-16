@@ -37,8 +37,11 @@ Mock backends for running simulated jobs.
     MockIQParallelBackend
     T2HahnBackend
     NoisyDelayAerBackend
+<<<<<<< HEAD
     PulseBackend
     SingleTransmonTestBackend
+=======
+>>>>>>> 73d0a03 (Update `HamiltonianGate` path and add tolerance to `PulseBackend` (#1280))
 
 Helpers
 =======

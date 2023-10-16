@@ -32,7 +32,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
@@ -100,8 +100,13 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
+<<<<<<< HEAD
         self.backend = SingleTransmonTestBackend(noise=False)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
+=======
+        cls.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
+        cls.cals = Calibrations.from_backend(cls.backend, libraries=[library])
+>>>>>>> 73d0a03 (Update `HamiltonianGate` path and add tolerance to `PulseBackend` (#1280))
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
