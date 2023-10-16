@@ -41,7 +41,7 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - relative error of amp is less than 10 percent
             - relative error of tau is less than 10 percent
             - relative error of freq is less than 10 percent
@@ -51,7 +51,7 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
         freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(amp, fraction=0.1),
             curve.utils.is_error_not_significant(tau, fraction=0.1),
             curve.utils.is_error_not_significant(freq, fraction=0.1),

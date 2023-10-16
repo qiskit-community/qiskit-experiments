@@ -126,7 +126,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared less than 3,
+            - a reduced chi-squared less than 3 and greater than zero,
             - a peak within the scanned frequency range,
             - a standard deviation that is not larger than the scanned frequency range,
             - a standard deviation that is wider than the smallest frequency increment,
@@ -149,7 +149,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             fit_data.x_range[0] <= fit_freq.n <= fit_data.x_range[1],
             1.5 * freq_increment < fit_kappa.n,
             fit_width_ratio < 0.25,
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(fit_kappa),
             snr > 2,
         ]

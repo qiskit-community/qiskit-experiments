@@ -194,13 +194,13 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three,
+            - a reduced chi-squared lower than three and greater than zero,
             - an error on the frequency smaller than the frequency.
         """
         fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(fit_freq),
         ]
 
