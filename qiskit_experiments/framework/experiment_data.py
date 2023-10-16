@@ -1311,6 +1311,12 @@ class ExperimentData:
                 raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
             figure_key = self._figures.keys()[figure_key]
 
+        # All figures must have '.svg' in their names when added, as the extension is added to the key
+        # name in the `add_figures()` method of this class.
+        if isinstance(figure_key, str):
+            if ".svg" not in figure_key:
+                figure_key += ".svg"
+
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
