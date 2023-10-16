@@ -332,6 +332,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
         experiment_data: ExperimentData,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
 
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
+
         analysis_results = []
         figures = []
 
@@ -354,6 +363,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 quality = analysis._evaluate_quality(fit_data)
             else:
                 quality = "bad"
+
+            # After the quality is determined, plot can become a boolean flag for whether
+            # to generate the figure
+            plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
             if self.options.return_fit_parameters:
                 # Store fit status overview entry regardless of success.
@@ -429,7 +442,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         else:
             composite_results = []
 
-        if self.options.plot:
+        if plot_bool:
             self.plotter.set_supplementary_data(
                 fit_red_chi={k: v.reduced_chisq for k, v in fit_dataset.items() if v.success},
                 primary_results=composite_results,

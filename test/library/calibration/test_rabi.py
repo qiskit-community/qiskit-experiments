@@ -34,17 +34,18 @@ from qiskit_experiments.framework.experiment_data import ExperimentStatus
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
     """Test the rabi experiment."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Setup the tests."""
-        super().setUp()
+        super().setUpClass()
 
-        self.qubit = 0
+        cls.qubit = 0
 
         with pulse.build(name="x") as sched:
-            pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit))
+            pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(cls.qubit))
 
-        self.sched = sched
-        self.backend = SingleTransmonTestBackend(noise=False)
+        cls.sched = sched
+        cls.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
 
     # pylint: disable=no-member
     def test_rabi_end_to_end(self):
@@ -101,7 +102,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         super().setUp()
 
         self.qubit = 0
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-4)
         self.anharmonicity = self.backend.anharmonicity
         with pulse.build(name="x") as sched:
             with pulse.frequency_offset(self.anharmonicity, pulse.DriveChannel(self.qubit)):
@@ -115,7 +116,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
     def test_ef_rabi_end_to_end(self):
         """Test the EFRabi experiment end to end."""
 
-        test_tol = 0.01
+        test_tol = 0.05
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.

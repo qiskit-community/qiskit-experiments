@@ -160,8 +160,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
-            plot (bool): Set ``True`` to create figure for fit result.
-                This is ``True`` by default.
+            plot (bool): Set ``True`` to create figure for fit result or ``False`` to
+                not create a figure. This overrides the behavior of ``generate_figures``.
             return_fit_parameters (bool): Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``True``.
             return_data_points (bool): Set ``True`` to include in the analysis result
@@ -213,7 +213,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
-        options.plot = True
         options.return_fit_parameters = True
         options.return_data_points = False
         options.data_processor = None
@@ -333,7 +332,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Returns:
             String that represents fit result quality. Usually "good" or "bad".
         """
-        if fit_data.reduced_chisq < 3.0:
+        if 0 < fit_data.reduced_chisq < 3.0:
             return "good"
         return "bad"
 
