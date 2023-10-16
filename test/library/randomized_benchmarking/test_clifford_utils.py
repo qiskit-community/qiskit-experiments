@@ -16,7 +16,7 @@ A Tester for the Clifford utilities
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
-from ddt import ddt
+from ddt import ddt, data
 from numpy.random import default_rng
 
 from qiskit import QuantumCircuit
@@ -32,7 +32,7 @@ from qiskit.circuit.library import (
     SXGate,
     RZGate,
 )
-from qiskit.quantum_info import Operator, Clifford
+from qiskit.quantum_info import Operator, Clifford, random_clifford
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     CliffordUtils,
     num_from_1q_circuit,
@@ -45,6 +45,7 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
     _CLIFFORD_INVERSE_2Q,
+    _synthesize_clifford,
 )
 
 
@@ -221,3 +222,16 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         for lhs, rhs in enumerate(_CLIFFORD_INVERSE_2Q):
             c = compose_2q(lhs, rhs)
             self.assertEqual(c, 0)
+
+    @data(1, 2, 3, 4)
+    def test_clifford_synthesis(self, num_qubits):
+        """Check if clifford synthesis does not change Clifford"""
+        basis_gates = tuple(["rz", "h", "cz"])
+        coupling_tuple = (
+            None if num_qubits == 1 else tuple((i, i + 1) for i in range(num_qubits - 1))
+        )
+        for seed in range(10):
+            expected = random_clifford(num_qubits=num_qubits, seed=seed)
+            circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
+            synthesized = Clifford(circuit)
+            self.assertEqual(expected, synthesized)

@@ -29,6 +29,8 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.transpiler import CouplingMap, PassManager
+from qiskit.transpiler.passes.synthesis.high_level_synthesis import HLSConfig, HighLevelSynthesis
 from qiskit.utils.deprecation import deprecate_func
 
 _DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
@@ -121,15 +123,55 @@ def _truncate_inactive_qubits(
     return res
 
 
-def _synthesize_clifford_circuit(
-    circuit: QuantumCircuit, basis_gates: Tuple[str]
+def _synthesize_clifford(
+    clifford: Union[Clifford, QuantumCircuit],
+    basis_gates: Optional[Tuple[str]],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+    method: str = "rb_default",
 ) -> QuantumCircuit:
-    # synthesizes clifford circuits using given basis gates, for use during
-    # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
+    """Return the circuit of a Clifford element. The resulting instruction contains
+    a circuit definition with ``basis_gates`` and it complies with ``coupling_tuple``.
+
+    Args:
+        clifford: Clifford element to be converted
+        basis_gates: basis gates to use in the conversion
+        coupling_tuple: coupling map to use in the conversion in the form of tuple of edges
+        method: conversion algorithm name
+
+    Returns:
+        Synthesized circuit
+    """
+    qc = clifford
+    if isinstance(qc, Clifford):
+        qc = QuantumCircuit(clifford.num_qubits, name=str(clifford))
+        qc.append(clifford, qc.qubits)
+    return _synthesize_clifford_circuit(
+        qc, basis_gates=basis_gates, coupling_tuple=coupling_tuple, method=method
+    )
 
 
-@lru_cache(maxsize=None)
+def _synthesize_clifford_circuit(
+    circuit: QuantumCircuit,
+    basis_gates: Optional[Tuple[str]],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+    method: str = "rb_default",
+) -> QuantumCircuit:
+    # synthesizes clifford circuits using given basis gates.
+    if basis_gates:
+        basis_gates = list(basis_gates)
+    coupling_map = CouplingMap(coupling_tuple) if coupling_tuple else None
+    hls_config = HLSConfig(clifford=[method])
+    pm = PassManager([HighLevelSynthesis(hls_config=hls_config, coupling_map=coupling_map)])
+    circuit = pm.run(circuit)
+    return transpile(
+        circuit,
+        basis_gates=basis_gates,
+        coupling_map=coupling_map,
+        optimization_level=1,
+    )
+
+
+@lru_cache(maxsize=256)
 def _clifford_1q_int_to_instruction(
     num: Integral, basis_gates: Optional[Tuple[str]]
 ) -> Instruction:
@@ -138,9 +180,11 @@ def _clifford_1q_int_to_instruction(
 
 @lru_cache(maxsize=11520)
 def _clifford_2q_int_to_instruction(
-    num: Integral, basis_gates: Optional[Tuple[str]]
+    num: Integral,
+    basis_gates: Optional[Tuple[str]],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
 ) -> Instruction:
-    return CliffordUtils.clifford_2_qubit_circuit(num, basis_gates).to_instruction()
+    return CliffordUtils.clifford_2_qubit_circuit(num, basis_gates, coupling_tuple).to_instruction()
 
 
 # The classes VGate and WGate are not actually used in the code - we leave them here to give
@@ -281,14 +325,19 @@ class CliffordUtils:
 
     @classmethod
     @lru_cache(maxsize=11520)
-    def clifford_2_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str, ...]] = None):
+    def clifford_2_qubit_circuit(
+        cls,
+        num,
+        basis_gates: Optional[Tuple[str, ...]] = None,
+        coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+    ):
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
         for layer, idx in enumerate(_layer_indices_from_num(num)):
             if basis_gates:
-                layer_circ = _transformed_clifford_layer(layer, idx, basis_gates)
+                layer_circ = _transformed_clifford_layer(layer, idx, basis_gates, coupling_tuple)
             else:
                 layer_circ = _CLIFFORD_LAYER[layer][idx]
             _circuit_compose(qc, layer_circ, qubits=(0, 1))
@@ -578,13 +627,16 @@ _CLIFFORD_LAYER_NUMS = [
 ]
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=256)
 def _transformed_clifford_layer(
-    layer: int, index: Integral, basis_gates: Tuple[str, ...]
+    layer: int,
+    index: Integral,
+    basis_gates: Tuple[str, ...],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
 ) -> QuantumCircuit:
     # Return the index-th quantum circuit of the layer translated with the basis_gates.
     # The result is cached for speed.
-    return _synthesize_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates)
+    return _synthesize_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates, coupling_tuple)
 
 
 def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:

@@ -12,13 +12,14 @@
 """
 Standard RB Experiment class.
 """
-import logging
 import functools
+import logging
 from collections import defaultdict
 from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence, Tuple
+from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
 
 import numpy as np
+import rustworkx as rx
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -29,11 +30,8 @@ from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
-from qiskit.transpiler import CouplingMap
-
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
-
 from .clifford_utils import (
     CliffordUtils,
     compose_1q,
@@ -43,6 +41,7 @@ from .clifford_utils import (
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
     _transpile_clifford_circuit,
+    _synthesize_clifford,
 )
 from .rb_analysis import RBAnalysis
 
@@ -147,6 +146,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
             full_sampling (bool): If True all Cliffords are independently sampled for
                 all lengths. If False for sample of lengths longer sequences are constructed
                 by appending additional Clifford samples to shorter sequences.
+            clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
+                for building circuits of RB sequences.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -154,6 +155,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples=None,
             seed=None,
             full_sampling=None,
+            clifford_synthesis_method="rb_default",
         )
 
         return options
@@ -211,64 +213,52 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
-    def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
-        """Get sorted basis gates to use in basis transformation during circuit generation.
+    def _get_synthesis_options(self) -> Dict[str, Optional[Any]]:
+        """Get options for Clifford synthesis from the backend information as a dictionary.
 
-        - Return None if this experiment is an RB with 3 or more qubits.
-        - Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.
-        - Return None if all 2q-gates supported on the physical qubits of the backend are one-way
-        directed (e.g. cx(0, 1) is supported but cx(1, 0) is not supported).
-
-        In all those case when None are returned, basis transformation will be skipped in the
-        circuit generation step (i.e. :meth:`circuits`) and it will be done in the successive
-        transpilation step (i.e. :meth:`_transpiled_circuits`) that calls :func:`transpile`.
+        The options includes:
+        - "basis_gates": Sorted basis gate names.
+            Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.
+        - "coupling_tuple": Reduced coupling map in the form of tuple of edges in the coupling graph.
+            Return None if no coupling map are supplied via ``backend`` or ``transpile_options``.
 
         Returns:
             Sorted basis gate names.
         """
-        # 3 or more qubits case: Return None (skip basis transformation in circuit generation)
-        if self.num_qubits > 2:
-            return None
+        basis_gates = self.transpile_options.get("basis_gates", [])
+        coupling_map = self.transpile_options.get("coupling_map", None)
+        if coupling_map:
+            coupling_map = coupling_map.reduce(self.physical_qubits)
+        if not (basis_gates and coupling_map) and self.backend:
+            if isinstance(self.backend, BackendV2) and self.backend.target:
+                backend_basis_gates = []
+                backend_cmap = None
+                for op in self.backend.target.operations:
+                    if op.num_qubits == 2:
+                        cmap = self.backend.target.build_coupling_map(op.name)
+                        if cmap:
+                            reduced = cmap.reduce(self.physical_qubits)
+                            if rx.is_weakly_connected(reduced.graph):
+                                backend_basis_gates.append(op.name)
+                                backend_cmap = reduced
+                                break
+                    else:
+                        backend_basis_gates.append(op.name)
+                basis_gates = basis_gates if basis_gates else backend_basis_gates
+                coupling_map = coupling_map if coupling_map else backend_cmap
+            elif isinstance(self.backend, BackendV1):
+                backend_basis_gates = self.backend.configuration().basis_gates
+                backend_cmap = self.backend.configuration().coupling_map
+                if backend_cmap:
+                    backend_cmap = backend_cmap.reduce(self.physical_qubits)
+                basis_gates = basis_gates if basis_gates else backend_basis_gates
+                coupling_map = coupling_map if coupling_map else backend_cmap
 
-        # 1 qubit case: Return all basis gates (or None if no basis gates are supplied)
-        if self.num_qubits == 1:
-            basis_gates = self.transpile_options.get("basis_gates", None)
-            if not basis_gates and self.backend:
-                if isinstance(self.backend, BackendV2):
-                    basis_gates = self.backend.operation_names
-                elif isinstance(self.backend, BackendV1):
-                    basis_gates = self.backend.configuration().basis_gates
-            return tuple(sorted(basis_gates)) if basis_gates else None
-
-        def is_bidirectional(coupling_map):
-            if coupling_map is None:
-                # None for a coupling map implies all-to-all coupling
-                return True
-            return len(coupling_map.reduce(self.physical_qubits).get_edges()) == 2
-
-        # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.
-        # Return None if there is no bidirectional 2q-gates in basis gates.
-        if self.num_qubits == 2:
-            basis_gates = self.transpile_options.get("basis_gates", [])
-            if not basis_gates and self.backend:
-                if isinstance(self.backend, BackendV2) and self.backend.target:
-                    has_bidirectional_2q_gates = False
-                    for op_name in self.backend.target:
-                        if self.backend.target.operation_from_name(op_name).num_qubits == 2:
-                            if is_bidirectional(self.backend.target.build_coupling_map(op_name)):
-                                has_bidirectional_2q_gates = True
-                            else:
-                                continue
-                        basis_gates.append(op_name)
-                    if not has_bidirectional_2q_gates:
-                        basis_gates = None
-                elif isinstance(self.backend, BackendV1):
-                    cmap = self.backend.configuration().coupling_map
-                    if cmap is None or is_bidirectional(CouplingMap(cmap)):
-                        basis_gates = self.backend.configuration().basis_gates
-            return tuple(sorted(basis_gates)) if basis_gates else None
-
-        return None
+        return {
+            "basis_gates": tuple(sorted(basis_gates)) if basis_gates else None,
+            "coupling_tuple": tuple(sorted(coupling_map.get_edges())) if coupling_map else None,
+            "method": self.experiment_options["clifford_synthesis_method"],
+        }
 
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
@@ -278,7 +268,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of RB circuits.
         """
-        basis_gates = self._get_basis_gates()
+        synthesis_opts = self._get_synthesis_options()
         # Circuit generation
         circuits = []
         for i, seq in enumerate(sequences):
@@ -290,7 +280,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
-                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+                circ.append(self._to_instruction(elem, synthesis_opts), circ.qubits)
                 circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
@@ -298,7 +288,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             prev_seq = seq
             inv = self.__adjoint_clifford(prev_elem)
 
-            circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
+            circ.append(self._to_instruction(inv, synthesis_opts), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
             circuits.append(circ)
         return circuits
@@ -310,20 +300,41 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
         if self.num_qubits == 2:
             return rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=length)
-        # Return circuit object instead of Clifford object for 3 or more qubits case for speed
-        return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
+        # Return Clifford object for 3 or more qubits case
+        return [random_clifford(self.num_qubits, rng) for _ in range(length)]
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str, ...]] = None
+        self,
+        elem: SequenceElementType,
+        synthesis_options: Dict[str, Optional[Any]],
     ) -> Instruction:
+        """Return the instruction of a Clifford element.
+
+        The resulting instruction contains a circuit definition with ``basis_gates`` and
+        it complies with ``coupling_tuple``, which is specified in ``synthesis_options``.
+
+        Args:
+            elem: a Clifford element to be converted
+            synthesis_options: options for synthesizing the Clifford element
+
+        Returns:
+            Converted instruction
+        """
         # Switching for speed up
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
-                return _clifford_1q_int_to_instruction(elem, basis_gates)
+                return _clifford_1q_int_to_instruction(
+                    elem, basis_gates=synthesis_options["basis_gates"]
+                )
             if self.num_qubits == 2:
-                return _clifford_2q_int_to_instruction(elem, basis_gates)
+                return _clifford_2q_int_to_instruction(
+                    elem,
+                    basis_gates=synthesis_options["basis_gates"],
+                    coupling_tuple=synthesis_options["coupling_tuple"],
+                )
 
-        return elem.to_instruction()
+        cliff_circ = _synthesize_clifford(elem, **synthesis_options)
+        return cliff_circ.to_instruction()
 
     def __identity_clifford(self) -> SequenceElementType:
         if self.num_qubits <= 2:
@@ -355,11 +366,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
-            not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
+            not set(vars(self.transpile_options)).issubset(
+                {"basis_gates", "coupling_map", "optimization_level"}
+            )
             or self.transpile_options.get("optimization_level", 1) != 1
         )
-        has_no_undirected_2q_basis = self._get_basis_gates() is None
-        if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:
+        if has_custom_transpile_option:
             transpiled = super()._transpiled_circuits()
         else:
             transpiled = [
@@ -368,8 +380,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
             ]
             # Set custom calibrations provided in backend
             if isinstance(self.backend, BackendV2):
-                qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
-                if self.num_qubits == 2:
+                qargs_patterns = []
+                if self.num_qubits == 1:
+                    qargs_patterns = [self.physical_qubits]
+                elif self.num_qubits == 2:
                     qargs_patterns = [
                         (self.physical_qubits[0],),
                         (self.physical_qubits[1],),
@@ -377,10 +391,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
                         (self.physical_qubits[1], self.physical_qubits[0]),
                     ]
 
+                qargs_supported = self.backend.target.qargs
                 instructions = []  # (op_name, qargs) for each element where qargs means qubit tuple
                 for qargs in qargs_patterns:
-                    for op_name in self.backend.target.operation_names_for_qargs(qargs):
-                        instructions.append((op_name, qargs))
+                    if qargs in qargs_supported:
+                        for op_name in self.backend.target.operation_names_for_qargs(qargs):
+                            instructions.append((op_name, qargs))
 
                 common_calibrations = defaultdict(dict)
                 for op_name, qargs in instructions:

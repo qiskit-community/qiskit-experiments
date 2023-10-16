@@ -14,7 +14,7 @@ Interleaved RB Experiment class.
 """
 import itertools
 import warnings
-from typing import Union, Iterable, Optional, List, Sequence, Tuple
+from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
 
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -225,17 +225,19 @@ class InterleavedRB(StandardRB):
         return list(itertools.chain.from_iterable(zip(reference_circuits, interleaved_circuits)))
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+        self,
+        elem: SequenceElementType,
+        synthesis_options: Dict[str, Optional[Any]],
     ) -> Instruction:
         if elem is self._interleaved_cliff:
             return self._interleaved_op
 
-        return super()._to_instruction(elem, basis_gates)
+        return super()._to_instruction(elem, synthesis_options)
 
     def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
         self._interleaved_op = self._interleaved_element
-        basis_gates = self._get_basis_gates()
+        basis_gates = self._get_synthesis_options()["basis_gates"]
         # Convert interleaved element to circuit
         if isinstance(self._interleaved_op, Clifford):
             self._interleaved_op = self._interleaved_op.to_circuit()

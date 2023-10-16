@@ -69,4 +69,9 @@ setup(
         "Source Code": "https://github.com/Qiskit-Extensions/qiskit-experiments",
     },
     zip_safe=False,
+    entry_points={
+        "qiskit.synthesis": [
+            "clifford.rb_default = qiskit_experiments.library.randomized_benchmarking.clifford_synthesis:RBDefaultCliffordSynthesis",
+        ],
+    },
 )
