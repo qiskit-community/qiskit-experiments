@@ -96,6 +96,14 @@ class CompositeAnalysis(BaseAnalysis):
             return self._analyses
         return self._analyses[index]
 
+    def set_options(self, **fields):
+        """Set the analysis options for the experiment. If the `broadcast` argument set to `True`, the
+        analysis options will cascade to the child experiments."""
+        super().set_options(**fields)
+        if fields.get("broadcast", None):
+            for sub_analysis in self._analyses:
+                sub_analysis.set_options(**fields)
+
     def copy(self):
         ret = super().copy()
         # Recursively copy analysis
