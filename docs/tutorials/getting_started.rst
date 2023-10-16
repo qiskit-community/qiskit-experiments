@@ -394,3 +394,16 @@ into one level:
 
     for result in parallel_data.analysis_results():
         print(result)
+
+Broadcasting analysis options to child experiments
+--------------------------------------------------
+
+Use the `broadcast` parameter to set analysis options to each of the child experiments.
+
+.. jupyter-execute::
+
+    parallel_exp.analysis.set_options(plot=False, broadcast=True)
+
+If the child experiment inherits from :class:`.CompositeExperiment` (such as :class:`.ParallelExperiment`
+and :class:`.BatchExperiment` classes), this process will continue to work recursively.
+In this instance, the analysis will not generate a figure for the child experiment after the analysis.
