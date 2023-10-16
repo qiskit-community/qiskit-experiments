@@ -97,8 +97,8 @@ class CompositeAnalysis(BaseAnalysis):
         return self._analyses[index]
 
     def set_options(self, **fields):
-        """Set the analysis options for the experiment. If the `broadcast` argument is passed and set to
-        `True`, the analysis options will cascade to the children experiments."""
+        """Set the analysis options for the experiment. If the `broadcast` argument set to `True`, the
+        analysis options will cascade to the child experiments."""
         super().set_options(**fields)
         if fields.get("broadcast", None):
             for sub_analysis in self._analyses:
