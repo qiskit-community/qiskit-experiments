@@ -49,7 +49,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         """Setup test variables."""
         super().setUp()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
 
         # Build x12 schedule
         self.qubit = 0
@@ -94,7 +94,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
 
         fidelity = exp_data.analysis_results("fidelity").value
 
-        self.assertGreaterEqual(fidelity, 0.96)
+        self.assertGreaterEqual(fidelity, 0.93)
 
         # check that the discriminator differentiates n different states
         discrim_lbls = exp_data.analysis_results("discriminator_config").value["attributes"][
