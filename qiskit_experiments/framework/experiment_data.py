@@ -40,6 +40,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
+from qiskit.result.utils import marginal_memory
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
@@ -794,7 +795,10 @@ class ExperimentData:
                 if isinstance(datum, dict):
                     self._result_data.append(datum)
                 elif isinstance(datum, Result):
-                    self._add_result_data(datum)
+                    if datum["metadata"]:
+                        self._set_child_data(datum["metadata"]._metadata())
+                    else:
+                        self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
     
@@ -853,7 +857,13 @@ class ExperimentData:
                 composite_clbits = None
 
             # Pre-process the memory if any to avoid redundant calls to format_counts_memory
-            f_memory = self._format_memory(datum, composite_clbits)
+            f_memory = None
+            if (
+                "memory" in datum
+                and composite_clbits is not None
+                and isinstance(datum["memory"][0], str)
+            ):
+                f_memory = marginal_memory(datum["memory"], composite_clbits)
 
             for i, index in enumerate(metadata["composite_index"]):
                 if index not in marginalized_data:
@@ -892,22 +902,7 @@ class ExperimentData:
 
         # Sort by index
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
-
-    @staticmethod
-    def _format_memory(datum: Dict, composite_clbits: List):
-        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
-        f_memory = None
-        if (
-            "memory" in datum
-            and composite_clbits is not None
-            and isinstance(datum["memory"][0], str)
-        ):
-            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
-            header = {"memory_slots": num_cbits}
-            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
-
-        return f_memory
-
+    
     def add_jobs(
         self,
         jobs: Union[Job, List[Job]],
