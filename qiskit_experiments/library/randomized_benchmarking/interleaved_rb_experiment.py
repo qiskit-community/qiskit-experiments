@@ -20,14 +20,12 @@ from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction, Gate, Delay
-from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.backend_timing import BackendTiming
-from .clifford_utils import _truncate_inactive_qubits
+from .clifford_utils import _synthesize_clifford
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .standard_rb import StandardRB, SequenceElementType
@@ -73,8 +71,7 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a Clifford element, gate, delay or circuit.
-                    If the element contains any non-basis gates,
-                    it will be transpiled with ``transpiled_options`` of this experiment.
+                    All instructions in the element must be supported in the ``backend``(``target``).
                     If it is/contains a delay, its duration and unit must comply with
                     the timing constraints of the ``backend``
                     (:class:`~qiskit_experiments.framework.backend_timing.BackendTiming`
@@ -186,8 +183,7 @@ class InterleavedRB(StandardRB):
             A list of :class:`QuantumCircuit`.
 
         Raises:
-            QiskitError: If the ``interleaved_element`` provided to the constructor
-                cannot be transpiled.
+            QiskitError: If interleaved_element has non-supported instruction in the backend.
         """
         # Convert interleaved element to transpiled circuit operation and store it for speed
         self.__set_up_interleaved_op()
@@ -237,10 +233,10 @@ class InterleavedRB(StandardRB):
     def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
         self._interleaved_op = self._interleaved_element
-        basis_gates = self._get_synthesis_options()["basis_gates"]
         # Convert interleaved element to circuit
         if isinstance(self._interleaved_op, Clifford):
-            self._interleaved_op = self._interleaved_op.to_circuit()
+            opts = self._get_synthesis_options()
+            self._interleaved_op = _synthesize_clifford(self._interleaved_op, **opts)
 
         if isinstance(self._interleaved_op, QuantumCircuit):
             interleaved_circ = self._interleaved_op
@@ -250,22 +246,17 @@ class InterleavedRB(StandardRB):
         else:  # Delay
             interleaved_circ = []
 
-        if basis_gates and any(i.operation.name not in basis_gates for i in interleaved_circ):
-            # Transpile circuit with non-basis gates and remove idling qubits
-            try:
-                interleaved_circ = transpile(
-                    interleaved_circ, self.backend, **vars(self.transpile_options)
+        # Validate if all instructions in the interleaved circuit are supported in the backend
+        if self.backend and hasattr(self.backend, "target"):
+            for inst in interleaved_circ:
+                qargs = tuple(
+                    self.physical_qubits[interleaved_circ.find_bit(q).index] for q in inst.qubits
                 )
-            except TranspilerError as err:
-                raise QiskitError("Failed to transpile interleaved_element.") from err
-            interleaved_circ = _truncate_inactive_qubits(
-                interleaved_circ, active_qubits=interleaved_circ.qubits[: self.num_qubits]
-            )
-            # Convert transpiled circuit to operation
-            if len(interleaved_circ) == 1:
-                self._interleaved_op = interleaved_circ.data[0].operation
-            else:
-                self._interleaved_op = interleaved_circ
+                if not self.backend.target.instruction_supported(inst.operation.name, qargs):
+                    raise QiskitError(
+                        f"{inst.operation.name} in interleaved element is not supported"
+                        f" on qubits {qargs} in the backend."
+                    )
 
         # Store interleaved operation as Instruction
         if isinstance(self._interleaved_op, QuantumCircuit):
