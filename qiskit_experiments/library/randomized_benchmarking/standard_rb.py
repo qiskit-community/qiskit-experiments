@@ -379,10 +379,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
             ]
             # Set custom calibrations provided in backend
             if isinstance(self.backend, BackendV2):
-                qargs_patterns = []
-                if self.num_qubits == 1:
-                    qargs_patterns = [self.physical_qubits]
-                elif self.num_qubits == 2:
+                qargs_patterns = [self.physical_qubits]  # for 1q or 3q+ case
+                if self.num_qubits == 2:
                     qargs_patterns = [
                         (self.physical_qubits[0],),
                         (self.physical_qubits[1],),
