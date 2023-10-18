@@ -34,6 +34,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
     CliffordUtils,
+    DEFAULT_SYNTHESIS_METHOD,
     compose_1q,
     compose_2q,
     inverse_1q,
@@ -155,7 +156,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples=None,
             seed=None,
             full_sampling=None,
-            clifford_synthesis_method="rb_default",
+            clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
         )
 
         return options
@@ -216,14 +217,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _get_synthesis_options(self) -> Dict[str, Optional[Any]]:
         """Get options for Clifford synthesis from the backend information as a dictionary.
 
-        The options includes:
+        The options include:
         - "basis_gates": Sorted basis gate names.
             Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.
         - "coupling_tuple": Reduced coupling map in the form of tuple of edges in the coupling graph.
             Return None if no coupling map are supplied via ``backend`` or ``transpile_options``.
 
         Returns:
-            Sorted basis gate names.
+            Synthesis options as a dictionary.
         """
         basis_gates = self.transpile_options.get("basis_gates", [])
         coupling_map = self.transpile_options.get("coupling_map", None)
@@ -257,7 +258,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return {
             "basis_gates": tuple(sorted(basis_gates)) if basis_gates else None,
             "coupling_tuple": tuple(sorted(coupling_map.get_edges())) if coupling_map else None,
-            "method": self.experiment_options["clifford_synthesis_method"],
+            "synthesis_method": self.experiment_options["clifford_synthesis_method"],
         }
 
     def _sequences_to_circuits(
@@ -324,14 +325,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
                 return _clifford_1q_int_to_instruction(
-                    elem, basis_gates=synthesis_options["basis_gates"]
-                )
-            if self.num_qubits == 2:
-                return _clifford_2q_int_to_instruction(
                     elem,
                     basis_gates=synthesis_options["basis_gates"],
-                    coupling_tuple=synthesis_options["coupling_tuple"],
+                    synthesis_method=synthesis_options["synthesis_method"],
                 )
+            if self.num_qubits == 2:
+                return _clifford_2q_int_to_instruction(elem, **synthesis_options)
 
         cliff_circ = _synthesize_clifford(elem, **synthesis_options)
         return cliff_circ.to_instruction()
