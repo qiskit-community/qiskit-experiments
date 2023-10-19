@@ -41,8 +41,8 @@ from .clifford_utils import (
     inverse_2q,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
+    _clifford_to_instruction,
     _transpile_clifford_circuit,
-    _synthesize_clifford,
 )
 from .rb_analysis import RBAnalysis
 
@@ -332,8 +332,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             if self.num_qubits == 2:
                 return _clifford_2q_int_to_instruction(elem, **synthesis_options)
 
-        cliff_circ = _synthesize_clifford(elem, **synthesis_options)
-        return cliff_circ.to_instruction()
+        return _clifford_to_instruction(elem, **synthesis_options)
 
     def __identity_clifford(self) -> SequenceElementType:
         if self.num_qubits <= 2:
@@ -347,11 +346,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return functools.reduce(
                 compose_1q if self.num_qubits == 1 else compose_2q, elements, base_elem
             )
-        # 3 or more qubits: compose Clifford from circuits for speed
-        circ = QuantumCircuit(self.num_qubits)
+        # 3 or more qubits
+        res = base_elem
         for elem in elements:
-            circ.compose(elem, inplace=True)
-        return base_elem.compose(Clifford.from_circuit(circ))
+            res = res.compose(elem)
+        return res
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
         if self.num_qubits == 1:

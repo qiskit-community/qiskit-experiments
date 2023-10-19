@@ -224,6 +224,44 @@ def _clifford_2q_int_to_instruction(
     ).to_instruction()
 
 
+def _hash_cliff(cliff):
+    return cliff.tableau.tobytes(), cliff.tableau.shape
+
+
+def _dehash_cliff(cliff_hash):
+    tableau = np.frombuffer(cliff_hash[0], dtype=bool).reshape(cliff_hash[1])
+    return Clifford(tableau)
+
+
+def _clifford_to_instruction(
+    clifford: Clifford,
+    basis_gates: Optional[Tuple[str]],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
+) -> Instruction:
+    return _cached_clifford_to_instruction(
+        _hash_cliff(clifford),
+        basis_gates=basis_gates,
+        coupling_tuple=coupling_tuple,
+        synthesis_method=synthesis_method,
+    )
+
+
+@lru_cache(maxsize=256)
+def _cached_clifford_to_instruction(
+    cliff_hash: Tuple[str, Tuple[int, int]],
+    basis_gates: Optional[Tuple[str]],
+    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
+) -> Instruction:
+    return _synthesize_clifford(
+        _dehash_cliff(cliff_hash),
+        basis_gates=basis_gates,
+        coupling_tuple=coupling_tuple,
+        synthesis_method=synthesis_method,
+    ).to_instruction()
+
+
 # The classes VGate and WGate are not actually used in the code - we leave them here to give
 # a better understanding of the composition of the layers for 2-qubit Cliffords.
 class VGate(Gate):

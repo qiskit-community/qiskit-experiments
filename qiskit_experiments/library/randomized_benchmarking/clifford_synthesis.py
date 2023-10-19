@@ -17,10 +17,18 @@ from __future__ import annotations
 from typing import Sequence
 
 from qiskit.circuit import QuantumCircuit, Operation
-from qiskit.compiler import transpile
+from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
+from qiskit.exceptions import QiskitError
 from qiskit.synthesis.clifford import synth_clifford_full
 from qiskit.transpiler import PassManager, CouplingMap, Layout
-from qiskit.transpiler.passes import SabreSwap, LayoutTransformation
+from qiskit.transpiler.passes import (
+    SabreSwap,
+    LayoutTransformation,
+    BasisTranslator,
+    CheckGateDirection,
+    GateDirection,
+    Optimize1qGatesDecomposition,
+)
 from qiskit.transpiler.passes.synthesis.plugin import HighLevelSynthesisPlugin
 
 
@@ -48,6 +56,9 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
         Returns:
             The quantum circuit representation of the Operation
                 when successful, and ``None`` otherwise.
+
+        Raises:
+            QiskitError: If basis_gates is not supplied.
         """
         # synthesize cliffords
         circ = synth_clifford_full(high_level_object)
@@ -55,18 +66,31 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
         # post processing to comply with basis gates and coupling map
         if coupling_map is None:  # Sabre does not work with coupling_map=None
             return circ
-        # run Sabre routing and undo the layout change
-        # assuming Sabre routing does not change the initial layout
+
+        if basis_gates is None:
+            raise QiskitError("basis_gates are required to run this synthesis plugin")
+
+        basis_gates = list(basis_gates)
+
+        # Run Sabre routing and undo the layout change
+        # assuming Sabre routing does not change the initial layout.
+        # And then decompose swap gates, fix 2q-gate direction and optimize 1q gates
         initial_layout = Layout.generate_trivial_layout(*circ.qubits)
         undo_layout_change = LayoutTransformation(
             coupling_map=coupling_map, from_layout="final_layout", to_layout=initial_layout
         )
-        pm = PassManager([SabreSwap(coupling_map), undo_layout_change])
-        circ = pm.run(circ)
-        # for fixing 2q-gate direction and optimizing 1q gates
-        return transpile(
-            circ,
-            basis_gates=basis_gates,
-            coupling_map=coupling_map,
-            optimization_level=1,
+
+        def _direction_condition(property_set):
+            return not property_set["is_direction_mapped"]
+
+        pm = PassManager(
+            [
+                SabreSwap(coupling_map),
+                undo_layout_change,
+                BasisTranslator(sel, basis_gates),
+                CheckGateDirection(coupling_map),
+            ]
         )
+        pm.append([GateDirection(coupling_map)], condition=_direction_condition)
+        pm.append([Optimize1qGatesDecomposition(basis=basis_gates)])
+        return pm.run(circ)
