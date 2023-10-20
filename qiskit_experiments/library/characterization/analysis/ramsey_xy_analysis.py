@@ -12,7 +12,7 @@
 
 """The analysis class for the Ramsey XY experiment."""
 
-from typing import List, Tuple, Union
+from typing import List, Union
 
 import lmfit
 import numpy as np
@@ -20,8 +20,7 @@ from uncertainties import unumpy as unp
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.visualization as vis
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData
-from qiskit_experiments.curve_analysis.base_curve_analysis import PARAMS_ENTRY_PREFIX
+from qiskit_experiments.framework import ExperimentData
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
@@ -430,43 +429,35 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _to_phase_data(
+    def _format_data(
         self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
-        """Convert Ramsey XY data into frequency shift by computing the phase evolution.
+        curve_data: curve.ScatterTable,
+    ) -> curve.ScatterTable:
+        columns = list(curve_data.columns)
 
-        Args:
-            curve_data: Processed dataset created from experiment results.
-                This data must include four series of Xpos, Xneg, Ypos, and Yneg.
-                Y values are measured P1.
+        formatted_data = super()._format_data(curve_data)
+        raw_ramsey = formatted_data.filter(like="formatted", axis="index")
 
-        Returns:
-            Formatted data. This data includes two series of Fpos and Fneg.
-            Y values are frequencies in Hz.
-        """
-        y_mean = np.mean(curve_data.y)
+        # Convert to phase format with unwrapper
+        phase_data = np.empty((0, len(columns)))
+        y_mean = raw_ramsey.yval.mean()
+        grouped = raw_ramsey.groupby(["direction", "series"])
 
-        new_xs = []
-        new_ys = []
-        new_yerrs = []
-        new_shots = []
-        for direction in ("pos", "neg"):
-            x_quadrature = curve_data.get_subset_of(f"X{direction}")
-            y_quadrature = curve_data.get_subset_of(f"Y{direction}")
-
-            if not np.array_equal(x_quadrature.x, y_quadrature.x):
+        for m_id, direction in enumerate(("pos", "neg")):
+            x_quadrature = grouped.get_group((direction, "X"))
+            y_quadrature = grouped.get_group((direction, "Y"))
+            if not np.array_equal(x_quadrature.xval, y_quadrature.xval):
                 raise ValueError(
-                    "Amplitude values of X and Y quadrature are different. Same values must be used."
+                    "Amplitude values of X and Y quadrature are different. "
+                    "Same values must be used."
                 )
-            xq_uarray = unp.uarray(x_quadrature.y, x_quadrature.y_err)
-            yq_uarray = unp.uarray(y_quadrature.y, y_quadrature.y_err)
+            x_uarray = unp.uarray(x_quadrature.yval, x_quadrature.yerr)
+            y_uarray = unp.uarray(y_quadrature.yval, y_quadrature.yerr)
 
-            amplitudes = x_quadrature.x
-            shots = x_quadrature.shots + y_quadrature.shots
+            amplitudes = x_quadrature.xval.to_numpy()
 
             # pylint: disable=no-member
-            phase = unp.arctan2(yq_uarray - y_mean, xq_uarray - y_mean)
+            phase = unp.arctan2(y_uarray - y_mean, x_uarray - y_mean)
             phase_n = unp.nominal_values(phase)
             phase_s = unp.std_devs(phase)
 
@@ -479,21 +470,27 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             if amplitudes[0] < 0:
                 # Flip back
                 unwrapped_phase = unwrapped_phase[::-1]
-            # Store new data
-            new_xs.append(amplitudes)
-            new_ys.append(unwrapped_phase)
-            new_yerrs.append(phase_s)
-            new_shots.append(shots)
 
-        curve_data = curve.CurveData(
-            x=np.concatenate(new_xs),
-            y=np.concatenate(new_ys),
-            y_err=np.concatenate(new_yerrs),
-            shots=np.concatenate(new_shots),
-            data_allocation=np.concatenate(([0] * len(new_xs[0]), [1] * len(new_xs[1]))),
-            labels=["Fpos", "Fneg"],
+            # Store new data
+            tmp = np.empty((len(amplitudes), len(columns)), dtype=object)
+            tmp[:, columns.index("xval")] = amplitudes
+            tmp[:, columns.index("yval")] = unwrapped_phase
+            tmp[:, columns.index("yerr")] = phase_s
+            tmp[:, columns.index("model_name")] = f"F{direction}"
+            tmp[:, columns.index("model_id")] = m_id
+            tmp[:, columns.index("shots")] = x_quadrature.shots + y_quadrature.shots
+            tmp[:, columns.index("direction")] = direction
+            tmp[:, columns.index("series")] = "phase"
+            phase_data = np.r_[phase_data, tmp]
+
+        # Invalidate model_id because these are index of raw Ramsey curves.
+        # Fit models are defined based on the phase data.
+        formatted_data.model_id = "n/a"
+        out = formatted_data.append_list_values(
+            other=phase_data,
+            prefix="formatted",
         )
-        return curve_data
+        return out
 
     def _generate_fit_guesses(
         self,
@@ -511,8 +508,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         """
         user_opt.bounds.set_if_empty(c2_pos=(0, np.inf), c2_neg=(-np.inf, 0))
 
-        pos_y = curve_data.get_subset_of("Fpos").y
-        neg_y = curve_data.get_subset_of("Fneg").y
+        pos_y = curve_data[curve_data.model_name == "Fpos"].yval
+        neg_y = curve_data[curve_data.model_name == "Fneg"].yval
 
         user_opt.p0.set_if_empty(
             c1_pos=0,
@@ -525,6 +522,83 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         )
         return user_opt
 
+    def _create_figures(
+        self,
+        curve_data: curve.ScatterTable,
+    ) -> List["matplotlib.figure.Figure"]:
+        formatted_data = curve_data.filter(like="formatted", axis="index")
+        ts_rad = 2 * np.pi * self.options.fixed_parameters["ts"]
+
+        # plot unwrapped phase on first axis
+        for name in ("Fpos", "Fneg"):
+            sub_data = formatted_data[formatted_data.model_name == name]
+            self.plotter.set_series_data(
+                series_name=name,
+                x_formatted=sub_data.xval.to_numpy(),
+                y_formatted=sub_data.yval.to_numpy() / ts_rad,
+                y_formatted_err=sub_data.yerr.to_numpy() / ts_rad,
+            )
+
+        # plot raw RamseyXY plot on second axis
+        for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
+            sub_data = formatted_data[formatted_data.model_name == name]
+            self.plotter.set_series_data(
+                series_name=name,
+                x_formatted=sub_data.xval.to_numpy(),
+                y_formatted=sub_data.yval.to_numpy(),
+                y_formatted_err=sub_data.yerr.to_numpy(),
+            )
+        ramsey_xy = formatted_data[~formatted_data.model_name.str.startswith("F")]
+        offset_guess = 0.5 * (ramsey_xy.yval.min() + ramsey_xy.yval.max())
+        amp_guess = 0.5 * np.ptp(ramsey_xy.yval)
+
+        # plot phase and Ramsey fit lines
+        line_data = curve_data.filter(like="fitted", axis="index")
+        for direction in ("pos", "neg"):
+            sub_data = line_data[line_data.model_name == f"F{direction}"]
+            if len(sub_data) == 0:
+                continue
+            xval = sub_data.xval.to_numpy()
+            yn = sub_data.yval.to_numpy()
+            ys = sub_data.yerr.to_numpy()
+            yval = unp.uarray(yn, ys)
+
+            # compute raw Ramsey XY fit line
+            # pylint: disable=no-member
+            ramsey_cos = amp_guess * unp.cos(yval) + offset_guess
+            ramsey_sin = amp_guess * unp.sin(yval) + offset_guess
+
+            self.plotter.set_series_data(
+                series_name=f"F{direction}",
+                x_interp=xval,
+                y_interp=yn / ts_rad,
+            )
+            self.plotter.set_series_data(
+                series_name=f"X{direction}",
+                x_interp=xval,
+                y_interp=unp.nominal_values(ramsey_cos),
+            )
+            self.plotter.set_series_data(
+                series_name=f"Y{direction}",
+                x_interp=xval,
+                y_interp=unp.nominal_values(ramsey_sin),
+            )
+
+            if np.isfinite(ys).all():
+                self.plotter.set_series_data(
+                    series_name=f"F{direction}",
+                    y_interp_err=ys / ts_rad,
+                )
+                self.plotter.set_series_data(
+                    series_name=f"X{direction}",
+                    y_interp_err=unp.std_devs(ramsey_cos),
+                )
+                self.plotter.set_series_data(
+                    series_name=f"Y{direction}",
+                    y_interp_err=unp.std_devs(ramsey_sin),
+                )
+        return [self.plotter.figure()]
+
     def _initialize(
         self,
         experiment_data: ExperimentData,
@@ -535,151 +609,3 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         fixed_params = self.options.fixed_parameters.copy()
         fixed_params["ts"] = experiment_data.metadata["stark_length"]
         self.set_options(fixed_parameters=fixed_params)
-
-    def _run_analysis(
-        self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-
-        # TODO do not override this method.
-        #  This phase fitter also plots raw Ramsey XY P1 curves.
-        #  This requires generation of plot data for the second axis and current
-        #  CurveAnalysis cannot handle this case with its pattern.
-        #  We should split figure generation functionality from the curve fitting and
-        #  make fit data portable for visualization in later stage.
-
-        # Prepare for fitting
-        self._initialize(experiment_data)
-
-        analysis_results = []
-        const = 2 * np.pi * experiment_data.metadata["stark_length"]
-
-        # Run data processing
-        processed_data = self._run_data_processing(
-            raw_data=experiment_data.data(),
-            models=self._models,
-        )
-        ramsey_xy_p1_data = self._format_data(processed_data)
-        ramsey_xy_phase_data = self._to_phase_data(ramsey_xy_p1_data)
-
-        # Plot raw data for phase and P1 in separate canvas
-        if self.options.plot:
-            for name in ("Fpos", "Fneg"):
-                sub_data = ramsey_xy_phase_data.get_subset_of(name)
-                self.plotter.set_series_data(
-                    series_name=name,
-                    x_formatted=sub_data.x,
-                    y_formatted=sub_data.y / const,
-                    y_formatted_err=sub_data.y_err / const,
-                )
-            for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
-                sub_data = ramsey_xy_p1_data.get_subset_of(name)
-                self.plotter.set_series_data(
-                    series_name=name,
-                    x_formatted=sub_data.x,
-                    y_formatted=sub_data.y,
-                    y_formatted_err=sub_data.y_err,
-                )
-
-        # Run fitting
-        fit_data = self._run_curve_fit(
-            curve_data=ramsey_xy_phase_data,
-            models=self._models,
-        )
-
-        if fit_data.success:
-            quality = self._evaluate_quality(fit_data)
-            self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
-        else:
-            quality = "bad"
-
-        if self.options.return_fit_parameters:
-            # Store fit status overview entry regardless of success.
-            # This is sometime useful when debugging the fitting code.
-            overview = AnalysisResultData(
-                name=PARAMS_ENTRY_PREFIX + self.name,
-                value=fit_data,
-                quality=quality,
-                extra=self.options.extra,
-            )
-            analysis_results.append(overview)
-
-        # Create figure and result data
-        if fit_data.success:
-            # Create analysis results
-            primary_results = self._create_analysis_results(
-                fit_data=fit_data, quality=quality, **self.options.extra.copy()
-            )
-            analysis_results.extend(primary_results)
-            self.plotter.set_supplementary_data(primary_results=primary_results)
-
-            # Draw fit curves and report
-            if self.options.plot:
-                # Bootstrap model parameters for RamseyXY P1 plot
-                offset_guess = np.mean(ramsey_xy_p1_data.y)
-                amp_guess = np.max(np.abs((ramsey_xy_p1_data.y - offset_guess)))
-
-                model_dict = {model._name: model for model in self._models}
-                for model_suffix in ("pos", "neg"):
-                    model_name = f"F{model_suffix}"
-                    model = model_dict[model_name]
-                    sub_data = ramsey_xy_phase_data.get_subset_of(model_name)
-                    if sub_data.x.size == 0:
-                        continue
-                    x_interp = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
-                    y_data_with_uncertainty = curve.utils.eval_with_uncertainties(
-                        x=x_interp,
-                        model=model,
-                        params=fit_data.ufloat_params,
-                    )
-                    y_interp = unp.nominal_values(y_data_with_uncertainty)
-                    # Add fit line data
-                    self.plotter.set_series_data(
-                        model_name,
-                        x_interp=x_interp,
-                        y_interp=y_interp / const,
-                    )
-                    # Add confidence interval data
-                    if fit_data.covar is not None:
-                        y_interp_err = unp.std_devs(y_data_with_uncertainty)
-                        if np.isfinite(y_interp_err).all():
-                            self.plotter.set_series_data(
-                                model_name,
-                                y_interp_err=y_interp_err / const,
-                            )
-                    # Add second axis
-                    # pylint: disable=no-member
-                    ramsey_cos = amp_guess * unp.cos(y_data_with_uncertainty) + offset_guess
-                    ramsey_sin = amp_guess * unp.sin(y_data_with_uncertainty) + offset_guess
-                    self.plotter.set_series_data(
-                        f"X{model_suffix}",
-                        x_interp=x_interp,
-                        y_interp=unp.nominal_values(ramsey_cos),
-                    )
-                    self.plotter.set_series_data(
-                        f"Y{model_suffix}",
-                        x_interp=x_interp,
-                        y_interp=unp.nominal_values(ramsey_sin),
-                    )
-                    # Add confidence interval data to second axis
-                    if fit_data.covar is not None:
-                        if np.isfinite(y_interp_err).all():
-                            self.plotter.set_series_data(
-                                f"X{model_suffix}",
-                                y_interp_err=unp.std_devs(ramsey_cos),
-                            )
-                            self.plotter.set_series_data(
-                                f"Y{model_suffix}",
-                                y_interp_err=unp.std_devs(ramsey_sin),
-                            )
-
-        # Add raw data points
-        if self.options.return_data_points:
-            analysis_results.extend(
-                self._create_curve_data(curve_data=ramsey_xy_phase_data, models=self._models)
-            )
-
-        # Finalize plot
-        if self.options.plot:
-            return analysis_results, [self.plotter.figure()]
-
-        return analysis_results, []

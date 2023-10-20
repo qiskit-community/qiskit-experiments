@@ -127,7 +127,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
     )
     def shots(self):
         """Shot number of data points."""
-        return self.shots.to_numpy()
+        return self["shots"].to_numpy()
 
     @property
     @deprecate_func(
