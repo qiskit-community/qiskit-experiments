@@ -275,10 +275,9 @@ class BaseExperiment(ABC, StoreInitArgs):
             if self.backend is None:
                 raise QiskitError("A backend must be provided.")
             backend = self.backend
-        self.backend = backend
         # Get max circuits for job splitting
         max_circuits_option = getattr(self.experiment_options, "max_circuits", None)
-        max_circuits_backend = self._backend_data.max_circuits
+        max_circuits_backend = BackendData(backend).max_circuits
 
         if max_circuits_option and max_circuits_backend:
             return min(max_circuits_option, max_circuits_backend)

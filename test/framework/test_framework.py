@@ -268,7 +268,7 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertEqual(len(res), 0)
         self.assertEqual(expdata.analysis_status(), AnalysisStatus.CANCELLED)
 
-    @ddt.data(1, 10, 100)
+    @ddt.data(None, 1, 10, 100)
     def test_max_circuits(self, max_experiments):
         """Test running experiment with max_circuits"""
 
