@@ -1314,7 +1314,7 @@ class ExperimentData:
         # All figures must have '.svg' in their names when added, as the extension is added to the key
         # name in the `add_figures()` method of this class.
         if isinstance(figure_key, str):
-            if ".svg" not in figure_key:
+            if not figure_key.endswith(".svg"):
                 figure_key += ".svg"
 
         figure_data = self._figures.get(figure_key, None)
