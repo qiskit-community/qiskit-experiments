@@ -6,5 +6,5 @@ upgrade:
     setting backend for just checking experiment sequence. The sequence with actual parameters
     is generated after the backend is set. In addition, now experiments can take ``cr_gate``
     in the constractor which is ``Gate`` type subclass taking a single parameter (flat-top width).
-    If one inputs a :class:`~qiskit.extensions.hamiltonian_gate.HamiltonianGate` subclass with
+    If one inputs a :class:`~qiskit.circuit.library.HamiltonianGate` subclass with
     cross resonance Hamiltonian, experiment can be simulated with Aer QASM simulator.

@@ -32,7 +32,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
@@ -107,7 +107,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        cls.backend = SingleTransmonTestBackend(noise=False)
+        cls.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         cls.cals = Calibrations.from_backend(cls.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
