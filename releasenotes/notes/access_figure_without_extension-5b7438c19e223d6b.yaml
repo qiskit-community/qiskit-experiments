@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Figures in `ExperimentData` objects can now be access without '.svg' extension.
