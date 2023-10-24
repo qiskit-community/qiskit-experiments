@@ -30,6 +30,7 @@ from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
+from qiskit.transpiler import CouplingMap
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
@@ -251,7 +252,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 backend_basis_gates = self.backend.configuration().basis_gates
                 backend_cmap = self.backend.configuration().coupling_map
                 if backend_cmap:
-                    backend_cmap = backend_cmap.reduce(self.physical_qubits)
+                    backend_cmap = CouplingMap(backend_cmap).reduce(self.physical_qubits)
                 basis_gates = basis_gates if basis_gates else backend_basis_gates
                 coupling_map = coupling_map if coupling_map else backend_cmap
 

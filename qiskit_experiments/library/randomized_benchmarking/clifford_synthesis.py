@@ -20,7 +20,7 @@ from qiskit.circuit import QuantumCircuit, Operation
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
 from qiskit.exceptions import QiskitError
 from qiskit.synthesis.clifford import synth_clifford_full
-from qiskit.transpiler import PassManager, CouplingMap, Layout
+from qiskit.transpiler import PassManager, CouplingMap, Layout, Target
 from qiskit.transpiler.passes import (
     SabreSwap,
     LayoutTransformation,
@@ -38,8 +38,9 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
     def run(
         self,
         high_level_object: Operation,
-        basis_gates: Sequence[str] | None = None,
         coupling_map: CouplingMap | None = None,
+        target: Target | None = None,
+        qubits: Sequence | None = None,
         **options,
     ) -> QuantumCircuit:
         """Run synthesis for the given Clifford.
@@ -47,11 +48,14 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
         Args:
             high_level_object: The operation to synthesize to a
                 :class:`~qiskit.circuit.QuantumCircuit` object.
-            basis_gates: The basis gates to be used for the synthesis.
             coupling_map: The reduced coupling map of the backend. For example,
                 if physical qubits [5, 6, 7] to be benchmarked is connected
                 as 5 - 7 - 6 linearly, the reduced coupling map is 0 - 2 - 1.
-            options: Additional method-specific optional kwargs.
+            target: A target representing the target backend, which will be ignored in this plugin.
+            qubits: List of physical qubits over which the operation is defined,
+                which will be ignored in this plugin.
+            options: Additional method-specific optional kwargs,
+                which must include ``basis_gates``, basis gates to be used for the synthesis.
 
         Returns:
             The quantum circuit representation of the Operation
@@ -67,6 +71,7 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
         if coupling_map is None:  # Sabre does not work with coupling_map=None
             return circ
 
+        basis_gates = options.get("basis_gates", None)
         if basis_gates is None:
             raise QiskitError("basis_gates are required to run this synthesis plugin")
 
