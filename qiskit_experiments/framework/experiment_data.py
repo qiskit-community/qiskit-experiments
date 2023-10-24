@@ -793,6 +793,48 @@ class ExperimentData:
         with self._result_data.lock:
             for datum in data:
                 if isinstance(datum, dict):
+                    if datum.get("composite_metadata"):
+                        self._add_data(datum.child_data(),datum["composite_metadata"])
+                        self._result_data.append(datum)
+                    else:
+                        datum["composite_metadata"] = [ExperimentData()]
+                elif isinstance(datum, Result):
+                    if datum["metadata"]:
+                        self._set_child_data(datum["metadata"]._metadata())
+                    else:
+                        self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
+
+    def __add_data(
+        self,
+        data: Union[Result, List[Result], Dict, List[Dict]],
+    ) -> None:
+        """Add experiment data.
+
+        Args:
+            data: Experiment data to add. Several types are accepted for convenience:
+
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
+
+        Raises:
+            TypeError: If the input data type is invalid.
+        """
+        if any(not future.done() for future in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis has finished running. Adding new data may "
+                "create unexpected analysis results."
+            )
+        if not isinstance(data, list):
+            data = [data]
+
+        # Directly add non-job data
+        with self._result_data.lock:
+            for datum in data:
+                if isinstance(datum, dict):
                     self._result_data.append(datum)
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
@@ -835,7 +877,7 @@ class ExperimentData:
                     sub_expdata._result_data.clear()
                     for datum in sub_data:
                         self.__reacher_composite_metadata(datum)
-                    sub_expdata.add_data(sub_data)
+                    sub_expdata.__add_data(sub_data)
 
     def __reacher_composite_metadata(self,data : Dict)->List:
         if data.get("composite_metadata"):
