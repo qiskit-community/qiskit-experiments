@@ -778,7 +778,7 @@ class ExperimentData:
                     sub_expdata._result_data.clear()
                     for datum in sub_data:
                         self.__reacher_composite_metadata(datum)
-                    sub_expdata.add_data(sub_data)
+                    sub_expdata.__add_data(sub_data)
 
     def __reacher_composite_metadata(self,data : Dict)->List:
         if data.get("composite_metadata"):
