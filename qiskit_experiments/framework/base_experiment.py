@@ -293,8 +293,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             backend: Optional, the backend for which to get job distribution
-            information. If not specified, the experiment must already have a
-            set backend.
+                information. If not specified, the experiment must already have a
+                set backend.
 
         Returns:
             dict: A dictionary containing information about job distribution.
