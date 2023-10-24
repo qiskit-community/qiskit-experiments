@@ -833,7 +833,18 @@ class ExperimentData:
                 for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
                     # Clear any previously stored data and add marginalized data
                     sub_expdata._result_data.clear()
+                    for datum in sub_data:
+                        self.__reacher_composite_metadata(datum)
                     sub_expdata.add_data(sub_data)
+
+    def __reacher_composite_metadata(self,data : Dict)->List:
+        if data.get("composite_metadata"):
+            for datum in data.get("composite_metadata"):
+                self.__reacher_composite_metadata(datum)
+                self._add_data(datum.child_data(),datum["composite_metadata"])
+        else:
+            data["composite_metadata"] = [ExperimentData()]
+            return
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
