@@ -8,7 +8,7 @@ that the computer successfully implements. Quantum computing systems
 with high-fidelity operations, high connectivity, large calibrated gate
 sets, and circuit rewriting toolchains are expected to have higher
 quantum volumes. See the `Qiskit
-Textbook <https://learn.qiskit.org/course/quantum-hardware/measuring-quantum-volume>`__
+Textbook <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`__
 for an explanation on the QV method, which is described in Refs. [1]_ [2]_.
 
 The Quantum Volume is determined by the largest successful circuit depth
@@ -190,5 +190,5 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.quantum_volume`
-* Qiskit Textbook: `Measuring Quantum Volume <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`__
+* Qiskit Textbook: `Measuring Quantum Volume <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`__
 

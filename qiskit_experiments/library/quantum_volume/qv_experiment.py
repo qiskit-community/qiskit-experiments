@@ -40,8 +40,8 @@ class QuantumVolume(BaseExperiment):
 
         The Quantum Volume is determined by the largest circuit depth :math:`d_{max}`,
         and equals to :math:`2^{d_{max}}`.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
+        See the `Qiskit Textbook
+        <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`_
         for an explanation on the QV protocol.
 
         In the QV experiment we generate :class:`~qiskit.circuit.library.QuantumVolume` circuits on
