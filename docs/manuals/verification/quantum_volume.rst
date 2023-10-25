@@ -20,8 +20,8 @@ a random permutation on the :math:`d` qubit. Then these circuits run on
 the quantum backend and on an ideal simulator (either :class:`qiskit_aer.AerSimulator`
 or :class:`qiskit.quantum_info.Statevector`).
 
-A depth :math:`d` QV circuit is successful if it has ‘mean heavy-output
-probability’ > 2/3 with confidence level > 0.977 (corresponding to
+A depth :math:`d` QV circuit is successful if it has `mean heavy-output
+probability` > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
 .. note::
@@ -68,7 +68,7 @@ more trials may reduce the error bars to allow passing the threshold.
 
 The analysis results of the QV Experiment are:
 
--  The mean heavy output probabilities (HOP) and standard deviation
+-  The mean heavy-output probabilities (HOP) and standard deviation
 
 -  The calculated quantum volume, which will be None if the experiment
    does not pass the threshold

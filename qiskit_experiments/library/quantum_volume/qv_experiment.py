@@ -50,7 +50,7 @@ class QuantumVolume(BaseExperiment):
         Then these circuits run on the quantum backend and on an ideal simulator (either
         :class:`~qiskit_aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
 
-        A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
+        A depth :math:`d` QV circuit is successful if it has `mean heavy-output probability` > 2/3 with
         confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
 
         See :class:`QuantumVolumeAnalysis` documentation for additional
