@@ -36,11 +36,9 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.framework.experiment_data import local_to_utc
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
-    ExperimentEntryExists,
 )
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework.experiment_data import (
@@ -109,8 +107,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_add_data_result_metadata(self):
         """Test add result metadata."""
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        result1 = self._get_job_result(1, has_metadata=False)
-        result2 = self._get_job_result(1, has_metadata=True)
+        result1 = self._get_job_result(1, no_metadata=True)
+        result2 = self._get_job_result(1)
 
         exp_data.add_data(result1)
         exp_data.add_data(result2)
@@ -121,12 +119,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test add job data."""
         a_job = mock.create_autospec(Job, instance=True)
         a_job.result.return_value = self._get_job_result(3)
+        num_circs = 3
         jobs = []
         for _ in range(2):
             job = mock.create_autospec(Job, instance=True)
-            job.result.return_value = self._get_job_result(2)
+            job.result.return_value = self._get_job_result(2, label_from=num_circs)
             job.status.return_value = JobStatus.DONE
             jobs.append(job)
+            num_circs = num_circs + 2
 
         expected = a_job.result().get_counts()
         for job in jobs:
@@ -137,7 +137,13 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         exp_data.add_jobs(jobs)
         self.assertExperimentDone(exp_data)
-        self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
+        self.assertEqual(
+            expected,
+            [
+                sdata["counts"]
+                for sdata in sorted(exp_data.data(), key=lambda x: x["metadata"]["label"])
+            ],
+        )
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
     def test_add_data_job_callback(self):
@@ -149,7 +155,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
             exp_data.add_figures(str.encode("hello world"))
-            exp_data.add_analysis_results(mock.MagicMock())
+            res = mock.MagicMock()
+            res.result_id = str(uuid.uuid4())
+            exp_data.add_analysis_results(res)
             nonlocal called_back
             called_back = True
 
@@ -318,11 +326,25 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         fn = exp_data.add_figures(hello_bytes)
-        with self.assertRaises(ExperimentEntryExists):
-            exp_data.add_figures(friend_bytes, fn)
 
-        exp_data.add_figures(friend_bytes, fn, overwrite=True)
+        # pylint: disable=no-member
+        fn_prefix = fn.rsplit(".", 1)[0]
+
+        # Without overwrite on, the filename should have an incrementing suffix
+        self.assertEqual(exp_data.add_figures(friend_bytes, fn), f"{fn_prefix}-1.svg")
+
+        self.assertEqual(
+            exp_data.add_figures([friend_bytes, friend_bytes], [fn, fn]),
+            [f"{fn_prefix}-2.svg", f"{fn_prefix}-3.svg"],
+        )
+
+        self.assertEqual(exp_data.add_figures(friend_bytes, fn, overwrite=True), fn)
+
         self.assertEqual(friend_bytes, exp_data.figure(fn).figure)
+
+        self.assertEqual(
+            exp_data.add_figures(friend_bytes, f"{fn_prefix}-a.svg"), f"{fn_prefix}-a.svg"
+        )
 
     def test_add_figure_save(self):
         """Test saving a figure in the database."""
@@ -343,15 +365,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(
             backend=self.backend,
             experiment_type="qiskit_test",
-            metadata={"physical_qubits": qubits},
+            metadata={"physical_qubits": qubits, "device_components": list(map(Qubit, qubits))},
         )
         exp_data.add_figures(hello_bytes)
         exp_data.figure(0).metadata["foo"] = "bar"
         figure_data = exp_data.figure(0)
 
         self.assertEqual(figure_data.metadata["qubits"], qubits)
+        self.assertEqual(figure_data.metadata["device_components"], list(map(Qubit, qubits)))
         self.assertEqual(figure_data.metadata["foo"], "bar")
-        expected_name_prefix = "qiskit_test_Fig-0_Exp-"
+        expected_name_prefix = "qiskit_test_Q0_Q1_Q2_"
         self.assertEqual(figure_data.name[: len(expected_name_prefix)], expected_name_prefix)
 
         exp_data2 = ExperimentData(
@@ -386,6 +409,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         figure_template = "hello world {}"
         name_template = "figure_{}.svg"
+        name_template_wo_ext = "figure_{}"
+
         for idx in range(3):
             exp_data.add_figures(
                 str.encode(figure_template.format(idx)), figure_names=name_template.format(idx)
@@ -393,6 +418,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
         self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
+        self.assertEqual(expected_figure, exp_data.figure(idx).figure)
+
+        # Check that figure will be returned without file extension in name
+        expected_figure = str.encode(figure_template.format(idx))
+        self.assertEqual(expected_figure, exp_data.figure(name_template_wo_ext.format(idx)).figure)
         self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 
         file_name = uuid.uuid4().hex
@@ -436,28 +466,47 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test adding and getting analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
-            exp_data.add_analysis_results(res)
+            with self.assertWarns(UserWarning):
+                # This is invalid result ID string and cause a warning
+                exp_data.add_analysis_results(res)
 
-        self.assertEqual(results, exp_data.analysis_results())
-        self.assertEqual(results[1], exp_data.analysis_results(1))
-        self.assertEqual(results[2:4], exp_data.analysis_results(slice(2, 4)))
-        self.assertEqual(results[4], exp_data.analysis_results(results[4].result_id))
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results()],
+            result_ids,
+        )
+        self.assertEqual(
+            exp_data.analysis_results(1).result_id,
+            result_ids[1],
+        )
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+            result_ids[2:4],
+        )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
-        exp_data.add_analysis_results(results)
+        with self.assertWarns(UserWarning):
+            # This is invalid result ID string and cause a warning
+            exp_data.add_analysis_results(results)
+        get_result_ids = [res.result_id for res in exp_data.analysis_results()]
 
-        self.assertEqual(results, exp_data.analysis_results())
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(get_result_ids, result_ids)
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
@@ -466,7 +515,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for idx in range(3):
             res = mock.MagicMock()
             res.result_id = id_template.format(idx)
-            exp_data.add_analysis_results(res)
+            with self.assertWarns(UserWarning):
+                # This is invalid result ID string and cause a warning
+                exp_data.add_analysis_results(res)
 
         subtests = [(0, id_template.format(0)), (id_template.format(2), id_template.format(2))]
         for del_key, res_id in subtests:
@@ -490,6 +541,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
         analysis_result = mock.MagicMock()
+        analysis_result.result_id = str(uuid.uuid4())
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
         exp_data.save()
@@ -502,7 +554,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
-        exp_data.add_analysis_results(mock.MagicMock())
+        res = mock.MagicMock()
+        res.result_id = str(uuid.uuid4())
+        exp_data.add_analysis_results()
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
         exp_data.service = service
@@ -531,6 +585,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         )
         exp_data.auto_save = True
         mock_result = mock.MagicMock()
+        mock_result.result_id = str(uuid.uuid4())
 
         subtests = [
             # update function, update parameters, service called
@@ -992,6 +1047,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_data(self._get_job_result(1))
         result = mock.MagicMock()
+        result.result_id = str(uuid.uuid4())
         exp_data.add_analysis_results(result)
         copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
@@ -1032,7 +1088,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.data(0)["counts"], [copied.data(0)["counts"], copied.data(1)["counts"]]
         )
 
-    def _get_job_result(self, circ_count, has_metadata=False):
+    def _get_job_result(self, circ_count, label_from=0, no_metadata=False):
         """Return a job result with random counts."""
         job_result = {
             "backend_name": BackendData(self.backend).name,
@@ -1044,12 +1100,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         }
         circ_result_template = {"shots": 1024, "success": True, "data": {}}
 
-        for _ in range(circ_count):
+        for i_circ in range(circ_count):
             counts = randrange(1024)
             circ_result = copy.copy(circ_result_template)
             circ_result["data"] = {"counts": {"0x0": counts, "0x3": 1024 - counts}}
-            if has_metadata:
-                circ_result["header"] = {"metadata": {"meas_basis": "pauli"}}
+            if not no_metadata:
+                circ_result["header"] = {"metadata": {"label": label_from + i_circ}}
             job_result["results"].append(circ_result)
 
         return Result.from_dict(job_result)
@@ -1067,16 +1123,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         data = ExperimentData()
         test_time = datetime.now()
         data._db_data.creation_datetime = test_time
-        self.assertEqual(data.creation_datetime, local_to_utc(test_time))
+        self.assertEqual(data.creation_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.start_datetime = test_time
-        self.assertEqual(data.start_datetime, local_to_utc(test_time))
+        self.assertEqual(data.start_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.end_datetime = test_time
-        self.assertEqual(data.end_datetime, local_to_utc(test_time))
+        self.assertEqual(data.end_datetime, test_time)
         test_time = test_time + timedelta(hours=1)
         data._db_data.updated_datetime = test_time
-        self.assertEqual(data.updated_datetime, local_to_utc(test_time))
+        self.assertEqual(data.updated_datetime, test_time)
 
         data._db_data.hub = "hub_name"
         data._db_data.group = "group_name"
@@ -1125,3 +1181,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             for n in range(metadata_size)
         ]
         self.assertTrue(exp_data._metadata_too_large())
+
+    def test_hgp_setter(self):
+        """Tests usage of the hgp setter"""
+        exp_data = ExperimentData()
+        exp_data.hgp = "ibm-q-internal/deployed/default"
+        self.assertEqual("ibm-q-internal/deployed/default", exp_data.hgp)
+        self.assertEqual("ibm-q-internal", exp_data.hub)
+        self.assertEqual("deployed", exp_data.group)
+        self.assertEqual("default", exp_data.project)

@@ -104,7 +104,7 @@ By default, the Stark tone is applied to the same channel as the qubit drive
 with a frequency shift. This frequency shift might update the channel frame,
 which accumulates unwanted phase against the frequency difference between
 the qubit drive :math:`f_0` and Stark tone frequencies :math:`f_S` in addition to
-the qubit Stark shfit :math:`\delta f_s`.
+the qubit Stark shift :math:`\delta f_s`.
 You can use a dedicated Stark drive channel if available.
 Otherwise, you may want to use a control channel associated with the physical
 drive port of the qubit.

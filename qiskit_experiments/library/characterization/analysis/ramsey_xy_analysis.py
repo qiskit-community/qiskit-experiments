@@ -104,7 +104,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
@@ -194,13 +194,13 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three,
+            - a reduced chi-squared lower than three and greater than zero,
             - an error on the frequency smaller than the frequency.
         """
         fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(fit_freq),
         ]
 
@@ -217,13 +217,13 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         This analysis is a variant of :class:`RamseyXYAnalysis` in which
         the data is fit for a trigonometric function model with a linear phase.
-        By contrast, in this model, the phase is assumed to be a polynominal of the x-data,
-        and techniques to compute a good initial guess for these polynominal coefficients
+        By contrast, in this model, the phase is assumed to be a polynomial of the x-data,
+        and techniques to compute a good initial guess for these polynomial coefficients
         are not trivial. For example, when the phase is a linear function of the x-data,
         one may apply a Fourier transform to the data to estimate the coefficient,
         but this technique can not be used for a higher order polynomial.
 
-        This analysis assumes the following polynominal for the phase imparted by the Stark shift.
+        This analysis assumes the following polynomial for the phase imparted by the Stark shift.
 
         .. math::
 
@@ -425,7 +425,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
@@ -459,7 +459,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         est_a = user_opt.p0["amp"]
         const = 2 * np.pi * user_opt.p0["ts"]
 
-        # Compute polynominal coefficients
+        # Compute polynomial coefficients
         for direction in ("pos", "neg"):
             ram_x_data = curve_data.get_subset_of(f"X{direction}")
             ram_y_data = curve_data.get_subset_of(f"Y{direction}")
@@ -476,7 +476,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             xnorm = (ram_x_data.y - est_offs) / est_a
             ynorm = (ram_y_data.y - est_offs) / est_a
 
-            # Compute derivative to extract polynominals from sinusoidal
+            # Compute derivative to extract polynomials from sinusoidal
             dx = np.diff(xnorm) / np.diff(xvals)
             dy = np.diff(ynorm) / np.diff(xvals)
 

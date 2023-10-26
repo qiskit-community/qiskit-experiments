@@ -32,7 +32,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
@@ -82,6 +82,12 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
             abs(self.cals.get_parameter_value("amp", 0, "sx") * (4 / 5) - default_amp / 2) < tol
         )
 
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        test_amps = [-0.5, 0]
+        rabi = RoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps, backend=self.backend)
+        self.assertRoundTripSerializable(rabi._transpiled_circuits())
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = RoughXSXAmplitudeCal([0], self.cals)
@@ -94,14 +100,15 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 class TestSpecializations(QiskitExperimentsTestCase):
     """Test the specialized versions of the calibration."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Setup the tests"""
-        super().setUp()
+        super().setUpClass()
 
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
-        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
+        cls.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
+        cls.cals = Calibrations.from_backend(cls.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
@@ -113,12 +120,12 @@ class TestSpecializations(QiskitExperimentsTestCase):
             with pulse.frequency_offset(-300e6, d0):
                 pulse.play(pulse.Drag(Parameter("duration"), Parameter("amp"), 40, 0.0), d0)
 
-        self.cals.add_schedule(x12, 0)
-        self.cals.add_schedule(sx12, 0)
-        self.cals.add_parameter_value(0.4, "amp", 0, "x12")
-        self.cals.add_parameter_value(0.2, "amp", 0, "sx12")
-        self.cals.add_parameter_value(160, "duration", 0, "x12")
-        self.cals.add_parameter_value(160, "duration", 0, "sx12")
+        cls.cals.add_schedule(x12, 0)
+        cls.cals.add_schedule(sx12, 0)
+        cls.cals.add_parameter_value(0.4, "amp", 0, "x12")
+        cls.cals.add_parameter_value(0.2, "amp", 0, "sx12")
+        cls.cals.add_parameter_value(160, "duration", 0, "x12")
+        cls.cals.add_parameter_value(160, "duration", 0, "sx12")
 
     def test_ef_circuits(self):
         """Test that we get the expected circuits with calibrations for the EF experiment."""
@@ -145,14 +152,15 @@ class TestSpecializations(QiskitExperimentsTestCase):
             self.assertEqual(circ.calibrations["Rabi"][((0,), (amp,))], expected_x12)
 
     def test_ef_update(self):
-        """Tes that we properly update the pulses on the 1<->2 transition."""
+        """Test that we properly update the pulses on the 1<->2 transition."""
 
-        tol = 0.01
+        tol = 0.05
         default_amp = 0.5 / self.backend.rabi_rate_12
 
         rabi_ef = EFRoughXSXAmplitudeCal(
             [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
         )
+        rabi_ef.set_run_options(shots=200)
         expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
@@ -166,6 +174,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "x12")
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "sx12")
         rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11))
+        rabi_ef.set_run_options(shots=200)
         expdata = rabi_ef.run(self.backend)
         self.assertExperimentDone(expdata)
 

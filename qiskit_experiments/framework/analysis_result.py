@@ -209,12 +209,13 @@ class AnalysisResult:
 
     def save(self, suppress_errors: bool = True) -> None:
         """Save this analysis result in the database.
+
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiemnt (false)
+                pass them on, potentially aborting the experiment (false).
         Raises:
             ExperimentDataError: If the analysis result contains invalid data.
-            QiskitError: If the save to the database failed
+            QiskitError: If the save to the database failed.
         """
         if not self.service:
             LOG.warning(

@@ -117,8 +117,8 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options) ->
                 metadata[opt] = run_options[opt]
         warnings.warn(
             "The analyzed ExperimentData contains deprecated data processor "
-            " job_metadata which has been been updated to current metadat format. "
-            "If this data was loaded from a database servide you should re-save it "
+            " job_metadata which has been been updated to current metadata format. "
+            "If this data was loaded from a database service you should re-save it "
             "to update the metadata in the database.",
             DeprecationWarning,
         )

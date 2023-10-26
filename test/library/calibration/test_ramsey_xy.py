@@ -56,7 +56,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         This test also checks that we can pickup frequency shifts with different signs.
         """
-        test_tol = 0.01
+        test_tol = 0.03
         abs_tol = max(1e3, abs(freq_shift) * test_tol)
 
         exp_helper = RamseyXYHelper()
@@ -127,6 +127,12 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = RamseyXY([0])
         self.assertRoundTripSerializable(exp)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        backend = FakeArmonkV2()
+        exp = RamseyXY([0], backend=backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""

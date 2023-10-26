@@ -53,7 +53,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx_copybutton",
     "jupyter_sphinx",
@@ -69,10 +68,13 @@ extensions = [
     "sphinx_remove_toctrees",
 ]
 
-# Remove stubs from the toctree by default because the full build is slow
-# This is turned off for docs deployment
-if not os.getenv("FULL_TOCTREE", None):
+if os.getenv("PROD_BUILD", None):
+    # Turn on view code source for production build
+    extensions.append("sphinx.ext.viewcode")
+else:
+    # Remove stubs from the toctree for non-prod build because the full build is slow
     remove_from_toctrees = ["stubs/*"]
+
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]

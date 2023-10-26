@@ -28,7 +28,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
 
     def test_init(self):
         """Test that initialization."""
@@ -53,7 +53,9 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
         freq01 = BackendData(self.backend).drive_freqs[0]
 
-        backend_5mhz = SingleTransmonTestBackend(qubit_frequency=freq01 + 5e6, noise=False)
+        backend_5mhz = SingleTransmonTestBackend(
+            qubit_frequency=freq01 + 5e6, noise=False, atol=1e-3
+        )
 
         library = FixedFrequencyTransmon()
         cals = Calibrations.from_backend(self.backend, libraries=[library])
