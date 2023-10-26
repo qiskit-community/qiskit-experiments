@@ -1,5 +1,3 @@
-{# This is identical to class.rst, except for the filtering of the inherited_members. -#}
-
 {% if referencefile %}
 .. include:: {{ referencefile }}
 {% endif %}
@@ -14,27 +12,43 @@
    :no-inherited-members:
    :no-special-members:
 
-{% block attributes_summary %}
+   {% block attributes_summary %}
    {% if attributes %}
-   .. rubric:: Attributes
-      {% for item in all_attributes %}
-         {%- if not item.startswith('_') %}
-   .. autoattribute:: {{ name }}.{{ item }}
-         {%- endif -%}
-      {%- endfor %}
-   {% endif %}
-{% endblock %}
 
-{% block methods_summary %}
+   {# This counter lets us only render the heading if there's at least
+   one valid entry. #}
+   {% set count = namespace(value=0) %}
+
+   {% for item in attributes %}
+      {% if not item.startswith('_') %}
+      {% set count.value = count.value + 1 %}
+         {% if count.value == 1 %}
+   .. rubric:: Attributes
+
+         {% endif %}
+      
+   .. autoattribute:: {{ name }}.{{ item }}
+      {% endif %}
+   {% endfor %}
+   {% endif %}
+   {% endblock %}
+
+   {% block methods_summary %}
    {% if methods %}
-   .. rubric:: Methods
+
+   {% set count = namespace(value=0) %}
    {% for item in all_methods %}
       {%- if item not in inherited_members %}
          {%- if not item.startswith('_') or item in ['__call__', '__mul__', '__getitem__', '__len__'] %}
+   {% set count.value = count.value + 1 %}
+   {% if count.value == 1 %}
+   .. rubric:: Methods
+
+   {% endif %}
    .. automethod:: {{ name }}.{{ item }}
          {%- endif -%}
-      {%- endif -%}
+      {% endif %}
    {%- endfor %}
 
    {% endif %}
-{% endblock %}
+   {% endblock %}
