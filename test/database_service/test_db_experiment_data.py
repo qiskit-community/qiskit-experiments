@@ -409,6 +409,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         figure_template = "hello world {}"
         name_template = "figure_{}.svg"
+        name_template_wo_ext = "figure_{}"
+
         for idx in range(3):
             exp_data.add_figures(
                 str.encode(figure_template.format(idx)), figure_names=name_template.format(idx)
@@ -416,6 +418,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
         self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
+        self.assertEqual(expected_figure, exp_data.figure(idx).figure)
+
+        # Check that figure will be returned without file extension in name
+        expected_figure = str.encode(figure_template.format(idx))
+        self.assertEqual(expected_figure, exp_data.figure(name_template_wo_ext.format(idx)).figure)
         self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 
         file_name = uuid.uuid4().hex
