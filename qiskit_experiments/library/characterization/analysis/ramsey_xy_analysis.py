@@ -424,10 +424,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
             ],
             data_subfit_map={
-                "Xpos": {"series": "X", "direction": "pos"},
-                "Ypos": {"series": "Y", "direction": "pos"},
-                "Xneg": {"series": "X", "direction": "neg"},
-                "Yneg": {"series": "Y", "direction": "neg"},
+                "Fpos": {"direction": "pos"},
+                "Fneg": {"direction": "neg"},
             },
             plotter=ramsey_plotter,
         )
@@ -440,10 +438,29 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
     ) -> curve.ScatterTable:
         columns = list(curve_data.columns)
 
+        i = 0
+        # Reassign model class.
+        # These data are actually P1 value of Ramsey X, Y quadrature,
+        # but the data is automatically classified based on the fit models,
+        # which are for the synthetic phase data in this analysis.
+        # This yields false classification.
+        for series in ("X", "Y"):
+            for direction in ("pos", "neg"):
+                rows = (curve_data.series == series) & (curve_data.direction == direction)
+                curve_data.loc[rows, "model_name"] = f"{series}{direction}"
+                # Assign random model id which will be invalidated later.
+                # Note that super()._format_data relies on the model id rather than
+                # model name (i.e. integer sort is faster in pandas) to
+                # average over the same x value in the same group.
+                curve_data.loc[rows, "model_id"] = i
+                i += 1
         formatted_data = super()._format_data(curve_data)
-        raw_ramsey = formatted_data.filter(like="formatted", axis="index")
+        # Invalidate model_id because these are index of raw Ramsey curves.
+        # Fit models are defined based on the phase data.
+        formatted_data.model_id = pd.NA
 
         # Convert to phase format with unwrapper
+        raw_ramsey = formatted_data.filter(like="formatted", axis="index")
         phase_data = np.empty((0, len(columns)))
         y_mean = raw_ramsey.yval.mean()
         grouped = raw_ramsey.groupby(["direction", "series"])
@@ -488,9 +505,6 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             tmp[:, columns.index("series")] = "phase"
             phase_data = np.r_[phase_data, tmp]
 
-        # Invalidate model_id because these are index of raw Ramsey curves.
-        # Fit models are defined based on the phase data.
-        formatted_data.model_id = pd.NA
         out = formatted_data.append_list_values(
             other=phase_data,
             prefix="formatted",
