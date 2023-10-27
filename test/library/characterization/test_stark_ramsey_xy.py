@@ -271,7 +271,7 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         analysis.run(exp_data, replace_results=True)
         self.assertExperimentDone(exp_data)
 
-        # Comapre the fitted parameter can approximate the same polynominal
+        # Check the fitted parameter can approximate the same polynominal
         x_pos = np.linspace(0, 1, 51)
         x_neg = np.linspace(-1, 0, 51)
         ref_yvals_pos = c1p * x_pos + c2p * x_pos**2 + c3p * x_pos**3 + ferr

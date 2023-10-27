@@ -216,13 +216,16 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
     # section: overview
 
-        This analysis is a variant of :class:`RamseyXYAnalysis` in which
-        the data is fit for a trigonometric function model with a linear phase.
-        By contrast, in this model, the phase is assumed to be a polynomial of
-        the x-data :math:`\theta(x)`, and techniques to compute a good initial guess
-        for these polynomial coefficients inside the trignometric function are not trivial.
-        Instead, this analysis performs heavy data formatting to extract
-        raw phase polynomial :math:`\theta(x)` and run curve fitting on the synthesized data.
+        This analysis is a variant of :class:`RamseyXYAnalysis`. In both cases, the X and Y
+        data are treated as the real and imaginary parts of a complex oscillating signal.
+        In :class:`RamseyXYAnalysis`, the data is fit assuming a phase varying linearly with
+        the x-data corresponding to a constant frequency and assuming an exponentially
+        decaying amplitude. By contrast, in this model, the phase is assumed to be
+        a third order polynomial :math:`\theta(x)` of the x-data.
+        Additionally, the amplitude is not assumed to follow a specific form.
+        Techniques to compute a good initial guess for the polynomial coefficients inside
+        a trigonometric function like this are not trivial. Instead, this analysis extracts the
+        raw phase :math:`\theta(x)` and runs fits the extracted data to a polynomial directly.
 
         The measured P1 values for Ramsey X and Y experiment can be written in a form of
         a trignometric function taking the phase polynomial :math:`\theta(x)`:
@@ -240,13 +243,14 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         Because the arctangent is implemented by the ``atan2`` function
         defined in :math:`[-\pi, \pi]`, the computed :math:`\theta(x)` is unwrapped to
-        ensure the continuous phase evolution.
+        ensure continuous phase evolution.
 
-        We call attantion to the fact that :math:`\text{amp}(x)` is also Stark tone amplitude
+        We call attention to the fact that :math:`\text{amp}(x)` is also Stark tone amplitude
         dependent because of the qubit frequency dependence of the dephasing rate.
-        In general :math:`\text{amp}(x)` is unpredictable due to random occurence of TLS
-        or probably due to qubit heating, and this prevents us from precisely fitting
-        the raw :math:`P_X`, :math:`P_Y` data. Fitting on the polynomial makes the
+        In general :math:`\text{amp}(x)` is unpredictable due to dephasing from
+        two-level systems distributed randomly in frequency
+        or potentially due to qubit heating. This prevents us from precisely fitting
+        the raw :math:`P_X`, :math:`P_Y` data. Fitting only the phase data makes the
         analysis robust to the amplitude dependent dephasing.
 
         In this analysis, the phase polynomial is defined as
