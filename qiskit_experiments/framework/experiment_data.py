@@ -790,14 +790,12 @@ class ExperimentData:
             data = [data]
 
         # Directly add non-job data
+
         with self._result_data.lock:
             for datum in data:
                 if isinstance(datum, dict):
-                    if datum.get("composite_metadata"):
-                        self._add_data(datum.child_data(),datum["composite_metadata"])
+                    if datum["metadata"].get("composite_metadata"):
                         self._result_data.append(datum)
-                    else:
-                        datum["composite_metadata"] = [ExperimentData()]
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
                         self._set_child_data(datum["metadata"]._metadata())
