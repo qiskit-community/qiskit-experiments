@@ -15,6 +15,7 @@
 from typing import List, Union
 
 import lmfit
+import pandas as pd
 import numpy as np
 from uncertainties import unumpy as unp
 
@@ -489,7 +490,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # Invalidate model_id because these are index of raw Ramsey curves.
         # Fit models are defined based on the phase data.
-        formatted_data.model_id = "n/a"
+        formatted_data.model_id = pd.NA
         out = formatted_data.append_list_values(
             other=phase_data,
             prefix="formatted",
