@@ -737,7 +737,11 @@ class ExperimentData:
             for datum in data:
                 if isinstance(datum, dict):
                     if datum["metadata"].get("composite_metadata"):
-                        self._result_data.append(datum)
+                        tmp_exp_data = ExperimentData()
+                        marginalized_data = self._marginalized_component_data([datum])
+                        for inner_datum in marginalized_data:
+                            tmp_exp_data.__add_data(inner_datum)
+                        self._set_child_data([tmp_exp_data])
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
                         self._set_child_data(datum["metadata"]._metadata())
