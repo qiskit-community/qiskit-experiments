@@ -781,6 +781,7 @@ class ExperimentData:
         Raises:
             TypeError: If the input data type is invalid.
         """
+
         if any(not future.done() for future in self._analysis_futures.values()):
             LOG.warning(
                 "Not all analysis has finished running. Adding new data may "
@@ -788,19 +789,19 @@ class ExperimentData:
             )
         if not isinstance(data, list):
             data = [data]
-
+        print(data)
         # Directly add non-job data
-
         with self._result_data.lock:
             for datum in data:
                 if isinstance(datum, dict):
                     if datum["metadata"].get("composite_metadata"):
-                        self._result_data.append(datum)
+                        tmp_exp_data = ExperimentData()
+                        marginalized_data = self._marginalized_component_data([datum])
+                        for inner_datum in marginalized_data:
+                            tmp_exp_data.__add_data(inner_datum)
+                        self._set_child_data([tmp_exp_data])
                 elif isinstance(datum, Result):
-                    if datum["metadata"]:
-                        self._set_child_data(datum["metadata"]._metadata())
-                    else:
-                        self._add_result_data(datum)
+                    self.__add_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
@@ -873,18 +874,7 @@ class ExperimentData:
                 for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
                     # Clear any previously stored data and add marginalized data
                     sub_expdata._result_data.clear()
-                    for datum in sub_data:
-                        self.__reacher_composite_metadata(datum)
                     sub_expdata.__add_data(sub_data)
-
-    def __reacher_composite_metadata(self,data : Dict)->List:
-        if data.get("composite_metadata"):
-            for datum in data.get("composite_metadata"):
-                self.__reacher_composite_metadata(datum)
-                self._add_data(datum.child_data(),datum["composite_metadata"])
-        else:
-            data["composite_metadata"] = [ExperimentData()]
-            return
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
@@ -914,7 +904,7 @@ class ExperimentData:
                 and composite_clbits is not None
                 and isinstance(datum["memory"][0], str)
             ):
-                f_memory = marginal_memory(datum["memory"], composite_clbits)
+                f_memory = self._format_memory(datum, composite_clbits)
 
             for i, index in enumerate(metadata["composite_index"]):
                 if index not in marginalized_data:
@@ -954,6 +944,21 @@ class ExperimentData:
         # Sort by index
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
     
+    @staticmethod
+    def _format_memory(datum: Dict, composite_clbits: List):
+        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
+        f_memory = None
+        if (
+            "memory" in datum
+            and composite_clbits is not None
+            and isinstance(datum["memory"][0], str)
+        ):
+            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
+            header = {"memory_slots": num_cbits}
+            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
+
+        return f_memory
+
     def add_jobs(
         self,
         jobs: Union[Job, List[Job]],

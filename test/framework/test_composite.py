@@ -651,10 +651,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         }
 
         test_data.add_data(datum)
-
         sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
             test_data.data()
         )
+        # print(sub_data)
         expected = [
             [
                 {
