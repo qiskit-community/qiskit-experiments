@@ -789,7 +789,7 @@ class ExperimentData:
             )
         if not isinstance(data, list):
             data = [data]
-        print(data)
+
         # Directly add non-job data
         with self._result_data.lock:
             for datum in data:
@@ -800,6 +800,8 @@ class ExperimentData:
                         for inner_datum in marginalized_data:
                             tmp_exp_data.__add_data(inner_datum)
                         self._set_child_data([tmp_exp_data])
+                    else:
+                        self._result_data.append(datum)
                 elif isinstance(datum, Result):
                     self.__add_data(datum)
                 else:
