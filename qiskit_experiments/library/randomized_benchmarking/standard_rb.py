@@ -241,6 +241,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return tuple(sorted(basis_gates)) if basis_gates else None
 
         def is_bidirectional(coupling_map):
+            if coupling_map is None:
+                # None for a coupling map implies all-to-all coupling
+                return True
             return len(coupling_map.reduce(self.physical_qubits).get_edges()) == 2
 
         # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.
