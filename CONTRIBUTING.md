@@ -104,21 +104,17 @@ https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 If you want to run a single test module, test class, or individual test method you can
 do this faster with the `-n`/`--no-discover` option. For example, to run a module:
 ```
-tox -- -n test.python.test_examples
+tox -epy310 -- -n test.framework.test_composite
 ```
-Or to run the same module by path:
 
-```
-tox -- -n test/python/test_examples.py
-```
 To run a class:
+```
+tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData
+```
 
-```
-tox -- -n test.python.test_examples.TestPythonExamples
-```
 To run a method:
 ```
-tox -- -n test.python.test_examples.TestPythonExamples.test_all_examples
+tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData.test_composite_save_load
 ```
 
 Note that tests will fail automatically if they do not finish execution within 60 seconds.
