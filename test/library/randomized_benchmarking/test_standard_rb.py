@@ -314,11 +314,29 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""
+
+        # Increase single qubit error so that we can see gate error with a
+        # small number of Cliffords since we want to run many samples without
+        # taking too long.
+        p1q = 0.15
+        pvz = 0.0
+
+        # setup noise model
+        sx_error = depolarizing_error(p1q, 1)
+        rz_error = depolarizing_error(pvz, 1)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+
+        # Aer simulator
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=123)
+
         exp1 = rb.StandardRB(
-            physical_qubits=(0, 1),
+            physical_qubits=(0,),
             lengths=list(range(1, 30, 3)),
             seed=123,
-            backend=self.backend,
+            backend=backend,
             num_samples=3,
         )
         exp1.analysis.set_options(gate_error_ratio=None)
@@ -327,11 +345,11 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata1)
 
         exp2 = rb.StandardRB(
-            physical_qubits=(0, 1),
+            physical_qubits=(0,),
             lengths=list(range(1, 30, 3)),
             seed=456,
-            backend=self.backend,
-            num_samples=5,
+            backend=backend,
+            num_samples=30,
         )
         exp2.analysis.set_options(gate_error_ratio=None)
         exp2.set_transpile_options(**self.transpiler_options)
