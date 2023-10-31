@@ -87,7 +87,9 @@ def readout_noise_model(num_qubits, seed=None):
     p1g0s = 0.15 * rng.random(num_qubits)
     p0g1s = 0.3 * rng.random(num_qubits)
     amats = np.stack([[1 - p1g0s, p1g0s], [p0g1s, 1 - p0g1s]]).T
-    noise_model = NoiseModel()
+    # Set `basis_gates` so that reset is included.
+    # See https://github.com/Qiskit/qiskit-aer/issues/1975
+    noise_model = NoiseModel(basis_gates=["id", "rz", "sx", "cx", "reset"])
     for i, amat in enumerate(amats):
         noise_model.add_readout_error(amat.T, [i])
     return noise_model
