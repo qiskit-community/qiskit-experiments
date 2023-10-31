@@ -13,7 +13,7 @@ reno>=4.0.0
 nbsphinx
 arxiv
 ddt>=1.6.0
-qiskit-aer>=0.11.0
+qiskit-aer>=0.11.0,<=0.12.2 # Temporary version pin because of https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1292
 pandas>=1.1.5
 cvxpy>=1.1.15
 pylatexenc
