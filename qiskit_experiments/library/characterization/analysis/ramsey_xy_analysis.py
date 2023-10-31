@@ -18,6 +18,8 @@ import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+import qiskit_experiments.visualization as vis
+from qiskit_experiments.framework import ExperimentData
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
@@ -102,7 +104,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
-        curve_data: curve.CurveData,
+        curve_data: curve.ScatterTable,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
@@ -192,13 +194,13 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three,
+            - a reduced chi-squared lower than three and greater than zero,
             - an error on the frequency smaller than the frequency.
         """
         fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(fit_freq),
         ]
 
@@ -206,3 +208,301 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
+
+
+class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
+    r"""Ramsey XY analysis for the Stark shifted phase sweep.
+
+    # section: overview
+
+        This analysis is a variant of :class:`RamseyXYAnalysis` in which
+        the data is fit for a trigonometric function model with a linear phase.
+        By contrast, in this model, the phase is assumed to be a polynomial of the x-data,
+        and techniques to compute a good initial guess for these polynomial coefficients
+        are not trivial. For example, when the phase is a linear function of the x-data,
+        one may apply a Fourier transform to the data to estimate the coefficient,
+        but this technique can not be used for a higher order polynomial.
+
+        This analysis assumes the following polynomial for the phase imparted by the Stark shift.
+
+        .. math::
+
+            \theta_{\text Stark}(x) = 2 \pi t_S f_S(x),
+
+        where
+
+        .. math::
+
+            f_S(x) = c_1 x + c_2 x^2 + c_3 x^3 + f_{\rm err},
+
+        denotes the Stark shift. For the lowest order perturbative expansion of a single driven qubit,
+        the Stark shift is a quadratic function of :math:`x`, but linear and cubic terms
+        and a constant offset are also considered to account for
+        other effects, e.g. strong drive, collisions, TLS, and so forth,
+        and frequency mis-calibration, respectively.
+
+    # section: fit_model
+
+        .. math::
+
+            F_{X+} = \text{amp} \cdot \cos \left( 2 \pi t_S f_S^+(x) \right) + \text{offset}, \\
+            F_{Y+} = \text{amp} \cdot \sin \left( 2 \pi t_S f_S^+(x) \right) + \text{offset}, \\
+            F_{X-} = \text{amp} \cdot \cos \left( 2 \pi t_S f_S^-(x) \right) + \text{offset}, \\
+            F_{Y-} = \text{amp} \cdot \sin \left( 2 \pi t_S f_S^-(x) \right) + \text{offset},
+
+        where
+
+        .. math ::
+
+            f_S^\nu(x) = c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_{\rm err}.
+
+        The Stark shift is asymmetric with respect to :math:`x=0`, because of the
+        anti-crossings of higher energy levels. In a typical transmon qubit,
+        these levels appear only in :math:`f_S < 0` because of the negative anharmonicity.
+        To precisely fit the results, this analysis uses different model parameters
+        for positive (:math:`x > 0`) and negative (:math:`x < 0`) shift domains.
+
+        To obtain the initial guess, the following calculation is employed in this analysis.
+        First, oscillations in each quadrature are normalized and the offset is subtracted.
+        The amplitude and offset can be accurately estimated from the experiment data
+        when the oscillation involves multiple cycles.
+
+        .. math ::
+
+            {\cal F}_{X} = \cos \left( 2 \pi t_S f_S(x) \right), \\
+            {\cal F}_{Y} = \sin \left( 2 \pi t_S f_S(x) \right).
+
+        Next, these normalized oscillations are differentiated
+
+        .. math ::
+
+            \dot{{\cal F}}_X = - 2 \pi t_S \frac{d f_S}{dx} {\cal F}_Y, \\
+            \dot{{\cal F}}_Y = 2 \pi t_S \frac{d f_S}{dx} {\cal F}_X. \\
+
+        The square root of the sum of the squares of the above quantities yields
+
+        .. math ::
+
+            \sqrt{\dot{{\cal F}}_X^2 + \dot{{\cal F}}_Y^2}
+                = 2 \pi t_S \frac{d}{dx} f_S = 2 \pi t_S (c_1 + 2 c_2 x + 3 c_3 x^2).
+
+        By computing this synthesized data on the left hand side, one can estimate
+        the initial guess of the polynomial coefficients by quadratic regression.
+        This fit protocol is independently conducted for the experiment data on the
+        positive and negative shift domain.
+
+    # section: fit_parameters
+
+        defpar \rm amp:
+            desc: Amplitude of both series.
+            init_guess: Median of root sum square of Ramsey X and Y oscillation.
+            bounds: [0, 1]
+
+        defpar \rm offset:
+            desc: Base line of all series.
+            init_guess: The average of the data.
+            bounds: [-1, 1]
+
+        defpar t_S:
+            desc: Fixed parameter from the ``stark_length`` experiment option.
+            init_guess: Automatically set from metadata when this analysis is run.
+            bounds: None
+
+        defpar c_1^+:
+            desc: The linear term coefficient of the positive Stark shift
+                (fit parameter: ``stark_pos_coef_o1``).
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_2^+:
+            desc: The quadratic term coefficient of the positive Stark shift.
+                This parameter must be positive because Stark amplitude is chosen to
+                induce blue shift when its sign is positive.
+                Note that the quadratic term is the primary term
+                (fit parameter: ``stark_pos_coef_o2``).
+            init_guess: See the fit model description.
+            bounds: [0, inf]
+
+        defpar c_3^+:
+            desc: The cubic term coefficient of the positive Stark shift
+                (fit parameter: ``stark_pos_coef_o3``).
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_1^-:
+            desc: The linear term coefficient of the negative Stark shift.
+                (fit parameter: ``stark_neg_coef_o1``).
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar c_2^-:
+            desc: The quadratic term coefficient of the negative Stark shift.
+                This parameter must be negative because Stark amplitude is chosen to
+                induce red shift when its sign is negative.
+                Note that the quadratic term is the primary term
+                (fit parameter: ``stark_neg_coef_o2``).
+            init_guess: See the fit model description.
+            bounds: [-inf, 0]
+
+        defpar c_3^-:
+            desc: The cubic term coefficient of the negative Stark shift
+                (fit parameter: ``stark_neg_coef_o3``).
+            init_guess: See the fit model description.
+            bounds: None
+
+        defpar f_{\rm err}:
+            desc: Constant phase accumulation which is independent of the Stark tone amplitude.
+                (fit parameter: ``stark_ferr``).
+            init_guess: 0
+            bounds: None
+
+    # section: see_also
+
+        :class:`qiskit_experiments.library.characterization.analysis.ramsey_xy_analysis.RamseyXYAnalysis`
+
+    """
+
+    def __init__(self):
+
+        models = []
+        for direction in ("pos", "neg"):
+            # Ramsey phase := 2π ts Δf(x); Δf(x) = c1 x + c2 x^2 + c3 x^3 + f_err
+            fs = f"(c1_{direction} * x + c2_{direction} * x**2 + c3_{direction} * x**3 + f_err)"
+            models.extend(
+                [
+                    lmfit.models.ExpressionModel(
+                        expr=f"amp * cos(2 * pi * ts * {fs}) + offset",
+                        name=f"X{direction}",
+                    ),
+                    lmfit.models.ExpressionModel(
+                        expr=f"amp * sin(2 * pi * ts * {fs}) + offset",
+                        name=f"Y{direction}",
+                    ),
+                ]
+            )
+
+        super().__init__(models=models)
+
+    @classmethod
+    def _default_options(cls):
+        """Default analysis options."""
+        ramsey_plotter = vis.CurvePlotter(vis.MplDrawer())
+        ramsey_plotter.set_figure_options(
+            xlabel="Stark tone amplitude",
+            ylabel="P(1)",
+            ylim=(0, 1),
+            series_params={
+                "Xpos": {"color": "#123FE8", "symbol": "o", "label": "Ramsey X(+)"},
+                "Ypos": {"color": "#6312E8", "symbol": "^", "label": "Ramsey Y(+)"},
+                "Xneg": {"color": "#E83812", "symbol": "o", "label": "Ramsey X(-)"},
+                "Yneg": {"color": "#E89012", "symbol": "^", "label": "Ramsey Y(-)"},
+            },
+        )
+        ramsey_plotter.set_options(style=vis.PlotStyle({"figsize": (12, 5)}))
+
+        options = super()._default_options()
+        options.update_options(
+            result_parameters=[
+                curve.ParameterRepr("c1_pos", "stark_pos_coef_o1", "Hz"),
+                curve.ParameterRepr("c2_pos", "stark_pos_coef_o2", "Hz"),
+                curve.ParameterRepr("c3_pos", "stark_pos_coef_o3", "Hz"),
+                curve.ParameterRepr("c1_neg", "stark_neg_coef_o1", "Hz"),
+                curve.ParameterRepr("c2_neg", "stark_neg_coef_o2", "Hz"),
+                curve.ParameterRepr("c3_neg", "stark_neg_coef_o3", "Hz"),
+                curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
+            ],
+            data_subfit_map={
+                "Xpos": {"series": "X", "direction": "pos"},
+                "Ypos": {"series": "Y", "direction": "pos"},
+                "Xneg": {"series": "X", "direction": "neg"},
+                "Yneg": {"series": "Y", "direction": "neg"},
+            },
+            plotter=ramsey_plotter,
+        )
+
+        return options
+
+    def _generate_fit_guesses(
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.ScatterTable,
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Create algorithmic initial fit guess from analysis options and curve data.
+
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
+        # Compute offset guess
+        user_opt.p0.set_if_empty(
+            offset=np.mean(curve_data.y),
+            f_err=0.0,
+        )
+        user_opt.bounds.set_if_empty(
+            offset=(-1, 1),
+            amp=(0, 1),
+            c2_pos=(0, np.inf),
+            c2_neg=(-np.inf, 0),
+        )
+        est_offs = user_opt.p0["offset"]
+
+        # Compute amplitude guess
+        amps = np.zeros(0)
+        for direction in ("pos", "neg"):
+            ram_x_off = curve_data.get_subset_of(f"X{direction}").y - est_offs
+            ram_y_off = curve_data.get_subset_of(f"Y{direction}").y - est_offs
+            amps = np.concatenate([amps, np.sqrt(ram_x_off**2 + ram_y_off**2)])
+        user_opt.p0.set_if_empty(amp=np.median(amps))
+        est_a = user_opt.p0["amp"]
+        const = 2 * np.pi * user_opt.p0["ts"]
+
+        # Compute polynomial coefficients
+        for direction in ("pos", "neg"):
+            ram_x_data = curve_data.get_subset_of(f"X{direction}")
+            ram_y_data = curve_data.get_subset_of(f"Y{direction}")
+
+            if not np.array_equal(ram_x_data.x, ram_y_data.x):
+                raise ValueError(
+                    f"The x values for {direction} direction are different in the scan "
+                    "in X and Y quadrature. The scan must be identical in both quadrature "
+                    "to compute initial guess."
+                )
+            xvals = ram_x_data.x
+
+            # Get normalized sinusoidals
+            xnorm = (ram_x_data.y - est_offs) / est_a
+            ynorm = (ram_y_data.y - est_offs) / est_a
+
+            # Compute derivative to extract polynomials from sinusoidal
+            dx = np.diff(xnorm) / np.diff(xvals)
+            dy = np.diff(ynorm) / np.diff(xvals)
+
+            # Eliminate sinusoidal
+            phase_poly = np.sqrt(dx**2 + dy**2)
+
+            # Do polyfit up to 2rd order.
+            # This must correspond to the 3rd order in the original function.
+            vmat_xpoly = np.vstack((xvals[1:] ** 2, xvals[1:], np.ones(xvals.size - 1))).T
+            coeffs = np.linalg.lstsq(vmat_xpoly, phase_poly, rcond=-1)[0]
+            poly_guess = {
+                f"c1_{direction}": coeffs[2] / 1 / const,
+                f"c2_{direction}": coeffs[1] / 2 / const,
+                f"c3_{direction}": coeffs[0] / 3 / const,
+            }
+            user_opt.p0.set_if_empty(**poly_guess)
+
+        return user_opt
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        super()._initialize(experiment_data)
+
+        # Set scaling factor to convert phase to frequency
+        fixed_params = self.options.fixed_parameters.copy()
+        fixed_params["ts"] = experiment_data.metadata["stark_length"]
+        self.set_options(fixed_parameters=fixed_params)

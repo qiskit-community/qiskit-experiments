@@ -25,6 +25,7 @@ import json
 import dateutil.parser
 import pkg_resources
 from dateutil import tz
+
 from qiskit.version import __version__ as terra_version
 
 from qiskit_ibm_experiment import (

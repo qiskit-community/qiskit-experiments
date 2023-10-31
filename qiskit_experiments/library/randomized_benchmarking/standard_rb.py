@@ -103,7 +103,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for all lengths.
                            If False for sample of lengths longer sequences are constructed
                            by appending additional samples to shorter sequences.
@@ -142,7 +142,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             num_samples (int): Number of samples to generate for each sequence length.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
-                The ``default_rng`` will be initialized with this seed value everytime
+                The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
             full_sampling (bool): If True all Cliffords are independently sampled for
                 all lengths. If False for sample of lengths longer sequences are constructed
@@ -241,6 +241,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return tuple(sorted(basis_gates)) if basis_gates else None
 
         def is_bidirectional(coupling_map):
+            if coupling_map is None:
+                # None for a coupling map implies all-to-all coupling
+                return True
             return len(coupling_map.reduce(self.physical_qubits).get_edges()) == 2
 
         # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.

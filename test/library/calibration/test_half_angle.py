@@ -32,7 +32,7 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_amp_parameter_error(self):
@@ -55,3 +55,8 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
         cals_no_angle.add_schedule(sx, num_qubits=1)
         with self.assertRaises(CalibrationError):
             HalfAngleCal([0], cals_no_angle)
+
+    def test_circuits_roundtrip_serializable(self):
+        """Test circuits serialization of the experiment."""
+        exp = HalfAngleCal([0], self.cals, backend=self.backend)
+        self.assertRoundTripSerializable(exp._transpiled_circuits())

@@ -20,6 +20,7 @@ import numpy as np
 from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
 
@@ -47,14 +48,27 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.x_plus = xp
         self.test_tol = 0.1
 
-    # pylint: disable=no-member
-    def test_end_to_end(self):
+    @data(
+        (None, None, None),
+        (0.0044, None, None),
+        (0.04, np.linspace(-4, 4, 31), {"beta": 1.8, "freq": 0.08}),
+    )
+    @unpack
+    def test_end_to_end(self, freq, betas, p0_opt):
         """Test the drag experiment end to end."""
 
         drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
+        if freq:
+            drag_experiment_helper.frequency = freq
         backend = MockIQBackend(drag_experiment_helper)
 
         drag = RoughDrag([1], self.x_plus)
+        drag.set_run_options(shots=200)
+
+        if betas is not None:
+            drag.set_experiment_options(betas=betas)
+        if p0_opt:
+            drag.analysis.set_options(p0=p0_opt)
 
         expdata = drag.run(backend)
         self.assertExperimentDone(expdata)
@@ -63,42 +77,14 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
-
-        # Small leakage will make the curves very flat, in this case one should
-        # rather increase beta.
-        drag_experiment_helper.frequency = 0.0044
-
-        drag = RoughDrag([0], self.x_plus)
-        exp_data = drag.run(backend)
-        self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
-
-        # pylint: disable=no-member
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
-        self.assertEqual(result.quality, "good")
-
-        # Large leakage will make the curves oscillate quickly.
-        drag_experiment_helper.frequency = 0.04
-        drag = RoughDrag([1], self.x_plus, betas=np.linspace(-4, 4, 31))
-        # pylint: disable=no-member
-        drag.set_run_options(shots=200)
-        drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
-        exp_data = drag.run(backend)
-        self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
-
-        meas_level = exp_data.metadata["meas_level"]
-
-        self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
-        self.assertEqual(result.quality, "good")
+        self.assertEqual(expdata.metadata["meas_level"], MeasLevel.CLASSIFIED)
 
     @data(
-        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
-        (0.0020, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
-        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
-        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
-        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
+        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.2),  # partial oscillation.
+        (0.0020, 0.5, 0.00, [1, 3, 5], None, 1.0),  # even slower oscillation with amp < 1
+        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.2),  # constant offset, i.e. lower SNR.
+        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.2),  # Beta not in range
+        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.2),  # Max closer to zero
     )
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
@@ -112,6 +98,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         drag = RoughDrag([0], self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
+        drag.set_run_options(shots=500)
 
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
@@ -185,6 +172,13 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         for idx, expected in enumerate([4, 8, 16]):
             ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
+
+    def test_circuit_roundtrip_serializable(self):
+        """Test circuit serializations for drag experiment."""
+        drag = RoughDrag([0], self.x_plus)
+        drag.set_experiment_options(reps=[2, 4], betas=[-5, 5])
+        drag.backend = FakeWashingtonV2()
+        self.assertRoundTripSerializable(drag._transpiled_circuits())
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""

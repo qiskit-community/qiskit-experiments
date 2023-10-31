@@ -421,41 +421,51 @@ class BasePlotter(ABC):
         """Return default figure options.
 
         Figure Options:
-            xlabel (Union[str, List[str]]): X-axis label string of the output figure.
-                If there are multiple columns in the canvas, this could be a list of
-                labels.
-            ylabel (Union[str, List[str]]): Y-axis label string of the output figure.
-                If there are multiple rows in the canvas, this could be a list of
-                labels.
-            xlim (Tuple[float, float]): Min and max value of the horizontal axis.
-                If not provided, it is automatically scaled based on the input data
-                points.
-            ylim (Tuple[float, float]): Min and max value of the vertical axis.
-                If not provided, it is automatically scaled based on the input data
-                points.
-            xval_unit (str): Unit of x values. No scaling prefix is needed here as this
-                is controlled by ``xval_unit_scale``.
-            yval_unit (str): Unit of y values. See ``xval_unit`` for details.
-            xval_unit_scale (bool): Whether to add an SI unit prefix to ``xval_unit`` if
-                needed. For example, when the x values represent time and
+            xlabel (Union[str, List[str]]): X-axis label string of the output figure. If
+                there are multiple columns in the canvas, this could be a list of labels.
+            ylabel (Union[str, List[str]]): Y-axis label string of the output figure. If
+                there are multiple rows in the canvas, this could be a list of labels.
+            xlim (Union[Tuple[float, float], List[Tuple[float, float]]): Min and max value
+                of the horizontal axis. If not provided, it is automatically scaled based
+                on the input data points. If there are multiple columns in the canvas,
+                this could be a list of xlims.
+            ylim (Union[Tuple[float, float], List[Tuple[float, float]]): Min and max value
+                of the vertical axis. If not provided, it is automatically scaled based
+                on the input data points. If there are multiple rows in the canvas,
+                this could be a list of ylims.
+            xval_unit (Union[str, List[str]]): Unit of x values.
+                No scaling prefix is needed here as this is controlled by ``xval_unit_scale``.
+                If there are multiple columns in the canvas, this could be a list of xval_units.
+            yval_unit (Union[str, List[str]]): Unit of y values.
+                No scaling prefix is needed here as this is controlled by ``yval_unit_scale``.
+                If there are multiple rows in the canvas, this could be a list of yval_units.
+            xval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to
+                ``xval_unit`` if needed. For example, when the x values represent time and
                 ``xval_unit="s"``, ``xval_unit_scale=True`` adds an SI unit prefix to
                 ``"s"`` based on X values of plotted data. In the output figure, the
                 prefix is automatically selected based on the maximum value in this
                 axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms,
                 10 ms]. By default, this option is set to ``True``. If ``False`` is
                 provided, the axis numbers will be displayed in the scientific notation.
-            yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if
-                needed. See ``xval_unit_scale`` for details.
+                If there are multiple columns in the canvas, this could be a list of xval_unit_scale.
+            yval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to
+                ``yval_unit`` if needed. See ``xval_unit_scale`` for details.
+                If there are multiple rows in the canvas, this could be a list of yval_unit_scale.
+            xscale (str): The scaling of the x-axis, such as ``log`` or ``linear``.
+            yscale (str): The scaling of the y-axis, such as ``log`` or ``linear``.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is
                 shown.
-            series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot
-                parameters for each series. This is keyed on the name for each series.
-                Sub-dictionary is expected to have following three configurations,
-                "canvas", "color", and "symbol"; "canvas" is the integer index of axis
-                (when multi-canvas plot is set), "color" is the color of the curve, and
-                "symbol" is the marker Style of the curve for scatter plots.
+            sharex (bool): Set True to share x-axis ticks among sub-plots.
+            sharey (bool): Set True to share y-axis ticks among sub-plots.
+            series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for
+                each series. This is keyed on the name for each series. Sub-dictionary
+                is expected to have the following three configurations, "canvas",
+                "color", "symbol" and "label"; "canvas" is the integer index of axis
+                (when multi-canvas plot is set), "color" is the color of the drawn
+                graphics, "symbol" is the series marker style for scatter plots, and
+                "label" is a user provided series label that appears in the legend.
         """
-        return Options(
+        options = Options(
             xlabel=None,
             ylabel=None,
             xlim=None,
@@ -464,9 +474,17 @@ class BasePlotter(ABC):
             yval_unit=None,
             xval_unit_scale=True,
             yval_unit_scale=True,
+            xscale=None,
+            yscale=None,
+            sharex=True,
+            sharey=True,
             figure_title=None,
             series_params={},
         )
+        options.set_validator("xscale", ["linear", "log", "symlog", "logit", "quadratic", None])
+        options.set_validator("yscale", ["linear", "log", "symlog", "logit", "quadratic", None])
+
+        return options
 
     def set_options(self, **fields):
         """Set the plotter options.

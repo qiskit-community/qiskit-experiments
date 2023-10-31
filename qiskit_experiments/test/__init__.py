@@ -37,8 +37,6 @@ Mock backends for running simulated jobs.
     MockIQParallelBackend
     T2HahnBackend
     NoisyDelayAerBackend
-    PulseBackend
-    SingleTransmonTestBackend
 
 Helpers
 =======

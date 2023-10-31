@@ -64,7 +64,9 @@ def requires_cvxpy(func: Callable) -> Callable:
     return decorated_func
 
 
-def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **solve_kwargs) -> None:
+def solve_iteratively(
+    problem: Problem, initial_iters: int, scale: int = 2, solver: str = "SCS", **solve_kwargs
+) -> None:
     """Solve a CVXPY problem increasing iterations if solution is inaccurate.
 
     If the problem is not solved with the ``initial_iters`` value of
@@ -79,6 +81,7 @@ def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **so
                        when solving the problem
         scale: Scale factor for increasing the initial_iters up to
                max_iters at each step (Default: 2).
+        solver: The solver to use. Defaults to the Splitting Conic Solver.
         solve_kwargs: kwargs for problem.solve method.
 
     Raises:
@@ -90,7 +93,7 @@ def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **so
     problem_solved = False
     while not problem_solved:
         solve_kwargs["max_iters"] = current_max_iters
-        problem.solve(**solve_kwargs)
+        problem.solve(solver=solver, **solve_kwargs)
         if problem.status in ["optimal_inaccurate", "optimal"]:
             problem_solved = True
         elif problem.status == "unbounded_inaccurate":
@@ -195,7 +198,7 @@ def trace_constraint(
     if hermitian:
         return cons
 
-    # If not hermitian add imaginary trace constrant
+    # If not hermitian add imaginary trace constraint
     if isinstance(mat_i, (list, tuple)):
         arg_i = cvxpy.sum(mat_i)
     elif isinstance(mat_i, Variable):
@@ -276,7 +279,7 @@ def trace_preserving_constaint(
     if hermitian:
         return cons
 
-    # If not hermitian add imaginary partial trace constrant
+    # If not hermitian add imaginary partial trace constraint
     if isinstance(mat_i, (tuple, list)):
         arg_r = cvxpy.sum(mat_i)
     elif isinstance(mat_i, Variable):
