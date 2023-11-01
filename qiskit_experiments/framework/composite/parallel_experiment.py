@@ -49,6 +49,7 @@ class ParallelExperiment(CompositeExperiment):
         backend: Optional[Backend] = None,
         flatten_results: bool = None,
         analysis: Optional[CompositeAnalysis] = None,
+        experiment_type: Optional[str] = None,
     ):
         """Initialize the analysis object.
 
