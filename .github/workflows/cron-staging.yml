@@ -36,11 +36,12 @@ jobs:
             ${{ runner.os }}-${{ matrix.python-version }}
       - name: Install Deps
         run: python -m pip install -U tox setuptools virtualenv wheel
-      - name: Install and Run Tests
+        - name: Install and Run Tests (Windows and Linux)
         run: tox -e terra-main
         if: runner.os != 'macOS'
-      - name: Install and Run Tests
+      - name: Install and Run Tests (Macs only)
         run: tox -e terra-main
         if: runner.os == 'macOS'
         env:
+          TEST_TIMEOUT: 120
           OMP_NUM_THREADS: 1
