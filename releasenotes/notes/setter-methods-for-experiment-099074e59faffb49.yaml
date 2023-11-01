@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added ``experiment_type`` as optional ``__init__`` kwarg in BatchExperiment
+    and ParallelExperiment.
+  - |
+    :math:`BaseExperiment.experiment_type` as setter,'experiment_type' can now
+    be easily set and retrieved from the experiment object post-construction
+    using the 'experiment_type' property and setter.
