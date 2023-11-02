@@ -33,7 +33,7 @@ from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
 
 # Fail tests that take longer than this
-TEST_TIMEOUT = os.environ.get("TEST_TIMEOUT", 60)
+TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
