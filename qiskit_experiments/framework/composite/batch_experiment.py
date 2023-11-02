@@ -87,7 +87,12 @@ class BatchExperiment(CompositeExperiment):
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
         super().__init__(
-            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
+            experiments,
+            qubits,
+            backend=backend,
+            analysis=analysis,
+            flatten_results=flatten_results,
+            experiment_type=experiment_type,
         )
 
     def circuits(self):

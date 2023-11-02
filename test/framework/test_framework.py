@@ -356,5 +356,6 @@ class TestFramework(QiskitExperimentsTestCase):
         exp1 = MyExp(physical_qubits=[0], experiment_type="blaaa")
         self.assertEqual(exp1.experiment_type, "blaaa")
         exp2 = MyExp(physical_qubits=[0])
+        self.assertEqual(exp2.experiment_type, "MyExp")
         exp2.experiment_type = "suieee"
         self.assertEqual(exp2.experiment_type, "suieee")
