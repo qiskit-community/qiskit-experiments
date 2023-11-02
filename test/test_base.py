@@ -20,8 +20,8 @@ UnittestBase = create_base_test_case(use_testtools=False)
 
 
 class TestQiskitExperimentsTestCaseWithUnittest(UnittestBase):
-    """Test QiskitExperimentsTestCase behavior when not based on testtools.TestCase
-    """
+    """Test QiskitExperimentsTestCase behavior when not based on testtools.TestCase"""
+
     def test_test(self):
         """Test that a test not based on ``testtools`` can run"""
         pass

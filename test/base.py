@@ -77,7 +77,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 not used when using unittest.
                 """
 
-
     class QETestCase(BaseTestCase):
         """Qiskit Experiments specific extra functionality for test cases."""
 
