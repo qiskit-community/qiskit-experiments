@@ -732,7 +732,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
             test_data.data()
         )
-        # print(sub_data)
+        #print([exp_data.data() for exp_data in test_data.child_data()])
         expected = [
             [
                 {
@@ -753,7 +753,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 }
             ],
         ]
-
         self.assertListEqual(sub_data, expected)
 
     def test_composite_single_kerneled_memory_marginalization(self):
