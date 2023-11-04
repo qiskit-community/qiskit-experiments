@@ -792,20 +792,39 @@ class ExperimentData:
 
         # Directly add non-job data
         with self._result_data.lock:
+            tmp_exp_data = ExperimentData()
+            composite_flag = False
+            experiment_seperator = {}
             for datum in data:
                 if isinstance(datum, dict):
-                    if datum["metadata"].get("composite_metadata"):
-                        tmp_exp_data = ExperimentData()
+                    if "composite_metadata" in datum["metadata"]:
+                        composite_flag = True
                         marginalized_data = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_data:
-                            tmp_exp_data.__add_data(inner_datum)
-                        self._set_child_data([tmp_exp_data])
+                            #print(inner_datum)
+                            if "experiment_type" in inner_datum[0]["metadata"]:
+                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
+                                else:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
                     else:
                         self._result_data.append(datum)
                 elif isinstance(datum, Result):
-                    self.__add_data(datum)
+                    if datum["metadata"]:
+                        self._set_child_data(datum["metadata"]._metadata())
+                    else:
+                        self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
+            if composite_flag:
+                tmp_exp_data._set_child_data(list(experiment_seperator.values()))
+                self._set_child_data([tmp_exp_data])
+                for exp_data in self._child_data.values():
+                    for sub_exp_data in exp_data.child_data():
+                        print(sub_exp_data.data())
+                print(self.data())
+
 
     def __add_data(
         self,
