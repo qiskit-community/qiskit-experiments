@@ -215,20 +215,20 @@ The default RB circuit output shows Clifford blocks:
     # Run an RB experiment on qubit 0
     exp = StandardRB(physical_qubits=(0,), lengths=[2], num_samples=1, seed=seed)
     c = exp.circuits()[0]
-    c.draw("mpl")
+    c.draw(output="mpl", style="iqp")
 
 You can decompose the circuit into underlying gates:
 
 .. jupyter-execute::
 
-    c.decompose().draw("mpl")
+    c.decompose().draw(output="mpl", style="iqp")
 
 And see the transpiled circuit using the basis gate set of the backend:
 
 .. jupyter-execute::
 
     from qiskit import transpile
-    transpile(c, backend, **vars(exp.transpile_options)).draw("mpl", idle_wires=False)
+    transpile(c, backend, **vars(exp.transpile_options)).draw(output="mpl", style="iqp", idle_wires=False)
 
 .. note::
     In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
