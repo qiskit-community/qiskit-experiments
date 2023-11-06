@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Display a warning when running an analysis on `ExperimentData` object without data. 
