@@ -15,6 +15,7 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import numbers
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 from itertools import groupby
@@ -295,10 +296,15 @@ class CurveAnalysis(BaseCurveAnalysis):
                     continue
                 if len(g_values) == 1:
                     averaged[k] = v[0]
+                elif all(isinstance(v, numbers.Number) for v in g_values):
+                    averaged[k] = np.average(g_values)
                 else:
-                    unique = set(v)
+                    try:
+                        unique = set(v)
+                    except TypeError:
+                        unique = set(map(repr, v))
                     if len(unique) == 1:
-                        averaged[k] = next(iter(unique))
+                        averaged[k] = v[0]
                     else:
                         averaged[k] = list(unique)
             formatted.append(list(averaged.values()))
