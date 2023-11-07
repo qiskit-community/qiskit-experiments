@@ -125,13 +125,7 @@ class T2Ramsey(BaseExperiment):
             circ.barrier(0)
             circ.measure(0, 0)
 
-            circ.metadata = {
-                "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
-                "xval": timing.delay_time(time=delay),
-                "osc_freq": self.experiment_options.osc_freq,
-                "unit": "s",
-            }
+            circ.metadata = {"xval": timing.delay_time(time=delay)}
 
             circuits.append(circ)
 
@@ -144,4 +138,5 @@ class T2Ramsey(BaseExperiment):
         for run_opt in ["meas_level", "meas_return"]:
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
+        metadata["osc_freq"] = self.experiment_options.osc_freq
         return metadata

@@ -171,8 +171,6 @@ class RoughDrag(BaseExperiment, RestlessMixin):
                 assigned_circuit = circuit.assign_parameters({beta: beta_val}, inplace=False)
 
                 assigned_circuit.metadata = {
-                    "experiment_type": self._type,
-                    "qubits": self.physical_qubits,
                     "xval": beta_val,
                     "nrep": rep,
                 }

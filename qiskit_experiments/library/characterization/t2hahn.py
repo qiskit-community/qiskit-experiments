@@ -131,18 +131,12 @@ class T2Hahn(BaseExperiment):
         """
         timing = BackendTiming(self.backend)
 
-        template = QuantumCircuit(1, 1)
-        template.metadata = {
-            "experiment_type": self._type,
-            "qubit": self.physical_qubits[0],
-            "unit": "s",
-        }
-
         delay_param = Parameter("delay")
 
         num_echoes = self.experiment_options.num_echoes
 
         # First X rotation in 90 degrees
+        template = QuantumCircuit(1, 1)
         template.rx(np.pi / 2, 0)  # Brings the qubit to the X Axis
         if num_echoes == 0:
             # if number of echoes is 0 then just apply the delay gate
@@ -174,7 +168,7 @@ class T2Hahn(BaseExperiment):
             assigned = template.assign_parameters(
                 {delay_param: timing.round_delay(time=single_delay)}, inplace=False
             )
-            assigned.metadata["xval"] = total_delay
+            assigned.metadata = {"xval": total_delay}
             circuits.append(assigned)
 
         return circuits

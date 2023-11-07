@@ -155,20 +155,12 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             rotation_angle = rotation_angle * timing.dt
 
         # Create the X and Y circuits.
-        metadata = {
-            "experiment_type": self._type,
-            "qubits": self.physical_qubits,
-            "osc_freq": self.experiment_options.osc_freq,
-            "unit": "s",
-        }
-
         ram_x = self._pre_circuit()
         ram_x.sx(0)
         ram_x.delay(p_delay, 0, timing.delay_unit)
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
-        ram_x.metadata = metadata.copy()
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
@@ -176,21 +168,22 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
-        ram_y.metadata = metadata.copy()
 
         circs = []
         for delay in self.experiment_options.delays:
-            assigned_x = ram_x.assign_parameters(
-                {p_delay: timing.round_delay(time=delay)}, inplace=False
-            )
-            assigned_x.metadata["series"] = "X"
-            assigned_x.metadata["xval"] = timing.delay_time(time=delay)
+            delay_dt = timing.round_delay(time=delay)
+            delay_sec = timing.delay_time(time=delay)
 
-            assigned_y = ram_y.assign_parameters(
-                {p_delay: timing.round_delay(time=delay)}, inplace=False
-            )
-            assigned_y.metadata["series"] = "Y"
-            assigned_y.metadata["xval"] = timing.delay_time(time=delay)
+            assigned_x = ram_x.assign_parameters({p_delay: delay_dt}, inplace=False)
+            assigned_x.metadata = {
+                "series": "X",
+                "xval": delay_sec,
+            }
+            assigned_y = ram_y.assign_parameters({p_delay: delay_dt}, inplace=False)
+            assigned_y.metadata = {
+                "series": "Y",
+                "xval": delay_sec,
+            }
 
             circs.extend([assigned_x, assigned_y])
 

@@ -167,10 +167,8 @@ class QuantumVolume(BaseExperiment):
             qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
-                "experiment_type": self._type,
                 "depth": depth,
                 "trial": trial,
-                "qubits": self.physical_qubits,
                 "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
             circuits.append(qv_circ)

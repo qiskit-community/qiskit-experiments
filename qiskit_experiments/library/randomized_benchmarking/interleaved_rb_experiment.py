@@ -199,7 +199,6 @@ class InterleavedRB(StandardRB):
             circ.metadata = {
                 "xval": len(seq),
                 "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
                 "interleaved": False,
             }
         # Build circuits of interleaved sequences
@@ -215,7 +214,6 @@ class InterleavedRB(StandardRB):
             circ.metadata = {
                 "xval": len(seq),  # set length of the reference sequence
                 "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
                 "interleaved": True,
             }
 
