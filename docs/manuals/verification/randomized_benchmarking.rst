@@ -8,7 +8,7 @@ identity. After running the circuits, the number of shots resulting in an error 
 output different from the ground state) are counted, and from this data one can infer
 error estimates for the quantum device, by calculating the Error Per Clifford. See the
 `Qiskit Textbook
-<https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__ for an
+<https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__ for an
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. jupyter-execute::
@@ -215,20 +215,20 @@ The default RB circuit output shows Clifford blocks:
     # Run an RB experiment on qubit 0
     exp = StandardRB(physical_qubits=(0,), lengths=[2], num_samples=1, seed=seed)
     c = exp.circuits()[0]
-    c.draw("mpl")
+    c.draw(output="mpl", style="iqp")
 
 You can decompose the circuit into underlying gates:
 
 .. jupyter-execute::
 
-    c.decompose().draw("mpl")
+    c.decompose().draw(output="mpl", style="iqp")
 
 And see the transpiled circuit using the basis gate set of the backend:
 
 .. jupyter-execute::
 
     from qiskit import transpile
-    transpile(c, backend, **vars(exp.transpile_options)).draw("mpl", idle_wires=False)
+    transpile(c, backend, **vars(exp.transpile_options)).draw(output="mpl", style="iqp", idle_wires=False)
 
 .. note::
     In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
@@ -309,4 +309,4 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
-* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* Qiskit Textbook: `Randomized Benchmarking <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__

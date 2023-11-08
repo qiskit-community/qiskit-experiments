@@ -196,7 +196,7 @@ class FigureData:
         return None
 
 
-_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -1134,7 +1134,7 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[_FigureT, List[_FigureT]],
+        figures: Union[FigureT, List[FigureT]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,

@@ -172,7 +172,7 @@ Instantiate the experiment and draw the first circuit in the sweep:
 .. jupyter-execute::
 
     circuit = spec.circuits()[0]
-    circuit.draw(output="mpl")
+    circuit.draw(output="mpl", style="iqp")
 
 We can also visualize the pulse schedule for the circuit:
 
@@ -225,7 +225,7 @@ with different amplitudes.
 
 .. jupyter-execute::
 
-    rabi.circuits()[0].draw("mpl")
+    rabi.circuits()[0].draw(output="mpl", style="iqp")
 
 After the experiment completes the value of the amplitudes in the calibrations 
 will automatically be updated. This behaviour can be controlled using the ``auto_update``
@@ -316,7 +316,7 @@ negative amplitude.
     from qiskit_experiments.library import RoughDragCal
     cal_drag = RoughDragCal([qubit], cals, backend=backend, betas=np.linspace(-20, 20, 25))
     cal_drag.set_experiment_options(reps=[3, 5, 7])
-    cal_drag.circuits()[5].draw(output='mpl')
+    cal_drag.circuits()[5].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
@@ -393,7 +393,7 @@ over/under rotations is the highest.
     
     overamp_exp = FineXAmplitude((qubit,), backend=backend)
     overamp_exp.set_transpile_options(inst_map=inst_map)
-    overamp_exp.circuits()[4].draw(output='mpl')
+    overamp_exp.circuits()[4].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
@@ -460,7 +460,7 @@ error which we want to correct.
     from qiskit_experiments.library import FineSXAmplitudeCal
 
     amp_cal = FineSXAmplitudeCal((qubit,), cals, backend=backend, schedule_name="sx")
-    amp_cal.circuits()[4].draw(output="mpl")
+    amp_cal.circuits()[4].draw(output="mpl", style="iqp")
 
 Let's run the calibration experiment:
 
@@ -491,7 +491,7 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.calibration_management` and :mod:`~qiskit_experiments.library.calibration`
-* Qiskit Textbook: `Calibrating Qubits with Qiskit Pulse <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`__
+* Qiskit Textbook: `Calibrating Qubits with Qiskit Pulse <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/calibrating-qubits-pulse.ipynb>`__
 
 
 
