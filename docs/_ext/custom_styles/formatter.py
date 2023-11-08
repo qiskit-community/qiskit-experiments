@@ -38,7 +38,8 @@ class DocstringSectionFormatter:
     def format_overview(self, lines: List[str]) -> List[str]:
         """Format overview section."""
         format_lines = [
-            "" ".. rubric:: Overview",
+            "",
+            ".. rubric:: Overview",
             "",
         ]
         format_lines.extend(lines)
