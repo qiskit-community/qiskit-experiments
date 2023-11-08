@@ -50,8 +50,8 @@ class Rabi(BaseExperiment, RestlessMixin):
     # section: manual
         :ref:`Rabi Calibration`
 
-        See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
-        calibrating-qubits-pulse.html>`_
+        See also the `Qiskit Textbook
+        <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/calibrating-qubits-pulse.ipynb>`_
         for the pulse level programming of a Rabi experiment.
 
     # section: analysis_ref

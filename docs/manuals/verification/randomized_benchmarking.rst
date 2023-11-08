@@ -8,7 +8,7 @@ identity. After running the circuits, the number of shots resulting in an error 
 output different from the ground state) are counted, and from this data one can infer
 error estimates for the quantum device, by calculating the Error Per Clifford. See the
 `Qiskit Textbook
-<https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__ for an
+<https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__ for an
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. jupyter-execute::
@@ -309,4 +309,4 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
-* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* Qiskit Textbook: `Randomized Benchmarking <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__

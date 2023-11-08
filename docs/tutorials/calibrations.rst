@@ -491,7 +491,7 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.calibration_management` and :mod:`~qiskit_experiments.library.calibration`
-* Qiskit Textbook: `Calibrating Qubits with Qiskit Pulse <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`__
+* Qiskit Textbook: `Calibrating Qubits with Qiskit Pulse <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/calibrating-qubits-pulse.ipynb>`__
 
 
 
