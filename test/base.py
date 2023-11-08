@@ -65,6 +65,15 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             assertRaises = unittest.TestCase.assertRaises
             assertEqual = unittest.TestCase.assertEqual
 
+            def setUp(self):
+                super().setUp()
+                if os.environ.get("QISKIT_TEST_CAPTURE_STREAMS"):
+                    stdout = self.useFixture(fixtures.StringStream("stdout")).stream
+                    self.useFixture(fixtures.MonkeyPatch("sys.stdout", stdout))
+                    stderr = self.useFixture(fixtures.StringStream("stderr")).stream
+                    self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
+                    self.useFixture(fixtures.LoggerFixture(nuke_handlers=False, level=None))
+
     else:
 
         class BaseTestCase(unittest.TestCase):
