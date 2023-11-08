@@ -116,15 +116,18 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
         def assertExperimentDone(
             self,
             experiment_data: ExperimentData,
-            timeout: float = 120,
+            timeout: Optional[float] = None,
         ):
             """Blocking execution of next line until all threads are completed then
             checks if status returns Done.
 
             Args:
                 experiment_data: Experiment data to evaluate.
-                timeout: The maximum time in seconds to wait for executor to complete.
+                timeout: The maximum time in seconds to wait for executor to
+                    complete. Defaults to the value of ``TEST_TIMEOUT``.
             """
+            if timeout is None:
+                timeout = TEST_TIMEOUT
             experiment_data.block_for_results(timeout=timeout)
 
             self.assertEqual(
