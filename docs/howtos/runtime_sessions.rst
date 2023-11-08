@@ -10,9 +10,11 @@ You want to run experiments in a `Runtime session
 Solution
 --------
 
-There are two pathways currently supported:
+Use the :class:`~qiskit_ibm_provider.IBMBackend` object in ``qiskit-ibm-provider``, which supports sessions.
 
-1. Use the :class:`~qiskit_ibm_provider.IBMBackend` object in ``qiskit-ibm-provider``, which supports sessions.
+In this example, we will set the ``max_circuits`` property to an artificially low value so that the experiment will be
+split into multiple jobs that run sequentially in a single session. When running real experiments with a
+large number of circuits that can't fit in a single job, it may be helpful to follow this usage pattern:
 
 .. jupyter-input::
 
@@ -26,45 +28,15 @@ There are two pathways currently supported:
     qc.x(0)
 
     with backend.open_session() as session:
-        tomography = ProcessTomography(qc)
-        tomography_result = tomography.run(backend)
-        tomography_result.block_for_results()
+        exp = ProcessTomography(qc)
+        exp.set_experiment_options(max_circuits=3)
+        exp_data = exp.run(backend)
+        exp_data.block_for_results()
+        # Calling cancel because session.close() is not available for qiskit-ibm-provider<=0.7.2.
+        # It is safe to call cancel since block_for_results() ensures there are no outstanding jobs 
+        # still running that would be canceled.
         session.cancel()
 
-2. Use the ``qiskit-ibm-runtime`` provider. This requires extracting the circuits from the
-   experiment and running them using :meth:`qiskit_ibm_runtime.Session.run`:
-
-.. jupyter-input::
-
-    from qiskit_experiments.library import StandardRB
-    from qiskit_ibm_runtime import Session, QiskitRuntimeService
-    import numpy as np
-
-    exp = StandardRB([0], np.arange(1,800,200))
-    backend = "ibm_nairobi"
-
-    # all run options must be set before execution
-    exp.set_run_options(shots=100)
-
-    def run_jobs(session, job_circuits, run_options = None):
-        runtime_inputs={'circuits': job_circuits,
-                        'skip_transpilation': True, 
-                        **run_options}
-        jobs = session.run(program_id="circuit-runner", inputs=runtime_inputs)
-        return jobs
-
-    service = QiskitRuntimeService()
-
-    with Session(service=service, backend=backend) as session:
-        exp.backend = service.get_backend(session.backend())
-        jobs = run_jobs(session, exp._transpiled_circuits(), exp.run_options)
-        session.close()
-
-    # exp_data will be the usual experiment data object
-    exp_data = exp._initialize_experiment_data()
-    exp_data.add_jobs(jobs)
-    exp_data = exp.analysis.run(exp_data).block_for_results()
-
-Runtime primitives are not currently supported natively in Qiskit Experiments, so running jobs
-with the Runtime provider must be done with the ``circuit-runner`` program. We also turn off
-transpilation with ``skip_transpilation`` since Qiskit Experiments already transpiles the circuits.
+Note that runtime primitives are not currently supported natively in Qiskit Experiments, so either 
+the `backend.run()` path or the ``circuit-runner`` program in ``qiskit-ibm-runtime`` is required 
+to run experiments.
