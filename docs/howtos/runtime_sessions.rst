@@ -37,6 +37,5 @@ large number of circuits that can't fit in a single job, it may be helpful to fo
         # still running that would be canceled.
         session.cancel()
 
-Note that runtime primitives are not currently supported natively in Qiskit Experiments, so either 
-the `backend.run()` path or the ``circuit-runner`` program in ``qiskit-ibm-runtime`` is required 
-to run experiments.
+Note that runtime primitives are not currently supported natively in Qiskit Experiments, so  
+the ``backend.run()`` path is required to run experiments.
