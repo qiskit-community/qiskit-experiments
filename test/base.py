@@ -38,7 +38,7 @@ TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
 # Use testtools by default as a (mostly) drop in replacement for
 # unittest's TestCase. This will enable the fixtures used for capturing stdout
 # stderr, and pylogging to attach the output to stestr's result stream.
-USE_TESTTOOLS = os.environ.get("QE_USE_TESTTOOLS", "TRUE").lower() not in ("false", "0")
+USE_TESTTOOLS = os.environ.get("QE_USE_TESTTOOLS", "TRUE").lower() not in ("false", "0", "no")
 
 
 def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
