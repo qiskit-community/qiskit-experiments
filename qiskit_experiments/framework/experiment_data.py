@@ -1071,6 +1071,7 @@ class ExperimentData:
         """Retrieve job data if missing experiment data."""
         # Get job results if missing in experiment data.
         if self.provider is None:
+            LOG.warning("provider is None, no data was retrieved.")
             return
         retrieved_jobs = {}
         jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
@@ -2293,6 +2294,7 @@ class ExperimentData:
         new_instance = ExperimentData(
             backend=self.backend,
             service=self.service,
+            provider=self.provider,
             parent_id=self.parent_id,
             job_ids=self.job_ids,
             child_data=list(self._child_data.values()),
