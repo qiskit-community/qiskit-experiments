@@ -53,7 +53,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             QiskitError: If qubits contains duplicates.
         """
         # Experiment identification metadata
-        self._type = experiment_type if experiment_type else type(self).__name__
+        self.experiment_type = experiment_type
 
         # Circuit parameters
         self._num_qubits = len(physical_qubits)
@@ -89,6 +89,14 @@ class BaseExperiment(ABC, StoreInitArgs):
     def experiment_type(self) -> str:
         """Return experiment type."""
         return self._type
+
+    @experiment_type.setter
+    def experiment_type(self, exp_type: str) -> None:
+        """Set the type for the experiment."""
+        if exp_type is None:
+            self._type = type(self).__name__
+        else:
+            self._type = exp_type
 
     @property
     def physical_qubits(self) -> Tuple[int, ...]:
@@ -293,8 +301,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             backend: Optional, the backend for which to get job distribution
-            information. If not specified, the experiment must already have a
-            set backend.
+                information. If not specified, the experiment must already have a
+                set backend.
 
         Returns:
             dict: A dictionary containing information about job distribution.

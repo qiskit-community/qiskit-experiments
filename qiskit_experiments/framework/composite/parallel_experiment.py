@@ -49,6 +49,7 @@ class ParallelExperiment(CompositeExperiment):
         backend: Optional[Backend] = None,
         flatten_results: bool = None,
         analysis: Optional[CompositeAnalysis] = None,
+        experiment_type: Optional[str] = None,
     ):
         """Initialize the analysis object.
 
@@ -79,7 +80,12 @@ class ParallelExperiment(CompositeExperiment):
         for exp in experiments:
             qubits += exp.physical_qubits
         super().__init__(
-            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
+            experiments,
+            qubits,
+            backend=backend,
+            analysis=analysis,
+            flatten_results=flatten_results,
+            experiment_type=experiment_type,
         )
 
     def circuits(self):

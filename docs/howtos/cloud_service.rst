@@ -189,11 +189,4 @@ Web interface
 
 You can also view experiment results as well as change the tags and share level at the `IBM Quantum Experiments
 pane <https://quantum-computing.ibm.com/experiments?date_interval=last-90-days&owner=me>`__
-on the cloud. The documentation below explains how to view, search, and share experiment
-data entries.
-
-See also
---------
-
-* `Experiments web interface documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`__ 
-
+on the cloud.

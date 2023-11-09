@@ -340,3 +340,22 @@ class TestFramework(QiskitExperimentsTestCase):
         }
 
         self.assertEqual(exp.job_info(backend=backend), job_info)
+
+    def test_experiment_type(self):
+        """Test the experiment_type setter for the experiment."""
+
+        class MyExp(BaseExperiment):
+            """Some arbitrary experiment"""
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            def circuits(self):
+                pass
+
+        exp1 = MyExp(physical_qubits=[0], experiment_type="blaaa")
+        self.assertEqual(exp1.experiment_type, "blaaa")
+        exp2 = MyExp(physical_qubits=[0])
+        self.assertEqual(exp2.experiment_type, "MyExp")
+        exp2.experiment_type = "suieee"
+        self.assertEqual(exp2.experiment_type, "suieee")

@@ -26,7 +26,7 @@ from sphinx.ext.napoleon import Config as NapoleonConfig
 from sphinx.ext.napoleon import GoogleDocstring
 
 
-_parameter_doc_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)')
+_parameter_doc_regex = re.compile(r"(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)")
 
 
 class QiskitExperimentsOptionsDocstring(GoogleDocstring):
@@ -201,8 +201,11 @@ def _value_repr(value: Any) -> str:
         return f"{{{dict_repr}}}"
     if value.__class__.__module__ == "builtins":
         return f":obj:`{value}`"
-    if value.__class__.__module__.startswith("qiskit"):
+    if value.__class__.__module__ and value.__class__.__module__.startswith("qiskit"):
         return f"Instance of :class:`.{value.__class__.__name__}`"
+    # for singleton gates that don't have directly accessible module names
+    if hasattr(value, "base_class") and value.base_class.__module__.startswith("qiskit"):
+        return f"Instance of :class:`.{value.base_class.__name__}`"
     if callable(value):
         return f"Callable :func:`{value.__name__}`"
     if isinstance(value, np.ndarray):
