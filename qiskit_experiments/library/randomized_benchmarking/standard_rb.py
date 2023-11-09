@@ -232,20 +232,27 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if coupling_map:
             coupling_map = coupling_map.reduce(self.physical_qubits)
         if not (basis_gates and coupling_map) and self.backend:
-            if isinstance(self.backend, BackendV2) and self.backend.target:
-                backend_basis_gates = []
+            if isinstance(self.backend, BackendV2) and "simulator" in self.backend.name:
+                basis_gates = basis_gates if basis_gates else self.backend.target.operation_names
+                coupling_map = coupling_map if coupling_map else None
+            elif isinstance(self.backend, BackendV2):
+                backend_basis_gates = [
+                    op.name for op in self.backend.target.operations if op.num_qubits != 2
+                ]
                 backend_cmap = None
                 for op in self.backend.target.operations:
-                    if op.num_qubits == 2:
-                        cmap = self.backend.target.build_coupling_map(op.name)
-                        if cmap:
-                            reduced = cmap.reduce(self.physical_qubits)
-                            if rx.is_weakly_connected(reduced.graph):
-                                backend_basis_gates.append(op.name)
-                                backend_cmap = reduced
-                                break
-                    else:
+                    if op.num_qubits != 2:
+                        continue
+                    cmap = self.backend.target.build_coupling_map(op.name)
+                    if cmap is None:
                         backend_basis_gates.append(op.name)
+                    else:
+                        reduced = cmap.reduce(self.physical_qubits)
+                        if rx.is_weakly_connected(reduced.graph):
+                            backend_basis_gates.append(op.name)
+                            backend_cmap = reduced
+                            # take the first non-global 2q gate if backend has multiple 2q gates
+                            break
                 basis_gates = basis_gates if basis_gates else backend_basis_gates
                 coupling_map = coupling_map if coupling_map else backend_cmap
             elif isinstance(self.backend, BackendV1):
@@ -377,8 +384,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 _transpile_clifford_circuit(circ, physical_qubits=self.physical_qubits)
                 for circ in self.circuits()
             ]
-            # Set custom calibrations provided in backend
-            if isinstance(self.backend, BackendV2):
+            # Set custom calibrations provided in backend (excluding simulators)
+            if isinstance(self.backend, BackendV2) and "simulator" not in self.backend.name:
                 qargs_patterns = [self.physical_qubits]  # for 1q or 3q+ case
                 if self.num_qubits == 2:
                     qargs_patterns = [
