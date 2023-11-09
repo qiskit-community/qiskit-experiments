@@ -1071,8 +1071,10 @@ class ExperimentData:
         """Retrieve job data if missing experiment data."""
         # Get job results if missing in experiment data.
         if self.provider is None and not self._result_data.copy():
-            LOG.warning("provider is None and there is no result data that are stored."
-                        " no data was retrieved.")
+            LOG.warning(
+                "provider is None and there is no result data that are stored."
+                " no data was retrieved."
+            )
             return
         retrieved_jobs = {}
         jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
