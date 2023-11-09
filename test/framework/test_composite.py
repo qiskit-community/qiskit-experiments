@@ -151,6 +151,21 @@ class TestComposite(QiskitExperimentsTestCase):
 
         self.assertRoundTripSerializable(exp)
 
+    def test_experiment_type(self):
+        """Test experiment_type setter."""
+
+        exp1 = FakeExperiment([0])
+
+        par_exp1 = ParallelExperiment([exp1], flatten_results=False)
+        batch_exp1 = BatchExperiment([exp1], flatten_results=False)
+        self.assertEqual(par_exp1.experiment_type, "ParallelExperiment")
+        self.assertEqual(batch_exp1.experiment_type, "BatchExperiment")
+
+        par_exp2 = ParallelExperiment([exp1], flatten_results=False, experiment_type="yooo")
+        batch_exp2 = BatchExperiment([exp1], flatten_results=False, experiment_type="blaaa")
+        self.assertEqual(par_exp2.experiment_type, "yooo")
+        self.assertEqual(batch_exp2.experiment_type, "blaaa")
+
 
 @ddt
 class TestCompositeExperimentData(QiskitExperimentsTestCase):
