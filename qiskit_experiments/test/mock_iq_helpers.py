@@ -389,57 +389,34 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             experiment.
             TypeError: The data type provided doesn't match the expected type (`tuple` or `int`).
         """
-        # exp_idx_map connects an experiment to its circuit in the output.
-        exp_idx_map = {exp: exp_idx for exp_idx, exp in enumerate(self.exp_list)}
-        qubit_exp_map = self._create_qubit_exp_map()
-
         exp_circuits_list = [[] for _ in self.exp_list]
+        qubits_expid_map = {exp.physical_qubits: i for i, exp in enumerate(self.exp_list)}
 
         for qc in qc_list:
-            # Quantum Register to qubit mapping
-            qubit_indices = {bit: idx for idx, bit in enumerate(qc.qubits)}
-
             # initialize quantum circuit for each experiment for this instance of circuit to fill
             # with instructions.
-            for exp_circuit in exp_circuits_list:
+            for i in range(len(self.exp_list)):
                 # we copy the circuit to ensure that the circuit properties (e.g. calibrations and qubit
                 # frequencies) are the same in the new circuit.
-                qcirc = qc.copy()
-                qcirc.data.clear()
-                qcirc.metadata.clear()
-                exp_circuit.append(qcirc)
+                empty_qc = qc.copy_empty_like()
+                empty_qc.metadata.clear()
+                exp_circuits_list[i].append(empty_qc)
 
             # fixing metadata
-            for exp_metadata in qc.metadata["composite_metadata"]:
-                # getting a qubit of one of the experiments that we ran in parallel. The key in the
-                # metadata is different for different experiments.
-                qubit_metadata = (
-                    exp_metadata.get("qubit")
-                    if exp_metadata.get("qubit") is not None
-                    else exp_metadata.get("qubits")
-                )
-                if isinstance(qubit_metadata, tuple):
-                    exp = qubit_exp_map[qubit_metadata[0]]
-                elif isinstance(qubit_metadata, int):
-                    exp = qubit_exp_map[qubit_metadata]
-                else:
-                    raise TypeError(
-                        f"The qubit information in the metadata is of type {type(qubit_metadata)}."
-                        f" Supported formats are `tuple` and `int`"
-                    )
-                # using the qubit to access the experiment. Then, we go to the last circuit in
-                # `exp_circuit` of the corresponding experiment, and we overwrite the metadata.
-                exp_circuits_list[exp_idx_map[exp]][-1].metadata = exp_metadata.copy()
+            for exp_idx, sub_metadata in zip(
+                qc.metadata["composite_index"],
+                qc.metadata["composite_metadata"],
+            ):
+                exp_circuits_list[exp_idx][-1].metadata = sub_metadata.copy()
+
             # sorting instructions by qubits indexes and inserting them into a circuit of the relevant
             # experiment
             for inst, qarg, carg in qc.data:
-                exp = qubit_exp_map[qubit_indices[qarg[0]]]
-                # making a list from the qubits the instruction affects
-                qubit_indexes = [qubit_indices[qr] for qr in qarg]
-                # check that the instruction is part of the experiment
-                if set(qubit_indexes).issubset(set(exp.physical_qubits)):
-                    # appending exp_circuits_list[experiment_index][last_circuit]
-                    exp_circuits_list[exp_idx_map[exp]][-1].append(inst, qarg, carg)
+                qubit_indices = set(qc.find_bit(qr).index for qr in qarg)
+                for qubits, exp_idx in qubits_expid_map.items():
+                    if qubit_indices.issubset(qubits):
+                        exp_circuits_list[exp_idx][-1].append(inst, qarg, carg)
+                        break
                 else:
                     raise QiskitError(
                         "A gate operates on two qubits that don't belong to the same experiment."
@@ -452,27 +429,6 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                     exp_circuits.pop()
 
         return exp_circuits_list
-
-    def _create_qubit_exp_map(self) -> Dict[int, BaseExperiment]:
-        """
-        Creating a dictionary that connect qubits to their respective experiments.
-        Returns:
-            Dict: A dictionary in the form {num: experiment} where num in experiment.physical_qubits
-
-        Raises:
-            QiskitError: If a qubit belong to two experiments.
-        """
-        qubit_experiment_mapping = {}
-        for exp in self.exp_list:
-            for qubit in exp.physical_qubits:
-                if qubit not in qubit_experiment_mapping:
-                    qubit_experiment_mapping[qubit] = exp
-                else:
-                    raise QiskitError(
-                        "There are duplications of qubits between parallel experiments"
-                    )
-
-        return qubit_experiment_mapping
 
 
 class MockIQDragHelper(MockIQExperimentHelper):
@@ -861,12 +817,12 @@ class MockIQT1Helper(MockIQExperimentHelper):
 
     def __init__(
         self,
-        t1: List[float] = None,
+        t1: float = None,
         iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
         iq_cluster_width: Optional[List[float]] = None,
     ):
         super().__init__(iq_cluster_centers, iq_cluster_width)
-        self._t1 = t1 or [90e-6]
+        self._t1 = t1 or 90e-6
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
@@ -875,13 +831,10 @@ class MockIQT1Helper(MockIQExperimentHelper):
             probability_output_dict = {}
 
             # extracting information from the circuit.
-            qubit_idx = circuit.metadata["qubit"]
             delay = circuit.metadata["xval"]
 
             # creating a probability dict.
-            if qubit_idx >= len(self._t1):
-                raise QiskitError(f"There is no 'T1' value for qubit index {qubit_idx}.")
-            probability_output_dict["1"] = np.exp(-delay / self._t1[qubit_idx])
+            probability_output_dict["1"] = np.exp(-delay / self._t1)
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
 
