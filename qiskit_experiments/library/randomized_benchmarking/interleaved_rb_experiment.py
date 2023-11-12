@@ -86,7 +86,7 @@ class InterleavedRB(StandardRB):
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional

@@ -154,7 +154,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         .. note::
             Analysis instance set to calibration experiment is implicitly patched to run
-            calibration updator to update the parameters in the calibration table.
+            calibration updater to update the parameters in the calibration table.
         """
         return self._analysis
 
@@ -178,10 +178,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         # Monkey patch run method.
         # This calls update_calibrations immediately after standard analysis.
-        # This mechanism allows a composite experiment to invoke updator.
+        # This mechanism allows a composite experiment to invoke updater.
         # Note that the composite experiment only takes circuits from individual experiment
         # and the composite analysis calls analysis.run of each experiment.
-        # This is only place the updator function can be called from the composite experiment.
+        # This is only place the updater function can be called from the composite experiment.
         analysis.run = _wrap_run_analysis
         BaseExperiment.analysis.fset(self, analysis)
 

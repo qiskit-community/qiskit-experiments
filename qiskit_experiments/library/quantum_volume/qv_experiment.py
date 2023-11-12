@@ -40,8 +40,8 @@ class QuantumVolume(BaseExperiment):
 
         The Quantum Volume is determined by the largest circuit depth :math:`d_{max}`,
         and equals to :math:`2^{d_{max}}`.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
+        See the `Qiskit Textbook
+        <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`_
         for an explanation on the QV protocol.
 
         In the QV experiment we generate :class:`~qiskit.circuit.library.QuantumVolume` circuits on
@@ -50,7 +50,7 @@ class QuantumVolume(BaseExperiment):
         Then these circuits run on the quantum backend and on an ideal simulator (either
         :class:`~qiskit_aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
 
-        A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
+        A depth :math:`d` QV circuit is successful if it has `mean heavy-output probability` > 2/3 with
         confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
 
         See :class:`QuantumVolumeAnalysis` documentation for additional
@@ -84,7 +84,7 @@ class QuantumVolume(BaseExperiment):
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                  with this seed value every time :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
@@ -112,7 +112,7 @@ class QuantumVolume(BaseExperiment):
                 circuits and calculate their heavy output.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
-                The ``default_rng`` will be initialized with this seed value everytime
+                The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
@@ -125,8 +125,8 @@ class QuantumVolume(BaseExperiment):
     def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
         """Return ideal measurement probabilities.
 
-        In case the user does not have Aer installed use Terra to calculate
-        the ideal state.
+        In case the user does not have Aer installed, use Qiskit's quantum info module
+        to calculate the ideal state.
 
         Args:
             circuit: the circuit to extract the ideal data from

@@ -251,7 +251,7 @@ class BaseCurveDrawer(ABC):
         name: Optional[str] = None,
         **options,
     ):
-        """Draw cofidence interval.
+        """Draw confidence interval.
 
         Args:
             x_data: X values.

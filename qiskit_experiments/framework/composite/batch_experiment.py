@@ -49,6 +49,7 @@ class BatchExperiment(CompositeExperiment):
         backend: Optional[Backend] = None,
         flatten_results: bool = None,
         analysis: Optional[CompositeAnalysis] = None,
+        experiment_type: Optional[str] = None,
     ):
         """Initialize a batch experiment.
 
@@ -86,7 +87,12 @@ class BatchExperiment(CompositeExperiment):
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
         super().__init__(
-            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
+            experiments,
+            qubits,
+            backend=backend,
+            analysis=analysis,
+            flatten_results=flatten_results,
+            experiment_type=experiment_type,
         )
 
     def circuits(self):
@@ -107,7 +113,7 @@ class BatchExperiment(CompositeExperiment):
 
             if isinstance(expr, BatchExperiment):
                 # Batch experiments don't contain their own native circuits.
-                # If to_trasnpile is True then the circuits will be transpiled at the non-batch
+                # If to_transpile is True then the circuits will be transpiled at the non-batch
                 # experiments.
                 # Fetch the circuits from the sub-experiments.
                 expr_circuits = expr._batch_circuits(to_transpile)

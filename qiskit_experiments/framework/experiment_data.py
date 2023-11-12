@@ -196,7 +196,7 @@ class FigureData:
         return None
 
 
-_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -905,7 +905,7 @@ class ExperimentData:
             A tuple (str, bool) of the job id and bool of if the job data was added.
 
         Raises:
-            Exception: If an error occured when adding job data.
+            Exception: If an error occurred when adding job data.
         """
         jid = job.job_id()
         try:
@@ -949,7 +949,7 @@ class ExperimentData:
                       The callback function will be called as
                       ``callback(expdata, **kwargs)`` where `expdata` is this
                       ``DbExperimentData`` object, and `kwargs` are any additional
-                      keywork arguments passed to this method.
+                      keyword arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
         with self._job_futures.lock and self._analysis_futures.lock:
@@ -1134,7 +1134,7 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[_FigureT, List[_FigureT]],
+        figures: Union[FigureT, List[FigureT]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,
@@ -1311,6 +1311,12 @@ class ExperimentData:
                 raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
             figure_key = self._figures.keys()[figure_key]
 
+        # All figures must have '.svg' in their names when added, as the extension is added to the key
+        # name in the `add_figures()` method of this class.
+        if isinstance(figure_key, str):
+            if not figure_key.endswith(".svg"):
+                figure_key += ".svg"
+
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
@@ -1405,7 +1411,7 @@ class ExperimentData:
             tags = tags or []
             backend = backend or self.backend_name
 
-            series = self._analysis_results.add_entry(
+            self._analysis_results.add_entry(
                 result_id=result_id,
                 name=name,
                 value=value,
@@ -1420,8 +1426,9 @@ class ExperimentData:
                 **extra_values,
             )
             if self.auto_save:
+                last_index = self._analysis_results.result_ids()[-1][:8]
                 service_result = _series_to_service_result(
-                    series=series,
+                    series=self._analysis_results.get_entry(last_index),
                     service=self._service,
                     auto_save=False,
                 )
@@ -1553,7 +1560,7 @@ class ExperimentData:
             )
         self._retrieve_analysis_results(refresh=refresh)
 
-        out = self._analysis_results.container(collapse_extra=False)
+        out = self._analysis_results.copy()
 
         if index is not None:
             out = _filter_analysis_results(index, out)
@@ -1715,7 +1722,7 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        for _, series in self._analysis_results.container(collapse_extra=False).iterrows():
+        for _, series in self._analysis_results.copy().iterrows():
             # TODO We should support saving entire dataframe
             #  Calling API per entry takes huge amount of time.
             legacy_result = _series_to_service_result(

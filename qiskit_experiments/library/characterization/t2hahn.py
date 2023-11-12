@@ -85,18 +85,18 @@ class T2Hahn(BaseExperiment):
         backend: Optional[Backend] = None,
     ):
         """
-        Initialize the T2 - Hahn Echo class
+        Initialize the T2 - Hahn Echo class.
 
         Args:
             physical_qubits: a single-element sequence containing the qubit whose T2 is to be
-                estimated
+                estimated.
             delays: Total delay times of the experiments.
             backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.
             backend: Optional, the backend to run the experiment on.
 
-         Raises:
-             QiskitError : Error for invalid input.
+        Raises:
+            QiskitError : Error for invalid input.
         """
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=T2HahnAnalysis(), backend=backend)

@@ -249,7 +249,7 @@ to 10.
             self._circuit = circuit        
             self._measured_qubits = measured_qubits
             
-            # Set any init optinos
+            # Set any init options
             self.set_experiment_options(num_samples=num_samples, seed=seed)
 
 Now we consider default experiment options. We choose to only let the user change
@@ -555,7 +555,7 @@ To test our code, we first simulate a noisy backend with asymmetric readout erro
 
   backend_ideal = AerSimulator()
 
-  # Backend with asymetric readout error
+  # Backend with asymmetric readout error
   p0g1 = 0.3
   p1g0 = 0.05
   noise_model = noise.NoiseModel()
@@ -573,7 +573,7 @@ Let's use a GHZ circuit as the input:
     for i in range(1, nq):
         qc.cx(i-1, i)
     
-    qc.draw("mpl")
+    qc.draw(output="mpl", style="iqp")
 
 Check that the experiment is appending a random Pauli and measurements as expected:
 
@@ -586,9 +586,9 @@ Check that the experiment is appending a random Pauli and measurements as expect
 
     # Run ideal randomized meas experiment
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
-    exp.circuits()[0].draw("mpl")
+    exp.circuits()[0].draw(output="mpl", style="iqp")
 
-We now run the experiment with a GHZ circuit on an ideal backend, whic produces nearly
+We now run the experiment with a GHZ circuit on an ideal backend, which produces nearly
 perfect symmetrical results between :math:`|0000\rangle` and :math:`|1111\rangle`:
 
 .. jupyter-execute::
@@ -640,4 +640,4 @@ unaffected by the added randomized measurements, which use its own classical reg
         qc.cx(i-1, i)
 
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
-    exp.circuits()[0].draw("mpl")
+    exp.circuits()[0].draw(output="mpl", style="iqp")
