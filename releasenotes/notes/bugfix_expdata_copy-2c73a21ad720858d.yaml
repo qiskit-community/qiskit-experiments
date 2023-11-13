@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    Added warning if trying to retrieve data and the object doesn't have data or doesn't contain
+    provider.
+fixes:
+  - |
+    'copy' method under ExperimentData class now copies the provider. 
+
