@@ -353,11 +353,11 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         models = [
             lmfit.models.ExpressionModel(
                 expr="2 * pi * ts * (c1_pos * x + c2_pos * x**2 + c3_pos * x**3 + f_err)",
-                name="Fpos",
+                name="θpos",
             ),
             lmfit.models.ExpressionModel(
                 expr="2 * pi * ts * (c1_neg * x + c2_neg * x**2 + c3_neg * x**3 + f_err)",
-                name="Fneg",
+                name="θneg",
             ),
         ]
         super().__init__(models=models)
@@ -414,6 +414,12 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         options = super()._default_options()
         options.update_options(
+            data_subfit_map={
+                "Xpos": {"series": "X", "direction": "pos"},
+                "Ypos": {"series": "Y", "direction": "pos"},
+                "Xneg": {"series": "X", "direction": "neg"},
+                "Yneg": {"series": "Y", "direction": "neg"},
+            },
             result_parameters=[
                 curve.ParameterRepr("c1_pos", "stark_pos_coef_o1", "Hz"),
                 curve.ParameterRepr("c2_pos", "stark_pos_coef_o2", "Hz"),
@@ -423,11 +429,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 curve.ParameterRepr("c3_neg", "stark_neg_coef_o3", "Hz"),
                 curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
             ],
-            data_subfit_map={
-                "Fpos": {"direction": "pos"},
-                "Fneg": {"direction": "neg"},
-            },
             plotter=ramsey_plotter,
+            fit_category="phase",
         )
 
         return options
@@ -435,39 +438,20 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
     def _format_data(
         self,
         curve_data: curve.ScatterTable,
+        category: str = "phase",
     ) -> curve.ScatterTable:
+        curve_data = super()._format_data(curve_data, category="ramsey_xy")
+        ramsey_xy = curve_data[curve_data.category == "ramsey_xy"]
+
+        # Create phase data by arctan(Y/X)
         columns = list(curve_data.columns)
-
-        i = 0
-        # Reassign model class.
-        # These data are actually P1 value of Ramsey X, Y quadrature,
-        # but the data is automatically classified based on the fit models,
-        # which are for the synthetic phase data in this analysis.
-        # This yields false classification.
-        for series in ("X", "Y"):
-            for direction in ("pos", "neg"):
-                rows = (curve_data.series == series) & (curve_data.direction == direction)
-                curve_data.loc[rows, "model_name"] = f"{series}{direction}"
-                # Assign random model id which will be invalidated later.
-                # Note that super()._format_data relies on the model id rather than
-                # model name (i.e. integer sort is faster in pandas) to
-                # average over the same x value in the same group.
-                curve_data.loc[rows, "model_id"] = i
-                i += 1
-        formatted_data = super()._format_data(curve_data)
-        # Invalidate model_id because these are index of raw Ramsey curves.
-        # Fit models are defined based on the phase data.
-        formatted_data.model_id = pd.NA
-
-        # Convert to phase format with unwrapper
-        raw_ramsey = formatted_data.filter(like="formatted", axis="index")
         phase_data = np.empty((0, len(columns)))
-        y_mean = raw_ramsey.yval.mean()
-        grouped = raw_ramsey.groupby(["direction", "series"])
+        y_mean = ramsey_xy.yval.mean()
 
+        grouped = ramsey_xy.groupby("name")
         for m_id, direction in enumerate(("pos", "neg")):
-            x_quadrature = grouped.get_group((direction, "X"))
-            y_quadrature = grouped.get_group((direction, "Y"))
+            x_quadrature = grouped.get_group(f"X{direction}")
+            y_quadrature = grouped.get_group(f"Y{direction}")
             if not np.array_equal(x_quadrature.xval, y_quadrature.xval):
                 raise ValueError(
                     "Amplitude values of X and Y quadrature are different. "
@@ -498,18 +482,13 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             tmp[:, columns.index("xval")] = amplitudes
             tmp[:, columns.index("yval")] = unwrapped_phase
             tmp[:, columns.index("yerr")] = phase_s
-            tmp[:, columns.index("model_name")] = f"F{direction}"
-            tmp[:, columns.index("model_id")] = m_id
+            tmp[:, columns.index("name")] = f"θ{direction}"
+            tmp[:, columns.index("class_id")] = m_id
             tmp[:, columns.index("shots")] = x_quadrature.shots + y_quadrature.shots
-            tmp[:, columns.index("direction")] = direction
-            tmp[:, columns.index("series")] = "phase"
+            tmp[:, columns.index("category")] = category
             phase_data = np.r_[phase_data, tmp]
 
-        out = formatted_data.append_list_values(
-            other=phase_data,
-            prefix="formatted",
-        )
-        return out
+        return curve_data.append_list_values(other=phase_data)
 
     def _generate_fit_guesses(
         self,
@@ -525,19 +504,11 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        user_opt.bounds.set_if_empty(c2_pos=(0, np.inf), c2_neg=(-np.inf, 0))
-
-        pos_y = curve_data[curve_data.model_name == "Fpos"].yval
-        neg_y = curve_data[curve_data.model_name == "Fneg"].yval
-
+        user_opt.bounds.set_if_empty(
+            c2_pos=(0, np.inf), c2_neg=(-np.inf, 0)
+        )
         user_opt.p0.set_if_empty(
-            c1_pos=0,
-            c2_pos=1,
-            c3_pos=0,
-            c1_neg=0,
-            c2_neg=-1,
-            c3_neg=0,
-            f_err=(pos_y[0] + neg_y[0]) / 2,
+            c1_pos=0, c2_pos=1, c3_pos=0, c1_neg=0, c2_neg=-1, c3_neg=0, f_err=0
         )
         return user_opt
 
@@ -545,14 +516,15 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         self,
         curve_data: curve.ScatterTable,
     ) -> List["matplotlib.figure.Figure"]:
-        formatted_data = curve_data.filter(like="formatted", axis="index")
         ts_rad = 2 * np.pi * self.options.fixed_parameters["ts"]
 
         # plot unwrapped phase on first axis
-        for name in ("Fpos", "Fneg"):
-            sub_data = formatted_data[formatted_data.model_name == name]
+        for d in ("pos", "neg"):
+            sub_data = curve_data[
+                (curve_data.name == f"θ{d}") & (curve_data.category == "phase")
+            ]
             self.plotter.set_series_data(
-                series_name=name,
+                series_name=f"F{d}",
                 x_formatted=sub_data.xval.to_numpy(),
                 y_formatted=sub_data.yval.to_numpy() / ts_rad,
                 y_formatted_err=sub_data.yerr.to_numpy() / ts_rad,
@@ -560,21 +532,25 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # plot raw RamseyXY plot on second axis
         for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
-            sub_data = formatted_data[formatted_data.model_name == name]
+            sub_data = curve_data[
+                (curve_data.name == name) & (curve_data.category == "ramsey_xy")
+            ]
             self.plotter.set_series_data(
                 series_name=name,
                 x_formatted=sub_data.xval.to_numpy(),
                 y_formatted=sub_data.yval.to_numpy(),
                 y_formatted_err=sub_data.yerr.to_numpy(),
             )
-        ramsey_xy = formatted_data[~formatted_data.model_name.str.startswith("F")]
+
+        # find base and amplitude guess
+        ramsey_xy = curve_data[curve_data.category == "ramsey_xy"]
         offset_guess = 0.5 * (ramsey_xy.yval.min() + ramsey_xy.yval.max())
         amp_guess = 0.5 * np.ptp(ramsey_xy.yval)
 
-        # plot phase and Ramsey fit lines
-        line_data = curve_data.filter(like="fitted", axis="index")
+        # plot frequency and Ramsey fit lines
+        line_data = curve_data[curve_data.category == "fitted"]
         for direction in ("pos", "neg"):
-            sub_data = line_data[line_data.model_name == f"F{direction}"]
+            sub_data = line_data[line_data.name == f"θ{direction}"]
             if len(sub_data) == 0:
                 continue
             xval = sub_data.xval.to_numpy()
@@ -582,7 +558,10 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             ys = sub_data.yerr.to_numpy()
             yval = unp.uarray(yn, ys)
 
-            # compute raw Ramsey XY fit line
+            # Ramsey fit lines are predicted from the phase fit line.
+            # Note that this line doesn't need to match with the expeirment data
+            # because Ramsey P1 data may fluctuate due to phase damping.
+
             # pylint: disable=no-member
             ramsey_cos = amp_guess * unp.cos(yval) + offset_guess
             ramsey_sin = amp_guess * unp.sin(yval) + offset_guess
