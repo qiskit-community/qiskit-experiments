@@ -147,22 +147,27 @@ class CurveAnalysis(BaseCurveAnalysis):
         """Return fit models."""
         return self._models
 
+    def model_names(self) -> List[str]:
+        """Return model names."""
+        return [getattr(m, "_name", f"model-{i}") for i, m in enumerate(self._models)]
+
     def _run_data_processing(
         self,
         raw_data: List[Dict],
+        category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
+            category: Category string of the output dataset.
 
         Returns:
             Processed data that will be sent to the formatter method.
 
         Raises:
             DataProcessorError: When key for x values is not found in the metadata.
-            DataProcessorError: When data_subfit_map information for a fit model is missing.
-            ValueError: When input data has incomplete metadata to specify fit model.
+            ValueError: When data processor is not provided.
         """
         opt = self.options
 
@@ -178,64 +183,46 @@ class CurveAnalysis(BaseCurveAnalysis):
                 ("xval", float),
                 ("yval", float),
                 ("yerr", float),
-                ("model_name", "U30"),  # builtin str is U0 which is zero-length unicode in numpy
-                ("model_id", int),
+                ("name", "U30"),
+                ("class_id", int),
+                ("category", "U30"),
                 ("shots", int),
             ]
         )
-        table_data = np.empty(len(to_process), dtype=dtypes)
+
+        # Prepare circuit metadata to data class mapper from data_subfit_map value.
+        model_names = self.model_names()
+        classifier = {}
+        if len(model_names) == 1:
+            classifier[(0, model_names[0])] = {}
+        else:
+            for i, name in enumerate(model_names):
+                try:
+                    spec = self.options.data_subfit_map[name]
+                except KeyError as ex:
+                    raise DataProcessorError(
+                        f"Mapping to data for the fit model {name} is not provided."
+                    ) from ex
+                classifier[(i, name)] = spec
+
+        source = np.empty(len(to_process), dtype=dtypes)
         for idx, datum in enumerate(to_process):
-            metadata = datum["metadata"].copy()
-            # Get xval from metadata
+            metadata = datum["metadata"]
             try:
-                xval = metadata.pop(opt.x_key)
+                xval = metadata[opt.x_key]
             except KeyError as ex:
                 raise DataProcessorError(
                     f"X value key {opt.x_key} is not defined in the circuit metadata."
                 ) from ex
-            # Classify fit model
-            if len(self._models) == 1:
-                m_id = 0
-                m_name = self._models[0]._name
-            else:
-                for i, model in enumerate(self._models):
-                    try:
-                        model_spec = self.options.data_subfit_map[model._name]
-                    except KeyError as ex:
-                        raise DataProcessorError(
-                            f"Mapping to data for the fit model {model._name} is not provided."
-                        ) from ex
-                    if model_spec.items() <= metadata.items():
-                        m_id = i
-                        m_name = model._name
-                        break
-                else:
-                    raise ValueError(f"Experiment data {datum} doesn't belong to any fit model.")
-            table_data[idx]["xval"] = xval
-            table_data[idx]["shots"] = datum.get("shots", -1)
-            table_data[idx]["model_id"] = m_id
-            table_data[idx]["model_name"] = m_name
+            source[idx]["xval"] = xval
+            source[idx]["shots"] = datum.get("shots", -1)
 
-            # Add extra metadata
-            add_key = metadata.keys() - table_data.dtype.fields
-            if add_key:
-                # Add missing keys to struct array
-                # This code is lengthy but faster than merge_arrays function
-                add_dtypes = []
-                for k in add_key:
-                    if isinstance(metadata[k], str):
-                        new_dtype = "U30"
-                    else:
-                        new_dtype = type(metadata[k])
-                    add_dtypes.append((k, new_dtype))
-                new_table_data = np.empty(
-                    len(to_process), dtype=sum((table_data.dtype.descr, add_dtypes), [])
-                )
-                for k in table_data.dtype.fields:
-                    new_table_data[k] = table_data[k]
-                table_data = new_table_data
-            for k, v in metadata.items():
-                table_data[idx][k] = v
+            # Assign entry name and class id
+            for (class_id, name), spec in classifier.items():
+                if spec.items() <= metadata.items():
+                    source[idx]["class_id"] = class_id
+                    source[idx]["name"] = name
+                    break
 
         # Compute y value
         if not self.options.data_processor:
@@ -245,26 +232,25 @@ class CurveAnalysis(BaseCurveAnalysis):
                 "data_processor analysis options."
             )
         processed_values = self.options.data_processor(to_process)
-        table_data["yval"] = unp.nominal_values(processed_values).flatten()
-        table_data["yerr"] = unp.std_devs(processed_values).flatten()
+        source["yval"] = unp.nominal_values(processed_values).flatten()
+        source["yerr"] = unp.std_devs(processed_values).flatten()
+        source["category"] = category
 
-        out = ScatterTable(
-            data=table_data,
-            index=[f"processed-{i:04d}" for i in range(len(to_process))],
-        )
-        return out
+        return ScatterTable(data=source)
 
     def _format_data(
         self,
         curve_data: ScatterTable,
+        category: str = "formatted",
     ) -> ScatterTable:
-        """Postprocessing for the processed dataset.
+        """Postprocessing for preparing the fitting data.
 
         Args:
             curve_data: Processed dataset created from experiment results.
+            category: Category string of the output dataset.
 
         Returns:
-            New scatter table instance including raw and formatted data.
+            New scatter table instance including fit data.
         """
         averaging_methods = {
             "shots_weighted": shot_weighted_average,
@@ -274,39 +260,27 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         columns = list(curve_data.columns)
         sort_by = itemgetter(
-            columns.index("model_id"),
+            columns.index("class_id"),
             columns.index("xval"),
         )
         # Use python native groupby method on ndarray. This is more performant than pandas one.
         average = averaging_methods[self.options.average_method]
         formatted = []
-        for (mid, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
+        for (class_id, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
             g_values = np.array(list(g))
             g_dict = dict(zip(columns, g_values.T))
             avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
             averaged = dict.fromkeys(columns)
+            averaged["category"] = category
             averaged["xval"] = xv
             averaged["yval"] = avg_yval
             averaged["yerr"] = avg_yerr
-            averaged["model_id"] = mid
+            averaged["name"] = g_dict["name"][0]
+            averaged["class_id"] = class_id
             averaged["shots"] = shots
-            for k, v in g_dict.items():
-                if averaged[k] is not None:
-                    continue
-                if len(g_values) == 1:
-                    averaged[k] = v[0]
-                else:
-                    unique = set(v)
-                    if len(unique) == 1:
-                        averaged[k] = next(iter(unique))
-                    else:
-                        averaged[k] = list(unique)
             formatted.append(list(averaged.values()))
 
-        return curve_data.append_list_values(
-            other=formatted,
-            prefix="formatted",
-        )
+        return curve_data.append_list_values(formatted)
 
     def _generate_fit_guesses(
         self,
@@ -375,7 +349,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Create convenient function to compute residual of the models.
         partial_residuals = []
         valid_uncertainty = np.all(np.isfinite(curve_data.yerr.to_numpy()))
-        for i, sub_data in list(curve_data.groupby("model_id")):
+        for i, sub_data in list(curve_data.groupby("class_id")):
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.yerr, 0.0),
@@ -453,37 +427,36 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for model_id, data in list(curve_data.groupby("model_id")):
-            model_name = self._models[model_id]._name
+        for name, data in list(curve_data.groupby("name")):
             # Plot raw data scatters
             if self.options.plot_raw_data:
-                raw_data = data.filter(like="processed", axis="index")
+                raw_data = data[data.category == "raw"]
                 self.plotter.set_series_data(
-                    series_name=model_name,
+                    series_name=name,
                     x=raw_data.xval.to_numpy(),
                     y=raw_data.yval.to_numpy(),
                 )
             # Plot formatted data scatters
-            formatted_data = data.filter(like="formatted", axis="index")
+            formatted_data = data[data.category == self.options.fit_category]
             self.plotter.set_series_data(
-                series_name=model_name,
+                series_name=name,
                 x_formatted=formatted_data.xval.to_numpy(),
                 y_formatted=formatted_data.yval.to_numpy(),
                 y_formatted_err=formatted_data.yerr.to_numpy(),
             )
             # Plot fit lines
-            line_data = data.filter(like="fitted", axis="index")
+            line_data = data[data.category == "fitted"]
             if len(line_data) == 0:
                 continue
             self.plotter.set_series_data(
-                series_name=model_name,
+                series_name=name,
                 x_interp=line_data.xval.to_numpy(),
                 y_interp=line_data.yval.to_numpy(),
             )
             fit_stdev = line_data.yerr.to_numpy()
             if np.isfinite(fit_stdev).all():
                 self.plotter.set_series_data(
-                    series_name=model_name,
+                    series_name=name,
                     y_interp_err=fit_stdev,
                 )
 
@@ -508,8 +481,9 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Prepare for fitting
         self._initialize(experiment_data)
 
-        curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
-        fit_data = self._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
+        table = self._format_data(self._run_data_processing(experiment_data.data()))
+        formatted_subset = table[table.category == self.options.fit_category]
+        fit_data = self._run_curve_fit(formatted_subset)
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
@@ -534,10 +508,9 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             fit_curves = []
-            formatted = curve_data.filter(like="formatted", axis="index")
-            columns = list(curve_data.columns)
-            for i, sub_data in list(formatted.groupby("model_id")):
-                name = self._models[i]._name
+            columns = list(table.columns)
+            model_names = self.model_names()
+            for i, sub_data in list(formatted_subset.groupby("class_id")):
                 xval = sub_data.xval.to_numpy()
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
@@ -556,12 +529,10 @@ class CurveAnalysis(BaseCurveAnalysis):
                 model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
                 if fit_data.covar is not None:
                     model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
-                model_fit[:, columns.index("model_name")] = name
-                model_fit[:, columns.index("model_id")] = i
-            curve_data = curve_data.append_list_values(
-                other=np.vstack(fit_curves),
-                prefix="fitted",
-            )
+                model_fit[:, columns.index("name")] = model_names[i]
+                model_fit[:, columns.index("class_id")] = i
+                model_fit[:, columns.index("category")] = "fitted"
+            table = table.append_list_values(other=np.vstack(fit_curves))
             analysis_results.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
@@ -572,11 +543,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if self.options.return_data_points:
             # Add raw data points
-            analysis_results.extend(
-                self._create_curve_data(
-                    curve_data=curve_data.filter(like="formatted", axis="index"),
-                )
-            )
+            analysis_results.extend(self._create_curve_data(curve_data=formatted_subset))
 
         if plot_bool:
             if fit_data.success:
@@ -584,7 +551,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     fit_red_chi=fit_data.reduced_chisq,
                     primary_results=[r for r in analysis_results if not r.name.startswith("@")],
                 )
-            figures.extend(self._create_figures(curve_data=curve_data))
+            figures.extend(self._create_figures(curve_data=table))
 
         return analysis_results, figures
 
