@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The dependency on ``qiskit-terra`` was replaced with a dependency on
+    ``qiskit``. This change follows move in upstream Qiskit to rename
+    ``qiskit-terra`` to ``qiskit``. For more information see `the Qiskit
+    repository renaming plan
+    <https://github.com/Qiskit/RFCs/blob/5793e78dc8e4d8d17f8ef7fad789c6c5ebd3a061/0011-repo-rename.md>`__
+    and the `Qiskit issue <https://github.com/Qiskit/qiskit/issues/11240>`__
+    for the renaming of the package.
