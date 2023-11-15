@@ -138,7 +138,8 @@ class CompositeAnalysis(BaseAnalysis):
             # from them
             component_expdata = self._initialize_component_experiment_data(experiment_data)
 
-        experiment_data._add_data(experiment_data.child_data(),experiment_data.data())
+        
+        experiment_data._add_data(component_expdata,experiment_data.data())
 
         # Run the component analysis on each component data
         for i, sub_expdata in enumerate(component_expdata):

@@ -808,8 +808,9 @@ class ExperimentData:
                                 else:
                                     experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
                                     experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-                    else:
-                        self._result_data.append(datum)
+                    
+                    self._result_data.append(datum)
+
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
                         self._set_child_data(datum["metadata"]._metadata())
@@ -820,11 +821,6 @@ class ExperimentData:
             if composite_flag:
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
                 self._set_child_data([tmp_exp_data])
-                for exp_data in self._child_data.values():
-                    for sub_exp_data in exp_data.child_data():
-                        print(sub_exp_data.data())
-                print(self.data())
-
 
     def __add_data(
         self,
