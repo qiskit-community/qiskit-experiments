@@ -743,8 +743,13 @@ class ExperimentData:
                         composite_flag = True
                         marginalized_data = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_data:
-                            tmp_exp_data.__add_data(inner_datum)
-                        self._set_child_data([tmp_exp_data])
+                            #print(inner_datum)
+                            if "experiment_type" in inner_datum[0]["metadata"]:
+                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
+                                else:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
                     else:
                         self._result_data.append(datum)
                 elif isinstance(datum, Result):
@@ -757,11 +762,6 @@ class ExperimentData:
             if composite_flag:
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
                 self._set_child_data([tmp_exp_data])
-                for exp_data in self._child_data.values():
-                    for sub_exp_data in exp_data.child_data():
-                        print(sub_exp_data.data())
-                print(self.data())
-
 
     def __add_data(
         self,

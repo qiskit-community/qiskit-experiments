@@ -118,10 +118,15 @@ class CompositeAnalysis(BaseAnalysis):
     def _run_analysis(self, experiment_data: ExperimentData):
         child_data = experiment_data.child_data()
 
+<<<<<<< HEAD
         if len(child_data) == 0:  
             # Child data is automatically created when composite result data is added.  
             # Validate that child data size matches with number of analysis entries.  
             experiment_data.create_child_data()
+=======
+        
+        experiment_data._add_data(component_expdata,experiment_data.data())
+>>>>>>> 2dbba8ac (Passed test new start)
 
         if len(self._analyses) != len(child_data):
             raise("analysis length and experiment lenggth are not same")
