@@ -44,7 +44,6 @@ Data Classes
     CurveFitResult
     ParameterRepr
     FitOptions
-    ScatterTable
 
 Visualization
 =============

@@ -26,7 +26,28 @@ LOG = logging.getLogger(__name__)
 
 
 class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
-    """A table to store x and y data with metadata associated with the data point."""
+    """A table to store x and y data with metadata associated with the data point.
+
+    This class is implemented upon the pandas dataframe.
+    See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
+    for the base class API documentation.
+
+    A single ``ScatterTable`` object can contain different kind of intermediate data
+    generated through the curve fitting, which are categorized by the fit model.
+    When an experiment has sub-data for ``model_abc``, the formatted x, y, and y-error
+    array data may be obtained from the original table object as follows:
+
+    .. code-block::python
+
+        formatted = table.filter(like="formatted", axis="index")
+        abc_data = formatted[formatted.model_name == "model_abc"]
+        x, y, e = abc_data.xval.to_numpy(), abc_data.yval.to_numpy(), abc_data.yerr.to_numpy()
+
+    """
+
+    # TODO Add this to toctree. In current mechanism all pandas DataFrame members are rendered
+    #  and it fails in the Sphinx build process. We may need a custom directive to
+    #  exclude class members from an external package.
 
     @classmethod
     def _default_columns(cls) -> List[str]:
@@ -37,7 +58,6 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
             "model_name",
             "model_id",
             "shots",
-            "format",
         ]
 
     @deprecate_func(
@@ -138,7 +158,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         self,
         other: Sequence,
         prefix: str,
-    ):
+    ) -> "ScatterTable":
         """Add another list of dataframe values to this dataframe.
 
         Args:
@@ -148,7 +168,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         Returns:
             New scatter table instance including both self and added data.
         """
-        other_index = [f"{prefix}-{i}" for i in range(len(other))]
+        other_index = [f"{prefix}-{i:04d}" for i in range(len(other))]
         return ScatterTable(
             data=[*self.values, *other],
             columns=self.columns,

@@ -160,8 +160,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
-            plot (bool): Set ``True`` to create figure for fit result.
-                This is ``True`` by default.
+            plot (bool): Set ``True`` to create figure for fit result or ``False`` to
+                not create a figure. This overrides the behavior of ``generate_figures``.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``True``.
             return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
@@ -245,41 +245,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
         """
-        # TODO remove this in Qiskit Experiments v0.5
 
-        if "curve_fitter_options" in fields:
-            warnings.warn(
-                "The option 'curve_fitter_options' is replaced with 'lmfit_options.' "
-                "This option will be removed in Qiskit Experiments 0.5.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            fields["lmfit_options"] = fields.pop("curve_fitter_options")
-
-        # TODO remove this in Qiskit Experiments 0.6
-        if "curve_drawer" in fields:
-            warnings.warn(
-                "The option 'curve_drawer' is replaced with 'plotter'. "
-                "This option will be removed in Qiskit Experiments 0.6.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
-            # directly. If not, wrap it in a compatibility drawer.
-            if isinstance(fields["curve_drawer"], BaseDrawer):
-                plotter = self.options.plotter
-                plotter.drawer = fields.pop("curve_drawer")
-                fields["plotter"] = plotter
-            else:
-                drawer = fields["curve_drawer"]
-                compat_drawer = LegacyCurveCompatDrawer(drawer)
-                plotter = self.options.plotter
-                plotter.drawer = compat_drawer
-                fields["plotter"] = plotter
 
         if "return_fit_parameters" in fields:
             warnings.warn(
-                "Now @Parameters_* result entry is moved to experiment data artifact "
+                "@Parameters_* result entry has moved to the experiment data artifact "
                 "regardless of option value. Setting this value doesn't affect result data.",
                 DeprecationWarning,
             )
@@ -287,7 +257,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         if "return_data_points" in fields:
             warnings.warn(
-                "Now @Data_* result entry is moved to experiment data artifact "
+                "@Data_* result entry has moved to the experiment data artifact "
                 "regardless of option value. Setting this value doesn't affect result data.",
                 DeprecationWarning,
             )
@@ -349,7 +319,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Returns:
             String that represents fit result quality. Usually "good" or "bad".
         """
-        if fit_data.reduced_chisq < 3.0:
+        if 0 < fit_data.reduced_chisq < 3.0:
             return "good"
         return "bad"
 
