@@ -12,6 +12,7 @@
 
 """Experiment utility functions."""
 
+import importlib.metadata
 import io
 import logging
 import threading
@@ -26,25 +27,19 @@ import dateutil.parser
 import pkg_resources
 from dateutil import tz
 
-from qiskit.version import __version__ as terra_version
-
 from qiskit_ibm_experiment import (
     IBMExperimentEntryExists,
     IBMExperimentEntryNotFound,
 )
 
 from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentDataError
-from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
 
 
 def qiskit_version():
     """Return the Qiskit version."""
-    try:
-        return pkg_resources.get_distribution("qiskit").version
-    except Exception:  # pylint: disable=broad-except
-        return {"qiskit-terra": terra_version, "qiskit-experiments": experiments_version}
+    return importlib.metadata.distribution("qiskit").version
 
 
 def parse_timestamp(utc_dt: Union[datetime, str]) -> datetime:
