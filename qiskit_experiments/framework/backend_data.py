@@ -146,10 +146,7 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().timing_constraints.get("acquire_alignment", 1)
             elif self._v2:
-                # currently has a typo in terra
-                if hasattr(self._backend.target, "acquire_alignment"):
-                    return self._backend.target.acquire_alignment
-                return self._backend.target.aquire_alignment
+                return self._backend.target.acquire_alignment
         except AttributeError:
             return 1
         return 1
