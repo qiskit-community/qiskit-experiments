@@ -24,7 +24,6 @@ from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
 import json
 
 import dateutil.parser
-import pkg_resources
 from dateutil import tz
 
 from qiskit_ibm_experiment import (
