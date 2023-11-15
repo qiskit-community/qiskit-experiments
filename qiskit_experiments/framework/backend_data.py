@@ -32,10 +32,10 @@ class BackendData:
             self._parse_additional_data()
 
     def _parse_additional_data(self):
-        # data specific parsing not done yet in qiskit-terra
+        # data specific parsing not done yet in upstream qiskit
         if hasattr(self._backend, "_conf_dict") and self._backend._conf_dict["open_pulse"]:
             if "u_channel_lo" not in self._backend._conf_dict:
-                self._backend._conf_dict["u_channel_lo"] = []  # to avoid terra bug
+                self._backend._conf_dict["u_channel_lo"] = []  # to avoid qiskit bug
             self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
 
     @property
@@ -222,7 +222,7 @@ class BackendData:
 
         .. note::
 
-            The qiskit-terra base classes do not provide this information as a
+            The qiskit base classes do not provide this information as a
             standard backend property, but it is available from some providers
             in the data returned by the ``Backend.defaults()`` method.
         """
@@ -249,7 +249,7 @@ class BackendData:
             For `BackendV2` we sometimes cannot be sure, because it lacks
             a `simulator` field, as was present in `BackendV1`'s configuration.
             We still check whether the backend inherits `FakeBackendV2`, for
-            either of its existing implementations in Terra.
+            either of its existing implementations in Qiskit.
         """
         if self._v1:
             if self._backend.configuration().simulator or isinstance(self._backend, FakeBackend):

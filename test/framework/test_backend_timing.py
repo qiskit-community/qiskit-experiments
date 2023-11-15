@@ -30,7 +30,7 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         super().setUpClass()
 
         # Creating a complete fake backend is difficult so we use one from
-        # terra. Just to be safe, we check that the properties we care about
+        # qiskit. Just to be safe, we check that the properties we care about
         # for these tests are never changed from what the tests assume.
         backend = FakeNairobiV2()
         target = backend.target
