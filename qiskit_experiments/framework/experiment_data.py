@@ -808,8 +808,20 @@ class ExperimentData:
                                 else:
                                     experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
                                     experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-
-                        self._result_data.append(datum)
+                    
+                    elif "composite_metadata" in datum:
+                        composite_flag = True
+                        marginalized_data = self._marginalized_component_data([datum])
+                        for inner_datum in marginalized_data:
+                            #print(inner_datum)
+                            if "experiment_type" in inner_datum[0]["metadata"]:
+                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
+                                else:
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
+                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
+                    
+                    self._result_data.append(datum)
 
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
@@ -821,8 +833,6 @@ class ExperimentData:
             if composite_flag:
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
                 self._set_child_data([tmp_exp_data])
-        
-        return tmp_exp_data
 
     def __add_data(
         self,
@@ -887,6 +897,7 @@ class ExperimentData:
             
             # self._marginalized_component_data()
             # Directly add non-job data
+
             marginalized_data = self._marginalized_component_data(data)
 
             with self._result_data.lock:
