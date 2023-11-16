@@ -59,13 +59,11 @@ experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b06
     service = ExperimentData.get_service_from_backend(backend)
     load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
 
-To display the figure, which is serialized into a string, we need the
-``SVG`` library:
+Now we can display the figure from the loaded experiment data:
 
 .. jupyter-input::
 
-    from IPython.display import SVG
-    SVG(load_expdata.figure(0).figure)
+    load_expdata.figure(0).figure
 
 .. image:: ./experiment_cloud_service/t1_loaded.png
 
