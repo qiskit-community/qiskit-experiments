@@ -73,7 +73,7 @@ disable=fixme,              # disabled as TODOs would show up as warnings
     cyclic-import,  # This checker raises on all module pairs that import each other,
                     # even submodules that only import already loaded objects from a
                     # parent module, a common pattern in qiskit-experiments.
-    assigning-non-slot  # https://github.com/Qiskit/qiskit-terra/pull/7347#issuecomment-985007311
+    assigning-non-slot  # https://github.com/Qiskit/qiskit/pull/7347#issuecomment-985007311
 
 
 
