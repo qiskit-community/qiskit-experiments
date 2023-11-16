@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  terra-main-tests:
+  qiskit-main-tests:
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -37,10 +37,10 @@ jobs:
       - name: Install Deps
         run: python -m pip install -U tox setuptools virtualenv wheel
       - name: Install and Run Tests (Windows and Linux)
-        run: tox -e terra-main
+        run: tox -e qiskit-main
         if: runner.os != 'macOS'
       - name: Install and Run Tests (Macs only)
-        run: tox -e terra-main
+        run: tox -e qiskit-main
         if: runner.os == 'macOS'
         env:
           TEST_TIMEOUT: 120
@@ -66,7 +66,7 @@ jobs:
           python -m pip install -U tox
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
-        run: tox -edocs-terra-main
+        run: tox -edocs-qiskit-main
       - name: Compress Artifacts
         run: |
           mkdir artifacts
