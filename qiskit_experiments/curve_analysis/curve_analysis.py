@@ -22,6 +22,7 @@ from operator import itemgetter
 
 import lmfit
 import numpy as np
+import pandas as pd
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
@@ -191,19 +192,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         )
 
         # Prepare circuit metadata to data class mapper from data_subfit_map value.
-        model_names = self.model_names()
         classifier = {}
-        if len(model_names) == 1:
-            classifier[(0, model_names[0])] = {}
+        if len(self._models) == 1:
+            classifier[self.model_names()[0]] = {}
         else:
-            for i, name in enumerate(model_names):
-                try:
-                    spec = self.options.data_subfit_map[name]
-                except KeyError as ex:
-                    raise DataProcessorError(
-                        f"Mapping to data for the fit model {name} is not provided."
-                    ) from ex
-                classifier[(i, name)] = spec
+            classifier = self.options.data_subfit_map
 
         source = np.empty(len(to_process), dtype=dtypes)
         for idx, datum in enumerate(to_process):
@@ -218,7 +211,10 @@ class CurveAnalysis(BaseCurveAnalysis):
             source[idx]["shots"] = datum.get("shots", -1)
 
             # Assign entry name and class id
-            for (class_id, name), spec in classifier.items():
+            # Enumerate starts at 1 so that unclassified data becomes class_id = 0.
+            # This class_id is just defined for result data according to the data_subfit_map
+            # and this doesn't need to match with the actual fit model index.
+            for class_id, (name, spec) in enumerate(classifier.items(), 1):
                 if spec.items() <= metadata.items():
                     source[idx]["class_id"] = class_id
                     source[idx]["name"] = name
@@ -265,18 +261,30 @@ class CurveAnalysis(BaseCurveAnalysis):
         )
         # Use python native groupby method on ndarray. This is more performant than pandas one.
         average = averaging_methods[self.options.average_method]
+        model_names = self.model_names()
         formatted = []
         for (class_id, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
+            if class_id == 0:
+                # This is unclassified data
+                continue
             g_values = np.array(list(g))
             g_dict = dict(zip(columns, g_values.T))
             avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
+            data_name = g_dict["name"][0]
+            try:
+                # Map data index to model index through assigned name.
+                # Data name should match with the model name.
+                # Otherwise, the model index is unclassified.
+                model_id = model_names.index(data_name)
+            except ValueError:
+                model_id = pd.NA
             averaged = dict.fromkeys(columns)
             averaged["category"] = category
             averaged["xval"] = xv
             averaged["yval"] = avg_yval
             averaged["yerr"] = avg_yerr
             averaged["name"] = g_dict["name"][0]
-            averaged["class_id"] = class_id
+            averaged["class_id"] = model_id
             averaged["shots"] = shots
             formatted.append(list(averaged.values()))
 
