@@ -67,6 +67,13 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
+try:
+    from IPython.display import SVG
+
+    DISPLAY_SVG = True
+except ImportError:
+    DISPLAY_SVG = False
+
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
@@ -1330,6 +1337,11 @@ class ExperimentData:
             with open(file_name, "wb") as output:
                 num_bytes = output.write(figure_data.figure)
                 return num_bytes
+
+        if isinstance(figure_data.figure, bytes) and DISPLAY_SVG:
+            LOG.debug("Figure data is converted into SVG.")
+            figure_data.figure = SVG(figure_data.figure)
+
         return figure_data
 
     @deprecate_arg(
