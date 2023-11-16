@@ -38,7 +38,7 @@ LOG = logging.getLogger(__name__)
 
 def qiskit_version():
     """Return the Qiskit version."""
-    return importlib.metadata.distribution("qiskit").version
+    return {p: importlib.metadata.distribution(p).version for p in ("qiskit", "qiskit-experiments")}
 
 
 def parse_timestamp(utc_dt: Union[datetime, str]) -> datetime:
