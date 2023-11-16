@@ -469,13 +469,10 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
             # Unwrap phase
             # We assume a smooth slope and correct 2pi phase jump to minimize the change of the slope.
-            if amplitudes[0] < 0:
-                # Flip array order because this is array is negative increments.
-                phase_n = phase_n[::-1]
             unwrapped_phase = np.unwrap(phase_n)
             if amplitudes[0] < 0:
-                # Flip back
-                unwrapped_phase = unwrapped_phase[::-1]
+                # Preserve phase value closest to 0 amplitude
+                unwrapped_phase = unwrapped_phase + (phase_n[-1] - unwrapped_phase[-1])
 
             # Store new data
             tmp = np.empty((len(amplitudes), len(columns)), dtype=object)
