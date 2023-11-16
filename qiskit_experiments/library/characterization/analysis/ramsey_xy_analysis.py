@@ -219,16 +219,16 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         This analysis is a variant of :class:`RamseyXYAnalysis`. In both cases, the X and Y
         data are treated as the real and imaginary parts of a complex oscillating signal.
-        In :class:`RamseyXYAnalysis`, the data is fit assuming a phase varying linearly with
+        In :class:`RamseyXYAnalysis`, the data are fit assuming a phase varying linearly with
         the x-data corresponding to a constant frequency and assuming an exponentially
         decaying amplitude. By contrast, in this model, the phase is assumed to be
         a third order polynomial :math:`\theta(x)` of the x-data.
         Additionally, the amplitude is not assumed to follow a specific form.
         Techniques to compute a good initial guess for the polynomial coefficients inside
         a trigonometric function like this are not trivial. Instead, this analysis extracts the
-        raw phase :math:`\theta(x)` and runs fits the extracted data to a polynomial directly.
+        raw phase and runs fits the extracted data to a polynomial :math:`\theta(x)` directly.
 
-        The measured P1 values for Ramsey X and Y experiment can be written in a form of
+        The measured P1 values for a Ramsey X and Y experiment can be written in the form of
         a trignometric function taking the phase polynomial :math:`\theta(x)`:
 
         .. math::
@@ -252,7 +252,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         two-level systems distributed randomly in frequency
         or potentially due to qubit heating. This prevents us from precisely fitting
         the raw :math:`P_X`, :math:`P_Y` data. Fitting only the phase data makes the
-        analysis robust to the amplitude dependent dephasing.
+        analysis robust to amplitude dependent dephasing.
 
         In this analysis, the phase polynomial is defined as
 
