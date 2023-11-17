@@ -12,6 +12,15 @@ features:
     New analysis option ``fit_category`` is added to :class:`.CurveAnalysis` subclasses.
     This option controls which data subset within the :class:`.ScatterTable` 
     is used for the curve fitting.
+upgrade:
+  - |
+    The behavior of :class:`.CurveAnalysis` data processing was changed. 
+    It used to raise ``DataProcessorError`` error when it encounters an experiment result
+    which cannot be classified into any fit model, but this restriction was relaxed 
+    and the analysis continues with unclassified data.
+    Unclassified data is just stored as-is in the :class:`.ScatterTable` with having 
+    the null class ID assigned. Such data is ignored in the rest of analysis steps
+    such as formatting, fitting, and visualization.
 developer:
   - |
     :meth:`.CurveAnalysis._create_figures` method is added to the curve analysis base class.

@@ -211,14 +211,17 @@ class CurveAnalysis(BaseCurveAnalysis):
             source[idx]["shots"] = datum.get("shots", -1)
 
             # Assign entry name and class id
-            # Enumerate starts at 1 so that unclassified data becomes class_id = 0.
-            # This class_id is just defined for result data according to the data_subfit_map
-            # and this doesn't need to match with the actual fit model index.
-            for class_id, (name, spec) in enumerate(classifier.items(), 1):
+            for class_id, (name, spec) in enumerate(classifier.items()):
                 if spec.items() <= metadata.items():
                     source[idx]["class_id"] = class_id
                     source[idx]["name"] = name
                     break
+            else:
+                # This is unclassified data.
+                # Assume that normal ID will never become negative number.
+                # This is numpy struct array object and cannot store pandas nullable integer.
+                source[idx]["class_id"] = -1
+                source[idx]["name"] = ""
 
         # Compute y value
         if not self.options.data_processor:
@@ -232,7 +235,13 @@ class CurveAnalysis(BaseCurveAnalysis):
         source["yerr"] = unp.std_devs(processed_values).flatten()
         source["category"] = category
 
-        return ScatterTable(data=source)
+        table = ScatterTable(data=source)
+
+        # Replace temporary -1 value with nullable integer
+        table["class_id"] = table["class_id"].replace(-1, pd.NA)
+        table["shots"] = table["shots"].replace(-1, pd.NA)
+
+        return table
 
     def _format_data(
         self,
@@ -264,9 +273,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         model_names = self.model_names()
         formatted = []
         for (class_id, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
-            if class_id == 0:
-                # This is unclassified data
-                continue
             g_values = np.array(list(g))
             g_dict = dict(zip(columns, g_values.T))
             avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])

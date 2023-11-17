@@ -143,14 +143,14 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertListEqual(sub1.labels, ["s1"])
         np.testing.assert_array_equal(sub1.x, x)
         np.testing.assert_array_almost_equal(sub1.y, y1, decimal=3)
-        np.testing.assert_array_equal(sub1.data_allocation, np.full(x.size, 1))
+        np.testing.assert_array_equal(sub1.data_allocation, np.full(x.size, 0))
 
         # check data of series2
         sub2 = curve_data.get_subset_of("s2")
         self.assertListEqual(sub2.labels, ["s2"])
         np.testing.assert_array_equal(sub2.x, x)
         np.testing.assert_array_almost_equal(sub2.y, y2, decimal=3)
-        np.testing.assert_array_equal(sub2.data_allocation, np.full(x.size, 2))
+        np.testing.assert_array_equal(sub2.data_allocation, np.full(x.size, 1))
 
     def test_create_result(self):
         """A testcase for creating analysis result data from fit data."""
