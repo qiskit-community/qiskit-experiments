@@ -23,33 +23,12 @@ different sets of experiment results. A single experiment can define sub-experim
 consisting of multiple circuits which are tagged with common metadata,
 and curve analysis sorts the experiment results based on the circuit metadata.
 
-This is an example of showing the abstract data structure of a typical curve analysis experiment:
+This is an example of showing the abstract data flow of a typical curve analysis experiment:
 
-.. jupyter-input::
-    :emphasize-lines: 1,10,19
-
-    "experiment"
-        - circuits[0] (x=x1_A, "series_A")
-        - circuits[1] (x=x1_B, "series_B")
-        - circuits[2] (x=x2_A, "series_A")
-        - circuits[3] (x=x2_B, "series_B")
-        - circuits[4] (x=x3_A, "series_A")
-        - circuits[5] (x=x3_B, "series_B")
-        - ...
-
-    "experiment data"
-        - data[0] (y1_A, "series_A")
-        - data[1] (y1_B, "series_B")
-        - data[2] (y2_A, "series_A")
-        - data[3] (y2_B, "series_B")
-        - data[4] (y3_A, "series_A")
-        - data[5] (y3_B, "series_B")
-        - ...
-
-    "analysis"
-        - "series_A": y_A = f_A(x_A; p0, p1, p2)
-        - "series_B": y_B = f_B(x_B; p0, p1, p2)
-        - fixed parameters {p1: v}
+.. figure:: images/curve_analysis_structure.png
+    :width: 600
+    :align: center
+    :class: no-scaled-link
 
 Here the experiment runs two subsets of experiments, namely, series A and series B.
 The analysis defines corresponding fit models :math:`f_A(x_A)` and :math:`f_B(x_B)`.
@@ -289,21 +268,75 @@ A developer can override this method to perform initialization of analysis-speci
 
 Curve analysis calls the :meth:`_run_data_processing` method, where
 the data processor in the analysis option is internally called.
-This consumes input experiment results and creates the :class:`.CurveData` dataclass.
-Then the :meth:`_format_data` method is called with the processed dataset to format it.
+This consumes input experiment results and creates the :class:`.ScatterTable` dataframe.
+This table may look like:
+
+.. code-block::
+
+        xval      yval      yerr name  class_id category  shots
+    0    0.1  0.153659  0.011258    A         0      raw   1024
+    1    0.1  0.590732  0.015351    B         1      raw   1024
+    2    0.1  0.315610  0.014510    A         0      raw   1024
+    3    0.1  0.376098  0.015123    B         1      raw   1024
+    4    0.2  0.937073  0.007581    A         0      raw   1024
+    5    0.2  0.323415  0.014604    B         1      raw   1024
+    6    0.2  0.538049  0.015565    A         0      raw   1024
+    7    0.2  0.530244  0.015581    B         1      raw   1024
+    8    0.3  0.143902  0.010958    A         0      raw   1024
+    9    0.3  0.261951  0.013727    B         1      raw   1024
+    10   0.3  0.830732  0.011707    A         0      raw   1024
+    11   0.3  0.874634  0.010338    B         1      raw   1024
+
+where the experiment consists of two subset series A and B, and the experiment parameter (xval)
+is scanned from 0.1 to 0.3 in each subset. For each condition, the experiment is run twice
+for some reason. Each column represents following quantity.
+
+- ``xval``: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
+- ``yval``: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.
+- ``yerr``: Standard error of the outcome, which is mainly due to sampling error.
+- ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
+- ``class_id``: Numerical index corresponding to the result class. This number is automatically assigned.
+- ``category``: The attribute of data set. The "raw" category indicates an output from the data processing.
+- ``shots``: Number of measurement shot used to acquire this result.
+
+3. Formatting
+^^^^^^^^^^^^^
+
+Next, the processed dataset is converted into another format suited for the fitting and
+every valid result class is assigned to a fit model.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
 This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
+The new class_id is given here so that its value corresponds to the fit model object index
+in this analysis class. This index mapping is done based upon the correspondence of
+the data name and the fit model name.
+
+This is done by calling :meth:`_format_data` method.
+This may return new scatter table object with addition of following rows like below.
+
+.. code-block::
+
+    12   0.1  0.234634  0.009183    A         0  formatted   2048
+    13   0.2  0.737561  0.008656    A         0  formatted   2048
+    14   0.3  0.487317  0.008018    A         0  formatted   2048
+    15   0.1  0.483415  0.010774    B         1  formatted   2048
+    16   0.2  0.426829  0.010678    B         1  formatted   2048
+    17   0.3  0.568293  0.008592    B         1  formatted   2048
+
+The new data is added under the category "formatted". This category name must be also specified in
+the analysis option ``fit_category``. The following fit routine filters the scatter table
+by the category name. The (x, y) value in each row is passed to the corresponding fit model object
+to compute residual values for the least square optimization.
 
 3. Fitting
 ^^^^^^^^^^
 
-Curve analysis calls the :meth:`_run_curve_fit` method, which is the core functionality of the fitting.
-Another method :meth:`_generate_fit_guesses` is internally called to
-prepare the initial guess and parameter boundary with respect to the formatted data.
+Curve analysis calls the :meth:`_run_curve_fit` method with the formatted subset of the scatter table.
+This internally calls :meth:`_generate_fit_guesses` to prepare
+the initial guess and parameter boundary with respect to the formatted dataset.
 Developers usually override this method to provide better initial guesses
 tailored to the defined fit model or type of the associated experiment.
 See :ref:`curve_analysis_init_guess` for more details.
@@ -314,13 +347,18 @@ custom fitting algorithms. This method must return a :class:`.CurveFitResult` da
 ^^^^^^^^^^^^^^^^^^
 
 Curve analysis runs several postprocessing against the fit outcome.
-It calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResultData` class
+When the fit is successful, it calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResultData` objects
 for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
-Afterwards, figure plotting is handed over to the :doc:`Visualization </tutorials/visualization>` module via
-the :attr:`~.CurveAnalysis.plotter` attribute, and a list of created analysis results and the figure are returned.
+Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
+updated with the computed (x, y) values. This dataset is stored under the "fitted" category.
 
+Finally, :meth:`._create_figures` method is called with the entire scatter table data
+to initialize the curve plotter instance accessible via the :attr:`~.CurveAnalysis.plotter` attribute.
+The visualization is handed over to the :doc:`Visualization </tutorials/visualization>` module,
+which provides a standardized image format for curve fit results.
+A developer can overwrite this method to draw custom images.
 
 .. _curve_analysis_init_guess:
 
