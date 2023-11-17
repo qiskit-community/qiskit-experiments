@@ -246,7 +246,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             category: Category string of the output dataset.
 
         Returns:
-            New scatter table instance including fit data.
+            New scatter table instance including data to fit.
         """
         averaging_methods = {
             "shots_weighted": shot_weighted_average,

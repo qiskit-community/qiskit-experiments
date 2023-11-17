@@ -9,7 +9,7 @@ features:
     All properties and methods of :class:`.CurveData` are implemented for backward compatibility,
     but these will be removed in the future release.
   - |
-    New analysis option ``fit_category`` is added to :class:`.Curveanalysis` subclasses.
+    New analysis option ``fit_category`` is added to :class:`.CurveAnalysis` subclasses.
     This option controls which data subset within the :class:`.ScatterTable` 
     is used for the curve fitting.
 developer:
