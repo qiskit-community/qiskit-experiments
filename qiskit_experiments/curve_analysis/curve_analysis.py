@@ -289,7 +289,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             averaged["xval"] = xv
             averaged["yval"] = avg_yval
             averaged["yerr"] = avg_yerr
-            averaged["name"] = g_dict["name"][0]
+            averaged["name"] = data_name
             averaged["class_id"] = model_id
             averaged["shots"] = shots
             formatted.append(list(averaged.values()))
