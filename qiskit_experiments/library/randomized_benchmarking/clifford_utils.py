@@ -730,3 +730,14 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
+
+
+@lru_cache(maxsize=24 * 24)
+def _product_1q_nums(first: Integral, second: Integral) -> Integral:
+    """Return the 2-qubit Clifford integer that represents the product of 1-qubit Cliffords."""
+    qc0 = CliffordUtils.clifford_1_qubit_circuit(first)
+    qc1 = CliffordUtils.clifford_1_qubit_circuit(second)
+    qc = QuantumCircuit(2)
+    qc.compose(qc0, qubits=(0,), inplace=True)
+    qc.compose(qc1, qubits=(1,), inplace=True)
+    return num_from_2q_circuit(qc)
