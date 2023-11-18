@@ -42,12 +42,7 @@ from qiskit_experiments.visualization import BaseDrawer
 
 
 def is_equivalent(
-    data1: Any,
-    data2: Any,
-    *,
-    strict_type: bool = True,
-    numerical_precision: float = 1e-8,
-    **kwargs
+    data1: Any, data2: Any, *, strict_type: bool = True, numerical_precision: float = 1e-8, **kwargs
 ) -> bool:
     """Check if two input data are equivalent.
 
@@ -72,11 +67,7 @@ def is_equivalent(
     if strict_type and type(data1) is not type(data2):
         return False
     evaluated = _is_equivalent_dispatcher(
-        data1,
-        data2,
-        strict_type=strict_type,
-        numerical_precision=numerical_precision,
-        **kwargs
+        data1, data2, strict_type=strict_type, numerical_precision=numerical_precision, **kwargs
     )
     if not isinstance(evaluated, (bool, np.bool_)):
         # When either one of input is numpy array type, it may broadcast equality check
@@ -246,7 +237,7 @@ def _check_service_analysis_results(
     **kwargs,
 ):
     """Check equality of AnalysisResult class which is payload for experiment service."""
-    attrs=[
+    attrs = [
         "name",
         "value",
         "extra",

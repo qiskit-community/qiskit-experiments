@@ -143,7 +143,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             *,
             msg: Optional[str] = None,
             strict_type: bool = False,
-            **kwargs
+            **kwargs,
         ):
             """Extended equality assertion which covers Qiskit Experiments classes.
 
