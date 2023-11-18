@@ -272,7 +272,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         average = averaging_methods[self.options.average_method]
         model_names = self.model_names()
         formatted = []
-        for (class_id, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
+        for (_, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
             g_values = np.array(list(g))
             g_dict = dict(zip(columns, g_values.T))
             avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
