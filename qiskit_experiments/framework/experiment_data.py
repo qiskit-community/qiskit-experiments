@@ -2542,6 +2542,7 @@ class ExperimentData:
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
+        self._monitor_executor = futures.ThreadPoolExecutor()
 
     def __str__(self):
         line = 51 * "-"
