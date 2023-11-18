@@ -47,6 +47,7 @@ def is_equivalent(
     *,
     strict_type: bool = True,
     numerical_precision: float = 1e-8,
+    **kwargs
 ) -> bool:
     """Check if two input data are equivalent.
 
@@ -75,6 +76,7 @@ def is_equivalent(
         data2,
         strict_type=strict_type,
         numerical_precision=numerical_precision,
+        **kwargs
     )
     if not isinstance(evaluated, (bool, np.bool_)):
         # When either one of input is numpy array type, it may broadcast equality check
@@ -240,24 +242,28 @@ def _check_curvefit_results(
 def _check_service_analysis_results(
     data1: AnalysisResult,
     data2: AnalysisResult,
+    ignore_result_id: bool = False,
     **kwargs,
 ):
     """Check equality of AnalysisResult class which is payload for experiment service."""
+    attrs=[
+        "name",
+        "value",
+        "extra",
+        "device_components",
+        "experiment_id",
+        "chisq",
+        "quality",
+        "verified",
+        "tags",
+        "auto_save",
+        "source",
+    ]
+    if not ignore_result_id:
+        attrs.append("result_id")
+
     return _check_all_attributes(
-        attrs=[
-            "name",
-            "value",
-            "extra",
-            "device_components",
-            "result_id",
-            "experiment_id",
-            "chisq",
-            "quality",
-            "verified",
-            "tags",
-            "auto_save",
-            "source",
-        ],
+        attrs,
         data1=data1,
         data2=data2,
         **kwargs,
@@ -292,12 +298,25 @@ def _check_dataframes(
 def _check_result_table(
     data1: AnalysisResultTable,
     data2: AnalysisResultTable,
+    ignore_result_id: bool = False,
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
+    table1 = data1.copy().to_dict(orient="index")
+    table2 = data2.copy().to_dict(orient="index")
+    for table in (table1, table2):
+        for result in table.values():
+            result.pop("created_time")
+            if ignore_result_id:
+                result.pop("result_id")
+    if ignore_result_id:
+        # Keys of the dict are based on the result ids so they must be ignored
+        # as well
+        table1 = list(table1.values())
+        table2 = list(table2.values())
     return is_equivalent(
-        data1.copy().to_dict(orient="index"),
-        data2.copy().to_dict(orient="index"),
+        table1,
+        table2,
         **kwargs,
     )
 

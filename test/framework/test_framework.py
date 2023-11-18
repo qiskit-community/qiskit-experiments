@@ -12,6 +12,7 @@
 
 """Tests for base experiment framework."""
 
+import pickle
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 from itertools import product
@@ -115,6 +116,17 @@ class TestFramework(QiskitExperimentsTestCase):
             if num_circuits % max_circuits:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
+
+    def test_run_analysis_experiment_data_pickle_roundtrip(self):
+        """Test running analysis on ExperimentData after pickle roundtrip"""
+        analysis = FakeAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+
+        expdata2 = pickle.loads(pickle.dumps(expdata1))
+        expdata2 = analysis.run(expdata2, replace_results=True, seed=54321)
+        self.assertExperimentDone(expdata2)
+        self.assertEqualExtended(expdata1, expdata2, ignore_result_id=True)
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
