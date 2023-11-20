@@ -38,7 +38,7 @@ class DocstringSectionFormatter:
     def format_overview(self, lines: List[str]) -> List[str]:
         """Format overview section."""
         format_lines = [
-            ""
+            "",
             ".. rubric:: Overview",
             "",
         ]
@@ -167,7 +167,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Analysis options",
             "",
-            "These are the keyword arguments of :meth:`run` method.",
+            "These are the keyword arguments of the :meth:`run` method.",
             "",
         ]
         for line in _write_options(lines, self.indent):

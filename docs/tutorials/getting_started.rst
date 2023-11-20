@@ -101,11 +101,11 @@ first and last circuits for our :math:`T_1` experiment:
 .. jupyter-execute::
 
     print(delays)
-    exp.circuits()[0].draw(output='mpl')
+    exp.circuits()[0].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    exp.circuits()[-1].draw(output='mpl')
+    exp.circuits()[-1].draw(output="mpl", style="iqp")
 
 As expected, the delay block spans the full range of time values that we specified.
 
@@ -331,11 +331,11 @@ child experiments can be accessed via the
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(0).circuits()[0].draw(output='mpl')
+    parallel_exp.component_experiment(0).circuits()[0].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
+    parallel_exp.component_experiment(1).circuits()[0].draw(output="mpl", style="iqp")
 
 Similarly, the child analyses can be accessed via :meth:`.CompositeAnalysis.component_analysis` or via
 the analysis of the child experiment class:
@@ -353,7 +353,7 @@ circuits are composed together and then reassigned virtual qubit indices:
 
 .. jupyter-execute::
 
-    parallel_exp.circuits()[0].draw(output='mpl')
+    parallel_exp.circuits()[0].draw(output="mpl", style="iqp")
 
 During experiment transpilation, a mapping is performed to place these circuits on the
 physical layout. We can see its effects by looking at the transpiled
@@ -363,7 +363,7 @@ and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
 
-    parallel_exp._transpiled_circuits()[0].draw(output='mpl')
+    parallel_exp._transpiled_circuits()[0].draw(output="mpl", style="iqp")
 
 :class:`.ParallelExperiment` and :class:`.BatchExperiment` classes can also be nested
 arbitrarily to make complex composite experiments.
