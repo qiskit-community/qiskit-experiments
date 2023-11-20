@@ -291,7 +291,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
                 circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
-                circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits) )
+                circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
             prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
