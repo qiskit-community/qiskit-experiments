@@ -15,7 +15,6 @@
 from typing import List, Union
 
 import lmfit
-import pandas as pd
 import numpy as np
 from uncertainties import unumpy as unp
 
@@ -276,8 +275,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            \theta^\nu(x) = 2 \pi t_S \left(
-                c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_{\rm err} \right),
+            \theta^\nu(x) = c_1^\nu x + c_2^\nu x^2 + c_3^\nu x^3 + f_{\rm err},
 
         where :math:`\nu \in \{+, -\}`.
         The Stark shift is asymmetric with respect to :math:`x=0`, because of the
@@ -287,11 +285,6 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         for positive (:math:`x > 0`) and negative (:math:`x < 0`) shift domains.
 
     # section: fit_parameters
-
-        defpar t_S:
-            desc: Fixed parameter from the ``stark_length`` experiment option.
-            init_guess: Automatically set from metadata when this analysis is run.
-            bounds: None
 
         defpar c_1^+:
             desc: The linear term coefficient of the positive Stark shift
@@ -305,7 +298,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 induce blue shift when its sign is positive.
                 Note that the quadratic term is the primary term
                 (fit parameter: ``stark_pos_coef_o2``).
-            init_guess: 1.
+            init_guess: 1e6.
             bounds: [0, inf]
 
         defpar c_3^+:
@@ -326,7 +319,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 induce red shift when its sign is negative.
                 Note that the quadratic term is the primary term
                 (fit parameter: ``stark_neg_coef_o2``).
-            init_guess: -1.
+            init_guess: -1e6.
             bounds: [-inf, 0]
 
         defpar c_3^-:
@@ -352,12 +345,12 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         models = [
             lmfit.models.ExpressionModel(
-                expr="2 * pi * ts * (c1_pos * x + c2_pos * x**2 + c3_pos * x**3 + f_err)",
-                name="θpos",
+                expr="c1_pos * x + c2_pos * x**2 + c3_pos * x**3 + f_err",
+                name="FREQpos",
             ),
             lmfit.models.ExpressionModel(
-                expr="2 * pi * ts * (c1_neg * x + c2_neg * x**2 + c3_neg * x**3 + f_err)",
-                name="θneg",
+                expr="c1_neg * x + c2_neg * x**2 + c3_neg * x**3 + f_err",
+                name="FREQneg",
             ),
         ]
         super().__init__(models=models)
@@ -430,16 +423,28 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 curve.ParameterRepr("f_err", "stark_ferr", "Hz"),
             ],
             plotter=ramsey_plotter,
-            fit_category="phase",
+            fit_category="freq",
+            pulse_len=None,
         )
 
         return options
 
+    def _freq_phase_coef(self) -> float:
+        """Return a coefficient to convert frequency into phase value."""
+        try:
+            return 2 * np.pi * self.options.pulse_len
+        except TypeError as ex:
+            raise TypeError(
+                "A float-value duration in units of sec of the Stark pulse must be provided. "
+                f"The pulse_len option value {self.options.pulse_len} is not valid."
+            ) from ex
+
     def _format_data(
         self,
         curve_data: curve.ScatterTable,
-        category: str = "phase",
+        category: str = "freq",
     ) -> curve.ScatterTable:
+
         curve_data = super()._format_data(curve_data, category="ramsey_xy")
         ramsey_xy = curve_data[curve_data.category == "ramsey_xy"]
 
@@ -477,9 +482,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             # Store new data
             tmp = np.empty((len(amplitudes), len(columns)), dtype=object)
             tmp[:, columns.index("xval")] = amplitudes
-            tmp[:, columns.index("yval")] = unwrapped_phase
-            tmp[:, columns.index("yerr")] = phase_s
-            tmp[:, columns.index("name")] = f"θ{direction}"
+            tmp[:, columns.index("yval")] = unwrapped_phase / self._freq_phase_coef()
+            tmp[:, columns.index("yerr")] = phase_s / self._freq_phase_coef()
+            tmp[:, columns.index("name")] = f"FREQ{direction}"
             tmp[:, columns.index("class_id")] = m_id
             tmp[:, columns.index("shots")] = x_quadrature.shots + y_quadrature.shots
             tmp[:, columns.index("category")] = category
@@ -501,11 +506,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        user_opt.bounds.set_if_empty(
-            c2_pos=(0, np.inf), c2_neg=(-np.inf, 0)
-        )
+        user_opt.bounds.set_if_empty(c2_pos=(0, np.inf), c2_neg=(-np.inf, 0))
         user_opt.p0.set_if_empty(
-            c1_pos=0, c2_pos=1, c3_pos=0, c1_neg=0, c2_neg=-1, c3_neg=0, f_err=0
+            c1_pos=0, c2_pos=1e6, c3_pos=0, c1_neg=0, c2_neg=-1e6, c3_neg=0, f_err=0
         )
         return user_opt
 
@@ -513,25 +516,20 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         self,
         curve_data: curve.ScatterTable,
     ) -> List["matplotlib.figure.Figure"]:
-        ts_rad = 2 * np.pi * self.options.fixed_parameters["ts"]
 
         # plot unwrapped phase on first axis
         for d in ("pos", "neg"):
-            sub_data = curve_data[
-                (curve_data.name == f"θ{d}") & (curve_data.category == "phase")
-            ]
+            sub_data = curve_data[(curve_data.name == f"FREQ{d}") & (curve_data.category == "freq")]
             self.plotter.set_series_data(
                 series_name=f"F{d}",
                 x_formatted=sub_data.xval.to_numpy(),
-                y_formatted=sub_data.yval.to_numpy() / ts_rad,
-                y_formatted_err=sub_data.yerr.to_numpy() / ts_rad,
+                y_formatted=sub_data.yval.to_numpy(),
+                y_formatted_err=sub_data.yerr.to_numpy(),
             )
 
         # plot raw RamseyXY plot on second axis
         for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
-            sub_data = curve_data[
-                (curve_data.name == name) & (curve_data.category == "ramsey_xy")
-            ]
+            sub_data = curve_data[(curve_data.name == name) & (curve_data.category == "ramsey_xy")]
             self.plotter.set_series_data(
                 series_name=name,
                 x_formatted=sub_data.xval.to_numpy(),
@@ -547,13 +545,13 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         # plot frequency and Ramsey fit lines
         line_data = curve_data[curve_data.category == "fitted"]
         for direction in ("pos", "neg"):
-            sub_data = line_data[line_data.name == f"θ{direction}"]
+            sub_data = line_data[line_data.name == f"FREQ{direction}"]
             if len(sub_data) == 0:
                 continue
             xval = sub_data.xval.to_numpy()
             yn = sub_data.yval.to_numpy()
             ys = sub_data.yerr.to_numpy()
-            yval = unp.uarray(yn, ys)
+            yval = unp.uarray(yn, ys) * self._freq_phase_coef()
 
             # Ramsey fit lines are predicted from the phase fit line.
             # Note that this line doesn't need to match with the expeirment data
@@ -566,7 +564,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             self.plotter.set_series_data(
                 series_name=f"F{direction}",
                 x_interp=xval,
-                y_interp=yn / ts_rad,
+                y_interp=yn,
             )
             self.plotter.set_series_data(
                 series_name=f"X{direction}",
@@ -582,7 +580,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
             if np.isfinite(ys).all():
                 self.plotter.set_series_data(
                     series_name=f"F{direction}",
-                    y_interp_err=ys / ts_rad,
+                    y_interp_err=ys,
                 )
                 self.plotter.set_series_data(
                     series_name=f"X{direction}",
@@ -601,6 +599,5 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         super()._initialize(experiment_data)
 
         # Set scaling factor to convert phase to frequency
-        fixed_params = self.options.fixed_parameters.copy()
-        fixed_params["ts"] = experiment_data.metadata["stark_length"]
-        self.set_options(fixed_parameters=fixed_params)
+        if "stark_length" in experiment_data.metadata:
+            self.set_options(pulse_len=experiment_data.metadata["stark_length"])
