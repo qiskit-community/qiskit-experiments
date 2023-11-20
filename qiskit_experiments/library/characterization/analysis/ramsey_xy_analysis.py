@@ -331,8 +331,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         defpar f_{\rm err}:
             desc: Constant phase accumulation which is independent of the Stark tone amplitude.
                 (fit parameter: ``stark_ferr``).
-            init_guess: Averaege of y values at minimum absolute x values on
-                positive and negative shift data.
+            init_guess: 0
             bounds: None
 
     # section: see_also
