@@ -68,7 +68,10 @@ from qiskit_experiments.database_service.exceptions import (
 )
 
 try:
+    from IPython import get_ipython
     from IPython.display import SVG
+
+    SHELL_NAME = get_ipython().__class__.__name__
 
     DISPLAY_SVG = True
 except ImportError:
@@ -1339,8 +1342,11 @@ class ExperimentData:
                 return num_bytes
 
         if isinstance(figure_data.figure, bytes) and DISPLAY_SVG:
-            LOG.debug("Figure data is converted into SVG.")
-            figure_data.figure = SVG(figure_data.figure)
+            if SHELL_NAME == "ZMQInteractiveShell":
+                LOG.debug(
+                    "Jupyter Notebook environment detected. Figure data is converted into SVG."
+                )
+                figure_data.figure = SVG(figure_data.figure)
 
         return figure_data
 
