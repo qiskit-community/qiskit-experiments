@@ -98,7 +98,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         full_layers = []
         for two_q_layer in two_qubit_layers:
             qubits_in_layer = {q for qpair in two_q_layer for q in qpair}
-            layer = two_q_layer + [q for q in physical_qubits if q not in qubits_in_layer]
+            layer = two_q_layer + [(q, ) for q in physical_qubits if q not in qubits_in_layer]
             full_layers.append(layer)
 
         # Initialize base experiment

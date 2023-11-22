@@ -15,15 +15,16 @@ Layer Fidelity RB analysis class.
 from typing import List, Tuple, Union
 
 import lmfit
+import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+import qiskit_experiments.database_service.device_component as device
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import CompositeAnalysis, AnalysisResultData, ExperimentData
 
 
-class _SubLayerFidelityAnalysis(curve.CurveAnalysis):
-    r"""A class to analyze a sub-experiment for estimating layer fidelity,
-    i.e. one of 1Q/2Q simultaneous direct RBs.
+class _ProcessFidelityAnalysis(curve.CurveAnalysis):
+    r"""A class to estimate process fidelity from one of 1Q/2Q simultaneous direct RB experiments
 
     # section: overview
         This analysis takes only single series.
@@ -63,6 +64,7 @@ class _SubLayerFidelityAnalysis(curve.CurveAnalysis):
             ]
         )
         self._physical_qubits = physical_qubits
+        self.set_options(outcome="0" * len(physical_qubits))
 
     @classmethod
     def _default_options(cls):
@@ -129,15 +131,14 @@ class _SubLayerFidelityAnalysis(curve.CurveAnalysis):
         outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
         num_qubits = len(self._physical_qubits)
 
-        # Calculate EPC
+        # Calculate process fidelity
         alpha = fit_data.ufloat_params["alpha"]
-        scale = (2**num_qubits - 1) / (2**num_qubits)
-        epg = scale * (1 - alpha)
+        pf = (1 + (2**num_qubits - 1) * alpha) / (2**num_qubits)
 
         outcomes.append(
             AnalysisResultData(
-                name="EPG",
-                value=epg,
+                name="ProcessFidelity",
+                value=pf,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra=metadata,
@@ -145,13 +146,58 @@ class _SubLayerFidelityAnalysis(curve.CurveAnalysis):
         )
         return outcomes
 
+    def _get_experiment_components(self, experiment_data: ExperimentData):
+        """Set physical qubits to the experiment components."""
+        return [device.Qubit(qubit) for qubit in self._physical_qubits]
+
+
+class _SingleLayerFidelityAnalysis(CompositeAnalysis):
+    r"""A class to estimate a process fidelity per disjoint layer.
+
+    # section: reference
+        .. ref_arxiv:: 1 2311.05933
+    """
+
+    def __init__(self, layer, analyses=None):
+        if analyses:
+            # TODO: Validation
+            pass
+        else:
+            analyses = [_ProcessFidelityAnalysis(qubits) for qubits in layer]
+
+        super().__init__(analyses, flatten_results=True)
+
+    def _run_analysis(
+        self, experiment_data: ExperimentData
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        r"""TODO"""
+
+        # Run composite analysis and extract sub-experiments results
+        analysis_results, figures = super()._run_analysis(experiment_data)
+
+        # Calculate single layer fidelity from process fidelities of subsystems
+        pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
+        slf = np.prod(pfs)
+        quality_slf = (
+            "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+        )
+        slf_result = AnalysisResultData(
+            name="SingleLF",
+            value=slf,
+            chisq=None,
+            quality=quality_slf,
+            extra={},
+        )
+
+        # TODO: Plot LF by chain length for a full 2q-gate chain
+
+        # Return combined results
+        analysis_results = [slf_result] + analysis_results
+        return analysis_results, figures
 
 
 class LayerFidelityAnalysis(CompositeAnalysis):
     r"""A class to analyze layer fidelity experiments.
-
-    # section: see_also
-        * :py:class:`qiskit_experiments.library.characterization.analysis.SubLayerFidelityAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2311.05933
@@ -162,12 +208,10 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # TODO: Validation
             pass
         else:
-            analyses = []
-            for a_layer in layers:
-                a_layer_analyses = [_SubLayerFidelityAnalysis(qubits) for qubits in a_layer]
-                analyses.append(CompositeAnalysis(a_layer_analyses, flatten_results=True))
+            analyses = [_SingleLayerFidelityAnalysis(a_layer) for a_layer in layers]
 
         super().__init__(analyses, flatten_results=True)
+        self.num_layers = len(layers)
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -181,8 +225,9 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         # Run composite analysis and extract sub-experiments results
         analysis_results, figures = super()._run_analysis(experiment_data)
 
-        # Calculate Layer Fidelity from EPGs
-        lf = None  # TODO
+        # Calculate full layer fidelity from single layer fidelities
+        slfs = [res.value for res in analysis_results if res.name == "SingleLF"]
+        lf = np.prod(slfs)
         quality_lf = (
             "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
         )
@@ -194,9 +239,6 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             extra={},
         )
 
-        # TODO: Plot LF by chain length for a full 2q-gate chain
-
         # Return combined results
         analysis_results = [lf_result] + analysis_results
-        # figures = [lf_plot] + figures
         return analysis_results, figures
