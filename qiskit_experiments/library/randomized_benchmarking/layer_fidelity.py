@@ -98,11 +98,13 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         full_layers = []
         for two_q_layer in two_qubit_layers:
             qubits_in_layer = {q for qpair in two_q_layer for q in qpair}
-            layer = two_q_layer + [(q, ) for q in physical_qubits if q not in qubits_in_layer]
+            layer = two_q_layer + [(q,) for q in physical_qubits if q not in qubits_in_layer]
             full_layers.append(layer)
 
         # Initialize base experiment
-        super().__init__(physical_qubits, analysis=LayerFidelityAnalysis(full_layers), backend=backend)
+        super().__init__(
+            physical_qubits, analysis=LayerFidelityAnalysis(full_layers), backend=backend
+        )
 
         # Verify parameters
         # TODO more checks
@@ -170,10 +172,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             AttributeError: If the field passed in is not a supported options
         """
         for field in {"two_qubit_layers"}:
-            if hasattr(self._experiment_options, field) and self._experiment_options[field] is not None:
-                raise AttributeError(
-                    f"Options field {field} is not allowed to update."
-                )
+            if (
+                hasattr(self._experiment_options, field)
+                and self._experiment_options[field] is not None
+            ):
+                raise AttributeError(f"Options field {field} is not allowed to update.")
         super().set_experiment_options(**fields)
 
     @classmethod
@@ -220,12 +223,16 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         circuits = []
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
-            for i_set, (two_qubit_layer, one_qubits) in enumerate(zip(opts.two_qubit_layers, residal_qubits_by_layer)):
+            for i_set, (two_qubit_layer, one_qubits) in enumerate(
+                zip(opts.two_qubit_layers, residal_qubits_by_layer)
+            ):
                 num_2q_gates = len(two_qubit_layer)
                 num_1q_gates = len(one_qubits)
                 composite_qubits = two_qubit_layer + [(q,) for q in one_qubits]
-                composite_clbits = [(2*c, 2*c+1) for c in range(num_2q_gates)]
-                composite_clbits.extend([(c,) for c in range(2*num_2q_gates, 2*num_2q_gates+num_1q_gates)])
+                composite_clbits = [(2 * c, 2 * c + 1) for c in range(num_2q_gates)]
+                composite_clbits.extend(
+                    [(c,) for c in range(2 * num_2q_gates, 2 * num_2q_gates + num_1q_gates)]
+                )
                 for length in opts.lengths:
                     # initialize cliffords and a ciruit (0: identity clifford)
                     cliffs_2q = [0] * num_2q_gates
@@ -282,22 +289,34 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     circ.measure_active()  # includes insertion of the barrier before measurement
                     # store composite structure in metadata
                     circ.metadata = {
-                        'experiment_type': 'BatchExperiment', 'composite_metadata': [
+                        "experiment_type": "BatchExperiment",
+                        "composite_metadata": [
                             {
-                                'experiment_type': 'ParallelExperiment',
-                                'composite_index': list(range(num_2q_gates + num_1q_gates)), 
-                                'composite_metadata': [
-                                    {'experiment_type': 'SubLayerFidelity', 'physical_qubits': qpair, 'sample': i_sample, 'xval': length}
+                                "experiment_type": "ParallelExperiment",
+                                "composite_index": list(range(num_2q_gates + num_1q_gates)),
+                                "composite_metadata": [
+                                    {
+                                        "experiment_type": "SubLayerFidelity",
+                                        "physical_qubits": qpair,
+                                        "sample": i_sample,
+                                        "xval": length,
+                                    }
                                     for qpair in two_qubit_layer
-                                    ] + [
-                                    {'experiment_type': 'SubLayerFidelity', 'physical_qubits': (q,), 'sample': i_sample, 'xval': length}
+                                ]
+                                + [
+                                    {
+                                        "experiment_type": "SubLayerFidelity",
+                                        "physical_qubits": (q,),
+                                        "sample": i_sample,
+                                        "xval": length,
+                                    }
                                     for q in one_qubits
-                                    ],
-                                'composite_qubits': composite_qubits,
-                                'composite_clbits': composite_clbits
+                                ],
+                                "composite_qubits": composite_qubits,
+                                "composite_clbits": composite_clbits,
                             }
                         ],
-                        'composite_index': [i_set]
+                        "composite_index": [i_set],
                     }
                     circuits.append(circ)
 

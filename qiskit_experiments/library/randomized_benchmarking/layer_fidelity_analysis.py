@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Layer Fidelity RB analysis class.
+Analysis classes for Layer Fidelity RB.
 """
 from typing import List, Tuple, Union
 
@@ -29,7 +29,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
     # section: overview
         This analysis takes only single series.
         This series is fit by the exponential decay function.
-        From the fit :math:`\alpha` value this analysis estimates the error per gate (EPG).
+        From the fit :math:`\alpha` value this analysis estimates the process fidelity.
 
     # section: fit_model
         .. math::
@@ -68,8 +68,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Default analysis options.
-        """
+        """Default analysis options."""
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(
             xlabel="Layer Length",
@@ -178,9 +177,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
         # Calculate single layer fidelity from process fidelities of subsystems
         pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
         slf = np.prod(pfs)
-        quality_slf = (
-            "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
-        )
+        quality_slf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
         slf_result = AnalysisResultData(
             name="SingleLF",
             value=slf,
@@ -228,9 +225,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         # Calculate full layer fidelity from single layer fidelities
         slfs = [res.value for res in analysis_results if res.name == "SingleLF"]
         lf = np.prod(slfs)
-        quality_lf = (
-            "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
-        )
+        quality_lf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
         lf_result = AnalysisResultData(
             name="LF",
             value=lf,
