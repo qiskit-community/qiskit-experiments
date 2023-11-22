@@ -237,7 +237,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     # initialize cliffords and a ciruit (0: identity clifford)
                     cliffs_2q = [0] * num_2q_gates
                     cliffs_1q = [0] * num_1q_gates
-                    circ = QuantumCircuit(num_qubits)
+                    circ = QuantumCircuit(num_qubits, num_qubits)
                     for _ in range(length):
                         # sample random 1q-Clifford layer
                         for j, qpair in enumerate(two_qubit_layer):
@@ -285,8 +285,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                             (circ.qubits[q],),
                             tuple(),
                         )
-
-                    circ.measure_active()  # includes insertion of the barrier before measurement
+                    # add the measurements
+                    circ.barrier(self.physical_qubits)
+                    for qubits, clbits in zip(composite_qubits, composite_clbits):
+                        circ.measure(qubits, clbits)
                     # store composite structure in metadata
                     circ.metadata = {
                         "experiment_type": "BatchExperiment",
