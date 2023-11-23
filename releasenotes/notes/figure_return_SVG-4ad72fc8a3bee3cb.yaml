@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Load experiment figures are now automatically viewable in Jupyter Notebook.
