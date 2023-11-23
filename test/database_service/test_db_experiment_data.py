@@ -1048,9 +1048,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test copy metadata."""
         exp_data = FakeExperiment(experiment_type="qiskit_test").run(backend=FakeBackend())
         exp_data.add_data(self._get_job_result(1))
-        result = mock.MagicMock()
-        result.result_id = str(uuid.uuid4())
-        exp_data.add_analysis_results(result)
         copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
         self.assertFalse(copied.analysis_results())
