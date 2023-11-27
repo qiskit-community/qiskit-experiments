@@ -1681,7 +1681,7 @@ class ExperimentData:
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiment (false)
+                pass them on, potentially aborting the experiment (false)
             max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
             save_children: For composite experiments, whether to save children as well
