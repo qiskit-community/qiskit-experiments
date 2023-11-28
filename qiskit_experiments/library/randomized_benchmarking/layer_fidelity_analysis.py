@@ -186,8 +186,6 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             extra={},
         )
 
-        # TODO: Plot LF by chain length for a full 2q-gate chain
-
         # Return combined results
         analysis_results = [slf_result] + analysis_results
         return analysis_results, figures
@@ -209,6 +207,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
 
         super().__init__(analyses, flatten_results=True)
         self.num_layers = len(layers)
+        self.num_2q_gates = sum(1 if len(qs) == 2 else 0 for lay in layers for qs in lay)
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -233,7 +232,15 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             quality=quality_lf,
             extra={},
         )
-
+        eplg = 1 - (lf ** (1/self.num_2q_gates))
+        eplg_result = AnalysisResultData(
+            name="EPLG",
+            value=eplg,
+            chisq=None,
+            quality=quality_lf,
+            extra={},
+        )
+        
         # Return combined results
-        analysis_results = [lf_result] + analysis_results
+        analysis_results = [lf_result, eplg_result] + analysis_results
         return analysis_results, figures

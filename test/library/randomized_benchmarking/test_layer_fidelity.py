@@ -44,28 +44,28 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqualExtended(exp, loaded_exp)
 
-    # def test_invalid_two_qubit_layers(self):
-    #     """Test raise error when creating experiment with invalid configs."""
-    #     valid_kwargs = {
-    #         "lengths": [10, 20, 30],
-    #         "two_qubit_gate": "cx",
-    #         "one_qubit_basis_gates": ["rz", "sx", "x"],
-    #     }
-    #     # not disjoit
-    #     with self.assertRaises(QiskitError):
-    #         LayerFidelity(
-    #             physical_qubits=(0, 1, 2, 3),
-    #             two_qubit_layers=[[(0, 1), (1, 2)]],
-    #             **valid_kwargs
-    #         )
-    #     # no 2q-gate on the qubits (FakeManilaV2 has no cx gate on (0, 3))
-    #     with self.assertRaises(QiskitError):
-    #         LayerFidelity(
-    #             physical_qubits=(0, 1, 2, 3),
-    #             two_qubit_layers=[[(0, 3)]],
-    #             backend=FakeManilaV2(),
-    #             **valid_kwargs
-    #         )
+    def test_invalid_two_qubit_layers(self):
+        """Test raise error when creating experiment with invalid configs."""
+        valid_kwargs = {
+            "lengths": [10, 20, 30],
+            "two_qubit_gate": "cx",
+            "one_qubit_basis_gates": ["rz", "sx", "x"],
+        }
+        # not disjoit
+        with self.assertRaises(QiskitError):
+            LayerFidelity(
+                physical_qubits=(0, 1, 2, 3),
+                two_qubit_layers=[[(0, 1), (1, 2)]],
+                **valid_kwargs
+            )
+        # no 2q-gate on the qubits (FakeManilaV2 has no cx gate on (0, 3))
+        with self.assertRaises(QiskitError):
+            LayerFidelity(
+                physical_qubits=(0, 1, 2, 3),
+                two_qubit_layers=[[(0, 3)]],
+                backend=FakeManilaV2(),
+                **valid_kwargs
+            )
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -190,8 +190,8 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
 class TestRunLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
     """Test for running LayerFidelity on noisy simulator."""
 
-    def test_three_qubit(self):
-        """Test two qubit RB. Use default basis gates."""
+    def test_run_layer_fidelity(self):
+        """Test layer fidelity RB. Use default basis gates."""
         exp = LayerFidelity(
             physical_qubits=(0, 1, 2, 3),
             two_qubit_layers=[[(1, 0), (2, 3)], [(1, 2)]],
