@@ -205,7 +205,7 @@ class ExperimentData:
     .. note::
         Saving experiment data to the cloud database is currently a limited access feature. You can
         check whether you have access by logging into the IBM Quantum interface
-        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+        and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
     This class handles the following:
 
@@ -1541,9 +1541,9 @@ class ExperimentData:
                 column name to return, otherwise builtin column groups are available.
 
                     * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
+                    with the experiment service, such as entry IDs.
                     * "default": Return columns including analysis result with supplementary
-                        information about experiment.
+                    information about experiment.
                     * "minimal": Return only analysis subroutine returns.
 
             dataframe: Set True to return analysis results in the dataframe format.
@@ -1779,7 +1779,7 @@ class ExperimentData:
         if not self.service.local and self.verbose:
             print(
                 "You can view the experiment online at "
-                f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                f"https://quantum.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
         if save_children:
@@ -2523,7 +2523,7 @@ class ExperimentData:
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum-computing.ibm.com/api"
+        db_url = "https://auth.quantum.ibm.com/api"
         try:
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):
