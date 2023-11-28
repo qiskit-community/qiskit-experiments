@@ -1,9 +1,5 @@
 ---
-upgrade:
-  - |
-    Added a warning if `ExperimentData` object data's is empty and there is no provider to retrieve data
-    from.
 fixes:
   - |
     'copy' method under ExperimentData class now copies the provider. 
-
+  
