@@ -229,7 +229,8 @@ class MockIQBackend(FakeOpenPulse2QV2):
 
         Args:
             experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
-                :meth:`.compute_probabilities` and :meth:`.iq_phase` methods for the backend to execute.
+                :meth:`~MockIQExperimentHelper.compute_probabilities` and 
+                :meth:`~MockIQExperimentHelper.iq_phase` methods for the backend to execute.
             rng_seed(int): The random seed value.
         """
 

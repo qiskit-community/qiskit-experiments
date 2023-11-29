@@ -92,7 +92,7 @@ class AnalysisResultTable(ThreadSafeContainer):
                 * ``default``: Return columns including analysis result with supplementary
                   information about experiment.
                 * ``minimal``: Return only analysis subroutine returns.
-            
+
 
         Raises:
             ValueError: When column is given in string which doesn't match with any builtin group.
