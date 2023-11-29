@@ -24,7 +24,7 @@ are all of type ``datetime.datetime`` and in your local timezone:
 .. note::
     The below attributes are only relevant for those who have access to the cloud service. You can 
     check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
 - :attr:`.ExperimentData.creation_datetime` is the time when the experiment data was saved via the
   service. This defaults to ``None`` if experiment data has not yet been saved.

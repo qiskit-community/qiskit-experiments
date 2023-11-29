@@ -12,9 +12,8 @@ measurement data manually.
 In this tutorial, we demonstrate how to calibrate single-qubit gates using the
 calibration framework in Qiskit Experiments. We will run experiments on our test pulse
 backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the underlying
-pulses with `Qiskit Dynamics <https://qiskit.org/documentation/dynamics/>`_ on a
-three-level model of a transmon. You can also run these experiments on any real backend
-with Pulse enabled (see
+pulses with :mod:`qiskit_dynamics` on a three-level model of a transmon. You can also
+run these experiments on any real backend with Pulse enabled (see
 :external+qiskit:doc:`tutorials/circuits_advanced/08_gathering_system_information`).
 
 We will run experiments to 
