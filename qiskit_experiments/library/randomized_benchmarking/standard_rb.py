@@ -23,7 +23,7 @@ import rustworkx as rx
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier
+from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier, Gate
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
 from qiskit.providers.backend import Backend, BackendV1, BackendV2
@@ -236,11 +236,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 basis_gates = basis_gates if basis_gates else self.backend.target.operation_names
                 coupling_map = coupling_map if coupling_map else None
             elif isinstance(self.backend, BackendV2):
-                backend_basis_gates = [
-                    op.name for op in self.backend.target.operations if op.num_qubits != 2
-                ]
+                gate_ops = [op for op in self.backend.target.operations if isinstance(op, Gate)]
+                backend_basis_gates = [op.name for op in gate_ops if op.num_qubits != 2]
                 backend_cmap = None
-                for op in self.backend.target.operations:
+                for op in gate_ops:
                     if op.num_qubits != 2:
                         continue
                     cmap = self.backend.target.build_coupling_map(op.name)
