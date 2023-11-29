@@ -43,9 +43,6 @@ jobs:
         run: tox -e terra-main
         if: runner.os == 'macOS'
         env:
-<<<<<<< HEAD
-          OMP_NUM_THREADS: 1
-=======
           TEST_TIMEOUT: 120
           OMP_NUM_THREADS: 1
   docs:
@@ -79,4 +76,3 @@ jobs:
         with:
           name: html_docs
           path: artifacts
->>>>>>> f16be3b (Update docstring options parser and add docs cron job (#1312))

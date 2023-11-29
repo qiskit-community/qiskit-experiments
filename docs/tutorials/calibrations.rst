@@ -455,13 +455,8 @@ error which we want to correct.
 
     from qiskit_experiments.library import FineSXAmplitudeCal
 
-<<<<<<< HEAD
-    amp_cal = FineSXAmplitudeCal([qubit], cals, backend=backend, schedule_name="sx")
-    amp_cal.circuits()[4].draw(output="mpl")
-=======
     amp_cal = FineSXAmplitudeCal((qubit,), cals, backend=backend, schedule_name="sx")
     amp_cal.circuits()[4].draw(output="mpl", style="iqp")
->>>>>>> f16be3b (Update docstring options parser and add docs cron job (#1312))
 
 Let's run the calibration experiment:
 
