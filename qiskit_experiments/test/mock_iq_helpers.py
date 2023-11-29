@@ -224,8 +224,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Parallel Experiment Helper initializer. The class assumes `exp_helper_list` is ordered to
         match the corresponding experiment in `exp_list`.
 
-        Note that :meth:`__init__` does not have :attr:`iq_cluster_centers` and :attr:`iq_cluster_width` as in
-        :func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
+        Note that :meth:`__init__` does not have :attr:`iq_cluster_centers` and :attr:`iq_cluster_width`
+        as in :func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
         :class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
         `exp_helper_list`.
 
