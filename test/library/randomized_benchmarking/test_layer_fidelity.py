@@ -54,9 +54,7 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
         # not disjoit
         with self.assertRaises(QiskitError):
             LayerFidelity(
-                physical_qubits=(0, 1, 2, 3),
-                two_qubit_layers=[[(0, 1), (1, 2)]],
-                **valid_kwargs
+                physical_qubits=(0, 1, 2, 3), two_qubit_layers=[[(0, 1), (1, 2)]], **valid_kwargs
             )
         # no 2q-gate on the qubits (FakeManilaV2 has no cx gate on (0, 3))
         with self.assertRaises(QiskitError):
@@ -64,7 +62,7 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
                 physical_qubits=(0, 1, 2, 3),
                 two_qubit_layers=[[(0, 3)]],
                 backend=FakeManilaV2(),
-                **valid_kwargs
+                **valid_kwargs,
             )
 
     def test_roundtrip_serializable(self):

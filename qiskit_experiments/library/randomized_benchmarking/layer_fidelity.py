@@ -12,6 +12,7 @@
 """
 Layer Fidelity RB Experiment class.
 """
+import functools
 import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
@@ -25,6 +26,7 @@ from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
 from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.quantum_info import Clifford
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -32,12 +34,13 @@ from qiskit_experiments.framework.restless_mixin import RestlessMixin
 
 from .clifford_utils import (
     CliffordUtils,
+    DEFAULT_SYNTHESIS_METHOD,
     compose_1q,
     compose_2q,
     inverse_1q,
     inverse_2q,
+    num_from_2q_circuit,
     _product_1q_nums,
-    _num_from_2q_gate,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
     _decompose_clifford_ops,
@@ -150,6 +153,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 :meth:`circuits` is called.
             two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr") of which the two qubit layers consist.
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Clifford operations.
+            clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
+                for building circuits of RB sequences.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -158,7 +163,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             seed=None,
             two_qubit_layers=None,
             two_qubit_gate=None,
-            one_qubit_basis_gates=tuple(),
+            one_qubit_basis_gates=(),
+            clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
         )
         return options
 
@@ -215,10 +221,20 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         """
         opts = self.experiment_options
         rng = default_rng(seed=opts.seed)
-        basis_gates = (opts.two_qubit_gate,) + opts.one_qubit_basis_gates
         GATE2Q = GATE_NAME_MAP[opts.two_qubit_gate]
-        GATE2Q_CLIFF = _num_from_2q_gate(GATE2Q)
+        GATE2Q_CLIFF = num_from_2q_circuit(Clifford(GATE2Q).to_circuit())
         residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
+        _to_gate_1q = functools.partial(
+            _clifford_1q_int_to_instruction,
+            basis_gates=opts.one_qubit_basis_gates,
+            synthesis_method=opts.clifford_synthesis_method,
+        )
+        _to_gate_2q = functools.partial(
+            _clifford_2q_int_to_instruction,
+            basis_gates=(opts.two_qubit_gate,) + opts.one_qubit_basis_gates,
+            coupling_tuple=((0, 1),),
+            synthesis_method=opts.clifford_synthesis_method,
+        )
         # Circuit generation
         circuits = []
         num_qubits = max(self.physical_qubits) + 1
@@ -245,25 +261,15 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                             samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
                             cliffs_2q[j] = compose_2q(cliffs_2q[j], _product_1q_nums(*samples))
                             for sample, q in zip(samples, qpair):
-                                circ._append(
-                                    _clifford_1q_int_to_instruction(
-                                        sample, opts.one_qubit_basis_gates
-                                    ),
-                                    (circ.qubits[q],),
-                                    tuple(),
-                                )
+                                circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
                         for k, q in enumerate(one_qubits):
                             sample = rng.integers(NUM_1Q_CLIFFORD)
                             cliffs_1q[k] = compose_1q(cliffs_1q[k], sample)
-                            circ._append(
-                                _clifford_1q_int_to_instruction(sample, opts.one_qubit_basis_gates),
-                                (circ.qubits[q],),
-                                tuple(),
-                            )
+                            circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
                         circ.barrier(self.physical_qubits)
                         # add two qubit gates
                         for j, qpair in enumerate(two_qubit_layer):
-                            circ._append(GATE2Q, tuple(circ.qubits[q] for q in qpair), tuple())
+                            circ._append(GATE2Q, tuple(circ.qubits[q] for q in qpair), ())
                             cliffs_2q[j] = compose_2q(cliffs_2q[j], GATE2Q_CLIFF)
                             # TODO: add dd if necessary
                         for k, q in enumerate(one_qubits):
@@ -273,18 +279,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     # add the last inverse
                     for j, qpair in enumerate(two_qubit_layer):
                         inv = inverse_2q(cliffs_2q[j])
-                        circ._append(
-                            _clifford_2q_int_to_instruction(inv, basis_gates),
-                            tuple(circ.qubits[q] for q in qpair),
-                            tuple(),
-                        )
+                        circ._append(_to_gate_2q(inv), tuple(circ.qubits[q] for q in qpair), ())
                     for k, q in enumerate(one_qubits):
                         inv = inverse_1q(cliffs_1q[k])
-                        circ._append(
-                            _clifford_1q_int_to_instruction(inv, opts.one_qubit_basis_gates),
-                            (circ.qubits[q],),
-                            tuple(),
-                        )
+                        circ._append(_to_gate_1q(inv), (circ.qubits[q],), ())
                     # add the measurements
                     circ.barrier(self.physical_qubits)
                     for qubits, clbits in zip(composite_qubits, composite_clbits):

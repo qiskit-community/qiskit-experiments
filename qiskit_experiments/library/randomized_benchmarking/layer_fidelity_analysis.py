@@ -232,7 +232,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             quality=quality_lf,
             extra={},
         )
-        eplg = 1 - (lf ** (1/self.num_2q_gates))
+        eplg = 1 - (lf ** (1 / self.num_2q_gates))
         eplg_result = AnalysisResultData(
             name="EPLG",
             value=eplg,
@@ -240,7 +240,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             quality=quality_lf,
             extra={},
         )
-        
+
         # Return combined results
         analysis_results = [lf_result, eplg_result] + analysis_results
         return analysis_results, figures
