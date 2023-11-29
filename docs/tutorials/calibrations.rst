@@ -196,8 +196,8 @@ Run the calibration experiment:
 
 The instance of ``calibrations`` has been automatically updated with the measured
 frequency, as shown below. In addition to the columns shown below, ``calibrations`` also
-store the group to which a value belongs, whether a values is valid or not and the
-experiment id that produce a value.
+stores the group to which a value belongs, whether a value is valid or not, and the
+experiment id that produced a value.
 
 .. jupyter-execute::
 
