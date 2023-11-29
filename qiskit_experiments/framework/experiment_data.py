@@ -1528,25 +1528,25 @@ class ExperimentData:
             index: Index of the analysis result to be returned.
                 Several types are accepted for convenience:
 
-                    * None: Return all analysis results.
-                    * int: Specific index of the analysis results.
-                    * slice: A list slice of indexes.
-                    * str: ID or name of the analysis result.
+                * None: Return all analysis results.
+                * int: Specific index of the analysis results.
+                * slice: A list slice of indexes.
+                * str: ID or name of the analysis result.
 
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
-            block: If True block for any analysis callbacks to finish running.
+            block: If ``True``, block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
             columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
+                column name to return, otherwise builtin column groups are available:
 
-                    * "all": Return all columns, including metadata to communicate
-                    with the experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                    information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
+                * ``all``: Return all columns, including metadata to communicate
+                  with the experiment service, such as entry IDs.
+                * ``default``: Return columns including analysis result with supplementary
+                  information about experiment.
+                * ``minimal``: Return only analysis subroutine returns.
 
-            dataframe: Set True to return analysis results in the dataframe format.
+            dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
             Analysis results for this experiment.

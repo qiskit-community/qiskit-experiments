@@ -85,13 +85,14 @@ class AnalysisResultTable(ThreadSafeContainer):
 
         Args:
             columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
+                column name to return, otherwise builtin column groups are available:
 
-                    * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                        information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
+                * ``all``: Return all columns, including metadata to communicate
+                  with experiment service, such as entry IDs.
+                * ``default``: Return columns including analysis result with supplementary
+                  information about experiment.
+                * ``minimal``: Return only analysis subroutine returns.
+            
 
         Raises:
             ValueError: When column is given in string which doesn't match with any builtin group.
