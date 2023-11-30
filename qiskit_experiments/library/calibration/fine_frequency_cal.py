@@ -123,7 +123,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
 
         The frequency of the qubit is updated according to
 
-        ..math::
+        .. math::
 
             f \to f - \frac{{\rm d}\theta}{2\pi\tau{\rm d}t}
 
