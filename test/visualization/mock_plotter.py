@@ -278,5 +278,7 @@ class MockPlotter(BasePlotter):
             textbox_text: Text to draw in a textbox.
         """
         return [
+            "report_text",
+            "supplementary_data_key",
             "textbox_text",
         ]

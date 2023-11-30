@@ -71,7 +71,7 @@ class TestPlotter(QiskitExperimentsTestCase):
 
         expected_supplementary_data = {
             "report_text": "Lorem ipsum",
-            "another_data_key": 3e9,
+            "supplementary_data_key": 3e9,
         }
 
         plotter.set_supplementary_data(**expected_supplementary_data)
