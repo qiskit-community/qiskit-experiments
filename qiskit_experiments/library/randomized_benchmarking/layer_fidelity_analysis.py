@@ -137,6 +137,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         alpha = fit_data.ufloat_params["alpha"]
         pf = (1 + (2**num_qubits - 1) * alpha) / (2**num_qubits)
 
+        metadata["qubits"] = self._physical_qubits
         outcomes.append(
             AnalysisResultData(
                 name="ProcessFidelity",
@@ -168,6 +169,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             analyses = [_ProcessFidelityAnalysis(qubits) for qubits in layer]
 
         super().__init__(analyses, flatten_results=True)
+        self._layer = layer
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -192,6 +194,10 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
         # Return combined results
         analysis_results = [slf_result] + analysis_results
         return analysis_results, figures
+
+    def _get_experiment_components(self, experiment_data: ExperimentData):
+        """Set physical qubits to the experiment components."""
+        return [device.Qubit(q) for qubits in self._layer for q in qubits]
 
 
 class LayerFidelityAnalysis(CompositeAnalysis):
