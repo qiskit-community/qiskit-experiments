@@ -12,9 +12,8 @@ measurement data manually.
 In this tutorial, we demonstrate how to calibrate single-qubit gates using the
 calibration framework in Qiskit Experiments. We will run experiments on our test pulse
 backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the underlying
-pulses with `Qiskit Dynamics <https://qiskit.org/documentation/dynamics/>`_ on a
-three-level model of a transmon. You can also run these experiments on any real backend
-with Pulse enabled (see
+pulses with :mod:`qiskit_dynamics` on a three-level model of a transmon. You can also
+run these experiments on any real backend with Pulse enabled (see
 :external+qiskit:doc:`tutorials/circuits_advanced/08_gathering_system_information`).
 
 We will run experiments to 
@@ -196,8 +195,8 @@ Run the calibration experiment:
 
 The instance of ``calibrations`` has been automatically updated with the measured
 frequency, as shown below. In addition to the columns shown below, ``calibrations`` also
-store the group to which a value belongs, whether a values is valid or not and the
-experiment id that produce a value.
+stores the group to which a value belongs, whether a value is valid or not, and the
+experiment id that produced a value.
 
 .. jupyter-execute::
 

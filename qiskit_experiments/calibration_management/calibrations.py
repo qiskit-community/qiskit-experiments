@@ -1270,12 +1270,12 @@ class Calibrations:
         Returns:
             data: A list of dictionaries with all the schedules in it. The key-value pairs are
 
-                * 'qubits': the qubits to which this schedule applies. This may be an empty
-                  tuple () if the schedule is the default for all qubits.
-                * 'schedule': The schedule.
-                * 'parameters': The parameters in the schedule exposed for convenience.
+            * ``qubits``: the qubits to which this schedule applies. This may be an empty
+                tuple () if the schedule is the default for all qubits.
+            * ``schedule``: The schedule.
+            * ``parameters``: The parameters in the schedule exposed for convenience.
 
-                This list of dictionaries can easily be converted to a data frame.
+            This list of dictionaries can easily be converted to a data frame.
         """
         data = []
         for key, sched in self._schedules.items():
