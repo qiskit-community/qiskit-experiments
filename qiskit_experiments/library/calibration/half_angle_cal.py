@@ -130,7 +130,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         in the complex amplitude of the pulse. The update rule for the half angle calibration is
         therefore:
 
-        ..math::
+        .. math::
 
             A \to A \cdot e^{-i{\rm d}\theta_\text{hac}/2}
 

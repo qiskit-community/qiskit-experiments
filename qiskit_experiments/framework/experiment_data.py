@@ -215,7 +215,7 @@ class ExperimentData:
     .. note::
         Saving experiment data to the cloud database is currently a limited access feature. You can
         check whether you have access by logging into the IBM Quantum interface
-        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+        and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
     This class handles the following:
 
@@ -1546,25 +1546,25 @@ class ExperimentData:
             index: Index of the analysis result to be returned.
                 Several types are accepted for convenience:
 
-                    * None: Return all analysis results.
-                    * int: Specific index of the analysis results.
-                    * slice: A list slice of indexes.
-                    * str: ID or name of the analysis result.
+                * None: Return all analysis results.
+                * int: Specific index of the analysis results.
+                * slice: A list slice of indexes.
+                * str: ID or name of the analysis result.
 
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
-            block: If True block for any analysis callbacks to finish running.
+            block: If ``True``, block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
             columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
+                column name to return, otherwise builtin column groups are available:
 
-                    * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                        information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
+                * ``all``: Return all columns, including metadata to communicate
+                  with the experiment service, such as entry IDs.
+                * ``default``: Return columns including analysis result with supplementary
+                  information about experiment.
+                * ``minimal``: Return only analysis subroutine returns.
 
-            dataframe: Set True to return analysis results in the dataframe format.
+            dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
             Analysis results for this experiment.
@@ -1699,7 +1699,7 @@ class ExperimentData:
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiment (false)
+                pass them on, potentially aborting the experiment (false)
             max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
             save_children: For composite experiments, whether to save children as well
@@ -1797,7 +1797,7 @@ class ExperimentData:
         if not self.service.local and self.verbose:
             print(
                 "You can view the experiment online at "
-                f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                f"https://quantum.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
         if save_children:
@@ -2541,7 +2541,7 @@ class ExperimentData:
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum-computing.ibm.com/api"
+        db_url = "https://auth.quantum.ibm.com/api"
         try:
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):

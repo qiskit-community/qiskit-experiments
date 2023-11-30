@@ -66,7 +66,7 @@ contain correct results.
 
 In the case where jobs are not directly accessible from the provider but you've
 downloaded the jobs from the 
-`IQS dashboard <https://quantum-computing.ibm.com/jobs>`_, you can load them from
+`IQS dashboard <https://quantum.ibm.com/jobs>`_, you can load them from
 the downloaded directory into :class:`~qiskit.result.Result` objects with this code:
 
 .. jupyter-input::
