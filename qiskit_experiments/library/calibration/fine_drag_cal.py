@@ -66,8 +66,6 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(basis_gates=["sx", schedule_name, "rz"])
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
