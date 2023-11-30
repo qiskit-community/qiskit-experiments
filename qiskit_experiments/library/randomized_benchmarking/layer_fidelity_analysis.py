@@ -65,14 +65,17 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         )
         self._physical_qubits = physical_qubits
         self.set_options(outcome="0" * len(physical_qubits))
+        self.plotter.set_figure_options(
+            figure_title=f"Simultaneous Direct RB on Qubit{physical_qubits}",
+        )
 
     @classmethod
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(
-            xlabel="Layer Length",
-            ylabel="P(0)",
+            xlabel="Layers",
+            ylabel="Ground State Population",
         )
         default_options.plot_raw_data = True
         default_options.result_parameters = ["alpha"]
