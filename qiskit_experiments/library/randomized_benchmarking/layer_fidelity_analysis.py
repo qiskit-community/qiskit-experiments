@@ -149,6 +149,24 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         )
         return outcomes
 
+    def _run_analysis(
+        self, experiment_data: ExperimentData
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        r"""TODO
+
+        Note: Empty analysis results will be returned when failing analysis.
+        """
+        try:
+            return super()._run_analysis(experiment_data)
+        except Exception:
+            failed_result = AnalysisResultData(
+                name="ProcessFidelity",
+                value=None,
+                quality="failed",
+                extra={"qubits": self._physical_qubits},
+            )
+            return [failed_result], []
+
     def _get_experiment_components(self, experiment_data: ExperimentData):
         """Set physical qubits to the experiment components."""
         return [device.Qubit(qubit) for qubit in self._physical_qubits]
@@ -156,6 +174,8 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     r"""A class to estimate a process fidelity per disjoint layer.
+
+    Note: Empty analysis results will be returned when failing analysis.
 
     # section: reference
         .. ref_arxiv:: 1 2311.05933
@@ -175,25 +195,30 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""TODO"""
-
-        # Run composite analysis and extract sub-experiments results
-        analysis_results, figures = super()._run_analysis(experiment_data)
-
-        # Calculate single layer fidelity from process fidelities of subsystems
-        pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
-        slf = np.prod(pfs)
-        quality_slf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
-        slf_result = AnalysisResultData(
-            name="SingleLF",
-            value=slf,
-            chisq=None,
-            quality=quality_slf,
-            extra={},
-        )
-
-        # Return combined results
-        analysis_results = [slf_result] + analysis_results
-        return analysis_results, figures
+        try:
+            # Run composite analysis and extract sub-experiments results
+            analysis_results, figures = super()._run_analysis(experiment_data)
+            # Calculate single layer fidelity from process fidelities of subsystems
+            pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
+            slf = np.prod(pfs)
+            quality_slf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+            slf_result = AnalysisResultData(
+                name="SingleLF",
+                value=slf,
+                quality=quality_slf,
+                extra={"qubits": [q for qubits in self._layer for q in qubits]},
+            )
+            # Return combined results
+            analysis_results = [slf_result] + analysis_results
+            return analysis_results, figures
+        except Exception:
+            failed_result = AnalysisResultData(
+                name="SingleLF",
+                value=None,
+                quality="failed",
+                extra={"qubits": [q for qubits in self._layer for q in qubits]},
+            )
+            return [failed_result] + analysis_results, figures
 
     def _get_experiment_components(self, experiment_data: ExperimentData):
         """Set physical qubits to the experiment components."""
@@ -226,30 +251,38 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         _run_analysis for the sub-experiments (1Q/2Q simultaneous direct RBs).
         Based on the results, it computes the result for Layer Fidelity.
         """
-
-        # Run composite analysis and extract sub-experiments results
-        analysis_results, figures = super()._run_analysis(experiment_data)
-
-        # Calculate full layer fidelity from single layer fidelities
-        slfs = [res.value for res in analysis_results if res.name == "SingleLF"]
-        lf = np.prod(slfs)
-        quality_lf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
-        lf_result = AnalysisResultData(
-            name="LF",
-            value=lf,
-            chisq=None,
-            quality=quality_lf,
-            extra={},
-        )
-        eplg = 1 - (lf ** (1 / self.num_2q_gates))
-        eplg_result = AnalysisResultData(
-            name="EPLG",
-            value=eplg,
-            chisq=None,
-            quality=quality_lf,
-            extra={},
-        )
-
-        # Return combined results
-        analysis_results = [lf_result, eplg_result] + analysis_results
-        return analysis_results, figures
+        try:
+            # Run composite analysis and extract sub-experiments results
+            analysis_results, figures = super()._run_analysis(experiment_data)
+            # Calculate full layer fidelity from single layer fidelities
+            slfs = [res.value for res in analysis_results if res.name == "SingleLF"]
+            lf = np.prod(slfs)
+            quality_lf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+            lf_result = AnalysisResultData(
+                name="LF",
+                value=lf,
+                quality=quality_lf,
+            )
+            eplg = 1 - (lf ** (1 / self.num_2q_gates))
+            eplg_result = AnalysisResultData(
+                name="EPLG",
+                value=eplg,
+                quality=quality_lf,
+            )
+            # Return combined results
+            analysis_results = [lf_result, eplg_result] + analysis_results
+            return analysis_results, figures
+        except Exception:
+            failed_results = [
+                AnalysisResultData(
+                    name="LF",
+                    value=None,
+                    quality="failed",
+                ),
+                AnalysisResultData(
+                    name="EPLG",
+                    value=None,
+                    quality="failed",
+                )
+            ]
+            return failed_results + analysis_results, figures

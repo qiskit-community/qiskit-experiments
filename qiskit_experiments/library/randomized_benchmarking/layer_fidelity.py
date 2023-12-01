@@ -363,4 +363,5 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
+        metadata["two_qubit_layers"] = self.experiment_options["two_qubit_layers"]
         return metadata
