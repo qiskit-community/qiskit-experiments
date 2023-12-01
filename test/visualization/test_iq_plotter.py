@@ -13,6 +13,7 @@
 Test IQ plotter.
 """
 
+import warnings
 from itertools import product
 from test.base import QiskitExperimentsTestCase
 from typing import Any, Dict, List, Tuple
@@ -126,7 +127,9 @@ class TestIQPlotter(QiskitExperimentsTestCase):
         plotter.set_supplementary_data(discriminator=discrim)
 
         # Call figure() to generate discriminator image, if possible.
-        plotter.figure()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", "Discriminator was provided but")
+            plotter.figure()
 
         # Assert that MockDiscriminator.predict() was/wasn't called, depending on whether it was trained
         # or not.
