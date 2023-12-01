@@ -15,12 +15,16 @@ Analysis classes for Layer Fidelity RB.
 from typing import List, Tuple, Union
 
 import lmfit
+import logging
+import traceback
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.database_service.device_component as device
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import CompositeAnalysis, AnalysisResultData, ExperimentData
+
+LOG = logging.getLogger(__name__)
 
 
 class _ProcessFidelityAnalysis(curve.CurveAnalysis):
@@ -159,6 +163,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         try:
             return super()._run_analysis(experiment_data)
         except Exception:
+            LOG.error(f"{self.__class__.__name__}({self._physical_qubits}) failed: {traceback.format_exc()}")
             failed_result = AnalysisResultData(
                 name="ProcessFidelity",
                 value=None,
@@ -212,6 +217,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             analysis_results = [slf_result] + analysis_results
             return analysis_results, figures
         except Exception:
+            LOG.error(f"{self.__class__.__name__} failed: {traceback.format_exc()}")
             failed_result = AnalysisResultData(
                 name="SingleLF",
                 value=None,
@@ -273,6 +279,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             analysis_results = [lf_result, eplg_result] + analysis_results
             return analysis_results, figures
         except Exception:
+            LOG.error(f"{self.__class__.__name__} failed: {traceback.format_exc()}")
             failed_results = [
                 AnalysisResultData(
                     name="LF",
