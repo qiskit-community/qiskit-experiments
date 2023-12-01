@@ -427,12 +427,33 @@ class MplDrawer(BaseDrawer):
 
         draw_ops = {
             "color": color,
-            "linestyle": "-",
-            "linewidth": 2,
+            "linestyle": series_params.get("linestyle", "-"),
+            "linewidth": series_params.get("linewidth", 2),
         }
         self._update_label_in_options(draw_ops, name, label, legend)
         draw_ops.update(**options)
         self._get_axis(axis).plot(x_data, y_data, **draw_ops)
+
+    def hline(
+        self,
+        y_value: float,
+        name: Optional[SeriesName] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
+        **options,
+    ):
+        series_params = self.figure_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+        color = series_params.get("color", self._get_default_color(name))
+
+        draw_ops = {
+            "color": color,
+            "linestyle": series_params.get("linestyle", "-"),
+            "linewidth": series_params.get("linewidth", 2),
+        }
+        self._update_label_in_options(draw_ops, name, label, legend)
+        draw_ops.update(**options)
+        self._get_axis(axis).axhline(y_value, **draw_ops)
 
     def filled_y_area(
         self,

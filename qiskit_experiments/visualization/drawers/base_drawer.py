@@ -404,6 +404,30 @@ class BaseDrawer(ABC):
         """
 
     @abstractmethod
+    def hline(
+        self,
+        y_value: float,
+        name: Optional[SeriesName] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
+        **options,
+    ):
+        """Draw a horizontal line.
+
+        Args:
+            y_value: Y value for line.
+            name: Name of this series.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether the drawn area must have a legend entry. Defaults to False.
+                The series label in the legend will be ``label`` if it is not None. If
+                it is, then ``series_params`` is searched for a ``"label"`` entry for
+                the series identified by ``name``. If this is also ``None``, then
+                ``name`` is used as the fallback. If no ``name`` is provided, then no
+                legend entry is generated.
+            options: Valid options for the drawer backend API.
+        """
+
+    @abstractmethod
     def filled_y_area(
         self,
         x_data: Sequence[float],

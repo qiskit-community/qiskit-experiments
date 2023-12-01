@@ -35,7 +35,17 @@ Analysis
     :template: autosummary/analysis.rst
 
     QuantumVolumeAnalysis
+
+
+Plotter
+=======
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/plotter.rst
+
+    QuantumVolumePlotter
 """
 
 from .qv_experiment import QuantumVolume
-from .qv_analysis import QuantumVolumeAnalysis
+from .qv_analysis import QuantumVolumeAnalysis, QuantumVolumePlotter

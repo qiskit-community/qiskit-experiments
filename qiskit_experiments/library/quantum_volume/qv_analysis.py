@@ -15,17 +15,123 @@ Quantum Volume analysis class.
 
 import math
 import warnings
-from typing import Optional
+from typing import List
 
 import numpy as np
 import uncertainties
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.curve_analysis.visualization import plot_scatter, plot_errorbar
 from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResultData,
     Options,
 )
+from qiskit_experiments.visualization import BasePlotter, MplDrawer
+
+
+class QuantumVolumePlotter(BasePlotter):
+    """Plotter for QuantumVolumeAnalysis"""
+
+    @classmethod
+    def expected_series_data_keys(cls) -> List[str]:
+        """Returns the expected series data keys supported by this plotter.
+
+        Data Keys:
+            hops: Heavy-output probability fraction for each circuit
+        """
+        return ["hops"]
+
+    @classmethod
+    def expected_supplementary_data_keys(cls) -> List[str]:
+        """Returns the expected figures data keys supported by this plotter.
+
+        Data Keys:
+            depth: The depth of the quantun volume circuits used in the experiment
+        """
+        return ["depth"]
+
+    def set_supplementary_data(self, **data_kwargs):
+        """Sets supplementary data for the plotter.
+
+        Args:
+            data_kwargs: See :meth:`expected_supplementary_data_keys` for the
+                expected supplementary data keys.
+        """
+        # Hook method to capture the depth for inclusion in the plot title
+        if "depth" in data_kwargs:
+            self.set_figure_options(
+                figure_title=(
+                    f"Quantum Volume experiment for depth {data_kwargs['depth']}"
+                    " - accumulative hop"
+                ),
+            )
+        super().set_supplementary_data(**data_kwargs)
+
+    @classmethod
+    def _default_figure_options(cls) -> Options:
+        options = super()._default_figure_options()
+        options.xlabel = "Number of Trials"
+        options.ylabel = "Heavy Output Probability"
+        options.figure_title = "Quantum Volume experiment - accumulative hop"
+        options.series_params = {
+            "hop": {"color": "gray", "symbol": "."},
+            "threshold": {"color": "black", "linestyle": "dashed", "linewidth": 1},
+            "hop_cumulative": {"color": "r"},
+            "hop_twosigma": {"color": "lightgray"},
+        }
+        return options
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        options = super()._default_options()
+        options.style["figsize"] = (6.4, 4.8)
+        options.style["axis_label_size"] = 14
+        options.style["symbol_size"] = 2
+        return options
+
+    def _plot_figure(self):
+        series = self.series[0]
+        (hops,) = self.data_for(series, ["hops"])
+        trials = np.arange(1, 1 + len(hops))
+        hop_accumulative = np.cumsum(hops) / trials
+        hop_twosigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trials) ** 0.5
+
+        self.drawer.line(
+            trials,
+            hop_accumulative,
+            name="hop_cumulative",
+            label="Cumulative HOP",
+            legend=True,
+        )
+        self.drawer.hline(
+            2 / 3,
+            name="threshold",
+            label="Threshold",
+            legend=True,
+        )
+        self.drawer.scatter(
+            trials,
+            hops,
+            name="hop",
+            label="Individual HOP",
+            legend=True,
+            linewidth=1.5,
+        )
+        self.drawer.filled_y_area(
+            trials,
+            hop_accumulative - hop_twosigma,
+            hop_accumulative + hop_twosigma,
+            alpha=0.5,
+            legend=True,
+            name="hop_twosigma",
+            label="2σ",
+        )
+
+        self.drawer.set_figure_options(
+            ylim=(
+                max(hop_accumulative[-1] - 4 * hop_twosigma[-1], 0),
+                min(hop_accumulative[-1] + 4 * hop_twosigma[-1], 1),
+            ),
+        )
 
 
 class QuantumVolumeAnalysis(BaseAnalysis):
@@ -49,10 +155,12 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
             ax (AxesSubplot): Optional. A matplotlib axis object to draw.
+            plotter (BasePlotter): Plotter object to use for figure generation.
         """
         options = super()._default_options()
         options.plot = True
         options.ax = None
+        options.plotter = QuantumVolumePlotter(MplDrawer())
         return options
 
     def _run_analysis(self, experiment_data):
@@ -77,8 +185,9 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
         if self.options.plot:
-            ax = self._format_plot(hop_result, ax=self.options.ax)
-            figures = [ax.get_figure()]
+            self.options.plotter.set_series_data("hops", hops=hop_result.extra["HOPs"])
+            self.options.plotter.set_supplementary_data(depth=hop_result.extra["depth"])
+            figures = [self.options.plotter.figure()]
         else:
             figures = None
         return [hop_result, qv_result], figures
@@ -238,73 +347,3 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             },
         )
         return hop_result, qv_result
-
-    @staticmethod
-    def _format_plot(
-        hop_result: AnalysisResultData, ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
-    ):
-        """Format the QV plot
-
-        Args:
-            hop_result: the heavy output probability analysis result.
-            ax: matplotlib axis to add plot to.
-
-        Returns:
-            AxesSubPlot: the matplotlib axes containing the plot.
-        """
-        trials = hop_result.extra["trials"]
-        heavy_probs = hop_result.extra["HOPs"]
-        trial_list = np.arange(1, trials + 1)  # x data
-
-        hop_accumulative = np.cumsum(heavy_probs) / trial_list
-        two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
-
-        # Plot individual HOP as scatter
-        ax = plot_scatter(
-            trial_list,
-            heavy_probs,
-            ax=ax,
-            s=3,
-            zorder=3,
-            label="Individual HOP",
-        )
-        # Plot accumulative HOP
-        ax.plot(trial_list, hop_accumulative, color="r", label="Cumulative HOP")
-
-        # Plot two-sigma shaded area
-        ax = plot_errorbar(
-            trial_list,
-            hop_accumulative,
-            two_sigma,
-            ax=ax,
-            fmt="none",
-            ecolor="lightgray",
-            elinewidth=20,
-            capsize=0,
-            alpha=0.5,
-            label="2$\\sigma$",
-        )
-        # Plot 2/3 success threshold
-        ax.axhline(2 / 3, color="k", linestyle="dashed", linewidth=1, label="Threshold")
-
-        ax.set_ylim(
-            max(hop_accumulative[-1] - 4 * two_sigma[-1], 0),
-            min(hop_accumulative[-1] + 4 * two_sigma[-1], 1),
-        )
-
-        ax.set_xlabel("Number of Trials", fontsize=14)
-        ax.set_ylabel("Heavy Output Probability", fontsize=14)
-
-        ax.set_title(
-            "Quantum Volume experiment for depth "
-            + str(hop_result.extra["depth"])
-            + " - accumulative hop",
-            fontsize=14,
-        )
-
-        # Re-arrange legend order
-        handles, labels = ax.get_legend_handles_labels()
-        handles = [handles[1], handles[2], handles[0], handles[3]]
-        labels = [labels[1], labels[2], labels[0], labels[3]]
-        ax.legend(handles, labels)
-        return ax

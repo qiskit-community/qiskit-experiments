@@ -105,11 +105,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # ``QiskitTestCase`` sets all warnings to be treated as an error by
             # default.
             # pylint: disable=invalid-name
-            allow_deprecationwarning_message = [
-                # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
-                r".*Plotting and drawing functionality has been moved",
-                r".*Legacy drawers from `.curve_analysis.visualization are deprecated",
-            ]
+            allow_deprecationwarning_message = []
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 
