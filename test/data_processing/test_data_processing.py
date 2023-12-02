@@ -418,10 +418,13 @@ class TestDataProcessor(BaseDataProcessorTest):
             unp.nominal_values(loaded_out),
         )
 
-        np.testing.assert_array_almost_equal(
-            unp.std_devs(ref_out),
-            unp.std_devs(loaded_out),
-        )
+        with np.errstate(invalid="ignore"):
+            # Setting std_devs to NaN will trigger floating point exceptions
+            # which we can ignore. See https://stackoverflow.com/q/75656026
+            np.testing.assert_array_almost_equal(
+                unp.std_devs(ref_out),
+                unp.std_devs(loaded_out),
+            )
 
 
 class TestIQSingleAvg(BaseDataProcessorTest):
