@@ -20,10 +20,10 @@ from test.base import QiskitExperimentsTestCase
 from unittest import mock
 from ddt import ddt, data
 
-from qiskit import QuantumCircuit, Aer
+from qiskit import QuantumCircuit
 from qiskit.result import Result
 
-from qiskit_aer import noise
+from qiskit_aer import AerSimulator, noise
 
 from qiskit_ibm_experiment import IBMExperimentService
 
@@ -915,7 +915,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
         the entire flow of `BaseExperiment.run`.
         """
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
         noise_model = noise.NoiseModel()
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
 

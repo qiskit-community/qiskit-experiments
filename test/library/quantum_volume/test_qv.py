@@ -17,9 +17,10 @@ from test.base import QiskitExperimentsTestCase
 import json
 import os
 from uncertainties import UFloat
-from qiskit.quantum_info.operators.predicates import matrix_equal
 
-from qiskit import Aer
+from qiskit.quantum_info.operators.predicates import matrix_equal
+from qiskit_aer import AerSimulator
+
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
 from qiskit_experiments.framework import ExperimentDecoder
@@ -102,7 +103,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         Test that the sigma is decreasing after adding more trials
         """
         num_of_qubits = 3
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         # set number of trials to a low number to make the test faster
@@ -139,7 +140,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 3
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
@@ -165,7 +166,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
@@ -192,7 +193,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
@@ -216,7 +217,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
