@@ -61,12 +61,52 @@ class RestlessMixin:
 
     analysis: BaseAnalysis
     _default_run_options: Options()
+    run_options: Options()
     set_run_options: Callable
     _backend: Backend
     _physical_qubits: Sequence[int]
     _num_qubits: int
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self._enable_restless = False
+        self.rep_delay = None
+        self.override_processor_by_restless = None
+        self.suppress_t1_error = None
+
     def enable_restless(
+        self,
+        rep_delay: Optional[float] = None,
+        override_processor_by_restless: bool = True,
+        suppress_t1_error: bool = False,
+    ):
+        """
+        Set a flag to enable restless configuration when running the experiment.
+
+        Args:
+            rep_delay: The repetition delay. This is the delay between a measurement
+                and the subsequent quantum circuit. Since the backends have
+                dynamic repetition rates, the repetition delay can be set to a small
+                value which is required for restless experiments. Typical values are
+                1 us or less.
+            override_processor_by_restless: If False, a data processor that is specified in the
+                analysis options of the experiment is not overridden by the restless data
+                processor. The default is True.
+            suppress_t1_error: If True, the default is False, then no error will be raised when
+                ``rep_delay`` is larger than the T1 times of the qubits. Instead, a warning will
+                be logged as restless measurements may have a large amount of noise.
+
+        """
+
+        self.set_run_options(restless=True)
+        if rep_delay:
+            self.rep_delay = rep_delay
+        if override_processor_by_restless:
+            self.override_processor_by_restless = override_processor_by_restless
+        if suppress_t1_error:
+            self.suppress_t1_error = suppress_t1_error
+
+    def _enable_restless(
         self,
         rep_delay: Optional[float] = None,
         override_processor_by_restless: bool = True,
@@ -98,6 +138,7 @@ class RestlessMixin:
                 T1 time of one of the physical qubits in the experiment and the flag
                 ``ignore_t1_check`` is False.
         """
+        LOG.debug("Enabling restless configuration. This will override current configuration. ")
         try:
             if not rep_delay:
                 # BackendV1 only; BackendV2 does not support this
@@ -218,3 +259,12 @@ class RestlessMixin:
             ) from error
 
         return False
+
+    def _finalize(self):
+        if self.run_options.get("restless", None):
+            self._enable_restless(
+                rep_delay=self.rep_delay,
+                override_processor_by_restless=self.override_processor_by_restless,
+                suppress_t1_error=self.suppress_t1_error,
+            )
+        super()._finalize()
