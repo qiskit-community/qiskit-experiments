@@ -534,14 +534,14 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         xp3 = self.cals.get_schedule("xp", (3,))
 
         # Check that xp0 is Play(Gaussian(160, 0.15, 40), 0)
-        self.assertTrue(isinstance(xp0.instructions[0][1].pulse, Gaussian))
+        self.assertTrue(xp0.instructions[0][1].pulse.pulse_type == "Gaussian")
         self.assertEqual(xp0.instructions[0][1].channel, DriveChannel(0))
         self.assertEqual(xp0.instructions[0][1].pulse.amp, 0.15)
         self.assertEqual(xp0.instructions[0][1].pulse.sigma, 40)
         self.assertEqual(xp0.instructions[0][1].pulse.duration, 160)
 
         # Check that xp3 is Play(Drag(160, 0.25, 40, 10), 3)
-        self.assertTrue(isinstance(xp3.instructions[0][1].pulse, Drag))
+        self.assertTrue(xp3.instructions[0][1].pulse.pulse_type == "Drag")
         self.assertEqual(xp3.instructions[0][1].channel, DriveChannel(3))
         self.assertEqual(xp3.instructions[0][1].pulse.amp, 0.25)
         self.assertEqual(xp3.instructions[0][1].pulse.sigma, 40)
@@ -590,8 +590,8 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         # For completeness we check that schedule that comes out.
         sched_cal = self.cals.get_schedule("xp", (3,))
 
-        self.assertTrue(isinstance(sched_cal.instructions[0][1].pulse, Drag))
-        self.assertTrue(isinstance(sched_cal.instructions[1][1].pulse, Drag))
+        self.assertTrue(sched_cal.instructions[0][1].pulse.pulse_type == "Drag")
+        self.assertTrue(sched_cal.instructions[1][1].pulse.pulse_type == "Drag")
         self.assertEqual(sched_cal.instructions[0][1].pulse.amp, 0.125)
         self.assertEqual(sched_cal.instructions[1][1].pulse.amp, 0.125)
 
