@@ -70,7 +70,7 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(par_exp.analysis.options, par_exp.analysis._default_options())
 
         with self.assertWarns(UserWarning):
-            expdata = par_exp.run(FakeBackend())
+            expdata = par_exp.run(FakeBackend(num_qubits=3))
         self.assertExperimentDone(expdata)
 
     def test_flatten_results_nested(self):
@@ -92,7 +92,7 @@ class TestComposite(QiskitExperimentsTestCase):
             ],
             flatten_results=True,
         )
-        expdata = comp_exp.run(FakeBackend())
+        expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check no child data was saved
         self.assertEqual(len(expdata.child_data()), 0)
@@ -112,7 +112,7 @@ class TestComposite(QiskitExperimentsTestCase):
             ],
             flatten_results=False,
         )
-        expdata = comp_exp.run(FakeBackend())
+        expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
@@ -176,7 +176,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
     def setUp(self):
         super().setUp()
 
-        self.backend = FakeBackend()
+        self.backend = FakeBackend(num_qubits=4)
         self.share_level = "public"
 
         exp1 = FakeExperiment([0, 2])
@@ -302,7 +302,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp4 = BatchExperiment([exp3, exp1], flatten_results=False)
         exp5 = ParallelExperiment([exp4, FakeExperiment([4])], flatten_results=False)
         nested_exp = BatchExperiment([exp5, exp3], flatten_results=False)
-        expdata = nested_exp.run(FakeBackend())
+        expdata = nested_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
 
     def test_analysis_replace_results_true(self):
@@ -312,12 +312,12 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = ParallelExperiment([exp1, exp2], flatten_results=False)
-        data1 = par_exp.run(FakeBackend())
+        data1 = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend())
+        extra_data = exp3.run(FakeBackend(num_qubits=2))
         self.assertExperimentDone(extra_data)
         data1.add_child_data(extra_data)
 
@@ -336,12 +336,12 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        data1 = par_exp.run(FakeBackend())
+        data1 = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend())
+        extra_data = exp3.run(FakeBackend(num_qubits=2))
         self.assertExperimentDone(extra_data)
         data1.add_child_data(extra_data)
 
@@ -360,7 +360,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        expdata = par_exp.run(FakeBackend())
+        expdata = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         data1 = expdata.child_data(0)
         data2 = expdata.child_data(1)
@@ -390,7 +390,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1.analysis.set_options(add_figures=True)
         exp2.analysis.set_options(add_figures=True)
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        expdata = par_exp.run(FakeBackend())
+        expdata = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         expdata.service = IBMExperimentService(local=True, local_save=False)
         expdata.auto_save = True
@@ -405,7 +405,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        expdata = par_exp.run(FakeBackend())
+        expdata = par_exp.run(FakeBackend(num_qubits=4))
         expdata.service = service
         self.assertExperimentDone(expdata)
         expdata.auto_save = True

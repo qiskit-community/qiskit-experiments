@@ -87,6 +87,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=ref_new_value,
             param_name="to_calibrate",
             sched_name="test",
+            circuits=[QuantumCircuit(1)],
         )
         self.assertExperimentDone(exp.run(backend))
 
@@ -131,6 +132,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=999999,
             param_name="to_calibrate",
             sched_name="test",
+            circuits=[QuantumCircuit(1)],
         )
         exp.analysis.set_options(return_value=ref_new_value)  # Update analysis option here
         self.assertExperimentDone(exp.run(backend))
@@ -176,6 +178,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=99999,
             param_name="to_calibrate",
             sched_name="test",
+            circuits=[QuantumCircuit(1)],
         )
 
         user_analysis = DoNothingAnalysis()
@@ -231,6 +234,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=ref_new_value1,
             param_name="to_calibrate1",
             sched_name="test",
+            circuits=[QuantumCircuit(1)],
         )
         exp2 = MockCalExperiment(
             physical_qubits=(0,),
@@ -238,6 +242,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=ref_new_value2,
             param_name="to_calibrate2",
             sched_name="test",
+            circuits=[QuantumCircuit(1)],
         )
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=False, backend=backend)
         self.assertExperimentDone(batch_exp.run(backend))
@@ -301,6 +306,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=ref_new_value1,
             param_name="to_calibrate1",
             sched_name="test1",
+            circuits=[QuantumCircuit(1)],
         )
         exp2 = MockCalExperiment(
             physical_qubits=(1,),
@@ -308,6 +314,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             new_value=ref_new_value2,
             param_name="to_calibrate2",
             sched_name="test2",
+            circuits=[QuantumCircuit(1)],
         )
         batch_exp = ParallelExperiment([exp1, exp2], flatten_results=False, backend=backend)
         self.assertExperimentDone(batch_exp.run(backend))
