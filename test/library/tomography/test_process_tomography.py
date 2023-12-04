@@ -587,6 +587,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 exp.analysis.set_options()
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
+                    if "cvxpy" in fitter:
+                        exp.analysis.set_options(fitter_options={"eps_abs": 3e-5})
                 fitdata = exp.analysis.run(expdata)
                 states = fitdata.analysis_results("state")
                 for state in states:
