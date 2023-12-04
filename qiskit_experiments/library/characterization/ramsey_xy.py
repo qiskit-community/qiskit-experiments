@@ -34,7 +34,7 @@ else:
     import sympy as sym
 
 
-class RamseyXY(BaseExperiment, RestlessMixin):
+class RamseyXY(RestlessMixin, BaseExperiment):
     r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview
