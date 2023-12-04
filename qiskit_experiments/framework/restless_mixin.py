@@ -138,7 +138,7 @@ class RestlessMixin:
                 T1 time of one of the physical qubits in the experiment and the flag
                 ``ignore_t1_check`` is False.
         """
-        LOG.debug("Enabling restless configuration. This will override current configuration. ")
+        LOG.debug("Enabling restless configuration. This will override current configuration.")
         try:
             if not rep_delay:
                 # BackendV1 only; BackendV2 does not support this
