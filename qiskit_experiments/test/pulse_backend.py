@@ -452,7 +452,7 @@ class SingleTransmonTestBackend(PulseBackend):
         H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +
                 \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
 
-    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level
+    Here, :math:`\omega_j` is the transition frequency from level :math:`0` to level
     :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """

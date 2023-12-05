@@ -48,11 +48,16 @@ class FakeExperiment(BaseExperiment):
         options.dummyoption = None
         return options
 
-    def __init__(self, physical_qubits=None):
+    def __init__(self, physical_qubits=None, backend=None, experiment_type=None):
         """Initialise the fake experiment."""
         if physical_qubits is None:
             physical_qubits = [0]
-        super().__init__(physical_qubits, analysis=FakeAnalysis())
+        super().__init__(
+            physical_qubits,
+            analysis=FakeAnalysis(),
+            backend=backend,
+            experiment_type=experiment_type,
+        )
 
     def circuits(self):
         """Fake circuits."""
