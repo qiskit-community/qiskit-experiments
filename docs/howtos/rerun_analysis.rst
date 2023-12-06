@@ -37,12 +37,14 @@ job IDs:
 
     expdata = ExperimentData(experiment = experiment)
     expdata.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-    experiment.analysis.run(expdata)
+    experiment.analysis.run(expdata, replace_results=True)
 
     # Block execution of subsequent code until analysis is complete
     expdata.block_for_results()
 
-``expdata`` will be the new experiment data object containing results of the rerun analysis.
+``expdata`` will be the new experiment data object containing results of the rerun analysis. Note that if
+``replace_results`` isn't set, running the analysis will return a new :class:`.ExperimentData` object
+instead of overwriting the existing one.
 
 If you have the job data in the form of a :class:`~qiskit.result.Result` object, you can
 invoke the :meth:`.add_data` method instead of :meth:`.add_jobs`:
