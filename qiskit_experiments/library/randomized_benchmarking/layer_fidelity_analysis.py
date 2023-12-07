@@ -163,7 +163,9 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         try:
             return super()._run_analysis(experiment_data)
         except Exception:
-            LOG.error(f"{self.__class__.__name__}({self._physical_qubits}) failed: {traceback.format_exc()}")
+            LOG.error(
+                f"{self.__class__.__name__}({self._physical_qubits}) failed: {traceback.format_exc()}"
+            )
             failed_result = AnalysisResultData(
                 name="ProcessFidelity",
                 value=None,
@@ -206,7 +208,9 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             # Calculate single layer fidelity from process fidelities of subsystems
             pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
             slf = np.prod(pfs)
-            quality_slf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+            quality_slf = (
+                "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+            )
             slf_result = AnalysisResultData(
                 name="SingleLF",
                 value=slf,
@@ -290,6 +294,6 @@ class LayerFidelityAnalysis(CompositeAnalysis):
                     name="EPLG",
                     value=None,
                     quality="failed",
-                )
+                ),
             ]
             return failed_results + analysis_results, figures
