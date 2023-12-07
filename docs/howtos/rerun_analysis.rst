@@ -117,7 +117,7 @@ first component experiment.
 
     data = ExperimentData(experiment=pexp)
     data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-    pexp.analysis.run(data)
+    pexp.analysis.run(data, replace_results=True)
 
 See Also
 --------
