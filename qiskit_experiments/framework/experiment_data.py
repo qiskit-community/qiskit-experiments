@@ -1165,6 +1165,7 @@ class ExperimentData:
         if job_id not in self._jobs:
             self._jobs[job_id] = None
             self.job_ids.append(job_id)
+<<<<<<< HEAD
         for i, _ in enumerate(result.results):
             data = result.data(i)
             data["job_id"] = job_id
@@ -1179,6 +1180,27 @@ class ExperimentData:
             if hasattr(expr_result, "meas_return"):
                 data["meas_return"] = expr_result.meas_return
             self.add_data(data)
+=======
+        with self._result_data.lock:
+            # Lock data while adding all result data
+            results = []
+            for i, _ in enumerate(result.results):
+                data = result.data(i)
+                data["job_id"] = job_id
+                if "counts" in data:
+                    # Format to Counts object rather than hex dict
+                    data["counts"] = result.get_counts(i)
+                expr_result = result.results[i]
+                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                    data["metadata"] = expr_result.header.metadata
+                data["shots"] = expr_result.shots
+                data["meas_level"] = expr_result.meas_level
+                if hasattr(expr_result, "meas_return"):
+                    data["meas_return"] = expr_result.meas_return
+                results.append(data)
+            
+            self.add_data(results)
+>>>>>>> 5e4b9d2d (Updated add_data and _add_result_data, deprecated _add_data #1268)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
