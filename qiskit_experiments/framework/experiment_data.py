@@ -789,8 +789,7 @@ class ExperimentData:
             )
         if not isinstance(data, list):
             data = [data]
-        if data != [] and isinstance(data[0],dict):
-            marginalized_data = self._marginalized_component_data(data)
+
         # Directly add non-job data
         with self._result_data.lock:
             tmp_exp_data = ExperimentData()
@@ -818,6 +817,7 @@ class ExperimentData:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
             if composite_flag:
+                marginalized_data = self._marginalized_component_data(data)
                 for sub_expdata, sub_data in zip(self.child_data(), marginalized_data):
                     # Clear any previously stored data and add marginalized data
                     sub_expdata._result_data.clear()
