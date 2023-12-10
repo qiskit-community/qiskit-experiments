@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    'copy' method under ExperimentData class now copies the provider. 
+  

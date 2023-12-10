@@ -14,6 +14,7 @@
 
 """Test ExperimentData."""
 from test.base import QiskitExperimentsTestCase
+from test.fake_experiment import FakeExperiment
 import os
 from unittest import mock
 import copy
@@ -46,6 +47,7 @@ from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
 )
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+from qiskit_experiments.test.fake_backend import FakeBackend
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
@@ -409,6 +411,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         figure_template = "hello world {}"
         name_template = "figure_{}.svg"
+        name_template_wo_ext = "figure_{}"
+
         for idx in range(3):
             exp_data.add_figures(
                 str.encode(figure_template.format(idx)), figure_names=name_template.format(idx)
@@ -416,6 +420,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
         self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
+        self.assertEqual(expected_figure, exp_data.figure(idx).figure)
+
+        # Check that figure will be returned without file extension in name
+        expected_figure = str.encode(figure_template.format(idx))
+        self.assertEqual(expected_figure, exp_data.figure(name_template_wo_ext.format(idx)).figure)
         self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 
         file_name = uuid.uuid4().hex
@@ -1037,14 +1046,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_copy_metadata(self):
         """Test copy metadata."""
-        exp_data = ExperimentData(experiment_type="qiskit_test")
+        exp_data = FakeExperiment(experiment_type="qiskit_test").run(backend=FakeBackend())
         exp_data.add_data(self._get_job_result(1))
-        result = mock.MagicMock()
-        result.result_id = str(uuid.uuid4())
-        exp_data.add_analysis_results(result)
         copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
         self.assertFalse(copied.analysis_results())
+        self.assertEqual(exp_data.provider, copied.provider)
 
     def test_copy_metadata_pending_job(self):
         """Test copy metadata with a pending job."""

@@ -12,7 +12,8 @@
 
 """Tests for base experiment framework."""
 
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
+
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 
 
@@ -58,7 +59,7 @@ class StoreArgs(StoreArgsBase):
         pass
 
 
-class TestSettings(QiskitTestCase):
+class TestSettings(QiskitExperimentsTestCase):
     """Test Settings mixin"""
 
     # pylint: disable = missing-function-docstring

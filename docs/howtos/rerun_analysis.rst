@@ -37,12 +37,14 @@ job IDs:
 
     expdata = ExperimentData(experiment = experiment)
     expdata.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-    experiment.analysis.run(expdata)
+    experiment.analysis.run(expdata, replace_results=True)
 
     # Block execution of subsequent code until analysis is complete
     expdata.block_for_results()
 
-``expdata`` will be the new experiment data object containing results of the rerun analysis.
+``expdata`` will be the new experiment data object containing results of the rerun analysis. Note that if
+``replace_results`` isn't set, running the analysis will return a new :class:`.ExperimentData` object
+instead of overwriting the existing one.
 
 If you have the job data in the form of a :class:`~qiskit.result.Result` object, you can
 invoke the :meth:`.add_data` method instead of :meth:`.add_jobs`:
@@ -66,7 +68,7 @@ contain correct results.
 
 In the case where jobs are not directly accessible from the provider but you've
 downloaded the jobs from the 
-`IQS dashboard <https://quantum-computing.ibm.com/jobs>`_, you can load them from
+`IQS dashboard <https://quantum.ibm.com/jobs>`_, you can load them from
 the downloaded directory into :class:`~qiskit.result.Result` objects with this code:
 
 .. jupyter-input::
@@ -115,7 +117,7 @@ first component experiment.
 
     data = ExperimentData(experiment=pexp)
     data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-    pexp.analysis.run(data)
+    pexp.analysis.run(data, replace_results=True)
 
 See Also
 --------

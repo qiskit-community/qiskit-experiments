@@ -496,6 +496,15 @@ class CurveAnalysis(BaseCurveAnalysis):
         analysis_results = []
         figures = []
 
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
+
         # Prepare for fitting
         self._initialize(experiment_data)
 
@@ -506,6 +515,10 @@ class CurveAnalysis(BaseCurveAnalysis):
             quality = self._evaluate_quality(fit_data)
         else:
             quality = "bad"
+
+        # After the quality is determined, plot can become a boolean flag for whether
+        # to generate the figure
+        plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
         if self.options.return_fit_parameters:
             # Store fit status overview entry regardless of success.
@@ -565,7 +578,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
             )
 
-        if self.options.plot:
+        if plot_bool:
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
