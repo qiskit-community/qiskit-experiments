@@ -1208,6 +1208,7 @@ class ExperimentData:
             self.job_ids.append(job_id)
         with self._result_data.lock:
             # Lock data while adding all result data
+            results = []
             for i, _ in enumerate(result.results):
                 data = result.data(i)
                 data["job_id"] = job_id
@@ -1221,7 +1222,9 @@ class ExperimentData:
                 data["meas_level"] = expr_result.meas_level
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
-                self._result_data.append(data)
+                results.append(data)
+            
+            self.add_data(results)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
