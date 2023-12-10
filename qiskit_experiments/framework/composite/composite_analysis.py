@@ -157,13 +157,13 @@ class CompositeAnalysis(BaseAnalysis):
             component_expdata = self._initialize_component_experiment_data(experiment_data)
 
         
-        experiment_data._add_data(component_expdata,experiment_data.data())
+        experiment_data.add_data(experiment_data.data())
 
         # Run the component analysis on each component data
         for i, sub_expdata in enumerate(component_expdata):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_expdata._result_data = self._analyses[i].run(sub_expdata, replace_results=True)._result_data
+            self._analyses[i].run(sub_expdata, replace_results=True)
 
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning

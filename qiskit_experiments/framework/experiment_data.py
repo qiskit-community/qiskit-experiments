@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from concurrent import futures
 from threading import Event
 from functools import wraps, singledispatch
-from collections import deque
+from collections import deque, defaultdict
 import contextlib
 import copy
 import uuid
@@ -789,39 +789,25 @@ class ExperimentData:
             )
         if not isinstance(data, list):
             data = [data]
-
+        if data != [] and isinstance(data[0],dict):
+            marginalized_data = self._marginalized_component_data(data)
         # Directly add non-job data
         with self._result_data.lock:
             tmp_exp_data = ExperimentData()
             composite_flag = False
-            experiment_seperator = {}
+            experiment_seperator = defaultdict(lambda : ExperimentData())
             for datum in data:
                 if isinstance(datum, dict):
-                    if "composite_metadata" in datum["metadata"]:
+                    if "metadata" in datum and "composite_metadata" in datum["metadata"]:
                         composite_flag = True
-                        marginalized_data = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_data:
-                            #print(inner_datum)
-                            if "experiment_type" in inner_datum[0]["metadata"]:
-                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-                                else:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-                    
+                        experiment_seperator[datum["metadata"]["experiment_type"]].add_data(datum["metadata"]["composite_metadata"])
+
                     elif "composite_metadata" in datum:
                         composite_flag = True
-                        marginalized_data = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_data:
-                            #print(inner_datum)
-                            if "experiment_type" in inner_datum[0]["metadata"]:
-                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-                                else:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
+                        experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
                     
-                    self._result_data.append(datum)
+                    if datum not in self._result_data:
+                        self._result_data.append(datum)
 
                 elif isinstance(datum, Result):
                     if datum["metadata"]:
@@ -830,9 +816,17 @@ class ExperimentData:
                         self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
+
             if composite_flag:
+                for sub_expdata, sub_data in zip(self.child_data(), marginalized_data):
+                    # Clear any previously stored data and add marginalized data
+                    sub_expdata._result_data.clear()
+                    sub_expdata.__add_data(sub_data)
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
-                self._set_child_data([tmp_exp_data])
+                if self._child_data.values() != []:
+                    self.add_child_data(tmp_exp_data)
+                else:
+                    self._set_child_data([tmp_exp_data])
 
     def __add_data(
         self,
@@ -871,40 +865,6 @@ class ExperimentData:
                         self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
-    
-    def _add_data(
-            self,
-            component_expdata: List[ExperimentData],
-            data: Union[Result, List[Result], Dict, List[Dict]],
-        ) -> None:
-            """Add experiment data.
-
-            Args:
-                data: Experiment data to add. Several types are accepted for convenience:
-
-                    * Result: Add data from this ``Result`` object.
-                    * List[Result]: Add data from the ``Result`` objects.
-                    * Dict: Add this data.
-                    * List[Dict]: Add this list of data.
-
-            Raises:
-                TypeError: If the input data type is invalid.
-            """
-            #TODO: Continue from here
-
-            if not isinstance(data, list):
-                data = [data]
-            
-            # self._marginalized_component_data()
-            # Directly add non-job data
-
-            marginalized_data = self._marginalized_component_data(data)
-
-            with self._result_data.lock:
-                for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-                    # Clear any previously stored data and add marginalized data
-                    sub_expdata._result_data.clear()
-                    sub_expdata.__add_data(sub_data)
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
@@ -935,6 +895,9 @@ class ExperimentData:
                 and isinstance(datum["memory"][0], str)
             ):
                 f_memory = self._format_memory(datum, composite_clbits)
+
+            if "composite_index" not in metadata:
+                continue
 
             for i, index in enumerate(metadata["composite_index"]):
                 if index not in marginalized_data:
