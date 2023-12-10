@@ -125,8 +125,12 @@ class CompositeAnalysis(BaseAnalysis):
             experiment_data.create_child_data()
 =======
         
+<<<<<<< HEAD
         experiment_data._add_data(component_expdata,experiment_data.data())
 >>>>>>> 2dbba8ac (Passed test new start)
+=======
+        experiment_data.add_data(experiment_data.data())
+>>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
 
         if len(self._analyses) != len(child_data):
             raise("analysis length and experiment lenggth are not same")
@@ -134,7 +138,11 @@ class CompositeAnalysis(BaseAnalysis):
         for sub_analysis, sub_data in zip(self._analyses, child_data):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
+<<<<<<< HEAD
             sub_analysis.run(sub_data, replace_results=True)
+=======
+            self._analyses[i].run(sub_expdata, replace_results=True)
+>>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
 
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning
