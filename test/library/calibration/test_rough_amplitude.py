@@ -155,7 +155,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         """Test that we properly update the pulses on the 1<->2 transition."""
 
         tol = 0.05
-        default_amp = 0.5 / self.backend.rabi_rate_12
+        default_amp = 0.5 / self.backend.rabi_rate_12[0]
 
         rabi_ef = EFRoughXSXAmplitudeCal(
             [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
