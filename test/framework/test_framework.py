@@ -430,11 +430,12 @@ class TestFramework(QiskitExperimentsTestCase):
         backend = FakeRestlessBackend()
         exp = FakeRestlessExperiment(backend=backend)
 
-        exp.run_options.meas_level = MeasLevel.CLASSIFIED
         exp.enable_restless(
             override_processor_by_restless=False, rep_delay=250, suppress_t1_error=True
         )
+        exp.run_options.meas_level = MeasLevel.CLASSIFIED
         self.assertNotEqual(exp.run_options.get("meas_level"), MeasLevel.KERNELED)
+
         # `run()` method makes a copy of the experiment if run option is passed through it, and we cannot
         # access it for testing.
         # pylint: disable-next=unused-variable
