@@ -67,15 +67,6 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
-try:
-    from IPython import get_ipython
-    from IPython.display import SVG
-
-    SHELL_NAME = get_ipython().__class__.__name__
-
-    DISPLAY_SVG = True
-except ImportError:
-    DISPLAY_SVG = False
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -202,7 +193,7 @@ class FigureData:
         if isinstance(self.figure, str):
             return self.figure
         if isinstance(self.figure, bytes):
-            return str(self.figure)
+            return self.figure.decode("utf-8")
         return None
 
 
@@ -1347,14 +1338,6 @@ class ExperimentData:
             with open(file_name, "wb") as output:
                 num_bytes = output.write(figure_data.figure)
                 return num_bytes
-
-        if isinstance(figure_data.figure, bytes) and DISPLAY_SVG:
-            if SHELL_NAME == "ZMQInteractiveShell":
-                LOG.debug(
-                    "Jupyter Notebook environment detected. Figure data is converted into SVG."
-                )
-                figure_data.figure = SVG(figure_data.figure)
-
         return figure_data
 
     @deprecate_arg(
