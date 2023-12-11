@@ -109,6 +109,11 @@ class RestlessMixin:
         if suppress_t1_error:
             self.suppress_t1_error = suppress_t1_error
 
+        # Calling `_enable_restless()` so the run option will be visible to the user.
+        self._enable_restless()
+        # Setting override_processor_by_restless to false as the data processor was already configured.
+        self.override_processor_by_restless = False
+
     def _enable_restless(self):
         """Enables a restless experiment by setting the restless run options and the
         restless data processor.
@@ -242,6 +247,7 @@ class RestlessMixin:
         return False
 
     def _finalize(self):
+        # Calling again to self._enable_restless() to override experiment option for restless experiment.
         if self.run_options.get("restless", None):
             self._enable_restless()
         super()._finalize()
