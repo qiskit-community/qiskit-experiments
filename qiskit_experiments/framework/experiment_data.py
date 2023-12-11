@@ -196,7 +196,7 @@ class FigureData:
         return None
 
 
-_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -205,7 +205,7 @@ class ExperimentData:
     .. note::
         Saving experiment data to the cloud database is currently a limited access feature. You can
         check whether you have access by logging into the IBM Quantum interface
-        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+        and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
     This class handles the following:
 
@@ -1071,6 +1071,13 @@ class ExperimentData:
         """Retrieve job data if missing experiment data."""
         # Get job results if missing in experiment data.
         if self.provider is None:
+            # 'self._result_data' could be locked, so I check a copy of it.
+            if not self._result_data.copy():
+                # Adding warning so the user will have indication why the analysis may fail.
+                LOG.warning(
+                    "Provider for ExperimentData object doesn't exist, resulting in a failed attempt to"
+                    " retrieve data from the server; no stored result data exists"
+                )
             return
         retrieved_jobs = {}
         jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
@@ -1134,7 +1141,7 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[_FigureT, List[_FigureT]],
+        figures: Union[FigureT, List[FigureT]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,
@@ -1311,6 +1318,12 @@ class ExperimentData:
                 raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
             figure_key = self._figures.keys()[figure_key]
 
+        # All figures must have '.svg' in their names when added, as the extension is added to the key
+        # name in the `add_figures()` method of this class.
+        if isinstance(figure_key, str):
+            if not figure_key.endswith(".svg"):
+                figure_key += ".svg"
+
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
@@ -1405,7 +1418,7 @@ class ExperimentData:
             tags = tags or []
             backend = backend or self.backend_name
 
-            series = self._analysis_results.add_entry(
+            self._analysis_results.add_entry(
                 result_id=result_id,
                 name=name,
                 value=value,
@@ -1420,8 +1433,9 @@ class ExperimentData:
                 **extra_values,
             )
             if self.auto_save:
+                last_index = self._analysis_results.result_ids()[-1][:8]
                 service_result = _series_to_service_result(
-                    series=series,
+                    series=self._analysis_results.get_entry(last_index),
                     service=self._service,
                     auto_save=False,
                 )
@@ -1521,25 +1535,25 @@ class ExperimentData:
             index: Index of the analysis result to be returned.
                 Several types are accepted for convenience:
 
-                    * None: Return all analysis results.
-                    * int: Specific index of the analysis results.
-                    * slice: A list slice of indexes.
-                    * str: ID or name of the analysis result.
+                * None: Return all analysis results.
+                * int: Specific index of the analysis results.
+                * slice: A list slice of indexes.
+                * str: ID or name of the analysis result.
 
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
-            block: If True block for any analysis callbacks to finish running.
+            block: If ``True``, block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
             columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
+                column name to return, otherwise builtin column groups are available:
 
-                    * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                        information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
+                * ``all``: Return all columns, including metadata to communicate
+                  with the experiment service, such as entry IDs.
+                * ``default``: Return columns including analysis result with supplementary
+                  information about experiment.
+                * ``minimal``: Return only analysis subroutine returns.
 
-            dataframe: Set True to return analysis results in the dataframe format.
+            dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
             Analysis results for this experiment.
@@ -1553,7 +1567,7 @@ class ExperimentData:
             )
         self._retrieve_analysis_results(refresh=refresh)
 
-        out = self._analysis_results.container(collapse_extra=False)
+        out = self._analysis_results.copy()
 
         if index is not None:
             out = _filter_analysis_results(index, out)
@@ -1674,7 +1688,7 @@ class ExperimentData:
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiment (false)
+                pass them on, potentially aborting the experiment (false)
             max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
             save_children: For composite experiments, whether to save children as well
@@ -1715,7 +1729,7 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        for _, series in self._analysis_results.container(collapse_extra=False).iterrows():
+        for _, series in self._analysis_results.copy().iterrows():
             # TODO We should support saving entire dataframe
             #  Calling API per entry takes huge amount of time.
             legacy_result = _series_to_service_result(
@@ -1772,7 +1786,7 @@ class ExperimentData:
         if not self.service.local and self.verbose:
             print(
                 "You can view the experiment online at "
-                f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                f"https://quantum.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
         if save_children:
@@ -2286,6 +2300,7 @@ class ExperimentData:
         new_instance = ExperimentData(
             backend=self.backend,
             service=self.service,
+            provider=self.provider,
             parent_id=self.parent_id,
             job_ids=self.job_ids,
             child_data=list(self._child_data.values()),
@@ -2516,7 +2531,7 @@ class ExperimentData:
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum-computing.ibm.com/api"
+        db_url = "https://auth.quantum.ibm.com/api"
         try:
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):

@@ -28,7 +28,6 @@ from multimethod import multimethod
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.utils import (
-    ThreadSafeDataFrame,
     ThreadSafeList,
     ThreadSafeOrderedDict,
 )
@@ -37,6 +36,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
     AnalysisResult,
+    AnalysisResultTable,
 )
 from qiskit_experiments.visualization import BaseDrawer
 
@@ -276,18 +276,28 @@ def _check_configurable_classes(
 
 @_is_equivalent_dispatcher.register
 def _check_dataframes(
-    data1: Union[pd.DataFrame, ThreadSafeDataFrame],
-    data2: Union[pd.DataFrame, ThreadSafeDataFrame],
+    data1: pd.DataFrame,
+    data2: pd.DataFrame,
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
-    if isinstance(data1, ThreadSafeDataFrame):
-        data1 = data1.container(collapse_extra=False)
-    if isinstance(data2, ThreadSafeDataFrame):
-        data2 = data2.container(collapse_extra=False)
     return is_equivalent(
         data1.to_dict(orient="index"),
         data2.to_dict(orient="index"),
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
+def _check_result_table(
+    data1: AnalysisResultTable,
+    data2: AnalysisResultTable,
+    **kwargs,
+):
+    """Check equality of data frame which may involve Qiskit Experiments class value."""
+    return is_equivalent(
+        data1.copy().to_dict(orient="index"),
+        data2.copy().to_dict(orient="index"),
         **kwargs,
     )
 
