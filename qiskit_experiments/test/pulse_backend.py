@@ -650,6 +650,7 @@ class SingleTransmonTestBackend(PulseBackend):
         """
         return np.diag([np.exp(1.0j * idx * theta / 2) for idx in [-1, 1, 3]])
 
+
 @HAS_DYNAMICS.require_in_instance
 class ParallelTransmonTestBackend(PulseBackend):
     r"""A backend that corresponds to a three level anharmonic transmon qubit.
