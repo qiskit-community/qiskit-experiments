@@ -308,55 +308,33 @@ def inverse_weighted_variance(
     return out
 
 
+# pylint: disable=unused-argument
 def sample_average(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
     """Compute sample based variance and average of the categorized data frame.
 
     Original variance of the data is ignored and variance is computed with the y values.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average (ignored).
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
-    values = grouped_df.values
+    if len(yvals) == 1:
+        return yvals[0], 0.0, shots[0]
 
-    if len(values) == 1:
-        out = values[0]
-        out[2] = 0  # Because there is only 1 sample
-        out[6] = "fit-ready"
-        return out
+    total_shots = np.sum(shots) if all(shots > 0) else -1
 
-    yval = values[:, 1]
-    shots = values[:, 4]
-    ymean = np.mean(yval)
+    avg_yval = np.mean(yvals)
+    avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))
 
-    out = [
-        # xval
-        xval,
-        # yval
-        ymean,
-        # yerr
-        np.sqrt(np.mean((ymean - yval) ** 2) / yval.size),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
-        else:
-            out.append(extra)
-    return out
+    return avg_yval, avg_yerr, total_shots
 
 
 @deprecate_func(

@@ -33,9 +33,8 @@ from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.framework import AnalysisResult
-from qiskit_experiments.framework import BackendData
+from qiskit_experiments.framework import ExperimentData, AnalysisResult, BackendData, ArtifactData
+
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -46,7 +45,6 @@ from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
 )
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
     """Test the ExperimentData class."""
@@ -1157,8 +1155,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(data.source, "source_data")
 
     def test_metadata_too_large(self):
-        """Tests that ExperimentData can detect when the metadta
-        should be saved as a seperate file"""
+        """Tests that ExperimentData can detect when the metadata
+        should be saved as a separate file"""
         exp_data = ExperimentData()
         metadata_size = 100000
         exp_data.metadata["components"] = [
@@ -1175,3 +1173,15 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual("ibm-q-internal", exp_data.hub)
         self.assertEqual("deployed", exp_data.group)
         self.assertEqual("default", exp_data.project)
+
+    def test_add_delete_artifact(self):
+        """Tests adding and deleting an artifact."""
+        exp_data = ExperimentData()
+        self.assertEqual(exp_data.artifacts(), [])
+        new_artifact = ArtifactData(name="test", data="foo")
+        exp_data.add_artifacts(new_artifact)
+        self.assertEqual(exp_data.artifacts(0), new_artifact)
+        exp_data.delete_artifact(0)
+        self.assertEqual(exp_data.artifacts(), [])
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(0)

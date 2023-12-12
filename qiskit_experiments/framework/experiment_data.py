@@ -167,6 +167,7 @@ class ExperimentData(DataCollection):
     _json_encoder = ExperimentEncoder
     _json_decoder = ExperimentDecoder
 
+    _metadata_filename = "metadata.json"
     _max_workers_cap = 10
 
     def __init__(
@@ -247,6 +248,7 @@ class ExperimentData(DataCollection):
             provider=provider,
             service=service,
         )
+        self.provider = provider
         self._service_frontend.job_ids = job_ids
         self._service = self._service_frontend.service
 
@@ -300,6 +302,7 @@ class ExperimentData(DataCollection):
             experiment_type=experiment_type,
             backend_name=self._service_frontend.backend_name,
             child_data=child_data,
+            metadata=metadata,
             parent_id=parent_id,
         )
 
@@ -360,10 +363,10 @@ class ExperimentData(DataCollection):
 
     @metadata.setter
     def metadata(self, new_metadata: dict):
-        print("setting metadata", new_metadata)
         """Set the metadata to new value; must be a dictionary"""
         if not isinstance(new_metadata, dict):
             raise ValueError("figure metadata must be a dictionary")
+        print("new metadata", new_metadata)
         self._metadata = new_metadata
 
     @property
@@ -460,16 +463,6 @@ class ExperimentData(DataCollection):
         """
         return self._db_data.project
 
-    # @property
-    # def experiment_id(self) -> str:
-    #     """Return experiment ID
-
-    #     Returns:
-    #         Experiment ID.
-    #     """
-
-    #     return self._db_data.experiment_id
-
     @property
     def experiment_type(self) -> str:
         """Return experiment type
@@ -563,11 +556,6 @@ class ExperimentData(DataCollection):
         self._db_data.notes = new_notes
         if self.auto_save:
             self.save_metadata()
-
-    # @property
-    # def backend_name(self) -> str:
-    #     """Return the backend's name"""
-    #     return self._db_data.backend
 
     @property
     def backend(self) -> Backend:
@@ -817,7 +805,6 @@ class ExperimentData(DataCollection):
             TypeError: If the input `index` has an invalid type.
         """
         self._retrieve_data()
-        print("get data", self._result_data[0])
         if index is None:
             return self._result_data.copy()
         if isinstance(index, (int, slice)):
@@ -1108,201 +1095,6 @@ class ExperimentData(DataCollection):
             )
         super().add_data(data)
 
-    # @do_auto_save
-    # def add_figures(
-    #     self,
-    #     figures: Union[_FigureT, List[_FigureT]],
-    #     figure_names: Optional[Union[str, List[str]]] = None,
-    #     overwrite: bool = False,
-    #     save_figure: Optional[bool] = None,
-    # ) -> Union[str, List[str]]:
-    #     """Add the experiment figure.
-    #
-    #     Args:
-    #         figures: Paths of the figure files or figure data.
-    #         figure_names: Names of the figures. If ``None``, use the figure file
-    #             names, if given, or a generated name of the format ``experiment_type``, figure
-    #             index, first 5 elements of ``device_components``, and first 8 digits of the
-    #             experiment ID connected by underscores, such as ``T1_Q0_0123abcd.svg``. If `figures`
-    #             is a list, then `figure_names` must also be a list of the same length or ``None``.
-    #         overwrite: Whether to overwrite the figure if one already exists with
-    #             the same name. By default, overwrite is ``False`` and the figure will be renamed
-    #             with an incrementing numerical suffix. For example, trying to save ``figure.svg`` when
-    #             ``figure.svg`` already exists will save it as ``figure-1.svg``, and trying to save
-    #             ``figure-1.svg`` when ``figure-1.svg`` already exists will save it as ``figure-2.svg``.
-    #         save_figure: Whether to save the figure in the database. If ``None``,
-    #             the ``auto-save`` attribute is used.
-    #
-    #     Returns:
-    #         Figure names in SVG format.
-    #
-    #     Raises:
-    #         ValueError: If an input parameter has an invalid value.
-    #     """
-    #     if figure_names is not None and not isinstance(figure_names, list):
-    #         figure_names = [figure_names]
-    #     if not isinstance(figures, list):
-    #         figures = [figures]
-    #     if figure_names is not None and len(figures) != len(figure_names):
-    #         raise ValueError(
-    #             "The parameter figure_names must be None or a list of "
-    #             "the same size as the parameter figures."
-    #         )
-    #
-    #     added_figs = []
-    #     for idx, figure in enumerate(figures):
-    #         if figure_names is None:
-    #             if isinstance(figure, str):
-    #                 # figure is a filename, so we use it as the name
-    #                 fig_name = figure
-    #             elif not isinstance(figure, FigureData):
-    #                 # Generate a name in the form StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
-    #                 fig_name = (
-    #                     f"{self.experiment_type}_"
-    #                     f'{"_".join(str(i) for i in self.metadata.get("device_components", [])[:5])}_'
-    #                     f"{self.experiment_id[:8]}.svg"
-    #                 )
-    #             else:
-    #                 # Keep the existing figure name if there is one
-    #                 fig_name = figure.name
-    #         else:
-    #             fig_name = figure_names[idx]
-    #         if not fig_name.endswith(".svg"):
-    #             LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
-    #             fig_name += ".svg"
-    #
-    #         existing_figure = fig_name in self._figures
-    #         if existing_figure and not overwrite:
-    #             # Remove any existing suffixes then generate new figure name
-    #             # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg becomes StandardRB_Q0_Q1_Q2_b4f1d8ad
-    #             fig_name_chunked = fig_name.rsplit("-", 1)
-    #             if len(fig_name_chunked) != 1:  # Figure name already has a suffix
-    #                 # This extracts StandardRB_Q0_Q1_Q2_b4f1d8ad as the prefix from
-    #                 # StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
-    #                 fig_name_prefix = fig_name_chunked[0]
-    #                 try:
-    #                     fig_name_suffix = int(fig_name_chunked[1].rsplit(".", 1)[0])
-    #                 except ValueError:  # the suffix is not an int, add our own suffix
-    #                     # my-custom-figure-name will be the prefix of my-custom-figure-name.svg
-    #                     fig_name_prefix = fig_name.rsplit(".", 1)[0]
-    #                     fig_name_suffix = 0
-    #             else:
-    #                 # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg has no hyphens so
-    #                 # StandardRB_Q0_Q1_Q2_b4f1d8ad would be its prefix
-    #                 fig_name_prefix = fig_name.rsplit(".", 1)[0]
-    #                 fig_name_suffix = 0
-    #             fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
-    #             while fig_name in self._figures:  # Increment suffix until the name isn't taken
-    #                 # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists,
-    #                 # StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg will be the name of this figure
-    #                 fig_name_suffix += 1
-    #                 fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
-    #
-    #         # figure_data = None
-    #         if isinstance(figure, str):
-    #             with open(figure, "rb") as file:
-    #                 figure = file.read()
-    #
-    #         # check whether the figure is already wrapped, meaning it came from a sub-experiment
-    #         if isinstance(figure, FigureData):
-    #             figure_data = figure.copy(new_name=fig_name)
-    #             figure = figure_data.figure
-    #
-    #         else:
-    #             figure_metadata = {
-    #                 "qubits": self.metadata.get("physical_qubits"),
-    #                 "device_components": self.metadata.get("device_components"),
-    #                 "experiment_type": self.experiment_type,
-    #             }
-    #             figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
-    #
-    #         self._figures[fig_name] = figure_data
-    #         self._db_data.figure_names.append(fig_name)
-    #
-    #         save = save_figure if save_figure is not None else self.auto_save
-    #         if save and self._service:
-    #             if isinstance(figure, pyplot.Figure):
-    #                 figure = plot_to_svg_bytes(figure)
-    #             self._service.create_or_update_figure(
-    #                 experiment_id=self.experiment_id,
-    #                 figure=figure,
-    #                 figure_name=fig_name,
-    #                 create=not existing_figure,
-    #             )
-    #         added_figs.append(fig_name)
-    #
-    #     return added_figs if len(added_figs) != 1 else added_figs[0]
-
-    # @do_auto_save
-    # def delete_figure(
-    #     self,
-    #     figure_key: Union[str, int],
-    # ) -> str:
-    #     """Add the experiment figure.
-    #
-    #     Args:
-    #         figure_key: Name or index of the figure.
-    #
-    #     Returns:
-    #         Figure name.
-    #
-    #     Raises:
-    #         ExperimentEntryNotFound: If the figure is not found.
-    #     """
-    #     if isinstance(figure_key, int):
-    #         figure_key = self._figures.keys()[figure_key]
-    #     elif figure_key not in self._figures:
-    #         raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
-    #
-    #     del self._figures[figure_key]
-    #     self._deleted_figures.append(figure_key)
-    #
-    #     if self._service and self.auto_save:
-    #         with service_exception_to_warning():
-    #             self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
-    #         self._deleted_figures.remove(figure_key)
-    #
-    #     return figure_key
-
-    # def figure(
-    #     self,
-    #     figure_key: Union[str, int],
-    #     file_name: Optional[str] = None,
-    # ) -> Union[int, FigureData]:
-    #     """Retrieve the specified experiment figure.
-    #
-    #     Args:
-    #         figure_key: Name or index of the figure.
-    #         file_name: Name of the local file to save the figure to. If ``None``,
-    #             the content of the figure is returned instead.
-    #
-    #     Returns:
-    #         The size of the figure if `file_name` is specified. Otherwise the
-    #         content of the figure as a `FigureData` object.
-    #
-    #     Raises:
-    #         ExperimentEntryNotFound: If the figure cannot be found.
-    #     """
-    #     if isinstance(figure_key, int):
-    #         if figure_key < 0 or figure_key >= len(self._figures.keys()):
-    #             raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
-    #         figure_key = self._figures.keys()[figure_key]
-    #
-    #     figure_data = self._figures.get(figure_key, None)
-    #     if figure_data is None and self.service:
-    #         figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
-    #         figure_data = FigureData(figure=figure, name=figure_key)
-    #         self._figures[figure_key] = figure_data
-    #
-    #     if figure_data is None:
-    #         raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
-    #
-    #     if file_name:
-    #         with open(file_name, "wb") as output:
-    #             num_bytes = output.write(figure_data.figure)
-    #             return num_bytes
-    #     return figure_data
-
     @deprecate_arg(
         name="results",
         since="0.6",
@@ -1543,7 +1335,7 @@ class ExperimentData(DataCollection):
             additional tags or notes) use :meth:`save_metadata`.
         """
         # TODO - track changes
-        if not self._service:
+        if not self.service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
                 "An experiment service is available, for example, "
@@ -1647,6 +1439,66 @@ class ExperimentData(DataCollection):
                     save_figures=save_figures,
                 )
                 data.verbose = original_verbose
+
+    def _save_experiment_metadata(self, suppress_errors: bool = True) -> None:
+        """Save this experiments metadata to a database service.
+        Args:
+            suppress_errors: should the method catch exceptions (true) or
+            pass them on, potentially aborting the experiment (false)
+        Raises:
+            QiskitError: If the save to the database failed
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
+            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
+            for fields that are saved.
+        """
+        if not self._service:
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
+            return
+        try:
+            handle_metadata_separately = self._metadata_too_large()
+            if handle_metadata_separately:
+                metadata = self._db_data.metadata
+                self._db_data.metadata = {}
+
+            result = self.service.create_or_update_experiment(
+                self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
+            )
+            if isinstance(result, dict):
+                created_datetime = result.get("created_at", None)
+                updated_datetime = result.get("updated_at", None)
+                self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
+                self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
+
+            self._created_in_db = True
+
+            if handle_metadata_separately:
+                self.service.file_upload(
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
+                )
+                self._db_data.metadata = metadata
+
+        except Exception as ex:  # pylint: disable=broad-except
+            # Don't automatically fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+            if not suppress_errors:
+                raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
+
+    def _metadata_too_large(self):
+        """Determines whether the metadata should be stored in a separate file"""
+        # currently the entire POST JSON request body is limited by default to 100kb
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
+
 
     def cancel_jobs(
         self,
@@ -2040,6 +1892,40 @@ class ExperimentData(DataCollection):
         expdata._set_child_data(child_data)
 
         return expdata
+
+    def _retrieve_analysis_results(self, refresh: bool = False):
+        """Retrieve service analysis results.
+
+        Args:
+            refresh: Retrieve the latest analysis results from the server, if
+                an experiment service is available.
+        """
+        # Get job results if missing experiment data.
+        if self.service and (len(self._analysis_results) == 0 or refresh):
+            retrieved_results = self.service.analysis_results(
+                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
+            )
+            for result in retrieved_results:
+                # Canonicalize IBM specific data structure.
+                # TODO define proper data schema on frontend and delegate this to service.
+                cano_quality = AnalysisResult.RESULT_QUALITY_TO_TEXT.get(result.quality, "unknown")
+                cano_components = [to_component(c) for c in result.device_components]
+                extra = result.result_data["_extra"]
+                if result.chisq is not None:
+                    extra["chisq"] = result.chisq
+                self._analysis_results.add_entry(
+                    name=result.result_type,
+                    value=result.result_data["_value"],
+                    quality=cano_quality,
+                    components=cano_components,
+                    experiment_id=result.experiment_id,
+                    result_id=result.result_id,
+                    tags=result.tags,
+                    backend=result.backend_name,
+                    created_time=result.creation_datetime,
+                    **extra,
+                )
+
 
     def copy(self, copy_results: bool = True) -> "ExperimentData":
         """Make a copy of the experiment data with a new experiment ID.

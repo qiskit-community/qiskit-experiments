@@ -47,15 +47,14 @@ class DataCollection:
         experiment_type: str | None = None,
         backend_name: str | None = None,
         child_data: list["DataCollection"] | None = None,
+        metadata: dict | None = None,
         parent_id: str | None = None,
     ):
         self.experiment_type: str = experiment_type
         self.backend_name: str = backend_name
         self.experiment_id: str = experiment_id or str(uuid.uuid4())
 
-        self.metadata: dict[str, Any] = {
-            "child_data_ids": [],
-        }
+        self.metadata: dict[str, Any] = metadata
 
         # Data storage
         self._result_data: ThreadSafeList = ThreadSafeList()
@@ -111,7 +110,10 @@ class DataCollection:
     ):
         """Format Qiskit Result object into experiment canonical result and save."""
         for i, expr_result in enumerate(data.results):
-            header = expr_result.header
+            if hasattr(expr_result, "header"):
+                header = expr_result.header
+            else:
+                header = {}
             self._result_data.append(
                 CanonicalResult(
                     job_id=data.job_id,
@@ -124,6 +126,8 @@ class DataCollection:
                     **data.data(i),
                 )
             )
+
+
 
     def data(
         self,
@@ -146,8 +150,6 @@ class DataCollection:
         Raises:
             TypeError: If the input `index` has an invalid type.
         """
-        # self._retrieve_data()
-        print("get data", self._result_data[0])
         if index is None:
             return self._result_data.copy()
         if isinstance(index, (int, slice)):
@@ -340,7 +342,7 @@ class DataCollection:
 
         for artifact in artifacts:
             self._artifacts[artifact.artifact_id] = artifact
-
+        
     def delete_artifact(
         self,
         artifact_key: int | str,
@@ -364,8 +366,7 @@ class DataCollection:
 
     def artifacts(
         self,
-        name: str,
-        artifact_key: int | str,
+        artifact_key: int | str = None,
     ) -> ArtifactData | list[ArtifactData]:
         """Return specified artifact data.
 
@@ -375,6 +376,9 @@ class DataCollection:
         Returns:
             A list of specified artifact data.
         """
+        if artifact_key is None:
+            return self._artifacts.values()
+        
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         out = []

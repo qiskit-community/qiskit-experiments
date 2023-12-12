@@ -30,7 +30,6 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit.providers import Provider, Backend, Job
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.framework import AnalysisResultTable, AnalysisResult
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.exceptions import ExperimentDataError
 from qiskit_experiments.database_service.device_component import to_component, DeviceComponent
