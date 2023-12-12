@@ -182,12 +182,13 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         Raises:
             AttributeError: If the field passed in is not a supported options
         """
-        for field in {"two_qubit_layers"}:
-            if (
-                hasattr(self._experiment_options, field)
-                and self._experiment_options[field] is not None
-            ):
-                raise AttributeError(f"Options field {field} is not allowed to update.")
+        for field in fields:
+            if field in {"two_qubit_layers"}:
+                if (
+                    hasattr(self._experiment_options, field)
+                    and self._experiment_options[field] is not None
+                ):
+                    raise AttributeError(f"Options field {field} is not allowed to update.")
         super().set_experiment_options(**fields)
 
     @classmethod
@@ -436,7 +437,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 inst_prop = self.backend.target[op_name].get(qargs, None)
                 if inst_prop is None:
                     continue
-                schedule = inst_prop.calibration
+                try:
+                    schedule = inst_prop.calibration
+                except Exception:  # for backends that provide an invalid schedule
+                    continue
                 if schedule is None:
                     continue
                 publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
