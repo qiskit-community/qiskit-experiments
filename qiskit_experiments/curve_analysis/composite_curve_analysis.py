@@ -230,17 +230,18 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """
         for analysis in self.analyses():
             sub_data = curve_data[curve_data.model_name.str.endswith(f"_{analysis.name}")]
-            for model_name, data in list(sub_data.groupby("model_name")):
+            for model_id, data in list(sub_data.groupby("model_id")):
+                model_name = analysis._models[model_id]._name
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
-                    raw_data = data[data.format == "raw"]
+                    raw_data = data.filter(like="processed", axis="index")
                     self.plotter.set_series_data(
                         series_name=model_name,
                         x=raw_data.xval.to_numpy(),
                         y=raw_data.yval.to_numpy(),
                     )
                 # Plot formatted data scatters
-                formatted_data = data[data.format == "fit-ready"]
+                formatted_data = data.filter(like="formatted", axis="index")
                 self.plotter.set_series_data(
                     series_name=model_name,
                     x_formatted=formatted_data.xval.to_numpy(),
@@ -248,7 +249,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     y_formatted_err=formatted_data.yerr.to_numpy(),
                 )
                 # Plot fit lines
-                line_data = data[data.format == "fit"]
+                line_data = data.filter(like="fitted", axis="index")
                 if len(line_data) == 0:
                     continue
                 fit_stdev = line_data.yerr.to_numpy()
@@ -330,6 +331,16 @@ class CompositeCurveAnalysis(BaseAnalysis):
         experiment_data: ExperimentData,
     ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
         result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
+
         figures: List["pyplot.Figure"] = []
 
         fit_dataset = {}
@@ -362,6 +373,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
         total_quality = self._evaluate_quality(fit_dataset)
 
+        # After the quality is determined, plot can become a boolean flag for whether
+        # to generate the figure
+        plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
+
         # Create analysis results by combining all fit data
         if all(fit_data.success for fit_data in fit_dataset.values()):
             composite_results = self._create_analysis_results(
@@ -371,7 +386,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         else:
             composite_results = []
 
-        if self.options.plot:
+        if plot_bool:
             self.plotter.set_supplementary_data(
                 fit_red_chi={k: v.reduced_chisq for k, v in fit_dataset.items() if v.success},
                 primary_results=composite_results,

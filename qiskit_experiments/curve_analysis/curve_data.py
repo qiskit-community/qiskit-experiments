@@ -114,7 +114,7 @@ class CurveData:
 
     @deprecate_func(
         since="0.6",
-        additional_msg="CurveData is replaced with 'ScatterTable' with dataframe representation.",
+        additional_msg="CurveData is replaced by `ScatterTable`'s dataframe representation.",
         removal_timeline="after 0.7",
         package_name="qiskit-experiments",
     )

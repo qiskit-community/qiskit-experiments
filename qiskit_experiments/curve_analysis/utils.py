@@ -225,55 +225,36 @@ def eval_with_uncertainties(
 
 
 def shot_weighted_average(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, float]:
     """Compute shot based variance and weighted average of the categorized data frame.
 
     Sample is weighted by the shot number.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
-    values = grouped_df.values
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
 
-    if len(values) == 1:
-        out = values[0]
-        out[6] = "fit-ready"
-        return out
+    if np.any(shots < -1):
+        # Shot number is unknown
+        return np.mean(yvals), np.nan, -1
 
-    yval = values[:, 1]
-    yerr = values[:, 2]
-    shots = values[:, 5]
-    weights = shots / np.sum(shots)
+    total_shots = np.sum(shots)
+    weights = shots / total_shots
 
-    out = [
-        # xval
-        xval,
-        # yval
-        np.sum(weights * yval),
-        # yerr
-        np.sqrt(np.sum(weights**2 * yerr**2)),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
-        else:
-            out.append(extra)
-    return out
+    avg_yval = np.sum(weights * yvals)
+    avg_yerr = np.sqrt(np.sum(weights**2 * yerrs**2))
 
+    return avg_yval, avg_yerr, total_shots
 
 def inverse_weighted_variance(
     group: Tuple[Tuple[str, float], pd.DataFrame],
@@ -413,7 +394,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
@@ -539,7 +520,7 @@ def mean_xy_data(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
@@ -603,7 +584,7 @@ def multi_mean_xy_data(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )

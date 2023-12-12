@@ -18,6 +18,8 @@ import warnings
 
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
+from itertools import groupby
+from operator import itemgetter
 
 import lmfit
 import numpy as np
@@ -238,20 +240,41 @@ class CurveAnalysis(BaseCurveAnalysis):
             "sample": sample_average,
         }
 
-        # Data is automatically sorted by dataframe groupby operation
-        grouped_by_model = curve_data.groupby(["model_name", "xval"], as_index=False)
-
-        # Conventional approach to average over the grouped dataframe is
-        # to use .apply method with a callback, but this operation just internally
-        # run python loop for each grouped dataframe, and thus not performant.
-        # This directly manipulates the dataframe values and roughly 4x faster.
-        averaged = map(
-            averaging_methods[self.options.average_method],
-            list(grouped_by_model),
+        columns = list(curve_data.columns)
+        sort_by = itemgetter(
+            columns.index("model_id"),
+            columns.index("xval"),
         )
+        # Use python native groupby method on ndarray. This is more performant than pandas one.
+        average = averaging_methods[self.options.average_method]
+        print(average)
+        formatted = []
+        for (mid, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
+            g_values = np.array(list(g))
+            g_dict = dict(zip(columns, g_values.T))
+            avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
+            averaged = dict.fromkeys(columns)
+            averaged["xval"] = xv
+            averaged["yval"] = avg_yval
+            averaged["yerr"] = avg_yerr
+            averaged["model_id"] = mid
+            averaged["shots"] = shots
+            for k, v in g_dict.items():
+                if averaged[k] is not None:
+                    continue
+                if len(g_values) == 1:
+                    averaged[k] = v[0]
+                else:
+                    unique = set(v)
+                    if len(unique) == 1:
+                        averaged[k] = next(iter(unique))
+                    else:
+                        averaged[k] = list(unique)
+            formatted.append(list(averaged.values()))
+
         return curve_data.append_list_values(
-            other=list(averaged),
-            prefix="fit-ready",
+            other=formatted,
+            prefix="formatted",
         )
 
     def _generate_fit_guesses(
@@ -399,17 +422,18 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for model_name, data in list(curve_data.groupby("model_name")):
+        for model_id, data in list(curve_data.groupby("model_id")):
+            model_name = self._models[model_id]._name
             # Plot raw data scatters
             if self.options.plot_raw_data:
-                raw_data = data[data.format == "raw"]
+                raw_data = data.filter(like="processed", axis="index")
                 self.plotter.set_series_data(
                     series_name=model_name,
                     x=raw_data.xval.to_numpy(),
                     y=raw_data.yval.to_numpy(),
                 )
             # Plot formatted data scatters
-            formatted_data = data[data.format == "fit-ready"]
+            formatted_data = data.filter(like="formatted", axis="index")
             self.plotter.set_series_data(
                 series_name=model_name,
                 x_formatted=formatted_data.xval.to_numpy(),
@@ -417,7 +441,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 y_formatted_err=formatted_data.yerr.to_numpy(),
             )
             # Plot fit lines
-            line_data = data[data.format == "fit"]
+            line_data = data.filter(like="fitted", axis="index")
             if len(line_data) == 0:
                 continue
             self.plotter.set_series_data(
@@ -439,18 +463,32 @@ class CurveAnalysis(BaseCurveAnalysis):
         experiment_data: ExperimentData,
     ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
         result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        
         figures: List["pyplot.Figure"] = []
+
+        # Flag for plotting can be "always", "never", or "selective"
+        # the analysis option overrides self._generate_figures if set
+        if self.options.get("plot", None):
+            plot = "always"
+        elif self.options.get("plot", None) is False:
+            plot = "never"
+        else:
+            plot = getattr(self, "_generate_figures", "always")
 
         # Prepare for fitting
         self._initialize(experiment_data)
 
         curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
-        fit_data = self._run_curve_fit(curve_data[curve_data.format == "fit-ready"])
+        fit_data = self._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
         else:
             quality = "bad"
+
+        # After the quality is determined, plot can become a boolean flag for whether
+        # to generate the figure
+        plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
         if self.options.return_fit_parameters:
             # Store fit status overview entry regardless of success.
@@ -472,38 +510,33 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             fit_curves = []
-            formatted = curve_data[curve_data.format == "fit-ready"]
-            for (i, name), sub_data in list(formatted.groupby(["model_id", "model_name"])):
+            formatted = curve_data.filter(like="formatted", axis="index")
+            columns = list(curve_data.columns)
+            for i, sub_data in list(formatted.groupby("model_id")):
+                name = self._models[i]._name
                 xval = sub_data.xval.to_numpy()
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
                     # This is the case when fit model exist but no data to fit is provided.
                     continue
                 # Compute X, Y values with fit parameters.
-                xval_fit = np.linspace(np.min(xval), np.max(xval), num=100)
+                xval_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
                 yval_fit = eval_with_uncertainties(
                     x=xval_fit,
                     model=self._models[i],
                     params=fit_data.ufloat_params,
                 )
-                model_fit = np.full((100, len(curve_data.columns)), None, dtype=object)
+                model_fit = np.full((100, len(columns)), None, dtype=object)
                 fit_curves.append(model_fit)
-                # xval
-                model_fit[:, 0] = xval_fit
-                # yval
-                model_fit[:, 1] = unp.nominal_values(yval_fit)
-                # yerr
+                model_fit[:, columns.index("xval")] = xval_fit
+                model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
                 if fit_data.covar is not None:
-                    model_fit[:, 2] = unp.std_devs(yval_fit)
-                # model_name
-                model_fit[:, 3] = name
-                # model_id
-                model_fit[:, 4] = i
-                # type
-                model_fit[:, 6] = "fit"
+                    model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
+                model_fit[:, columns.index("model_name")] = name
+                model_fit[:, columns.index("model_id")] = i
             curve_data = curve_data.append_list_values(
                 other=np.vstack(fit_curves),
-                prefix="fit",
+                prefix="fitted",
             )
             result_data.extend(
                 self._create_analysis_results(
@@ -540,7 +573,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
         )
 
-        if self.options.plot:
+        if plot_bool:
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,

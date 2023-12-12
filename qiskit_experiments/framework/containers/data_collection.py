@@ -52,6 +52,7 @@ class DataCollection:
         self.experiment_type: str = experiment_type
         self.backend_name: str = backend_name
         self.experiment_id: str = experiment_id or str(uuid.uuid4())
+
         self.metadata: dict[str, Any] = {
             "child_data_ids": [],
         }
@@ -109,9 +110,8 @@ class DataCollection:
         data: Result,
     ):
         """Format Qiskit Result object into experiment canonical result and save."""
-        for i in range(len(data.results)):
-            expr_result = data.results[i]
-            header = data.header
+        for i, expr_result in enumerate(data.results):
+            header = expr_result.header
             self._result_data.append(
                 CanonicalResult(
                     job_id=data.job_id,
@@ -147,6 +147,7 @@ class DataCollection:
             TypeError: If the input `index` has an invalid type.
         """
         # self._retrieve_data()
+        print("get data", self._result_data[0])
         if index is None:
             return self._result_data.copy()
         if isinstance(index, (int, slice)):
@@ -329,7 +330,7 @@ class DataCollection:
         self,
         artifacts: ArtifactData | list[ArtifactData],
     ):
-        """Add artifacts of experiment.
+        """Add artifacts of experiment. The name must be unique.
 
         Args:
             artifacts: Artifact data to be added.
@@ -363,6 +364,7 @@ class DataCollection:
 
     def artifacts(
         self,
+        name: str,
         artifact_key: int | str,
     ) -> ArtifactData | list[ArtifactData]:
         """Return specified artifact data.

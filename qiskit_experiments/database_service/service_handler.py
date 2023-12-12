@@ -61,6 +61,20 @@ def parse_utc_datetime(dt_str: str | None) -> datetime | None:
 
 
 class ExperimentServiceFrontend:
+    """Frontend class for working with the experiment service.
+
+    Raises:
+        QiskitError: _description_
+        ExperimentDataError: _description_
+        ExperimentDataError: _description_
+        QiskitError: _description_
+
+    Returns:
+        _type_: _description_
+
+    Yields:
+        _type_: _description_
+    """
 
     valid_uid_regex = re.compile(r"\A(?P<short_id>\w{8})-\w{4}-\w{4}-\w{4}-\w{12}\Z")
 
