@@ -162,9 +162,12 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         """
         try:
             return super()._run_analysis(experiment_data)
-        except Exception:
+        except:  # pylint: disable=broad-except
             LOG.error(
-                f"{self.__class__.__name__}({self._physical_qubits}) failed: {traceback.format_exc()}"
+                "%s(%s) failed: %s",
+                self.__class__.__name__,
+                str(self._physical_qubits),
+                traceback.format_exc(),
             )
             failed_result = AnalysisResultData(
                 name="ProcessFidelity",
@@ -220,8 +223,8 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             # Return combined results
             analysis_results = [slf_result] + analysis_results
             return analysis_results, figures
-        except Exception:
-            LOG.error(f"{self.__class__.__name__} failed: {traceback.format_exc()}")
+        except:  # pylint: disable=broad-except
+            LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_result = AnalysisResultData(
                 name="SingleLF",
                 value=None,
@@ -282,8 +285,8 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # Return combined results
             analysis_results = [lf_result, eplg_result] + analysis_results
             return analysis_results, figures
-        except Exception:
-            LOG.error(f"{self.__class__.__name__} failed: {traceback.format_exc()}")
+        except:  # pylint: disable=broad-except
+            LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_results = [
                 AnalysisResultData(
                     name="LF",

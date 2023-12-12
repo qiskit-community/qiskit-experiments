@@ -76,7 +76,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        # full_sampling: Optional[bool] = False, TODO: can we always do full_sampling and remove the option?
+        # full_sampling: Optional[bool] = True, TODO: can we remove this option?
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
         replicate_in_parallel: bool = True,
@@ -92,9 +92,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:`circuits` is called.
-            two_qubit_gate: Two-qubit gate name (e.g. "cx", "cz", "ecr") of which the two qubit layers consist.
+            two_qubit_gate: Two-qubit gate name (e.g. "cx", "cz", "ecr")
+                            of which the two qubit layers consist.
             one_qubit_basis_gates: One-qubit gates to use for implementing 1q Clifford operations.
-            replicate_in_parallel: Use a common 1Q/2Q direct RB sequence for all quibit pairs in a layer or not.
+            replicate_in_parallel: Use a common 1Q/2Q direct RB sequence
+                                   for all quibit pairs in a layer or not.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -154,9 +156,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
-            two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr") of which the two qubit layers consist.
-            one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Clifford operations.
-            replicate_in_parallel (bool): Use a common 1Q/2Q direct RB sequence for all quibit pairs in a layer or not.
+            two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr")
+                of which the two qubit layers consist.
+            one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
+            replicate_in_parallel (bool): Use a common 1Q/2Q direct RB sequence
+                for all quibit pairs in a layer or not.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
                 for building circuits of RB sequences.
         """
@@ -439,7 +443,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     continue
                 try:
                     schedule = inst_prop.calibration
-                except Exception:  # for backends that provide an invalid schedule
+                except:  # TODO remove after qiskit #11397
                     continue
                 if schedule is None:
                     continue
