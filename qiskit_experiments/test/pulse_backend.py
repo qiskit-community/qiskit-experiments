@@ -34,11 +34,17 @@ from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
+from qiskit.utils.deprecation import deprecate_arg
 
 from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
+
+if HAS_DYNAMICS._is_available():
+    from qiskit_dynamics import Solver
+    from qiskit_dynamics.models import LindbladModel
+    from qiskit_dynamics.pulse import InstructionToSignals
 
 
 @HAS_DYNAMICS.require_in_instance
@@ -64,11 +70,30 @@ class PulseBackend(BackendV2):
         experiment without having to run on hardware.
     """
 
+    @deprecate_arg(
+        name="static_hamiltonian",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="hamiltonian_operators",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="static_dissipators",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
     def __init__(
         self,
-        static_hamiltonian: np.ndarray,
-        hamiltonian_operators: np.ndarray,
+        static_hamiltonian: Optional[np.ndarray] = None,
+        hamiltonian_operators: Optional[np.ndarray] = None,
         static_dissipators: Optional[np.ndarray] = None,
+        solver: Optional[Solver] = None,
         dt: float = 0.1 * 1e-9,
         solver_method="RK23",
         seed: int = 0,
@@ -90,8 +115,6 @@ class PulseBackend(BackendV2):
             atol: Absolute tolerance during solving.
             rtol: Relative tolerance during solving.
         """
-        from qiskit_dynamics import Solver
-
         super().__init__(
             None,
             name="PulseBackendV2",
@@ -100,7 +123,7 @@ class PulseBackend(BackendV2):
             backend_version="0.0.1",
         )
 
-        # subclasses must implements default pulse schedules
+        # subclasses must implement default pulse schedules
         self._defaults = None
 
         self._target = Target(dt=dt, granularity=16)
@@ -119,25 +142,28 @@ class PulseBackend(BackendV2):
         if rtol:
             self.solve_kwargs["rtol"] = rtol
 
-        self.static_hamiltonian = static_hamiltonian
-        self.hamiltonian_operators = hamiltonian_operators
-        self.static_dissipators = static_dissipators
-        self.solver = Solver(
-            static_hamiltonian=self.static_hamiltonian,
-            hamiltonian_operators=self.hamiltonian_operators,
-            static_dissipators=self.static_dissipators,
-            **kwargs,
-        )
+        if static_hamiltonian is not None and hamiltonian_operators is not None:
+            # TODO deprecate soon
+            solver = Solver(
+                static_hamiltonian=static_hamiltonian,
+                hamiltonian_operators=hamiltonian_operators,
+                static_dissipators=static_dissipators,
+                **kwargs,
+            )
+        self._static_hamiltonian = static_hamiltonian
+        self._hamiltonian_operators = hamiltonian_operators
+        self._static_dissipators = static_dissipators
+        self.solver = solver
 
         self.model_dim = self.solver.model.dim
         self.subsystem_dims = (self.model_dim,)
 
-        if self.static_dissipators is None:
-            self.y_0 = np.eye(self.model_dim)
-            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim - 1))
-        else:
+        if isinstance(self.solver.model, LindbladModel):
             self.y_0 = np.eye(self.model_dim**2)
             self.ground_state = np.array([1.0] + [0.0] * (self.model_dim**2 - 1))
+        else:
+            self.y_0 = np.eye(self.model_dim)
+            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim - 1))
 
         self._simulated_pulse_unitaries = {}
 
@@ -346,7 +372,7 @@ class PulseBackend(BackendV2):
             QiskitError: If unsuported measurement options are provided.
         """
         memory_data = None
-        if self.static_dissipators is not None:
+        if self._static_dissipators is not None:
             state = state.reshape(self.model_dim, self.model_dim)
             state = DensityMatrix(state / np.trace(state), self.subsystem_dims)
         else:
@@ -513,19 +539,51 @@ class SingleTransmonTestBackend(PulseBackend):
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
 
+    @deprecate_arg(
+        name="qubit_frequency",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="anharmonicity",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="lambda_1",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="lambda_2",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="gamma_1",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
     def __init__(
         self,
-        qubit_frequency: float = 5e9,
-        anharmonicity: float = -0.25e9,
-        lambda_1: float = 1e9,
-        lambda_2: float = 0.8e9,
-        gamma_1: float = 1e4,
+        qubit_frequency: Optional[float] = None,
+        anharmonicity: Optional[float] = None,
+        lambda_1: Optional[float] = None,
+        lambda_2: Optional[float] = None,
+        gamma_1: Optional[float] = None,
         noise: bool = True,
         atol: float = None,
         rtol: float = None,
         **kwargs,
     ):
-        """Initialise backend with hamiltonian parameters
+        """Initialise backend with hamiltonian parameters. Either all of qubit_frequency, anharmonicity
+        lambda_1, lambda_2 and gamma_1 must be specified or None of them. If any of the hamiltonian
+        parameters are not provided, default values will be used.
 
         Args:
             qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.
@@ -538,9 +596,17 @@ class SingleTransmonTestBackend(PulseBackend):
             atol: Absolute tolerance during solving.
             rtol: Relative tolerance during solving.
         """
-        from qiskit_dynamics.pulse import InstructionToSignals
+        if anharmonicity is None:
+            self.anharmonicity = 0.25e9
+        if qubit_frequency is None:
+            qubit_frequency = 5e9
+        if lambda_1 is None and lambda_2 is None:
+            lambda_1 = 1e9
+            lambda_2 = 0.8e9
+        if gamma_1 is None:
+            gamma_1 = 1e4
 
-        qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
+        qubit_frequency_02 = 2 * qubit_frequency + self.anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
         ket1 = np.array([[0, 1, 0]]).T
         ket2 = np.array([[0, 0, 1]]).T
@@ -561,7 +627,6 @@ class SingleTransmonTestBackend(PulseBackend):
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
 
-        self.anharmonicity = anharmonicity
         self.rabi_rate_01 = [8.589]
         self.rabi_rate_12 = [6.876]
 
@@ -573,16 +638,18 @@ class SingleTransmonTestBackend(PulseBackend):
             static_dissipators = None
 
         super().__init__(
-            static_hamiltonian=drift,
-            hamiltonian_operators=control,
-            static_dissipators=static_dissipators,
-            rotating_frame=r_frame,
-            rwa_cutoff_freq=1.9 * qubit_frequency,
-            rwa_carrier_freqs=[qubit_frequency],
-            evaluation_mode=evaluation_mode,
+            solver=Solver(
+                static_hamiltonian=drift,
+                hamiltonian_operators=control,
+                static_dissipators=static_dissipators,
+                rotating_frame=r_frame,
+                rwa_cutoff_freq=1.9 * qubit_frequency,
+                rwa_carrier_freqs=[qubit_frequency],
+                evaluation_mode=evaluation_mode,
+                **kwargs,
+            ),
             atol=atol,
             rtol=rtol,
-            **kwargs,
         )
 
         self._discriminator = [DefaultDiscriminator()]
@@ -653,7 +720,7 @@ class SingleTransmonTestBackend(PulseBackend):
 
 @HAS_DYNAMICS.require_in_instance
 class ParallelTransmonTestBackend(PulseBackend):
-    r"""A backend that corresponds to a three level anharmonic transmon qubit.
+    r"""A decoupled two qubit backend. Models three-level anharmonic transmon qubits.
 
     The Hamiltonian of the system is
 
@@ -667,17 +734,51 @@ class ParallelTransmonTestBackend(PulseBackend):
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
 
+    @deprecate_arg(
+        name="qubit_frequency",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="anharmonicity",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="lambda_1",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="lambda_2",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
+    @deprecate_arg(
+        name="gamma_1",
+        since="0.6",
+        package_name="qiskit-experiments",
+        pending=True,
+    )
     def __init__(
         self,
-        qubit_frequency: float = 5e9,
-        anharmonicity: float = -0.25e9,
-        lambda_1: float = 1e9,
-        lambda_2: float = 0.8e9,
-        gamma_1: float = 1e4,
+        qubit_frequency: Optional[float] = None,
+        anharmonicity: Optional[float] = None,
+        lambda_1: Optional[float] = None,
+        lambda_2: Optional[float] = None,
+        gamma_1: Optional[float] = None,
         noise: bool = True,
+        atol: float = None,
+        rtol: float = None,
         **kwargs,
     ):
-        """Initialise backend with hamiltonian parameters
+        """Initialise backend with hamiltonian parameters. Either all of qubit_frequency, anharmonicity
+        lambda_1, lambda_2 and gamma_1 must be specified or None of them. If any of the hamiltonian
+        parameters are not provided, default values will be used.
 
         Args:
             qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.
@@ -687,8 +788,18 @@ class ParallelTransmonTestBackend(PulseBackend):
             gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.
             noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
                 The strength is given by ``gamma_1``.
+            atol: Absolute tolerance during solving.
+            rtol: Relative tolerance during solving.
         """
-        from qiskit_dynamics.pulse import InstructionToSignals
+        if anharmonicity is None:
+            self.anharmonicity = [anharmonicity, anharmonicity]
+
+        if not all([qubit_frequency, lambda_1, lambda_2, gamma_1]):
+            qubit_frequency = 5e9
+            anharmonicity = -0.25e9
+            lambda_1 = 1e9
+            lambda_2 = 0.8e9
+            gamma_1 = 1e4
 
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
@@ -720,7 +831,6 @@ class ParallelTransmonTestBackend(PulseBackend):
         t1_dissipator0 = np.sqrt(gamma_1) * np.kron(ident, sigma_m1)
         t1_dissipator1 = np.sqrt(gamma_1) * np.kron(sigma_m1, ident)
 
-        self.anharmonicity = [anharmonicity, anharmonicity]
         self.rabi_rate_01 = [8.589, 8.589]
         self.rabi_rate_12 = [6.876, 6.876]
 
@@ -732,14 +842,18 @@ class ParallelTransmonTestBackend(PulseBackend):
             static_dissipators = None
 
         super().__init__(
-            static_hamiltonian=drift_2q,
-            hamiltonian_operators=control_2q,
-            static_dissipators=static_dissipators,
-            rotating_frame=r_frame_2q,
-            rwa_cutoff_freq=1.9 * qubit_frequency,
-            rwa_carrier_freqs=[qubit_frequency, qubit_frequency],
-            evaluation_mode=evaluation_mode,
-            **kwargs,
+            solver=Solver(
+                static_hamiltonian=drift_2q,
+                hamiltonian_operators=control_2q,
+                static_dissipators=static_dissipators,
+                rotating_frame=r_frame_2q,
+                rwa_cutoff_freq=1.9 * qubit_frequency,
+                rwa_carrier_freqs=[qubit_frequency, qubit_frequency],
+                evaluation_mode=evaluation_mode,
+                **kwargs,
+            ),
+            atol=atol,
+            rtol=rtol,
         )
 
         self._discriminator = [DefaultDiscriminator(), DefaultDiscriminator()]
