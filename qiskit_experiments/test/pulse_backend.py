@@ -24,12 +24,10 @@ from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate, CXGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, QubitProperties
-from qiskit.providers.models import PulseDefaults
-from qiskit.providers.models.pulsedefaults import Command
 from qiskit.providers.options import Options
+from qiskit import pulse
 from qiskit.pulse import Schedule, ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
-from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
@@ -227,29 +225,14 @@ class PulseBackend(BackendV2):
         self._simulated_pulse_unitaries = unitaries
 
     @staticmethod
-    def pulse_command(qubit: int, name: str, amp: complex):
+    def pulse_command(qubit: int, amp: float, beta: float):
         """Utility function to create pulse instructions"""
-        return Command.from_dict(
-            {
-                "name": name,
-                "qubits": [qubit],
-                "sequence": [
-                    PulseQobjInstruction(
-                        name="parametric_pulse",
-                        t0=0,
-                        ch=f"d{qubit}",
-                        label=f"Xp_d{qubit}",
-                        pulse_shape="drag",
-                        parameters={
-                            "amp": amp,
-                            "beta": 5,
-                            "duration": 160,
-                            "sigma": 40,
-                        },
-                    ).to_dict()
-                ],
-            }
-        ).to_dict()
+        with pulse.build() as pulse_gate:
+            pulse.play(
+                pulse.library.Drag(duration=160, amp=amp, sigma=40, beta=beta, name=f"Xp_d{qubit}"),
+                pulse.DriveChannel(qubit),
+            )
+        return pulse_gate
 
     @staticmethod
     def _get_info(
@@ -581,8 +564,7 @@ class SingleTransmonTestBackend(PulseBackend):
         rtol: float = None,
         **kwargs,
     ):
-        """Initialise backend with hamiltonian parameters. Either all of qubit_frequency, anharmonicity
-        lambda_1, lambda_2 and gamma_1 must be specified or None of them. If any of the hamiltonian
+        """Initialise backend with hamiltonian parameters. If any of the hamiltonian
         parameters are not provided, default values will be used.
 
         Args:
@@ -598,6 +580,8 @@ class SingleTransmonTestBackend(PulseBackend):
         """
         if anharmonicity is None:
             self.anharmonicity = 0.25e9
+        else:
+            self.anharmonicity = anharmonicity
         if qubit_frequency is None:
             qubit_frequency = 5e9
         if lambda_1 is None and lambda_2 is None:
@@ -646,26 +630,14 @@ class SingleTransmonTestBackend(PulseBackend):
                 rwa_cutoff_freq=1.9 * qubit_frequency,
                 rwa_carrier_freqs=[qubit_frequency],
                 evaluation_mode=evaluation_mode,
-                **kwargs,
             ),
             atol=atol,
             rtol=rtol,
+            **kwargs,
         )
 
         self._discriminator = [DefaultDiscriminator()]
 
-        self._defaults = PulseDefaults.from_dict(
-            {
-                "qubit_freq_est": [qubit_frequency / 1e9],
-                "meas_freq_est": [0],
-                "buffer": 0,
-                "pulse_library": [],
-                "cmd_def": [
-                    self.pulse_command(name="x", qubit=0, amp=(0.5 + 0j) / self.rabi_rate_01[0]),
-                    self.pulse_command(name="sx", qubit=0, amp=(0.25 + 0j) / self.rabi_rate_01[0]),
-                ],
-            }
-        )
         self._qubit_properties = [
             QubitProperties(frequency=qubit_frequency),
         ]
@@ -677,13 +649,21 @@ class SingleTransmonTestBackend(PulseBackend):
         )
 
         measure_props = {
-            (0,): InstructionProperties(duration=0, error=0),
+            (0,): InstructionProperties(),
         }
         x_props = {
-            (0,): InstructionProperties(duration=160e-10, error=0),
+            (0,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=0, amp=0.5 / self.rabi_rate_01[0], beta=4),
+            ),
         }
         sx_props = {
-            (0,): InstructionProperties(duration=160e-10, error=0),
+            (0,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=0, amp=0.25 / self.rabi_rate_01[0], beta=4),
+            ),
         }
         rz_props = {
             (0,): InstructionProperties(duration=0.0, error=0),
@@ -697,8 +677,8 @@ class SingleTransmonTestBackend(PulseBackend):
         self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 
         default_schedules = [
-            self._defaults.instruction_schedule_map.get("x", (0,)),
-            self._defaults.instruction_schedule_map.get("sx", (0,)),
+            self.instruction_schedule_map.get("x", (0,)),
+            self.instruction_schedule_map.get("sx", (0,)),
         ]
         self._simulated_pulse_unitaries = {
             (schedule.name, (0,), ()): self.solve(schedule) for schedule in default_schedules
@@ -792,13 +772,16 @@ class ParallelTransmonTestBackend(PulseBackend):
             rtol: Relative tolerance during solving.
         """
         if anharmonicity is None:
+            self.anharmonicity = [0.25e9, 0.25e9]
+        else:
             self.anharmonicity = [anharmonicity, anharmonicity]
 
-        if not all([qubit_frequency, lambda_1, lambda_2, gamma_1]):
+        if qubit_frequency is None:
             qubit_frequency = 5e9
-            anharmonicity = -0.25e9
+        if lambda_1 is None and lambda_2 is None:
             lambda_1 = 1e9
             lambda_2 = 0.8e9
+        if gamma_1 is None:
             gamma_1 = 1e4
 
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
@@ -850,8 +833,8 @@ class ParallelTransmonTestBackend(PulseBackend):
                 rwa_cutoff_freq=1.9 * qubit_frequency,
                 rwa_carrier_freqs=[qubit_frequency, qubit_frequency],
                 evaluation_mode=evaluation_mode,
-                **kwargs,
             ),
+            **kwargs,
             atol=atol,
             rtol=rtol,
         )
@@ -859,21 +842,6 @@ class ParallelTransmonTestBackend(PulseBackend):
         self._discriminator = [DefaultDiscriminator(), DefaultDiscriminator()]
 
         self.subsystem_dims = (3, 3)
-
-        self._defaults = PulseDefaults.from_dict(
-            {
-                "qubit_freq_est": [qubit_frequency / 1e9] * 2,
-                "meas_freq_est": [0] * 2,
-                "buffer": 0,
-                "pulse_library": [],
-                "cmd_def": [
-                    self.pulse_command(name="x", qubit=0, amp=(0.5 + 0j) / self.rabi_rate_01[0]),
-                    self.pulse_command(name="sx", qubit=0, amp=(0.25 + 0j) / self.rabi_rate_01[0]),
-                    self.pulse_command(name="x", qubit=1, amp=(0.5 + 0j) / self.rabi_rate_01[1]),
-                    self.pulse_command(name="sx", qubit=1, amp=(0.25 + 0j) / self.rabi_rate_01[1]),
-                ],
-            }
-        )
 
         self._target = Target(
             num_qubits=2,
@@ -885,26 +853,43 @@ class ParallelTransmonTestBackend(PulseBackend):
             granularity=16,
         )
 
-        measure_props = {
-            (0,): InstructionProperties(duration=0, error=0),
-            (1,): InstructionProperties(duration=0, error=0),
-        }
         x_props = {
-            (0,): InstructionProperties(duration=160e-10, error=0),
-            (1,): InstructionProperties(duration=160e-10, error=0),
+            (0,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=0, amp=0.5 / self.rabi_rate_01[0], beta=4),
+            ),
+            (1,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=1, amp=0.5 / self.rabi_rate_01[1], beta=4),
+            ),
         }
         sx_props = {
-            (0,): InstructionProperties(duration=160e-10, error=0),
-            (1,): InstructionProperties(duration=160e-10, error=0),
+            (0,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=0, amp=0.25 / self.rabi_rate_01[0], beta=4),
+            ),
+            (1,): InstructionProperties(
+                duration=160e-10,
+                error=0,
+                calibration=self.pulse_command(qubit=1, amp=0.25 / self.rabi_rate_01[1], beta=4),
+            ),
         }
         rz_props = {
             (0,): InstructionProperties(duration=0.0, error=0),
             (1,): InstructionProperties(duration=0.0, error=0),
         }
+        measure_props = {
+            (0,): InstructionProperties(),
+            (1,): InstructionProperties(),
+        }
         cx_props = {
             (0, 1): InstructionProperties(duration=0, error=0),
             (1, 0): InstructionProperties(duration=0, error=0),
         }
+
         self._phi = Parameter("phi")
         self._target.add_instruction(Measure(), measure_props)
         self._target.add_instruction(XGate(), x_props)
@@ -919,10 +904,10 @@ class ParallelTransmonTestBackend(PulseBackend):
         )
 
         default_schedules = [
-            self._defaults.instruction_schedule_map.get("x", (0,)),
-            self._defaults.instruction_schedule_map.get("sx", (0,)),
-            self._defaults.instruction_schedule_map.get("x", (1,)),
-            self._defaults.instruction_schedule_map.get("sx", (1,)),
+            self.instruction_schedule_map.get("x", (0,)),
+            self.instruction_schedule_map.get("sx", (0,)),
+            self.instruction_schedule_map.get("x", (1,)),
+            self.instruction_schedule_map.get("sx", (1,)),
         ]
 
         self._simulated_pulse_unitaries = {
