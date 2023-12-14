@@ -115,6 +115,7 @@ class TomographyAnalysis(BaseAnalysis):
                 the remaining tomographic bases conditional on the basis index. The
                 conditional preparation basis index is stored in state analysis result
                 extra fields `"conditional_preparation_index"`.
+            extra (Dict[str, Any]): Extra metadata dictionary attached to analysis results.
         """
         options = super()._default_options()
 
@@ -132,6 +133,7 @@ class TomographyAnalysis(BaseAnalysis):
         options.conditional_circuit_clbits = None
         options.conditional_measurement_indices = None
         options.conditional_preparation_indices = None
+        options.extra = {}
         return options
 
     @classmethod
@@ -232,6 +234,9 @@ class TomographyAnalysis(BaseAnalysis):
 
         analysis_results = state_results + other_results
 
+        if self.options.extra:
+            for res in analysis_results:
+                res.extra.update(self.options.extra)
         return analysis_results, []
 
     def _fit_state_results(

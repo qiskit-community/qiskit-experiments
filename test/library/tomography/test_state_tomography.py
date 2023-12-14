@@ -409,6 +409,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     f_threshold,
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
+                self.assertTrue(mitfid.extra["mitigated"])
+                self.assertFalse(nomitfid.extra["mitigated"])
 
     @ddt.data([None, 1], [True, 4], [[0], 2], [[1], 2], [[0, 1], 4])
     @ddt.unpack
