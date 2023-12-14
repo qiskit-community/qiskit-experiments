@@ -148,9 +148,6 @@ class PulseBackend(BackendV2):
                 static_dissipators=static_dissipators,
                 **kwargs,
             )
-        self._static_hamiltonian = static_hamiltonian
-        self._hamiltonian_operators = hamiltonian_operators
-        self._static_dissipators = static_dissipators
         self.solver = solver
 
         self.model_dim = self.solver.model.dim
@@ -355,7 +352,7 @@ class PulseBackend(BackendV2):
             QiskitError: If unsuported measurement options are provided.
         """
         memory_data = None
-        if self._static_dissipators is not None:
+        if isinstance(self.solver.model, LindbladModel):
             state = state.reshape(self.model_dim, self.model_dim)
             state = DensityMatrix(state / np.trace(state), self.subsystem_dims)
         else:
