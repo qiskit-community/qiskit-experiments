@@ -58,7 +58,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
 
         d0 = pulse.DriveChannel(self.qubit)
 
-        sch_map = self.backend.defaults().instruction_schedule_map
+        sch_map = self.backend.instruction_schedule_map
         pulse_x = sch_map.get("x", (self.qubit,)).instructions[0][1].pulse
         amp_x = pulse_x.amp
         dur_x = pulse_x.duration
