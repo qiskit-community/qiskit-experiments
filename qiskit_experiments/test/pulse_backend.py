@@ -611,6 +611,7 @@ class SingleTransmonTestBackend(PulseBackend):
 
         self.rabi_rate_01 = [8.589]
         self.rabi_rate_12 = [6.876]
+        self.beta_01 = [1.551]
 
         if noise is True:
             evaluation_mode = "dense_vectorized"
