@@ -506,7 +506,7 @@ class PulseBackend(BackendV2):
 
 @HAS_DYNAMICS.require_in_instance
 class SingleTransmonTestBackend(PulseBackend):
-    r"""A backend that corresponds to a three level anharmonic transmon qubit.
+    r"""A one qubit backend that corresponds to a three-level anharmonic transmon qubit.
 
     The Hamiltonian of the system is
 
@@ -579,6 +579,7 @@ class SingleTransmonTestBackend(PulseBackend):
             self.anharmonicity = 0.25e9
         else:
             self.anharmonicity = anharmonicity
+
         if qubit_frequency is None:
             qubit_frequency = 5e9
         if lambda_1 is None and lambda_2 is None:
@@ -705,7 +706,7 @@ class ParallelTransmonTestBackend(PulseBackend):
         H^i = \hbar \sum_{j=1,2} \left[\omega^i_j |j\rangle\langle j| +
                 \mathcal{E}(t) \lambda^i_j (\sigma_j^+ + \sigma_j^-)\right]
 
-        H = H^0 ⊗ I + I ⊗ H^1
+        H = H_0 ⊗ I + I ⊗ H_1
     Here, :math:`\omega^i_j` is the ith transition frequency from level :math`0` to level
     :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
@@ -753,8 +754,7 @@ class ParallelTransmonTestBackend(PulseBackend):
         rtol: float = None,
         **kwargs,
     ):
-        """Initialise backend with hamiltonian parameters. Either all of qubit_frequency, anharmonicity
-        lambda_1, lambda_2 and gamma_1 must be specified or None of them. If any of the hamiltonian
+        """Initialise backend with hamiltonian parameters. If any of the hamiltonian
         parameters are not provided, default values will be used.
 
         Args:
@@ -831,25 +831,29 @@ class ParallelTransmonTestBackend(PulseBackend):
                 rwa_carrier_freqs=[qubit_frequency, qubit_frequency],
                 evaluation_mode=evaluation_mode,
             ),
-            **kwargs,
             atol=atol,
             rtol=rtol,
+            **kwargs,
         )
 
         self._discriminator = [DefaultDiscriminator(), DefaultDiscriminator()]
-
         self.subsystem_dims = (3, 3)
 
+        self._qubit_properties = [
+            QubitProperties(frequency=qubit_frequency),
+            QubitProperties(frequency=qubit_frequency),
+        ]
         self._target = Target(
             num_qubits=2,
-            qubit_properties=[
-                QubitProperties(frequency=qubit_frequency),
-                QubitProperties(frequency=qubit_frequency),
-            ],
+            qubit_properties=self._qubit_properties,
             dt=self.dt,
             granularity=16,
         )
 
+        measure_props = {
+            (0,): InstructionProperties(),
+            (1,): InstructionProperties(),
+        }
         x_props = {
             (0,): InstructionProperties(
                 duration=160e-10,
@@ -877,10 +881,6 @@ class ParallelTransmonTestBackend(PulseBackend):
         rz_props = {
             (0,): InstructionProperties(duration=0.0, error=0),
             (1,): InstructionProperties(duration=0.0, error=0),
-        }
-        measure_props = {
-            (0,): InstructionProperties(),
-            (1,): InstructionProperties(),
         }
         cx_props = {
             (0, 1): InstructionProperties(duration=0, error=0),
