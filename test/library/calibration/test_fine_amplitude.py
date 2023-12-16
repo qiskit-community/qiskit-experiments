@@ -217,9 +217,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi, "xp"))
-        self.backend.target.add_instruction(SXGate(), properties={(0,): None})
-        self.backend.target.add_instruction(XGate(), properties={(0,): None})
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):
@@ -297,8 +295,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         # Initial pulse amplitude
         init_amp = 0.25
 
-        backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi / 2, "sx"))
-        amp_cal = FineSXAmplitudeCal([0], self.cals, "sx", backend=backend)
+        amp_cal = FineSXAmplitudeCal([0], self.cals, "sx", backend=self.backend)
 
         circs = amp_cal._transpiled_circuits()
 
