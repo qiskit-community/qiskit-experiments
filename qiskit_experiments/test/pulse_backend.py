@@ -609,7 +609,7 @@ class SingleTransmonTestBackend(PulseBackend):
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
 
-        self.rabi_rate_01 = [8.589]
+        self.rabi_rate_01 = [8.5985]
         self.rabi_rate_12 = [6.876]
         self.beta_01 = [1.551]
 
