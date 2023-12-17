@@ -767,6 +767,7 @@ class ExperimentData:
                     
 =======
                         experiment_seperator[datum["metadata"]["experiment_type"]].add_data(datum["metadata"]["composite_metadata"])
+<<<<<<< HEAD
 
 >>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
                     elif "composite_metadata" in datum:
@@ -777,6 +778,20 @@ class ExperimentData:
                     self._result_data.append(datum)
 >>>>>>> 9eb2dba0 (Updated add_data tests passed #1268)
 =======
+=======
+                        marginalized_datum = self._marginalized_component_data([datum])
+                        for inner_datum in marginalized_datum:
+                            for inner_inner_datum in inner_datum:
+                                experiment_seperator[datum["metadata"]["experiment_type"]].__add_data([inner_inner_datum])
+                    elif "composite_metadata" in datum:
+                        composite_flag = True
+                        experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
+                        marginalized_datum = self._marginalized_component_data([datum])
+                        for inner_datum in marginalized_datum:
+                            for inner_inner_datum in inner_datum:
+                                experiment_seperator[datum["experiment_type"]].__add_data([inner_inner_datum])
+
+>>>>>>> dd257a28 (Updated add_data #1268)
                     if datum not in self._result_data:
                         self._result_data.append(datum)
 >>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
@@ -791,8 +806,12 @@ class ExperimentData:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
             if composite_flag:
+                
+                component_index = self.metadata.get("component_child_index", [])
+                component_expdata = [self.child_data(i) for i in component_index]
                 marginalized_data = self._marginalized_component_data(data)
-                for sub_expdata, sub_data in zip(self.child_data(), marginalized_data):
+
+                for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
                     # Clear any previously stored data and add marginalized data
                     sub_expdata._result_data.clear()
                     sub_expdata.__add_data(sub_data)
