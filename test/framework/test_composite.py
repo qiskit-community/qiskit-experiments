@@ -948,6 +948,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
 
         expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
         self.assertExperimentDone(expdata)
+<<<<<<< HEAD
 
         self.assertEqual(expdata.child_data(0).analysis_results("non-zero counts").value, 8)
         self.assertEqual(
@@ -956,6 +957,12 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertEqual(
             expdata.child_data(1).child_data(1).analysis_results("non-zero counts").value, 4
         )
+=======
+        
+        self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
+        self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 16)
+        self.assertEqual(expdata.child_data(1).child_data(2).analysis_results(0).value, 4)
+>>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
 
     def test_separate_jobs(self):
         """Test the separate_job experiment option"""

@@ -782,14 +782,14 @@ class ExperimentData:
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["metadata"]["experiment_type"]].__add_data([inner_inner_datum])
+                                experiment_seperator[datum["metadata"]["experiment_type"]].add_data([inner_inner_datum])
                     elif "composite_metadata" in datum:
                         composite_flag = True
                         experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["experiment_type"]].__add_data([inner_inner_datum])
+                                experiment_seperator[datum["experiment_type"]].add_data([inner_inner_datum])
 
 >>>>>>> dd257a28 (Updated add_data #1268)
                     if datum not in self._result_data:
@@ -798,24 +798,14 @@ class ExperimentData:
 
 >>>>>>> e7f46c3a (Updated add_data tests passed #1268)
                 elif isinstance(datum, Result):
-                    if datum["metadata"]:
-                        self._set_child_data(datum["metadata"]._metadata())
-                    else:
-                        self._add_result_data(datum)
+                    self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
             if composite_flag:
-                
-                component_index = self.metadata.get("component_child_index", [])
-                component_expdata = [self.child_data(i) for i in component_index]
-                marginalized_data = self._marginalized_component_data(data)
 
-                for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-                    # Clear any previously stored data and add marginalized data
-                    sub_expdata._result_data.clear()
-                    sub_expdata.__add_data(sub_data)
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
+<<<<<<< HEAD
                 if self._child_data.values() != []:
                     self.add_child_data(tmp_exp_data)
                 else:
@@ -858,6 +848,9 @@ class ExperimentData:
                         self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
+=======
+                self.add_child_data(tmp_exp_data)
+>>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.

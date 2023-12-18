@@ -119,6 +119,7 @@ class CompositeAnalysis(BaseAnalysis):
         child_data = experiment_data.child_data()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         if len(child_data) == 0:  
             # Child data is automatically created when composite result data is added.  
             # Validate that child data size matches with number of analysis entries.  
@@ -131,6 +132,14 @@ class CompositeAnalysis(BaseAnalysis):
 =======
         experiment_data.add_data(experiment_data.data())
 >>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
+=======
+        marginalized_data = self._marginalized_component_data(experiment_data.data())
+        
+        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
+            # Clear any previously stored data and add marginalized data
+            sub_expdata._result_data.clear()
+            sub_expdata.add_data(sub_data)
+>>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
 
         if len(self._analyses) != len(child_data):
             raise("analysis length and experiment lenggth are not same")
