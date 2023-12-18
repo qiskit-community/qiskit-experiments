@@ -156,8 +156,12 @@ class CompositeAnalysis(BaseAnalysis):
             # from them
             component_expdata = self._initialize_component_experiment_data(experiment_data)
 
+        marginalized_data = self._marginalized_component_data(experiment_data.data())
         
-        experiment_data.add_data(experiment_data.data())
+        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
+            # Clear any previously stored data and add marginalized data
+            sub_expdata._result_data.clear()
+            sub_expdata.add_data(sub_data)
 
         # Run the component analysis on each component data
         for i, sub_expdata in enumerate(component_expdata):

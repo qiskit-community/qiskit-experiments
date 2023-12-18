@@ -803,79 +803,27 @@ class ExperimentData:
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["metadata"]["experiment_type"]].__add_data([inner_inner_datum])
+                                experiment_seperator[datum["metadata"]["experiment_type"]].add_data([inner_inner_datum])
                     elif "composite_metadata" in datum:
                         composite_flag = True
                         experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["experiment_type"]].__add_data([inner_inner_datum])
+                                experiment_seperator[datum["experiment_type"]].add_data([inner_inner_datum])
 
                     if datum not in self._result_data:
                         self._result_data.append(datum)
 
                 elif isinstance(datum, Result):
-                    if datum["metadata"]:
-                        self._set_child_data(datum["metadata"]._metadata())
-                    else:
-                        self._add_result_data(datum)
+                    self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
             if composite_flag:
-                
-                component_index = self.metadata.get("component_child_index", [])
-                component_expdata = [self.child_data(i) for i in component_index]
-                marginalized_data = self._marginalized_component_data(data)
 
-                for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-                    # Clear any previously stored data and add marginalized data
-                    sub_expdata._result_data.clear()
-                    sub_expdata.__add_data(sub_data)
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
-                if self._child_data.values() != []:
-                    self.add_child_data(tmp_exp_data)
-                else:
-                    self._set_child_data([tmp_exp_data])
-
-    def __add_data(
-        self,
-        data: Union[Result, List[Result], Dict, List[Dict]],
-    ) -> None:
-        """Add experiment data.
-
-        Args:
-            data: Experiment data to add. Several types are accepted for convenience:
-
-                * Result: Add data from this ``Result`` object.
-                * List[Result]: Add data from the ``Result`` objects.
-                * Dict: Add this data.
-                * List[Dict]: Add this list of data.
-
-        Raises:
-            TypeError: If the input data type is invalid.
-        """
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
-            )
-        if not isinstance(data, list):
-            data = [data]
-
-        # Directly add non-job data
-        with self._result_data.lock:
-            for datum in data:
-                if isinstance(datum, dict):
-                    self._result_data.append(datum)
-                elif isinstance(datum, Result):
-                    if datum["metadata"]:
-                        self._set_child_data(datum["metadata"]._metadata())
-                    else:
-                        self._add_result_data(datum)
-                else:
-                    raise TypeError(f"Invalid data type {type(datum)}.")
+                self.add_child_data(tmp_exp_data)
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
