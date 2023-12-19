@@ -960,9 +960,14 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
 =======
         
         self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
+<<<<<<< HEAD
         self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 16)
         self.assertEqual(expdata.child_data(1).child_data(2).analysis_results(0).value, 4)
 >>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
+=======
+        self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
+        self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)
+>>>>>>> 73db5bde (Tests passed , Finished second approach add_data #1268)
 
     def test_separate_jobs(self):
         """Test the separate_job experiment option"""
