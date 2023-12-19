@@ -799,18 +799,18 @@ class ExperimentData:
                 if isinstance(datum, dict):
                     if "metadata" in datum and "composite_metadata" in datum["metadata"]:
                         composite_flag = True
-                        experiment_seperator[datum["metadata"]["experiment_type"]].add_data(datum["metadata"]["composite_metadata"])
+                        experiment_seperator[datum["metadata"]["composite_index"]].add_data(datum["metadata"]["composite_metadata"])
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["metadata"]["experiment_type"]].add_data([inner_inner_datum])
+                                experiment_seperator[datum["metadata"]["composite_index"]].add_data([inner_inner_datum])
                     elif "composite_metadata" in datum:
                         composite_flag = True
-                        experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
+                        experiment_seperator[datum["composite_index"]].add_data(datum["composite_metadata"])
                         marginalized_datum = self._marginalized_component_data([datum])
                         for inner_datum in marginalized_datum:
                             for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["experiment_type"]].add_data([inner_inner_datum])
+                                experiment_seperator[datum["composite_index"]].add_data([inner_inner_datum])
 
                     if datum not in self._result_data:
                         self._result_data.append(datum)
