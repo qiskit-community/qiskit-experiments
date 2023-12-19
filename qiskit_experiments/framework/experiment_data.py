@@ -764,7 +764,7 @@ class ExperimentData:
 
     # Data addition and deletion
 
-    def add_data(
+    def _add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
     ) -> None:
@@ -824,6 +824,70 @@ class ExperimentData:
 
                 tmp_exp_data._set_child_data(list(experiment_seperator.values()))
                 self.add_child_data(tmp_exp_data)
+
+    def add_data(
+        self,
+        data: Union[Result, List[Result], Dict, List[Dict]],
+    ) -> None:
+        """Add experiment data.
+
+        Args:
+            data: Experiment data to add. Several types are accepted for convenience:
+
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
+
+        Raises:
+            TypeError: If the input data type is invalid.
+        """
+
+        if any(not future.done() for future in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis has finished running. Adding new data may "
+                "create unexpected analysis results."
+            )
+        if not isinstance(data, list):
+            data = [data]
+
+        # Directly add non-job data
+        with self._result_data.lock:
+            
+            for datum in data:
+                if isinstance(datum, dict):
+                    if "metadata" in datum and "composite_metadata" in datum["metadata"]:
+                        marginalized_datum = self._marginalized_component_data([datum])
+                        try:
+                            composite_index = datum["metadata"]["composite_index"]
+                            composite_expdata = [self.child_data(i) for i in composite_index]
+                            for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
+                                sub_expdata.add_data(sub_data)
+                        except IndexError or RuntimeError:
+                            new_child = ExperimentData()
+                            for inner_datum in marginalized_datum:
+                                new_child.add_data(inner_datum)
+
+                    elif "composite_metadata" in datum:
+                        
+                        marginalized_datum = self._marginalized_component_data([datum])
+                        try:
+                            composite_index = datum["composite_index"]
+                            composite_expdata = [self.child_data(i) for i in composite_index]
+                            for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
+                                sub_expdata.add_data(sub_data)
+                        except IndexError or RuntimeError:
+                            new_child = ExperimentData()
+                            for inner_datum in marginalized_datum:
+                                new_child.add_data(inner_datum)
+                    
+                    self._result_data.append(datum)
+
+                elif isinstance(datum, Result):
+                    self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
+
 
     def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
         """Return marginalized data for component experiments.
