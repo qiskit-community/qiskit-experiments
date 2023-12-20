@@ -64,6 +64,7 @@ from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -857,26 +858,31 @@ class ExperimentData:
             for datum in data:
                 if isinstance(datum, dict):
                     if "metadata" in datum and "composite_metadata" in datum["metadata"]:
+                        for inner_composite_datum in datum["metadata"]["composite_metadata"]:
+                            if "composite_index" in inner_composite_datum:
+                                self.add_data(inner_composite_datum)
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["metadata"]["composite_index"]
                             composite_expdata = [self.child_data(i) for i in composite_index]
                             for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
                                 sub_expdata.add_data(sub_data)
-                        except IndexError or RuntimeError:
+                        except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
                                 new_child.add_data(inner_datum)
 
                     elif "composite_metadata" in datum:
-                        
+                        for inner_composite_datum in datum["composite_metadata"]:
+                            if "composite_index" in inner_composite_datum:
+                                self.add_data(inner_composite_datum)
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["composite_index"]
                             composite_expdata = [self.child_data(i) for i in composite_index]
                             for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
                                 sub_expdata.add_data(sub_data)
-                        except IndexError or RuntimeError:
+                        except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
                                 new_child.add_data(inner_datum)
