@@ -765,67 +765,6 @@ class ExperimentData:
 
     # Data addition and deletion
 
-    def _add_data(
-        self,
-        data: Union[Result, List[Result], Dict, List[Dict]],
-    ) -> None:
-        """Add experiment data.
-
-        Args:
-            data: Experiment data to add. Several types are accepted for convenience:
-
-                * Result: Add data from this ``Result`` object.
-                * List[Result]: Add data from the ``Result`` objects.
-                * Dict: Add this data.
-                * List[Dict]: Add this list of data.
-
-        Raises:
-            TypeError: If the input data type is invalid.
-        """
-
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
-            )
-        if not isinstance(data, list):
-            data = [data]
-
-        # Directly add non-job data
-        with self._result_data.lock:
-            tmp_exp_data = ExperimentData()
-            composite_flag = False
-            experiment_seperator = defaultdict(lambda : ExperimentData())
-            for datum in data:
-                if isinstance(datum, dict):
-                    if "metadata" in datum and "composite_metadata" in datum["metadata"]:
-                        composite_flag = True
-                        experiment_seperator[datum["metadata"]["composite_index"]].add_data(datum["metadata"]["composite_metadata"])
-                        marginalized_datum = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_datum:
-                            for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["metadata"]["composite_index"]].add_data([inner_inner_datum])
-                    elif "composite_metadata" in datum:
-                        composite_flag = True
-                        experiment_seperator[datum["composite_index"]].add_data(datum["composite_metadata"])
-                        marginalized_datum = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_datum:
-                            for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["composite_index"]].add_data([inner_inner_datum])
-
-                    if datum not in self._result_data:
-                        self._result_data.append(datum)
-
-                elif isinstance(datum, Result):
-                    self._add_result_data(datum)
-                else:
-                    raise TypeError(f"Invalid data type {type(datum)}.")
-
-            if composite_flag:
-
-                tmp_exp_data._set_child_data(list(experiment_seperator.values()))
-                self.add_child_data(tmp_exp_data)
-
     def add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
@@ -858,9 +797,7 @@ class ExperimentData:
             for datum in data:
                 if isinstance(datum, dict):
                     if "metadata" in datum and "composite_metadata" in datum["metadata"]:
-                        for inner_composite_datum in datum["metadata"]["composite_metadata"]:
-                            if "composite_index" in inner_composite_datum:
-                                self.add_data(inner_composite_datum)
+
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["metadata"]["composite_index"]
@@ -873,9 +810,7 @@ class ExperimentData:
                                 new_child.add_data(inner_datum)
 
                     elif "composite_metadata" in datum:
-                        for inner_composite_datum in datum["composite_metadata"]:
-                            if "composite_index" in inner_composite_datum:
-                                self.add_data(inner_composite_datum)
+
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["composite_index"]
