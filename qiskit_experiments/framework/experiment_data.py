@@ -715,6 +715,7 @@ class ExperimentData:
 
     # Data addition and deletion
 
+<<<<<<< HEAD
     def _add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
@@ -860,6 +861,8 @@ class ExperimentData:
                 self.add_child_data(tmp_exp_data)
 >>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
 
+=======
+>>>>>>> 745669fd (Tests passed second approach, Updated add_data #1268)
     def add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
@@ -892,9 +895,7 @@ class ExperimentData:
             for datum in data:
                 if isinstance(datum, dict):
                     if "metadata" in datum and "composite_metadata" in datum["metadata"]:
-                        for inner_composite_datum in datum["metadata"]["composite_metadata"]:
-                            if "composite_index" in inner_composite_datum:
-                                self.add_data(inner_composite_datum)
+
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["metadata"]["composite_index"]
@@ -907,9 +908,7 @@ class ExperimentData:
                                 new_child.add_data(inner_datum)
 
                     elif "composite_metadata" in datum:
-                        for inner_composite_datum in datum["composite_metadata"]:
-                            if "composite_index" in inner_composite_datum:
-                                self.add_data(inner_composite_datum)
+
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["composite_index"]
