@@ -160,6 +160,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 second: Second object to compare.
                 msg: Optional. Custom error message issued when first and second object are not equal.
                 strict_type: Set True to enforce type check before comparison.
+                kwargs: Additional options to pass through to ``is_equivalent``
             """
             default_msg = f"{first} != {second}"
 

@@ -60,6 +60,8 @@ def is_equivalent(
             e.g. iterator with the same element; tuple vs list,
             you can turn off this flag to relax the constraint for data type.
         numerical_precision: Tolerance of difference between two real numbers.
+        kwargs: Additional options to pass through to the type-specific
+            equivalence testing functions
 
     Returns:
         True when two objects are equivalent.
