@@ -63,7 +63,7 @@ Now we can display the figure from the loaded experiment data:
 
 .. jupyter-input::
 
-    load_expdata.figure(0).figure
+    load_expdata.figure(0)
 
 .. image:: ./experiment_cloud_service/t1_loaded.png
 
