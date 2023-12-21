@@ -5,7 +5,7 @@ Problem
 -------
 
 You want to run experiments in a `Runtime session
-<https://qiskit.org/ecosystem/ibm-runtime/sessions.html>`_ so that jobs can run in close temporal proximity.
+<https://docs.quantum.ibm.com/run/sessions>`_ so that jobs can run in close temporal proximity.
 
 Solution
 --------

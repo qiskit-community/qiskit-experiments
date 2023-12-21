@@ -14,6 +14,7 @@
 import uuid
 from qiskit.circuit.library import Measure
 from qiskit.providers.backend import BackendV2
+from qiskit.providers.fake_provider import FakeProvider
 from qiskit.providers.options import Options
 from qiskit.transpiler import Target
 
@@ -27,8 +28,14 @@ class FakeBackend(BackendV2):
     Fake backend for test purposes only.
     """
 
-    def __init__(self, backend_name="fake_backend", num_qubits=1, max_experiments=100):
-        super().__init__(name=backend_name)
+    def __init__(
+        self,
+        provider=FakeProvider(),
+        backend_name="fake_backend",
+        num_qubits=1,
+        max_experiments=100,
+    ):
+        super().__init__(provider=provider, name=backend_name)
         self._target = Target(num_qubits=num_qubits)
         # Add a measure for each qubit so a simple measure circuit works
         self.target.add_instruction(Measure())
