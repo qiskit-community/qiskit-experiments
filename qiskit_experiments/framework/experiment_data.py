@@ -67,6 +67,7 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
+
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
@@ -192,7 +193,7 @@ class FigureData:
         if isinstance(self.figure, str):
             return self.figure
         if isinstance(self.figure, bytes):
-            return str(self.figure)
+            return self.figure.decode("utf-8")
         return None
 
 
