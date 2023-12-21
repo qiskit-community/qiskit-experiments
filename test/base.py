@@ -143,7 +143,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             *,
             msg: Optional[str] = None,
             strict_type: bool = False,
-            **kwargs,
         ):
             """Extended equality assertion which covers Qiskit Experiments classes.
 
@@ -165,7 +164,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             default_msg = f"{first} != {second}"
 
             self.assertTrue(
-                is_equivalent(first, second, strict_type=strict_type, **kwargs),
+                is_equivalent(first, second, strict_type=strict_type),
                 msg=msg or default_msg,
             )
 

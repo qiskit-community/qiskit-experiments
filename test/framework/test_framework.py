@@ -120,13 +120,18 @@ class TestFramework(QiskitExperimentsTestCase):
     def test_run_analysis_experiment_data_pickle_roundtrip(self):
         """Test running analysis on ExperimentData after pickle roundtrip"""
         analysis = FakeAnalysis()
-        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        expdata1 = ExperimentData()
+        # Set physical qubit for more complete comparison
+        expdata1.metadata["physical_qubits"] = (1,)
+        expdata1 = analysis.run(expdata1, seed=54321)
         self.assertExperimentDone(expdata1)
 
-        expdata2 = pickle.loads(pickle.dumps(expdata1))
+        expdata2 = ExperimentData(experiment_id=expdata1.experiment_id)
+        expdata2.metadata["physical_qubits"] = (1,)
+        expdata2 = pickle.loads(pickle.dumps(expdata2))
         expdata2 = analysis.run(expdata2, replace_results=True, seed=54321)
         self.assertExperimentDone(expdata2)
-        self.assertEqualExtended(expdata1, expdata2, ignore_result_id=True)
+        self.assertEqualExtended(expdata1, expdata2)
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""

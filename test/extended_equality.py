@@ -42,7 +42,11 @@ from qiskit_experiments.visualization import BaseDrawer
 
 
 def is_equivalent(
-    data1: Any, data2: Any, *, strict_type: bool = True, numerical_precision: float = 1e-8, **kwargs
+    data1: Any,
+    data2: Any,
+    *,
+    strict_type: bool = True,
+    numerical_precision: float = 1e-8,
 ) -> bool:
     """Check if two input data are equivalent.
 
@@ -69,7 +73,10 @@ def is_equivalent(
     if strict_type and type(data1) is not type(data2):
         return False
     evaluated = _is_equivalent_dispatcher(
-        data1, data2, strict_type=strict_type, numerical_precision=numerical_precision, **kwargs
+        data1,
+        data2,
+        strict_type=strict_type,
+        numerical_precision=numerical_precision,
     )
     if not isinstance(evaluated, (bool, np.bool_)):
         # When either one of input is numpy array type, it may broadcast equality check
@@ -235,28 +242,23 @@ def _check_curvefit_results(
 def _check_service_analysis_results(
     data1: AnalysisResult,
     data2: AnalysisResult,
-    ignore_result_id: bool = False,
     **kwargs,
 ):
     """Check equality of AnalysisResult class which is payload for experiment service."""
-    attrs = [
-        "name",
-        "value",
-        "extra",
-        "device_components",
-        "experiment_id",
-        "chisq",
-        "quality",
-        "verified",
-        "tags",
-        "auto_save",
-        "source",
-    ]
-    if not ignore_result_id:
-        attrs.append("result_id")
-
     return _check_all_attributes(
-        attrs,
+        attrs=[
+            "name",
+            "value",
+            "extra",
+            "device_components",
+            "experiment_id",
+            "chisq",
+            "quality",
+            "verified",
+            "tags",
+            "auto_save",
+            "source",
+        ],
         data1=data1,
         data2=data2,
         **kwargs,
@@ -291,7 +293,6 @@ def _check_dataframes(
 def _check_result_table(
     data1: AnalysisResultTable,
     data2: AnalysisResultTable,
-    ignore_result_id: bool = False,
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
@@ -300,13 +301,20 @@ def _check_result_table(
     for table in (table1, table2):
         for result in table.values():
             result.pop("created_time")
-            if ignore_result_id:
-                result.pop("result_id")
-    if ignore_result_id:
-        # Keys of the dict are based on the result ids so they must be ignored
-        # as well
-        table1 = list(table1.values())
-        table2 = list(table2.values())
+            # Must ignore result ids because they are internally generated with
+            # random values by the ExperimentData wrapping object.
+            result.pop("result_id")
+    # Keys of the dict are based on the result ids so they must be ignored
+    # as well. Try to sort entries so equivalent entries will be in the same
+    # order.
+    table1 = sorted(
+        table1.values(),
+        key=lambda x: (x["name"], tuple(repr(d) for d in x["components"]), x["value"]),
+    )
+    table2 = sorted(
+        table2.values(),
+        key=lambda x: (x["name"], tuple(repr(d) for d in x["components"]), x["value"]),
+    )
     return is_equivalent(
         table1,
         table2,
