@@ -807,25 +807,32 @@ class ExperimentData:
                             for inner_datum in datum["metadata"]["composite_metadata"]:
                                 if "composite_index" in inner_datum:
                                     for sub_expdata in composite_expdata:
-                                        sub_expdata.add_data(inner_datum)
+                                        self.add_data(inner_datum)
                         except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
                                 new_child.add_data(inner_datum)
+                        
+                        self._result_data.append(datum)
 
                     elif "composite_metadata" in datum:
+
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["composite_index"]
                             composite_expdata = [self.child_data(i) for i in composite_index]
                             for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
                                 sub_expdata.add_data(sub_data)
+                            for inner_datum in datum["composite_metadata"]:
+                                if "composite_index" in inner_datum:
+                                    for sub_expdata in composite_expdata:
+                                        self.add_data(inner_datum)
                         except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
                                 new_child.add_data(inner_datum)
-                    
-                    self._result_data.append(datum)
+                    else:
+                        self._result_data.append(datum)
 
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
