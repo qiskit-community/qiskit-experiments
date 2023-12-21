@@ -141,7 +141,11 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         alpha = fit_data.ufloat_params["alpha"]
         pf = (1 + (2**num_qubits - 1) * alpha) / (2**num_qubits)
 
+        quality, reason = self.__evaluate_quality(fit_data)
+
         metadata["qubits"] = self._physical_qubits
+        metadata["reason"] = reason
+        metadata.update(fit_data.params)
         outcomes.append(
             AnalysisResultData(
                 name="ProcessFidelity",
@@ -172,8 +176,8 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
             failed_result = AnalysisResultData(
                 name="ProcessFidelity",
                 value=None,
-                quality="failed",
-                extra={"qubits": self._physical_qubits},
+                quality="bad",
+                extra={"qubits": self._physical_qubits, "reason": "analysis_failure"},
             )
             return [failed_result], []
 
@@ -181,31 +185,36 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         """Set physical qubits to the experiment components."""
         return [device.Qubit(qubit) for qubit in self._physical_qubits]
 
-    def _evaluate_quality(
+    def __evaluate_quality(
         self,
         fit_data: curve.CurveFitResult,
-    ) -> Union[str, None]:
-        """Evaluate quality of the fit result.
+    ) -> Tuple[str, Union[str, None]]:
+        """Evaluate quality of the fit result and the reason if it is no good.
 
         Args:
             fit_data: Fit outcome.
 
         Returns:
-            String that represents fit result quality: "good" or "bad".
+            Pair of strings that represent quality ("good" or "bad") and its reason if "bad".
         """
-        quality = super()._evaluate_quality(fit_data)
-        y_intercept = fit_data.params["a"] + fit_data.params["b"]
-        ideal_limit = 1 / (len(self._physical_qubits)**2)
         # Too large SPAM
+        y_intercept = fit_data.params["a"] + fit_data.params["b"]
         if y_intercept < 0.7:
-            quality = "bad"
+            return "bad", "large_spam"
         # Convergence to a bad value (probably due to bad readout)
+        ideal_limit = 1 / (2 ** len(self._physical_qubits))
         if fit_data.params["b"] <= 0 or abs(fit_data.params["b"] - ideal_limit) > 0.3:
-            quality = "bad"
+            return "bad", "biased_tail"
         # Too good fidelity (negative decay)
         if fit_data.params["alpha"] < 0:
-            quality = "bad"
-        return quality
+            return "bad", "negative_decay"
+        # Large residual errors in terms of reduced Chi-square
+        if fit_data.reduced_chisq > 3.0:
+            return "bad", "large_chisq"
+        # Too good Chi-square
+        if fit_data.reduced_chisq == 0:
+            return "bad", "zero_chisq"
+        return "good", None
 
 
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
@@ -254,8 +263,11 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             failed_result = AnalysisResultData(
                 name="SingleLF",
                 value=None,
-                quality="failed",
-                extra={"qubits": [q for qubits in self._layer for q in qubits]},
+                quality="bad",
+                extra={
+                    "qubits": [q for qubits in self._layer for q in qubits],
+                    "reason": "analysis_failure",
+                },
             )
             return [failed_result] + analysis_results, figures
 
@@ -317,12 +329,14 @@ class LayerFidelityAnalysis(CompositeAnalysis):
                 AnalysisResultData(
                     name="LF",
                     value=None,
-                    quality="failed",
+                    quality="bad",
+                    extra={"reason": "analysis_failure"},
                 ),
                 AnalysisResultData(
                     name="EPLG",
                     value=None,
-                    quality="failed",
+                    quality="bad",
+                    extra={"reason": "analysis_failure"},
                 ),
             ]
             return failed_results + analysis_results, figures
