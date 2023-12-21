@@ -1,4 +1,4 @@
 ---
-features:
+fixes:
   - |
-    Load experiment figures are now automatically viewable in Jupyter Notebook.
+    Figures loaded from the experiment service are now rendered correctly in Jupyter Notebook.
