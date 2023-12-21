@@ -307,11 +307,19 @@ def _check_result_table(
     # order.
     table1 = sorted(
         table1.values(),
-        key=lambda x: (x["name"], tuple(repr(d) for d in x["components"]), x["value"]),
+        key=lambda x: (
+            x["name"],
+            () if x["components"] is None else tuple(repr(d) for d in x["components"]),
+            x["value"],
+        ),
     )
     table2 = sorted(
         table2.values(),
-        key=lambda x: (x["name"], tuple(repr(d) for d in x["components"]), x["value"]),
+        key=lambda x: (
+            x["name"],
+            () if x["components"] is None else tuple(repr(d) for d in x["components"]),
+            x["value"],
+        ),
     )
     return is_equivalent(
         table1,
