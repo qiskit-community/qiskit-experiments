@@ -33,7 +33,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         :math:`A` is a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}`
         is the probability to observe :math:`y` given the true outcome should be :math:`x`.
 
-        In the experiment, for each :math:`x`a circuit is constructed whose expected
+        In the experiment, for each :math:`x` a circuit is constructed whose expected
         outcome is :math:`x`. From the observed results on the circuit, the probability for
         each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
 
