@@ -181,6 +181,32 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         """Set physical qubits to the experiment components."""
         return [device.Qubit(qubit) for qubit in self._physical_qubits]
 
+    def _evaluate_quality(
+        self,
+        fit_data: curve.CurveFitResult,
+    ) -> Union[str, None]:
+        """Evaluate quality of the fit result.
+
+        Args:
+            fit_data: Fit outcome.
+
+        Returns:
+            String that represents fit result quality: "good" or "bad".
+        """
+        quality = super()._evaluate_quality(fit_data)
+        y_intercept = fit_data.params["a"] + fit_data.params["b"]
+        ideal_limit = 1 / (len(self._physical_qubits)**2)
+        # Too large SPAM
+        if y_intercept < 0.7:
+            quality = "bad"
+        # Convergence to a bad value (probably due to bad readout)
+        if fit_data.params["b"] <= 0 or abs(fit_data.params["b"] - ideal_limit) > 0.3:
+            quality = "bad"
+        # Too good fidelity (negative decay)
+        if fit_data.params["alpha"] < 0:
+            quality = "bad"
+        return quality
+
 
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     r"""A class to estimate a process fidelity per disjoint layer.
