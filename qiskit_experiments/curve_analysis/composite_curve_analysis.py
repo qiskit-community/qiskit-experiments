@@ -230,32 +230,32 @@ class CompositeCurveAnalysis(BaseAnalysis):
             A list of figures.
         """
         for analysis in self.analyses():
-            sub_data = curve_data[curve_data.model_name.str.endswith(f"_{analysis.name}")]
-            for model_id, data in list(sub_data.groupby("model_id")):
-                model_name = analysis._models[model_id]._name
+            sub_data = curve_data[curve_data.group == analysis.name]
+            for name, data in list(sub_data.groupby("name")):
+                full_name = f"{name}_{analysis.name}"
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
-                    raw_data = data.filter(like="processed", axis="index")
+                    raw_data = data[data.category == "raw"]
                     self.plotter.set_series_data(
-                        series_name=model_name,
+                        series_name=full_name,
                         x=raw_data.xval.to_numpy(),
                         y=raw_data.yval.to_numpy(),
                     )
                 # Plot formatted data scatters
-                formatted_data = data.filter(like="formatted", axis="index")
+                formatted_data = data[data.category == analysis.options.fit_category]
                 self.plotter.set_series_data(
-                    series_name=model_name,
+                    series_name=full_name,
                     x_formatted=formatted_data.xval.to_numpy(),
                     y_formatted=formatted_data.yval.to_numpy(),
                     y_formatted_err=formatted_data.yerr.to_numpy(),
                 )
                 # Plot fit lines
-                line_data = data.filter(like="fitted", axis="index")
+                line_data = data[data.category == "fitted"]
                 if len(line_data) == 0:
                     continue
                 fit_stdev = line_data.yerr.to_numpy()
                 self.plotter.set_series_data(
-                    series_name=model_name,
+                    series_name=full_name,
                     x_interp=line_data.xval.to_numpy(),
                     y_interp=line_data.yval.to_numpy(),
                     y_interp_err=fit_stdev if np.isfinite(fit_stdev).all() else None,
@@ -353,20 +353,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
             metadata = analysis.options.extra.copy()
             metadata["group"] = analysis.name
 
-            curve_data = analysis._format_data(
-                analysis._run_data_processing(experiment_data.data())
-            )
-            fit_data = analysis._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
+            table = analysis._format_data(analysis._run_data_processing(experiment_data.data()))
+            formatted_subset = table[table.category == analysis.options.fit_category]
+            fit_data = analysis._run_curve_fit(formatted_subset)
             fit_dataset[analysis.name] = fit_data
 
             if fit_data.success:
                 quality = analysis._evaluate_quality(fit_data)
             else:
                 quality = "bad"
-
-            # After the quality is determined, plot can become a boolean flag for whether
-            # to generate the figure
-            plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
             if self.options.return_fit_parameters:
                 # Store fit status overview entry regardless of success.
@@ -382,10 +377,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if fit_data.success:
                 # Add fit data to curve data table
                 fit_curves = []
-                formatted = curve_data.filter(like="formatted", axis="index")
-                columns = list(curve_data.columns)
-                for i, sub_data in list(formatted.groupby("model_id")):
-                    name = analysis._models[i]._name
+                columns = list(table.columns)
+                model_names = analysis.model_names()
+                for i, sub_data in list(formatted_subset.groupby("class_id")):
                     xval = sub_data.xval.to_numpy()
                     if len(xval) == 0:
                         # If data is empty, skip drawing this model.
@@ -404,12 +398,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
                     if fit_data.covar is not None:
                         model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
-                    model_fit[:, columns.index("model_name")] = name
-                    model_fit[:, columns.index("model_id")] = i
-                curve_data = curve_data.append_list_values(
-                    other=np.vstack(fit_curves),
-                    prefix="fitted",
-                )
+                    model_fit[:, columns.index("name")] = model_names[i]
+                    model_fit[:, columns.index("class_id")] = i
+                    model_fit[:, columns.index("category")] = "fitted"
+                table = table.append_list_values(other=np.vstack(fit_curves))
                 analysis_results.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
@@ -421,17 +413,19 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.return_data_points:
                 # Add raw data points
                 analysis_results.extend(
-                    analysis._create_curve_data(
-                        curve_data=curve_data.filter(like="formatted", axis="index"),
-                        **metadata,
-                    )
+                    analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
-            curve_data.model_name += f"_{analysis.name}"
-            curve_data_set.append(curve_data)
+            # Add extra column to identify the fit model
+            table["group"] = analysis.name
+            curve_data_set.append(table)
 
         combined_curve_data = pd.concat(curve_data_set)
         total_quality = self._evaluate_quality(fit_dataset)
+
+        # After the quality is determined, plot can become a boolean flag for whether
+        # to generate the figure
+        plot_bool = plot == "always" or (plot == "selective" and total_quality == "bad")
 
         # Create analysis results by combining all fit data
         if all(fit_data.success for fit_data in fit_dataset.values()):
