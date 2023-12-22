@@ -23,7 +23,7 @@ different sets of experiment results. A single experiment can define sub-experim
 consisting of multiple circuits which are tagged with common metadata,
 and curve analysis sorts the experiment results based on the circuit metadata.
 
-This is an example of showing the abstract data flow of a typical curve analysis experiment:
+This is an example showing the abstract data flow of a typical curve analysis experiment:
 
 .. figure:: images/curve_analysis_structure.png
     :width: 600
@@ -288,8 +288,8 @@ This table may look like:
     11   0.3  0.874634  0.010338    B         1      raw   1024
 
 where the experiment consists of two subset series A and B, and the experiment parameter (xval)
-is scanned from 0.1 to 0.3 in each subset. For each condition, the experiment is run twice
-for some reason. Each column represents following quantity.
+is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
+for each condition. The role of each column is as follows:
 
 - ``xval``: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
 - ``yval``: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.
@@ -297,13 +297,13 @@ for some reason. Each column represents following quantity.
 - ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
 - ``class_id``: Numerical index corresponding to the result class. This number is automatically assigned.
 - ``category``: The attribute of data set. The "raw" category indicates an output from the data processing.
-- ``shots``: Number of measurement shot used to acquire this result.
+- ``shots``: Number of measurement shots used to acquire this result.
 
 3. Formatting
 ^^^^^^^^^^^^^
 
 Next, the processed dataset is converted into another format suited for the fitting and
-every valid result class is assigned to a fit model.
+every valid result is assigned a class corresponding to a fit model.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
 This allows the analysis to easily estimate the slope of the curves to
@@ -315,7 +315,7 @@ in this analysis class. This index mapping is done based upon the correspondence
 the data name and the fit model name.
 
 This is done by calling :meth:`_format_data` method.
-This may return new scatter table object with addition of following rows like below.
+This may return new scatter table object with the addition of rows like the following below.
 
 .. code-block::
 
@@ -326,9 +326,12 @@ This may return new scatter table object with addition of following rows like be
     16   0.2  0.426829  0.010678    B         1  formatted   2048
     17   0.3  0.568293  0.008592    B         1  formatted   2048
 
-The new data is added under the category "formatted". This category name must be also specified in
-the analysis option ``fit_category``. The following fit routine filters the scatter table
-by the category name. The (x, y) value in each row is passed to the corresponding fit model object
+The default :meth:`_format_data` method adds its output data with the category "formatted".
+This category name must be also specified in the analysis option ``fit_category``.
+If overriding this method to do additional processing after the default formatting,
+the ``fit_category`` analysis option can be set to choose a different category name to use to
+select the data to pass to the fitting routine.
+The (x, y) value in each row is passed to the corresponding fit model object
 to compute residual values for the least square optimization.
 
 3. Fitting
@@ -354,7 +357,7 @@ See :ref:`curve_analysis_results` for details.
 Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
 updated with the computed (x, y) values. This dataset is stored under the "fitted" category.
 
-Finally, :meth:`._create_figures` method is called with the entire scatter table data
+Finally, the :meth:`._create_figures` method is called with the entire scatter table data
 to initialize the curve plotter instance accessible via the :attr:`~.CurveAnalysis.plotter` attribute.
 The visualization is handed over to the :doc:`Visualization </tutorials/visualization>` module,
 which provides a standardized image format for curve fit results.

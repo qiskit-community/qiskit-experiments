@@ -192,9 +192,8 @@ class CurveAnalysis(BaseCurveAnalysis):
         )
 
         # Prepare circuit metadata to data class mapper from data_subfit_map value.
-        classifier = {}
         if len(self._models) == 1:
-            classifier[self.model_names()[0]] = {}
+            classifier = {self.model_names()[0]: {}}
         else:
             classifier = self.options.data_subfit_map
 

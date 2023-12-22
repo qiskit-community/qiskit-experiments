@@ -18,7 +18,7 @@ upgrade:
     It used to raise ``DataProcessorError`` error when it encounters an experiment result
     which cannot be classified into any fit model, but this restriction was relaxed 
     and the analysis continues with unclassified data.
-    Unclassified data is just stored as-is in the :class:`.ScatterTable` with having 
+    Unclassified data is just stored as-is in the :class:`.ScatterTable` with 
     the null class ID assigned. Such data is ignored in the rest of analysis steps
     such as formatting, fitting, and visualization.
 developer:
