@@ -18,6 +18,7 @@ import time
 import asteval
 import lmfit
 import numpy as np
+import pandas as pd
 from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
@@ -243,9 +244,9 @@ def shot_weighted_average(
     if len(yvals) == 1:
         return yvals[0], yerrs[0], shots[0]
 
-    if np.any(shots < -1):
+    if any(s is pd.NA for s in shots):
         # Shot number is unknown
-        return np.mean(yvals), np.nan, -1
+        return np.mean(yvals), np.nan, pd.NA
 
     total_shots = np.sum(shots)
     weights = shots / total_shots
@@ -276,7 +277,7 @@ def inverse_weighted_variance(
     if len(yvals) == 1:
         return yvals[0], yerrs[0], shots[0]
 
-    total_shots = np.sum(shots) if all(shots > 0) else -1
+    total_shots = np.sum(shots)
     weights = 1 / yerrs**2
     yvar = 1 / np.sum(weights)
 
@@ -307,7 +308,7 @@ def sample_average(
     if len(yvals) == 1:
         return yvals[0], 0.0, shots[0]
 
-    total_shots = np.sum(shots) if all(shots > 0) else -1
+    total_shots = np.sum(shots)
 
     avg_yval = np.mean(yvals)
     avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))
