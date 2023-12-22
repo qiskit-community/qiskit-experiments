@@ -229,6 +229,14 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        return list(self.circuits_generator())
+
+    def circuits_generator(self) -> Iterable[QuantumCircuit]:
+        """Generate physical circuits to measure layer fidelity.
+
+        Returns:
+            A generator of :class:`QuantumCircuit`s.
+        """
         opts = self.experiment_options
         residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
         rng = default_rng(seed=opts.seed)
@@ -325,9 +333,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                         ],
                         "composite_index": [i_set],
                     }
-                    circuits.append(circ)
-
-        return circuits
+                    yield circ
 
     @staticmethod
     def __circuit_body(
