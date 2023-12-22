@@ -136,10 +136,11 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         """
         outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
         num_qubits = len(self._physical_qubits)
+        d = 2**num_qubits
 
         # Calculate process fidelity
         alpha = fit_data.ufloat_params["alpha"]
-        pf = (1 + (2**num_qubits - 1) * alpha) / (2**num_qubits)
+        pf = (1 + (d**2 - 1) * alpha) / (d**2)
 
         quality, reason = self.__evaluate_quality(fit_data)
 
