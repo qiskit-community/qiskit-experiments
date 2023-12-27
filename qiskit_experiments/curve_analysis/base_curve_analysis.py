@@ -188,6 +188,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             lmfit_options (Dict[str, Any]): Options that are passed to the
                 LMFIT minimizer. Acceptable options depend on fit_method.
             x_key (str): Circuit metadata key representing a scanned value.
+            fit_category (str): Name of dataset in the scatter table to fit.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
@@ -219,6 +220,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.normalization = False
         options.average_method = "shots_weighted"
         options.x_key = "xval"
+        options.fit_category = "formatted"
         options.result_parameters = []
         options.extra = {}
         options.fit_method = "least_squares"
@@ -282,11 +284,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_data_processing(
         self,
         raw_data: List[Dict],
+        category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
+            category: Category string of the output dataset.
 
         Returns:
             Processed data that will be sent to the formatter method.
@@ -296,14 +300,16 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _format_data(
         self,
         curve_data: ScatterTable,
+        category: str = "formatted",
     ) -> ScatterTable:
-        """Postprocessing for the processed dataset.
+        """Postprocessing for preparing the fitting data.
 
         Args:
             curve_data: Processed dataset created from experiment results.
+            category: Category string of the output dataset.
 
         Returns:
-            Formatted data.
+            New scatter table instance including fit data.
         """
 
     @abstractmethod

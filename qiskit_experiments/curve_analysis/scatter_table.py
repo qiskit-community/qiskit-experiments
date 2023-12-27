@@ -33,14 +33,15 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
     for the base class API documentation.
 
     A single ``ScatterTable`` object can contain different kind of intermediate data
-    generated through the curve fitting, which are categorized by the fit model.
-    When an experiment has sub-data for ``model_abc``, the formatted x, y, and y-error
+    generated through the curve fitting, which are classified by the fit model.
+    When an experiment has sub-data for ``sub_exp_1``, the formatted x, y, and y-error
     array data may be obtained from the original table object as follows:
 
     .. code-block::python
 
-        formatted = table.filter(like="formatted", axis="index")
-        abc_data = formatted[formatted.model_name == "model_abc"]
+        abc_data = table[
+            (table.name == "sub_exp_1") & (table.category == "formatted")
+        ]
         x, y, e = abc_data.xval.to_numpy(), abc_data.yval.to_numpy(), abc_data.yerr.to_numpy()
 
     """
@@ -55,8 +56,9 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
             "xval",
             "yval",
             "yerr",
-            "model_name",
-            "model_id",
+            "name",
+            "class_id",
+            "category",
             "shots",
         ]
 
@@ -77,7 +79,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
         """
         if isinstance(index, int):
             index = self.labels[index]
-        return self[self.model_name == index]
+        return self[self.name == index]
 
     @property
     @deprecate_func(
@@ -138,7 +140,7 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
     def data_allocation(self) -> np.ndarray:
         """Index of corresponding fit model."""
         # pylint: disable=no-member
-        return self.model_id.to_numpy()
+        return self.class_id.to_numpy()
 
     @property
     @deprecate_func(
@@ -151,29 +153,22 @@ class ScatterTable(pd.DataFrame, DefaultColumnsMixIn):
     def labels(self) -> List[str]:
         """List of model names."""
         # Order sensitive
-        name_id_tups = self.groupby(["model_name", "model_id"]).groups.keys()
+        name_id_tups = self.groupby(["name", "class_id"]).groups.keys()
         return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
 
     def append_list_values(
         self,
         other: Sequence,
-        prefix: str,
     ) -> "ScatterTable":
         """Add another list of dataframe values to this dataframe.
 
         Args:
             other: List of dataframe values to be added.
-            prefix: Prefix of row labels of the added values.
 
         Returns:
             New scatter table instance including both self and added data.
         """
-        other_index = [f"{prefix}-{i:04d}" for i in range(len(other))]
-        return ScatterTable(
-            data=[*self.values, *other],
-            columns=self.columns,
-            index=[*self.index, *other_index],
-        )
+        return ScatterTable(data=[*self.values, *other], columns=self.columns)
 
     def __json_encode__(self) -> Dict[str, Any]:
         return {
