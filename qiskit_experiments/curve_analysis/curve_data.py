@@ -235,10 +235,13 @@ class CurveFitResult:
                 )
             else:
                 # Invalid covariance matrix. Std dev is set to nan, i.e. not computed.
-                ufloat_fitvals = uarray(
-                    nominal_values=[self.params[name] for name in self.var_names],
-                    std_devs=np.full(len(self.var_names), np.nan),
-                )
+                with np.errstate(invalid="ignore"):
+                    # Setting std_devs to NaN will trigger floating point exceptions
+                    # which we can ignore. See https://stackoverflow.com/q/75656026
+                    ufloat_fitvals = uarray(
+                        nominal_values=[self.params[name] for name in self.var_names],
+                        std_devs=np.full(len(self.var_names), np.nan),
+                    )
             # Combine fixed params and fitting variables into a single dictionary
             # Fixed parameter has zero std_dev
             ufloat_params = {}

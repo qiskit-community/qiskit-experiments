@@ -231,7 +231,11 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
         processed_values = self.options.data_processor(to_process)
         source["yval"] = unp.nominal_values(processed_values).flatten()
-        source["yerr"] = unp.std_devs(processed_values).flatten()
+        with np.errstate(invalid="ignore"):
+            # For averaged data, the processed std dev will be NaN.
+            # Setting std_devs to NaN will trigger floating point exceptions
+            # which we can ignore. See https://stackoverflow.com/q/75656026
+            source["yerr"] = unp.std_devs(processed_values).flatten()
         source["category"] = category
 
         table = ScatterTable(data=source)
