@@ -769,6 +769,7 @@ class ExperimentData:
     def add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
+        **kwargs
     ) -> None:
         """Add experiment data.
 
@@ -810,7 +811,7 @@ class ExperimentData:
                             for inner_datum in datum["metadata"]["composite_metadata"]:
                                 if "composite_index" in inner_datum:
                                     for sub_expdata in composite_expdata:
-                                        self.add_data(inner_datum)
+                                        self.add_data(inner_datum,inner_comoposite_flag=False)
                         except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
@@ -829,13 +830,17 @@ class ExperimentData:
                             for inner_datum in datum["composite_metadata"]:
                                 if "composite_index" in inner_datum:
                                     for sub_expdata in composite_expdata:
-                                        self.add_data(inner_datum)
+                                        self.add_data(inner_datum,inner_comoposite_flag=False)
                         except IndexError or RuntimeError or AnalysisError:
                             new_child = ExperimentData()
                             for inner_datum in marginalized_datum:
                                 new_child.add_data(inner_datum)
                     else:
-                        self._result_data.append(datum)
+                        try:
+                            if kwargs["inner_comoposite_flag"]:
+                                self._result_data.append(datum)
+                        except KeyError:
+                            self._result_data.append(datum)
 
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
