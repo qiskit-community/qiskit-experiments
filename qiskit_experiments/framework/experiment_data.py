@@ -794,47 +794,41 @@ class ExperimentData:
             data = [data]
 
         # Directly add non-job data
-        with self._result_data.lock:
+        with self._result_data.lock and self._child_data.lock:
             
             for datum in data:
                 if isinstance(datum, dict):
                     if "metadata" in datum and "composite_metadata" in datum["metadata"]:
 
                         marginalized_datum = self._marginalized_component_data([datum])
-                        try:
-                            composite_index = datum["metadata"]["composite_index"]
-                            while max(composite_index) > len(self._child_data):
-                                self.add_child_data(ExperimentData())
-                            composite_expdata = [self.child_data(i) for i in composite_index]
-                            for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
-                                sub_expdata.add_data(sub_data)
-                            for inner_datum in datum["metadata"]["composite_metadata"]:
-                                if "composite_index" in inner_datum:
-                                    for sub_expdata in composite_expdata:
-                                        self.add_data(inner_datum,inner_comoposite_flag=False)
-                        except IndexError or RuntimeError or AnalysisError:
-                            new_child = ExperimentData()
-                            for inner_datum in marginalized_datum:
-                                new_child.add_data(inner_datum)
-                        
+                        composite_index = datum["metadata"]["composite_index"]
+                        max_index = max(composite_index)
+                        while max_index > len(self._child_data) -1:
+                            self.add_child_data(ExperimentData())
+                        composite_expdata = [self.child_data(i) for i in composite_index]
+                        for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
+                            sub_expdata.add_data(sub_data)
+                        for inner_datum in datum["metadata"]["composite_metadata"]:
+                            if "composite_index" in inner_datum:
+                                for sub_expdata in composite_expdata:
+                                    self.add_data(inner_datum,inner_comoposite_flag=False)
+                    
                         self._result_data.append(datum)
 
-                    elif "composite_metadata" in datum:
+                    elif "composite_metadata" in datum and "metadata" not in datum:
 
                         marginalized_datum = self._marginalized_component_data([datum])
-                        try:
-                            composite_index = datum["composite_index"]
-                            composite_expdata = [self.child_data(i) for i in composite_index]
-                            for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
-                                sub_expdata.add_data(sub_data)
-                            for inner_datum in datum["composite_metadata"]:
-                                if "composite_index" in inner_datum:
-                                    for sub_expdata in composite_expdata:
-                                        self.add_data(inner_datum,inner_comoposite_flag=False)
-                        except IndexError or RuntimeError or AnalysisError:
-                            new_child = ExperimentData()
-                            for inner_datum in marginalized_datum:
-                                new_child.add_data(inner_datum)
+                        composite_index = datum["composite_index"]
+                        max_index = max(composite_index)
+                        while max(composite_index) > len(self._child_data) -1:
+                            self.add_child_data(ExperimentData())
+                        composite_expdata = [self.child_data(i) for i in composite_index]
+                        for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
+                            sub_expdata.add_data(sub_data)
+                        for inner_datum in datum["composite_metadata"]:
+                            if "composite_index" in inner_datum:
+                                for sub_expdata in composite_expdata:
+                                    self.add_data(inner_datum,inner_comoposite_flag=False)
                     else:
                         try:
                             if kwargs["inner_comoposite_flag"]:
