@@ -802,6 +802,8 @@ class ExperimentData:
                         marginalized_datum = self._marginalized_component_data([datum])
                         try:
                             composite_index = datum["metadata"]["composite_index"]
+                            while max(composite_index) > len(self._child_data):
+                                self.add_child_data(ExperimentData())
                             composite_expdata = [self.child_data(i) for i in composite_index]
                             for sub_expdata, sub_data in zip(composite_expdata, marginalized_datum):
                                 sub_expdata.add_data(sub_data)
