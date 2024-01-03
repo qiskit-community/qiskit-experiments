@@ -45,7 +45,6 @@ jobs:
         if: runner.os == 'macOS'
         env:
           TEST_TIMEOUT: 120
-          OMP_NUM_THREADS: 1
   docs:
     if: github.repository_owner == 'Qiskit-Extensions'
     name: docs
