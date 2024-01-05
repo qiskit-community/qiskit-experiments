@@ -120,6 +120,7 @@ class CompositeAnalysis(BaseAnalysis):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         if len(child_data) == 0:  
             # Child data is automatically created when composite result data is added.  
             # Validate that child data size matches with number of analysis entries.  
@@ -152,6 +153,21 @@ class CompositeAnalysis(BaseAnalysis):
 =======
             self._analyses[i].run(sub_expdata, replace_results=True)
 >>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
+=======
+        if len(self._analyses) != len(child_data):
+            # Child data is automatically created when composite result data is added.
+            # Validate that child data size matches with number of analysis entries.
+            raise RuntimeError(
+                "Number of sub-analysis and child data don't match: "
+                f"{len(self._analyses)} != {len(child_data)}. "
+                "Please check if the composite experiment and analysis are properly instantiated."
+            )
+
+        for sub_analysis, sub_data in zip(self._analyses, child_data):
+            # Since copy for replace result is handled at the parent level
+            # we always run with replace result on component analysis
+            sub_analysis.run(sub_data, replace_results=True)
+>>>>>>> a3abf4d2 (Fix marginalize problems)
 
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning
@@ -163,7 +179,10 @@ class CompositeAnalysis(BaseAnalysis):
         # for adding to the main experiment data container
         if self._flatten_results:
             analysis_results, figures = self._combine_results(child_data)
+<<<<<<< HEAD
 
+=======
+>>>>>>> a3abf4d2 (Fix marginalize problems)
             for res in analysis_results:
                 # Override experiment  ID because entries are flattened
                 res.experiment_id = experiment_data.experiment_id

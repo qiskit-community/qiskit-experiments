@@ -169,7 +169,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             # Clearing previous analysis data
             experiment_data._clear_results()
 
-            if not expdata.data():
+            if not expdata.data() and not expdata.child_data():
                 warnings.warn("ExperimentData object data is empty.\n")
 
             # Making new analysis
