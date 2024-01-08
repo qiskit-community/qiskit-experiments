@@ -1,0 +1,15 @@
+---
+upgrade:
+  - |
+    The dependency on ``qiskit-terra`` was replaced with a dependency on
+    ``qiskit``. This change follows the move in upstream Qiskit to rename
+    ``qiskit-terra`` to ``qiskit``. The minimum required version was increased
+    from 0.24 for ``qiskit-terra`` to 0.44 for ``qiskit`` (equivalent to
+    `qiskit-terra`` 0.25). The maximum ``qiskit`` version was set to ``<1.0``
+    in anticipation of breaking changes in Qiskit 1.0. Closer to the Qiskit 1.0
+    release, a patch release of ``qiskit-experiments`` will remove this
+    constraint and address any compatibility issues. For more information see
+    the `Qiskit repository renaming plan
+    <https://github.com/Qiskit/RFCs/blob/5793e78dc8e4d8d17f8ef7fad789c6c5ebd3a061/0011-repo-rename.md>`__
+    and the `Qiskit issue <https://github.com/Qiskit/qiskit/issues/11240>`__
+    for the renaming of the package.

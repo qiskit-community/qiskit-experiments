@@ -78,7 +78,7 @@ class MitigatedProcessTomography(BatchExperiment):
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a pair of
                 lists of preparation and measurement basis configurations
-                ``([p[0], p[1], ..], m[0], m[1], ...])``, where ``p[i]`` is the
+                ``([p[0], p[1], ...], [m[0], m[1], ...])``, where ``p[i]`` is the
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.

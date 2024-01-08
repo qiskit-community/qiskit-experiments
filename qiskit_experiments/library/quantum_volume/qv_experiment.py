@@ -40,8 +40,8 @@ class QuantumVolume(BaseExperiment):
 
         The Quantum Volume is determined by the largest circuit depth :math:`d_{max}`,
         and equals to :math:`2^{d_{max}}`.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
+        See the `Qiskit Textbook
+        <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`_
         for an explanation on the QV protocol.
 
         In the QV experiment we generate :class:`~qiskit.circuit.library.QuantumVolume` circuits on
@@ -50,7 +50,7 @@ class QuantumVolume(BaseExperiment):
         Then these circuits run on the quantum backend and on an ideal simulator (either
         :class:`~qiskit_aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
 
-        A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
+        A depth :math:`d` QV circuit is successful if it has `mean heavy-output probability` > 2/3 with
         confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
 
         See :class:`QuantumVolumeAnalysis` documentation for additional

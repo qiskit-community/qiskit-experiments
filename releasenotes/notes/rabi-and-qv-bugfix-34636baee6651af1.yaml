@@ -6,3 +6,5 @@ fixes:
   - |
     Resolved an issue that caused QV experiments to fail when executed via `qiskit-ibm-provider` using
     Qiskit Terra for calculating ideal probabilities, instead of Aer.
+  - |
+    Resolved a serialization issue that affected DRAG experiments with integral beta values specified.

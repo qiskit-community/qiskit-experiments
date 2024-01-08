@@ -163,31 +163,80 @@ class CurveAnalysis(BaseCurveAnalysis):
         Raises:
             DataProcessorError: When key for x values is not found in the metadata.
             DataProcessorError: When data_subfit_map information for a fit model is missing.
+            ValueError: When input data has incomplete metadata to specify fit model.
         """
+        opt = self.options
+
         # Create table
-        x_key = self.options.x_key
-        filter_kwargs = self.options.filter_data
-        out = ScatterTable()
-        to_process = []
-        for idx, datum in enumerate(raw_data):
+        if opt.filter_data:
+            to_process = [d for d in raw_data if opt.filter_data.items() <= d["metadata"].items()]
+        else:
+            to_process = raw_data
+
+        # This must align with ScatterTable columns. Use struct array.
+        dtypes = np.dtype(
+            [
+                ("xval", float),
+                ("yval", float),
+                ("yerr", float),
+                ("model_name", "U30"),  # builtin str is U0 which is zero-length unicode in numpy
+                ("model_id", int),
+                ("shots", int),
+            ]
+        )
+        table_data = np.empty(len(to_process), dtype=dtypes)
+        for idx, datum in enumerate(to_process):
             metadata = datum["metadata"].copy()
-            if filter_kwargs and not filter_kwargs.items() <= datum["metadata"].items():
-                # This data is not a part of this analysis.
-                continue
+            # Get xval from metadata
             try:
-                xval = metadata.pop(x_key)
+                xval = metadata.pop(opt.x_key)
             except KeyError as ex:
                 raise DataProcessorError(
-                    f"X value key {x_key} is not defined in the circuit metadata."
+                    f"X value key {opt.x_key} is not defined in the circuit metadata."
                 ) from ex
-            out.add_entry(
-                index=f"circuit-{idx:04d}",
-                xval=xval,
-                shots=datum.get("shots", None),
-                format="raw",
-                **metadata,
-            )
-            to_process.append(datum)
+            # Classify fit model
+            if len(self._models) == 1:
+                m_id = 0
+                m_name = self._models[0]._name
+            else:
+                for i, model in enumerate(self._models):
+                    try:
+                        model_spec = self.options.data_subfit_map[model._name]
+                    except KeyError as ex:
+                        raise DataProcessorError(
+                            f"Mapping to data for the fit model {model._name} is not provided."
+                        ) from ex
+                    if model_spec.items() <= metadata.items():
+                        m_id = i
+                        m_name = model._name
+                        break
+                else:
+                    raise ValueError(f"Experiment data {datum} doesn't belong to any fit model.")
+            table_data[idx]["xval"] = xval
+            table_data[idx]["shots"] = datum.get("shots", -1)
+            table_data[idx]["model_id"] = m_id
+            table_data[idx]["model_name"] = m_name
+
+            # Add extra metadata
+            add_key = metadata.keys() - table_data.dtype.fields
+            if add_key:
+                # Add missing keys to struct array
+                # This code is lengthy but faster than merge_arrays function
+                add_dtypes = []
+                for k in add_key:
+                    if isinstance(metadata[k], str):
+                        new_dtype = "U30"
+                    else:
+                        new_dtype = type(metadata[k])
+                    add_dtypes.append((k, new_dtype))
+                new_table_data = np.empty(
+                    len(to_process), dtype=sum((table_data.dtype.descr, add_dtypes), [])
+                )
+                for k in table_data.dtype.fields:
+                    new_table_data[k] = table_data[k]
+                table_data = new_table_data
+            for k, v in metadata.items():
+                table_data[idx][k] = v
 
         # Compute y value
         if not self.options.data_processor:
@@ -197,29 +246,13 @@ class CurveAnalysis(BaseCurveAnalysis):
                 "data_processor analysis options."
             )
         processed_values = self.options.data_processor(to_process)
-        out.yval = unp.nominal_values(processed_values)
-        out.yerr = unp.std_devs(processed_values)
+        table_data["yval"] = unp.nominal_values(processed_values).flatten()
+        table_data["yerr"] = unp.std_devs(processed_values).flatten()
 
-        # Set model names and ids
-        if len(self._models) == 1:
-            out.model_name = self._models[0]._name
-            out.model_id = 0
-        else:
-            for i, model in enumerate(self._models):
-                try:
-                    model_spec = self.options.data_subfit_map[model._name]
-                except KeyError as ex:
-                    raise DataProcessorError(
-                        f"Mapping to data for the fit model {model._name} is not provided."
-                    ) from ex
-                conds = [out[k] == v for k, v in model_spec.items()]
-                if len(conds) >= 2:
-                    rows = np.logical_and(*conds)
-                else:
-                    rows = conds[0]
-                out.loc[rows, "model_name"] = model._name
-                out.loc[rows, "model_id"] = i
-
+        out = ScatterTable(
+            data=table_data,
+            index=[f"processed-{i:04d}" for i in range(len(to_process))],
+        )
         return out
 
     def _format_data(
@@ -247,7 +280,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         )
         # Use python native groupby method on ndarray. This is more performant than pandas one.
         average = averaging_methods[self.options.average_method]
-        print(average)
         formatted = []
         for (mid, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
             g_values = np.array(list(g))
@@ -462,9 +494,10 @@ class CurveAnalysis(BaseCurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
+        analysis_results = []
+        figures = []
+
         result_data: List[Union[AnalysisResultData, ArtifactData]] = []
-        
-        figures: List["pyplot.Figure"] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -538,7 +571,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 other=np.vstack(fit_curves),
                 prefix="fitted",
             )
-            result_data.extend(
+            analysis_results.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,

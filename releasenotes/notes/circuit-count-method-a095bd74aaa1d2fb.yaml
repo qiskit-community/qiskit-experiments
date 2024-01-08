@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    A new method :meth:`BaseExperiment.job_info` has been added that will
+    output the number of jobs the experiment is expected to be split into
+    based on the provided backend.
+  - |
+    Refer to issue
+    `#1247 https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1247`
+    for more details.
+    

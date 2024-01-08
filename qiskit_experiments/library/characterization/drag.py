@@ -166,7 +166,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             )
 
             for beta_val in self.experiment_options.betas:
-                beta_val = np.round(beta_val, decimals=6)
+                beta_val = float(np.round(beta_val, decimals=6))
 
                 assigned_circuit = circuit.assign_parameters({beta: beta_val}, inplace=False)
 

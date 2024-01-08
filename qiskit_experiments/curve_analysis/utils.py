@@ -18,7 +18,6 @@ import time
 import asteval
 import lmfit
 import numpy as np
-import pandas as pd
 from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
@@ -256,56 +255,35 @@ def shot_weighted_average(
 
     return avg_yval, avg_yerr, total_shots
 
+
 def inverse_weighted_variance(
-    group: Tuple[Tuple[str, float], pd.DataFrame],
-) -> List:
+    yvals: np.ndarray,
+    yerrs: np.ndarray,
+    shots: np.ndarray,
+) -> Tuple[float, float, int]:
     """Compute inverse weighted variance and weighted average of the categorized data frame.
 
     Sample is weighted by the inverse of the data variance.
 
     Args:
-        group: Data frame grouped by the model name and x value.
+        yvals: Y values to average.
+        yerrs: Y errors to average.
+        shots: Number of shots used to obtain Y value and error.
 
     Returns:
-        A single row of the average.
+        Averaged Y value, Y error, and total shots.
     """
-    (model_name, xval), grouped_df = group
-    values = grouped_df.values
+    if len(yvals) == 1:
+        return yvals[0], yerrs[0], shots[0]
 
-    if len(values) == 1:
-        out = values[0]
-        out[6] = "fit-ready"
-        return out
-
-    yval = values[:, 1]
-    yerr = values[:, 2]
-    shots = values[:, 5]
-    weights = 1 / yerr**2
+    total_shots = np.sum(shots) if all(shots > 0) else -1
+    weights = 1 / yerrs**2
     yvar = 1 / np.sum(weights)
 
-    out = [
-        # xval
-        xval,
-        # yval
-        yvar * np.sum(weights * yval),
-        # yerr
-        np.sqrt(yvar),
-        # model_name
-        model_name,
-        # model_id
-        values[:, 4][0],
-        # shots
-        np.sum(shots),
-        # format
-        "fit-ready",
-    ]
-    # Process extra columns. Use set operation to aggregate metadata.
-    for extra in list(map(set, list(values[:, 7:].T))):
-        if len(extra) == 1:
-            out.append(next(iter(extra)))
-        else:
-            out.append(extra)
-    return out
+    avg_yval = yvar * np.sum(weights * yvals)
+    avg_yerr = np.sqrt(yvar)
+
+    return avg_yval, avg_yerr, total_shots
 
 
 # pylint: disable=unused-argument

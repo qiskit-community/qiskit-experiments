@@ -101,11 +101,11 @@ first and last circuits for our :math:`T_1` experiment:
 .. jupyter-execute::
 
     print(delays)
-    exp.circuits()[0].draw(output='mpl')
+    exp.circuits()[0].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    exp.circuits()[-1].draw(output='mpl')
+    exp.circuits()[-1].draw(output="mpl", style="iqp")
 
 As expected, the delay block spans the full range of time values that we specified.
 
@@ -238,6 +238,8 @@ supports can be set:
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)
+  print(f"Shots set to {exp.run_options.get('shots')}, " 
+        "measurement level set to {exp.run_options.get('meas_level')}")
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
@@ -253,6 +255,7 @@ before execution:
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
                             basis_gates=["x", "sx", "rz"])
+  print(f"Transpile options are {exp.transpile_options}")
 
 Consult the documentation of :func:`qiskit.compiler.transpile` for valid options.
 
@@ -267,6 +270,7 @@ upon experiment instantiation, but can also be explicitly set via
     exp = T1(physical_qubits=(0,), delays=delays)
     new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
+    print(f"Experiment options are {exp.experiment_options}")
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment
 class.
@@ -274,7 +278,7 @@ class.
 Analysis options
 ----------------
 
-These options are unique to each analysis class. Unlike the other options, analyis
+These options are unique to each analysis class. Unlike the other options, analysis
 options are not directly set via the experiment object but use instead a method of the
 associated ``analysis``:
 
@@ -295,7 +299,7 @@ Running experiments on multiple qubits
 ======================================
 
 To run experiments across many qubits of the same device, we use **composite
-experiments**. A composite experiment is a parent object that contains one or more child
+experiments**. A :class:`.CompositeExperiment` is a parent object that contains one or more child
 experiments, which may themselves be composite. There are two core types of composite
 experiments:
 
@@ -323,15 +327,25 @@ Note that when the transpile and run options are set for a composite experiment,
 child experiments's options are also set to the same options recursively. Let's examine
 how the parallel experiment is constructed by visualizing child and parent circuits. The
 child experiments can be accessed via the
-:meth:`~.ParallelExperiment.component_experiment` method, which indexes from zero:
+:meth:`~.CompositeExperiment.component_experiment` method, which indexes from zero:
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(0).circuits()[0].draw(output='mpl')
+    parallel_exp.component_experiment(0).circuits()[0].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
+    parallel_exp.component_experiment(1).circuits()[0].draw(output="mpl", style="iqp")
+
+Similarly, the child analyses can be accessed via :meth:`.CompositeAnalysis.component_analysis` or via
+the analysis of the child experiment class:
+
+.. jupyter-execute::
+
+    parallel_exp.component_experiment(0).analysis.set_options(plot = True)
+
+    # This should print out what we set because it's the same option
+    print(parallel_exp.analysis.component_analysis(0).options.get("plot"))
 
 The circuits of all experiments assume they're acting on virtual qubits starting from
 index 0. In the case of a parallel experiment, the child experiment
@@ -339,7 +353,7 @@ circuits are composed together and then reassigned virtual qubit indices:
 
 .. jupyter-execute::
 
-    parallel_exp.circuits()[0].draw(output='mpl')
+    parallel_exp.circuits()[0].draw(output="mpl", style="iqp")
 
 During experiment transpilation, a mapping is performed to place these circuits on the
 physical layout. We can see its effects by looking at the transpiled
@@ -349,7 +363,7 @@ and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
 
-    parallel_exp._transpiled_circuits()[0].draw(output='mpl')
+    parallel_exp._transpiled_circuits()[0].draw(output="mpl", style="iqp")
 
 :class:`.ParallelExperiment` and :class:`.BatchExperiment` classes can also be nested
 arbitrarily to make complex composite experiments.
@@ -394,3 +408,16 @@ into one level:
 
     for result in parallel_data.analysis_results():
         print(result)
+
+Broadcasting analysis options to child experiments
+--------------------------------------------------
+
+Use the `broadcast` parameter to set analysis options to each of the child experiments.
+
+.. jupyter-execute::
+
+    parallel_exp.analysis.set_options(plot=False, broadcast=True)
+
+If the child experiment inherits from :class:`.CompositeExperiment` (such as :class:`.ParallelExperiment`
+and :class:`.BatchExperiment` classes), this process will continue to work recursively.
+In this instance, the analysis will not generate a figure for the child experiment after the analysis.

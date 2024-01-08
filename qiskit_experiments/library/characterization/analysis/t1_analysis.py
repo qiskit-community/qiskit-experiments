@@ -47,7 +47,7 @@ class T1Analysis(curve.DecayAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - absolute amp is within [0.9, 1.1]
             - base is less than 0.1
             - amp error is less than 0.1
@@ -59,7 +59,7 @@ class T1Analysis(curve.DecayAnalysis):
         base = fit_data.ufloat_params["base"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 1.0) < 0.1,
             abs(base.nominal_value) < 0.1,
             curve.utils.is_error_not_significant(amp, absolute=0.1),
@@ -94,7 +94,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - absolute amp is within [0.9, 1.1]
             - base is less than 0.1
             - amp error is less than 0.1
@@ -106,7 +106,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         base = fit_data.ufloat_params["base"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 1.0) < 0.1,
             abs(base.nominal_value) < 0.1,
             curve.utils.is_error_not_significant(amp, absolute=0.1),

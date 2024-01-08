@@ -100,7 +100,7 @@ class PreparationBasis(BaseBasis):
 
     @abstractmethod
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        """Return the shape of subsystem dimensions of the state attr:`~matrix`.
+        """Return the shape of subsystem dimensions of the state :attr:`~matrix`.
 
         Args:
             qubits: the physical qubit subsystems.
@@ -170,7 +170,7 @@ class MeasurementBasis(BaseBasis):
 
     @abstractmethod
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        """Return the shape of subsystem dimensions of a POVM attr:`~matrix`.
+        """Return the shape of subsystem dimensions of a POVM :attr:`~matrix`.
 
         Args:
             qubits: the physical qubit subsystems.

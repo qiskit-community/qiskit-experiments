@@ -103,7 +103,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         circ.s(0)
         circ.cx(0, 1)
 
-        exp = ProcessTomography(circ)
+        exp = ProcessTomography(circ, preparation_indices=[0], measurement_indices=[0])
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_cvxpy_gaussian_lstsq_cx(self):

@@ -98,13 +98,13 @@ class DecayAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - tau error is less than its value
         """
         tau = fit_data.ufloat_params["tau"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(tau),
         ]
 

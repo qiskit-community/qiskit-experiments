@@ -137,13 +137,81 @@ def parse_utc_datetime(dt_str: str) -> datetime:
     return dt_utc
 
 
-class ExperimentData(DataCollection):
+class FigureData:
+    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
+    the ``figure`` attribute."""
+
+    def __init__(self, figure, name=None, metadata=None):
+        """Creates a new figure data object.
+
+        Args:
+            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
+            name: Optional, the name of the figure.
+            metadata: Optional, any metadata to be stored with the figure.
+        """
+        self.figure = figure
+        self._name = name
+        self.metadata = metadata or {}
+
+    # name is read only
+    @property
+    def name(self) -> str:
+        """The name of the figure"""
+        return self._name
+
+    @property
+    def metadata(self) -> dict:
+        """The metadata dictionary stored with the figure"""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, new_metadata: dict):
+        """Set the metadata to new value; must be a dictionary"""
+        if not isinstance(new_metadata, dict):
+            raise ValueError("figure metadata must be a dictionary")
+        self._metadata = new_metadata
+
+    def copy(self, new_name: Optional[str] = None):
+        """Creates a copy of the figure data"""
+        name = new_name or self.name
+        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        """Return the json representation of the figure data"""
+        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+
+    @classmethod
+    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
+        """Initialize a figure data from the json representation"""
+        return cls(**args)
+
+    def _repr_png_(self):
+        if isinstance(self.figure, MatplotlibFigure):
+            b = io.BytesIO()
+            self.figure.savefig(b, format="png", bbox_inches="tight")
+            png = b.getvalue()
+            return png
+        else:
+            return None
+
+    def _repr_svg_(self):
+        if isinstance(self.figure, str):
+            return self.figure
+        if isinstance(self.figure, bytes):
+            return str(self.figure)
+        return None
+
+
+FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+
+
+class ExperimentData:
     """Experiment data container class.
 
     .. note::
         Saving experiment data to the cloud database is currently a limited access feature. You can
         check whether you have access by logging into the IBM Quantum interface
-        and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+        and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
     This class handles the following:
 
@@ -1037,14 +1105,20 @@ class ExperimentData(DataCollection):
         waited = futures.wait(futs, timeout=timeout)
         value = True
 
-        # Log futures still running after timeout
-        if waited.not_done:
-            LOG.info(
-                "Waiting for %s timed out before completion [Experiment ID: %s].",
-                name,
-                self.experiment_id,
-            )
-            value = False
+    def _retrieve_data(self):
+        """Retrieve job data if missing experiment data."""
+        # Get job results if missing in experiment data.
+        if self.provider is None:
+            # 'self._result_data' could be locked, so I check a copy of it.
+            if not self._result_data.copy():
+                # Adding warning so the user will have indication why the analysis may fail.
+                LOG.warning(
+                    "Provider for ExperimentData object doesn't exist, resulting in a failed attempt to"
+                    " retrieve data from the server; no stored result data exists"
+                )
+            return
+        retrieved_jobs = {}
+        jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
 
         # Check for futures that were cancelled or errored
         excepts = ""
@@ -1086,14 +1160,203 @@ class ExperimentData(DataCollection):
 
     def add_data(
         self,
-        data: Result | list[Result] | dict | list[dict],
-    ):
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
+        figures: Union[FigureT, List[FigureT]],
+        figure_names: Optional[Union[str, List[str]]] = None,
+        overwrite: bool = False,
+        save_figure: Optional[bool] = None,
+    ) -> Union[str, List[str]]:
+        """Add the experiment figure.
+
+        Args:
+            figures: Paths of the figure files or figure data.
+            figure_names: Names of the figures. If ``None``, use the figure file
+                names, if given, or a generated name of the format ``experiment_type``, figure
+                index, first 5 elements of ``device_components``, and first 8 digits of the
+                experiment ID connected by underscores, such as ``T1_Q0_0123abcd.svg``. If `figures`
+                is a list, then `figure_names` must also be a list of the same length or ``None``.
+            overwrite: Whether to overwrite the figure if one already exists with
+                the same name. By default, overwrite is ``False`` and the figure will be renamed
+                with an incrementing numerical suffix. For example, trying to save ``figure.svg`` when
+                ``figure.svg`` already exists will save it as ``figure-1.svg``, and trying to save
+                ``figure-1.svg`` when ``figure-1.svg`` already exists will save it as ``figure-2.svg``.
+            save_figure: Whether to save the figure in the database. If ``None``,
+                the ``auto-save`` attribute is used.
+
+        Returns:
+            Figure names in SVG format.
+
+        Raises:
+            ValueError: If an input parameter has an invalid value.
+        """
+        if figure_names is not None and not isinstance(figure_names, list):
+            figure_names = [figure_names]
+        if not isinstance(figures, list):
+            figures = [figures]
+        if figure_names is not None and len(figures) != len(figure_names):
+            raise ValueError(
+                "The parameter figure_names must be None or a list of "
+                "the same size as the parameter figures."
             )
-        super().add_data(data)
+
+        added_figs = []
+        for idx, figure in enumerate(figures):
+            if figure_names is None:
+                if isinstance(figure, str):
+                    # figure is a filename, so we use it as the name
+                    fig_name = figure
+                elif not isinstance(figure, FigureData):
+                    # Generate a name in the form StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
+                    fig_name = (
+                        f"{self.experiment_type}_"
+                        f'{"_".join(str(i) for i in self.metadata.get("device_components", [])[:5])}_'
+                        f"{self.experiment_id[:8]}.svg"
+                    )
+                else:
+                    # Keep the existing figure name if there is one
+                    fig_name = figure.name
+            else:
+                fig_name = figure_names[idx]
+            if not fig_name.endswith(".svg"):
+                LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
+                fig_name += ".svg"
+
+            existing_figure = fig_name in self._figures
+            if existing_figure and not overwrite:
+                # Remove any existing suffixes then generate new figure name
+                # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg becomes StandardRB_Q0_Q1_Q2_b4f1d8ad
+                fig_name_chunked = fig_name.rsplit("-", 1)
+                if len(fig_name_chunked) != 1:  # Figure name already has a suffix
+                    # This extracts StandardRB_Q0_Q1_Q2_b4f1d8ad as the prefix from
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg
+                    fig_name_prefix = fig_name_chunked[0]
+                    try:
+                        fig_name_suffix = int(fig_name_chunked[1].rsplit(".", 1)[0])
+                    except ValueError:  # the suffix is not an int, add our own suffix
+                        # my-custom-figure-name will be the prefix of my-custom-figure-name.svg
+                        fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                        fig_name_suffix = 0
+                else:
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad.svg has no hyphens so
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad would be its prefix
+                    fig_name_prefix = fig_name.rsplit(".", 1)[0]
+                    fig_name_suffix = 0
+                fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+                while fig_name in self._figures:  # Increment suffix until the name isn't taken
+                    # If StandardRB_Q0_Q1_Q2_b4f1d8ad-1.svg already exists,
+                    # StandardRB_Q0_Q1_Q2_b4f1d8ad-2.svg will be the name of this figure
+                    fig_name_suffix += 1
+                    fig_name = f"{fig_name_prefix}-{fig_name_suffix + 1}.svg"
+
+            # figure_data = None
+            if isinstance(figure, str):
+                with open(figure, "rb") as file:
+                    figure = file.read()
+
+            # check whether the figure is already wrapped, meaning it came from a sub-experiment
+            if isinstance(figure, FigureData):
+                figure_data = figure.copy(new_name=fig_name)
+                figure = figure_data.figure
+
+            else:
+                figure_metadata = {
+                    "qubits": self.metadata.get("physical_qubits"),
+                    "device_components": self.metadata.get("device_components"),
+                    "experiment_type": self.experiment_type,
+                }
+                figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+
+            self._figures[fig_name] = figure_data
+            self._db_data.figure_names.append(fig_name)
+
+            save = save_figure if save_figure is not None else self.auto_save
+            if save and self._service:
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
+                self._service.create_or_update_figure(
+                    experiment_id=self.experiment_id,
+                    figure=figure,
+                    figure_name=fig_name,
+                    create=not existing_figure,
+                )
+            added_figs.append(fig_name)
+
+        return added_figs if len(added_figs) != 1 else added_figs[0]
+
+    @do_auto_save
+    def delete_figure(
+        self,
+        figure_key: Union[str, int],
+    ) -> str:
+        """Add the experiment figure.
+
+        Args:
+            figure_key: Name or index of the figure.
+
+        Returns:
+            Figure name.
+
+        Raises:
+            ExperimentEntryNotFound: If the figure is not found.
+        """
+        if isinstance(figure_key, int):
+            figure_key = self._figures.keys()[figure_key]
+        elif figure_key not in self._figures:
+            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+
+        del self._figures[figure_key]
+        self._deleted_figures.append(figure_key)
+
+        if self._service and self.auto_save:
+            with service_exception_to_warning():
+                self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
+            self._deleted_figures.remove(figure_key)
+
+        return figure_key
+
+    def figure(
+        self,
+        figure_key: Union[str, int],
+        file_name: Optional[str] = None,
+    ) -> Union[int, FigureData]:
+        """Retrieve the specified experiment figure.
+
+        Args:
+            figure_key: Name or index of the figure.
+            file_name: Name of the local file to save the figure to. If ``None``,
+                the content of the figure is returned instead.
+
+        Returns:
+            The size of the figure if `file_name` is specified. Otherwise the
+            content of the figure as a `FigureData` object.
+
+        Raises:
+            ExperimentEntryNotFound: If the figure cannot be found.
+        """
+        if isinstance(figure_key, int):
+            if figure_key < 0 or figure_key >= len(self._figures.keys()):
+                raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            figure_key = self._figures.keys()[figure_key]
+
+        # All figures must have '.svg' in their names when added, as the extension is added to the key
+        # name in the `add_figures()` method of this class.
+        if isinstance(figure_key, str):
+            if not figure_key.endswith(".svg"):
+                figure_key += ".svg"
+
+        figure_data = self._figures.get(figure_key, None)
+        if figure_data is None and self.service:
+            figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
+            figure_data = FigureData(figure=figure, name=figure_key)
+            self._figures[figure_key] = figure_data
+
+        if figure_data is None:
+            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+
+        if file_name:
+            with open(file_name, "wb") as output:
+                num_bytes = output.write(figure_data.figure)
+                return num_bytes
+        return figure_data
 
     @deprecate_arg(
         name="results",
@@ -1160,27 +1423,57 @@ class ExperimentData(DataCollection):
                 tags = result.tags
                 if self.auto_save:
                     result.save()
-        # else:
-            # if self.auto_save:
-            #     service_result = _series_to_service_result(
-            #         series=series,
-            #         service=self._service,
-            #         auto_save=False,
-            #     )
-            #     service_result.save()
-        super().add_analysis_results(
-            result_id=result_id,
-            name=name,
-            value=value,
-            quality=quality,
-            components=components,
-            experiment=experiment,
-            experiment_id=experiment_id,
-            tags=tags,
-            backend=backend,
-            run_time=run_time,
-            created_time=created_time,
-            **extra_values,
+        else:
+            experiment = experiment or self.experiment_type
+            experiment_id = experiment_id or self.experiment_id
+            tags = tags or []
+            backend = backend or self.backend_name
+
+            self._analysis_results.add_entry(
+                result_id=result_id,
+                name=name,
+                value=value,
+                quality=quality,
+                components=components,
+                experiment=experiment,
+                experiment_id=experiment_id,
+                tags=tags or [],
+                backend=backend,
+                run_time=run_time,  # TODO add job RUNNING time
+                created_time=created_time,
+                **extra_values,
+            )
+            if self.auto_save:
+                last_index = self._analysis_results.result_ids()[-1][:8]
+                service_result = _series_to_service_result(
+                    series=self._analysis_results.get_entry(last_index),
+                    service=self._service,
+                    auto_save=False,
+                )
+                service_result.save()
+
+    @do_auto_save
+    def delete_analysis_result(
+        self,
+        result_key: Union[int, str],
+    ) -> str:
+        """Delete the analysis result.
+
+        Args:
+            result_key: ID or index of the analysis result to be deleted.
+
+        Returns:
+            Analysis result ID.
+
+        Raises:
+            ExperimentEntryNotFound: If analysis result not found or multiple entries are found.
+        """
+        # Retrieve from DB if needed.
+        to_delete = self.analysis_results(
+            index=result_key,
+            block=False,
+            columns="all",
+            dataframe=True,
         )
 
     # @do_auto_save
@@ -1244,25 +1537,25 @@ class ExperimentData(DataCollection):
             index: Index of the analysis result to be returned.
                 Several types are accepted for convenience:
 
-                    * None: Return all analysis results.
-                    * int: Specific index of the analysis results.
-                    * slice: A list slice of indexes.
-                    * str: ID or name of the analysis result.
+                * None: Return all analysis results.
+                * int: Specific index of the analysis results.
+                * slice: A list slice of indexes.
+                * str: ID or name of the analysis result.
 
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
-            block: If True block for any analysis callbacks to finish running.
+            block: If ``True``, block for any analysis callbacks to finish running.
             timeout: max time in seconds to wait for analysis callbacks to finish running.
             columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available.
+                column name to return, otherwise builtin column groups are available:
 
-                    * "all": Return all columns, including metadata to communicate
-                        with experiment service, such as entry IDs.
-                    * "default": Return columns including analysis result with supplementary
-                        information about experiment.
-                    * "minimal": Return only analysis subroutine returns.
+                * ``all``: Return all columns, including metadata to communicate
+                  with the experiment service, such as entry IDs.
+                * ``default``: Return columns including analysis result with supplementary
+                  information about experiment.
+                * ``minimal``: Return only analysis subroutine returns.
 
-            dataframe: Set True to return analysis results in the dataframe format.
+            dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
             Analysis results for this experiment.
@@ -1316,7 +1609,7 @@ class ExperimentData(DataCollection):
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiment (false)
+                pass them on, potentially aborting the experiment (false)
             max_workers: Maximum number of concurrent worker threads (capped by 10)
             save_figures: Whether to save figures in the database or not
             save_artifacts: Whether to save artifacts in the database
@@ -1426,7 +1719,7 @@ class ExperimentData(DataCollection):
         if not self.service.local and self.verbose:
             print(
                 "You can view the experiment online at "
-                f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                f"https://quantum.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
         if save_children:
@@ -1950,6 +2243,7 @@ class ExperimentData(DataCollection):
         new_instance = ExperimentData(
             backend=self.backend,
             service=self.service,
+            provider=self.provider,
             parent_id=self.parent_id,
             job_ids=self.job_ids,
             child_data=list(self._child_data.values()),
@@ -2180,7 +2474,7 @@ class ExperimentData(DataCollection):
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum-computing.ibm.com/api"
+        db_url = "https://auth.quantum.ibm.com/api"
         try:
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):

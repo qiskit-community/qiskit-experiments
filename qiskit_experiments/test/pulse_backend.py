@@ -72,6 +72,8 @@ class PulseBackend(BackendV2):
         dt: float = 0.1 * 1e-9,
         solver_method="RK23",
         seed: int = 0,
+        atol: float = None,
+        rtol: float = None,
         **kwargs,
     ):
         """Initialize a backend with model information.
@@ -85,6 +87,8 @@ class PulseBackend(BackendV2):
                 methods. Defaults to "RK23".
             seed: An optional seed given to the random number generator. If this argument is not
                 set then the seed defaults to 0.
+            atol: Absolute tolerance during solving.
+            rtol: Relative tolerance during solving.
         """
         from qiskit_dynamics import Solver
 
@@ -108,6 +112,12 @@ class PulseBackend(BackendV2):
         self.converter = None
 
         self.solver_method = solver_method
+
+        self.solve_kwargs = {}
+        if atol:
+            self.solve_kwargs["atol"] = atol
+        if rtol:
+            self.solve_kwargs["rtol"] = rtol
 
         self.static_hamiltonian = static_hamiltonian
         self.hamiltonian_operators = hamiltonian_operators
@@ -339,6 +349,7 @@ class PulseBackend(BackendV2):
             t_eval=[time_f],
             signals=signal,
             method=self.solver_method,
+            **self.solve_kwargs,
         ).y[0]
 
         return unitary
@@ -441,7 +452,7 @@ class SingleTransmonTestBackend(PulseBackend):
         H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +
                 \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
 
-    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level
+    Here, :math:`\omega_j` is the transition frequency from level :math:`0` to level
     :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
@@ -454,6 +465,8 @@ class SingleTransmonTestBackend(PulseBackend):
         lambda_2: float = 0.8e9,
         gamma_1: float = 1e4,
         noise: bool = True,
+        atol: float = None,
+        rtol: float = None,
         **kwargs,
     ):
         """Initialise backend with hamiltonian parameters
@@ -466,6 +479,8 @@ class SingleTransmonTestBackend(PulseBackend):
             gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.
             noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
                 The strength is given by ``gamma_1``.
+            atol: Absolute tolerance during solving.
+            rtol: Relative tolerance during solving.
         """
         from qiskit_dynamics.pulse import InstructionToSignals
 
@@ -509,6 +524,8 @@ class SingleTransmonTestBackend(PulseBackend):
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
             evaluation_mode=evaluation_mode,
+            atol=atol,
+            rtol=rtol,
             **kwargs,
         )
 

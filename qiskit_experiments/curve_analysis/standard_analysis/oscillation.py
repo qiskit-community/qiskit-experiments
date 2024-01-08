@@ -111,7 +111,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three,
+            - a reduced chi-squared lower than three and greater than zero,
             - more than a quarter of a full period,
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
@@ -119,7 +119,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             1.0 / 4.0 < fit_freq.nominal_value < 10.0,
             curve.utils.is_error_not_significant(fit_freq),
         ]
@@ -260,7 +260,7 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - relative error of tau is less than its value
             - relative error of freq is less than its value
         """
@@ -268,7 +268,7 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
         freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             curve.utils.is_error_not_significant(tau),
             curve.utils.is_error_not_significant(freq),
         ]

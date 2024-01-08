@@ -32,7 +32,7 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_amp_parameter_error(self):

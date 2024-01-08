@@ -341,36 +341,96 @@ class CompositeCurveAnalysis(BaseAnalysis):
         else:
             plot = getattr(self, "_generate_figures", "always")
 
-        figures: List["pyplot.Figure"] = []
+        analysis_results = []
+        figures = []
 
         fit_dataset = {}
-        sub_dataset = []
-        for sub_analysis in self._analyses:
-            analysis = sub_analysis.copy()
-            extra = analysis.options.extra.copy()
-            extra["group"] = analysis.name
-            analysis.set_options(plot=False, extra=extra)
-            sub_result_data, _ = analysis._run_analysis(experiment_data)
-            for datum in sub_result_data:
-                if isinstance(datum, ArtifactData):
-                    if datum.name == "curve_data":
-                        sub_curve_data = datum.data
-                        sub_curve_data.model_name += f"_{analysis.name}"
-                        sub_dataset.append(sub_curve_data)
-                    elif datum.name == "fit_summary":
-                        fit_dataset[analysis.name] = datum.data
-                        result_data.append(datum)
-                else:
-                    result_data.append(datum)
+        curve_data_set = []
+        for analysis in self._analyses:
+            analysis._initialize(experiment_data)
+            analysis.set_options(plot=False)
 
-        composite_curve_data = pd.concat(sub_dataset)
-        result_data.append(
-            ArtifactData(
-                name="curve_data",
-                data=composite_curve_data,
+            metadata = analysis.options.extra.copy()
+            metadata["group"] = analysis.name
+
+            curve_data = analysis._format_data(
+                analysis._run_data_processing(experiment_data.data())
             )
-        )
+            fit_data = analysis._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
+            fit_dataset[analysis.name] = fit_data
 
+            if fit_data.success:
+                quality = analysis._evaluate_quality(fit_data)
+            else:
+                quality = "bad"
+
+            # After the quality is determined, plot can become a boolean flag for whether
+            # to generate the figure
+            plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
+
+            if self.options.return_fit_parameters:
+                # Store fit status overview entry regardless of success.
+                # This is sometime useful when debugging the fitting code.
+                overview = AnalysisResultData(
+                    name=PARAMS_ENTRY_PREFIX + analysis.name,
+                    value=fit_data,
+                    quality=quality,
+                    extra=metadata,
+                )
+                analysis_results.append(overview)
+
+            if fit_data.success:
+                # Add fit data to curve data table
+                fit_curves = []
+                formatted = curve_data.filter(like="formatted", axis="index")
+                columns = list(curve_data.columns)
+                for i, sub_data in list(formatted.groupby("model_id")):
+                    name = analysis._models[i]._name
+                    xval = sub_data.xval.to_numpy()
+                    if len(xval) == 0:
+                        # If data is empty, skip drawing this model.
+                        # This is the case when fit model exist but no data to fit is provided.
+                        continue
+                    # Compute X, Y values with fit parameters.
+                    xval_fit = np.linspace(np.min(xval), np.max(xval), num=100)
+                    yval_fit = eval_with_uncertainties(
+                        x=xval_fit,
+                        model=analysis.models[i],
+                        params=fit_data.ufloat_params,
+                    )
+                    model_fit = np.full((100, len(columns)), np.nan, dtype=object)
+                    fit_curves.append(model_fit)
+                    model_fit[:, columns.index("xval")] = xval_fit
+                    model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
+                    if fit_data.covar is not None:
+                        model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
+                    model_fit[:, columns.index("model_name")] = name
+                    model_fit[:, columns.index("model_id")] = i
+                curve_data = curve_data.append_list_values(
+                    other=np.vstack(fit_curves),
+                    prefix="fitted",
+                )
+                analysis_results.extend(
+                    analysis._create_analysis_results(
+                        fit_data=fit_data,
+                        quality=quality,
+                        **metadata.copy(),
+                    )
+                )
+
+            if self.options.return_data_points:
+                # Add raw data points
+                analysis_results.extend(
+                    analysis._create_curve_data(
+                        curve_data=curve_data.filter(like="formatted", axis="index"),
+                        **metadata,
+                    )
+                )
+
+            curve_data.model_name += f"_{analysis.name}"
+            curve_data_set.append(curve_data)
+
+        combined_curve_data = pd.concat(curve_data_set)
         total_quality = self._evaluate_quality(fit_dataset)
 
         # After the quality is determined, plot can become a boolean flag for whether
@@ -382,7 +442,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             composite_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-            result_data.extend(composite_results)
+            analysis_results.extend(composite_results)
         else:
             composite_results = []
 
@@ -391,6 +451,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 fit_red_chi={k: v.reduced_chisq for k, v in fit_dataset.items() if v.success},
                 primary_results=composite_results,
             )
-            figures.extend(self._create_figures(curve_data=composite_curve_data))
+            figures.extend(self._create_figures(curve_data=combined_curve_data))
 
-        return result_data, figures
+        return analysis_results, figures

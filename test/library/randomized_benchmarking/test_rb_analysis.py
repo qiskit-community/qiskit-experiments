@@ -32,20 +32,21 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
     by comparing the value with the depolarizing probability.
     """
 
-    def setUp(self):
-        """Setup the tests."""
-        super().setUp()
+    @classmethod
+    def setUpClass(cls):
+        """Run experiments without analysis for test data preparation."""
+        super().setUpClass()
 
         # Setup noise model, including more gate for complicated EPG computation
         # Note that 1Q channel error is amplified to check 1q channel correction mechanism
-        self.p_x = 0.04
-        self.p_h = 0.02
-        self.p_s = 0.0
-        self.p_cx = 0.09
-        x_error = depolarizing_error(self.p_x, 1)
-        h_error = depolarizing_error(self.p_h, 1)
-        s_error = depolarizing_error(self.p_s, 1)
-        cx_error = depolarizing_error(self.p_cx, 2)
+        cls.p_x = 0.04
+        cls.p_h = 0.02
+        cls.p_s = 0.0
+        cls.p_cx = 0.09
+        x_error = depolarizing_error(cls.p_x, 1)
+        h_error = depolarizing_error(cls.p_h, 1)
+        s_error = depolarizing_error(cls.p_s, 1)
+        cx_error = depolarizing_error(cls.p_cx, 2)
 
         noise_model = NoiseModel()
         noise_model.add_all_qubit_quantum_error(x_error, "x")
@@ -70,8 +71,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
-        expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None)
-        self.assertExperimentDone(expdata_1qrb_q0, timeout=300)
+        expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results()
 
         exp_1qrb_q1 = rb.StandardRB(
             physical_qubits=(1,),
@@ -80,8 +80,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_1qrb_q1.set_transpile_options(**transpiler_options)
-        expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None)
-        self.assertExperimentDone(expdata_1qrb_q1, timeout=300)
+        expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results()
 
         exp_2qrb = rb.StandardRB(
             physical_qubits=(0, 1),
@@ -90,12 +89,18 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             backend=backend,
         )
         exp_2qrb.set_transpile_options(**transpiler_options)
-        expdata_2qrb = exp_2qrb.run(analysis=None)
-        self.assertExperimentDone(expdata_2qrb, timeout=300)
+        expdata_2qrb = exp_2qrb.run(analysis=None).block_for_results()
 
-        self.expdata_1qrb_q0 = expdata_1qrb_q0
-        self.expdata_1qrb_q1 = expdata_1qrb_q1
-        self.expdata_2qrb = expdata_2qrb
+        cls.expdata_1qrb_q0 = expdata_1qrb_q0
+        cls.expdata_1qrb_q1 = expdata_1qrb_q1
+        cls.expdata_2qrb = expdata_2qrb
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+        self.assertExperimentDone(self.expdata_1qrb_q0)
+        self.assertExperimentDone(self.expdata_1qrb_q1)
+        self.assertExperimentDone(self.expdata_2qrb)
 
     def test_default_epg_ratio(self):
         """Calculate EPG with default ratio dictionary. H and X have the same ratio."""

@@ -50,7 +50,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three
+            - a reduced chi-squared lower than three and greater than zero
             - absolute amp is within [0.4, 0.6]
             - base is less is within [0.4, 0.6]
             - amp error is less than 0.1
@@ -62,7 +62,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
         base = fit_data.ufloat_params["base"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 0.5) < 0.1,
             abs(base.nominal_value - 0.5) < 0.1,
             curve.utils.is_error_not_significant(amp, absolute=0.1),

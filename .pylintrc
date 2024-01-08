@@ -70,7 +70,10 @@ disable=fixme,              # disabled as TODOs would show up as warnings
     no-else-return,     # relax "elif" after a clause with a return
     docstring-first-line-empty, # relax docstring style
     import-outside-toplevel,
-    assigning-non-slot  # https://github.com/Qiskit/qiskit-terra/pull/7347#issuecomment-985007311
+    cyclic-import,  # This checker raises on all module pairs that import each other,
+                    # even submodules that only import already loaded objects from a
+                    # parent module, a common pattern in qiskit-experiments.
+    assigning-non-slot  # https://github.com/Qiskit/qiskit/pull/7347#issuecomment-985007311
 
 
 

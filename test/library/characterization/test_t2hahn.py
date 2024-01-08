@@ -179,7 +179,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
 
-        delays0 = list(range(1, 60, 2))
+        delays0 = list(range(1, 60, 20))
 
         exp = T2Hahn([0], delays0)
         self.assertRoundTripSerializable(exp)
@@ -205,7 +205,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        delays0 = list(range(1, 60, 2))
+        delays0 = list(range(1, 60, 20))
         # backend is needed for serialization of the delays in the metadata of the experiment.
         backend = FakeVigoV2()
         exp = T2Hahn([0], delays0, backend=backend)

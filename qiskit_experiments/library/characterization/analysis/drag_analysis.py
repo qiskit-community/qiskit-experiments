@@ -204,7 +204,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - a reduced chi-squared lower than three,
+            - a reduced chi-squared lower than three and greater than zero,
             - a DRAG parameter value within the first period of the lowest number of repetitions,
             - an error on the drag beta smaller than the beta.
         """
@@ -212,7 +212,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
-            fit_data.reduced_chisq < 3,
+            0 < fit_data.reduced_chisq < 3,
             abs(fit_beta.nominal_value) < 1 / fit_freq.nominal_value / 2,
             curve.utils.is_error_not_significant(fit_beta),
         ]

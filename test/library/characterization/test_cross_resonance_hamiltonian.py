@@ -21,7 +21,13 @@ import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, qpy, quantum_info as qi
 from qiskit.providers.fake_provider import FakeBogotaV2
-from qiskit.extensions.hamiltonian_gate import HamiltonianGate
+
+# TODO: remove old path after we stop supporting the relevant version of Qiskit
+try:
+    from qiskit.circuit.library.hamiltonian_gate import HamiltonianGate
+except ModuleNotFoundError:
+    from qiskit.extensions.hamiltonian_gate import HamiltonianGate
+
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
 
@@ -192,7 +198,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             physical_qubits=(0, 1),
             sigma=sigma,
-            # A hack to avoild local function in pickle, i.e. in transpile.
+            # A hack to avoid local function in pickle, i.e. in transpile.
             cr_gate=functools.partial(
                 SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
             ),
