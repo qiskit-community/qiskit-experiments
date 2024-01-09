@@ -20,6 +20,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import lmfit
 import numpy as np
 import pandas as pd
+from uncertainties import unumpy as unp
 
 from qiskit.utils.deprecation import deprecate_func
 
@@ -41,7 +42,7 @@ from qiskit_experiments.visualization import (
 from .base_curve_analysis import BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
-
+from .utils import eval_with_uncertainties
 
 class CompositeCurveAnalysis(BaseAnalysis):
     r"""Composite Curve Analysis.
@@ -271,8 +272,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``True``.
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``False``.
             return_data_points (bool): Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
@@ -282,7 +283,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         options.update_options(
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
-            return_fit_parameters=True,
+            return_fit_parameters=False,
             return_data_points=False,
             extra={},
         )

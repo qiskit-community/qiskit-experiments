@@ -163,7 +163,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             plot (bool): Set ``True`` to create figure for fit result or ``False`` to
                 not create a figure. This overrides the behavior of ``generate_figures``.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``True``.
+                with details of the fit outcome. Default to ``False``.
             return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
@@ -213,7 +213,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
-        options.return_fit_parameters = True
+        options.return_fit_parameters = False
         options.return_data_points = False
         options.data_processor = None
         options.normalization = False

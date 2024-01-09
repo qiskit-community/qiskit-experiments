@@ -130,15 +130,16 @@ Experiment Configuration Helper Classes
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
-from qiskit_experiments.framework.experiment_data import (
+from qiskit_experiments.framework.status import (
     ExperimentStatus,
     AnalysisStatus,
-    FigureData,
+    AnalysisCallback,
 )
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
 from .configs import ExperimentConfig, AnalysisConfig
+from .containers.elements import FigureData
 from .analysis_result_data import AnalysisResultData
 from .analysis_result_table import AnalysisResultTable
 from .artifact_data import ArtifactData

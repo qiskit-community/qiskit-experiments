@@ -571,7 +571,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 other=np.vstack(fit_curves),
                 prefix="fitted",
             )
-            analysis_results.extend(
+            result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,
@@ -610,10 +610,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[
-                        r for r in result_data
-                        if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))
-                    ],
+                    primary_results=[r for r in analysis_results if not r.name.startswith("@")],
                 )
             figures.extend(self._create_figures(curve_data=curve_data))
 
