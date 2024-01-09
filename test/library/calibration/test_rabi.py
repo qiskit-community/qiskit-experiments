@@ -264,7 +264,6 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        print(experiment_data.analysis_results())
         result = experiment_data.analysis_results("f01")
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.params["freq"], expected_rate, delta=test_tol)
@@ -283,6 +282,7 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
+        print(experiment_data.analysis_results())
         result = experiment_data.analysis_results("freq")
 
         self.assertEqual(result.quality, "bad")

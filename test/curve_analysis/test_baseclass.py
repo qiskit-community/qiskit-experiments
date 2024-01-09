@@ -344,8 +344,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         # Use ufloat_params in @Parameters dataclass.
         # This dataclass stores UFloat values with correlation.
-        fit_amp = result.analysis_results(0).value.ufloat_params["amp"]
-        fit_tau = result.analysis_results(0).value.ufloat_params["tau"]
+        fit_amp = result.artifacts("fit_summary").data.ufloat_params["amp"]
+        fit_tau = result.artifacts("fit_summary").data.ufloat_params["tau"]
 
         self.assertEqual(new_value.n, fit_amp.n + fit_tau.n)
 

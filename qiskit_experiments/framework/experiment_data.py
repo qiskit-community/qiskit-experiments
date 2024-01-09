@@ -56,7 +56,6 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
-from qiskit_experiments.database_service.service_handler import ExperimentServiceFrontend
 from qiskit_experiments.database_service.device_component import to_component, DeviceComponent
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
@@ -2236,7 +2235,6 @@ class ExperimentData:
                 )
                 # Temporary workaround to partial serialization
                 artifact._data = json.loads(artifact._data, cls=artifact._json_decoder)
-                print(artifact)
                 expdata.add_artifacts(artifact)
 
         # mark it as existing in the DB
