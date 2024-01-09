@@ -19,7 +19,7 @@ import ddt
 from qiskit.circuit import Instruction
 from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
 import qiskit.quantum_info as qi
-
+from qiskit_experiments.framework import ArtifactData
 
 class CustomClass:
     """Custom class for serialization tests"""
@@ -122,6 +122,10 @@ class TestJSON(QiskitExperimentsTestCase):
         """Test roundtrip serialization of custom class object"""
         obj = custom_function
         self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_artifact(self):
+        obj = ArtifactData(name="test", data="foo")
+        self.assertRoundTripSerializable(obj) 
 
     def test_roundtrip_class_type(self):
         """Test roundtrip serialization of custom class"""

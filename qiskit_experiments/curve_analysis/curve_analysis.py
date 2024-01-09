@@ -501,8 +501,8 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Prepare for fitting
         self._initialize(experiment_data)
 
-        table = self._format_data(self._run_data_processing(experiment_data.data()))
-        formatted_subset = table[table.category == self.options.fit_category]
+        curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
+        formatted_subset = curve_data[curve_data.category == self.options.fit_category]
         fit_data = self._run_curve_fit(formatted_subset)
 
         if fit_data.success:
@@ -534,7 +534,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             fit_curves = []
-            columns = list(table.columns)
+            columns = list(curve_data.columns)
             model_names = self.model_names()
             for i, sub_data in list(formatted_subset.groupby("class_id")):
                 xval = sub_data.xval.to_numpy()
@@ -558,7 +558,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 model_fit[:, columns.index("name")] = model_names[i]
                 model_fit[:, columns.index("class_id")] = i
                 model_fit[:, columns.index("category")] = "fitted"
-            table = table.append_list_values(other=np.vstack(fit_curves))
+            curve_data = curve_data.append_list_values(other=np.vstack(fit_curves))
             result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
@@ -594,9 +594,9 @@ class CurveAnalysis(BaseCurveAnalysis):
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[r for r in analysis_results if not r.name.startswith("@")],
+                    primary_results=[r for r in result_data if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))],
                 )
-            figures.extend(self._create_figures(curve_data=table))
+            figures.extend(self._create_figures(curve_data=curve_data))
 
         return result_data, figures
 

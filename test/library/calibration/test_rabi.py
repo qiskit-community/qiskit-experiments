@@ -58,12 +58,12 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
+        result = expdata.analysis_results("rabi_rate")
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
         self.assertAlmostEqual(
-            result.value.params["freq"], self.backend.rabi_rate_01, delta=test_tol
+            expdata.artifacts("fit_summary").data.params['freq'], self.backend.rabi_rate_01, delta=test_tol
         )
 
     def test_wrong_processor(self):
@@ -124,7 +124,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 11))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("rabi_rate_12")
 
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.n - self.backend.rabi_rate_12) < test_tol)
@@ -264,7 +264,8 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        result = experiment_data.analysis_results(0)
+        print(experiment_data.analysis_results())
+        result = experiment_data.analysis_results("f01")
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.params["freq"], expected_rate, delta=test_tol)
 
@@ -282,9 +283,9 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        result = experiment_data.analysis_results()
+        result = experiment_data.analysis_results("freq")
 
-        self.assertEqual(result[0].quality, "bad")
+        self.assertEqual(result.quality, "bad")
 
 
 class TestCompositeExperiment(QiskitExperimentsTestCase):

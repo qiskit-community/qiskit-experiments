@@ -2230,9 +2230,7 @@ class ExperimentData:
 
         # Recreate artifacts
         for filename in cls._artifact_filenames:
-            print(filename)
             if service.experiment_has_file(experiment_id, filename):
-                print(filename)
                 artifact = service.file_download(
                     experiment_id, filename, json_decoder=cls._json_decoder
                 )

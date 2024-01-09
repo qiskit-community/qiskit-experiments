@@ -51,7 +51,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
 
         tol = 0.04
@@ -71,7 +71,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         backend.target.add_instruction(SXGate(), properties={(0,): None})
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
 
         tol = 0.04
@@ -101,7 +101,7 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
 
         tol = 0.04
@@ -274,7 +274,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         # run the calibration experiment. This should update the amp parameter of x which we test.
         exp_data = amp_cal.run()
         self.assertExperimentDone(exp_data)
-        d_theta = exp_data.analysis_results(1).value.n
+        d_theta = exp_data.analysis_results("d_theta").value.n
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
         circs = amp_cal._transpiled_circuits()
@@ -310,7 +310,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         # run the calibration experiment. This should update the amp parameter of x which we test.
         exp_data = amp_cal.run()
         self.assertExperimentDone(exp_data)
-        d_theta = exp_data.analysis_results(1).value.n
+        d_theta = exp_data.analysis_results("d_theta").value.n
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
         circs = amp_cal._transpiled_circuits()

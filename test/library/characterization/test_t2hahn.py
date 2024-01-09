@@ -201,7 +201,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1))
+        self.assertRoundTripSerializable(expdata.analysis_results("T2"))
 
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
