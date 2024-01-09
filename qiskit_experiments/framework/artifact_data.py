@@ -91,3 +91,7 @@ class ArtifactData:
             "artifact_id": self._artifact_id,
             "created_time": self._created_time.isoformat(),
         }
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls(**value)

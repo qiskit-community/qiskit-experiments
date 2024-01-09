@@ -69,8 +69,7 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
-from .containers.data_collection import DataCollection
-from .containers.elements import CanonicalResult, FigureData, _FigureT
+from .containers.elements import FigureData, _FigureT
 
 
 if TYPE_CHECKING:
@@ -136,75 +135,6 @@ def parse_utc_datetime(dt_str: str) -> datetime:
     dt_utc = dt_utc.replace(tzinfo=timezone.utc)
     return dt_utc
 
-
-class FigureData:
-    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
-    the ``figure`` attribute."""
-
-    def __init__(self, figure, name=None, metadata=None):
-        """Creates a new figure data object.
-
-        Args:
-            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
-            name: Optional, the name of the figure.
-            metadata: Optional, any metadata to be stored with the figure.
-        """
-        self.figure = figure
-        self._name = name
-        self.metadata = metadata or {}
-
-    # name is read only
-    @property
-    def name(self) -> str:
-        """The name of the figure"""
-        return self._name
-
-    @property
-    def metadata(self) -> dict:
-        """The metadata dictionary stored with the figure"""
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, new_metadata: dict):
-        """Set the metadata to new value; must be a dictionary"""
-        if not isinstance(new_metadata, dict):
-            raise ValueError("figure metadata must be a dictionary")
-        self._metadata = new_metadata
-
-    def copy(self, new_name: Optional[str] = None):
-        """Creates a copy of the figure data"""
-        name = new_name or self.name
-        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
-
-    def __json_encode__(self) -> Dict[str, Any]:
-        """Return the json representation of the figure data"""
-        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
-
-    @classmethod
-    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
-        """Initialize a figure data from the json representation"""
-        return cls(**args)
-
-    def _repr_png_(self):
-        if isinstance(self.figure, MatplotlibFigure):
-            b = io.BytesIO()
-            self.figure.savefig(b, format="png", bbox_inches="tight")
-            png = b.getvalue()
-            return png
-        else:
-            return None
-
-    def _repr_svg_(self):
-        if isinstance(self.figure, str):
-            return self.figure
-        if isinstance(self.figure, bytes):
-            return str(self.figure)
-        return None
-
-
-FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
-
-
 class ExperimentData:
     """Experiment data container class.
 
@@ -236,6 +166,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
+    _artifact_filenames = ["curve_data.json", "fit_summary.json"]
     _max_workers_cap = 10
 
     def __init__(
@@ -286,50 +217,10 @@ class ExperimentData:
         else:
             # Don't use None since the resultDB won't accept that
             experiment_type = ""
-        experiment_id = kwargs.get("experiment_id", None)
-        job_ids = job_ids or []
+        if job_ids is None:
+            job_ids = []
 
-        # General experiment-related data
-        self._backend: Backend | None = None
-        self._experiment: Optional["BaseExperiment"] = None
-        self._extra_data: dict = kwargs
-        
-        self._auto_save = False
-        self._created_in_db = False
-        
-        # Task handlers and executors
-        self._jobs = ThreadSafeOrderedDict(init_values=job_ids)
-        self._job_futures = ThreadSafeOrderedDict()
-        self._running_time = None
-        self._analysis_callbacks = ThreadSafeOrderedDict()
-        self._analysis_futures = ThreadSafeOrderedDict()
-
-        # Set 2 workers for analysis executor so there can be 1 actively running
-        # future and one waiting "running" future. This is to allow the second
-        # future to be cancelled without waiting for the actively running future
-        # to finish first.
-        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
-        self._monitor_executor = futures.ThreadPoolExecutor()
-
-        # Database service
-        self._service_frontend = ExperimentServiceFrontend(
-            provider=provider,
-            service=service,
-        )
-        self.provider = provider
-        self._service_frontend.job_ids = job_ids
-        self._service = self._service_frontend.service
-
-        # Set backend without calling auto_save
-        if backend is not None:
-            self._set_backend(backend, recursive=False)
-
-        # Build base container
-        if experiment_id:
-            self._service_frontend.validate_uid(experiment_id)
-        if parent_id:
-            self._service_frontend.validate_uid(parent_id)
-
+        self._experiment = experiment
 
         # data stored in the database
         metadata = {}
@@ -365,30 +256,60 @@ class ExperimentData:
             else:
                 LOG.warning("Key '%s' not stored in the database", key)
 
-        super().__init__(
-            experiment_id=experiment_id,
-            experiment_type=experiment_type,
-            backend_name=self._service_frontend.backend_name,
-            child_data=child_data,
-            metadata=metadata,
-            parent_id=parent_id,
-        )
-
-
+        # general data related
+        self._backend = None
+        if backend is not None:
+            self._set_backend(backend, recursive=False)
+        self.provider = provider
+        if provider is None and backend is not None:
+            self.provider = backend.provider
+        self._service = service
+        if self._service is None and self.provider is not None:
+            self._service = self.get_service_from_provider(self.provider)
+        if self._service is None and self.provider is None and self.backend is not None:
+            self._service = self.get_service_from_backend(self.backend)
+        self._auto_save = False
+        self._created_in_db = False
+        self._extra_data = kwargs
         self.verbose = verbose
 
+        # job handling related
+        self._jobs = ThreadSafeOrderedDict(job_ids)
+        self._job_futures = ThreadSafeOrderedDict()
+        self._running_time = None
+        self._analysis_callbacks = ThreadSafeOrderedDict()
+        self._analysis_futures = ThreadSafeOrderedDict()
+        # Set 2 workers for analysis executor so there can be 1 actively running
+        # future and one waiting "running" future. This is to allow the second
+        # future to be cancelled without waiting for the actively running future
+        # to finish first.
+        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
+        self._monitor_executor = futures.ThreadPoolExecutor()
+
         # data storage
+        self._result_data = ThreadSafeList()
         self._figures = ThreadSafeOrderedDict(self._db_data.figure_names)
+        self._analysis_results = AnalysisResultTable()
+        self._artifacts = ThreadSafeOrderedDict()
 
         self._deleted_figures = deque()
         self._deleted_analysis_results = deque()
 
+        # Child related
+        # Add component data and set parent ID to current container
+        self._child_data = ThreadSafeOrderedDict()
+        if child_data is not None:
+            self._set_child_data(child_data)
 
     # Getters/setters for experiment metadata
 
     @property
     def experiment(self):
-        """Experiment instance producing the experiment data."""
+        """Return the experiment for this data.
+
+        Returns:
+            BaseExperiment: the experiment object.
+        """
         return self._experiment
 
     @property
@@ -427,15 +348,7 @@ class ExperimentData:
         Returns:
             Experiment metadata.
         """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, new_metadata: dict):
-        """Set the metadata to new value; must be a dictionary"""
-        if not isinstance(new_metadata, dict):
-            raise ValueError("figure metadata must be a dictionary")
-        print("new metadata", new_metadata)
-        self._metadata = new_metadata
+        return self._db_data.metadata
 
     @property
     def creation_datetime(self) -> datetime:
@@ -532,6 +445,16 @@ class ExperimentData:
         return self._db_data.project
 
     @property
+    def experiment_id(self) -> str:
+        """Return experiment ID
+
+        Returns:
+            Experiment ID.
+        """
+
+        return self._db_data.experiment_id
+
+    @property
     def experiment_type(self) -> str:
         """Return experiment type
 
@@ -626,26 +549,46 @@ class ExperimentData:
             self.save_metadata()
 
     @property
+    def backend_name(self) -> str:
+        """Return the backend's name"""
+        return self._db_data.backend
+
+    @property
     def backend(self) -> Backend:
-        """Qiskit backend object that this experiment is run on."""
+        """Return backend.
+
+        Returns:
+            Backend.
+        """
         return self._backend
 
     @backend.setter
     def backend(self, new_backend: Backend) -> None:
+        """Update backend.
+
+        Args:
+            new_backend: New backend.
+        """
         self._set_backend(new_backend)
         if self.auto_save:
             self.save_metadata()
 
-    def _set_backend(
-        self,
-        new_backend: Backend,
-        recursive: bool = True,
-    ):
-        # defined independently of the setter to enable setting without autosave
+    def _set_backend(self, new_backend: Backend, recursive: bool = True) -> None:
+        """Set backend.
+        Args:
+            new_backend: New backend.
+            recursive: should set the backend for children as well
+        """
+        # defined independently from the setter to enable setting without autosave
+
         self._backend = new_backend
         self._backend_data = BackendData(new_backend)
-        self._service_frontend.backend_name = self._backend_data.name
-        self._service_frontend.provider = self._backend_data.provider
+        self._db_data.backend = self._backend_data.name
+        if self._db_data.backend is None:
+            self._db_data.backend = str(new_backend)
+        provider = self._backend_data.provider
+        if provider is not None:
+            self._set_hgp_from_provider(provider)
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
@@ -694,7 +637,7 @@ class ExperimentData:
         Returns:
             Service that can be used to access this experiment in a database.
         """
-        return self._service_frontend.service
+        return self._service
 
     @service.setter
     def service(self, service: IBMExperimentService) -> None:
@@ -756,14 +699,45 @@ class ExperimentData:
 
     # Data addition and deletion
 
-    def jobs(self) -> list[Job]:
-        """List of Qiskit Job object associated with this experiment data."""
-        return list(self._jobs.values())
+    def add_data(
+        self,
+        data: Union[Result, List[Result], Dict, List[Dict]],
+    ) -> None:
+        """Add experiment data.
+
+        Args:
+            data: Experiment data to add. Several types are accepted for convenience:
+
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
+
+        Raises:
+            TypeError: If the input data type is invalid.
+        """
+        if any(not future.done() for future in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis has finished running. Adding new data may "
+                "create unexpected analysis results."
+            )
+        if not isinstance(data, list):
+            data = [data]
+
+        # Directly add non-job data
+        with self._result_data.lock:
+            for datum in data:
+                if isinstance(datum, dict):
+                    self._result_data.append(datum)
+                elif isinstance(datum, Result):
+                    self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
 
     def add_jobs(
         self,
-        jobs: Job | list[Job],
-        timeout: float | None = None,
+        jobs: Union[Job, List[Job]],
+        timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
 
@@ -793,33 +767,34 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            job_backend = job.backend()
             if self.backend is not None:
-                job_backend_name = BackendData(job_backend).name
-                if self.backend and self.backend_name != job_backend_name:
+                backend_name = BackendData(self.backend).name
+                job_backend_name = BackendData(job.backend()).name
+                if self.backend and backend_name != job_backend_name:
                     LOG.warning(
                         "Adding a job from a backend (%s) that is different "
                         "than the current backend (%s). "
                         "The new backend will be used, but "
                         "service is not changed if one already exists.",
-                        job_backend,
+                        job.backend(),
                         self.backend,
                     )
-            self.backend = job_backend
+            self.backend = job.backend()
 
             jid = job.job_id()
             if jid in self._jobs:
                 LOG.warning(
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
                 )
-                continue
-            self._jobs[jid] = job
-            if jid in self._job_futures:
-                LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
-                continue
-            self._add_job_future(job)
-            if timeout is not None:
-                timeout_ids.append(jid)
+            else:
+                self.job_ids.append(jid)
+                self._jobs[jid] = job
+                if jid in self._job_futures:
+                    LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
+                else:
+                    self._add_job_future(job)
+                    if timeout is not None:
+                        timeout_ids.append(jid)
 
         # Add future for cancelling jobs that timeout
         if timeout_ids:
@@ -828,11 +803,7 @@ class ExperimentData:
         if self.auto_save:
             self.save_metadata()
 
-    def _timeout_running_jobs(
-        self,
-        job_ids: list[str],
-        timeout: float,
-    ):
+    def _timeout_running_jobs(self, job_ids, timeout):
         """Function for cancelling jobs after timeout length.
 
         This function should be submitted to an executor to run as a future.
@@ -851,83 +822,7 @@ class ExperimentData:
             notdone_ids = [jid for jid in job_ids if jid not in done_ids]
             self.cancel_jobs(notdone_ids)
 
-    def data(
-        self,
-        index: int | slice | str | None = None,
-    ) -> CanonicalResult | list[CanonicalResult]:
-        """Return the experiment result data at the specified index.
-
-        Args:
-            index: Index of the data to be returned.
-                Several types are accepted for convenience:
-
-                    * None: Return all experiment data.
-                    * int: Specific index of the data.
-                    * slice: A list slice of data indexes.
-                    * str: ID of the job that produced the data.
-
-        Returns:
-            Experiment result data.
-
-        Raises:
-            TypeError: If the input `index` has an invalid type.
-        """
-        self._retrieve_data()
-        if index is None:
-            return self._result_data.copy()
-        if isinstance(index, (int, slice)):
-            return self._result_data[index]
-        if isinstance(index, str):
-            return [d for d in self._result_data if d.get("job_id", None) == index]
-        raise TypeError(f"Invalid index type {type(index)}.")
-
-
-    def _retrieve_data(self):
-        """Retrieve job data if missing experiment data."""
-        # Get job results if missing in experiment data.
-        if self.provider is None:
-            # 'self._result_data' could be locked, so I check a copy of it.
-            if not self._result_data.copy():
-                # Adding warning so the user will have indication why the analysis may fail.
-                LOG.warning(
-                    "Provider for ExperimentData object doesn't exist, resulting in a failed attempt to"
-                    " retrieve data from the server; no stored result data exists"
-                )
-            return
-        retrieved_jobs = {}
-        jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
-
-        # first find which jobs are listed in the `job_ids` field of the experiment data
-        if self.job_ids is not None:
-            for jid in self.job_ids:
-                if jid not in self._jobs or self._jobs[jid] is None:
-                    jobs_to_retrieve.append(jid)
-
-        for jid in jobs_to_retrieve:
-            try:
-                LOG.debug("Retrieving job [Job ID: %s]", jid)
-                job = self.provider.retrieve_job(jid)
-                retrieved_jobs[jid] = job
-            except Exception:  # pylint: disable=broad-except
-                LOG.warning(
-                    "Unable to retrieve data from job [Job ID: %s]",
-                    jid,
-                )
-        # Add retrieved job objects to stored jobs and extract data
-        for jid, job in retrieved_jobs.items():
-            self._jobs[jid] = job
-            if job.status() in JOB_FINAL_STATES:
-                # Add job results synchronously
-                self._add_job_data(job)
-            else:
-                # Add job results asynchronously
-                self._add_job_future(job)
-
-
-    def _add_job_future(
-        self,
-        job: Job,
-    ):
+    def _add_job_future(self, job):
         """Submit new _add_job_data job to executor"""
         jid = job.job_id()
         if jid in self._job_futures:
@@ -938,7 +833,7 @@ class ExperimentData:
     def _add_job_data(
         self,
         job: Job,
-    ) -> tuple[str, bool]:
+    ) -> Tuple[str, bool]:
         """Wait for a job to finish and add job result data.
 
         Args:
@@ -951,19 +846,16 @@ class ExperimentData:
             Exception: If an error occurred when adding job data.
         """
         jid = job.job_id()
-        if jid not in self._jobs:
-            self._jobs[jid] = None
-            self.job_ids.append(jid)
         try:
             job_result = job.result()
             try:
-                self.running_time = job.time_per_step().get("running", None)
+                self._running_time = job.time_per_step().get("running", None)
             except AttributeError:
                 pass
-            self._add_single_data_dispatch(job_result)
+            self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
             # sets the endtime to be the time the last successful job was added
-            self.end_datetime = datetime.now(tz=tz.tzlocal())
+            self.end_datetime = datetime.now()
             return jid, True
         except Exception as ex:  # pylint: disable=broad-except
             # Handle cancelled jobs
@@ -981,24 +873,21 @@ class ExperimentData:
             LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
             raise ex
 
-    def add_analysis_callback(
-        self,
-        callback: Callable,
-        **kwargs: Any,
-    ):
+    def add_analysis_callback(self, callback: Callable, **kwargs: Any):
         """Add analysis callback for running after experiment data jobs are finished.
 
         This method adds the `callback` function to a queue to be run
         asynchronously after completion of any running jobs, or immediately
         if no running jobs. If this method is called multiple times the
-        callback functions will be executed in the order they were added.
+        callback functions will be executed in the order they were
+        added.
 
         Args:
             callback: Callback function invoked when job finishes successfully.
-                The callback function will be called as
-                ``callback(expdata, **kwargs)`` where `expdata` is this
-                :class:`.ExperimentData` object, and `kwargs` are any additional
-                keyword arguments passed to this method.
+                      The callback function will be called as
+                      ``callback(expdata, **kwargs)`` where `expdata` is this
+                      ``DbExperimentData`` object, and `kwargs` are any additional
+                      keyword arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
         with self._job_futures.lock and self._analysis_futures.lock:
@@ -1039,7 +928,8 @@ class ExperimentData:
         if callback_id not in self._analysis_callbacks:
             raise ValueError(f"No analysis callback with id {callback_id}")
 
-        # Monitor jobs and cancellation event to see if callback should be run or cancelled
+        # Monitor jobs and cancellation event to see if callback should be run
+        # or cancelled
         # Future which returns if either all jobs finish, or cancel event is set
         waited = futures.wait([wait_future, cancel_future], return_when="FIRST_COMPLETED")
         cancel = not all(fut.result() for fut in waited.done)
@@ -1085,25 +975,35 @@ class ExperimentData:
             LOG.warning(error_msg)
             return callback_id, False
 
-    def _wait_for_futures(
-        self,
-        futs: list[futures.Future],
-        name: str = "futures",
-        timeout: float | None = None,
-    ) -> bool:
-        """Wait for jobs to finish running.
+    def _add_result_data(self, result: Result, job_id: Optional[str] = None) -> None:
+        """Add data from a Result object
 
         Args:
-            futs: Job or analysis futures to wait for.
-            name: type name for future for logger messages.
-            timeout: The length of time to wait for all jobs before returning False.
-
-        Returns:
-            True if all jobs finished. False if timeout time was reached
-            or any jobs were cancelled or had an exception.
+            result: Result object containing data to be added.
+            job_id: The id of the job the result came from. If `None`, the
+            job id in `result` is used.
         """
-        waited = futures.wait(futs, timeout=timeout)
-        value = True
+        if job_id is None:
+            job_id = result.job_id
+        if job_id not in self._jobs:
+            self._jobs[job_id] = None
+            self.job_ids.append(job_id)
+        with self._result_data.lock:
+            # Lock data while adding all result data
+            for i, _ in enumerate(result.results):
+                data = result.data(i)
+                data["job_id"] = job_id
+                if "counts" in data:
+                    # Format to Counts object rather than hex dict
+                    data["counts"] = result.get_counts(i)
+                expr_result = result.results[i]
+                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                    data["metadata"] = expr_result.header.metadata
+                data["shots"] = expr_result.shots
+                data["meas_level"] = expr_result.meas_level
+                if hasattr(expr_result, "meas_return"):
+                    data["meas_return"] = expr_result.meas_return
+                self._result_data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
@@ -1120,47 +1020,66 @@ class ExperimentData:
         retrieved_jobs = {}
         jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
 
-        # Check for futures that were cancelled or errored
-        excepts = ""
-        for fut in waited.done:
-            ex = fut.exception()
-            if ex:
-                excepts += "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-                value = False
-            elif fut.cancelled():
-                LOG.debug(
-                    "%s was cancelled before completion [Experiment ID: %s]",
-                    name,
-                    self.experiment_id,
-                )
-                value = False
-            elif not fut.result()[1]:
-                # The job/analysis did not succeed, and the failure reflects in the second
-                # returned value of _add_job_data/_run_analysis_callback. See details in Issue #866.
-                value = False
-        if excepts:
-            LOG.error(
-                "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts
-            )
+        # first find which jobs are listed in the `job_ids` field of the experiment data
+        if self.job_ids is not None:
+            for jid in self.job_ids:
+                if jid not in self._jobs or self._jobs[jid] is None:
+                    jobs_to_retrieve.append(jid)
 
-        return value
+        for jid in jobs_to_retrieve:
+            try:
+                LOG.debug("Retrieving job [Job ID: %s]", jid)
+                job = self.provider.retrieve_job(jid)
+                retrieved_jobs[jid] = job
+            except Exception:  # pylint: disable=broad-except
+                LOG.warning(
+                    "Unable to retrieve data from job [Job ID: %s]",
+                    jid,
+                )
+        # Add retrieved job objects to stored jobs and extract data
+        for jid, job in retrieved_jobs.items():
+            self._jobs[jid] = job
+            if job.status() in JOB_FINAL_STATES:
+                # Add job results synchronously
+                self._add_job_data(job)
+            else:
+                # Add job results asynchronously
+                self._add_job_future(job)
 
     def data(
         self,
-        index: int | slice | str | None = None,
-    ) -> CanonicalResult | list[CanonicalResult]:
-        for ret_job in self._service_frontend.retrieve_job_data(self._jobs):
-            if ret_job.status() in JOB_FINAL_STATES:
-                # Add job results synchronously
-                self._add_job_data(ret_job)
-            else:
-                # Add job results asynchronously
-                self._add_job_future(ret_job)
-        return super().data(index)
+        index: Optional[Union[int, slice, str]] = None,
+    ) -> Union[Dict, List[Dict]]:
+        """Return the experiment data at the specified index.
 
-    def add_data(
+        Args:
+            index: Index of the data to be returned.
+                Several types are accepted for convenience:
+
+                    * None: Return all experiment data.
+                    * int: Specific index of the data.
+                    * slice: A list slice of data indexes.
+                    * str: ID of the job that produced the data.
+
+        Returns:
+            Experiment data.
+
+        Raises:
+            TypeError: If the input `index` has an invalid type.
+        """
+        self._retrieve_data()
+        if index is None:
+            return self._result_data.copy()
+        if isinstance(index, (int, slice)):
+            return self._result_data[index]
+        if isinstance(index, str):
+            return [data for data in self._result_data if data.get("job_id") == index]
+        raise TypeError(f"Invalid index type {type(index)}.")
+
+    @do_auto_save
+    def add_figures(
         self,
-        figures: Union[FigureT, List[FigureT]],
+        figures: Union[_FigureT, List[_FigureT]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,
@@ -1298,10 +1217,7 @@ class ExperimentData:
         Raises:
             ExperimentEntryNotFound: If the figure is not found.
         """
-        if isinstance(figure_key, int):
-            figure_key = self._figures.keys()[figure_key]
-        elif figure_key not in self._figures:
-            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+        figure_key = self._find_figure_key(figure_key)
 
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
@@ -1311,6 +1227,20 @@ class ExperimentData:
                 self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
             self._deleted_figures.remove(figure_key)
 
+        return figure_key
+
+    def _find_figure_key(
+        self,
+        figure_key: int | str,
+    ) -> str:
+        """A helper method to find figure key."""
+        if isinstance(figure_key, int):
+            if figure_key < 0 or figure_key >= len(self._figures):
+                raise ExperimentEntryNotFound(f"Figure index {figure_key} out of range.")
+            return self._figures.keys()[figure_key]
+
+        if figure_key not in self._figures:
+            raise ExperimentEntryNotFound(f"Figure key {figure_key} not found.")
         return figure_key
 
     def figure(
@@ -1332,17 +1262,8 @@ class ExperimentData:
         Raises:
             ExperimentEntryNotFound: If the figure cannot be found.
         """
-        if isinstance(figure_key, int):
-            if figure_key < 0 or figure_key >= len(self._figures.keys()):
-                raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
-            figure_key = self._figures.keys()[figure_key]
-
-        # All figures must have '.svg' in their names when added, as the extension is added to the key
-        # name in the `add_figures()` method of this class.
-        if isinstance(figure_key, str):
-            if not figure_key.endswith(".svg"):
-                figure_key += ".svg"
-
+        figure_key = self._find_figure_key(figure_key)
+        
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
@@ -1415,12 +1336,20 @@ class ExperimentData:
                 backend = extra_values.pop("backend", self.backend_name)
                 run_time = extra_values.pop("run_time", self.running_time)
                 created_time = extra_values.pop("created_time", None)
-                name = result.name
-                value = result.value
-                components = result.device_components
-                experiment_id = result.experiment_id
-                result_id = result.result_id
-                tags = result.tags
+                self._analysis_results.add_entry(
+                    name=result.name,
+                    value=result.value,
+                    quality=result.quality,
+                    components=result.device_components,
+                    experiment=experiment,
+                    experiment_id=result.experiment_id,
+                    result_id=result.result_id,
+                    tags=result.tags,
+                    backend=backend,
+                    run_time=run_time,
+                    created_time=created_time,
+                    **extra_values,
+                )
                 if self.auto_save:
                     result.save()
         else:
@@ -1475,44 +1404,53 @@ class ExperimentData:
             columns="all",
             dataframe=True,
         )
+        if not isinstance(to_delete, pd.Series):
+            raise ExperimentEntryNotFound(
+                f"Multiple entries are found with result_key = {result_key}. "
+                "Try another key that can uniquely determine entry to delete."
+            )
 
-    # @do_auto_save
-    # def delete_analysis_result(
-    #     self,
-    #     result_key: Union[int, str],
-    # ) -> str:
-    #     """Delete the analysis result.
-    #
-    #     Args:
-    #         result_key: ID or index of the analysis result to be deleted.
-    #
-    #     Returns:
-    #         Analysis result ID.
-    #
-    #     Raises:
-    #         ExperimentEntryNotFound: If analysis result not found or multiple entries are found.
-    #     """
-    #     # Retrieve from DB if needed.
-    #     to_delete = self.analysis_results(
-    #         index=result_key,
-    #         block=False,
-    #         columns="all",
-    #         dataframe=True,
-    #     )
-    #     if not isinstance(to_delete, pd.Series):
-    #         raise ExperimentEntryNotFound(
-    #             f"Multiple entries are found with result_key = {result_key}. "
-    #             "Try another key that can uniquely determine entry to delete."
-    #         )
-    #
-    #     self._analysis_results.drop_entry(str(to_delete.name))
-    #     if self._service and self.auto_save:
-    #         with service_exception_to_warning():
-    #             self.service.delete_analysis_result(result_id=to_delete.result_id)
-    #     else:
-    #         self._deleted_analysis_results.append(to_delete.result_id)
-    #
-    #     return to_delete.result_id
+        self._analysis_results.drop_entry(str(to_delete.name))
+        if self._service and self.auto_save:
+            with service_exception_to_warning():
+                self.service.delete_analysis_result(result_id=to_delete.result_id)
+        else:
+            self._deleted_analysis_results.append(to_delete.result_id)
+
+        return to_delete.result_id
+
+    def _retrieve_analysis_results(self, refresh: bool = False):
+        """Retrieve service analysis results.
+
+        Args:
+            refresh: Retrieve the latest analysis results from the server, if
+                an experiment service is available.
+        """
+        # Get job results if missing experiment data.
+        if self.service and (len(self._analysis_results) == 0 or refresh):
+            retrieved_results = self.service.analysis_results(
+                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
+            )
+            for result in retrieved_results:
+                # Canonicalize IBM specific data structure.
+                # TODO define proper data schema on frontend and delegate this to service.
+                cano_quality = AnalysisResult.RESULT_QUALITY_TO_TEXT.get(result.quality, "unknown")
+                cano_components = [to_component(c) for c in result.device_components]
+                extra = result.result_data["_extra"]
+                if result.chisq is not None:
+                    extra["chisq"] = result.chisq
+                self._analysis_results.add_entry(
+                    name=result.result_type,
+                    value=result.result_data["_value"],
+                    quality=cano_quality,
+                    components=cano_components,
+                    experiment_id=result.experiment_id,
+                    result_id=result.result_id,
+                    tags=result.tags,
+                    backend=result.backend_name,
+                    created_time=result.creation_datetime,
+                    **extra,
+                )
 
     @deprecate_arg(
         name="dataframe",
@@ -1567,23 +1505,30 @@ class ExperimentData:
             self._wait_for_futures(
                 self._analysis_futures.values(), name="analysis", timeout=timeout
             )
-        self._service_frontend.retrieve_analysis_results(
-            experiment_id=self.experiment_id,
-            analysis_results=self._analysis_results,
-            refresh=refresh,
-        )
-        out = super().analysis_results(index, columns)
+        self._retrieve_analysis_results(refresh=refresh)
+
+        out = self._analysis_results.copy()
+
+        if index is not None:
+            out = _filter_analysis_results(index, out)
+            if out is None:
+                msg = [f"Analysis result {index} not found."]
+                errors = self.errors()
+                if errors:
+                    msg.append(f"Errors: {errors}")
+                raise ExperimentEntryNotFound("\n".join(msg))
+
         if dataframe:
+            valid_columns = self._analysis_results.filter_columns(columns)
+            out = out[valid_columns]
+            if len(out) == 1 and index is not None:
+                # For backward compatibility.
+                # One can directly access attributes with Series. e.g. out.value
+                return out.iloc[0]
             return out
 
         # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
         # This will be removed in future version.
-        if isinstance(out, pd.Series):
-            return _series_to_service_result(
-                series=out,
-                service=self._service,
-                auto_save=self._auto_save,
-            )
         service_results = []
         for _, series in out.iterrows():
             service_results.append(
@@ -1593,7 +1538,84 @@ class ExperimentData:
                     auto_save=self._auto_save,
                 )
             )
+        if len(service_results) == 1 and index is not None:
+            return service_results[0]
         return service_results
+
+    # Save and load from the database
+
+    def save_metadata(self) -> None:
+        """Save this experiments metadata to a database service.
+
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
+            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
+            for fields that are saved.
+        """
+        self._save_experiment_metadata()
+        for data in self.child_data():
+            data.save_metadata()
+
+    def _save_experiment_metadata(self, suppress_errors: bool = True) -> None:
+        """Save this experiments metadata to a database service.
+        Args:
+            suppress_errors: should the method catch exceptions (true) or
+            pass them on, potentially aborting the experiment (false)
+        Raises:
+            QiskitError: If the save to the database failed
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
+            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
+            for fields that are saved.
+        """
+        if not self._service:
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
+            return
+        try:
+            handle_metadata_separately = self._metadata_too_large()
+            if handle_metadata_separately:
+                metadata = self._db_data.metadata
+                self._db_data.metadata = {}
+
+            result = self.service.create_or_update_experiment(
+                self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
+            )
+            if isinstance(result, dict):
+                created_datetime = result.get("created_at", None)
+                updated_datetime = result.get("updated_at", None)
+                self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
+                self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
+
+            self._created_in_db = True
+
+            if handle_metadata_separately:
+                self.service.file_upload(
+                    self._db_data.experiment_id,
+                    self._metadata_filename,
+                    metadata,
+                    json_encoder=self._json_encoder,
+                )
+                self._db_data.metadata = metadata
+
+        except Exception as ex:  # pylint: disable=broad-except
+            # Don't automatically fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+            if not suppress_errors:
+                raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
+
+    def _metadata_too_large(self):
+        """Determines whether the metadata should be stored in a separate file"""
+        # currently the entire POST JSON request body is limited by default to 100kb
+        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
+        return total_metadata_size > 10000
 
     # Save and load from the database
 
@@ -1610,7 +1632,7 @@ class ExperimentData:
         Args:
             suppress_errors: should the method catch exceptions (true) or
                 pass them on, potentially aborting the experiment (false)
-            max_workers: Maximum number of concurrent worker threads (capped by 10)
+            max_workers: Maximum number of concurrent worker threads (default 3, maximum 10)
             save_figures: Whether to save figures in the database or not
             save_artifacts: Whether to save artifacts in the database
             save_children: For composite experiments, whether to save children as well
@@ -1628,7 +1650,7 @@ class ExperimentData:
             additional tags or notes) use :meth:`save_metadata`.
         """
         # TODO - track changes
-        if not self.service:
+        if not self._service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
                 "An experiment service is available, for example, "
@@ -1705,15 +1727,14 @@ class ExperimentData:
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        ## add artifacts
-
+        # save artifacts
         if save_artifacts:
             with self._artifacts.lock:
-                for name, artifact in self._artifacts.items():
+                for _, artifact in self._artifacts.items():
                     self.service.file_upload(
                         experiment_id=self.experiment_id,
-                        file_name=name,
-                        file_data=artifact
+                        file_name=artifact.name,
+                        file_data=json.dumps(artifact, cls=self._json_encoder)
                     )
 
         if not self.service.local and self.verbose:
@@ -1730,68 +1751,13 @@ class ExperimentData:
                     suppress_errors=suppress_errors,
                     max_workers=max_workers,
                     save_figures=save_figures,
+                    save_artifacts=save_artifacts
                 )
                 data.verbose = original_verbose
 
-    def _save_experiment_metadata(self, suppress_errors: bool = True) -> None:
-        """Save this experiments metadata to a database service.
-        Args:
-            suppress_errors: should the method catch exceptions (true) or
-            pass them on, potentially aborting the experiment (false)
-        Raises:
-            QiskitError: If the save to the database failed
-        .. note::
-            This method does not save analysis results nor figures.
-            Use :meth:`save` for general saving of all experiment data.
-
-            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
-            for fields that are saved.
-        """
-        if not self._service:
-            LOG.warning(
-                "Experiment cannot be saved because no experiment service is available. "
-                "An experiment service is available, for example, "
-                "when using an IBM Quantum backend."
-            )
-            return
-        try:
-            handle_metadata_separately = self._metadata_too_large()
-            if handle_metadata_separately:
-                metadata = self._db_data.metadata
-                self._db_data.metadata = {}
-
-            result = self.service.create_or_update_experiment(
-                self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
-            )
-            if isinstance(result, dict):
-                created_datetime = result.get("created_at", None)
-                updated_datetime = result.get("updated_at", None)
-                self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
-                self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
-
-            self._created_in_db = True
-
-            if handle_metadata_separately:
-                self.service.file_upload(
-                    self._db_data.experiment_id,
-                    self._metadata_filename,
-                    metadata,
-                    json_encoder=self._json_encoder,
-                )
-                self._db_data.metadata = metadata
-
-        except Exception as ex:  # pylint: disable=broad-except
-            # Don't automatically fail the experiment just because its data cannot be saved.
-            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-            if not suppress_errors:
-                raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
-
-    def _metadata_too_large(self):
-        """Determines whether the metadata should be stored in a separate file"""
-        # currently the entire POST JSON request body is limited by default to 100kb
-        total_metadata_size = sys.getsizeof(json.dumps(self.metadata, cls=self._json_encoder))
-        return total_metadata_size > 10000
-
+    def jobs(self) -> List[Job]:
+        """Return a list of jobs for the experiment"""
+        return self._jobs.values()
 
     def cancel_jobs(
         self,
@@ -1901,10 +1867,7 @@ class ExperimentData:
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
 
-    def block_for_results(
-        self,
-        timeout: float | None = None,
-    ) -> "ExperimentData":
+    def block_for_results(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending jobs and analysis callbacks finish.
 
         Args:
@@ -1950,6 +1913,58 @@ class ExperimentData:
             return self.block_for_results(timeout=timeout)
 
         return self
+
+    def _wait_for_futures(
+        self, futs: List[futures.Future], name: str = "futures", timeout: Optional[float] = None
+    ) -> bool:
+        """Wait for jobs to finish running.
+
+        Args:
+            futs: Job or analysis futures to wait for.
+            name: type name for future for logger messages.
+            timeout: The length of time to wait for all jobs
+                     before returning False.
+
+        Returns:
+            True if all jobs finished. False if timeout time was reached
+            or any jobs were cancelled or had an exception.
+        """
+        waited = futures.wait(futs, timeout=timeout)
+        value = True
+
+        # Log futures still running after timeout
+        if waited.not_done:
+            LOG.info(
+                "Waiting for %s timed out before completion [Experiment ID: %s].",
+                name,
+                self.experiment_id,
+            )
+            value = False
+
+        # Check for futures that were cancelled or errored
+        excepts = ""
+        for fut in waited.done:
+            ex = fut.exception()
+            if ex:
+                excepts += "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                value = False
+            elif fut.cancelled():
+                LOG.debug(
+                    "%s was cancelled before completion [Experiment ID: %s]",
+                    name,
+                    self.experiment_id,
+                )
+                value = False
+            elif not fut.result()[1]:
+                # The job/analysis did not succeed, and the failure reflects in the second
+                # returned value of _add_job_data/_run_analysis_callback. See details in Issue #866.
+                value = False
+        if excepts:
+            LOG.error(
+                "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts
+            )
+
+        return value
 
     def status(self) -> ExperimentStatus:
         """Return the experiment status.
@@ -2135,6 +2150,43 @@ class ExperimentData:
         """
         return self.job_errors() + self.analysis_errors()
 
+    # Children handling
+
+    def add_child_data(self, experiment_data: ExperimentData):
+        """Add child experiment data to the current experiment data"""
+        experiment_data.parent_id = self.experiment_id
+        self._child_data[experiment_data.experiment_id] = experiment_data
+        self.metadata["child_data_ids"] = self._child_data.keys()
+
+    def child_data(
+        self, index: Optional[Union[int, slice, str]] = None
+    ) -> Union[ExperimentData, List[ExperimentData]]:
+        """Return child experiment data.
+
+        Args:
+            index: Index of the child experiment data to be returned.
+                Several types are accepted for convenience:
+
+                    * None: Return all child data.
+                    * int: Specific index of the child data.
+                    * slice: A list slice of indexes.
+                    * str: experiment ID of the child data.
+
+        Returns:
+            The requested single or list of child experiment data.
+
+        Raises:
+            QiskitError: If the index or ID of the child experiment data
+                         cannot be found.
+        """
+        if index is None:
+            return self._child_data.values()
+        if isinstance(index, (int, slice)):
+            return self._child_data.values()[index]
+        if isinstance(index, str):
+            return self._child_data[index]
+        raise QiskitError(f"Invalid index type {type(index)}.")
+
     @classmethod
     def load(
         cls,
@@ -2167,6 +2219,7 @@ class ExperimentData:
                 experiment_id, cls._metadata_filename, json_decoder=cls._json_decoder
             )
             data.metadata.update(metadata)
+
         expdata = cls(service=service, db_data=data, provider=provider)
 
         # Retrieve data and analysis results
@@ -2174,6 +2227,19 @@ class ExperimentData:
         # be updated to show correct number of results including remote ones
         expdata._retrieve_data()
         expdata._retrieve_analysis_results()
+
+        # Recreate artifacts
+        for filename in cls._artifact_filenames:
+            print(filename)
+            if service.experiment_has_file(experiment_id, filename):
+                print(filename)
+                artifact = service.file_download(
+                    experiment_id, filename, json_decoder=cls._json_decoder
+                )
+                # Temporary workaround to partial serialization
+                artifact._data = json.loads(artifact._data, cls=artifact._json_decoder)
+                print(artifact)
+                expdata.add_artifacts(artifact)
 
         # mark it as existing in the DB
         expdata._created_in_db = True
@@ -2185,40 +2251,6 @@ class ExperimentData:
         expdata._set_child_data(child_data)
 
         return expdata
-
-    def _retrieve_analysis_results(self, refresh: bool = False):
-        """Retrieve service analysis results.
-
-        Args:
-            refresh: Retrieve the latest analysis results from the server, if
-                an experiment service is available.
-        """
-        # Get job results if missing experiment data.
-        if self.service and (len(self._analysis_results) == 0 or refresh):
-            retrieved_results = self.service.analysis_results(
-                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
-            )
-            for result in retrieved_results:
-                # Canonicalize IBM specific data structure.
-                # TODO define proper data schema on frontend and delegate this to service.
-                cano_quality = AnalysisResult.RESULT_QUALITY_TO_TEXT.get(result.quality, "unknown")
-                cano_components = [to_component(c) for c in result.device_components]
-                extra = result.result_data["_extra"]
-                if result.chisq is not None:
-                    extra["chisq"] = result.chisq
-                self._analysis_results.add_entry(
-                    name=result.result_type,
-                    value=result.result_data["_value"],
-                    quality=cano_quality,
-                    components=cano_components,
-                    experiment_id=result.experiment_id,
-                    result_id=result.result_id,
-                    tags=result.tags,
-                    backend=result.backend_name,
-                    created_time=result.creation_datetime,
-                    **extra,
-                )
-
 
     def copy(self, copy_results: bool = True) -> "ExperimentData":
         """Make a copy of the experiment data with a new experiment ID.
@@ -2315,7 +2347,7 @@ class ExperimentData:
         """
         if self._service and not replace:
             raise ExperimentDataError("An experiment service is already being used.")
-        self._service_frontend.service = service
+        self._service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
         for data in self.child_data():
@@ -2518,6 +2550,86 @@ class ExperimentData:
         ret += f"\nFigures: {len(self._figures)}"
         return ret
 
+    def add_artifacts(
+        self,
+        artifacts: ArtifactData | list[ArtifactData],
+    ):
+        """Add artifacts of experiment. The name must be unique.
+
+        Args:
+            artifacts: Artifact data to be added.
+        """
+        if isinstance(artifacts, ArtifactData):
+            artifacts = [artifacts]
+
+        for artifact in artifacts:
+            self._artifacts[artifact.artifact_id] = artifact
+        
+    def delete_artifact(
+        self,
+        artifact_key: int | str,
+    ) -> str | list[str]:
+        """Delete specified artifact data.
+
+        Args:
+            artifact_key: UID, name or index of the figure.
+
+        Returns:
+            Deleted artifact ids.
+        """
+        artifact_keys = self._find_artifact_keys(artifact_key)
+
+        for key in artifact_keys:
+            del self._artifacts[key]
+
+        if len(artifact_keys) == 1:
+            return artifact_keys[0]
+        return artifact_keys
+
+    def artifacts(
+        self,
+        artifact_key: int | str = None,
+    ) -> ArtifactData | list[ArtifactData]:
+        """Return specified artifact data.
+
+        Args:
+            artifact_key: UID, name or index of the figure.
+
+        Returns:
+            A list of specified artifact data.
+        """
+        if artifact_key is None:
+            return self._artifacts.values()
+        
+        artifact_keys = self._find_artifact_keys(artifact_key)
+
+        out = []
+        for key in artifact_keys:
+            artifact_data = self._artifacts[key]
+            if artifact_data is None:
+                continue
+            out.append(artifact_data)
+
+        if len(out) == 1:
+            return out[0]
+        return out
+
+    def _find_artifact_keys(
+        self,
+        artifact_key: int | str,
+    ) -> list[str]:
+        """A helper method to find artifact key."""
+        if isinstance(artifact_key, int):
+            if artifact_key < 0 or artifact_key >= len(self._artifacts):
+                raise ExperimentEntryNotFound(f"Artifact index {artifact_key} out of range.")
+            return [self._artifacts.keys()[artifact_key]]
+
+        if artifact_key not in self._artifacts:
+            name_mathed = [k for k, d in self._artifacts.items() if d.name == artifact_key]
+            if len(name_mathed) == 0:
+                raise ExperimentEntryNotFound(f"Artifact key {artifact_key} not found.")
+            return name_mathed
+        return [artifact_key]
 
 @contextlib.contextmanager
 def service_exception_to_warning():

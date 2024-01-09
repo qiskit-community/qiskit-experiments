@@ -94,7 +94,7 @@ class FigureData:
         if isinstance(self.figure, str):
             return self.figure
         if isinstance(self.figure, bytes):
-            return str(self.figure)
+            return self.figure.decode("utf-8")
         return None
 
 
