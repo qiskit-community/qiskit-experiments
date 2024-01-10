@@ -225,7 +225,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         Additionally, the amplitude is not assumed to follow a specific form.
         Techniques to compute a good initial guess for the polynomial coefficients inside
         a trigonometric function like this are not trivial. Instead, this analysis extracts the
-        raw phase and runs fits the extracted data to a polynomial :math:`\theta(x)` directly.
+        raw phase and runs fits on the extracted data to a polynomial :math:`\theta(x)` directly.
 
         The measured P1 values for a Ramsey X and Y experiment can be written in the form of
         a trignometric function taking the phase polynomial :math:`\theta(x)`:
