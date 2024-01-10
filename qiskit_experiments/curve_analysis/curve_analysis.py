@@ -192,9 +192,8 @@ class CurveAnalysis(BaseCurveAnalysis):
         )
 
         # Prepare circuit metadata to data class mapper from data_subfit_map value.
-        classifier = {}
         if len(self._models) == 1:
-            classifier[self.model_names()[0]] = {}
+            classifier = {self.model_names()[0]: {}}
         else:
             classifier = self.options.data_subfit_map
 
@@ -211,14 +210,17 @@ class CurveAnalysis(BaseCurveAnalysis):
             source[idx]["shots"] = datum.get("shots", -1)
 
             # Assign entry name and class id
-            # Enumerate starts at 1 so that unclassified data becomes class_id = 0.
-            # This class_id is just defined for result data according to the data_subfit_map
-            # and this doesn't need to match with the actual fit model index.
-            for class_id, (name, spec) in enumerate(classifier.items(), 1):
+            for class_id, (name, spec) in enumerate(classifier.items()):
                 if spec.items() <= metadata.items():
                     source[idx]["class_id"] = class_id
                     source[idx]["name"] = name
                     break
+            else:
+                # This is unclassified data.
+                # Assume that normal ID will never become negative number.
+                # This is numpy struct array object and cannot store pandas nullable integer.
+                source[idx]["class_id"] = -1
+                source[idx]["name"] = ""
 
         # Compute y value
         if not self.options.data_processor:
@@ -229,10 +231,20 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
         processed_values = self.options.data_processor(to_process)
         source["yval"] = unp.nominal_values(processed_values).flatten()
-        source["yerr"] = unp.std_devs(processed_values).flatten()
+        with np.errstate(invalid="ignore"):
+            # For averaged data, the processed std dev will be NaN.
+            # Setting std_devs to NaN will trigger floating point exceptions
+            # which we can ignore. See https://stackoverflow.com/q/75656026
+            source["yerr"] = unp.std_devs(processed_values).flatten()
         source["category"] = category
 
-        return ScatterTable(data=source)
+        table = ScatterTable(data=source)
+
+        # Replace temporary -1 value with nullable integer
+        table["class_id"] = table["class_id"].replace(-1, pd.NA)
+        table["shots"] = table["shots"].replace(-1, pd.NA)
+
+        return table
 
     def _format_data(
         self,
@@ -246,7 +258,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             category: Category string of the output dataset.
 
         Returns:
-            New scatter table instance including fit data.
+            New scatter table instance including data to fit.
         """
         averaging_methods = {
             "shots_weighted": shot_weighted_average,
@@ -263,10 +275,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         average = averaging_methods[self.options.average_method]
         model_names = self.model_names()
         formatted = []
-        for (class_id, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
-            if class_id == 0:
-                # This is unclassified data
-                continue
+        for (_, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
             g_values = np.array(list(g))
             g_dict = dict(zip(columns, g_values.T))
             avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
@@ -283,7 +292,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             averaged["xval"] = xv
             averaged["yval"] = avg_yval
             averaged["yerr"] = avg_yerr
-            averaged["name"] = g_dict["name"][0]
+            averaged["name"] = data_name
             averaged["class_id"] = model_id
             averaged["shots"] = shots
             formatted.append(list(averaged.values()))

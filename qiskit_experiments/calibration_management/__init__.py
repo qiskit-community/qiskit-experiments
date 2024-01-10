@@ -23,7 +23,7 @@ Calibration Management (:mod:`qiskit_experiments.calibration_management`)
     otherwise indicated.
 
 Calibrating qubit setups is the task of finding the pulse shapes and parameter
-values that maximizes the fidelity of the resulting quantum operations. This
+values that maximize the fidelity of the resulting quantum operations. This
 therefore requires experiments which are analyzed to extract parameter values.
 Furthermore, the resulting parameter values and schedules must be managed. The
 calibration management module in Qiskit experiments allows users to manage

@@ -4,7 +4,7 @@ Save and load experiment data with the cloud service
 .. note::
     This guide is only for those who have access to the cloud service. You can 
     check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
 Problem
 -------
@@ -44,13 +44,13 @@ backend and not a simulator to be able to save the experiment data. This is done
 .. jupyter-output::
 
     You can view the experiment online at 
-    https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
+    https://quantum.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
 
 Loading
 ~~~~~~~
 
 Let's load a `previous T1
-experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
+experiment <https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
 (requires login to view), which we've made public by editing the ``Share level`` field:
 
 .. jupyter-input::
@@ -59,13 +59,11 @@ experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b06
     service = ExperimentData.get_service_from_backend(backend)
     load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
 
-To display the figure, which is serialized into a string, we need the
-``SVG`` library:
+Now we can display the figure from the loaded experiment data:
 
 .. jupyter-input::
 
-    from IPython.display import SVG
-    SVG(load_expdata.figure(0).figure)
+    load_expdata.figure(0)
 
 .. image:: ./experiment_cloud_service/t1_loaded.png
 
@@ -143,7 +141,7 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 
 .. jupyter-output::
 
-    You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
+    You can view the experiment online at https://quantum.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
     <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
 
 Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
@@ -188,5 +186,5 @@ Web interface
 ~~~~~~~~~~~~~
 
 You can also view experiment results as well as change the tags and share level at the `IBM Quantum Experiments
-pane <https://quantum-computing.ibm.com/experiments?date_interval=last-90-days&owner=me>`__
+pane <https://quantum.ibm.com/experiments?date_interval=last-90-days&owner=me>`__
 on the cloud.

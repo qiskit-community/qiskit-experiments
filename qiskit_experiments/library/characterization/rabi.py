@@ -187,7 +187,7 @@ class Rabi(BaseExperiment, RestlessMixin):
 
 class EFRabi(Rabi):
     r"""An experiment that scans the amplitude of a pulse inducing rotations on the
-     :math:`|1\rangle` <-> :math:`|2\rangle` transition.
+    :math:`|1\rangle` <-> :math:`|2\rangle` transition.
 
     # section: overview
 
