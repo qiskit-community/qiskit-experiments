@@ -356,7 +356,11 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Default analysis options."""
+        """Default analysis options.
+
+        Analysis Options:
+            pulse_len (float): Duration of effective Stark pulse in units of sec.
+        """
         ramsey_plotter = vis.CurvePlotter(vis.MplDrawer())
         ramsey_plotter.set_figure_options(
             xlabel="Stark tone amplitude",
