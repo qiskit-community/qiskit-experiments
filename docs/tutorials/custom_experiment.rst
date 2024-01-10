@@ -376,7 +376,7 @@ counts from the original experiment.
     and it prevents your experiment class from scaling in qubit size through
     the composite experiment tooling.
     If you still want to store some experiment setting, which is common to all circuits
-    or irrelevant to the analysis, maybe the experiment metadata is right place.
+    or irrelevant to the analysis, use the experiment metadata instead.
 
 .. jupyter-input::
 
