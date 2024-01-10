@@ -187,7 +187,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ.metadata = {
                 "xval": len(seq),
                 "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
             }
         return circuits
 
