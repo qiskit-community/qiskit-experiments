@@ -22,7 +22,7 @@ import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import QuantumCircuit, Instruction, Barrier
+from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
 from qiskit.providers.backend import Backend, BackendV1, BackendV2
@@ -60,7 +60,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     Randomized Benchmarking (RB) is an efficient and robust method
     for estimating the average error rate of a set of quantum gate operations.
     See `Qiskit Textbook
-    <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
+    <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`_
     for an explanation on the RB method.
 
     A standard RB experiment generates sequences of random Cliffords
@@ -290,7 +290,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
                 circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
-                circ.append(Barrier(self.num_qubits), circ.qubits)
+                circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
             prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])

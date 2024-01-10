@@ -102,7 +102,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the beta using the value directly reported from the fit.
 
-        See :class:`DragCalAnalysis` for details on the fit.
+        See :class:`.DragCalAnalysis` for details on the fit.
         """
 
         new_beta = BaseUpdater.get_value(

@@ -249,7 +249,6 @@ def _check_service_analysis_results(
             "value",
             "extra",
             "device_components",
-            "result_id",
             "experiment_id",
             "chisq",
             "quality",
@@ -295,9 +294,36 @@ def _check_result_table(
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
+    table1 = data1.copy().to_dict(orient="index")
+    table2 = data2.copy().to_dict(orient="index")
+    for table in (table1, table2):
+        for result in table.values():
+            result.pop("created_time")
+            # Must ignore result ids because they are internally generated with
+            # random values by the ExperimentData wrapping object.
+            result.pop("result_id")
+    # Keys of the dict are based on the result ids so they must be ignored
+    # as well. Try to sort entries so equivalent entries will be in the same
+    # order.
+    table1 = sorted(
+        table1.values(),
+        key=lambda x: (
+            x["name"],
+            () if x["components"] is None else tuple(repr(d) for d in x["components"]),
+            x["value"],
+        ),
+    )
+    table2 = sorted(
+        table2.values(),
+        key=lambda x: (
+            x["name"],
+            () if x["components"] is None else tuple(repr(d) for d in x["components"]),
+            x["value"],
+        ),
+    )
     return is_equivalent(
-        data1.copy().to_dict(orient="index"),
-        data2.copy().to_dict(orient="index"),
+        table1,
+        table2,
         **kwargs,
     )
 
