@@ -146,9 +146,9 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         """Test scanning frequency with experiment service.
 
         This is a sort of round-trip test.
-        We generate amplitude from frequency through experimetn class.
-        this amplitude is converted into frequency again with the same coefficients.
-        Two frequencies must be consistent.
+        We generate amplitudes from frequencies through the experiment class.
+        These amplitudes are converted into frequencies again with the same coefficients.
+        The two sets of frequencies must be consistent.
         """
         service = self.create_service_helper(po1, po2, po3, no1, no2, no3, ferr, 0, "fake_hanoi")
 

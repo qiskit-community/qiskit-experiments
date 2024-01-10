@@ -223,9 +223,9 @@ class StarkP1Spectroscopy(BaseExperiment):
                 convert tone amplitudes into amount of Stark shift. This dictionary must include
                 all keys defined in :attr:`.StarkP1SpectAnalysis.stark_coefficients_names`,
                 which are calibrated with :class:`.StarkRamseyXYAmpScan`.
-                Alternatively, it searches for these coefficients in the result database
-                when "latest" is set. This requires having the experiment service set in
-                the experiment data to analyze.
+                Alternatively, a search for these coefficients in the result database is run
+                when "latest" is set. This requires having the experiment service available
+                in the ``backend`` set for the experiment.
         """
         options = super()._default_experiment_options()
         options.update_options(

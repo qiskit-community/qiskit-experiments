@@ -270,7 +270,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         coefficients: Dict[str, float],
         max_amplitudes: Tuple[float, float] = (-0.9, 0.9),
     ) -> Tuple[float, float]:
-        """Inquire maximum and minimum Stark shfit available within specified amplitude range.
+        """Inquire maximum and minimum Stark shift available within specified amplitude range.
 
         Args:
             coefficients: A dictionary of Stark coefficients.
@@ -286,7 +286,7 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         if any(missing):
             raise KeyError(
                 "Following coefficient data is missing in the "
-                f"'stark_coefficients' dictionary: {missing}."
+                f"stark 'coefficients' dictionary: {missing}."
             )
 
         names = cls.stark_coefficients_names  # alias
