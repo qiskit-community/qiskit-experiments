@@ -1556,7 +1556,8 @@ class ExperimentData:
             dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
-            Analysis results for this experiment.
+            A copy of analysis results data. Updating the returned object doesn't
+            mutate the original dataset.
 
         Raises:
             ExperimentEntryNotFound: If the entry cannot be found.
