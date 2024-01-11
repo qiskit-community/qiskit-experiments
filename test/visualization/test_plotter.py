@@ -13,7 +13,7 @@
 Test integration of plotter.
 """
 
-from copy import copy
+from copy import deepcopy
 from test.base import QiskitExperimentsTestCase
 
 from .mock_drawer import MockDrawer
@@ -49,7 +49,7 @@ class TestPlotter(QiskitExperimentsTestCase):
             },
         }
         unexpected_data = ["a", True, 0]
-        expected_series_data = copy(series_data)
+        expected_series_data = deepcopy(series_data)
         expected_series_data["seriesA"]["unexpected_data"] = unexpected_data
 
         for series, data in series_data.items():
