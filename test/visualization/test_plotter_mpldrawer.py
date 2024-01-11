@@ -104,7 +104,6 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         plotter.set_figure_options(
             xscale="quadratic",
             yscale="log",
-            ylim=(0.1, 1.0),
         )
 
         plotter.figure()

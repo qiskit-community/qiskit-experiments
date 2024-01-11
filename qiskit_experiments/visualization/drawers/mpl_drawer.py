@@ -147,6 +147,31 @@ class MplDrawer(BaseDrawer):
         else:
             all_axes = [self._axis]
 
+        # Set axes scale. This needs to be done before anything tries work with
+        # the axis limits because if no limits or data are set explicitly the
+        # default limits depend on the scale method (for example, the minimum
+        # value is 0 for linear scaling but not for log scaling).
+        def signed_sqrt(x):
+            return np.sign(x) * np.sqrt(abs(x))
+
+        def signed_square(x):
+            return np.sign(x) * x**2
+
+        for ax_type in ("x", "y"):
+            for sub_ax in all_axes:
+                scale = self.figure_options.get(f"{ax_type}scale")
+                if ax_type == "x":
+                    mpl_setscale = sub_ax.set_xscale
+                else:
+                    mpl_setscale = sub_ax.set_yscale
+
+                # Apply non linear axis spacing
+                if scale is not None:
+                    if scale == "quadratic":
+                        mpl_setscale("function", functions=(signed_square, signed_sqrt))
+                    else:
+                        mpl_setscale(scale)
+
         # Get axis formatter from drawing options
         formatter_opts = {}
         for ax_type in ("x", "y"):
@@ -181,12 +206,6 @@ class MplDrawer(BaseDrawer):
                 "max_ax_vals": max_vals,
             }
 
-        def signed_sqrt(x):
-            return np.sign(x) * np.sqrt(abs(x))
-
-        def signed_square(x):
-            return np.sign(x) * x**2
-
         for i, sub_ax in enumerate(all_axes):
             # Add data labels if there are multiple labels registered per sub_ax.
             _, labels = sub_ax.get_legend_handles_labels()
@@ -197,18 +216,15 @@ class MplDrawer(BaseDrawer):
                 limit = formatter_opts[ax_type]["limit"][i]
                 unit = formatter_opts[ax_type]["unit"][i]
                 unit_scale = formatter_opts[ax_type]["unit_scale"][i]
-                scale = self.figure_options.get(f"{ax_type}scale")
                 min_ax_vals = formatter_opts[ax_type]["min_ax_vals"]
                 max_ax_vals = formatter_opts[ax_type]["max_ax_vals"]
                 share_axis = self.figure_options.get(f"share{ax_type}")
 
                 if ax_type == "x":
-                    mpl_setscale = sub_ax.set_xscale
                     mpl_axis_obj = getattr(sub_ax, "xaxis")
                     mpl_setlimit = sub_ax.set_xlim
                     mpl_share = sub_ax.sharex
                 else:
-                    mpl_setscale = sub_ax.set_yscale
                     mpl_axis_obj = getattr(sub_ax, "yaxis")
                     mpl_setlimit = sub_ax.set_ylim
                     mpl_share = sub_ax.sharey
@@ -218,13 +234,6 @@ class MplDrawer(BaseDrawer):
                         limit = min(min_ax_vals), max(max_ax_vals)
                     else:
                         limit = min_ax_vals[i], max_ax_vals[i]
-
-                # Apply non linear axis spacing
-                if scale is not None:
-                    if scale == "quadratic":
-                        mpl_setscale("function", functions=(signed_square, signed_sqrt))
-                    else:
-                        mpl_setscale(scale)
 
                 # Create formatter for axis tick label notation
                 if unit and unit_scale:
