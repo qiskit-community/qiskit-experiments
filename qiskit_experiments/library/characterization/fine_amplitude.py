@@ -162,10 +162,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             circ.compose(meas_circuit, inplace=True)
 
             circ.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
                 "xval": add_x,
-                "unit": "gate number",
                 "series": "spam-cal",
             }
 
@@ -229,10 +226,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             circuit.compose(meas_circ, qubits, range(meas_circ.num_clbits), inplace=True)
 
             circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
                 "xval": repetition,
-                "unit": "gate number",
                 "series": 1,
             }
 
