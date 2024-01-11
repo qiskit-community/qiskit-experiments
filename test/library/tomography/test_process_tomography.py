@@ -514,6 +514,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     f_threshold,
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
+                self.assertTrue(mitfid.extra["mitigated"])
+                self.assertFalse(nomitfid.extra["mitigated"])
 
     @ddt.data([0], [1], [0, 1], [1, 0])
     def test_qpt_conditional_circuit(self, circuit_clbits):

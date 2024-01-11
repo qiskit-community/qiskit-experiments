@@ -83,11 +83,12 @@ class TestTphi(QiskitExperimentsTestCase):
         x_values_t1 = []
         x_values_t2 = []
         for datum in expdata.data():
-            comp_meta = datum["metadata"]["composite_metadata"][0]
-            if comp_meta["experiment_type"] == "T1":
-                x_values_t1.append(comp_meta["xval"])
+            metadata = datum["metadata"]
+            xval = metadata["composite_metadata"][0]["xval"]
+            if metadata["composite_index"][0] == 0:
+                x_values_t1.append(xval)
             else:
-                x_values_t2.append(comp_meta["xval"])
+                x_values_t2.append(xval)
         self.assertListEqual(x_values_t1, delays_t1, "Incorrect delays_t1")
         self.assertListEqual(x_values_t2, delays_t2, "Incorrect delays_t2")
 
@@ -104,15 +105,14 @@ class TestTphi(QiskitExperimentsTestCase):
         # Extract x values from metadata
         x_values_t1 = []
         x_values_t2 = []
-        new_freq_t2 = None
+        new_freq_t2 = expdata.metadata["component_metadata"][1]["osc_freq"]
         for datum in expdata.data():
-            comp_meta = datum["metadata"]["composite_metadata"][0]
-            if comp_meta["experiment_type"] == "T1":
-                x_values_t1.append(comp_meta["xval"])
+            metadata = datum["metadata"]
+            xval = metadata["composite_metadata"][0]["xval"]
+            if metadata["composite_index"][0] == 0:
+                x_values_t1.append(xval)
             else:
-                x_values_t2.append(comp_meta["xval"])
-                if new_freq_t2 is None:
-                    new_freq_t2 = comp_meta["osc_freq"]
+                x_values_t2.append(xval)
         self.assertListEqual(x_values_t1, new_delays_t1, "Incorrect delays_t1")
         self.assertListEqual(x_values_t2, new_delays_t2, "Incorrect delays_t2")
         self.assertEqual(new_freq_t2, new_osc_freq, "Option osc_freq not set correctly")

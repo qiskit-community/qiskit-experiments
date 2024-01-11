@@ -58,7 +58,6 @@ jobs:
         if: runner.os == 'macOS'
         env:
           TEST_TIMEOUT: 120
-          OMP_NUM_THREADS: 1
       - name: Clean up stestr cache
         run: stestr history remove all
 

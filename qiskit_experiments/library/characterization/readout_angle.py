@@ -85,16 +85,11 @@ class ReadoutAngle(BaseExperiment):
         """
         circ0 = QuantumCircuit(1, 1)
         circ0.measure(0, 0)
+        circ0.metadata = {"xval": 0}
 
         circ1 = QuantumCircuit(1, 1)
         circ1.x(0)
         circ1.measure(0, 0)
-
-        for i, circ in enumerate([circ0, circ1]):
-            circ.metadata = {
-                "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
-                "xval": i,
-            }
+        circ1.metadata = {"xval": 1}
 
         return [circ0, circ1]
