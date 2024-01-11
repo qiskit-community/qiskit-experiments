@@ -99,6 +99,10 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             super().setUpClass()
 
             warnings.filterwarnings("error", category=DeprecationWarning)
+            # Tests should not generate any warnings unless testing those
+            # warnings. In that case, the test should catch the warning
+            # assertWarns or warnings.catch_warnings.
+            warnings.filterwarnings("error", module="qiskit_experiments")
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
