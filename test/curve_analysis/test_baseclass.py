@@ -548,7 +548,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = analysis.run(test_data)
         self.assertExperimentDone(result)
 
-        overview = result.analysis_results(0).value
+        overview = result.artifacts("fit_summary").data
 
         self.assertDictEqual(overview.init_params, {"amp": 0.45, "tau": 0.25})
 

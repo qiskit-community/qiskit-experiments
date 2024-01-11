@@ -27,8 +27,8 @@ from qiskit.result import Counts
 class FigureData:
     """A plot data container.
 
-    .. notes::
-        Raw figure data can be accessed through the :attr:`.figure` attribute.
+    .. note::
+        Raw figure data can be accessed through the :attr:`.FigureData.figure` attribute.
 
     """
 

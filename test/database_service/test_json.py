@@ -20,6 +20,7 @@ from qiskit.circuit import Instruction
 from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
 import qiskit.quantum_info as qi
 from qiskit_experiments.framework import ArtifactData
+from qiskit_experiments.curve_analysis import ScatterTable
 
 class CustomClass:
     """Custom class for serialization tests"""
@@ -124,8 +125,14 @@ class TestJSON(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(obj)
 
     def test_roundtrip_artifact(self):
+        """Test roundtrip serialization of the artifact class"""
         obj = ArtifactData(name="test", data="foo")
-        self.assertRoundTripSerializable(obj) 
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_scattertable(self):
+        """Test roundtrip serialization of the ScatterTable class"""
+        obj = ScatterTable()
+        self.assertRoundTripSerializable(obj)
 
     def test_roundtrip_class_type(self):
         """Test roundtrip serialization of custom class"""
