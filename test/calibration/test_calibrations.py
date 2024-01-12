@@ -14,6 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 import os
+import unittest
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
@@ -1617,10 +1618,13 @@ class TestSavingAndLoading(CrossResonanceTest):
             if os.path.exists(self._prefix + file):
                 os.remove(self._prefix + file)
 
-    def test_save_load_parameter_values(self):
+    def test_save_load_parameter_values_csv(self):
         """Test that we can save and load parameter values."""
+        # NOTE: This is a legacy test that can be removed when csv support is
+        # removed from Calibrations.save
 
-        with self.assertWarns(DeprecationWarning):
+        # Expect user warning about schedules, deprecation warning about csv
+        with self.assertWarns((UserWarning, DeprecationWarning)):
             self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1)
 
@@ -1645,11 +1649,11 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertTrue(isinstance(val, float))
 
         # Check that we cannot rewrite files as they already exist.
-        with self.assertWarns(DeprecationWarning):
-            with self.assertRaises(CalibrationError):
+        with self.assertRaises(CalibrationError):
+            with self.assertWarns((UserWarning, DeprecationWarning)):
                 self.cals.save("csv", file_prefix=self._prefix)
 
-        with self.assertWarns(DeprecationWarning):
+        with self.assertWarns((UserWarning, DeprecationWarning)):
             self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
 
     def test_alternate_date_formats(self):
@@ -1659,12 +1663,38 @@ class TestSavingAndLoading(CrossResonanceTest):
         value = ParameterValue(0.222, date_time=new_date)
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 
-        with self.assertWarns(DeprecationWarning):
-            self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.cals._params = defaultdict(list)
-        with self.assertWarns(DeprecationWarning):
-            self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
+        self.cals.save("json", overwrite=True, file_prefix=self._prefix)
+        self.cals.load(self._prefix + ".json")
 
+    def test_save_load_library_csv(self):
+        """Test that we can load and save a library.
+
+        These libraries contain both parameters with schedules and parameters without
+        any schedules (e.g. frequencies for qubits and readout).
+        """
+
+        library = FixedFrequencyTransmon()
+        backend = FakeArmonkV2()
+        cals = Calibrations.from_backend(backend, libraries=[library])
+
+        cals.parameters_table()
+
+        with self.assertWarns((UserWarning, DeprecationWarning)):
+            cals.save(file_type="csv", overwrite=True, file_prefix=self._prefix)
+
+        with self.assertWarns(DeprecationWarning):
+            cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+        # Test the value of a few loaded params.
+        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        self.assertEqual(
+            cals.get_parameter_value("drive_freq", (0,)),
+            BackendData(backend).drive_freqs[0],
+        )
+
+    # Expected to fail because json calibration loading does not support
+    # restoring Parameter objects
+    @unittest.expectedFailure
     def test_save_load_library(self):
         """Test that we can load and save a library.
 
@@ -1678,16 +1708,14 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         cals.parameters_table()
 
-        with self.assertWarns(DeprecationWarning):
-            cals.save(file_type="csv", overwrite=True, file_prefix=self._prefix)
+        cals.save(file_type="json", overwrite=True, file_prefix=self._prefix)
 
-        with self.assertWarns(DeprecationWarning):
-            cals.load_parameter_values(self._prefix + "parameter_values.csv")
+        loaded = Calibrations.load(self._prefix + ".json")
 
         # Test the value of a few loaded params.
-        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        self.assertEqual(loaded.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
-            cals.get_parameter_value("drive_freq", (0,)),
+            loaded.get_parameter_value("drive_freq", (0,)),
             BackendData(backend).drive_freqs[0],
         )
 
@@ -1698,13 +1726,26 @@ class TestSavingAndLoading(CrossResonanceTest):
         and we can still generate schedules with loaded calibration instance,
         even though calibrations is instantiated outside built-in library.
         """
-        self.cals.save(file_type="json", overwrite="True", file_prefix=self._prefix)
+        self.cals.save(file_type="json", overwrite=True, file_prefix=self._prefix)
         loaded = self.cals.load(file_path=self._prefix + ".json")
         self.assertEqual(self.cals, loaded)
 
         original_sched = self.cals.get_schedule("cr", (3, 2))
         roundtrip_sched = loaded.get_schedule("cr", (3, 2))
         self.assertEqual(original_sched, roundtrip_sched)
+
+    def test_overwrite(self):
+        """Test that overwriting errors unless overwrite flag is used"""
+        self.cals.save(file_type="json", overwrite=True, file_prefix=self._prefix)
+        with self.assertRaises(CalibrationError):
+            self.cals.save(file_type="json", overwrite=False, file_prefix=self._prefix)
+
+        # Add a value to make sure data is really overwritten and not carried
+        # over from first write
+        self.cals.add_parameter_value(0.45, "amp", (3,), "xp")
+        self.cals.save(file_type="json", overwrite=True, file_prefix=self._prefix)
+        loaded = Calibrations.load(file_path=self._prefix + ".json")
+        self.assertEqual(self.cals, loaded)
 
 
 class TestInstructionScheduleMap(QiskitExperimentsTestCase):
