@@ -201,7 +201,7 @@ class FigureData:
         return None
 
 
-FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureType = Union[str, bytes, MatplotlibFigure, FigureData]
 
 
 class ExperimentData:
@@ -1276,7 +1276,7 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[FigureT, List[FigureT]],
+        figures: Union[FigureType, List[FigureType]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,
@@ -1691,7 +1691,8 @@ class ExperimentData:
             dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
-            Analysis results for this experiment.
+            A copy of analysis results data. Updating the returned object doesn't
+            mutate the original dataset.
 
         Raises:
             ExperimentEntryNotFound: If the entry cannot be found.
@@ -2685,6 +2686,7 @@ class ExperimentData:
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
+        self._monitor_executor = futures.ThreadPoolExecutor()
 
     def __str__(self):
         line = 51 * "-"
