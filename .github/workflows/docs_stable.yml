@@ -1,6 +1,9 @@
 name: Stable Docs Publish
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "*"
 
 jobs:
   deploy:
