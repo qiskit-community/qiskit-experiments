@@ -134,6 +134,7 @@ def parse_utc_datetime(dt_str: str) -> datetime:
     dt_utc = dt_utc.replace(tzinfo=timezone.utc)
     return dt_utc
 
+
 class ExperimentData:
     """Experiment data container class.
 
@@ -1262,7 +1263,7 @@ class ExperimentData:
             ExperimentEntryNotFound: If the figure cannot be found.
         """
         figure_key = self._find_figure_key(figure_key)
-        
+
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
@@ -1733,7 +1734,7 @@ class ExperimentData:
                     self.service.file_upload(
                         experiment_id=self.experiment_id,
                         file_name=artifact.name,
-                        file_data=json.dumps(artifact, cls=self._json_encoder)
+                        file_data=json.dumps(artifact, cls=self._json_encoder),
                     )
 
         if not self.service.local and self.verbose:
@@ -1750,7 +1751,7 @@ class ExperimentData:
                     suppress_errors=suppress_errors,
                     max_workers=max_workers,
                     save_figures=save_figures,
-                    save_artifacts=save_artifacts
+                    save_artifacts=save_artifacts,
                 )
                 data.verbose = original_verbose
 
@@ -2050,7 +2051,6 @@ class ExperimentData:
         """
         statuses = set()
         with self._jobs.lock:
-
             # No jobs present
             if not self._jobs:
                 return JobStatus.DONE
@@ -2546,21 +2546,29 @@ class ExperimentData:
         ret += f"\nFigures: {len(self._figures)}"
         return ret
 
-    def add_artifacts(
-        self,
-        artifacts: ArtifactData | list[ArtifactData],
-    ):
-        """Add artifacts of experiment. The name must be unique.
+    def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
+        """Add artifacts of experiment. The artifact name must be unique.
 
         Args:
-            artifacts: Artifact data to be added.
+            artifacts: Artifact or list of artifacts to be added.
+            overwrite: Whether to overwrite the existing artifact.
         """
         if isinstance(artifacts, ArtifactData):
             artifacts = [artifacts]
 
+        names = {n.name for n in self._artifacts.values()}
+
         for artifact in artifacts:
+            if artifact.name in names:
+                raise ValueError("An artifact with name {artifact.name} already exists.")
+            if artifact.artifact_id in self._artifacts and not overwrite:
+                raise ValueError(
+                    "An artifact with id {artifact.id} already exists."
+                    "Set overwrite to True if you want to overwrite the existing"
+                    "artifact."
+                )
             self._artifacts[artifact.artifact_id] = artifact
-        
+
     def delete_artifact(
         self,
         artifact_key: int | str,
@@ -2596,7 +2604,7 @@ class ExperimentData:
         """
         if artifact_key is None:
             return self._artifacts.values()
-        
+
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         out = []
@@ -2627,6 +2635,7 @@ class ExperimentData:
             return name_mathed
         return [artifact_key]
 
+
 @contextlib.contextmanager
 def service_exception_to_warning():
     """Convert an exception raised by experiment service to a warning."""
@@ -2634,6 +2643,7 @@ def service_exception_to_warning():
         yield
     except Exception:  # pylint: disable=broad-except
         LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
+
 
 def _series_to_service_result(
     series: pd.Series,
