@@ -1,9 +1,9 @@
 ---
 features:
   - |
-    Added a new experiment option ``clifford_synthesis_method`` to RB experiemnts,
-    e.g. :class:`~.StandardRB`, :class:`~.InterleavedRB` so that users can
-    plug in a custom Clifford synsthesis algorithm used for generating RB circuits.
+    Added a new experiment option ``clifford_synthesis_method`` to RB experiments,
+    e.g. :class:`~.StandardRB` and :class:`~.InterleavedRB` so that users can
+    plug in a custom Clifford synthesis algorithm used for generating RB circuits.
     Such a plugin should be implemented as a ``HighLevelSynthesisPlugin``
     (see :class:`~.RBDefaultCliffordSynthesis` for example).
 upgrade:
