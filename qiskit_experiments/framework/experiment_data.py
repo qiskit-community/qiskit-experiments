@@ -1502,7 +1502,8 @@ class ExperimentData:
             dataframe: Set to ``True`` to return analysis results in the dataframe format.
 
         Returns:
-            Analysis results for this experiment.
+            A copy of analysis results data. Updating the returned object doesn't
+            mutate the original dataset.
 
         Raises:
             ExperimentEntryNotFound: If the entry cannot be found.
@@ -2525,6 +2526,7 @@ class ExperimentData:
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
+        self._monitor_executor = futures.ThreadPoolExecutor()
 
     def __str__(self):
         line = 51 * "-"
