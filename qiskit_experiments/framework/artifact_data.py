@@ -43,11 +43,10 @@ class ArtifactData:
         experiment_id: Optional[str] = None,
         created_time: Optional[datetime] = None,
     ):
-        """
-        Initializes the artifact class.
+        """Initialize the artifact class.
 
         Args:
-            name: The name of the artifact. Must be unique in an :class:`ExperimentData` object.
+            name: The name of the artifact.
             data: The artifact payload.
             artifact_id: Artifact id. Must be unique in an :class:`ExperimentData` object.
             created_time: Time when the artifact was created.
@@ -77,8 +76,6 @@ class ArtifactData:
 
     @experiment_id.setter
     def experiment_id(self, new_id: str):
-        if self._experiment_id:
-            raise ValueError("Experiment ID is already set.")
         self._experiment_id = new_id
 
     @property

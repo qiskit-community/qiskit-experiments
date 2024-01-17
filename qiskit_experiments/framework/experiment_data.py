@@ -2239,10 +2239,6 @@ class ExperimentData:
                 artifact = service.file_download(
                     experiment_id, filename, json_decoder=cls._json_decoder
                 )
-                print("downloaded", artifact)
-                print("downloaded data", artifact._data)
-                # Temporary workaround to partial serialization
-                artifact._data = json.loads(artifact._data, cls=artifact._json_decoder)
                 expdata.add_artifacts(artifact)
 
         # mark it as existing in the DB

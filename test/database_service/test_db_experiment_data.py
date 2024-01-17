@@ -1203,23 +1203,18 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.artifacts(0)
 
     def test_add_duplicated_artifact(self):
-        """Tests behavior when adding an artifact with duplicate name or ID."""
+        """Tests behavior when adding an artifact with a duplicate ID."""
         exp_data = ExperimentData()
 
         new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
-        new_artifact2 = ArtifactData(name="test", data="foo2")
-        new_artifact3 = ArtifactData(artifact_id="0", name="test2", data="foo3")
+        new_artifact2 = ArtifactData(artifact_id="0", name="test2", data="foo3")
 
         exp_data.add_artifacts(new_artifact1)
 
-        # Adding an artifact with the same name should fail
+        # Adding an artifact with the same ID should fail
         with self.assertRaises(ValueError):
             exp_data.add_artifacts(new_artifact2)
 
-        # Adding an artifact with the same ID should fail
-        with self.assertRaises(ValueError):
-            exp_data.add_artifacts(new_artifact3)
-
         # Overwrite the artifact with a new one of the same ID
-        exp_data.add_artifacts(new_artifact3, overwrite=True)
-        self.assertEquals(exp_data.artifacts(0), new_artifact3)
+        exp_data.add_artifacts(new_artifact2, overwrite=True)
+        self.assertEquals(exp_data.artifacts(0), new_artifact2)
