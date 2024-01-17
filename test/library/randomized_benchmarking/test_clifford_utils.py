@@ -224,13 +224,33 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             self.assertEqual(c, 0)
 
     @data(1, 2, 3, 4)
-    def test_clifford_synthesis(self, num_qubits):
-        """Check if clifford synthesis does not change Clifford"""
+    def test_clifford_synthesis_linear_connectivity(self, num_qubits):
+        """Check if clifford synthesis with linear connectivity does not change Clifford"""
         basis_gates = tuple(["rz", "h", "cz"])
         coupling_tuple = (
             None if num_qubits == 1 else tuple((i, i + 1) for i in range(num_qubits - 1))
         )
         for seed in range(10):
+            expected = random_clifford(num_qubits=num_qubits, seed=seed)
+            circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
+            synthesized = Clifford(circuit)
+            self.assertEqual(expected, synthesized)
+
+    @data(3, 4, 6)
+    def test_clifford_synthesis_non_linear_connectivity(self, num_qubits):
+        """Check if clifford synthesis with non-linear connectivity does not change Clifford"""
+        basis_gates = tuple(["rz", "sx", "cx"])
+        # star
+        coupling_tuple = ((tuple((0, i) for i in range(1, num_qubits))))
+        for seed in range(5):
+            expected = random_clifford(num_qubits=num_qubits, seed=seed)
+            circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
+            synthesized = Clifford(circuit)
+            self.assertEqual(expected, synthesized)
+        
+        # cycle
+        coupling_tuple = (tuple((i, (i + 1) % num_qubits) for i in range(num_qubits)))
+        for seed in range(5):
             expected = random_clifford(num_qubits=num_qubits, seed=seed)
             circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
             synthesized = Clifford(circuit)
