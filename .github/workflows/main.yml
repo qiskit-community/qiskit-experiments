@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tests:
+    if: github.repository_owner == 'Qiskit-Extensions'
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -49,12 +50,19 @@ jobs:
             stestr-
       - name: Install Deps
         run: python -m pip install -U tox setuptools virtualenv wheel stestr
-      - name: Install and Run Tests
+      - name: Install and Run Tests (Windows and Linux)
         run: tox -e py
+        if: runner.os != 'macOS'
+      - name: Install and Run Tests (Macs only)
+        run: tox -e py
+        if: runner.os == 'macOS'
+        env:
+          TEST_TIMEOUT: 120
       - name: Clean up stestr cache
         run: stestr history remove all
 
   lint:
+    if: github.repository_owner == 'Qiskit-Extensions'
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +81,7 @@ jobs:
       - name: Run lint
         run: tox -elint
   docs:
+    if: github.repository_owner == 'Qiskit-Extensions'
     name: docs
     runs-on: ubuntu-latest
     steps:

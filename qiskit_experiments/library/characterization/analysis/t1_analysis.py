@@ -122,14 +122,16 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
     def _format_data(
         self,
         curve_data: curve.ScatterTable,
+        category: str = "formatted",
     ) -> curve.ScatterTable:
-        """Postprocessing for the processed dataset.
+        """Postprocessing for preparing the fitting data.
 
         Args:
             curve_data: Processed dataset created from experiment results.
+            category: Category string of the output dataset.
 
         Returns:
-            Formatted data.
+            New scatter table instance including fit data.
         """
         # check if the SVD decomposition categorized 0 as 1 by calculating the average slope
         diff_y = np.diff(curve_data.yval)

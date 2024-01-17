@@ -17,6 +17,7 @@ import copy
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple, Union, Dict
+import warnings
 
 from dateutil import tz
 
@@ -165,6 +166,9 @@ class BaseAnalysis(ABC, StoreInitArgs):
         def run_analysis(expdata: ExperimentData):
             # Clearing previous analysis data
             experiment_data._clear_results()
+
+            if not expdata.data():
+                warnings.warn("ExperimentData object data is empty.\n")
 
             # Making new analysis
             results, figures = analysis._run_analysis(expdata)

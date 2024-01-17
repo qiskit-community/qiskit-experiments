@@ -104,29 +104,25 @@ https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 If you want to run a single test module, test class, or individual test method you can
 do this faster with the `-n`/`--no-discover` option. For example, to run a module:
 ```
-tox -- -n test.python.test_examples
+tox -epy310 -- -n test.framework.test_composite
 ```
-Or to run the same module by path:
 
-```
-tox -- -n test/python/test_examples.py
-```
 To run a class:
+```
+tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData
+```
 
-```
-tox -- -n test.python.test_examples.TestPythonExamples
-```
 To run a method:
 ```
-tox -- -n test.python.test_examples.TestPythonExamples.test_all_examples
+tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData.test_composite_save_load
 ```
 
 Note that tests will fail automatically if they do not finish execution within 60 seconds.
 
 #### STDOUT/STDERR and logging capture
 
-When running tests in parallel using `stestr` either via tox, the Makefile (`make
-test_ci`), or in CI, we set the env variable `QISKIT_TEST_CAPTURE_STREAMS`, which will
+When running tests in parallel using `stestr` either via tox
+or in CI, we set the env variable `QISKIT_TEST_CAPTURE_STREAMS`, which will
 capture any text written to stdout, stderr, and log messages and add them as attachments
 to the tests run so output can be associated with the test case it originated from.
 However, if you run tests with `stestr` outside of these mechanisms, by default the
@@ -137,6 +133,18 @@ be captured but **not** displayed in the test runners output. If you are using t
 stdlib unittest runner, a similar result can be accomplished by using the
 [`--buffer`](https://docs.python.org/3/library/unittest.html#command-line-options)
 option (e.g. `python -m unittest discover --buffer ./test/python`).
+
+#### Other testing related settings
+
+The test code defines some environment variables that may occasionally be useful to set:
+
++ `TEST_TIMEOUT`: An integer representing the maximum time a test can take
+  before it is considered a failure.
++ `QE_USE_TESTTOOLS`: Set this variable to `FALSE`, `0`, or `NO` to have the
+  tests use `unittest.TestCase` as the base class. Otherwise, the default is
+`testtools.TestCase` which is an extension of `unittest.TestCase`. In some
+situations, a developer may wish to use a workflow that is not compatible with
+the `testtools` extensions.
 
 ### Code style
 

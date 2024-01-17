@@ -48,14 +48,14 @@ class DataProcessor:
     A DataProcessor defines a sequence of operations to perform on experimental data.
     Calling an instance of DataProcessor applies this sequence on the input argument.
     A DataProcessor is created with a list of DataAction instances. Each DataAction
-    applies its _process method on the data and returns the processed data. The nodes
+    applies its ``_process`` method on the data and returns the processed data. The nodes
     in the DataProcessor may also perform data validation and some minor formatting.
     The output of one data action serves as input for the next data action.
-    DataProcessor.__call__(datum) usually takes in an entry from the data property of
+    ``DataProcessor.__call__(datum)`` usually takes in an entry from the data property of
     an ExperimentData object (i.e. a dict containing metadata and memory keys and
     possibly counts, like the Result.data property) and produces the formatted data.
-    DataProcessor.__call__(datum) extracts the data from the given datum under
-    DataProcessor._input_key (which is specified at initialization) of the given datum.
+    ``DataProcessor.__call__(datum)`` extracts the data from the given datum under
+    ``DataProcessor._input_key`` (which is specified at initialization) of the given datum.
     """
 
     def __init__(

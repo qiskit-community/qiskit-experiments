@@ -218,12 +218,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
                     params=[],
                 )
 
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": repetition,
-                "unit": "gate number",
-            }
+            circuit.metadata = {"xval": repetition}
 
             circuits.append(circuit)
 

@@ -54,11 +54,11 @@ relaxation time estimate. We can see that the component experiments of the batch
 .. jupyter-execute::
 
     exp = Tphi(physical_qubits=(0,), delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1)
-    exp.component_experiment(0).circuits()[-1].draw("mpl")
+    exp.component_experiment(0).circuits()[-1].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    exp.component_experiment(1).circuits()[-1].draw("mpl")
+    exp.component_experiment(1).circuits()[-1].draw(output="mpl", style="iqp")
 
 Run the experiment and print results:
 
@@ -94,7 +94,7 @@ experiment:
                t2type="ramsey", 
                osc_freq=1e5)
 
-    exp.component_experiment(1).circuits()[-1].draw("mpl")
+    exp.component_experiment(1).circuits()[-1].draw(output="mpl", style="iqp")
 
 Run and display results:
 
