@@ -241,15 +241,15 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         """Check if clifford synthesis with non-linear connectivity does not change Clifford"""
         basis_gates = tuple(["rz", "sx", "cx"])
         # star
-        coupling_tuple = ((tuple((0, i) for i in range(1, num_qubits))))
+        coupling_tuple = tuple((0, i) for i in range(1, num_qubits))
         for seed in range(5):
             expected = random_clifford(num_qubits=num_qubits, seed=seed)
             circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
             synthesized = Clifford(circuit)
             self.assertEqual(expected, synthesized)
-        
+
         # cycle
-        coupling_tuple = (tuple((i, (i + 1) % num_qubits) for i in range(num_qubits)))
+        coupling_tuple = tuple((i, (i + 1) % num_qubits) for i in range(num_qubits))
         for seed in range(5):
             expected = random_clifford(num_qubits=num_qubits, seed=seed)
             circuit = _synthesize_clifford(expected, basis_gates, coupling_tuple)
