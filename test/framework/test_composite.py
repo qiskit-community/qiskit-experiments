@@ -98,6 +98,7 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 0)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
+        self.assertEqual(len(expdata.artifacts()), 20)
 
     def test_flatten_results_partial(self):
         """Test flattening results."""
@@ -117,6 +118,7 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
+        self.assertEqual(len(expdata.artifacts()), 0)
 
         # check inner experiments were flattened
         child0 = expdata.child_data(0)
@@ -126,6 +128,8 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check right number of analysis results is returned
         self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
+        self.assertEqual(len(child0.artifacts()), 6)
+        self.assertEqual(len(child1.artifacts()), 4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

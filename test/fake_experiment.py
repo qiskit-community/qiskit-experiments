@@ -15,7 +15,13 @@
 import numpy as np
 from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit import QuantumCircuit
-from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options, AnalysisResultData
+from qiskit_experiments.framework import (
+    BaseExperiment,
+    BaseAnalysis,
+    Options,
+    AnalysisResultData,
+    ArtifactData,
+)
 
 
 class FakeAnalysis(BaseAnalysis):
@@ -33,6 +39,8 @@ class FakeAnalysis(BaseAnalysis):
         analysis_results = [
             AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
         ]
+        analysis_results.append(ArtifactData(name="curve_data", data=rng.random(3)))
+        analysis_results.append(ArtifactData(name="fit_summary", data=rng.random(3)))
         figures = None
         add_figures = self.options.get("add_figures", False)
         if add_figures:

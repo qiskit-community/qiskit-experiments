@@ -403,5 +403,7 @@ class CompositeAnalysis(BaseAnalysis):
             for _, series in analysis_table.iterrows():
                 data = AnalysisResultData.from_table_element(**series.to_dict())
                 analysis_results.append(data)
+            for artifact in sub_expdata.artifacts():
+                analysis_results.append(artifact)
 
         return analysis_results, figures

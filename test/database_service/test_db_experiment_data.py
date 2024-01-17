@@ -418,8 +418,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             )
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
-        print(name_template.format(idx))
-        print(exp_data.figure("figure_1"))
         self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
         self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 

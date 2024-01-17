@@ -1239,6 +1239,12 @@ class ExperimentData:
                 raise ExperimentEntryNotFound(f"Figure index {figure_key} out of range.")
             return self._figures.keys()[figure_key]
 
+        # All figures must have '.svg' in their names when added, as the extension is added to the key
+        # name in the `add_figures()` method of this class.
+        if isinstance(figure_key, str):
+            if not figure_key.endswith(".svg"):
+                figure_key += ".svg"
+
         if figure_key not in self._figures:
             raise ExperimentEntryNotFound(f"Figure key {figure_key} not found.")
         return figure_key
@@ -2233,6 +2239,8 @@ class ExperimentData:
                 artifact = service.file_download(
                     experiment_id, filename, json_decoder=cls._json_decoder
                 )
+                print("downloaded", artifact)
+                print("downloaded data", artifact._data)
                 # Temporary workaround to partial serialization
                 artifact._data = json.loads(artifact._data, cls=artifact._json_decoder)
                 expdata.add_artifacts(artifact)
@@ -2547,7 +2555,7 @@ class ExperimentData:
         return ret
 
     def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
-        """Add artifacts of experiment. The artifact name must be unique.
+        """Add artifacts of experiment. The artifact ID must be unique.
 
         Args:
             artifacts: Artifact or list of artifacts to be added.
@@ -2556,11 +2564,7 @@ class ExperimentData:
         if isinstance(artifacts, ArtifactData):
             artifacts = [artifacts]
 
-        names = {n.name for n in self._artifacts.values()}
-
         for artifact in artifacts:
-            if artifact.name in names:
-                raise ValueError("An artifact with name {artifact.name} already exists.")
             if artifact.artifact_id in self._artifacts and not overwrite:
                 raise ValueError(
                     "An artifact with id {artifact.id} already exists."
