@@ -212,4 +212,5 @@ class TestGuesses(QiskitExperimentsTestCase):
         """Test if rb decay guess does not raise an error even for very bad outputs."""
         x = np.array([1, 2, 3])
         y = np.array([0.24, 0.22, 0.23])  # all are below b
-        guess.rb_decay(x=x, y=y, b=0.25)
+        out = guess.rb_decay(x=x, y=y, b=0.25)
+        self.assertEqual(out, 0.0)
