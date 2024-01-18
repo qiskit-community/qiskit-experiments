@@ -39,6 +39,7 @@ from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
+from qiskit_experiments.framework.package_deps import python_version
 
 
 @HAS_DYNAMICS.require_in_instance
@@ -92,11 +93,16 @@ class PulseBackend(BackendV2):
         """
         from qiskit_dynamics import Solver
 
+        if python_version() >= (3, 11):
+            online_date = datetime.datetime.now(datetime.UTC)
+        else:
+            online_date = datetime.datetime.utcnow()
+
         super().__init__(
             None,
             name="PulseBackendV2",
             description="A PulseBackend simulator",
-            online_date=datetime.datetime.now(datetime.UTC),
+            online_date=online_date,
             backend_version="0.0.1",
         )
 

@@ -14,8 +14,14 @@ Functions for checking dependency versions.
 """
 
 from importlib.metadata import version
+import sys
 
 
 def numpy_version():
     """Returns the current numpy version in (major, minor) form."""
     return tuple(map(int, version("numpy").split(".")[:2]))
+
+
+def python_version():
+    """Returns the current python version in (major, minor) form."""
+    return tuple(map(int, sys.version.split(".")[:2]))
