@@ -230,34 +230,35 @@ class CompositeCurveAnalysis(BaseAnalysis):
             A list of figures.
         """
         for analysis in self.analyses():
-            sub_data = curve_data[curve_data.group == analysis.name]
-            for name, data in list(sub_data.groupby("name")):
-                full_name = f"{name}_{analysis.name}"
+            group_data = curve_data.filter(analysis=analysis.name)
+            model_names = analysis.model_names()
+            for uid, sub_data in group_data.iter_by_class():
+                full_name = f"{model_names[uid]}_{analysis.name}"
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
-                    raw_data = data[data.category == "raw"]
+                    raw_data = sub_data.filter(category="raw")
                     self.plotter.set_series_data(
                         series_name=full_name,
-                        x=raw_data.xval.to_numpy(),
-                        y=raw_data.yval.to_numpy(),
+                        x=raw_data.x,
+                        y=raw_data.y,
                     )
                 # Plot formatted data scatters
-                formatted_data = data[data.category == analysis.options.fit_category]
+                formatted_data = sub_data.filter(category=analysis.options.fit_category)
                 self.plotter.set_series_data(
                     series_name=full_name,
-                    x_formatted=formatted_data.xval.to_numpy(),
-                    y_formatted=formatted_data.yval.to_numpy(),
-                    y_formatted_err=formatted_data.yerr.to_numpy(),
+                    x_formatted=formatted_data.x,
+                    y_formatted=formatted_data.y,
+                    y_formatted_err=formatted_data.y_err,
                 )
                 # Plot fit lines
-                line_data = data[data.category == "fitted"]
+                line_data = sub_data.filter(category="fitted")
                 if len(line_data) == 0:
                     continue
-                fit_stdev = line_data.yerr.to_numpy()
+                fit_stdev = line_data.y_err
                 self.plotter.set_series_data(
                     series_name=full_name,
-                    x_interp=line_data.xval.to_numpy(),
-                    y_interp=line_data.yval.to_numpy(),
+                    x_interp=line_data.x,
+                    y_interp=line_data.y,
                     y_interp_err=fit_stdev if np.isfinite(fit_stdev).all() else None,
                 )
 
@@ -354,7 +355,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             metadata["group"] = analysis.name
 
             table = analysis._format_data(analysis._run_data_processing(experiment_data.data()))
-            formatted_subset = table[table.category == analysis.options.fit_category]
+            formatted_subset = table.filter(category=analysis.options.fit_category)
             fit_data = analysis._run_curve_fit(formatted_subset)
             fit_dataset[analysis.name] = fit_data
 
@@ -376,32 +377,36 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if fit_data.success:
                 # Add fit data to curve data table
-                fit_curves = []
-                columns = list(table.columns)
                 model_names = analysis.model_names()
-                for i, sub_data in list(formatted_subset.groupby("class_id")):
-                    xval = sub_data.xval.to_numpy()
+                for i, sub_data in formatted_subset.iter_by_class():
+                    xval = sub_data.x
                     if len(xval) == 0:
                         # If data is empty, skip drawing this model.
                         # This is the case when fit model exist but no data to fit is provided.
                         continue
                     # Compute X, Y values with fit parameters.
-                    xval_fit = np.linspace(np.min(xval), np.max(xval), num=100)
-                    yval_fit = eval_with_uncertainties(
-                        x=xval_fit,
+                    xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
+                    uval_arr_fit = eval_with_uncertainties(
+                        x=xval_arr_fit,
                         model=analysis.models[i],
                         params=fit_data.ufloat_params,
                     )
-                    model_fit = np.full((100, len(columns)), np.nan, dtype=object)
-                    fit_curves.append(model_fit)
-                    model_fit[:, columns.index("xval")] = xval_fit
-                    model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
+                    yval_arr_fit = unp.nominal_values(uval_arr_fit)
                     if fit_data.covar is not None:
-                        model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
-                    model_fit[:, columns.index("name")] = model_names[i]
-                    model_fit[:, columns.index("class_id")] = i
-                    model_fit[:, columns.index("category")] = "fitted"
-                table = table.append_list_values(other=np.vstack(fit_curves))
+                        yerr_arr_fit = unp.std_devs(uval_arr_fit)
+                    else:
+                        yerr_arr_fit = np.zeros_like(xval_arr_fit)
+                    for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
+                        table.add_row(
+                            name=model_names[i],
+                            class_id=i,
+                            category="fitted",
+                            x=xval,
+                            y=yval,
+                            y_err=yerr,
+                            shots=pd.NA,
+                            analysis=analysis.name,
+                        )
                 analysis_results.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
@@ -416,8 +421,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
-            # Add extra column to identify the fit model
-            table["group"] = analysis.name
             curve_data_set.append(table)
 
         combined_curve_data = pd.concat(curve_data_set)
