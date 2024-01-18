@@ -94,6 +94,7 @@ class PulseBackend(BackendV2):
         from qiskit_dynamics import Solver
 
         if python_version() >= (3, 11):
+            # pylint: disable=no-member
             online_date = datetime.datetime.now(datetime.UTC)
         else:
             online_date = datetime.datetime.utcnow()
