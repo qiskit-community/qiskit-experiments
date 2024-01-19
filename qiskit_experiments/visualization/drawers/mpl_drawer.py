@@ -147,7 +147,7 @@ class MplDrawer(BaseDrawer):
         else:
             all_axes = [self._axis]
 
-        # Set axes scale. This needs to be done before anything tries work with
+        # Set axes scale. This needs to be done before anything tries to work with
         # the axis limits because if no limits or data are set explicitly the
         # default limits depend on the scale method (for example, the minimum
         # value is 0 for linear scaling but not for log scaling).
