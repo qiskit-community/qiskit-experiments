@@ -39,7 +39,6 @@ from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
-from qiskit_experiments.framework.package_deps import python_version
 
 
 @HAS_DYNAMICS.require_in_instance
