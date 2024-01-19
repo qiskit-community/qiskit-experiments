@@ -294,7 +294,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
     def test_three_qubit(self):
-        """Test two qubit RB. Use default basis gates."""
+        """Test three qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
             physical_qubits=(0, 1, 2),
             lengths=list(range(1, 30, 3)),

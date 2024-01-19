@@ -207,3 +207,10 @@ class TestGuesses(QiskitExperimentsTestCase):
         alpha_guess = guess.rb_decay(x, y, b=b)
 
         self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)
+
+    def test_rb_decay_with_very_bad_output(self):
+        """Test if rb decay guess does not raise an error even for very bad outputs."""
+        x = np.array([1, 2, 3])
+        y = np.array([0.24, 0.22, 0.23])  # all are below b
+        out = guess.rb_decay(x=x, y=y, b=0.25)
+        self.assertEqual(out, 0.0)
