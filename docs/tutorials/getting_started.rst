@@ -6,7 +6,7 @@ Installation
 ============
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
-Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`. Qiskit
+Qiskit following its `installation guide <https://docs.quantum.ibm.com/start/install>`__. Qiskit
 Experiments supports the same platforms as Qiskit itself and Python versions 3.8 through 3.12.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``
