@@ -14,7 +14,7 @@ calibration framework in Qiskit Experiments. We will run experiments on our test
 backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the underlying
 pulses with :mod:`qiskit_dynamics` on a three-level model of a transmon. You can also
 run these experiments on any real backend with Pulse enabled (see
-:external+qiskit:doc:`tutorials/circuits_advanced/08_gathering_system_information`).
+:class:`qiskit.providers.models.BackendConfiguration`).
 
 We will run experiments to 
 find the qubit frequency, calibrate the amplitude of DRAG pulses, and choose the value 
