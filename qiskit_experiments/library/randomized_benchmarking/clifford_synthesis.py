@@ -30,6 +30,11 @@ from qiskit.transpiler.passes import (
     Optimize1qGatesDecomposition,
 )
 from qiskit.transpiler.passes.synthesis.plugin import HighLevelSynthesisPlugin
+try:
+    # for qiskit>=1.0
+    from qiskit.passmanager.flow_controllers import ConditionalController
+except ImportError:
+    pass
 
 
 class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
@@ -96,6 +101,12 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
                 CheckGateDirection(coupling_map),
             ]
         )
-        pm.append([GateDirection(coupling_map)], condition=_direction_condition)
-        pm.append([Optimize1qGatesDecomposition(basis=basis_gates)])
+        try:
+            # for qiskit>=1.0
+            pm.append(ConditionalController(GateDirection(coupling_map), condition=_direction_condition))
+            pm.append(Optimize1qGatesDecomposition(basis=basis_gates))
+        except TypeError:
+            # for qiskit<1.0
+            pm.append([GateDirection(coupling_map)], condition=_direction_condition)
+            pm.append([Optimize1qGatesDecomposition(basis=basis_gates)])
         return pm.run(circ)
