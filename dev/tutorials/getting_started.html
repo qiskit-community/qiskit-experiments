@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
     <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
-        <title>Getting Started - Qiskit Experiments 0.5.0-124-gb66f662</title>
+        <title>Getting Started - Qiskit Experiments 0.5.0-125-g91ec4ea</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css" />
@@ -189,7 +189,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-124-gb66f662</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-125-g91ec4ea</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -216,7 +216,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-124-gb66f662</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-125-g91ec4ea</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -807,30 +807,30 @@ exponential decay model of the <span class="math notranslate nohighlight">\(T_1\
  - success: True
  - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 14.09421175121197
- - reduced chi-square: 0.7830117639562206
- - Akaike info crit.: -2.37392301315616
- - Bayesian info crit.: 0.7596443000141093
+ - chi-square: 13.39708767369666
+ - reduced chi-square: 0.7442826485387033
+ - Akaike info crit.: -3.4391869356050133
+ - Bayesian info crit.: -0.30561962243474383
  - init params:
-  * amp = 0.8839024390243903
-  * tau = 0.00023665306213526213
-  * base = 0.07951219512195122
+  * amp = 0.9102439024390243
+  * tau = 0.00022781320475157325
+  * base = 0.06878048780487805
  - fit params:
-  * amp = 0.9380399927415622 ± 0.008768097427963273
-  * tau = 0.00019840862514220072 ± 5.7995848743466325e-06
-  * base = 0.03346573842100563 ± 0.007812927257299285
+  * amp = 0.9637466174543702 ± 0.008706319305774955
+  * tau = 0.00020511993364408758 ± 5.851146380907494e-06
+  * base = 0.020713130020015506 ± 0.008029167353159537
  - correlations:
-  * (tau, base) = -0.8958862836929465
-  * (amp, base) = -0.5928681187062782
-  * (amp, tau) = 0.3390740852478983
+  * (tau, base) = -0.9031115366982105
+  * (amp, base) = -0.6378397076958079
+  * (amp, tau) = 0.4018578928806656
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000198+/-0.000006
-- χ²: 0.7830117639562206
+- value: 0.000205+/-0.000006
+- χ²: 0.7442826485387033
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -856,8 +856,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019840862514220072
-5.7995848743466325e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00020511993364408758
+5.851146380907494e-06
 </pre></div>
 </div>
 </div>
@@ -883,7 +883,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 37, &#39;1&#39;: 987}, &#39;job_id&#39;: &#39;74a9749c-603e-45c5-9e3a-e8a9687908e7&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 21, &#39;1&#39;: 1003}, &#39;job_id&#39;: &#39;09e0aad2-a3a4-4ab7-bd10-6ff54d774291&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1153,30 +1153,30 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
  - success: True
  - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 14.19774981360875
- - reduced chi-square: 0.7887638785338195
- - Akaike info crit.: -2.2202179395692383
- - Bayesian info crit.: 0.9133493736010312
+ - chi-square: 19.5692209475221
+ - reduced chi-square: 1.0871789415290056
+ - Akaike info crit.: 4.518146222093218
+ - Bayesian info crit.: 7.651713535263488
  - init params:
-  * amp = 0.8624390243902439
-  * tau = 0.0002756453585620002
-  * base = 0.11365853658536586
+  * amp = 0.8595121951219512
+  * tau = 0.0002721363583023301
+  * base = 0.11658536585365854
  - fit params:
-  * amp = 0.9801720169902517 ± 0.013248415032112038
-  * tau = 0.00027174215927061845 ± 1.071942737662779e-05
-  * base = 0.0031632205473603116 ± 0.014789758356011278
+  * amp = 0.9922879097537729 ± 0.013584805374162665
+  * tau = 0.0002769117689833682 ± 1.0974881568649811e-05
+  * base = -0.006561612345509776 ± 0.015243954664911224
  - correlations:
-  * (tau, base) = -0.9488808979756165
-  * (amp, base) = -0.8514884405218432
-  * (amp, tau) = 0.7074302412364107
+  * (tau, base) = -0.9514294850633128
+  * (amp, base) = -0.8616040259580335
+  * (amp, tau) = 0.7244106655615017
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000272+/-0.000011
-- χ²: 0.7887638785338195
+- value: 0.000277+/-0.000011
+- χ²: 1.0871789415290056
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1192,48 +1192,48 @@ Component experiment 1
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 24
+ - number of function evals: 28
  - degree of freedom: 7
- - chi-square: 1.9415239309680314
- - reduced chi-square: 0.2773605615668616
- - Akaike info crit.: -10.391118968603216
- - Bayesian info crit.: -9.48336368962108
+ - chi-square: 19.132173419073958
+ - reduced chi-square: 2.7331676312962796
+ - Akaike info crit.: 12.487862971292522
+ - Bayesian info crit.: 13.39561825027466
  - init params:
-  * a = 0.7123058837682333
-  * alpha = 0.9823814649110196
+  * a = 0.7032113384365292
+  * alpha = 0.9826002113281681
   * b = 0.25
  - fit params:
-  * a = 0.6914288468150106 ± 0.01893887504666932
-  * alpha = 0.9808152086165812 ± 0.0013086918293482785
-  * b = 0.271073490646221 ± 0.02064127712657749
+  * a = 0.7218840705801756 ± 0.025195883363883127
+  * alpha = 0.983558686827261 ± 0.0011557842214027384
+  * b = 0.2216954618050775 ± 0.028531227363686025
  - correlations:
-  * (alpha, b) = -0.9706637177906617
-  * (a, b) = -0.9336887192921148
-  * (a, alpha) = 0.855853130058328
+  * (a, b) = -0.9762866633839957
+  * (alpha, b) = -0.9745961607018142
+  * (a, alpha) = 0.9124222910127697
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9808+/-0.0013
-- χ²: 0.2773605615668616
+- value: 0.9836+/-0.0012
+- χ²: 2.7331676312962796
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0144+/-0.0010
-- χ²: 0.2773605615668616
+- value: 0.0123+/-0.0009
+- χ²: 2.7331676312962796
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0087+/-0.0006
-- χ²: 0.2773605615668616
+- value: 0.0073+/-0.0005
+- χ²: 2.7331676312962796
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
