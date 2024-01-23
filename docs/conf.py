@@ -145,13 +145,11 @@ html_context = {
     "expandable_sidebar": True,
 }
 
-<<<<<<< HEAD
-=======
+
 html_title = f"{project} {release}"
 
 docs_url_prefix = "qiskit-experiments"
 
->>>>>>> b605472 (Deploy docs to GitHub Pages (#1356))
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
