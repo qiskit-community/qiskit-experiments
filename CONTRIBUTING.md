@@ -1,7 +1,7 @@
 # Contributing Guide
 
 To contribute to Qiskit Experiments, first read the overall [Qiskit project contributing
-guidelines](https://qiskit.org/documentation/contributing_to_qiskit.html). In addition
+guidelines](https://github.com/Qiskit/qiskit/blob/main/CONTRIBUTING.md). In addition
 to the general guidelines, the specific guidelines for contributing to Qiskit
 Experiments are documented below.
 
@@ -13,6 +13,7 @@ Contents:
     - [Pull request checklist](#pull-request-checklist)
     - [Testing your code](#testing-your-code)
       - [STDOUT/STDERR and logging capture](#stdoutstderr-and-logging-capture)
+      - [Other testing related settings](#other-testing-related-settings)
     - [Code style](#code-style)
     - [Changelog generation](#changelog-generation)
     - [Release notes](#release-notes)
@@ -317,7 +318,7 @@ https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/docs/release_n
 
 ### Documentation
 
-The [Qiskit Experiments documentation](https://qiskit.org/ecosystem/experiments/) is
+The [Qiskit Experiments documentation](https://qiskit-extensions.github.io/qiskit-experiments) is
 rendered from `.rst` files as well as experiment and analysis class docstrings into HTML
 files.
 
@@ -325,7 +326,7 @@ files.
 
 Any change that would affect existing documentation, or a new feature that requires a
 documentation, should be updated correspondingly. Before updating, review the [existing
-documentation](https://qiskit.org/ecosystem/experiments) for their style and
+documentation](https://qiskit-extensions.github.io/qiskit-experiments) for their style and
 content, and read the [documentation guidelines](docs/GUIDELINES.md) for further
 details.
 
@@ -361,7 +362,7 @@ There are a few other build options available:
 ### Deprecation policy
 
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
-Policy](https://qiskit.org/documentation/deprecation_policy.html) fully applies here.
+Policy](https://github.com/Qiskit/qiskit/blob/main/DEPRECATION.md) fully applies here.
 Public-facing changes must come with a deprecation warning for at least three months or
 two version cycles before the old feature is removed. Deprecations can only happen on
 minor releases and not on patch releases.
@@ -369,7 +370,7 @@ minor releases and not on patch releases.
 #### Adding deprecation warnings
 
 We use the deprecation wrappers in [Qiskit
-Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
+Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
 
 ```python
 
