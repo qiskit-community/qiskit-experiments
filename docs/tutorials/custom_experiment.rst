@@ -564,7 +564,7 @@ To test our code, we first simulate a noisy backend with asymmetric readout erro
 
 .. jupyter-execute::
 
-  from qiskit.providers.aer import AerSimulator, noise
+  from qiskit_aer import AerSimulator, noise
 
   backend_ideal = AerSimulator()
 
