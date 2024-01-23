@@ -101,7 +101,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = SingleTransmonTestBackend(noise=False, atol=1e-3)
-        self.cals = Calibrations.from_backend(cls.backend, libraries=[library])
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
