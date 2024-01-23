@@ -12,6 +12,7 @@ testtools
 
 # Extra dependencies for tests/documentation code
 multimethod
+qiskit-ibm-runtime>=0.18
 
 # Documentation tools
 arxiv

@@ -25,17 +25,19 @@ probability` > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
 .. note::
-    This manual requires the :mod:`qiskit_aer` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
     from qiskit_experiments.framework import BatchExperiment
     from qiskit_experiments.library import QuantumVolume
-    from qiskit_aer import AerSimulator
     
     # For simulation
-    from qiskit.providers.fake_provider import FakeSydneyV2
+    from qiskit import Aer
+    from qiskit_aer import AerSimulator
+    from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
     
     backend = AerSimulator.from_backend(FakeSydneyV2())
 

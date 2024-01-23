@@ -112,9 +112,13 @@ drive port of the qubit.
 In a typical IBM device using the cross-resonance drive architecture,
 such channel can be identified with your backend as follows:
 
+.. note::
+    This tutorial requires the :mod:`qiskit_ibm_runtime` package to model a
+    backend.  You can install it with ``python -m pip install qiskit-ibm-runtime``.
+
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakeHanoiV2
+    from qiskit_ibm_runtime.fake_provider import FakeHanoiV2
 
     backend = FakeHanoiV2()
     qubit = 0
@@ -143,7 +147,7 @@ by a variant of the Hahn-echo pulse sequence [5]_.
 
     from qiskit_experiments.library import StarkRamseyXY
     from qiskit import schedule, pulse
-    from qiskit.providers.fake_provider import FakeHanoi
+    from qiskit_ibm_runtime.fake_provider import FakeHanoi
     from qiskit.visualization.pulse_v2 import IQXSimple
 
     backend = FakeHanoi()

@@ -16,8 +16,8 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 
 from ddt import ddt, data, named_data
-from qiskit.providers.fake_provider import FakeArmonkV2
 from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon

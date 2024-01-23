@@ -19,9 +19,10 @@ from itertools import product
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
+from qiskit.providers.fake_provider import FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
+from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
