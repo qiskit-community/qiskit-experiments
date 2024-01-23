@@ -19,6 +19,7 @@ from typing import Sequence
 from qiskit.circuit import QuantumCircuit, Operation
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
 from qiskit.exceptions import QiskitError
+from qiskit.passmanager.flow_controllers import ConditionalController
 from qiskit.synthesis.clifford import synth_clifford_full
 from qiskit.transpiler import PassManager, CouplingMap, Layout, Target
 from qiskit.transpiler.passes import (
@@ -94,8 +95,8 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
                 undo_layout_change,
                 BasisTranslator(sel, basis_gates),
                 CheckGateDirection(coupling_map),
+                ConditionalController(GateDirection(coupling_map), condition=_direction_condition),
+                Optimize1qGatesDecomposition(basis=basis_gates),
             ]
         )
-        pm.append([GateDirection(coupling_map)], condition=_direction_condition)
-        pm.append([Optimize1qGatesDecomposition(basis=basis_gates)])
         return pm.run(circ)
