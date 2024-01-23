@@ -1,0 +1,43 @@
+﻿
+
+LocalPreparationBasis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: LocalPreparationBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: LocalPreparationBasis.name
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LocalPreparationBasis.circuit
+   .. automethod:: LocalPreparationBasis.index_shape
+   .. automethod:: LocalPreparationBasis.matrix
+   .. automethod:: LocalPreparationBasis.matrix_shape
+
+   

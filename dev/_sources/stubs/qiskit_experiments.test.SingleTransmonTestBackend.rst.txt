@@ -1,0 +1,91 @@
+﻿
+
+SingleTransmonTestBackend
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: SingleTransmonTestBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: SingleTransmonTestBackend.coupling_map
+   .. autoattribute:: SingleTransmonTestBackend.default_pulse_unitaries
+   .. autoattribute:: SingleTransmonTestBackend.discriminator
+   .. autoattribute:: SingleTransmonTestBackend.dt
+   .. autoattribute:: SingleTransmonTestBackend.dtm
+   .. autoattribute:: SingleTransmonTestBackend.instruction_durations
+   .. autoattribute:: SingleTransmonTestBackend.instruction_schedule_map
+   .. autoattribute:: SingleTransmonTestBackend.instructions
+   .. autoattribute:: SingleTransmonTestBackend.max_circuits
+   .. autoattribute:: SingleTransmonTestBackend.meas_map
+   .. autoattribute:: SingleTransmonTestBackend.num_qubits
+   .. autoattribute:: SingleTransmonTestBackend.operation_names
+   .. autoattribute:: SingleTransmonTestBackend.operations
+   .. autoattribute:: SingleTransmonTestBackend.options
+   .. autoattribute:: SingleTransmonTestBackend.provider
+   .. autoattribute:: SingleTransmonTestBackend.target
+   .. autoattribute:: SingleTransmonTestBackend.version
+   .. autoattribute:: SingleTransmonTestBackend.description
+   .. autoattribute:: SingleTransmonTestBackend.online_date
+   .. autoattribute:: SingleTransmonTestBackend.backend_version
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SingleTransmonTestBackend.acquire_channel
+   .. automethod:: SingleTransmonTestBackend.control_channel
+   .. automethod:: SingleTransmonTestBackend.defaults
+   .. automethod:: SingleTransmonTestBackend.drive_channel
+   .. automethod:: SingleTransmonTestBackend.measure_channel
+   .. automethod:: SingleTransmonTestBackend.qubit_properties
+   .. automethod:: SingleTransmonTestBackend.run
+   .. automethod:: SingleTransmonTestBackend.set_options
+   .. automethod:: SingleTransmonTestBackend.solve
+
+   

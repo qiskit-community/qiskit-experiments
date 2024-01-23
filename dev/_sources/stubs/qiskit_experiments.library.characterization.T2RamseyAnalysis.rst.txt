@@ -1,0 +1,43 @@
+﻿
+
+T2RamseyAnalysis
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: T2RamseyAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: T2RamseyAnalysis.drawer
+   .. autoattribute:: T2RamseyAnalysis.models
+   .. autoattribute:: T2RamseyAnalysis.name
+   .. autoattribute:: T2RamseyAnalysis.options
+   .. autoattribute:: T2RamseyAnalysis.parameters
+   .. autoattribute:: T2RamseyAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: T2RamseyAnalysis.config
+   .. automethod:: T2RamseyAnalysis.copy
+   .. automethod:: T2RamseyAnalysis.from_config
+   .. automethod:: T2RamseyAnalysis.model_names
+   .. automethod:: T2RamseyAnalysis.run
+   .. automethod:: T2RamseyAnalysis.set_options
+   
+
+   
+   

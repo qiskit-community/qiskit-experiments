@@ -1,0 +1,51 @@
+﻿
+
+RoughAmplitudeCal
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: RoughAmplitudeCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: RoughAmplitudeCal.analysis
+   .. autoattribute:: RoughAmplitudeCal.backend
+   .. autoattribute:: RoughAmplitudeCal.calibrations
+   .. autoattribute:: RoughAmplitudeCal.experiment_options
+   .. autoattribute:: RoughAmplitudeCal.experiment_type
+   .. autoattribute:: RoughAmplitudeCal.num_qubits
+   .. autoattribute:: RoughAmplitudeCal.physical_qubits
+   .. autoattribute:: RoughAmplitudeCal.run_options
+   .. autoattribute:: RoughAmplitudeCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: RoughAmplitudeCal.circuits
+   .. automethod:: RoughAmplitudeCal.config
+   .. automethod:: RoughAmplitudeCal.copy
+   .. automethod:: RoughAmplitudeCal.enable_restless
+   .. automethod:: RoughAmplitudeCal.from_config
+   .. automethod:: RoughAmplitudeCal.job_info
+   .. automethod:: RoughAmplitudeCal.run
+   .. automethod:: RoughAmplitudeCal.set_experiment_options
+   .. automethod:: RoughAmplitudeCal.set_run_options
+   .. automethod:: RoughAmplitudeCal.set_transpile_options
+   .. automethod:: RoughAmplitudeCal.update_calibrations
+   
+
+   
+   

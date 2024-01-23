@@ -1,0 +1,1264 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
+        <title>qiskit_experiments.test.pulse_backend - Qiskit Experiments 0.5.0-123-gb605472</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-ecosystem.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-gallery.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<script src="../../../_static/js/web-components/top-nav-bar.js"></script>
+<script>
+  (function () {
+    window._analytics = {
+      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+      coremetrics: false,
+      optimizely: false,
+      googleAddServices: false,
+      fullStory: false,
+      autoPageEventSpa: false,
+      autoFormEvents: false,
+      autoPageView: false
+    }
+
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          productTitle: 'IBM Q Experience',
+          analytics: {
+            category: 'Qiskit.org'
+          }
+        }
+      }
+    }
+  }());
+</script>
+<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+<script>
+  (function () {
+    'use strict'
+
+    if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+    const category = window.digitalData.page.pageInfo.analytics.category
+    const productTitle = window.digitalData.page.pageInfo.productTitle
+    const routeName = 'documentation'
+
+    window.bluemixAnalytics.pageEvent(category, routeName, {
+      navigationType: 'pushState',
+      productTitle: productTitle,
+      title: document.title
+    })
+
+    window.trackCta = (action) => {
+      if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+      const category = window.digitalData.page.pageInfo.analytics.category
+      const productTitle = window.digitalData.page.pageInfo.productTitle
+
+      window.bluemixAnalytics.trackEvent('CTA Clicked', {
+        productTitle,
+        category,
+        CTA: action
+      })
+    }
+
+  }());
+</script></head>
+  <body>
+    
+    <script>document.body.dataset.theme = "light";</script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <path d="M28,4H4A2,2,0,0,0,2,6V26a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V6A2,2,0,0,0,28,4ZM4,6H20V26H4ZM28,26H22V6h6Z"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <rect x="4" y="6" width="24" height="2"/>
+      <rect x="4" y="24" width="24" height="2"/>
+      <rect x="4" y="12" width="24" height="2"/>
+      <rect x="4" y="18" width="24" height="2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+         viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve"><polygon points="22,16 12,26 10.6,24.6 19.2,16 10.6,7.4 12,6 " stroke="currentColor"/>
+      <rect id="_x3C_Transparent_Rectangle_x3E_" fill="none" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-123-gb605472</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><div class="sidebar-brand">
+  <a href="https://www.qiskit.org/ecosystem">
+    <div class="sidebar-logo-container">
+      <img class="sidebar-logo" src="../../../_static/images/ecosystem-logo.svg" alt="Qiskit Ecosystem logo"/>
+    </div>
+  </a>
+  
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-123-gb605472</span>
+</div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Qiskit Experiments Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations: Schedules and gate parameters from experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor: Wrangling data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis: Fitting your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization: Creating figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Writing your own experiment</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/experiment_times.html">Get experiment timing information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/figure_generation.html">Control figure generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/runtime_sessions.html">Use Experiments with Runtime sessions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/verification/quantum_volume.html">Quantum Volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/verification/randomized_benchmarking.html">Randomized Benchmarking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/verification/state_tomography.html">Quantum State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/stark_experiment.html">AC Stark Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/t1.html">T1 Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/t2hahn.html">T2 Hahn Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/tphi.html">Tφ Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../manuals/measurement/restless_measurements.html">Restless Measurements</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../apidocs/main.html">Qiskit Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments</span></code>)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/framework.html">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Experiment Framework (qiskit_experiments.framework)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html">ExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentStatus.html">ExperimentStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisStatus.html">AnalysisStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.html">AnalysisResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisResultData.html">AnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html">AnalysisResultTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentConfig.html">ExperimentConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.RestlessMixin.html">RestlessMixin</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.QubitSpectroscopy.html">QubitSpectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.EFSpectroscopy.html">EFSpectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.Rabi.html">Rabi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.EFRabi.html">EFRabi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ResonatorSpectroscopy.html">ResonatorSpectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.RoughDrag.html">RoughDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkRamseyXY.html">StarkRamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkRamseyXYAmpScan.html">StarkRamseyXYAmpScan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html">CrossResonanceHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian.html">EchoedCrossResonanceHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughFrequencyCal.html">RoughFrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughEFFrequencyCal.html">RoughEFFrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FrequencyCal.html">FrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineFrequencyCal.html">FineFrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughDragCal.html">RoughDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineXDragCal.html">FineXDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineSXDragCal.html">FineSXDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineDragCal.html">FineDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineAmplitudeCal.html">FineAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineXAmplitudeCal.html">FineXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineSXAmplitudeCal.html">FineSXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.HalfAngleCal.html">HalfAngleCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughAmplitudeCal.html">RoughAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughXSXAmplitudeCal.html">RoughXSXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal.html">EFRoughXSXAmplitudeCal</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/data_processing.html">Data Processing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.data_processing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Data Processing (qiskit_experiments.data_processing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.DataProcessor.html">DataProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.DataAction.html">DataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.TrainableDataAction.html">TrainableDataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.Probability.html">Probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.MarginalizeCounts.html">MarginalizeCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.ToImag.html">ToImag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.ToReal.html">ToReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.SVD.html">SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.DiscriminatorNode.html">DiscriminatorNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.MemoryToCounts.html">MemoryToCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.AverageData.html">AverageData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.BasisExpectationValue.html">BasisExpectationValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.MinMaxNormalize.html">MinMaxNormalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.ShotOrder.html">ShotOrder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.RestlessNode.html">RestlessNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.RestlessToCounts.html">RestlessToCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.RestlessToIQ.html">RestlessToIQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html">BaseCurveDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.MplCurveDrawer.html">MplCurveDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.OscillationAnalysis.html">OscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ResonanceAnalysis.html">ResonanceAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.GaussianAnalysis.html">GaussianAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis.html">ErrorAmplificationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos.html">cos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos_decay.html">cos_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.exponential_decay.html">exponential_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.gaussian.html">gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian.html">sqrt_lorentzian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin.html">sin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin_decay.html">sin_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset.html">constant_sinusoidal_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.constant_spectral_offset.html">constant_spectral_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.exp_decay.html">exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.rb_decay.html">rb_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.full_width_half_max.html">full_width_half_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.frequency.html">frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.max_height.html">max_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.min_height.html">min_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html">oscillation_exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html">analysis_result_to_repr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html">convert_lmfit_result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html">eval_with_uncertainties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.filter_data.html">filter_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.mean_xy_data.html">mean_xy_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.multi_mean_xy_data.html">multi_mean_xy_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html">data_sort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html">level2_probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.utils.probability.html">probability</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/calibration_management.html">Calibration Management (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Calibration Management (qiskit_experiments.calibration_management)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html">Calibrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.ParameterValue.html">ParameterValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.FixedFrequencyTransmon.html">FixedFrequencyTransmon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.EchoedCrossResonance.html">EchoedCrossResonance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.html">BasisGateLibrary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.calibration_management.BaseCalibrationExperiment.html">BaseCalibrationExperiment</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.DeviceComponent.html">DeviceComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.Qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/visualization.html">Visualization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.visualization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Visualization (qiskit_experiments.visualization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.BasePlotter.html">BasePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.CurvePlotter.html">CurvePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.IQPlotter.html">IQPlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.BaseDrawer.html">BaseDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.MplDrawer.html">MplDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.html">PlotStyle</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/test.html">Test Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.test</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Test Utilities (qiskit_experiments.test)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.PulseBackend.html">PulseBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.SingleTransmonTestBackend.html">SingleTransmonTestBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.MockIQBackend.html">MockIQBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.MockIQParallelBackend.html">MockIQParallelBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.T2HahnBackend.html">T2HahnBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.NoisyDelayAerBackend.html">NoisyDelayAerBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html">MockIQExperimentHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.test.MockIQParallelExperimentHelper.html">MockIQParallelExperimentHelper</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_calibration.html">Calibration Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.calibration</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Calibration Experiments (qiskit_experiments.library.calibration)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughFrequencyCal.html">RoughFrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FrequencyCal.html">FrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineFrequencyCal.html">FineFrequencyCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughDragCal.html">RoughDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineDragCal.html">FineDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineXDragCal.html">FineXDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineSXDragCal.html">FineSXDragCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineAmplitudeCal.html">FineAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineXAmplitudeCal.html">FineXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.FineSXAmplitudeCal.html">FineSXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.HalfAngleCal.html">HalfAngleCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughAmplitudeCal.html">RoughAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.RoughXSXAmplitudeCal.html">RoughXSXAmplitudeCal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal.html">EFRoughXSXAmplitudeCal</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_characterization.html">Characterization Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Characterization Experiments (qiskit_experiments.library.characterization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkP1Spectroscopy.html">StarkP1Spectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.QubitSpectroscopy.html">QubitSpectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html">CrossResonanceHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian.html">EchoedCrossResonanceHamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.Rabi.html">Rabi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.EFRabi.html">EFRabi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.RoughDrag.html">RoughDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ResonatorSpectroscopy.html">ResonatorSpectroscopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkRamseyXY.html">StarkRamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkRamseyXYAmpScan.html">StarkRamseyXYAmpScan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T1Analysis.html">T1Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html">T1KerneledAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkP1SpectAnalysis.html">StarkP1SpectAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2RamseyAnalysis.html">T2RamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.T2HahnAnalysis.html">T2HahnAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.TphiAnalysis.html">TphiAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonianAnalysis.html">CrossResonanceHamiltonianAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.DragCalAnalysis.html">DragCalAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.FineAmplitudeAnalysis.html">FineAmplitudeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.RamseyXYAnalysis.html">RamseyXYAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.StarkRamseyXYAmpScanAnalysis.html">StarkRamseyXYAmpScanAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ReadoutAngleAnalysis.html">ReadoutAngleAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ResonatorSpectroscopyAnalysis.html">ResonatorSpectroscopyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis.html">LocalReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis.html">CorrelatedReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.ZZRamseyAnalysis.html">ZZRamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis.html">MultiStateDiscriminationAnalysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_tomography.html">Tomography Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Tomography Experiments (qiskit_experiments.library.tomography)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.TomographyAnalysis.html">TomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.StateTomographyAnalysis.html">StateTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.ProcessTomographyAnalysis.html">ProcessTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.MitigatedTomographyAnalysis.html">MitigatedTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.fitters.linear_inversion.html">linear_inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html">cvxpy_gaussian_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq.html">cvxpy_linear_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.PauliMeasurementBasis.html">PauliMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.PauliPreparationBasis.html">PauliPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis.html">Pauli6PreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html">LocalMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html">LocalPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.MeasurementBasis.html">MeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.tomography.basis.PreparationBasis.html">PreparationBasis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_quantum_volume.html">Quantum Volume Experiment (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.quantum_volume</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle navigation of Quantum Volume Experiment (qiskit_experiments.library.quantum_volume)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html">QuantumVolumeAnalysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/ecosystem/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+</div></div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for qiskit_experiments.test.pulse_backend</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;A Pulse simulation backend based on Qiskit-Dynamics&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">CircuitInstruction</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.library.standard_gates</span> <span class="kn">import</span> <span class="n">RZGate</span><span class="p">,</span> <span class="n">SXGate</span><span class="p">,</span> <span class="n">XGate</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.measure</span> <span class="kn">import</span> <span class="n">Measure</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">QubitProperties</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.models</span> <span class="kn">import</span> <span class="n">PulseDefaults</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.models.pulsedefaults</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">Schedule</span><span class="p">,</span> <span class="n">ScheduleBlock</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse.transforms</span> <span class="kn">import</span> <span class="n">block_to_schedule</span>
+<span class="kn">from</span> <span class="nn">qiskit.qobj.pulse_qobj</span> <span class="kn">import</span> <span class="n">PulseQobjInstruction</span>
+<span class="kn">from</span> <span class="nn">qiskit.qobj.utils</span> <span class="kn">import</span> <span class="n">MeasLevel</span><span class="p">,</span> <span class="n">MeasReturnType</span>
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info.states</span> <span class="kn">import</span> <span class="n">DensityMatrix</span><span class="p">,</span> <span class="n">Statevector</span>
+<span class="kn">from</span> <span class="nn">qiskit.result</span> <span class="kn">import</span> <span class="n">Result</span><span class="p">,</span> <span class="n">Counts</span>
+<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">InstructionProperties</span><span class="p">,</span> <span class="n">Target</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.warnings</span> <span class="kn">import</span> <span class="n">HAS_DYNAMICS</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.discriminator</span> <span class="kn">import</span> <span class="n">BaseDiscriminator</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.utils</span> <span class="kn">import</span> <span class="n">FakeJob</span>
+
+
+<div class="viewcode-block" id="PulseBackend"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend">[docs]</a><span class="nd">@HAS_DYNAMICS</span><span class="o">.</span><span class="n">require_in_instance</span>
+<span class="k">class</span> <span class="nc">PulseBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Abstract base class for pulse simulation backends in Qiskit Experiments.</span>
+
+<span class="sd">    This backend is designed for the tests in Qiskit Experiments as well as for the</span>
+<span class="sd">    tutorials in Qiskit Experiments. The backend has a Qiskit Dynamics pulse simulator</span>
+<span class="sd">    which allows it to simulate pulse schedules that are included in the calibrations</span>
+<span class="sd">    attached to quantum circuits. In addition, sub-classes should implement a set of default</span>
+<span class="sd">    schedules so that circuits that do not provide calibrations can also run, much like</span>
+<span class="sd">    the hardware backends. In addition, the backends are also capable of simulating level-</span>
+<span class="sd">    one (IQ data) and level-two (counts) data. Subclasses of these backends can have an</span>
+<span class="sd">    optional discriminator so that they can produce counts based on sampled IQ data. If</span>
+<span class="sd">    a discriminator is not provided then the counts will be produced from a statevector</span>
+<span class="sd">    or density matrix.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        Some of the functionality in this backend may move to Qiskit Dynamics and/or be</span>
+<span class="sd">        refactored. These backends are not intended as a general pulse-simulator backend</span>
+<span class="sd">        but rather to test the experiments and write short tutorials to demonstrate an</span>
+<span class="sd">        experiment without having to run on hardware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">static_hamiltonian</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">hamiltonian_operators</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">static_dissipators</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="n">solver_method</span><span class="o">=</span><span class="s2">&quot;RK23&quot;</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a backend with model information.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            static_hamiltonian: Time-independent term in the Hamiltonian.</span>
+<span class="sd">            hamiltonian_operators: List of time-dependent operators</span>
+<span class="sd">            static_dissipators: Constant dissipation operators. Defaults to None.</span>
+<span class="sd">            dt: Sample rate for simulating pulse schedules. Defaults to 0.1*1e-9.</span>
+<span class="sd">            solver_method: Numerical solver method to use. Check qiskit_dynamics for available</span>
+<span class="sd">                methods. Defaults to &quot;RK23&quot;.</span>
+<span class="sd">            seed: An optional seed given to the random number generator. If this argument is not</span>
+<span class="sd">                set then the seed defaults to 0.</span>
+<span class="sd">            atol: Absolute tolerance during solving.</span>
+<span class="sd">            rtol: Relative tolerance during solving.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">qiskit_dynamics</span> <span class="kn">import</span> <span class="n">Solver</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PulseBackendV2&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A PulseBackend simulator&quot;</span><span class="p">,</span>
+            <span class="n">online_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+            <span class="n">backend_version</span><span class="o">=</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># subclasses must implements default pulse schedules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+        <span class="c1"># The RNG to sample IQ data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># The instance to convert pulse schedules to signals for Qiskit Dynamics.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver_method</span> <span class="o">=</span> <span class="n">solver_method</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solve_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">atol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solve_kwargs</span><span class="p">[</span><span class="s2">&quot;atol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atol</span>
+        <span class="k">if</span> <span class="n">rtol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solve_kwargs</span><span class="p">[</span><span class="s2">&quot;rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rtol</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_hamiltonian</span> <span class="o">=</span> <span class="n">static_hamiltonian</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian_operators</span> <span class="o">=</span> <span class="n">hamiltonian_operators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="o">=</span> <span class="n">static_dissipators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span>
+            <span class="n">static_hamiltonian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">static_hamiltonian</span><span class="p">,</span>
+            <span class="n">hamiltonian_operators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian_operators</span><span class="p">,</span>
+            <span class="n">static_dissipators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dim</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># An internal cache of schedules to unitaries. The key is a hashed string representation.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># An optional discriminator that is used to create counts from IQ data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Contains information for circuit transpilation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="PulseBackend.defaults"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend.defaults">[docs]</a>    <span class="k">def</span> <span class="nf">defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return backend pulse defaults&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseDiscriminator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the discriminator for the IQ data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span>
+
+    <span class="nd">@discriminator</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discriminator</span><span class="p">:</span> <span class="n">BaseDiscriminator</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the discriminator.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="o">=</span> <span class="n">discriminator</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the default options of the backend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
+            <span class="n">shots</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+            <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">,</span>
+            <span class="n">meas_return</span><span class="o">=</span><span class="n">MeasReturnType</span><span class="o">.</span><span class="n">AVERAGE</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_pulse_unitaries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default unitary matrices of the backend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span>
+
+    <span class="nd">@default_pulse_unitaries</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">default_pulse_unitaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unitaries</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default unitary pulses this allows the tests to simulate the pulses only once.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="n">unitaries</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_info</span><span class="p">(</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">CircuitInstruction</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns information that uniquely describes a circuit instruction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: The quantum circuit in which the instruction is located. This is needed to</span>
+<span class="sd">                access the register in the circuit.</span>
+<span class="sd">            instruction: A gate or operation in a QuantumCircuit</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of qubit index, gate parameters and instruction name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p_dict</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">operation</span>
+        <span class="n">qubit</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">qbit</span><span class="p">))</span> <span class="k">for</span> <span class="n">qbit</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">p_dict</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">p_dict</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">_iq_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">probability</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">phase</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates IQ data for each physical level.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            probability: probability of occupation</span>
+<span class="sd">            shots: Number of shots</span>
+<span class="sd">            centers: The central I and Q points for each level</span>
+<span class="sd">            width: Width of IQ data distribution</span>
+<span class="sd">            phase: Phase of IQ data, by default 0. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (I,Q) data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counts_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="n">probability</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">probability</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">full_i</span><span class="p">,</span> <span class="n">full_q</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">count_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">counts_n</span><span class="p">):</span>
+            <span class="n">full_i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count_i</span><span class="p">))</span>
+            <span class="n">full_q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count_i</span><span class="p">))</span>
+
+        <span class="n">full_i</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">full_i</span><span class="p">))</span>
+        <span class="n">full_q</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">full_q</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">complex_iq</span> <span class="o">=</span> <span class="p">(</span><span class="n">full_i</span> <span class="o">+</span> <span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">full_q</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">phase</span><span class="p">)</span>
+            <span class="n">full_i</span><span class="p">,</span> <span class="n">full_q</span> <span class="o">=</span> <span class="n">complex_iq</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">complex_iq</span><span class="o">.</span><span class="n">imag</span>
+
+        <span class="n">full_iq</span> <span class="o">=</span> <span class="mf">1e16</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">full_i</span><span class="p">],</span> <span class="p">[</span><span class="n">full_q</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="n">full_iq</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="k">def</span> <span class="nf">_iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A function to provide the points for the IQ centers when doing readout.</span>
+
+<span class="sd">        Subclasses can override this function, for instance, to provide circuit dependent</span>
+<span class="sd">        IQ cluster centers. If this function is not overridden then the IQ cluster centers returned</span>
+<span class="sd">        are evenly distributed on the unit sphere in the IQ plane with |0&gt; located at IQ point (0, 1).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: provided so that sub-classes that implement their own IQ simulation</span>
+<span class="sd">                by overriding this method can access circuit-level data (e.g. for</span>
+<span class="sd">                ReadoutSpectroscopy simulation).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Coordinates for IQ centers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="n">theta</span><span class="p">))</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_state_to_measurement_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">meas_level</span><span class="p">:</span> <span class="n">MeasLevel</span><span class="p">,</span>
+        <span class="n">meas_return</span><span class="p">:</span> <span class="n">MeasReturnType</span><span class="p">,</span>
+        <span class="n">memory</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Counts</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert State objects to IQ data or Counts.</span>
+
+<span class="sd">        The counts are produced by sampling from the state vector if no discriminator is</span>
+<span class="sd">        present. Otherwise, IQ shots are generated and then discriminated based on the</span>
+<span class="sd">        discriminator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state: Quantum state information.</span>
+<span class="sd">            shots: Number of repetitions of each circuit, for sampling.</span>
+<span class="sd">            meas_level: Measurement level 1 returns IQ data. 2 returns counts.</span>
+<span class="sd">            meas_return: &quot;single&quot; returns information from every shot. &quot;avg&quot; returns average</span>
+<span class="sd">                measurement output (averaged over number of shots).</span>
+<span class="sd">            circuit: The circuit is provided so that :meth:`iq_data` can leverage any circuit-level</span>
+<span class="sd">                information that it might need to generate the IQ shots.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Measurement output as either counts or IQ data depending on the run input.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If unsuported measurement options are provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">memory_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">DensityMatrix</span><span class="p">(</span><span class="n">state</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Statevector</span><span class="p">(</span><span class="n">state</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">memory</span><span class="p">:</span>
+                    <span class="n">memory_data</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">sample_memory</span><span class="p">(</span><span class="n">shots</span><span class="p">)</span>
+                    <span class="n">measurement_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">memory_data</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">measurement_data</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">sample_counts</span><span class="p">(</span><span class="n">shots</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">centers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span><span class="p">(</span><span class="n">circuit</span><span class="o">=</span><span class="n">circuit</span><span class="p">)</span>
+                <span class="n">iq_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_data</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(),</span> <span class="n">shots</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+                <span class="n">memory_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">iq_data</span><span class="p">)</span>
+                <span class="n">measurement_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">memory_data</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+
+        <span class="k">elif</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span><span class="p">(</span><span class="n">circuit</span><span class="o">=</span><span class="n">circuit</span><span class="p">)</span>
+            <span class="n">measurement_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_data</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(),</span> <span class="n">shots</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+                <span class="n">measurement_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">measurement_data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported measurement level </span><span class="si">{</span><span class="n">meas_level</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">measurement_data</span><span class="p">,</span> <span class="n">memory_data</span>
+
+<div class="viewcode-block" id="PulseBackend.solve"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">Schedule</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solves for qubit dynamics under the action of a pulse instruction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: Pulse signal</span>
+<span class="sd">            qubits: (remove after multi-qubit gates is implemented)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Time-evolution unitary operator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Multi qubit gates are not yet implemented.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">ScheduleBlock</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="n">block_to_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+
+        <span class="n">signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="n">time_f</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">duration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">unitary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+            <span class="n">t_span</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">time_f</span><span class="p">],</span>
+            <span class="n">y0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y_0</span><span class="p">,</span>
+            <span class="n">t_eval</span><span class="o">=</span><span class="p">[</span><span class="n">time_f</span><span class="p">],</span>
+            <span class="n">signals</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_method</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">solve_kwargs</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">unitary</span></div>
+
+<div class="viewcode-block" id="PulseBackend.run"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeJob</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run method takes circuits as input and returns FakeJob with IQ data or counts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            run_input: Circuits to run.</span>
+<span class="sd">            run_options: Any option that affects the way that the circuits are run. The options</span>
+<span class="sd">                that are currently supported are ``shots``, ``meas_level``, ``meas_return``,</span>
+<span class="sd">                and ``memory``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FakeJob with simulation data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">run_options</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">shots</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">meas_level</span><span class="p">)</span>
+        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_return&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">meas_return</span><span class="p">)</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_version</span><span class="p">,</span>
+            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run_input</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+            <span class="n">run_input</span> <span class="o">=</span> <span class="p">[</span><span class="n">run_input</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">run_input</span><span class="p">:</span>
+            <span class="n">unitaries</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># 1. Parse the calibrations and simulate any new schedule. Add U to the unitaries.</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">calibrations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">),</span> <span class="n">schedule_block</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">schedule_key</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">schedule</span><span class="p">))</span>
+
+                    <span class="c1"># Simulate the schedule if not in the cache.</span>
+                    <span class="k">if</span> <span class="n">schedule_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">[</span><span class="n">schedule_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">schedule_block</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)</span>
+
+                    <span class="n">unitaries</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">[</span><span class="n">schedule_key</span><span class="p">]</span>
+
+            <span class="c1"># 2. Copy over any remaining instructions to the dict of unitaries.</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">unitary</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_pulse_unitaries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unitaries</span><span class="p">:</span>
+                    <span class="n">unitaries</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">unitary</span>
+
+            <span class="c1"># 3. Multiply the unitaries of the circuit instructions onto the ground state.</span>
+            <span class="n">state_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">inst_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">inst_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;barrier&quot;</span><span class="p">,</span> <span class="s2">&quot;measure&quot;</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">inst_name</span> <span class="o">==</span> <span class="s2">&quot;rz&quot;</span><span class="p">:</span>
+                    <span class="c1"># Ensures that the action in the qubit space is preserved.</span>
+                    <span class="n">unitary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">idx</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">unitary</span> <span class="o">=</span> <span class="n">unitaries</span><span class="p">[(</span><span class="n">inst_name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">)]</span>
+                <span class="n">state_t</span> <span class="o">=</span> <span class="n">unitary</span> <span class="o">@</span> <span class="n">state_t</span>
+
+            <span class="c1"># 4. Convert the probabilities to IQ data or counts.</span>
+            <span class="n">measurement_data</span><span class="p">,</span> <span class="n">memory_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_to_measurement_data</span><span class="p">(</span>
+                <span class="n">state_t</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">meas_level</span><span class="p">,</span> <span class="n">meas_return</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">circuit</span>
+            <span class="p">)</span>
+
+            <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
+                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
+                <span class="s2">&quot;meas_return&quot;</span><span class="p">:</span> <span class="n">meas_return</span><span class="p">,</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
+                <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_data</span>
+                <span class="k">if</span> <span class="n">memory_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_data</span>
+            <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">:</span>
+                <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_data</span>
+
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="SingleTransmonTestBackend"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.SingleTransmonTestBackend.html#qiskit_experiments.test.SingleTransmonTestBackend">[docs]</a><span class="nd">@HAS_DYNAMICS</span><span class="o">.</span><span class="n">require_in_instance</span>
+<span class="k">class</span> <span class="nc">SingleTransmonTestBackend</span><span class="p">(</span><span class="n">PulseBackend</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A backend that corresponds to a three level anharmonic transmon qubit.</span>
+
+<span class="sd">    The Hamiltonian of the system is</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +</span>
+<span class="sd">                \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]</span>
+
+<span class="sd">    Here, :math:`\omega_j` is the transition frequency from level :math:`0` to level</span>
+<span class="sd">    :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are</span>
+<span class="sd">    the raising and lowering operators between levels :math:`j-1` and :math:`j`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">qubit_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e9</span><span class="p">,</span>
+        <span class="n">anharmonicity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.25e9</span><span class="p">,</span>
+        <span class="n">lambda_1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="n">lambda_2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8e9</span><span class="p">,</span>
+        <span class="n">gamma_1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e4</span><span class="p">,</span>
+        <span class="n">noise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise backend with hamiltonian parameters</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.</span>
+<span class="sd">            anharmonicity: Qubit anharmonicity $\\alpha$ = f12 - f01. Defaults to -0.25e9.</span>
+<span class="sd">            lambda_1: Strength of 0-1 transition. Defaults to 1e9.</span>
+<span class="sd">            lambda_2: Strength of 1-2 transition. Defaults to 0.8e9.</span>
+<span class="sd">            gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.</span>
+<span class="sd">            noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.</span>
+<span class="sd">                The strength is given by ``gamma_1``.</span>
+<span class="sd">            atol: Absolute tolerance during solving.</span>
+<span class="sd">            rtol: Relative tolerance during solving.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">qiskit_dynamics.pulse</span> <span class="kn">import</span> <span class="n">InstructionToSignals</span>
+
+        <span class="n">qubit_frequency_02</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">qubit_frequency</span> <span class="o">+</span> <span class="n">anharmonicity</span>
+        <span class="n">ket0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">ket1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">ket2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">sigma_m1</span> <span class="o">=</span> <span class="n">ket0</span> <span class="o">@</span> <span class="n">ket1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">sigma_m2</span> <span class="o">=</span> <span class="n">ket1</span> <span class="o">@</span> <span class="n">ket2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">sigma_p1</span> <span class="o">=</span> <span class="n">sigma_m1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">sigma_p2</span> <span class="o">=</span> <span class="n">sigma_m2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">ket1</span> <span class="o">@</span> <span class="n">ket1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">ket2</span> <span class="o">@</span> <span class="n">ket2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">drift</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">qubit_frequency</span> <span class="o">*</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">qubit_frequency_02</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="n">control</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">lambda_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_p1</span> <span class="o">+</span> <span class="n">sigma_m1</span><span class="p">)</span> <span class="o">+</span> <span class="n">lambda_2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_p2</span> <span class="o">+</span> <span class="n">sigma_m2</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">r_frame</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">qubit_frequency</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="n">t1_dissipator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_m1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">anharmonicity</span> <span class="o">=</span> <span class="n">anharmonicity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span> <span class="o">=</span> <span class="mf">8.589</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_12</span> <span class="o">=</span> <span class="mf">6.876</span>
+
+        <span class="k">if</span> <span class="n">noise</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">evaluation_mode</span> <span class="o">=</span> <span class="s2">&quot;dense_vectorized&quot;</span>
+            <span class="n">static_dissipators</span> <span class="o">=</span> <span class="p">[</span><span class="n">t1_dissipator</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">evaluation_mode</span> <span class="o">=</span> <span class="s2">&quot;dense&quot;</span>
+            <span class="n">static_dissipators</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">static_hamiltonian</span><span class="o">=</span><span class="n">drift</span><span class="p">,</span>
+            <span class="n">hamiltonian_operators</span><span class="o">=</span><span class="n">control</span><span class="p">,</span>
+            <span class="n">static_dissipators</span><span class="o">=</span><span class="n">static_dissipators</span><span class="p">,</span>
+            <span class="n">rotating_frame</span><span class="o">=</span><span class="n">r_frame</span><span class="p">,</span>
+            <span class="n">rwa_cutoff_freq</span><span class="o">=</span><span class="mf">1.9</span> <span class="o">*</span> <span class="n">qubit_frequency</span><span class="p">,</span>
+            <span class="n">rwa_carrier_freqs</span><span class="o">=</span><span class="p">[</span><span class="n">qubit_frequency</span><span class="p">],</span>
+            <span class="n">evaluation_mode</span><span class="o">=</span><span class="n">evaluation_mode</span><span class="p">,</span>
+            <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+            <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="n">PulseDefaults</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;qubit_freq_est&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">qubit_frequency</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">],</span>
+                <span class="s2">&quot;meas_freq_est&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;buffer&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;pulse_library&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;cmd_def&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="s2">&quot;sequence&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="n">PulseQobjInstruction</span><span class="p">(</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parametric_pulse&quot;</span><span class="p">,</span>
+                                    <span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">ch</span><span class="o">=</span><span class="s2">&quot;d0&quot;</span><span class="p">,</span>
+                                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Xp_d0&quot;</span><span class="p">,</span>
+                                    <span class="n">pulse_shape</span><span class="o">=</span><span class="s2">&quot;drag&quot;</span><span class="p">,</span>
+                                    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                                        <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span><span class="p">,</span>
+                                        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                                        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                                    <span class="p">},</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+                            <span class="p">],</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                    <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;sx&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="s2">&quot;sequence&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="n">PulseQobjInstruction</span><span class="p">(</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parametric_pulse&quot;</span><span class="p">,</span>
+                                    <span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">ch</span><span class="o">=</span><span class="s2">&quot;d0&quot;</span><span class="p">,</span>
+                                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;X90p_d0&quot;</span><span class="p">,</span>
+                                    <span class="n">pulse_shape</span><span class="o">=</span><span class="s2">&quot;drag&quot;</span><span class="p">,</span>
+                                    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                                        <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span><span class="p">,</span>
+                                        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                                        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                                    <span class="p">},</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+                            <span class="p">],</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+            <span class="n">qubit_properties</span><span class="o">=</span><span class="p">[</span><span class="n">QubitProperties</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">qubit_frequency</span><span class="p">)],</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">measure_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">x_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">160e-10</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">sx_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">160e-10</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">rz_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phi</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Measure</span><span class="p">(),</span> <span class="n">measure_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="n">x_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">SXGate</span><span class="p">(),</span> <span class="n">sx_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">RZGate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_phi</span><span class="p">),</span> <span class="n">rz_props</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="n">InstructionToSignals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">carriers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;d0&quot;</span><span class="p">:</span> <span class="n">qubit_frequency</span><span class="p">})</span>
+
+        <span class="n">default_schedules</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="o">.</span><span class="n">instruction_schedule_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="o">.</span><span class="n">instruction_schedule_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="p">()):</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="n">default_schedules</span>
+        <span class="p">}</span></div>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+  <script>
+    function userFeedbackClicked(ctaType) {
+      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
+      window.trackCta(`Helpful - ${ctaType}`);
+    }
+  </script>
+    <div class="qiskit-analytics-container">
+      <div>Was this page helpful?</div>
+      <a onclick="userFeedbackClicked('yes')">Yes</a>
+      <a onclick="userFeedbackClicked('no')">No</a>
+      <div id="qiskit-analytics-thank-you">Thank you!</div>
+    </div>
+<div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2024, Qiskit Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            <div class="last-updated">
+              Last updated on 2024/01/23</div>
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/thebelab-helper.js"></script>
+    <script src="../../../_static/scripts/qiskit-sphinx-theme.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

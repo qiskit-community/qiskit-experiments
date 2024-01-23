@@ -1,0 +1,43 @@
+﻿
+
+ErrorAmplificationAnalysis
+============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: ErrorAmplificationAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: ErrorAmplificationAnalysis.drawer
+   .. autoattribute:: ErrorAmplificationAnalysis.models
+   .. autoattribute:: ErrorAmplificationAnalysis.name
+   .. autoattribute:: ErrorAmplificationAnalysis.options
+   .. autoattribute:: ErrorAmplificationAnalysis.parameters
+   .. autoattribute:: ErrorAmplificationAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: ErrorAmplificationAnalysis.config
+   .. automethod:: ErrorAmplificationAnalysis.copy
+   .. automethod:: ErrorAmplificationAnalysis.from_config
+   .. automethod:: ErrorAmplificationAnalysis.model_names
+   .. automethod:: ErrorAmplificationAnalysis.run
+   .. automethod:: ErrorAmplificationAnalysis.set_options
+   
+
+   
+   

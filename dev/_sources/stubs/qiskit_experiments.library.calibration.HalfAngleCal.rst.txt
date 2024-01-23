@@ -1,0 +1,50 @@
+﻿
+
+HalfAngleCal
+===================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: HalfAngleCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: HalfAngleCal.analysis
+   .. autoattribute:: HalfAngleCal.backend
+   .. autoattribute:: HalfAngleCal.calibrations
+   .. autoattribute:: HalfAngleCal.experiment_options
+   .. autoattribute:: HalfAngleCal.experiment_type
+   .. autoattribute:: HalfAngleCal.num_qubits
+   .. autoattribute:: HalfAngleCal.physical_qubits
+   .. autoattribute:: HalfAngleCal.run_options
+   .. autoattribute:: HalfAngleCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: HalfAngleCal.circuits
+   .. automethod:: HalfAngleCal.config
+   .. automethod:: HalfAngleCal.copy
+   .. automethod:: HalfAngleCal.from_config
+   .. automethod:: HalfAngleCal.job_info
+   .. automethod:: HalfAngleCal.run
+   .. automethod:: HalfAngleCal.set_experiment_options
+   .. automethod:: HalfAngleCal.set_run_options
+   .. automethod:: HalfAngleCal.set_transpile_options
+   .. automethod:: HalfAngleCal.update_calibrations
+   
+
+   
+   

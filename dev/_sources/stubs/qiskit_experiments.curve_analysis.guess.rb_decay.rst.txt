@@ -1,0 +1,8 @@
+﻿
+
+rb_decay
+================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: rb_decay

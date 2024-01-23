@@ -1,0 +1,43 @@
+﻿
+
+StarkRamseyXYAmpScanAnalysis
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: StarkRamseyXYAmpScanAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.drawer
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.models
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.name
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.options
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.parameters
+   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.config
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.copy
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.from_config
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.model_names
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.run
+   .. automethod:: StarkRamseyXYAmpScanAnalysis.set_options
+   
+
+   
+   

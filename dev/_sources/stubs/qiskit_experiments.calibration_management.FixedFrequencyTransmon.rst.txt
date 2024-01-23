@@ -1,0 +1,55 @@
+﻿
+
+FixedFrequencyTransmon
+================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoclass:: FixedFrequencyTransmon
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: FixedFrequencyTransmon.basis_gates
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: FixedFrequencyTransmon.__getitem__
+   .. automethod:: FixedFrequencyTransmon.__len__
+   .. automethod:: FixedFrequencyTransmon.config
+   .. automethod:: FixedFrequencyTransmon.default_values
+   .. automethod:: FixedFrequencyTransmon.from_config
+   .. automethod:: FixedFrequencyTransmon.get
+   .. automethod:: FixedFrequencyTransmon.items
+   .. automethod:: FixedFrequencyTransmon.keys
+   .. automethod:: FixedFrequencyTransmon.num_qubits
+   .. automethod:: FixedFrequencyTransmon.values
+
+   
