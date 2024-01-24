@@ -32,6 +32,7 @@ import io
 import sys
 import json
 import traceback
+import warnings
 import numpy as np
 import pandas as pd
 from dateutil import tz
@@ -2537,11 +2538,17 @@ class ExperimentData:
 
     @staticmethod
     def get_service_from_provider(provider):
-        """Initializes the service from the provider data"""    
+        """Initializes the service from the provider data"""
         try:
             # qiskit-ibm-provider style
             if hasattr(provider, "_account"):
                 token = provider._account.token
+                warnings.warn(
+                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. "
+                    "Support for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             service = IBMExperimentService(token=token, url=ExperimentData._db_url)
             return service
         except Exception:  # pylint: disable=broad-except
