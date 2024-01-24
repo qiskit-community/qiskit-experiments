@@ -101,7 +101,10 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
     def test_scale(self):
         """Test the xscale and yscale figure options."""
         plotter = MockPlotter(MplDrawer(), plotting_enabled=True)
-        plotter.set_figure_options(xscale="quadratic", yscale="log")
+        plotter.set_figure_options(
+            xscale="quadratic",
+            yscale="log",
+        )
 
         plotter.figure()
         ax = plotter.drawer._axis
