@@ -29,9 +29,11 @@ large number of circuits that can't fit in a single job, it may be helpful to fo
 
     backend.open_session()
     exp = ProcessTomography(qc)
+
+    # Artificially lower circuits per job, adjust value for your own application
     exp.set_experiment_options(max_circuits=3)
     exp_data = exp.run(backend)
-    # this will prevent further jobs from being submitted without terminating current jobs
+    # This will prevent further jobs from being submitted without terminating current jobs
     backend.close_session()
 
 Note that runtime primitives are not currently supported natively in Qiskit Experiments, so  
