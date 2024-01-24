@@ -6,4 +6,4 @@ matplotlib>=3.4
 uncertainties
 lmfit
 rustworkx
-pandas>=1.1.5
+pandas>=1.1.5,<2.2.0
