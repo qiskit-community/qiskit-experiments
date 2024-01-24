@@ -2547,8 +2547,8 @@ class ExperimentData:
             if hasattr(provider, "_account"):
                 token = provider._account.token
                 warnings.warn(
-                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. "
-                    "Support for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
+                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
+                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
