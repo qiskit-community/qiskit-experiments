@@ -234,8 +234,6 @@ class ExperimentData:
     _metadata_filename = "metadata.json"
     _max_workers_cap = 10
 
-    _db_url = "https://auth.quantum.ibm.com/api"
-
     def __init__(
         self,
         experiment: Optional["BaseExperiment"] = None,
@@ -2534,9 +2532,12 @@ class ExperimentData:
     def get_service_from_backend(backend):
         """Initializes the service from the backend data"""
         # qiskit-ibm-runtime style
-        if hasattr(backend, "service"):
-            token = backend.service._account.token
-            return IBMExperimentService(token=token, url=ExperimentData._db_url)
+        try:
+            if hasattr(backend, "service"):
+                token = backend.service._account.token
+                return IBMExperimentService(token=token, url=backend.service._account.url)
+        except Exception:  # pylint: disable=broad-except
+            return None
         return ExperimentData.get_service_from_provider(backend.provider)
 
     @staticmethod
@@ -2552,8 +2553,8 @@ class ExperimentData:
                     DeprecationWarning,
                     stacklevel=2,
                 )
-            service = IBMExperimentService(token=token, url=ExperimentData._db_url)
-            return service
+                service = IBMExperimentService(token=token, url=provider._account.url)
+                return service
         except Exception:  # pylint: disable=broad-except
             return None
 
