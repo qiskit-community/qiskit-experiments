@@ -127,12 +127,7 @@ class FineFrequency(BaseExperiment):
             circuit.sx(0)
             circuit.measure_all()
 
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": repetition,
-                "unit": "Number of delays",
-            }
+            circuit.metadata = {"xval": repetition}
 
             circuits.append(circuit)
 

@@ -283,7 +283,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
             circuit = self._template_circuit()
             circuit.add_calibration("measure", self.physical_qubits, sched_)
-            self._add_metadata(circuit, freq, sched)
+            self._add_metadata(circuit, freq)
 
             circs.append(circuit)
 

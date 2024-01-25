@@ -162,7 +162,7 @@ html_context = {
 
 html_title = f"{project} {release}"
 
-docs_url_prefix = "ecosystem/experiments"
+docs_url_prefix = "qiskit-experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
 

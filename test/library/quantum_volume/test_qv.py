@@ -13,13 +13,15 @@
 """
 A Tester for the Quantum Volume experiment
 """
+import warnings
 from test.base import QiskitExperimentsTestCase
 import json
 import os
 from uncertainties import UFloat
-from qiskit.quantum_info.operators.predicates import matrix_equal
 
-from qiskit import Aer
+from qiskit.quantum_info.operators.predicates import matrix_equal
+from qiskit_aer import AerSimulator
+
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
 from qiskit_experiments.framework import ExperimentDecoder
@@ -102,19 +104,21 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         Test that the sigma is decreasing after adding more trials
         """
         num_of_qubits = 3
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         # set number of trials to a low number to make the test faster
-        qv_exp.set_experiment_options(trials=2)
-        expdata1 = qv_exp.run(backend)
-        self.assertExperimentDone(expdata1)
-        result_data1 = expdata1.analysis_results(0)
-        expdata2 = qv_exp.run(backend, analysis=None)
-        self.assertExperimentDone(expdata2)
-        expdata2.add_data(expdata1.data())
-        qv_exp.analysis.run(expdata2)
-        result_data2 = expdata2.analysis_results(0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Must use at least 100 trials")
+            qv_exp.set_experiment_options(trials=2)
+            expdata1 = qv_exp.run(backend)
+            self.assertExperimentDone(expdata1)
+            result_data1 = expdata1.analysis_results(0)
+            expdata2 = qv_exp.run(backend, analysis=None)
+            self.assertExperimentDone(expdata2)
+            expdata2.add_data(expdata1.data())
+            qv_exp.analysis.run(expdata2)
+            result_data2 = expdata2.analysis_results(0)
 
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
@@ -139,14 +143,15 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 3
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_trials_data)
 
-        qv_exp.analysis.run(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        with self.assertWarns(UserWarning):
+            qv_exp.analysis.run(exp_data)
+            qv_result = exp_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
@@ -165,7 +170,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
@@ -192,7 +197,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
@@ -216,7 +221,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
-        backend = Aer.get_backend("aer_simulator")
+        backend = AerSimulator()
 
         qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
