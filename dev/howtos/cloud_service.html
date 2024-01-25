@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Get experiment timing information" href="experiment_times.html" /><link rel="prev" title="How-To Guides" href="index.html" />
 
     <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
-        <title>Save and load experiment data with the cloud service - Qiskit Experiments 0.5.0-126-ge648bc5</title>
+        <title>Save and load experiment data with the cloud service - Qiskit Experiments 0.5.0-127-g4ea9cf63</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css" />
@@ -189,7 +189,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-126-ge648bc5</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-127-g4ea9cf63</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -216,7 +216,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-126-ge648bc5</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-127-g4ea9cf63</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -610,20 +610,21 @@ and seeing if you can see the <a class="reference external" href="https://quantu
 <h3>Saving<a class="headerlink" href="#saving" title="Permalink to this heading">#</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This guide requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>. For how to migrate from the deprecated <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibmq-provider</span></code> to <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>,
-consult the <a class="reference external" href="https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html">migration guide</a>.</p>
+<p>This guide requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-runtime</span></code> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
+For how to migrate from the older <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> to <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-runtime</span></code>,
+consult the <a class="reference external" href="https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider">migration guide</a>.</p>
 </div>
 <p>You must run the experiment on a real IBM
 backend and not a simulator to be able to save the experiment data. This is done by calling
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_provider</span> <span class="kn">import</span> <span class="n">IBMProvider</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_runtime</span> <span class="kn">import</span> <span class="n">QiskitRuntimeService</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization</span> <span class="kn">import</span> <span class="n">T1</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="n">provider</span> <span class="o">=</span> <span class="n">IBMProvider</span><span class="p">()</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;ibmq_lima&quot;</span><span class="p">)</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;ibm_quantum&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">&quot;ibm_osaka&quot;</span><span class="p">)</span>
 
 <span class="n">t1_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">600e-6</span><span class="p">,</span> <span class="mf">50e-6</span><span class="p">)</span>
 
@@ -745,7 +746,7 @@ this file is done automatically in <a class="reference internal" href="../stubs/
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>You can view the experiment online at https://quantum.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
-&lt;ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca&gt;
+&lt;ExperimentData[T1], backend: ibm_osaka, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca&gt;
 </pre></div>
 </div>
 </div>

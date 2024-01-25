@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Experiment Manuals" href="../manuals/index.html" /><link rel="prev" title="Rerun analysis for an existing experiment" href="rerun_analysis.html" />
 
     <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
-        <title>Use Experiments with Runtime sessions - Qiskit Experiments 0.5.0-126-ge648bc5</title>
+        <title>Use Experiments with Runtime sessions - Qiskit Experiments 0.5.0-127-g4ea9cf63</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css" />
@@ -189,7 +189,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-126-ge648bc5</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-127-g4ea9cf63</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -216,7 +216,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-126-ge648bc5</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-127-g4ea9cf63</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -600,30 +600,34 @@ released.</p>
 </section>
 <section id="solution">
 <h2>Solution<a class="headerlink" href="#solution" title="Permalink to this heading">#</a></h2>
-<p>Use the <a class="reference external" href="https://qiskit.org/ecosystem/ibm-provider/stubs/qiskit_ibm_provider.IBMBackend.html#qiskit_ibm_provider.IBMBackend" title="(in Qiskit IBM Quantum Provider)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IBMBackend</span></code></a> object in <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>, which supports sessions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This guide requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-runtime</span></code> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
+For how to migrate from the older <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> to <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-runtime</span></code>,
+consult the <a class="reference external" href="https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider">migration guide</a>.</p>
+</div>
+<p>Use the <a class="reference external" href="https://qiskit.org/ecosystem/ibm-runtime/stubs/qiskit_ibm_runtime.IBMBackend.html#qiskit_ibm_runtime.IBMBackend" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IBMBackend</span></code></a> object in <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-runtime</span></code>, which supports sessions.</p>
 <p>In this example, we will set the <code class="docutils literal notranslate"><span class="pre">max_circuits</span></code> property to an artificially low value so that the experiment will be
 split into multiple jobs that run sequentially in a single session. When running real experiments with a
 large number of circuits that can’t fit in a single job, it may be helpful to follow this usage pattern:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_provider</span> <span class="kn">import</span> <span class="n">IBMProvider</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_runtime</span> <span class="kn">import</span> <span class="n">QiskitRuntimeService</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.library.tomography</span> <span class="kn">import</span> <span class="n">ProcessTomography</span>
 <span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
 
-<span class="n">provider</span> <span class="o">=</span> <span class="n">IBMProvider</span><span class="p">()</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;ibm_nairobi&quot;</span><span class="p">)</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;ibm_quantum&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">&quot;ibm_osaka&quot;</span><span class="p">)</span>
 <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">qc</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">open_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-    <span class="n">exp</span> <span class="o">=</span> <span class="n">ProcessTomography</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
-    <span class="n">exp</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">max_circuits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
-    <span class="n">exp_data</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-    <span class="c1"># Calling cancel because session.close() is not available for qiskit-ibm-provider&lt;=0.7.2.</span>
-    <span class="c1"># It is safe to call cancel since block_for_results() ensures there are no outstanding jobs</span>
-    <span class="c1"># still running that would be canceled.</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+<span class="n">backend</span><span class="o">.</span><span class="n">open_session</span><span class="p">()</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ProcessTomography</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+<span class="c1"># Artificially lower circuits per job, adjust value for your own application</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">max_circuits</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+<span class="c1"># This will prevent further jobs from being submitted without terminating current jobs</span>
+<span class="n">backend</span><span class="o">.</span><span class="n">close_session</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
