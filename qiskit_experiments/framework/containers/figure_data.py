@@ -18,11 +18,7 @@ import copy
 import io
 from typing import Dict, Optional, Union, Any
 
-import numpy as np
-
 from matplotlib.figure import Figure as MatplotlibFigure
-from qiskit.result import Counts
-
 
 class FigureData:
     """A plot data container.
@@ -97,4 +93,4 @@ class FigureData:
             return self.figure.decode("utf-8")
         return None
 
-_FigureT = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureType = Union[str, bytes, MatplotlibFigure, FigureData]

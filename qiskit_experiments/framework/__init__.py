@@ -139,10 +139,10 @@ from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
 from .configs import ExperimentConfig, AnalysisConfig
-from .containers.elements import FigureData
+from .containers.figure_data import FigureData
 from .analysis_result_data import AnalysisResultData
 from .analysis_result_table import AnalysisResultTable
-from .artifact_data import ArtifactData
+from .containers.artifact_data import ArtifactData
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
