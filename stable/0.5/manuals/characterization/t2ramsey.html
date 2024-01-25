@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>T2* Ramsey Characterization &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../index.html">Experiment Manuals</a> &gt;</li>
+        
+      <li>T2* Ramsey Characterization</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="t2-ramsey-characterization">
+<h1>T2* Ramsey Characterization<a class="headerlink" href="#t2-ramsey-characterization" title="Permalink to this heading">¶</a></h1>
+<p>The purpose of the <span class="math notranslate nohighlight">\(T_2^*\)</span> Ramsey experiment is to determine two of the qubit’s
+properties: <em>Ramsey</em> or <em>detuning frequency</em> and <span class="math notranslate nohighlight">\(T_2^\ast\)</span>. In this experiment,
+we would like to get a more precise estimate of the qubit’s frequency given a rough
+estimate. The difference between the frequency used for the control rotation pulses and
+the qubit transition frequency is called the <em>detuning frequency</em>. This part of the
+experiment is called a <em>Ramsey Experiment</em>. <span class="math notranslate nohighlight">\(T_2^\ast\)</span> represents the rate of
+decay toward a mixed state, when the qubit is initialized to the
+<span class="math notranslate nohighlight">\(\left|1\right\rangle\)</span> state. It is the dephasing time or the transverse
+relaxation time of the qubit on the Bloch sphere as a result of both energy relaxation
+and pure dephasing in the transverse plane. Unlike <span class="math notranslate nohighlight">\(T_2\)</span>, which is measured by
+<a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>, <span class="math notranslate nohighlight">\(T_2^*\)</span> is sensitive to inhomogenous broadening.</p>
+<p>Since the detuning frequency is relatively small, we add a phase gate to the circuit to
+enable better measurement. The actual frequency measured is the sum of the detuning
+frequency and the user induced <em>oscillation frequency</em> (<code class="docutils literal notranslate"><span class="pre">osc_freq</span></code> parameter).</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">qiskit</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">T2Ramsey</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The circuits used for the experiment comprise the following steps:</p>
+<ol class="arabic simple">
+<li><p>Hadamard gate</p></li>
+<li><p>Delay</p></li>
+<li><p>RZ gate that rotates the qubit in the x-y plane</p></li>
+<li><p>Hadamard gate</p></li>
+<li><p>Measurement</p></li>
+</ol>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>The user provides as input a series of delays (in seconds) and the
+oscillation frequency (in Hz). During the delay, we expect the qubit to
+precess about the z-axis. If the p gate and the precession offset each
+other perfectly, then the qubit will arrive at the
+<span class="math notranslate nohighlight">\(\left|0\right\rangle\)</span> state (after the second Hadamard gate). By
+varying the extension of the delays, we get a series of oscillations of
+the qubit state between the <span class="math notranslate nohighlight">\(\left|0\right\rangle\)</span> and
+<span class="math notranslate nohighlight">\(\left|1\right\rangle\)</span> states. We can draw the graph of the
+resulting function, and can analytically extract the desired values.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># set the desired delays</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">50e-6</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a T2Ramsey experiment. Print the first circuit as an example</span>
+<span class="n">exp1</span> <span class="o">=</span> <span class="n">T2Ramsey</span><span class="p">((</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">exp1</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>     ┌────┐┌─────────────────┐┌─────────┐ ░ ┌────┐ ░ ┌─┐
+  q: ┤ √X ├┤ Delay(1e-06[s]) ├┤ Rz(π/5) ├─░─┤ √X ├─░─┤M├
+     └────┘└─────────────────┘└─────────┘ ░ └────┘ ░ └╥┘
+c: 1/═════════════════════════════════════════════════╩═
+                                                      0 
+</pre></div>
+</div>
+</div>
+</div>
+<p>We run the experiment on a simulated backend using Qiskit Aer with a
+pure T1/T2 relaxation noise model.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This manual requires the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> package to run simulations.
+You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A T1 simulator</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span> <span class="nn">qiskit_aer.noise</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
+
+<span class="c1"># Create a pure relaxation noise model for AerSimulator</span>
+<span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span>
+    <span class="n">FakePerth</span><span class="p">(),</span> <span class="n">thermal_relaxation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gate_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">readout_error</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a fake backend simulator</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">(),</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The resulting graph will have the form:
+<span class="math notranslate nohighlight">\(f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b\)</span> where <em>t</em> is
+the delay, <span class="math notranslate nohighlight">\(T_2^\ast\)</span> is the decay factor, and <em>f</em> is the detuning
+frequency.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set scheduling method so circuit is scheduled for delay noise simulation</span>
+<span class="n">exp1</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run experiment</span>
+<span class="n">expdata1</span> <span class="o">=</span> <span class="n">exp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">expdata1</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>  <span class="c1"># Wait for job/analysis to finish.</span>
+
+<span class="c1"># Display the figure</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata1</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/t2ramsey_4_0.png" src="../../_images/t2ramsey_4_0.png" />
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print results</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T2RamseyAnalysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_cos_decay(x) = amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base
+ - success: True
+ - number of function evals: 48
+ - degree of freedom: 20
+ - chi-square: 12.875308615638016
+ - reduced chi-square: 0.6437654307819007
+ - Akaike info crit.: -6.589110211475962
+ - Bayesian info crit.: -0.4947310871349586
+ - init params:
+  * amp = 0.5
+  * tau = 0.00011299749992597643
+  * freq = 100000.0000000005
+  * phi = 1.5707963267948966
+  * base = 0.4768115942028985
+ - fit params:
+  * amp = 0.49141199016366127 ± 0.004915858654154686
+  * tau = 0.00010193005363941936 ± 4.4571061722469855e-06
+  * freq = 99948.42508452105 ± 82.7408286040535
+  * phi = 0.003757315552205406 ± 0.012639852794697988
+  * base = 0.5011282571781465 ± 0.0018216291036850965
+ - correlations:
+  * (freq, phi) = -0.8231765129863903
+  * (amp, tau) = -0.8136993299350425
+  * (freq, base) = -0.17104974814176943
+  * (amp, freq) = -0.1153625082744436
+  * (tau, phi) = -0.11249152702506908
+  * (amp, base) = -0.01973646888776725
+  * (tau, base) = 0.036721454772491655
+  * (tau, freq) = 0.06159352447687412
+  * (amp, phi) = 0.16164323802270328
+  * (phi, base) = 0.16350494475620683
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: Frequency
+- value: (9.995+/-0.008)e+04
+- χ²: 0.6437654307819007
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T2star
+- value: 0.000102+/-0.000004
+- χ²: 0.6437654307819007
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<section id="providing-initial-user-estimates">
+<h2>Providing initial user estimates<a class="headerlink" href="#providing-initial-user-estimates" title="Permalink to this heading">¶</a></h2>
+<p>The user can provide initial estimates for the parameters to help the
+analysis process. Because the curve is expected to decay toward
+<span class="math notranslate nohighlight">\(0.5\)</span>, the natural choice for parameters <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span>
+is <span class="math notranslate nohighlight">\(0.5\)</span>. Varying the value of <span class="math notranslate nohighlight">\(\phi\)</span> will shift the graph
+along the x-axis. Since this is not of interest to us, we can safely
+initialize <span class="math notranslate nohighlight">\(\phi\)</span> to 0. In this experiment, <code class="docutils literal notranslate"><span class="pre">t2ramsey</span></code> and <code class="docutils literal notranslate"><span class="pre">f</span></code>
+are the parameters of interest. Good estimates for them are values
+computed in previous experiments on this qubit or a similar values
+computed for other qubits.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">user_p0</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;T2star&quot;</span><span class="p">:</span> <span class="mf">20e-6</span><span class="p">,</span>
+    <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="mi">110000</span><span class="p">,</span>
+    <span class="s2">&quot;phi&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+        <span class="p">}</span>
+<span class="n">exp_with_p0</span> <span class="o">=</span> <span class="n">T2Ramsey</span><span class="p">((</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
+<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="n">user_p0</span><span class="p">)</span>
+<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">)</span>
+<span class="n">expdata_with_p0</span> <span class="o">=</span> <span class="n">exp_with_p0</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="c1"># Display fit figure</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/t2ramsey_6_0.png" src="../../_images/t2ramsey_6_0.png" />
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print results</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T2RamseyAnalysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_cos_decay(x) = amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base
+ - success: True
+ - number of function evals: 99
+ - degree of freedom: 20
+ - chi-square: 12.875308615639284
+ - reduced chi-square: 0.6437654307819642
+ - Akaike info crit.: -6.589110211473496
+ - Bayesian info crit.: -0.49473108713249303
+ - init params:
+  * amp = 0.5
+  * tau = 0.00011299749992597643
+  * freq = 80000.0000000005
+  * phi = 0.0
+  * base = 0.4768115942028985
+ - fit params:
+  * amp = 0.49141198624690124 ± 0.004915858642924717
+  * tau = 0.00010193005794487302 ± 4.45710654181553e-06
+  * freq = 99948.42509448028 ± 82.74082794739074
+  * phi = 0.0037573135040063336 ± 0.012639852697629132
+  * base = 0.5011282572233688 ± 0.0018216291040071982
+ - correlations:
+  * (freq, phi) = -0.823176511385811
+  * (amp, tau) = -0.8136993318625318
+  * (freq, base) = -0.17104974923435995
+  * (amp, freq) = -0.11536250638372342
+  * (tau, phi) = -0.11249152792280535
+  * (amp, base) = -0.01973646865983497
+  * (tau, base) = 0.03672145434002577
+  * (tau, freq) = 0.061593523657976774
+  * (amp, phi) = 0.16164323710382486
+  * (phi, base) = 0.16350494553763645
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: Frequency
+- value: (9.995+/-0.008)e+04
+- χ²: 0.6437654307819642
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T2star
+- value: 0.000102+/-0.000004
+- χ²: 0.6437654307819642
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<section id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html#qiskit_experiments.library.characterization.T2Ramsey" title="qiskit_experiments.library.characterization.T2Ramsey"><code class="xref py py-mod docutils literal notranslate"><span class="pre">T2Ramsey</span></code></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="tphi.html" class="btn btn-neutral float-right" title="Tφ Characterization" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="t2hahn.html" class="btn btn-neutral" title="T2 Hahn Characterization" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">T2* Ramsey Characterization</a><ul>
+<li><a class="reference internal" href="#providing-initial-user-estimates">Providing initial user estimates</a><ul>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/underscore.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

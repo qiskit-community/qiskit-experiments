@@ -1,0 +1,145 @@
+﻿
+
+BaseCalibrationExperiment
+===================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoclass:: BaseCalibrationExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseCalibrationExperiment.analysis
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.backend
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.calibrations
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.experiment_options
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.experiment_type
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.num_qubits
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.physical_qubits
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.run_options
+      
+   
+      
+      
+         
+      
+      BaseCalibrationExperiment.transpile_options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseCalibrationExperiment.circuits
+   
+   
+      BaseCalibrationExperiment.config
+   
+   
+      BaseCalibrationExperiment.copy
+   
+   
+      BaseCalibrationExperiment.from_config
+   
+   
+      BaseCalibrationExperiment.run
+   
+   
+      BaseCalibrationExperiment.set_experiment_options
+   
+   
+      BaseCalibrationExperiment.set_run_options
+   
+   
+      BaseCalibrationExperiment.set_transpile_options
+   
+   
+      BaseCalibrationExperiment.update_calibrations
+   
+
+   
+   

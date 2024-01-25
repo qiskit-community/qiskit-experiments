@@ -1,0 +1,308 @@
+﻿
+
+ExperimentData
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExperimentData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ExperimentData.auto_save
+      
+   
+      
+      
+         
+      
+      ExperimentData.backend
+      
+   
+      
+      
+         
+      
+      ExperimentData.backend_name
+      
+   
+      
+      
+         
+      
+      ExperimentData.completion_times
+      
+   
+      
+      
+         
+      
+      ExperimentData.creation_datetime
+      
+   
+      
+      
+         
+      
+      ExperimentData.end_datetime
+      
+   
+      
+      
+         
+      
+      ExperimentData.experiment
+      
+   
+      
+      
+         
+      
+      ExperimentData.experiment_id
+      
+   
+      
+      
+         
+      
+      ExperimentData.experiment_type
+      
+   
+      
+      
+         
+      
+      ExperimentData.figure_names
+      
+   
+      
+      
+         
+      
+      ExperimentData.group
+      
+   
+      
+      
+         
+      
+      ExperimentData.hub
+      
+   
+      
+      
+         
+      
+      ExperimentData.job_ids
+      
+   
+      
+      
+         
+      
+      ExperimentData.metadata
+      
+   
+      
+      
+         
+      
+      ExperimentData.notes
+      
+   
+      
+      
+         
+      
+      ExperimentData.parent_id
+      
+   
+      
+      
+         
+      
+      ExperimentData.project
+      
+   
+      
+      
+         
+      
+      ExperimentData.service
+      
+   
+      
+      
+         
+      
+      ExperimentData.share_level
+      
+   
+      
+      
+         
+      
+      ExperimentData.source
+      
+   
+      
+      
+         
+      
+      ExperimentData.start_datetime
+      
+   
+      
+      
+         
+      
+      ExperimentData.tags
+      
+   
+      
+      
+         
+      
+      ExperimentData.updated_datetime
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ExperimentData.add_analysis_callback
+   
+   
+      ExperimentData.add_analysis_results
+   
+   
+      ExperimentData.add_child_data
+   
+   
+      ExperimentData.add_data
+   
+   
+      ExperimentData.add_figures
+   
+   
+      ExperimentData.add_jobs
+   
+   
+      ExperimentData.add_tags_recursive
+   
+   
+      ExperimentData.analysis_errors
+   
+   
+      ExperimentData.analysis_results
+   
+   
+      ExperimentData.analysis_status
+   
+   
+      ExperimentData.block_for_results
+   
+   
+      ExperimentData.cancel
+   
+   
+      ExperimentData.cancel_analysis
+   
+   
+      ExperimentData.cancel_jobs
+   
+   
+      ExperimentData.child_data
+   
+   
+      ExperimentData.copy
+   
+   
+      ExperimentData.data
+   
+   
+      ExperimentData.delete_analysis_result
+   
+   
+      ExperimentData.delete_figure
+   
+   
+      ExperimentData.errors
+   
+   
+      ExperimentData.figure
+   
+   
+      ExperimentData.get_service_from_backend
+   
+   
+      ExperimentData.job_errors
+   
+   
+      ExperimentData.job_status
+   
+   
+      ExperimentData.jobs
+   
+   
+      ExperimentData.load
+   
+   
+      ExperimentData.remove_tags_recursive
+   
+   
+      ExperimentData.save
+   
+   
+      ExperimentData.save_metadata
+   
+   
+      ExperimentData.status
+   
+
+   
+   

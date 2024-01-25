@@ -1,0 +1,54 @@
+﻿
+
+BasePlotter
+============================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoplotter:: BasePlotter
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BasePlotter.figure_options
+      BasePlotter.options
+      BasePlotter.series
+      BasePlotter.series_data
+      BasePlotter.supplementary_data
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+
+   
+      BasePlotter.clear_series_data
+      BasePlotter.clear_supplementary_data
+      BasePlotter.config
+      BasePlotter.data_exists_for
+      BasePlotter.data_for
+      BasePlotter.data_keys_for
+      BasePlotter.expected_series_data_keys
+      BasePlotter.expected_supplementary_data_keys
+      BasePlotter.figure
+      BasePlotter.set_figure_options
+      BasePlotter.set_options
+      BasePlotter.set_series_data
+      BasePlotter.set_supplementary_data
+   
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+FineFrequencyCal.set_transpile_options
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FineFrequencyCal.set_transpile_options

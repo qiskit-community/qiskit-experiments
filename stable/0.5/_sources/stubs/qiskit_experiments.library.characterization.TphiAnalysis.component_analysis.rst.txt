@@ -1,0 +1,8 @@
+
+
+TphiAnalysis.component_analysis
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: TphiAnalysis.component_analysis

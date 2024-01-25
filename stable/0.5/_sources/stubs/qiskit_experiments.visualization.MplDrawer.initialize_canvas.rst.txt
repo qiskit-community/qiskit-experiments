@@ -1,0 +1,8 @@
+
+
+MplDrawer.initialize_canvas
+============================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: MplDrawer.initialize_canvas

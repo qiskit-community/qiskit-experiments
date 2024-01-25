@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.provider
+=====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: NoisyDelayAerBackend.provider

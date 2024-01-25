@@ -1,0 +1,8 @@
+
+
+FineXDrag.backend
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineXDrag.backend

@@ -1,0 +1,8 @@
+
+
+Rabi.num_qubits
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: Rabi.num_qubits

@@ -1,0 +1,8 @@
+
+
+FitOptions.copy
+=================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: FitOptions.copy

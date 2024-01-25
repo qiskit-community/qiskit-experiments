@@ -1,0 +1,8 @@
+
+
+RoughAmplitudeCal.set_run_options
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughAmplitudeCal.set_run_options

@@ -1,0 +1,8 @@
+
+
+CompositeCurveAnalysis.analyses
+=================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: CompositeCurveAnalysis.analyses

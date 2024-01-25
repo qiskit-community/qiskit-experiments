@@ -1,0 +1,8 @@
+
+
+FineAmplitudeCal.experiment_type
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FineAmplitudeCal.experiment_type

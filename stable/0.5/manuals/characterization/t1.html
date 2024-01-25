@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>T1 Characterization &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../index.html">Experiment Manuals</a> &gt;</li>
+        
+      <li>T1 Characterization</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="t1-characterization">
+<h1>T1 Characterization<a class="headerlink" href="#t1-characterization" title="Permalink to this heading">¶</a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this heading">¶</a></h2>
+<p>In a <span class="math notranslate nohighlight">\(T_1\)</span> experiment, we measure an excited qubit after a delay.
+Due to decoherence processes (e.g. the amplitude damping channel), it is
+possible that, at the time of measurement, after the delay, the qubit
+will not be excited anymore. The larger the delay time is, the more
+likely is the qubit to fall to the ground state. The goal of the
+experiment is to characterize the decay rate of the qubit towards the
+ground state.</p>
+<p>We start by fixing a delay time <span class="math notranslate nohighlight">\(t\)</span> and a number of shots
+<span class="math notranslate nohighlight">\(s\)</span>. Then, by repeating <span class="math notranslate nohighlight">\(s\)</span> times the procedure of exciting
+the qubit, waiting, and measuring, we estimate the probability to
+measure <span class="math notranslate nohighlight">\(|1\rangle\)</span> after the delay. We repeat this process for a
+set of delay times, resulting in a set of probability estimates.</p>
+<p>In the absence of state preparation and measurement errors, the
+probability to measure <span class="math notranslate nohighlight">\(|1\rangle\)</span> after time <span class="math notranslate nohighlight">\(t\)</span> is <span class="math notranslate nohighlight">\(e^{-t/T_1}\)</span>,
+for a constant <span class="math notranslate nohighlight">\(T_1\)</span> (the coherence time), which is our target
+number. Since state preparation and measurement errors do exist, the
+qubit’s decay towards the ground state assumes the form
+<span class="math notranslate nohighlight">\(Ae^{-t/T_1} + B\)</span>, for parameters <span class="math notranslate nohighlight">\(A, T_1\)</span>, and <span class="math notranslate nohighlight">\(B\)</span>,
+which we deduce from the probability estimates.</p>
+<p>The following code demonstrates a basic run of a <span class="math notranslate nohighlight">\(T_1\)</span> experiment
+for qubit 0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This manual requires the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> package to run simulations.
+You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qiskit.qobj.utils</span> <span class="kn">import</span> <span class="n">MeasLevel</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ParallelExperiment</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">T1</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization.analysis.t1_analysis</span> <span class="kn">import</span> <span class="n">T1KerneledAnalysis</span>
+
+<span class="c1"># A T1 simulator</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span> <span class="nn">qiskit_aer.noise</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
+
+<span class="c1"># A kerneled data simulator</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.mock_iq_backend</span> <span class="kn">import</span> <span class="n">MockIQBackend</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.mock_iq_helpers</span> <span class="kn">import</span> <span class="n">MockIQT1Helper</span>
+
+<span class="c1"># Create a pure relaxation noise model for AerSimulator</span>
+<span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span>
+    <span class="n">FakePerth</span><span class="p">(),</span> <span class="n">thermal_relaxation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gate_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">readout_error</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a fake backend simulator</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">(),</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">)</span>
+
+<span class="c1"># Look up target T1 of qubit-0 from device properties</span>
+<span class="n">qubit0_t1</span> <span class="o">=</span> <span class="n">FakePerth</span><span class="p">()</span><span class="o">.</span><span class="n">qubit_properties</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">t1</span>
+
+<span class="c1"># Time intervals to wait before measurement</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">qubit0_t1</span><span class="p">,</span> <span class="mf">3e-5</span><span class="p">)</span>
+<span class="c1"># Create an experiment for qubit 0</span>
+<span class="c1"># with the specified time intervals</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
+
+<span class="c1"># Set scheduling method so circuit is scheduled for delay noise simulation</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run the experiment circuits and analyze the result</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="c1"># Print the result</span>
+<span class="n">display</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/t1_0_0.png" src="../../_images/t1_0_0.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 16
+ - degree of freedom: 18
+ - chi-square: 20.508278687616496
+ - reduced chi-square: 1.1393488159786942
+ - Akaike info crit.: 5.502430311729833
+ - Bayesian info crit.: 8.635997624900103
+ - init params:
+  * amp = 0.9512195121951219
+  * tau = 0.00019768173260363767
+  * base = 0.04341463414634146
+ - fit params:
+  * amp = 1.0032536321498815 ± 0.007783268387981168
+  * tau = 0.00020330086616885575 ± 5.070130412214848e-06
+  * base = -0.004960633575522913 ± 0.007030360124111865
+ - correlations:
+  * (tau, base) = -0.9018520278122105
+  * (amp, base) = -0.6626354663336244
+  * (amp, tau) = 0.4443652862391935
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000203+/-0.000005
+- χ²: 1.1393488159786942
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="t-1-experiments-with-kerneled-measurement">
+<h2><span class="math notranslate nohighlight">\(T_1\)</span> experiments with kerneled measurement<a class="headerlink" href="#t-1-experiments-with-kerneled-measurement" title="Permalink to this heading">¶</a></h2>
+<p><span class="math notranslate nohighlight">\(T_1\)</span> experiments can also be done with kerneled measurements.
+If we set the run option <code class="docutils literal notranslate"><span class="pre">meas_level=MeasLevel.KERNELED</span></code>, the job
+will not discriminate the IQ data and will not label it. In the T1 experiment,
+since we know that <span class="math notranslate nohighlight">\(P(1|t=0)=1\)</span>, we will add a circuit with delay=0,
+and another circuit with a very large delay. In this configuration we know that the data starts from
+a point [I,Q] that is close to a logical value ‘1’ and ends at a point [I,Q]
+that is close to a logical value ‘0’.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment</span>
+<span class="n">ns</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mf">1e-6</span>
+
+<span class="c1"># qubit properties</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">45</span> <span class="o">*</span> <span class="n">mu</span><span class="p">,</span> <span class="mi">45</span> <span class="o">*</span> <span class="n">mu</span><span class="p">]</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">t1</span><span class="p">]</span>
+
+<span class="c1"># we will guess that our guess is 10% off the exact value of t1 for qubit 0.</span>
+<span class="n">t1_estimated_shift</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">10</span>
+
+<span class="c1"># We use log space for the delays because of the noise properties</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">delays</span> <span class="o">*=</span> <span class="n">ns</span>
+
+<span class="c1"># Adding circuits with delay=0 and long delays so the centers in the IQ plane won&#39;t be misplaced.</span>
+<span class="c1"># Without this, the fitting can provide wrong results.</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">delays</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delays</span><span class="p">,</span> <span class="p">[</span><span class="n">t1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+
+<span class="n">num_qubits</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">num_shots</span> <span class="o">=</span> <span class="mi">2048</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">MockIQBackend</span><span class="p">(</span>
+    <span class="n">MockIQT1Helper</span><span class="p">(</span><span class="n">t1</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">iq_cluster_centers</span><span class="o">=</span><span class="p">[((</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)),</span> <span class="p">((</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">))]</span>
+                       <span class="p">,</span> <span class="n">iq_cluster_width</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+<span class="p">)</span>
+
+<span class="c1"># Creating a T1 experiment</span>
+<span class="n">expT1_kerneled</span> <span class="o">=</span> <span class="n">T1</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="p">)</span>
+<span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">T1KerneledAnalysis</span><span class="p">()</span>
+<span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">t1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">t1_estimated_shift</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+<span class="c1"># Running the experiment</span>
+<span class="n">expdataT1_kerneled</span> <span class="o">=</span> <span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;avg&quot;</span><span class="p">,</span>
+                                        <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span>
+                                        <span class="n">shots</span><span class="o">=</span><span class="n">num_shots</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="c1"># Displaying results</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdataT1_kerneled</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expdataT1_kerneled</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/t1_1_0.png" src="../../_images/t1_1_0.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1KerneledAnalysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 24
+ - degree of freedom: 22
+ - chi-square: 0.0016265491601967787
+ - reduced chi-square: 7.393405273621721e-05
+ - Akaike info crit.: -235.00426032116496
+ - Bayesian info crit.: -231.34763284656037
+ - init params:
+  * amp = 1.0
+  * tau = 4.95e-05
+  * base = 0.0
+ - fit params:
+  * amp = 1.0469535442726126 ± 0.011310466790860061
+  * tau = 4.394415455708184e-05 ± 1.035755542082525e-06
+  * base = -0.05146921117096622 ± 0.011431939576229254
+ - correlations:
+  * (amp, base) = -0.9835183492877463
+  * (tau, base) = -0.849316060844548
+  * (amp, tau) = 0.8027246629067045
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: (4.39+/-0.10)e-05
+- χ²: 7.393405273621721e-05
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-mod docutils literal notranslate"><span class="pre">T1</span></code></a></p></li>
+</ul>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="t2hahn.html" class="btn btn-neutral float-right" title="T2 Hahn Characterization" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="../verification/state_tomography.html" class="btn btn-neutral" title="Quantum State Tomography" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">T1 Characterization</a><ul>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#t-1-experiments-with-kerneled-measurement"><span class="math notranslate nohighlight">\(T_1\)</span> experiments with kerneled measurement</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/underscore.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

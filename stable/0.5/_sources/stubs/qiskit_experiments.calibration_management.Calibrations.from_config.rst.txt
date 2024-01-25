@@ -1,0 +1,8 @@
+
+
+Calibrations.from_config
+==================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: Calibrations.from_config

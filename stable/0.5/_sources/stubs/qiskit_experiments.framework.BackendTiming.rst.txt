@@ -1,0 +1,75 @@
+﻿
+
+BackendTiming
+==========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BackendTiming
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BackendTiming.delay_unit
+      
+   
+      
+      
+         
+      
+      BackendTiming.dt
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BackendTiming.delay_time
+   
+   
+      BackendTiming.pulse_time
+   
+   
+      BackendTiming.round_delay
+   
+   
+      BackendTiming.round_pulse
+   
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+ExperimentStatus.QUEUED
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: ExperimentStatus.QUEUED

@@ -1,0 +1,8 @@
+
+
+MockIQBackend.provider
+==============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.provider

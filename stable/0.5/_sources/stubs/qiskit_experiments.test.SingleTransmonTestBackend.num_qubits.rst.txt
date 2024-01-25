@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.num_qubits
+============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: SingleTransmonTestBackend.num_qubits

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.visualization.style &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.visualization.style</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.visualization.style</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022, 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="PlotStyle"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.html#qiskit_experiments.visualization.PlotStyle">[docs]</a><span class="k">class</span> <span class="nc">PlotStyle</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.</span>
+
+<span class="sd">    This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`. The</span>
+<span class="sd">    default style for Qiskit Experiments is defined in :meth:`default_style`. Style</span>
+<span class="sd">    parameters are stored as dictionary entries, grouped by graphics or figure</span>
+<span class="sd">    component. For example, style parameters relating to textboxes have the prefix</span>
+<span class="sd">    ``textbox_``. For default style parameter names and their values, see the</span>
+<span class="sd">    :meth:`default_style` method.</span>
+
+<span class="sd">    .. rubric:: Example</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Create custom style</span>
+<span class="sd">        custom_style = PlotStyle(</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;legend_loc&quot;: &quot;upper right&quot;,</span>
+<span class="sd">                &quot;textbox_rel_pos&quot;: (1, 1),</span>
+<span class="sd">                &quot;textbox_text_size&quot;: 14,</span>
+<span class="sd">            }</span>
+<span class="sd">        )</span>
+
+<span class="sd">        # Create full style instance by combining with default style.</span>
+<span class="sd">        full_style = PlotStyle.merge(PlotStyle.default_style(), custom_style)</span>
+
+<span class="sd">        ## Query style parameters</span>
+<span class="sd">        # Returns &quot;upper right&quot;</span>
+<span class="sd">        full_style[&quot;legend_loc&quot;]</span>
+<span class="sd">        # Returns the value provided in ``PlotStyle.default_style()``</span>
+<span class="sd">        full_style[&quot;axis_label_size&quot;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PlotStyle.default_style"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.default_style.html#qiskit_experiments.visualization.PlotStyle.default_style">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_style</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">:</span>
+        <span class="c1"># Ignore pylint warnings as `Style Parameters` doesn&#39;t contain method parameters.</span>
+        <span class="c1"># pylint: disable=differing-param-doc,differing-type-doc</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default style across Qiskit Experiments.</span>
+
+<span class="sd">        The following is a description of the default style parameters are what they are</span>
+<span class="sd">        used for.</span>
+
+<span class="sd">        Style Parameters:</span>
+<span class="sd">            figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in</span>
+<span class="sd">                inches.</span>
+<span class="sd">            legend_loc (Optional[str]): The location of the legend in axis coordinates.</span>
+<span class="sd">                If None, location is automatically determined by the drawer.</span>
+<span class="sd">            tick_label_size (int): The font size for tick labels.</span>
+<span class="sd">            axis_label_size (int): The font size for axis labels.</span>
+<span class="sd">            symbol_size (float): The size of symbols for points/markers, proportional to</span>
+<span class="sd">                the area of the drawn graphic.</span>
+<span class="sd">            errorbar_capsize (float): The size of end-caps for error-bars.</span>
+<span class="sd">            textbox_rel_pos (Tuple[float,float]): The relative position ``(horizontal,</span>
+<span class="sd">                vertical)`` of textboxes, as a percentage of the canvas dimensions.</span>
+<span class="sd">            textbox_text_size (int): The font size for textboxes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The default plot style used by Qiskit Experiments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># size of figure (width, height)</span>
+            <span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Tuple[int, int]</span>
+            <span class="c1"># legend location (vertical, horizontal) or None.</span>
+            <span class="s2">&quot;legend_loc&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># str</span>
+            <span class="c1"># size of tick label</span>
+            <span class="s2">&quot;tick_label_size&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>  <span class="c1">#  int</span>
+            <span class="c1"># size of axis label</span>
+            <span class="s2">&quot;axis_label_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>  <span class="c1"># int</span>
+            <span class="c1"># relative position of a textbox</span>
+            <span class="s2">&quot;textbox_rel_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">),</span>  <span class="c1"># Tuple[float, float]</span>
+            <span class="c1"># size of textbox text</span>
+            <span class="s2">&quot;textbox_text_size&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>  <span class="c1"># int</span>
+            <span class="c1"># size of caps for error-bars</span>
+            <span class="s2">&quot;errorbar_capsize&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>  <span class="c1"># float</span>
+            <span class="c1"># Default size of symbols, used for graphics where symbols are drawn for points.</span>
+            <span class="s2">&quot;symbol_size&quot;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="c1"># float</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">style</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PlotStyle.merge"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.merge.html#qiskit_experiments.visualization.PlotStyle.merge">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">style1</span><span class="p">:</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">,</span> <span class="n">style2</span><span class="p">:</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge ``style2`` into ``style1`` as a new PlotStyle instance.</span>
+
+<span class="sd">        This method merges an additional style ``style2`` into a base instance</span>
+<span class="sd">        ``style1``, returning the merged style instance instead of modifying the inputs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            style1: Base PlotStyle instance.</span>
+<span class="sd">            style2: Additional PlotStyle instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Merged style instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PlotStyle</span><span class="p">({</span><span class="o">**</span><span class="n">style1</span><span class="p">,</span> <span class="o">**</span><span class="n">style2</span><span class="p">})</span></div></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

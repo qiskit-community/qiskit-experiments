@@ -1,0 +1,8 @@
+
+
+BasePlotter.config
+===================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BasePlotter.config

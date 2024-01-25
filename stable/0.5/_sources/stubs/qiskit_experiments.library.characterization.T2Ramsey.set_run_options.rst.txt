@@ -1,0 +1,8 @@
+
+
+T2Ramsey.set_run_options
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T2Ramsey.set_run_options

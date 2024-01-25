@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.visualization.drawers.base_drawer &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.visualization.drawers.base_drawer</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.visualization.drawers.base_drawer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021, 2022, 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Drawer abstract class.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">Options</span>
+
+<span class="kn">from</span> <span class="nn">..style</span> <span class="kn">import</span> <span class="n">PlotStyle</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">ExtentTuple</span>
+
+<span class="n">SeriesName</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BaseDrawer"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer">[docs]</a><span class="k">class</span> <span class="nc">BaseDrawer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for the serializable Qiskit Experiments figure drawer.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">    A drawer may be implemented by different drawer backends such as matplotlib or</span>
+<span class="sd">    Plotly. Sub-classes that wrap these backends by subclassing :class:`BaseDrawer` must</span>
+<span class="sd">    implement the following abstract methods.</span>
+
+<span class="sd">    .. describe:: initialize_canvas</span>
+
+<span class="sd">        This method should implement a protocol to initialize a drawer canvas with user</span>
+<span class="sd">        input ``axis`` object. Note that ``drawer`` supports visualization of experiment</span>
+<span class="sd">        results in multiple canvases tiled into N (row) x M (column) inset grids, which</span>
+<span class="sd">        is specified in the option ``subplots``. By default, this is N=1, M=1 and thus</span>
+<span class="sd">        no inset grid will be initialized. The data points to draw might be provided</span>
+<span class="sd">        with a canvas number defined in :attr:`SeriesDef.canvas` which defaults to</span>
+<span class="sd">        ``None``, i.e. no-inset grids.</span>
+
+<span class="sd">        This method should first check the drawer options (:attr:`options`) for the axis</span>
+<span class="sd">        object and initialize the axis only when it is not provided by the options. Once</span>
+<span class="sd">        axis is initialized, this is set to the instance member ``self._axis``.</span>
+
+<span class="sd">    .. describe:: format_canvas</span>
+
+<span class="sd">        This method formats the appearance of the canvas. Typically, it updates axis and</span>
+<span class="sd">        tick labels. Note that the axis SI unit may be specified in the drawer</span>
+<span class="sd">        figure_options. In this case, axis numbers should be auto-scaled with the unit</span>
+<span class="sd">        prefix.</span>
+
+<span class="sd">    .. rubric:: Drawing Methods</span>
+
+<span class="sd">    .. describe:: scatter</span>
+
+<span class="sd">        This method draws scatter points on the canvas, like a scatter-plot, with</span>
+<span class="sd">        optional error-bars in both the X and Y axes.</span>
+
+<span class="sd">    .. describe:: line</span>
+
+<span class="sd">        This method plots a line from provided X and Y values.</span>
+
+<span class="sd">    .. describe:: filled_y_area</span>
+
+<span class="sd">        This method plots a shaped region bounded by upper and lower Y-values. This</span>
+<span class="sd">        method is typically called with interpolated x and a pair of y values that</span>
+<span class="sd">        represent the upper and lower bound within certain confidence interval. If this</span>
+<span class="sd">        is called multiple times, it may be necessary to set the transparency so that</span>
+<span class="sd">        overlapping regions can be distinguished.</span>
+
+<span class="sd">    .. describe:: filled_x_area</span>
+
+<span class="sd">        This method plots a shaped region bounded by upper and lower X-values, as a</span>
+<span class="sd">        function of Y-values. This method is a rotated analogue of</span>
+<span class="sd">        :meth:`filled_y_area`.</span>
+
+<span class="sd">    .. describe:: textbox</span>
+
+<span class="sd">        This method draws a text-box on the canvas, which is a rectangular region</span>
+<span class="sd">        containing some text.</span>
+
+<span class="sd">    .. rubric:: Legends</span>
+
+<span class="sd">    Legends are generated based off of drawn graphics and their labels or names. These</span>
+<span class="sd">    are managed by individual drawer subclasses, and generated when the</span>
+<span class="sd">    :meth:`format_canvas` method is called. Legend entries are created when any drawing</span>
+<span class="sd">    function is called with ``legend=True``. There are three parameters in drawing</span>
+<span class="sd">    functions that are relevant to legend generation: ``name``, ``label``, and</span>
+<span class="sd">    ``legend``. If a user would like the graphics drawn onto a canvas to be used as the</span>
+<span class="sd">    graphical component of a legend entry; they should set ``legend=True``. The legend</span>
+<span class="sd">    entry label can be defined in three locations: the ``label`` parameter of drawing</span>
+<span class="sd">    functions, the ``&quot;label&quot;`` entry in ``series_params``, and the ``name`` parameter of</span>
+<span class="sd">    drawing functions. These three possible label variables have a search hierarchy</span>
+<span class="sd">    given by the order in the aforementioned list. If one of the label variables is</span>
+<span class="sd">    ``None``, the next is used. If all are ``None``, a legend entry is not generated for</span>
+<span class="sd">    the given series.</span>
+
+<span class="sd">    The recommended way to customize the legend entries is as follows:</span>
+
+<span class="sd">    1. Set the labels in the ``series_params`` option, keyed on the series names.</span>
+<span class="sd">    2. Initialize the canvas.</span>
+<span class="sd">    3. Call relevant drawing methods to create the figure. When calling the drawing</span>
+<span class="sd">       method that creates the graphic you would like to use in the legend, set</span>
+<span class="sd">       ``legend=True``. For example, ``drawer.scatter(...,legend=True)`` would use</span>
+<span class="sd">       the scatter points as the legend graphics for the given series.</span>
+<span class="sd">    4. Format the canvas and call :meth:`figure` to get the figure.</span>
+
+<span class="sd">    |</span>
+
+<span class="sd">    .. rubric:: Options and Figure Options</span>
+
+<span class="sd">    Drawers have both :attr:`options` and :attr:`figure_options` available to set</span>
+<span class="sd">    parameters that define how to draw and what is drawn, respectively.</span>
+<span class="sd">    :class:`BasePlotter` is similar in that it also has ``options`` and</span>
+<span class="sd">    ``figure_options``. The former contains class-specific variables that define how an</span>
+<span class="sd">    instance behaves. The latter contains figure-specific variables that typically</span>
+<span class="sd">    contain values that are drawn on the canvas, such as text. For details on the</span>
+<span class="sd">    difference between the two sets of options, see the documentation for</span>
+<span class="sd">    :class:`BasePlotter`.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        If a drawer instance is used with a plotter, then there is the potential for</span>
+<span class="sd">        any figure option to be overwritten with their value from the plotter. This</span>
+<span class="sd">        means that the drawer instance would be modified indirectly when the</span>
+<span class="sd">        :meth:`BasePlotter.figure` method is called. This must be kept in mind when</span>
+<span class="sd">        creating subclasses of :class:`BaseDrawer`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a BaseDrawer instance.&quot;&quot;&quot;</span>
+        <span class="c1"># Normal options. Which includes the drawer axis, subplots, and default style.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="c1"># A set of changed options for serialization.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># Figure options which are typically updated by a plotter instance. Figure options include the</span>
+        <span class="c1"># axis labels, figure title, and a custom style instance.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_figure_options</span><span class="p">()</span>
+        <span class="c1"># A set of changed figure options for serialization.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># The initialized axis/axes, set by `initialize_canvas`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the drawer options.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the figure options.</span>
+
+<span class="sd">        These are typically updated by a plotter instance, and thus may change. It is</span>
+<span class="sd">        recommended to set figure options in a parent :class:`BasePlotter` instance that</span>
+<span class="sd">        contains the :class:`BaseDrawer` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default drawer options.</span>
+
+<span class="sd">        Options:</span>
+<span class="sd">            axis (Any): Arbitrary object that can be used as a canvas.</span>
+<span class="sd">            subplots (Tuple[int, int]): Number of rows and columns when the experimental</span>
+<span class="sd">                result is drawn in the multiple windows.</span>
+<span class="sd">            default_style (PlotStyle): The default style for drawer. This must contain</span>
+<span class="sd">                all required style parameters for :class:`drawer`, as is defined in</span>
+<span class="sd">                :meth:`PlotStyle.default_style()`. Subclasses can add extra required</span>
+<span class="sd">                style parameters by overriding :meth:`_default_style`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
+            <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">subplots</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">default_style</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_default_style</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_style</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlotStyle</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PlotStyle</span><span class="o">.</span><span class="n">default_style</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default figure options.</span>
+
+<span class="sd">        Figure Options:</span>
+<span class="sd">            xlabel (Union[str, List[str]]): X-axis label string of the output figure. If</span>
+<span class="sd">                there are multiple columns in the canvas, this could be a list of labels.</span>
+<span class="sd">            ylabel (Union[str, List[str]]): Y-axis label string of the output figure. If</span>
+<span class="sd">                there are multiple rows in the canvas, this could be a list of labels.</span>
+<span class="sd">            xlim (Tuple[float, float]): Min and max value of the horizontal axis. If not</span>
+<span class="sd">                provided, it is automatically scaled based on the input data points.</span>
+<span class="sd">            ylim (Tuple[float, float]): Min and max value of the vertical axis. If not</span>
+<span class="sd">                provided, it is automatically scaled based on the input data points.</span>
+<span class="sd">            xval_unit (str): Unit of x values. No scaling prefix is needed here as this</span>
+<span class="sd">                is controlled by ``xval_unit_scale``.</span>
+<span class="sd">            yval_unit (str): Unit of y values. See ``xval_unit`` for details.</span>
+<span class="sd">            xval_unit_scale (bool): Whether to add an SI unit prefix to ``xval_unit`` if</span>
+<span class="sd">                needed. For example, when the x values represent time and</span>
+<span class="sd">                ``xval_unit=&quot;s&quot;``, ``xval_unit_scale=True`` adds an SI unit prefix to</span>
+<span class="sd">                ``&quot;s&quot;`` based on X values of plotted data. In the output figure, the</span>
+<span class="sd">                prefix is automatically selected based on the maximum value in this</span>
+<span class="sd">                axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms,</span>
+<span class="sd">                10 ms]. By default, this option is set to ``True``. If ``False`` is</span>
+<span class="sd">                provided, the axis numbers will be displayed in the scientific notation.</span>
+<span class="sd">            yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if</span>
+<span class="sd">                needed. See ``xval_unit_scale`` for details.</span>
+<span class="sd">            figure_title (str): Title of the figure. Defaults to None, i.e. nothing is</span>
+<span class="sd">                shown.</span>
+<span class="sd">            series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for</span>
+<span class="sd">                each series. This is keyed on the name for each series. Sub-dictionary</span>
+<span class="sd">                is expected to have the following three configurations, &quot;canvas&quot;,</span>
+<span class="sd">                &quot;color&quot;, &quot;symbol&quot; and &quot;label&quot;; &quot;canvas&quot; is the integer index of axis</span>
+<span class="sd">                (when multi-canvas plot is set), &quot;color&quot; is the color of the drawn</span>
+<span class="sd">                graphics, &quot;symbol&quot; is the series marker style for scatter plots, and</span>
+<span class="sd">                &quot;label&quot; is a user provided series label that appears in the legend.</span>
+<span class="sd">            custom_style (PlotStyle): The style definition to use when drawing. This</span>
+<span class="sd">                overwrites style parameters in ``default_style`` in :attr:`options`.</span>
+<span class="sd">                Defaults to an empty PlotStyle instance (i.e., ``PlotStyle()``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">yval_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">xval_unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">yval_unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">figure_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">series_params</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">custom_style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BaseDrawer.set_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.set_options.html#qiskit_experiments.visualization.BaseDrawer.set_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the drawer options.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fields: The fields to update the options</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError: If an unknown options is encountered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.set_figure_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.set_figure_options.html#qiskit_experiments.visualization.BaseDrawer.set_figure_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the figure options.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fields: The fields to update the figure options</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError: If an unknown figure option is encountered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Figure options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlotStyle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The combined plot style for this drawer.</span>
+
+<span class="sd">        The returned style instance is a combination of :attr:`options.default_style`</span>
+<span class="sd">        and :attr:`figure_options.custom_style`. Style parameters set in</span>
+<span class="sd">        ``custom_style`` override those set in ``default_style``. If ``custom_style`` is</span>
+<span class="sd">        not an instance of :class:`PlotStyle`, the returned style is equivalent to</span>
+<span class="sd">        ``default_style``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The plot style for this drawer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="p">,</span> <span class="n">PlotStyle</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_style</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_style</span>
+
+<div class="viewcode-block" id="BaseDrawer.initialize_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.initialize_canvas.html#qiskit_experiments.visualization.BaseDrawer.initialize_canvas">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the drawer canvas.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.format_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.format_canvas.html#qiskit_experiments.visualization.BaseDrawer.format_canvas">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Final cleanup for the canvas appearance.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.label_for"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.label_for.html#qiskit_experiments.visualization.BaseDrawer.label_for">[docs]</a>    <span class="k">def</span> <span class="nf">label_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">],</span> <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the legend label for the given series, with optional overrides.</span>
+
+<span class="sd">        This method determines the legend label for a series, with optional overrides</span>
+<span class="sd">        ``label`` and the ``&quot;label&quot;`` entry in the ``series_params`` option (see</span>
+<span class="sd">        :attr:`options`). ``label`` is returned if it is not ``None``, as this is the</span>
+<span class="sd">        override with the highest priority. If it is ``None``, then the drawer will look</span>
+<span class="sd">        for a ``&quot;label&quot;`` entry in ``series_params``, for the series identified by</span>
+<span class="sd">        ``name``. If this entry doesn&#39;t exist, or is ``None``, then ``name`` is used as</span>
+<span class="sd">        the label. If all these options are ``None``, then ``None`` is returned;</span>
+<span class="sd">        signifying that a legend entry for the provided series should not be generated.</span>
+<span class="sd">        Note that :meth:`label_for` will convert ``name`` to ``str`` when it is</span>
+<span class="sd">        returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the series.</span>
+<span class="sd">            label: Optional label override.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The legend entry label, or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.scatter"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.scatter.html#qiskit_experiments.visualization.BaseDrawer.scatter">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">x_err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">y_err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw scatter points, with optional error-bars.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_data: X values.</span>
+<span class="sd">            y_data: Y values.</span>
+<span class="sd">            x_err: Optional error for X values.</span>
+<span class="sd">            y_err: Optional error for Y values.</span>
+<span class="sd">            name: Name of this series.</span>
+<span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
+<span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
+<span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
+<span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
+<span class="sd">                legend entry is generated.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.line"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.line.html#qiskit_experiments.visualization.BaseDrawer.line">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw a line.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_data: X values.</span>
+<span class="sd">            y_data: Y values.</span>
+<span class="sd">            name: Name of this series.</span>
+<span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
+<span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
+<span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
+<span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
+<span class="sd">                legend entry is generated.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.filled_y_area"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.filled_y_area.html#qiskit_experiments.visualization.BaseDrawer.filled_y_area">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">filled_y_area</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">y_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">y_lb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw filled area as a function of x-values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_data: X values.</span>
+<span class="sd">            y_ub: The upper boundary of Y values.</span>
+<span class="sd">            y_lb: The lower boundary of Y values.</span>
+<span class="sd">            name: Name of this series.</span>
+<span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
+<span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
+<span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
+<span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
+<span class="sd">                legend entry is generated.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.filled_x_area"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.filled_x_area.html#qiskit_experiments.visualization.BaseDrawer.filled_x_area">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">filled_x_area</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">x_lb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw filled area as a function of y-values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_ub: The upper boundary of X values.</span>
+<span class="sd">            x_lb: The lower boundary of X values.</span>
+<span class="sd">            y_data: Y values.</span>
+<span class="sd">            name: Name of this series.</span>
+<span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
+<span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
+<span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
+<span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
+<span class="sd">                legend entry is generated.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.textbox"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.textbox.html#qiskit_experiments.visualization.BaseDrawer.textbox">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">textbox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">rel_pos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw text box.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            description: A string to be drawn inside a report box.</span>
+<span class="sd">            rel_pos: Relative position of the text-box. If None, the default</span>
+<span class="sd">                ``textbox_rel_pos`` from the style is used.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="BaseDrawer.image"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.image.html#qiskit_experiments.visualization.BaseDrawer.image">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">extent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExtentTuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmap_use_series_colors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw an image of numerical values, series names, or RGB/A values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: The two-/three-dimensional data defining an image. If</span>
+<span class="sd">                ``data.dims==2``, then the pixel colors are determined by ``cmap`` and</span>
+<span class="sd">                ``cmap_use_series_colors``. If ``data.dims==3``, then it is assumed that</span>
+<span class="sd">                ``data`` contains either RGB or RGBA data; which requires the third</span>
+<span class="sd">                dimension to have length ``3`` or ``4`` respectively. For RGB/A data,</span>
+<span class="sd">                the elements of ``data`` must be floats or integers in the range 0-1 and</span>
+<span class="sd">                0-255 respectively. If the data is two-dimensional, there is no limit on</span>
+<span class="sd">                the range of the values if they are numerical. If</span>
+<span class="sd">                ``cmap_use_series_colors=True``, then ``data`` contains series names;</span>
+<span class="sd">                which can be strings or numerical values, as long as they are</span>
+<span class="sd">                appropriate series names.</span>
+<span class="sd">            extent: An optional tuple ``(x_min, x_max, y_min, y_max)`` which defines a</span>
+<span class="sd">                rectangular region within which the values inside ``data`` should be</span>
+<span class="sd">                plotted. The units of ``extent`` are the same as those of the X and Y</span>
+<span class="sd">                axes for the axis. If None, the extent of the image is taken as ``(0,</span>
+<span class="sd">                data.shape[0], 0, data.shape[1])``. Default is None.</span>
+<span class="sd">            name: Name of this image. Used to lookup ``canvas`` and ``label`` in</span>
+<span class="sd">                ``series_params``.</span>
+<span class="sd">            label: An optional label for the colorbar, if ``colorbar=True``.</span>
+<span class="sd">            cmap: Optional colormap for assigning colors to the image values, if</span>
+<span class="sd">                ``data`` is not an RGB/A image. ``cmap`` must be a string or object</span>
+<span class="sd">                instance which is recognized by the drawer. Defaults to None.</span>
+<span class="sd">            cmap_use_series_colors: Whether to assign colors to the image based on</span>
+<span class="sd">                series colors, where the values inside ``data`` are series names. If</span>
+<span class="sd">                ``cmap_use_series_colors=True``,``cmap`` is ignored. This only works for</span>
+<span class="sd">                two-dimensional images as three-dimensional ``data`` contains explicit</span>
+<span class="sd">                colors as RGB/A values. If ``len(data.shape)=3``,</span>
+<span class="sd">                ``cmap_use_series_colours`` is ignored. Defaults to False.</span>
+<span class="sd">            colorbar: Whether to add a bar showing the color-value mapping for the</span>
+<span class="sd">                image. Defaults to False.</span>
+<span class="sd">            options: Valid options for the drawer backend API.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseDrawer.config"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.config.html#qiskit_experiments.visualization.BaseDrawer.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dictionary for this drawer.&quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="p">)</span>
+        <span class="n">figure_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+            <span class="s2">&quot;figure_options&quot;</span><span class="p">:</span> <span class="n">figure_options</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;figure_options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

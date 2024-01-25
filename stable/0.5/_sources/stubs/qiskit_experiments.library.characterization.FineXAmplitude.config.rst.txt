@@ -1,0 +1,8 @@
+
+
+FineXAmplitude.config
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineXAmplitude.config

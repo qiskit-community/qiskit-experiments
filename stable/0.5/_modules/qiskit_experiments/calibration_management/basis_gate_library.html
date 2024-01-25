@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.calibration_management.basis_gate_library &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.calibration_management.basis_gate_library</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.calibration_management.basis_gate_library</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collections of libraries to setup Calibrations.</span>
+
+<span class="sd">Note that the set of available libraries will be extended in future releases.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">pulse</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">ScheduleBlock</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.calibration_key_types</span> <span class="kn">import</span> <span class="n">DefaultCalValue</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">CalibrationError</span>
+
+
+<div class="viewcode-block" id="BasisGateLibrary"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.html#qiskit_experiments.calibration_management.BasisGateLibrary">[docs]</a><span class="k">class</span> <span class="nc">BasisGateLibrary</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A base class for libraries of basis gates to make it easier to setup Calibrations.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Location where default parameter values are stored. These may be updated at construction.</span>
+    <span class="n">__default_values__</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">extra_kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup the library.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            basis_gates: The basis gates to generate.</span>
+<span class="sd">            default_values: A dictionary to override library default parameter values.</span>
+<span class="sd">            extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able</span>
+<span class="sd">                to reconstruct the library using the :meth:`__init__` method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CalibrationError: If on of the given basis gates is not supported by the library.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update the default values.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_kwargs</span> <span class="o">=</span> <span class="n">extra_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_values__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">default_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">default_values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">basis_gates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basis_gates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__supported_gates__</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__supported_gates__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Gate </span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2"> is not supported by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Supported gates are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__supported_gates__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_schedules</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__supported_gates__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the supported gates of the library.</span>
+
+<span class="sd">        The key is the name of the gate and the value is the number of qubits it applies to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="BasisGateLibrary.__getitem__"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.__getitem__.html#qiskit_experiments.calibration_management.BasisGateLibrary.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduleBlock</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the schedule.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gate </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not contained in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the basis gate is in the library.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the hash of the library by computing the hash of the schedule strings.&quot;&quot;&quot;</span>
+        <span class="n">data_to_hash</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">data_to_hash</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__supported_gates__</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">data_to_hash</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BasisGateLibrary.__len__"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.__len__.html#qiskit_experiments.calibration_management.BasisGateLibrary.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The length of the library defined as the number of basis gates.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator over the basis gate library.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasisGateLibrary.num_qubits"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.num_qubits.html#qiskit_experiments.calibration_management.BasisGateLibrary.num_qubits">[docs]</a>    <span class="k">def</span> <span class="nf">num_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of qubits that the schedule with the given name acts on.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__supported_gates__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the basis gates supported by the library.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasisGateLibrary.default_values"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.default_values.html#qiskit_experiments.calibration_management.BasisGateLibrary.default_values">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">default_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DefaultCalValue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default values for the parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">            A list of tuples is returned. These tuples are structured so that instances</span>
+<span class="sd">            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`</span>
+<span class="sd">            on the tuples.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_build_schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ScheduleBlock</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the schedules stored in the library.</span>
+
+<span class="sd">        This method is called as the last step in the :meth:`__init__`. Subclasses must implement</span>
+<span class="sd">        :meth:`_build_schedules` to build the schedules of the library based on the inputs given</span>
+<span class="sd">        to the :meth:`__init__` method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            basis_gates: The set of basis gates to build. These will be the supported gates or</span>
+<span class="sd">                a subset thereof.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary where the keys are the names of the schedules/basis gates and the values</span>
+<span class="sd">            are the corresponding schedules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BasisGateLibrary.config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.config.html#qiskit_experiments.calibration_management.BasisGateLibrary.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the settings used to initialize the library.&quot;&quot;&quot;</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_gates</span><span class="p">,</span> <span class="s2">&quot;default_values&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="p">}</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span>
+            <span class="s2">&quot;hash&quot;</span><span class="p">:</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="BasisGateLibrary.from_config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.from_config.html#qiskit_experiments.calibration_management.BasisGateLibrary.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BasisGateLibrary&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deserialize the library given the input dictionary&quot;&quot;&quot;</span>
+        <span class="n">library</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;kwargs&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">hash</span><span class="p">(</span><span class="n">library</span><span class="p">)</span> <span class="o">!=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Deserialized basis gate library&#39;s hash does not match the hash of the serialized &quot;</span>
+                <span class="s2">&quot;library. Typically, the hash changes when the internal structure of the template &quot;</span>
+                <span class="s2">&quot;schedules has been changed.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">library</span></div>
+
+    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to format that can be JSON serialized.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BasisGateLibrary&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load from JSON compatible format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FixedFrequencyTransmon"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.FixedFrequencyTransmon.html#qiskit_experiments.calibration_management.FixedFrequencyTransmon">[docs]</a><span class="k">class</span> <span class="nc">FixedFrequencyTransmon</span><span class="p">(</span><span class="n">BasisGateLibrary</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A library of gates for fixed-frequency superconducting qubit architectures.</span>
+
+<span class="sd">    Note that for now this library supports single-qubit gates and will be extended</span>
+<span class="sd">    in the future.</span>
+
+<span class="sd">    Provided gates:</span>
+<span class="sd">        - x: :math:`\pi` pulse around the x-axis.</span>
+<span class="sd">        - sx: :math:`\pi/2` pulse around the x-axis.</span>
+<span class="sd">        - y: :math:`\pi` pulse around the y-axis.</span>
+<span class="sd">        - sy: :math:`\pi/2` pulse around the y-axis.</span>
+
+<span class="sd">    Pulse parameters:</span>
+<span class="sd">        - duration: Duration of the pulses Default value: 160 samples.</span>
+<span class="sd">        - σ: Standard deviation of the pulses Default value: ``duration / 4``.</span>
+<span class="sd">        - β: DRAG parameter of the pulses Default value: 0.</span>
+<span class="sd">        - amp: Amplitude of the pulses. If the parameters are linked then ``x`` and ``y``</span>
+<span class="sd">          share the same parameter and ``sx`` and ``sy`` share the same parameter.</span>
+<span class="sd">          Default value: 50% of the maximum output for ``x`` and ``y`` and 25% of the</span>
+<span class="sd">          maximum output for ``sx`` and ``sy``. Note that the user provided default amplitude</span>
+<span class="sd">          in the ``__init__`` method sets the default amplitude of the ``x`` and ``y`` pulses.</span>
+<span class="sd">          The amplitude of the ``sx`` and ``sy`` pulses is half the provided value.</span>
+
+<span class="sd">    Note that the β and amp parameters may be linked between the x and y as well as between</span>
+<span class="sd">    the sx and sy pulses. All pulses share the same duration and σ parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__default_values__</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span> <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;β&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">link_parameters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup the schedules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            basis_gates: The basis gates to generate.</span>
+<span class="sd">            default_values: Default values for the parameters this dictionary can contain</span>
+<span class="sd">                the following keys: &quot;duration&quot;, &quot;amp&quot;, &quot;β&quot;, and &quot;σ&quot;. If &quot;σ&quot; is not provided</span>
+<span class="sd">                this library will take one fourth of the pulse duration as default value.</span>
+<span class="sd">            link_parameters: If set to ``True``, then the amplitude and DRAG parameters of the</span>
+<span class="sd">                :math:`X` and :math:`Y` gates will be linked as well as those of</span>
+<span class="sd">                the :math:`SX` and :math:`SY` gates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_link_parameters</span> <span class="o">=</span> <span class="n">link_parameters</span>
+
+        <span class="n">extra_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;link_parameters&quot;</span><span class="p">:</span> <span class="n">link_parameters</span><span class="p">}</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">,</span> <span class="n">default_values</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">__supported_gates__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The gates that this library supports.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;sx&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;sy&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_build_schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ScheduleBlock</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the schedule of the class.&quot;&quot;&quot;</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;σ&quot;</span><span class="p">)</span>
+
+        <span class="n">x_amp</span><span class="p">,</span> <span class="n">x_beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;β&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_link_parameters</span><span class="p">:</span>
+            <span class="n">y_amp</span><span class="p">,</span> <span class="n">y_beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">x_amp</span><span class="p">,</span> <span class="n">x_beta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_amp</span><span class="p">,</span> <span class="n">y_beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;β&quot;</span><span class="p">)</span>
+
+        <span class="n">sx_amp</span><span class="p">,</span> <span class="n">sx_beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;β&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_link_parameters</span><span class="p">:</span>
+            <span class="n">sy_amp</span><span class="p">,</span> <span class="n">sy_beta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">sx_amp</span><span class="p">,</span> <span class="n">sx_beta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sy_amp</span><span class="p">,</span> <span class="n">sy_beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;β&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the schedules for the gates</span>
+        <span class="n">sched_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_qubit_schedule</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">x_amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">x_beta</span><span class="p">)</span>
+        <span class="n">sched_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_qubit_schedule</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">y_amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">y_beta</span><span class="p">)</span>
+        <span class="n">sched_sx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_qubit_schedule</span><span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">sx_amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">sx_beta</span><span class="p">)</span>
+        <span class="n">sched_sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_qubit_schedule</span><span class="p">(</span><span class="s2">&quot;sy&quot;</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">sy_amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">sy_beta</span><span class="p">)</span>
+
+        <span class="n">schedules</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sched</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sched_x</span><span class="p">,</span> <span class="n">sched_y</span><span class="p">,</span> <span class="n">sched_sx</span><span class="p">,</span> <span class="n">sched_sy</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">sched</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+                <span class="n">schedules</span><span class="p">[</span><span class="n">sched</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sched</span>
+
+        <span class="k">return</span> <span class="n">schedules</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_single_qubit_schedule</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dur</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span>
+        <span class="n">amp</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduleBlock</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a single qubit pulse.&quot;&quot;&quot;</span>
+
+        <span class="n">chan</span> <span class="o">=</span> <span class="n">pulse</span><span class="o">.</span><span class="n">DriveChannel</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch0&quot;</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">sched</span><span class="p">:</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">pulse</span><span class="o">.</span><span class="n">Drag</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">dur</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">),</span> <span class="n">chan</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sched</span>
+
+<div class="viewcode-block" id="FixedFrequencyTransmon.default_values"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.FixedFrequencyTransmon.default_values.html#qiskit_experiments.calibration_management.FixedFrequencyTransmon.default_values">[docs]</a>    <span class="k">def</span> <span class="nf">default_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DefaultCalValue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default values for the parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">            A list of tuples is returned. These tuples are structured so that instances</span>
+<span class="sd">            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`</span>
+<span class="sd">            on the tuples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;ch&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_link_parameters</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;σ&quot;</span> <span class="ow">and</span> <span class="s2">&quot;σ&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">4</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;sy&quot;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;amp&quot;</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">/=</span> <span class="mf">2.0</span>
+
+                    <span class="k">if</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;amp&quot;</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">*=</span> <span class="mf">1.0</span><span class="n">j</span>
+
+                    <span class="n">defaults</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DefaultCalValue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">defaults</span></div></div>
+
+
+<div class="viewcode-block" id="EchoedCrossResonance"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.EchoedCrossResonance.html#qiskit_experiments.calibration_management.EchoedCrossResonance">[docs]</a><span class="k">class</span> <span class="nc">EchoedCrossResonance</span><span class="p">(</span><span class="n">BasisGateLibrary</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A library for echoed cross-resonance gates.</span>
+
+<span class="sd">    The ``cr45p`` and ``cr45m`` include a pulse on the control qubit and optionally a pulse</span>
+<span class="sd">    on the target qubit.</span>
+
+<span class="sd">    Provided gates:</span>
+<span class="sd">        - cr45p: GaussianSquare cross-resonance gate for a :math:`+\pi/4` rotation.</span>
+<span class="sd">        - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.</span>
+<span class="sd">        - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.</span>
+<span class="sd">        - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.</span>
+
+<span class="sd">    Required gates:</span>
+<span class="sd">        - x: the x gate is defined outside of this library, see :class:`.FixedFrequencyTransmon`.</span>
+
+<span class="sd">    Pulse parameters:</span>
+<span class="sd">        - tgt_amp: The amplitude of the pulse applied to the target qubit. Default value: 0.</span>
+<span class="sd">        - σ: The standard deviation of the flanks. Default value: 64 samples.</span>
+<span class="sd">        - amp: The amplitude of the pulses applied to the control qubit. Default value: 50%.</span>
+<span class="sd">        - duration: The duration of the cr45p and cr45m pulses. Default value: 1168 samples.</span>
+<span class="sd">        - risefall: The number of σ&#39;s in the flanks of the pulses. Default value: 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__default_values__</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tgt_amp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;σ&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;risefall&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">1168</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_pulses</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup the library.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            basis_gates: The basis gates to generate.</span>
+<span class="sd">            default_values: A dictionary to override library default parameter values.</span>
+<span class="sd">            target_pulses: If True (the default) then drives will be added to the target qubit</span>
+<span class="sd">                during the CR tones on the control qubit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_pulses</span> <span class="o">=</span> <span class="n">target_pulses</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">,</span> <span class="n">default_values</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">__supported_gates__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The supported gates of the library are two-qubit pulses for the ecr gate.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;cr45p&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;cr45m&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;ecr&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;rzx&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+<div class="viewcode-block" id="EchoedCrossResonance.default_values"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.EchoedCrossResonance.default_values.html#qiskit_experiments.calibration_management.EchoedCrossResonance.default_values">[docs]</a>    <span class="k">def</span> <span class="nf">default_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DefaultCalValue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default values of the CR library.&quot;&quot;&quot;</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;ch&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_values</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">defaults</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DefaultCalValue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">defaults</span></div>
+
+    <span class="k">def</span> <span class="nf">_build_schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ScheduleBlock</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the schedules of the CR library.&quot;&quot;&quot;</span>
+
+        <span class="n">schedules</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">tgt_amp</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;tgt_amp&quot;</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;σ&quot;</span><span class="p">)</span>
+        <span class="n">cr_amp</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">)</span>
+        <span class="n">cr_dur</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+        <span class="n">cr_rf</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;risefall&quot;</span><span class="p">)</span>
+        <span class="n">t_chan_idx</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch1&quot;</span><span class="p">)</span>
+        <span class="n">u_chan_idx</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch0.1&quot;</span><span class="p">)</span>
+        <span class="n">t_chan</span> <span class="o">=</span> <span class="n">pulse</span><span class="o">.</span><span class="n">DriveChannel</span><span class="p">(</span><span class="n">t_chan_idx</span><span class="p">)</span>
+        <span class="n">u_chan</span> <span class="o">=</span> <span class="n">pulse</span><span class="o">.</span><span class="n">ControlChannel</span><span class="p">(</span><span class="n">u_chan_idx</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;cr45p&quot;</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;cr45p&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cr45p</span><span class="p">:</span>
+                <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span><span class="n">cr_dur</span><span class="p">,</span> <span class="n">cr_amp</span><span class="p">,</span> <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">cr_rf</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">),</span>
+                    <span class="n">u_chan</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_pulses</span><span class="p">:</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                        <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span>
+                            <span class="n">cr_dur</span><span class="p">,</span> <span class="n">tgt_amp</span><span class="p">,</span> <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">cr_rf</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span>
+                        <span class="p">),</span>
+                        <span class="n">t_chan</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="n">schedules</span><span class="p">[</span><span class="s2">&quot;cr45p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cr45p</span>
+
+        <span class="k">if</span> <span class="s2">&quot;cr45m&quot;</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;cr45m&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cr45m</span><span class="p">:</span>
+                <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span><span class="n">cr_dur</span><span class="p">,</span> <span class="o">-</span><span class="n">cr_amp</span><span class="p">,</span> <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">cr_rf</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">),</span>
+                    <span class="n">u_chan</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_pulses</span><span class="p">:</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                        <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span>
+                            <span class="n">cr_dur</span><span class="p">,</span> <span class="o">-</span><span class="n">tgt_amp</span><span class="p">,</span> <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">cr_rf</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span>
+                        <span class="p">),</span>
+                        <span class="n">t_chan</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="n">schedules</span><span class="p">[</span><span class="s2">&quot;cr45m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cr45m</span>
+
+        <span class="c1"># Echoed Cross-Resonance gate</span>
+        <span class="k">if</span> <span class="s2">&quot;ecr&quot;</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ecr&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ecr</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">align_sequential</span><span class="p">():</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;cr45p&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">,</span> <span class="s2">&quot;q1&quot;</span><span class="p">)</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">)</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;cr45m&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">,</span> <span class="s2">&quot;q1&quot;</span><span class="p">)</span>
+
+            <span class="n">schedules</span><span class="p">[</span><span class="s2">&quot;ecr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ecr</span>
+
+        <span class="c1"># RZXGate built from Echoed Cross-Resonance gate</span>
+        <span class="k">if</span> <span class="s2">&quot;rzx&quot;</span> <span class="ow">in</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;rzx&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rzx</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">align_sequential</span><span class="p">():</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;cr45p&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">,</span> <span class="s2">&quot;q1&quot;</span><span class="p">)</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">)</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;cr45m&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">,</span> <span class="s2">&quot;q1&quot;</span><span class="p">)</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">reference</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;q0&quot;</span><span class="p">)</span>
+
+            <span class="n">schedules</span><span class="p">[</span><span class="s2">&quot;rzx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rzx</span>
+
+        <span class="k">return</span> <span class="n">schedules</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

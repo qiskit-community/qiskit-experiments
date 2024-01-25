@@ -1,0 +1,52 @@
+﻿
+
+EchoedCrossResonanceHamiltonian
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: EchoedCrossResonanceHamiltonian
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EchoedCrossResonanceHamiltonian.analysis
+      EchoedCrossResonanceHamiltonian.backend
+      EchoedCrossResonanceHamiltonian.experiment_options
+      EchoedCrossResonanceHamiltonian.experiment_type
+      EchoedCrossResonanceHamiltonian.num_pulses
+      EchoedCrossResonanceHamiltonian.num_qubits
+      EchoedCrossResonanceHamiltonian.physical_qubits
+      EchoedCrossResonanceHamiltonian.run_options
+      EchoedCrossResonanceHamiltonian.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EchoedCrossResonanceHamiltonian.circuits
+      EchoedCrossResonanceHamiltonian.config
+      EchoedCrossResonanceHamiltonian.copy
+      EchoedCrossResonanceHamiltonian.from_config
+      EchoedCrossResonanceHamiltonian.run
+      EchoedCrossResonanceHamiltonian.set_experiment_options
+      EchoedCrossResonanceHamiltonian.set_run_options
+      EchoedCrossResonanceHamiltonian.set_transpile_options
+   
+
+   
+   

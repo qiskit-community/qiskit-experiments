@@ -1,0 +1,8 @@
+
+
+HalfAngleCal.from_config
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: HalfAngleCal.from_config

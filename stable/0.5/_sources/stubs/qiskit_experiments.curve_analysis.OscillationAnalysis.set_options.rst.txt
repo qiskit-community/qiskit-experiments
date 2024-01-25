@@ -1,0 +1,8 @@
+
+
+OscillationAnalysis.set_options
+=================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: OscillationAnalysis.set_options

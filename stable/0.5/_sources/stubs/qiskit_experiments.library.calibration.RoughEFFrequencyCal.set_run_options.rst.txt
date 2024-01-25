@@ -1,0 +1,8 @@
+
+
+RoughEFFrequencyCal.set_run_options
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughEFFrequencyCal.set_run_options

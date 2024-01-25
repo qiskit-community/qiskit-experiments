@@ -1,0 +1,8 @@
+
+
+Rabi.config
+=======================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: Rabi.config

@@ -1,0 +1,52 @@
+﻿
+
+EFRabi
+==================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: EFRabi
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EFRabi.analysis
+      EFRabi.backend
+      EFRabi.experiment_options
+      EFRabi.experiment_type
+      EFRabi.num_qubits
+      EFRabi.physical_qubits
+      EFRabi.run_options
+      EFRabi.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EFRabi.circuits
+      EFRabi.config
+      EFRabi.copy
+      EFRabi.enable_restless
+      EFRabi.from_config
+      EFRabi.run
+      EFRabi.set_experiment_options
+      EFRabi.set_run_options
+      EFRabi.set_transpile_options
+   
+
+   
+   

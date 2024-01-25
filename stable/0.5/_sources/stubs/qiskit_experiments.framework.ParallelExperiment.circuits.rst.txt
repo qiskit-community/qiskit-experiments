@@ -1,0 +1,8 @@
+
+
+ParallelExperiment.circuits
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ParallelExperiment.circuits

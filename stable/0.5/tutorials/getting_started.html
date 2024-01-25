@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Getting Started &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">Tutorials</a> &gt;</li>
+        
+      <li>Getting Started</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<p>Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
+Qiskit following its <a class="reference external" href="https://docs.quantum.ibm.com/start/install">installation guide</a>. Qiskit
+Experiments supports the same platforms and Python versions (currently <strong>3.7+</strong>) as
+Qiskit itself.</p>
+<p>Qiskit Experiments releases can be installed via the Python package manager <code class="docutils literal notranslate"><span class="pre">pip</span></code>
+in your shell environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">qiskit</span><span class="o">-</span><span class="n">experiments</span>
+</pre></div>
+</div>
+<p>If you want to run the most up-to-date version instead (may not be stable), you can
+install the latest main branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Qiskit</span><span class="o">/</span><span class="n">qiskit</span><span class="o">-</span><span class="n">experiments</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>If you want to develop the package, you can install Qiskit Experiments from source by
+cloning the repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Qiskit</span><span class="o">/</span><span class="n">qiskit</span><span class="o">-</span><span class="n">experiments</span><span class="o">.</span><span class="n">git</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="n">qiskit</span><span class="o">-</span><span class="n">experiments</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option will keep your installed package up to date as you make or pull new
+changes.</p>
+</section>
+<section id="running-your-first-experiment">
+<h2>Running your first experiment<a class="headerlink" href="#running-your-first-experiment" title="Permalink to this heading">¶</a></h2>
+<p>Let’s run a <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a> Experiment, which estimates the characteristic relaxation time
+of a qubit from the excited state to the ground state, also known as <span class="math notranslate nohighlight">\(T_1\)</span>, by
+measuring the excited state population after varying delays. First, we have to import
+the experiment from the Qiskit Experiments library:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">T1</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Experiments must be run on a backend. We’re going to use a simulator,
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.providers.fake_provider.FakePerth.html#qiskit.providers.fake_provider.FakePerth" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FakePerth</span></code></a>, for this example, but you can use any
+backend, real or simulated, that you can access through Qiskit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial requires the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> package to run simulations.
+You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>All experiments require a <code class="docutils literal notranslate"><span class="pre">physical_qubits</span></code> parameter as input that specifies which
+physical qubit or qubits the circuits will be executed on. The qubits must be given as a
+Python sequence (usually a tuple or a list).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since 0.5.0, using <code class="docutils literal notranslate"><span class="pre">qubits</span></code> instead of <code class="docutils literal notranslate"><span class="pre">physical_qubits</span></code> or specifying an
+integer qubit index instead of a one-element sequence for a single-qubit experiment
+is deprecated.</p>
+</div>
+<p>In addition, the <span class="math notranslate nohighlight">\(T_1\)</span> experiment has
+a second required parameter, <code class="docutils literal notranslate"><span class="pre">delays</span></code>, which is a list of times in seconds at which to
+measure the excited state population. In this example, we’ll run the <span class="math notranslate nohighlight">\(T_1\)</span>
+experiment on qubit 0, and use the <code class="docutils literal notranslate"><span class="pre">t1</span></code> backend property of this qubit to give us a
+good estimate for the sweep range of the delays.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">qubit0_t1</span> <span class="o">=</span> <span class="n">FakePerth</span><span class="p">()</span><span class="o">.</span><span class="n">qubit_properties</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">t1</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">qubit0_t1</span><span class="p">,</span> <span class="mf">3e-5</span><span class="p">)</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The circuits encapsulated by the experiment can be accessed using the experiment’s
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.circuits.html#qiskit_experiments.framework.BaseExperiment.circuits" title="qiskit_experiments.framework.BaseExperiment.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">circuits()</span></code></a> method, which returns a list of circuits that can be
+run on a backend. Let’s print the range of delay times we’re sweeping over and draw the
+first and last circuits for our <span class="math notranslate nohighlight">\(T_1\)</span> experiment:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">delays</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[1.00e-06 3.10e-05 6.10e-05 9.10e-05 1.21e-04 1.51e-04 1.81e-04 2.11e-04
+ 2.41e-04 2.71e-04 3.01e-04 3.31e-04 3.61e-04 3.91e-04 4.21e-04 4.51e-04
+ 4.81e-04 5.11e-04 5.41e-04 5.71e-04 6.01e-04]
+</pre></div>
+</div>
+<img alt="../_images/getting_started_3_1.png" src="../_images/getting_started_3_1.png" />
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_4_0.png" src="../_images/getting_started_4_0.png" />
+</div>
+</div>
+<p>As expected, the delay block spans the full range of time values that we specified.</p>
+</section>
+<section id="the-experimentdata-class">
+<h2>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class<a class="headerlink" href="#the-experimentdata-class" title="Permalink to this heading">¶</a></h2>
+<p>After instantiating the experiment, we run the experiment by calling
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.run.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> with our backend of choice. This transpiles our experiment
+circuits then packages them into jobs that are run on the backend.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the how-tos for <a class="reference internal" href="../howtos/job_splitting.html"><span class="doc">customizing job splitting</span></a> when
+running an experiment.</p>
+</div>
+<p>This statement returns the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class containing the results of the
+experiment, so it’s crucial that we assign the output to a data variable. We could have
+also provided the backend at the instantiation of the experiment, but specifying the
+backend at run time allows us to run the same exact experiment on different backends
+should we choose to do so.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.block_for_results.html#qiskit_experiments.framework.ExperimentData.block_for_results" title="qiskit_experiments.framework.ExperimentData.block_for_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">block_for_results()</span></code></a> method is optional and is used to block
+execution of subsequent code until the experiment has fully completed execution and
+analysis. If</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>is executed instead, the statement will finish running as soon as the jobs are
+submitted, but the analysis callback won’t populate <code class="docutils literal notranslate"><span class="pre">exp_data</span></code> with results until the
+entire process has finished. In this case, there are two useful methods in the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>, <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.job_status.html#qiskit_experiments.framework.ExperimentData.job_status" title="qiskit_experiments.framework.ExperimentData.job_status"><code class="xref py py-meth docutils literal notranslate"><span class="pre">job_status()</span></code></a> and
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.analysis_status.html#qiskit_experiments.framework.ExperimentData.analysis_status" title="qiskit_experiments.framework.ExperimentData.analysis_status"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_status()</span></code></a>, that return the current status of the job and
+analysis, respectively:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">job_status</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_status</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>JobStatus.DONE
+AnalysisStatus.DONE
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once the analysis is complete, figures are retrieved using the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.figure.html#qiskit_experiments.framework.ExperimentData.figure" title="qiskit_experiments.framework.ExperimentData.figure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">figure()</span></code></a> method. See the <a class="reference internal" href="visualization.html"><span class="doc">visualization module</span></a> tutorial on how to customize figures for an experiment. For our
+<span class="math notranslate nohighlight">\(T_1\)</span> experiment, we have a single figure showing the raw data and fit to the
+exponential decay model of the <span class="math notranslate nohighlight">\(T_1\)</span> experiment:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_8_0.png" src="../_images/getting_started_8_0.png" />
+</div>
+</div>
+<p>The fit results and associated parameters are accessed with
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.analysis_results.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_results()</span></code></a>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 20
+ - degree of freedom: 18
+ - chi-square: 22.840099718091963
+ - reduced chi-square: 1.268894428782887
+ - Akaike info crit.: 7.763901572912534
+ - Bayesian info crit.: 10.897468886082804
+ - init params:
+  * amp = 0.8965853658536586
+  * tau = 0.0002253402656135151
+  * base = 0.07463414634146341
+ - fit params:
+  * amp = 0.9572827425660344 ± 0.008559441140290149
+  * tau = 0.00020115930089865033 ± 5.67139198276367e-06
+  * base = 0.020416540811676473 ± 0.0077130900180551465
+ - correlations:
+  * (tau, base) = -0.9005388354116799
+  * (amp, base) = -0.6161137511491975
+  * (amp, tau) = 0.3759576379320835
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000201+/-0.000006
+- χ²: 1.268894428782887
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<p>Results can be indexed numerically (starting from 0) or using their name.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.analysis_results.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_results()</span></code></a> API documentation for more
+advanced usage patterns to access subsets of analysis results.</p>
+</div>
+<p>Each analysis
+result value is a <code class="docutils literal notranslate"><span class="pre">UFloat</span></code> object from the <code class="docutils literal notranslate"><span class="pre">uncertainties</span></code> package. The nominal
+value and standard deviation of each value can be accessed as follows:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">nominal_value</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00020115930089865033
+5.67139198276367e-06
+</pre></div>
+</div>
+</div>
+</div>
+<p>For further documentation on how to work with UFloats, consult the <code class="docutils literal notranslate"><span class="pre">uncertainties</span></code>
+<a class="reference external" href="https://pythonhosted.org/uncertainties/user_guide.html" title="(in uncertainties Python package v1)"><span>User Guide</span></a>.</p>
+<p>Raw circuit output data and its associated metadata can be accessed with the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.data.html#qiskit_experiments.framework.ExperimentData.data" title="qiskit_experiments.framework.ExperimentData.data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">data()</span></code></a> property. Data is indexed by the circuit it corresponds
+to. Depending on the measurement level set in the experiment, the raw data will either
+be in the key <code class="docutils literal notranslate"><span class="pre">counts</span></code> (level 2) or <code class="docutils literal notranslate"><span class="pre">memory</span></code> (level 1 IQ data).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the <a class="reference internal" href="data_processor.html"><span class="doc">data processor tutorial</span></a> for more
+information on level 1 and level 2 data.</p>
+</div>
+<p>Circuit metadata contains information set by the experiment on a circuit-by-circuit
+basis; <code class="docutils literal notranslate"><span class="pre">xval</span></code> is used by the analysis to extract the x value for each circuit when
+fitting the data.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 29, &#39;1&#39;: 995}, &#39;job_id&#39;: &#39;4681ba17-c30d-4a19-880f-185f4ac7cd8f&#39;, &#39;metadata&#39;: {&#39;experiment_type&#39;: &#39;T1&#39;, &#39;qubit&#39;: 0, &#39;unit&#39;: &#39;s&#39;, &#39;xval&#39;: 1e-06}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Experiments also have global associated metadata accessed by the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.metadata.html#qiskit_experiments.framework.ExperimentData.metadata" title="qiskit_experiments.framework.ExperimentData.metadata"><code class="xref py py-meth docutils literal notranslate"><span class="pre">metadata()</span></code></a> property.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;physical_qubits&#39;: [0], &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;, &#39;_source&#39;: {&#39;class&#39;: &#39;qiskit_experiments.framework.experiment_data.ExperimentData&#39;, &#39;metadata_version&#39;: 1, &#39;qiskit_version&#39;: &#39;0.43.3&#39;}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>The actual backend jobs that were executed for the experiment can be accessed with the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.jobs.html#qiskit_experiments.framework.ExperimentData.jobs" title="qiskit_experiments.framework.ExperimentData.jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jobs()</span></code></a> method.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the how-tos for <a class="reference internal" href="../howtos/rerun_analysis.html"><span class="doc">rerunning the analysis</span></a>
+for an existing experiment that finished execution.</p>
+</div>
+</section>
+<section id="setting-options-for-your-experiment">
+<span id="guide-setting-options"></span><h2>Setting options for your experiment<a class="headerlink" href="#setting-options-for-your-experiment" title="Permalink to this heading">¶</a></h2>
+<p>It’s often insufficient to run an experiment with only its default options. There are
+four types of options one can set for an experiment:</p>
+<section id="run-options">
+<h3>Run options<a class="headerlink" href="#run-options" title="Permalink to this heading">¶</a></h3>
+<p>These options are passed to the experiment’s <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.run.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method and
+then to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of your specified backend. Any run option that your backend
+supports can be set:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.qobj.utils</span> <span class="kn">import</span> <span class="n">MeasLevel</span>
+
+<span class="n">exp</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="n">shots</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                    <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Consult the documentation of the run method of your
+specific backend type for valid options.
+For example, see <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-provider/qiskit_ibm_provider.IBMBackend#run" title="(in Qiskit IBM Quantum Provider)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_provider.IBMBackend.run()</span></code></a> for IBM backends.</p>
+</section>
+<section id="transpile-options">
+<h3>Transpile options<a class="headerlink" href="#transpile-options" title="Permalink to this heading">¶</a></h3>
+<p>These options are passed to the Terra transpiler to transpile the experiment circuits
+before execution:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">,</span>
+                          <span class="n">optimization_level</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                          <span class="n">basis_gates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;rz&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Consult the documentation of <a class="reference external" href="https://qiskit.org/documentation/apidoc/compiler.html#qiskit.compiler.transpile" title="(in Qiskit v0.45)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> for valid options.</p>
+</section>
+<section id="experiment-options">
+<h3>Experiment options<a class="headerlink" href="#experiment-options" title="Permalink to this heading">¶</a></h3>
+<p>These options are unique to each experiment class. Many experiment options can be set
+upon experiment instantiation, but can also be explicitly set via
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.set_experiment_options.html#qiskit_experiments.framework.BaseExperiment.set_experiment_options" title="qiskit_experiments.framework.BaseExperiment.set_experiment_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_experiment_options()</span></code></a>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
+<span class="n">new_delays</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">600e-6</span><span class="p">,</span> <span class="mf">50e-6</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">new_delays</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Consult the <a class="reference internal" href="../apidocs/index.html"><span class="doc">API documentation</span></a> for the options of each experiment
+class.</p>
+</section>
+<section id="analysis-options">
+<h3>Analysis options<a class="headerlink" href="#analysis-options" title="Permalink to this heading">¶</a></h3>
+<p>These options are unique to each analysis class. Unlike the other options, analyis
+options are not directly set via the experiment object but use instead a method of the
+associated <code class="docutils literal notranslate"><span class="pre">analysis</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">StandardRB</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">StandardRB</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
+                <span class="n">lengths</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">30</span><span class="p">)),</span>
+                <span class="n">seed</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span>
+                <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">gate_error_ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Consult the <a class="reference internal" href="../apidocs/index.html"><span class="doc">API documentation</span></a> for the options of each
+experiment’s analysis class.</p>
+</section>
+</section>
+<section id="running-experiments-on-multiple-qubits">
+<h2>Running experiments on multiple qubits<a class="headerlink" href="#running-experiments-on-multiple-qubits" title="Permalink to this heading">¶</a></h2>
+<p>To run experiments across many qubits of the same device, we use <strong>composite
+experiments</strong>. A composite experiment is a parent object that contains one or more child
+experiments, which may themselves be composite. There are two core types of composite
+experiments:</p>
+<ul class="simple">
+<li><p><strong>Parallel experiments</strong> run across qubits simultaneously as set by the user. The
+circuits of child experiments are combined into new circuits that map circuit gates
+onto qubits in parallel. Therefore, the circuits in child experiments <em>cannot</em> overlap
+in the <code class="docutils literal notranslate"><span class="pre">physical_qubits</span></code> parameter. The marginalization of measurement data for
+analysis of each child experiment is handled automatically.</p></li>
+<li><p><strong>Batch experiments</strong> run consecutively in time. These child circuits <em>can</em> overlap in
+qubits used.</p></li>
+</ul>
+<p>Using parallel experiments, we can measure the <span class="math notranslate nohighlight">\(T_1\)</span> of one qubit while doing a
+standard Randomized Benchmarking <a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardRB</span></code></a> experiment on other qubits
+simultaneously on the same device:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ParallelExperiment</span>
+
+<span class="n">child_exp1</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
+<span class="n">child_exp2</span> <span class="o">=</span> <span class="n">StandardRB</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">lengths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">parallel_exp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">([</span><span class="n">child_exp1</span><span class="p">,</span> <span class="n">child_exp2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Note that when the transpile and run options are set for a composite experiment, the
+child experiments’s options are also set to the same options recursively. Let’s examine
+how the parallel experiment is constructed by visualizing child and parent circuits. The
+child experiments can be accessed via the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.component_experiment.html#qiskit_experiments.framework.ParallelExperiment.component_experiment" title="qiskit_experiments.framework.ParallelExperiment.component_experiment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">component_experiment()</span></code></a> method, which indexes from zero:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_18_0.png" src="../_images/getting_started_18_0.png" />
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_19_0.png" src="../_images/getting_started_19_0.png" />
+</div>
+</div>
+<p>The circuits of all experiments assume they’re acting on virtual qubits starting from
+index 0. In the case of a parallel experiment, the child experiment
+circuits are composed together and then reassigned virtual qubit indices:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_20_0.png" src="../_images/getting_started_20_0.png" />
+</div>
+</div>
+<p>During experiment transpilation, a mapping is performed to place these circuits on the
+physical layout. We can see its effects by looking at the transpiled
+circuit, which is accessed via the internal method <code class="docutils literal notranslate"><span class="pre">_transpiled_circuits()</span></code>. After
+transpilation, the <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a> experiment is correctly placed on physical qubit 2
+and the <a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardRB</span></code></a> experiment’s gates are on physical qubits 3 and 1.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span><span class="o">.</span><span class="n">_transpiled_circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;mpl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/getting_started_21_0.png" src="../_images/getting_started_21_0.png" />
+</div>
+</div>
+<p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment" title="qiskit_experiments.framework.ParallelExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelExperiment</span></code></a> and <a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html#qiskit_experiments.framework.BatchExperiment" title="qiskit_experiments.framework.BatchExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchExperiment</span></code></a> classes can also be nested
+arbitrarily to make complex composite experiments.</p>
+<figure class="align-center">
+<img alt="../_images/compositeexperiments.png" src="../_images/compositeexperiments.png" />
+</figure>
+<section id="viewing-child-experiment-data">
+<h3>Viewing child experiment data<a class="headerlink" href="#viewing-child-experiment-data" title="Permalink to this heading">¶</a></h3>
+<p>The experiment data returned from a composite experiment contains individual analysis
+results for each child experiment that can be accessed using
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.child_data.html#qiskit_experiments.framework.ExperimentData.child_data" title="qiskit_experiments.framework.ExperimentData.child_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">child_data()</span></code></a>. By default, the parent data object does not contain
+analysis results.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_data</span> <span class="o">=</span> <span class="n">parallel_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parallel_data</span><span class="o">.</span><span class="n">child_data</span><span class="p">()):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Component experiment&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">sub_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Component experiment 0
+</pre></div>
+</div>
+<img alt="../_images/getting_started_22_1.png" src="../_images/getting_started_22_1.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 20
+ - degree of freedom: 18
+ - chi-square: 16.816120617081857
+ - reduced chi-square: 0.9342289231712143
+ - Akaike info crit.: 1.3341265319915934
+ - Bayesian info crit.: 4.467693845161863
+ - init params:
+  * amp = 0.8634146341463415
+  * tau = 0.00027114805618139366
+  * base = 0.11170731707317073
+ - fit params:
+  * amp = 0.9926760714642648 ± 0.013551219008366406
+  * tau = 0.00027646836003423586 ± 1.0931802961555327e-05
+  * base = -0.007008262837632309 ± 0.015200057365121403
+ - correlations:
+  * (tau, base) = -0.9512412319256884
+  * (amp, base) = -0.8610951590999608
+  * (amp, tau) = 0.7234963641297896
+- quality: good
+- device_components: [&#39;Q2&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000276+/-0.000011
+- χ²: 0.9342289231712143
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q2&#39;]
+- verified: False
+Component experiment 1
+</pre></div>
+</div>
+<img alt="../_images/getting_started_22_3.png" src="../_images/getting_started_22_3.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_RBAnalysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_rb_decay(x) = a * alpha ** x + b
+ - success: True
+ - number of function evals: 24
+ - degree of freedom: 7
+ - chi-square: 3.6473210978948516
+ - reduced chi-square: 0.521045871127836
+ - Akaike info crit.: -4.085921406519427
+ - Bayesian info crit.: -3.178166127537289
+ - init params:
+  * a = 0.7028730955883397
+  * alpha = 0.9823790513706834
+  * b = 0.25
+ - fit params:
+  * a = 0.6997579151921955 ± 0.020619835459143754
+  * alpha = 0.9808495809162887 ± 0.001044291184265527
+  * b = 0.25448422831476725 ± 0.021043428761778248
+ - correlations:
+  * (a, b) = -0.9927566144113595
+  * (alpha, b) = -0.9902534459205776
+  * (a, alpha) = 0.9748778787678782
+- quality: good
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: alpha
+- value: 0.9808+/-0.0010
+- χ²: 0.521045871127836
+- quality: good
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: EPC
+- value: 0.0144+/-0.0008
+- χ²: 0.521045871127836
+- quality: good
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: EPG_cx
+- value: 0.0084+/-0.0005
+- χ²: 0.521045871127836
+- quality: good
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you want the parent data object to contain the analysis results instead, you can set
+the <code class="docutils literal notranslate"><span class="pre">flatten_results</span></code> flag to true to flatten the results of all component experiments
+into one level:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)],</span> <span class="n">flatten_results</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">parallel_data</span> <span class="o">=</span> <span class="n">parallel_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">parallel_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 20
+ - degree of freedom: 18
+ - chi-square: 16.777233960918313
+ - reduced chi-square: 0.9320685533843507
+ - Akaike info crit.: 1.2855085743960357
+ - Bayesian info crit.: 4.419075887566305
+ - init params:
+  * amp = 0.8868292682926829
+  * tau = 0.00022717300819969968
+  * base = 0.07560975609756097
+ - fit params:
+  * amp = 0.9591563783072699 ± 0.008722718232923832
+  * tau = 0.00020563098809331363 ± 5.916681239621023e-06
+  * base = 0.01817301256948842 ± 0.008075085380244483
+ - correlations:
+  * (tau, base) = -0.9053821521891239
+  * (amp, base) = -0.6352894942116918
+  * (amp, tau) = 0.40113906329346544
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000206+/-0.000006
+- χ²: 0.9320685533843507
+- quality: good
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 21
+ - degree of freedom: 18
+ - chi-square: 16.854244267918833
+ - reduced chi-square: 0.9363469037732686
+ - Akaike info crit.: 1.3816815265654254
+ - Bayesian info crit.: 4.515248839735695
+ - init params:
+  * amp = 0.9356097560975609
+  * tau = 0.0001858364229100068
+  * base = 0.042439024390243905
+ - fit params:
+  * amp = 0.969314571640488 ± 0.006775226516899206
+  * tau = 0.00017009353906185276 ± 3.810457000354833e-06
+  * base = 0.011497161200531443 ± 0.005000160772463704
+ - correlations:
+  * (tau, base) = -0.8566281535749727
+  * (amp, base) = -0.5169272804382684
+  * (amp, tau) = 0.2538512206205129
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000170+/-0.000004
+- χ²: 0.9363469037732686
+- quality: good
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q1&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="calibrations.html" class="btn btn-neutral float-right" title="Calibrations: Schedules and gate parameters from experiments" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="intro.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#running-your-first-experiment">Running your first experiment</a></li>
+<li><a class="reference internal" href="#the-experimentdata-class">The <code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code> class</a></li>
+<li><a class="reference internal" href="#setting-options-for-your-experiment">Setting options for your experiment</a><ul>
+<li><a class="reference internal" href="#run-options">Run options</a></li>
+<li><a class="reference internal" href="#transpile-options">Transpile options</a></li>
+<li><a class="reference internal" href="#experiment-options">Experiment options</a></li>
+<li><a class="reference internal" href="#analysis-options">Analysis options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-experiments-on-multiple-qubits">Running experiments on multiple qubits</a><ul>
+<li><a class="reference internal" href="#viewing-child-experiment-data">Viewing child experiment data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

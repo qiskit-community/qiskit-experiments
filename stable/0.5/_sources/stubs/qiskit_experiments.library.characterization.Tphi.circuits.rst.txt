@@ -1,0 +1,8 @@
+
+
+Tphi.circuits
+=========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: Tphi.circuits

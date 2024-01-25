@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.status
+===================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: NoisyDelayAerBackend.status

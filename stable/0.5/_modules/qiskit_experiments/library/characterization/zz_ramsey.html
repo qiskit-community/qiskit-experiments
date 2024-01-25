@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.library.characterization.zz_ramsey &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.library.characterization.zz_ramsey</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.library.characterization.zz_ramsey</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ZZ Ramsey experiment</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParameterExpression</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.warnings</span> <span class="kn">import</span> <span class="n">deprecate_arguments</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendTiming</span><span class="p">,</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">.analysis.zz_ramsey_analysis</span> <span class="kn">import</span> <span class="n">ZZRamseyAnalysis</span>
+
+
+<div class="viewcode-block" id="ZZRamsey"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey">[docs]</a><span class="k">class</span> <span class="nc">ZZRamsey</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to characterize the static :math:`ZZ` interaction for a qubit pair.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">        This experiment assumes a two qubit Hamiltonian of the form</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            H = h \left(\frac{f_0}{2} ZI + \frac{f_1}{2} IZ + \frac{f_{ZZ}}{4} ZZ\right)</span>
+
+<span class="sd">        and measures the strength :math:`f_{ZZ}` of the :math:`ZZ` term.</span>
+<span class="sd">        :math:`f_{ZZ}` can be described as the difference between the frequency</span>
+<span class="sd">        of qubit 0 when qubit 1 is excited and the frequency of qubit 0 when</span>
+<span class="sd">        qubit 1 is in the ground state. Because :math:`f_{ZZ}` is symmetric in</span>
+<span class="sd">        qubit index, it can also be expressed with the roles of 0 and 1</span>
+<span class="sd">        reversed.  Experimentally, we measure :math:`f_{ZZ}` by performing</span>
+<span class="sd">        Ramsey sequences on qubit 0 with qubit 1 in the ground state and again</span>
+<span class="sd">        with qubit 1 in the excited state. The standard Ramsey experiment</span>
+<span class="sd">        consists of putting a qubit along the :math:`X` axis of Bloch sphere,</span>
+<span class="sd">        waiting for some time, and then measuring the qubit project along</span>
+<span class="sd">        :math:`X`. By measuring the :math:`X` projection versus time the qubit</span>
+<span class="sd">        frequency can be inferred. See</span>
+<span class="sd">        :class:`~qiskit_experiments.library.characterization.T2Ramsey` and</span>
+<span class="sd">        :class:`~qiskit_experiments.library.characterization.RamseyXY`.</span>
+
+<span class="sd">        Because we are interested in the difference in qubit 0 frequency</span>
+<span class="sd">        between the two qubit 1 preparations rather than the absolute</span>
+<span class="sd">        frequencies of qubit 0 for those preparations, we modify the Ramsey</span>
+<span class="sd">        sequences (the circuits for the modified sequences are shown below).</span>
+<span class="sd">        First, we add an X gate on qubit 0 to the middle of the Ramsey delay.</span>
+<span class="sd">        This would have the effect of echoing out the phase accumulation of</span>
+<span class="sd">        qubit 0 (like a Hahn echo sequence as used in</span>
+<span class="sd">        :class:`~qiskit_experiments.library.characterization.T2Hahn`), but we</span>
+<span class="sd">        add a simultaneous X gate to qubit 1 as well.  Flipping qubit 1 inverts</span>
+<span class="sd">        the sign of the :math:`f_{ZZ}` term. The net result is that qubit 0</span>
+<span class="sd">        continues to accumulate phase proportional to :math:`f_{ZZ}` while the</span>
+<span class="sd">        phase due to any ZI term is canceled out. This technique allows</span>
+<span class="sd">        :math:`f_{ZZ}` to be measured using longer delay times than might</span>
+<span class="sd">        otherwise be possible with a qubit with a slow frequency drift (i.e.</span>
+<span class="sd">        the measurement is not sensitive to qubit frequency drift from shot to</span>
+<span class="sd">        shot, only to drift within a single shot).</span>
+
+<span class="sd">        The resulting excited state population of qubit 0 versus delay time</span>
+<span class="sd">        exhibits slow sinusoidal oscillations (assuming :math:`f_{ZZ}` is</span>
+<span class="sd">        relatively small). To help with distinguishing between qubit decay and</span>
+<span class="sd">        a slow oscillation, an extra Z rotation is applied before the final</span>
+<span class="sd">        pulse on qubit 0. The angle of this Z rotation is set proportional to</span>
+<span class="sd">        the delay time of the sequence. This angle proportional to time behaves</span>
+<span class="sd">        similarly to measuring at a fixed angle with the qubit rotating at a</span>
+<span class="sd">        constant frequency. This virtual frequency is common to the two qubit 1</span>
+<span class="sd">        preparations. By looking at the difference in frequency fitted for the</span>
+<span class="sd">        two cases, this virtual frequency (called :math:`f` in the circuits</span>
+<span class="sd">        shown below) is removed, leaving only the :math:`f_{ZZ}` value. The</span>
+<span class="sd">        value of :math:`f` in terms of the experiment options is</span>
+<span class="sd">        ``num_rotations / (max(delays) - min(delays))``.</span>
+
+<span class="sd">        This experiment consists of the following two circuits repeated with</span>
+<span class="sd">        different ``delay`` values.</span>
+
+<span class="sd">        .. parsed-literal::</span>
+
+<span class="sd">            Modified Ramsey sequence with qubit 1 initially in the ground state</span>
+
+<span class="sd">                 ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »</span>
+<span class="sd">            q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»</span>
+<span class="sd">                 └────┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »</span>
+<span class="sd">            q_1: ───────░─────────────────────░─┤ X ├─░─────────────────────░─»</span>
+<span class="sd">                        ░                     ░ └───┘ ░                     ░ »</span>
+<span class="sd">            c: 1/═════════════════════════════════════════════════════════════»</span>
+<span class="sd">                                                                              »</span>
+<span class="sd">            «     ┌─────────────────────┐┌────┐ ░ ┌─┐</span>
+<span class="sd">            «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├</span>
+<span class="sd">            «     └────────┬───┬────────┘└────┘ ░ └╥┘</span>
+<span class="sd">            «q_1: ─────────┤ X ├────────────────░──╫─</span>
+<span class="sd">            «              └───┘                ░  ║</span>
+<span class="sd">            «c: 1/═════════════════════════════════╩═</span>
+<span class="sd">            «                                      0</span>
+
+<span class="sd">            Modified Ramsey sequence with qubit 1 initially in the excited state</span>
+
+<span class="sd">                 ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »</span>
+<span class="sd">            q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»</span>
+<span class="sd">                 ├───┬┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »</span>
+<span class="sd">            q_1: ┤ X ├──░─────────────────────░─┤ X ├─░─────────────────────░─»</span>
+<span class="sd">                 └───┘  ░                     ░ └───┘ ░                     ░ »</span>
+<span class="sd">            c: 1/═════════════════════════════════════════════════════════════»</span>
+<span class="sd">                                                                              »</span>
+<span class="sd">            «     ┌─────────────────────┐┌────┐ ░ ┌─┐</span>
+<span class="sd">            «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├</span>
+<span class="sd">            «     └─────────────────────┘└────┘ ░ └╥┘</span>
+<span class="sd">            «q_1: ──────────────────────────────░──╫─</span>
+<span class="sd">            «                                   ░  ║</span>
+<span class="sd">            «c: 1/═════════════════════════════════╩═</span>
+<span class="sd">            «                                      0</span>
+
+<span class="sd">    # section: analysis_ref</span>
+
+<span class="sd">        :class:`ZZRamseyAnalysis`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@deprecate_arguments</span><span class="p">({</span><span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_qubits&quot;</span><span class="p">},</span> <span class="s2">&quot;0.5&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Backend</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">experiment_options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new experiment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            physical_qubits: The qubits on which to run the Ramsey XY experiment.</span>
+<span class="sd">            backend: Optional, the backend to run the experiment on.</span>
+<span class="sd">            experiment_options: experiment options to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">ZZRamseyAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+        <span class="c1"># Override the default of get_processor() which is &quot;1&quot; * num_qubits. We</span>
+        <span class="c1"># only fit the probability of the target qubit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">experiment_options</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for the :math:`ZZ` Ramsey experiment.</span>
+
+<span class="sd">        Experiment Options:</span>
+<span class="sd">            delays (list[float]): The list of delays that will be scanned in</span>
+<span class="sd">                the experiment, in seconds. If not set, then ``num_delays``</span>
+<span class="sd">                evenly spaced delays between ``min_delay`` and ``max_delay``</span>
+<span class="sd">                are used. If ``delays`` is set, ``max_delay``, ``min_delay``,</span>
+<span class="sd">                and ``num_delays`` are ignored.</span>
+<span class="sd">            max_delay (float): Maximum delay time to use.</span>
+<span class="sd">            min_delay (float): Minimum delay time to use.</span>
+<span class="sd">            num_delays (int): Number of circuits to use per control state</span>
+<span class="sd">                preparation.</span>
+<span class="sd">            num_rotations (float): The extra rotation added to qubit 0 uses a</span>
+<span class="sd">                frequency that gives this many rotations in the case where</span>
+<span class="sd">                :math:`f_{ZZ}` is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">delays</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">min_delay</span> <span class="o">=</span> <span class="mf">0e-6</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">max_delay</span> <span class="o">=</span> <span class="mf">10e-6</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">num_delays</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">num_rotations</span> <span class="o">=</span> <span class="mi">5</span>
+
+        <span class="k">return</span> <span class="n">options</span>
+
+<div class="viewcode-block" id="ZZRamsey.delays"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.delays.html#qiskit_experiments.library.characterization.ZZRamsey.delays">[docs]</a>    <span class="k">def</span> <span class="nf">delays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delay values to use in circuits</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The list of delays to use for the different circuits based on the</span>
+<span class="sd">            experiment options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This method allows delays to be set by the user as an explicit</span>
+        <span class="c1"># sequence or as a minimum, maximum and number of values for a linearly</span>
+        <span class="c1"># spaced sequence.</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">delays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">delays</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">min_delay</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">max_delay</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">num_delays</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ZZRamsey.frequency"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.frequency.html#qiskit_experiments.library.characterization.ZZRamsey.frequency">[docs]</a>    <span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Frequency of qubit rotation when ZZ is 0</span>
+
+<span class="sd">        This method calculates the simulated frequency applied to both sets of</span>
+<span class="sd">        circuits. The value is chosen to induce `num_rotations` number of</span>
+<span class="sd">        rotation within the time window that the delay is swept through.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The frequency at which the target qubit will rotate when ZZ is zero</span>
+<span class="sd">            based on the current experiment options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">()</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">num_rotations</span> <span class="o">/</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">delays</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">delays</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">freq</span></div>
+
+    <span class="k">def</span> <span class="nf">_template_circuits</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frequency</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ParameterExpression</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Template circuits for series 0 and 1 parameterized by delay</span>
+
+<span class="sd">        The generated circuits have the length of the delay instructions as the</span>
+<span class="sd">        only parameter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dt_value: the value of the backend ``dt`` value. Used to convert</span>
+<span class="sd">                delay values into units of seconds.</span>
+<span class="sd">            delay_unit: the unit of circuit delay instructions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Circuits for series 0 and 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">delay</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">)</span>
+
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="n">frequency</span> <span class="o">=</span> <span class="n">frequency</span> <span class="k">if</span> <span class="n">frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">()</span>
+        <span class="c1"># frequency is always in units of Hz.  delay_freq has inverse units to</span>
+        <span class="c1"># the units of `delay`.</span>
+        <span class="c1">#</span>
+        <span class="c1"># If the backend does not have a `dt`, the delays will be treated as in</span>
+        <span class="c1"># units of seconds. Otherwise they will be in units of samples. For the</span>
+        <span class="c1"># samples case, we multiply by `dt` so that `delay_freq` is in inverse</span>
+        <span class="c1"># samples per cycle.</span>
+        <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+            <span class="n">delay_freq</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">frequency</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">delay_freq</span> <span class="o">=</span> <span class="n">frequency</span>
+
+        <span class="c1"># Template circuit for series 0</span>
+        <span class="c1"># Control qubit starting in |0&gt; state, flipping to |1&gt; in middle</span>
+        <span class="n">circ0</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="p">)</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="p">)</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">delay_freq</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">delay</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Flip control back to 0, so control qubit is in 0 for all circuits</span>
+        <span class="c1"># when qubit 1 is measured.</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">circ0</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Template circuit for series 1</span>
+        <span class="c1"># Control qubit starting in |1&gt; state, flipping to |0&gt; in middle</span>
+        <span class="n">circ1</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="p">)</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="p">)</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">delay_freq</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">delay</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">circ1</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circ0</span><span class="p">,</span> <span class="n">circ1</span>
+
+<div class="viewcode-block" id="ZZRamsey.parametrized_circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.parametrized_circuits.html#qiskit_experiments.library.characterization.ZZRamsey.parametrized_circuits">[docs]</a>    <span class="k">def</span> <span class="nf">parametrized_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create circuits with parameters for numerical quantities</span>
+
+<span class="sd">        This method is primarily intended for generating template circuits that</span>
+<span class="sd">        visualize well. It inserts :class:`qiskit.circuit.Parameter`\ s for</span>
+<span class="sd">        :math:`π` and `dt` as well the target qubit rotation frequency `f`.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Parameterized circuits for the case of the control qubit being in 0</span>
+<span class="sd">            and in 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f_param</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">)</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;pi&quot;</span><span class="p">)</span>
+
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">f_param</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span> <span class="o">/</span> <span class="n">timing</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="n">circs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template_circuits</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circs</span></div>
+
+<div class="viewcode-block" id="ZZRamsey.circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.circuits.html#qiskit_experiments.library.characterization.ZZRamsey.circuits">[docs]</a>    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create circuits</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of circuits with a variable delay.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="n">circ0</span><span class="p">,</span> <span class="n">circ1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template_circuits</span><span class="p">()</span>
+        <span class="n">circs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">delay</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">delays</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="p">(</span><span class="n">circ0</span><span class="p">,</span> <span class="n">circ1</span><span class="p">):</span>
+                <span class="n">assigned</span> <span class="o">=</span> <span class="n">circ</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">circ</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">timing</span><span class="o">.</span><span class="n">round_delay</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">delay</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="n">assigned</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_time</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">delay</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">circs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">assigned</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circs</span></div></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

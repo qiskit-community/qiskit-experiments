@@ -1,0 +1,8 @@
+
+
+TomographyAnalysis.copy
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: TomographyAnalysis.copy

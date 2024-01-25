@@ -1,0 +1,41 @@
+﻿
+
+StateTomographyAnalysis
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoanalysis:: StateTomographyAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      StateTomographyAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      StateTomographyAnalysis.config
+      StateTomographyAnalysis.copy
+      StateTomographyAnalysis.from_config
+      StateTomographyAnalysis.run
+      StateTomographyAnalysis.set_options
+   
+
+   
+   

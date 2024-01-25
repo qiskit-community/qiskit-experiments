@@ -1,0 +1,46 @@
+﻿
+
+DecayAnalysis
+===============================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: DecayAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DecayAnalysis.drawer
+      DecayAnalysis.models
+      DecayAnalysis.name
+      DecayAnalysis.options
+      DecayAnalysis.parameters
+      DecayAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DecayAnalysis.config
+      DecayAnalysis.copy
+      DecayAnalysis.from_config
+      DecayAnalysis.run
+      DecayAnalysis.set_options
+   
+
+   
+   

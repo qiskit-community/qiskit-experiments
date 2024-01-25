@@ -1,0 +1,8 @@
+
+
+TomographyAnalysis.options
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: TomographyAnalysis.options

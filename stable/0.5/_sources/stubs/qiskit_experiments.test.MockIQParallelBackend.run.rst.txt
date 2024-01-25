@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.run
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: MockIQParallelBackend.run

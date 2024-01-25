@@ -1,0 +1,110 @@
+﻿
+
+MplCurveDrawer
+================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: MplCurveDrawer
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MplCurveDrawer.DefaultColors
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.DefaultMarkers
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.figure
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MplCurveDrawer.config
+   
+   
+      MplCurveDrawer.draw_confidence_interval
+   
+   
+      MplCurveDrawer.draw_fit_line
+   
+   
+      MplCurveDrawer.draw_fit_report
+   
+   
+      MplCurveDrawer.draw_formatted_data
+   
+   
+      MplCurveDrawer.draw_raw_data
+   
+   
+      MplCurveDrawer.format_canvas
+   
+   
+      MplCurveDrawer.initialize_canvas
+   
+   
+      MplCurveDrawer.set_options
+   
+
+   
+   

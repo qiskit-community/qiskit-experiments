@@ -1,0 +1,8 @@
+
+
+BaseDrawer.scatter
+===================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BaseDrawer.scatter

@@ -1,0 +1,8 @@
+
+
+AnalysisResult.chisq
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.chisq

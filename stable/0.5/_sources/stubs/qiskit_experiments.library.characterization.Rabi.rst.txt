@@ -1,0 +1,52 @@
+﻿
+
+Rabi
+================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: Rabi
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      Rabi.analysis
+      Rabi.backend
+      Rabi.experiment_options
+      Rabi.experiment_type
+      Rabi.num_qubits
+      Rabi.physical_qubits
+      Rabi.run_options
+      Rabi.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      Rabi.circuits
+      Rabi.config
+      Rabi.copy
+      Rabi.enable_restless
+      Rabi.from_config
+      Rabi.run
+      Rabi.set_experiment_options
+      Rabi.set_run_options
+      Rabi.set_transpile_options
+   
+
+   
+   

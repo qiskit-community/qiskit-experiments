@@ -1,0 +1,8 @@
+
+
+PulseBackend.solve
+==========================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: PulseBackend.solve

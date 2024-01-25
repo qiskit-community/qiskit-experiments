@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.curve_analysis.curve_analysis &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.curve_analysis.curve_analysis</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.curve_analysis.curve_analysis</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Analysis class for curve fitting.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">lmfit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">uncertainties</span> <span class="kn">import</span> <span class="n">unumpy</span> <span class="k">as</span> <span class="n">unp</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentData</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.exceptions</span> <span class="kn">import</span> <span class="n">DataProcessorError</span>
+
+<span class="kn">from</span> <span class="nn">.base_curve_analysis</span> <span class="kn">import</span> <span class="n">BaseCurveAnalysis</span><span class="p">,</span> <span class="n">PARAMS_ENTRY_PREFIX</span>
+<span class="kn">from</span> <span class="nn">.curve_data</span> <span class="kn">import</span> <span class="n">CurveData</span><span class="p">,</span> <span class="n">FitOptions</span><span class="p">,</span> <span class="n">CurveFitResult</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">eval_with_uncertainties</span><span class="p">,</span> <span class="n">convert_lmfit_result</span><span class="p">,</span> <span class="n">multi_mean_xy_data</span><span class="p">,</span> <span class="n">data_sort</span>
+
+
+<div class="viewcode-block" id="CurveAnalysis"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis">[docs]</a><span class="k">class</span> <span class="nc">CurveAnalysis</span><span class="p">(</span><span class="n">BaseCurveAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for curve analysis with single curve group.</span>
+
+<span class="sd">    The fit parameters from the series defined under the analysis class are all shared</span>
+<span class="sd">    and the analysis performs a single multi-objective function optimization.</span>
+
+<span class="sd">    A subclass may override these methods to customize the fit workflow.</span>
+
+<span class="sd">    .. rubric:: _run_data_processing</span>
+
+<span class="sd">    This method performs data processing and returns the processed dataset.</span>
+<span class="sd">    By default, it internally calls the :class:`.DataProcessor` instance from</span>
+<span class="sd">    the `data_processor` analysis option and processes the experiment data payload</span>
+<span class="sd">    to create Y data with uncertainty.</span>
+<span class="sd">    X data and other metadata are generated within this method by inspecting the</span>
+<span class="sd">    circuit metadata. The series classification is also performed based upon the</span>
+<span class="sd">    matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.</span>
+
+<span class="sd">    .. rubric:: _format_data</span>
+
+<span class="sd">    This method consumes the processed dataset and outputs the formatted dataset.</span>
+<span class="sd">    By default, this method takes the average of y values over</span>
+<span class="sd">    the same x values and then sort the entire data by x values.</span>
+
+<span class="sd">    .. rubric:: _generate_fit_guesses</span>
+
+<span class="sd">    This method creates initial guesses for the fit parameters.</span>
+<span class="sd">    See :ref:`curve_analysis_init_guess` for details.</span>
+
+<span class="sd">    .. rubric:: _run_curve_fit</span>
+
+<span class="sd">    This method performs the fitting with predefined fit models and the formatted dataset.</span>
+<span class="sd">    This method internally calls the :meth:`_generate_fit_guesses` method.</span>
+<span class="sd">    Note that this is a core functionality of the :meth:`_run_analysis` method,</span>
+<span class="sd">    that creates fit result objects from the formatted dataset.</span>
+
+<span class="sd">    .. rubric:: _evaluate_quality</span>
+
+<span class="sd">    This method evaluates the quality of the fit based on the fit result.</span>
+<span class="sd">    This returns &quot;good&quot; when reduced chi-squared is less than 3.0.</span>
+<span class="sd">    Usually it returns string &quot;good&quot; or &quot;bad&quot; according to the evaluation.</span>
+
+<span class="sd">    .. rubric:: _create_analysis_results</span>
+
+<span class="sd">    This method creates analysis results for important fit parameters</span>
+<span class="sd">    that might be defined by analysis options ``result_parameters``.</span>
+
+<span class="sd">    .. rubric:: _create_curve_data</span>
+
+<span class="sd">    This method creates analysis results containing the formatted dataset,</span>
+<span class="sd">    i.e. data used for the fitting.</span>
+<span class="sd">    Entries are created when the analysis option ``return_data_points`` is ``True``.</span>
+<span class="sd">    If analysis consists of multiple series, an analysis result is created for</span>
+<span class="sd">    each series definition.</span>
+
+<span class="sd">    .. rubric:: _initialize</span>
+
+<span class="sd">    This method initializes analysis options against input experiment data.</span>
+<span class="sd">    Usually this method is called before other methods are called.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize data fields that are privately accessed by methods.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            models: List of LMFIT ``Model`` class to define fitting functions and</span>
+<span class="sd">                parameters. If multiple models are provided, the analysis performs</span>
+<span class="sd">                multi-objective optimization where the parameters with the same name</span>
+<span class="sd">                are shared among provided models. When multiple models are provided,</span>
+<span class="sd">                user must specify the ``data_subfit_map`` value in the analysis options</span>
+<span class="sd">                to allocate experimental results to a particular fit model.</span>
+<span class="sd">            name: Optional. Name of this analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="n">models</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of this analysis.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters of this curve analysis.&quot;&quot;&quot;</span>
+        <span class="n">unite_params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unite_params</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fixed_parameters</span><span class="p">:</span>
+                    <span class="n">unite_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unite_params</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span>
+
+    <span class="k">def</span> <span class="nf">_run_data_processing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
+        <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform data processing from the experiment result payload.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            raw_data: Payload in the experiment data.</span>
+<span class="sd">            models: A list of LMFIT models that provide the model name and</span>
+<span class="sd">                optionally data sorting keys.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Processed data that will be sent to the formatter method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            DataProcessorError: When model is a multi-objective function but</span>
+<span class="sd">                data sorting option is not provided.</span>
+<span class="sd">            DataProcessorError: When key for x values is not found in the metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_matched</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">filter_data</span><span class="p">:</span>
+            <span class="n">analyzed_data</span> <span class="o">=</span> <span class="n">raw_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">analyzed_data</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">raw_data</span> <span class="k">if</span> <span class="n">_matched</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">filter_data</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="n">x_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">x_key</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="n">x_key</span><span class="p">]</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">analyzed_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;X value key </span><span class="si">{</span><span class="n">x_key</span><span class="si">}</span><span class="s2"> is not defined in circuit metadata.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+
+        <span class="n">ydata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_processor</span><span class="p">(</span><span class="n">analyzed_data</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">datum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">analyzed_data</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># all data belongs to the single model</span>
+            <span class="n">data_allocation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">xdata</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_allocation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">xdata</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_subfit_map</span><span class="p">[</span><span class="n">sub_model</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Data sort options for model </span><span class="si">{</span><span class="n">sub_model</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2"> is not defined. &quot;</span>
+                        <span class="s2">&quot;Please provide the &#39;data_subfit_map&#39; analysis option for this model.&quot;</span>
+                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+                <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">matched_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">_matched</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">tags</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">analyzed_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span>
+                <span class="p">)</span>
+                <span class="n">data_allocation</span><span class="p">[</span><span class="n">matched_inds</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+
+        <span class="k">return</span> <span class="n">CurveData</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">ydata</span><span class="p">),</span>
+            <span class="n">y_err</span><span class="o">=</span><span class="n">unp</span><span class="o">.</span><span class="n">std_devs</span><span class="p">(</span><span class="n">ydata</span><span class="p">),</span>
+            <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span>
+            <span class="n">data_allocation</span><span class="o">=</span><span class="n">data_allocation</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">sub_model</span><span class="o">.</span><span class="n">_name</span> <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">curve_data</span><span class="p">:</span> <span class="n">CurveData</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Postprocessing for the processed dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            curve_data: Processed dataset created from experiment results.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Formatted data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># take average over the same x value by keeping sigma</span>
+        <span class="n">data_allocation</span><span class="p">,</span> <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">shots</span> <span class="o">=</span> <span class="n">multi_mean_xy_data</span><span class="p">(</span>
+            <span class="n">series</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">data_allocation</span><span class="p">,</span>
+            <span class="n">xdata</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">ydata</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
+            <span class="n">shots</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">average_method</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># sort by x value in ascending order</span>
+        <span class="n">data_allocation</span><span class="p">,</span> <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">shots</span> <span class="o">=</span> <span class="n">data_sort</span><span class="p">(</span>
+            <span class="n">series</span><span class="o">=</span><span class="n">data_allocation</span><span class="p">,</span>
+            <span class="n">xdata</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+            <span class="n">ydata</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+            <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">CurveData</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span>
+            <span class="n">y_err</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+            <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span>
+            <span class="n">data_allocation</span><span class="o">=</span><span class="n">data_allocation</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_generate_fit_guesses</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">user_opt</span><span class="p">:</span> <span class="n">FitOptions</span><span class="p">,</span>
+        <span class="n">curve_data</span><span class="p">:</span> <span class="n">CurveData</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FitOptions</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">FitOptions</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
+<span class="sd">            curve_data: Formatted data collection to fit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of fit options that are passed to the fitter function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">user_opt</span>
+
+    <span class="k">def</span> <span class="nf">_run_curve_fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">curve_data</span><span class="p">:</span> <span class="n">CurveData</span><span class="p">,</span>
+        <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform curve fitting on given data collection and fit models.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            curve_data: Formatted data to fit.</span>
+<span class="sd">            models: A list of LMFIT models that are used to build a cost function</span>
+<span class="sd">                for the LMFIT minimizer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The best fitting outcome with minimum reduced chi-squared value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unite_parameter_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="c1"># Seems like this is not efficient looping, but using set operation sometimes</span>
+            <span class="c1"># yields bad fit. Not sure if this is an edge case, but</span>
+            <span class="c1"># `TestRamseyXY` unittest failed due to the significant chisq value</span>
+            <span class="c1"># in which the least_square fitter terminates with `xtol` rather than `ftol`</span>
+            <span class="c1"># condition, i.e. `ftol` condition indicates termination by cost function.</span>
+            <span class="c1"># This code respects the ordering of parameters so that it matches with</span>
+            <span class="c1"># the signature of fit function and it is backward compatible.</span>
+            <span class="c1"># In principle this should not matter since LMFIT maps them with names</span>
+            <span class="c1"># rather than index. Need more careful investigation.</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unite_parameter_names</span><span class="p">:</span>
+                    <span class="n">unite_parameter_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">default_fit_opt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">unite_parameter_names</span><span class="p">,</span>
+            <span class="n">default_p0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">p0</span><span class="p">,</span>
+            <span class="n">default_bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">lmfit_options</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Bind fixed parameters if not empty</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fixed_parameters</span><span class="p">:</span>
+            <span class="n">fixed_parameters</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fixed_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">unite_parameter_names</span>
+            <span class="p">}</span>
+            <span class="n">default_fit_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="o">**</span><span class="n">fixed_parameters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fixed_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">fit_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_fit_guesses</span><span class="p">(</span><span class="n">default_fit_opt</span><span class="p">,</span> <span class="n">curve_data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit_options</span><span class="p">,</span> <span class="n">FitOptions</span><span class="p">):</span>
+            <span class="n">fit_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_options</span><span class="p">]</span>
+
+        <span class="n">valid_uncertainty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">))</span>
+
+        <span class="n">model_weights</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">valid_uncertainty</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="n">sub_yerr</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">get_subset_of</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span><span class="o">.</span><span class="n">y_err</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_yerr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">nonzero_yerr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">sub_yerr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">sub_yerr</span><span class="p">)</span>
+                <span class="n">raw_weights</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">nonzero_yerr</span>
+                <span class="c1"># Remove outlier. When all sample values are the same with sample average,</span>
+                <span class="c1"># or sampling error is zero with shot-weighted average,</span>
+                <span class="c1"># some yerr values might be very close to zero, yielding significant weights.</span>
+                <span class="c1"># With such outlier, the fit doesn&#39;t sense residual of other data points.</span>
+                <span class="n">maximum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="n">model_weights</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">maximum_weight</span><span class="p">)</span>
+
+        <span class="c1"># Objective function for minimize. This computes composite residuals of sub models.</span>
+        <span class="k">def</span> <span class="nf">_objective</span><span class="p">(</span><span class="n">_params</span><span class="p">):</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="n">sub_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">get_subset_of</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_residual</span><span class="p">(</span>
+                    <span class="n">params</span><span class="o">=</span><span class="n">_params</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                    <span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yi</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+
+        <span class="c1"># Run fit for each configuration</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">fit_option</span> <span class="ow">in</span> <span class="n">fit_options</span><span class="p">:</span>
+            <span class="c1"># Setup parameter configuration, i.e. init value, bounds</span>
+            <span class="n">guess_params</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Parameters</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">unite_parameter_names</span><span class="p">:</span>
+                <span class="n">bounds</span> <span class="o">=</span> <span class="n">fit_option</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+                <span class="n">guess_params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">fit_option</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                    <span class="nb">min</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="nb">max</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">vary</span><span class="o">=</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fixed_parameters</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                    <span class="n">new</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+                        <span class="n">fcn</span><span class="o">=</span><span class="n">_objective</span><span class="p">,</span>
+                        <span class="n">params</span><span class="o">=</span><span class="n">guess_params</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fit_method</span><span class="p">,</span>
+                        <span class="n">scale_covar</span><span class="o">=</span><span class="ow">not</span> <span class="n">valid_uncertainty</span><span class="p">,</span>
+                        <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">fit_option</span><span class="o">.</span><span class="n">fitter_opts</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">new</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">new</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">redchi</span> <span class="o">&gt;</span> <span class="n">new</span><span class="o">.</span><span class="n">redchi</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">new</span>
+
+        <span class="k">return</span> <span class="n">convert_lmfit_result</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_run_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;pyplot.Figure&quot;</span><span class="p">]]:</span>
+
+        <span class="c1"># Prepare for fitting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
+
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Run data processing</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_data_processing</span><span class="p">(</span>
+            <span class="n">raw_data</span><span class="o">=</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span>
+            <span class="n">models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot_raw_data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
+                <span class="n">sub_data</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">get_subset_of</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Format data</span>
+        <span class="n">formatted_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">processed_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
+                <span class="n">sub_data</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="o">.</span><span class="n">get_subset_of</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+                    <span class="n">x_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                    <span class="n">y_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                    <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Run fitting</span>
+        <span class="n">fit_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_curve_fit</span><span class="p">(</span>
+            <span class="n">curve_data</span><span class="o">=</span><span class="n">formatted_data</span><span class="p">,</span>
+            <span class="n">models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_quality</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">fit_red_chi</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;bad&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">return_fit_parameters</span><span class="p">:</span>
+            <span class="c1"># Store fit status overview entry regardless of success.</span>
+            <span class="c1"># This is sometime useful when debugging the fitting code.</span>
+            <span class="n">overview</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">PARAMS_ENTRY_PREFIX</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">fit_data</span><span class="p">,</span>
+                <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+                <span class="n">extra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">extra</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">overview</span><span class="p">)</span>
+
+        <span class="c1"># Create figure and result data</span>
+        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="c1"># Create analysis results</span>
+            <span class="n">primary_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span>
+                <span class="n">fit_data</span><span class="o">=</span><span class="n">fit_data</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">primary_results</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">primary_results</span><span class="o">=</span><span class="n">primary_results</span><span class="p">)</span>
+
+            <span class="c1"># Draw fit curves and report</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
+                    <span class="n">sub_data</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="o">.</span><span class="n">get_subset_of</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># If data is empty, skip drawing this model.</span>
+                        <span class="c1"># This is the case when fit model exist but no data to fit is provided.</span>
+                        <span class="c1"># For example, experiment may omit experimenting with some setting.</span>
+                        <span class="k">continue</span>
+                    <span class="n">x_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+                    <span class="n">y_data_with_uncertainty</span> <span class="o">=</span> <span class="n">eval_with_uncertainties</span><span class="p">(</span>
+                        <span class="n">x</span><span class="o">=</span><span class="n">x_interp</span><span class="p">,</span>
+                        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                        <span class="n">params</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">y_interp</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">y_data_with_uncertainty</span><span class="p">)</span>
+                    <span class="c1"># Add fit line data</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                        <span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+                        <span class="n">x_interp</span><span class="o">=</span><span class="n">x_interp</span><span class="p">,</span>
+                        <span class="n">y_interp</span><span class="o">=</span><span class="n">y_interp</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">covar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># Add confidence interval data</span>
+                        <span class="n">y_interp_err</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">std_devs</span><span class="p">(</span><span class="n">y_data_with_uncertainty</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_interp_err</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                                <span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+                                <span class="n">y_interp_err</span><span class="o">=</span><span class="n">y_interp_err</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+        <span class="c1"># Add raw data points</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">return_data_points</span><span class="p">:</span>
+            <span class="n">analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_curve_data</span><span class="p">(</span><span class="n">curve_data</span><span class="o">=</span><span class="n">formatted_data</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Finalize plot</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
+
+        <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Convert models into JSON str.</span>
+        <span class="c1"># This object includes local function and cannot be pickled.</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">dumps</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_models&quot;</span><span class="p">]]</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_models&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">model_objs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_models&quot;</span><span class="p">):</span>
+            <span class="n">tmp_mod</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">tmp_mod</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+            <span class="n">model_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="n">model_objs</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

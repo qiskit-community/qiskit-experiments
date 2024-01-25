@@ -1,0 +1,52 @@
+﻿
+
+FineXAmplitude
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: FineXAmplitude
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineXAmplitude.analysis
+      FineXAmplitude.backend
+      FineXAmplitude.experiment_options
+      FineXAmplitude.experiment_type
+      FineXAmplitude.num_qubits
+      FineXAmplitude.physical_qubits
+      FineXAmplitude.run_options
+      FineXAmplitude.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineXAmplitude.circuits
+      FineXAmplitude.config
+      FineXAmplitude.copy
+      FineXAmplitude.enable_restless
+      FineXAmplitude.from_config
+      FineXAmplitude.run
+      FineXAmplitude.set_experiment_options
+      FineXAmplitude.set_run_options
+      FineXAmplitude.set_transpile_options
+   
+
+   
+   

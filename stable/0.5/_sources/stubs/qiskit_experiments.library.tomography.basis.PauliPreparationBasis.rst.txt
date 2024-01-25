@@ -1,0 +1,74 @@
+﻿
+
+PauliPreparationBasis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: PauliPreparationBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      PauliPreparationBasis.name
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PauliPreparationBasis.circuit
+   
+   
+      PauliPreparationBasis.index_shape
+   
+   
+      PauliPreparationBasis.matrix
+   
+   
+      PauliPreparationBasis.matrix_shape
+   
+
+   
+   

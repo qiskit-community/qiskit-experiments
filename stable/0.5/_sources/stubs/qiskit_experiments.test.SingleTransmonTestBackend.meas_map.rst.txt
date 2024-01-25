@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.meas_map
+==========================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: SingleTransmonTestBackend.meas_map

@@ -1,0 +1,8 @@
+
+
+RamseyXY.num_qubits
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: RamseyXY.num_qubits

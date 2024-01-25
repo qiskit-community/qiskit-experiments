@@ -1,0 +1,8 @@
+
+
+FineXDragCal.num_qubits
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FineXDragCal.num_qubits

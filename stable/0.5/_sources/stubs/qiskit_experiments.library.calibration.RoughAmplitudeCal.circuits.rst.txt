@@ -1,0 +1,8 @@
+
+
+RoughAmplitudeCal.circuits
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughAmplitudeCal.circuits

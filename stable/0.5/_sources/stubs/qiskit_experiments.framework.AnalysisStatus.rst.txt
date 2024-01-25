@@ -1,0 +1,77 @@
+﻿
+
+AnalysisStatus
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisStatus
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      AnalysisStatus.QUEUED
+      
+   
+      
+      
+         
+      
+      AnalysisStatus.RUNNING
+      
+   
+      
+      
+         
+      
+      AnalysisStatus.CANCELLED
+      
+   
+      
+      
+         
+      
+      AnalysisStatus.DONE
+      
+   
+      
+      
+         
+      
+      AnalysisStatus.ERROR
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+
+   
+   

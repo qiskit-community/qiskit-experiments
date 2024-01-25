@@ -1,0 +1,8 @@
+
+
+StateTomography.set_run_options
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: StateTomography.set_run_options

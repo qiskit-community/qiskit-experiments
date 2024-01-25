@@ -1,0 +1,8 @@
+
+
+BasePlotter.figure
+===================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BasePlotter.figure

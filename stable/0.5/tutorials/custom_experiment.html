@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Writing your own experiment &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">Tutorials</a> &gt;</li>
+        
+      <li>Writing your own experiment</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="writing-your-own-experiment">
+<h1>Writing your own experiment<a class="headerlink" href="#writing-your-own-experiment" title="Permalink to this heading">¶</a></h1>
+<p>Qiskit Experiments is designed to be easily customizable. If you would like to
+run an experiment that’s similar to an existing experiment in the
+<a class="reference internal" href="../apidocs/library.html"><span class="doc">library</span></a>, you can subclass the existing experiment and analysis
+classes. You can also write your own experiment class from the ground up by subclassing
+the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class. We will discuss both cases in this tutorial.</p>
+<p>In general, to subclass <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class, you should:</p>
+<ul class="simple">
+<li><p>Implement the abstract <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.circuits.html#qiskit_experiments.framework.BaseExperiment.circuits" title="qiskit_experiments.framework.BaseExperiment.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.circuits()</span></code></a> method.
+This should return a list of <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects defining
+the experiment payload.</p></li>
+<li><p>Call the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.__init__()</span></code> method during the subclass
+constructor with a list of physical qubits. The length of this list must
+be equal to the number of qubits in each circuit and is used to map these
+circuits to this layout during execution.
+Arguments in the constructor can be overridden so that a subclass can
+be initialized with some experiment configuration.</p></li>
+</ul>
+<p>Optionally, to allow configuring experiment and execution options, you can override:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_experiment_options()</span></code>
+to set default values for configurable option parameters for the experiment.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_transpile_options()</span></code>
+to set custom default values for the <a class="reference external" href="https://qiskit.org/documentation/apidoc/compiler.html#qiskit.compiler.transpile" title="(in Qiskit v0.45)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> method used to
+transpile the generated circuits before execution.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_run_options()</span></code>
+to set default backend options for running the transpiled circuits on a backend.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._default_options()</span></code>
+to set default values for configurable options for the experiment’s analysis class.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._transpiled_circuits()</span></code>
+to override the default transpilation of circuits before execution.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._metadata()</span></code>
+to add any experiment metadata to the result data.</p></li>
+</ul>
+<p>Furthermore, some characterization and calibration experiments can be run with restless
+measurements, i.e. measurements where the qubits are not reset and circuits are executed
+immediately after the previous measurement. Here, the <a class="reference internal" href="../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a> class
+can help to set the appropriate run options and data processing chain.</p>
+<section id="analysis-subclasses">
+<h2>Analysis Subclasses<a class="headerlink" href="#analysis-subclasses" title="Permalink to this heading">¶</a></h2>
+<p>To create an analysis subclass, one only needs to implement the abstract
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method. This method takes an
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> container and kwarg analysis options. If any
+kwargs are used, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._default_options()</span></code> method should be
+overriden to define default values for these options. You can also write a custom
+analysis class for an existing experiment class and then run <code class="docutils literal notranslate"><span class="pre">exp.analysis</span> <span class="pre">=</span> <span class="pre">NewAnalysis()</span></code>
+after instantiating the experiment object <code class="docutils literal notranslate"><span class="pre">exp</span></code> to override its default analysis class.</p>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method should return a pair
+<code class="code docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">figures)</span></code>, where <code class="docutils literal notranslate"><span class="pre">results</span></code> is a list of
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects and <code class="docutils literal notranslate"><span class="pre">figures</span></code> is a list of
+<a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
+<p>The <a class="reference internal" href="data_processor.html"><span class="doc">Data Processor</span></a> module contains classes for
+building data processor workflows to help with advanced analysis of
+experiment data.</p>
+<p>If you want to customize the figures of the experiment, consult the
+<a class="reference internal" href="visualization.html"><span class="doc">Visualization tutorial</span></a>.</p>
+</section>
+<section id="custom-experiment-template">
+<h2>Custom experiment template<a class="headerlink" href="#custom-experiment-template" title="Permalink to this heading">¶</a></h2>
+<p>Here is a barebones template to help you get started with customization:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+
+<span class="k">class</span> <span class="nc">CustomExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom experiment class template.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                 <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span>
+                         <span class="n">analysis</span> <span class="o">=</span> <span class="n">CustomAnalysis</span><span class="p">(),</span>
+                         <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the list of circuits to be run.&quot;&quot;&quot;</span>
+        <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Generate circuits and populate metadata here</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">loops</span><span class="p">:</span>
+            <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">circuits</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default experiment options here.&quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
+            <span class="n">dummy_option</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">options</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Notice that when we called <code class="docutils literal notranslate"><span class="pre">super().__init__</span></code>, we provided the list of physical
+qubits, the name of our analysis class, and the backend, which is optionally specified
+by the user at this stage.</p>
+<p>The corresponding custom analysis class template:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseAnalysis</span><span class="p">,</span>
+    <span class="n">Options</span><span class="p">,</span>
+    <span class="n">ExperimentData</span><span class="p">,</span>
+    <span class="n">AnalysisResultData</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">CustomAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom analysis class template.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default analysis options. Plotting is on by default.&quot;&quot;&quot;</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">dummy_analysis_option</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="k">def</span> <span class="nf">_run_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the analysis.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Process the data here</span>
+
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dummy result&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">figures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
+            <span class="n">figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Now we’ll use what we’ve learned so far to make an entirely new experiment using
+the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> template.</p>
+</section>
+<section id="example-custom-experiment-randomized-measurement">
+<h2>Example custom experiment: randomized measurement<a class="headerlink" href="#example-custom-experiment-randomized-measurement" title="Permalink to this heading">¶</a></h2>
+<p>Symmetrizing the measurement readout error of a circuit is especially useful in systems
+where readout has an unknown and potentially large bias. We can create an experiment
+using the Qiskit Experiments framework to take a circuit as an input and symmetrize
+its readout.</p>
+<p>To do so, our experiment should create a list of copies of the input circuit
+and randomly sample an <span class="math notranslate nohighlight">\(N\)</span>-qubit Pauli to apply to each one, then add
+a final <span class="math notranslate nohighlight">\(N\)</span>-qubit <span class="math notranslate nohighlight">\(Z\)</span>-basis measurement to randomize the expected
+ideal output bitstring in the measurement. The analysis uses the applied Pauli frame of
+a randomized measurement experiment to de-randomize the measured counts. The results
+are then combined across samples to return a single counts dictionary for
+the original circuit. This has the effect of Pauli twirling and symmetrizing the
+measurement readout error.</p>
+<p>To start, we write our own <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method to take as input the circuit that we
+want to twirl on. We also want to give the user the option to specify which physical
+qubits to run the circuit over, which qubits to measure over, the number of samples to
+repeat, and the seed for the random generator. If the user doesn’t specify these
+options, we default the qubits to the list of qubits starting with 0 and up to the
+length of the number of qubits in the circuit - 1 for both, and the number of samples
+to 10.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">default_rng</span><span class="p">,</span> <span class="n">Generator</span>
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">random_pauli_list</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span>
+
+<span class="k">class</span> <span class="nc">RandomizedMeasurement</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="sd">&quot;&quot;&quot;Randomized measurement experiment.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">circuit</span><span class="p">,</span>
+        <span class="n">measured_qubits</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">physical_qubits</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basic randomized Z-basis measurement experiment via a Pauli frame transformation</span>
+
+<span class="sd">        Note this will just append a new set of measurements at the end of a circuit.</span>
+<span class="sd">        A more advanced version of this experiment would be to use a transpiler pass to</span>
+<span class="sd">        replace all existing measurements in a circuit with randomized measurements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">physical_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">physical_qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">measured_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">measured_qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+
+        <span class="c1"># Initialize BaseExperiment</span>
+        <span class="n">analysis</span> <span class="o">=</span> <span class="n">RandomizedMeasurementAnalysis</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="c1"># Add experiment properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span> <span class="o">=</span> <span class="n">circuit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_measured_qubits</span> <span class="o">=</span> <span class="n">measured_qubits</span>
+
+        <span class="c1"># Set any init optinos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Now we consider default experiment options. We choose to only let the user change
+the number of samples and seed after instantiation by updating the experiment options.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">options</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Now we write the <code class="docutils literal notranslate"><span class="pre">circuits()</span></code> method. We need to take the input circuit in
+<code class="docutils literal notranslate"><span class="pre">self._circuit</span></code> and add our random Paulis as well as measurement at the end. We use
+the built-in property <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.num_qubits.html#qiskit_experiments.framework.BaseExperiment.num_qubits" title="qiskit_experiments.framework.BaseExperiment.num_qubits"><code class="xref py py-attr docutils literal notranslate"><span class="pre">num_qubits</span></code></a> of <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a>
+to get the number of qubits in the experiment. We keep track of the list of qubits and
+classical registers. Note that the circuits themselves are always built on qubits <cite>0</cite> to
+<cite>length of the circuit - 1</cite>, and not the actual physical qubit indices given in
+<code class="docutils literal notranslate"><span class="pre">physical_qubits</span></code>, as discussed in <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+
+    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Number of classical bits of the original circuit</span>
+        <span class="n">circ_nc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">num_clbits</span>
+
+        <span class="c1"># Number of added measurements</span>
+        <span class="n">meas_nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measured_qubits</span><span class="p">)</span>
+
+        <span class="c1"># Classical bits of the circuit</span>
+        <span class="n">circ_clbits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circ_nc</span><span class="p">))</span>
+
+        <span class="c1"># Classical bits of the added measurements</span>
+        <span class="n">meas_clbits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circ_nc</span><span class="p">,</span> <span class="n">circ_nc</span> <span class="o">+</span> <span class="n">meas_nc</span><span class="p">))</span>
+
+        <span class="c1"># Qubits of the circuit</span>
+        <span class="n">circ_qubits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+
+        <span class="c1"># Qubits of the added measurements</span>
+        <span class="n">meas_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measured_qubits</span>
+
+        <span class="c1"># Get number of samples from options</span>
+        <span class="n">num_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">num_samples</span>
+        <span class="k">if</span> <span class="n">num_samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span>
+
+        <span class="c1"># Get rng seed</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">seed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">Generator</span><span class="p">):</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="n">paulis</span> <span class="o">=</span> <span class="n">random_pauli_list</span><span class="p">(</span><span class="n">meas_nc</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>In the last line of the above code block, we used the
+<a class="reference external" href="https://qiskit.org/documentation/apidoc/quantum_info.html#qiskit.quantum_info.random_pauli_list" title="(in Qiskit v0.45)"><code class="xref py py-func docutils literal notranslate"><span class="pre">random_pauli_list()</span></code></a> function from the <a class="reference external" href="https://qiskit.org/documentation/apidoc/quantum_info.html#module-qiskit.quantum_info" title="(in Qiskit v0.45)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.quantum_info</span></code></a>
+module to generate random Paulis. This returns <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> Paulis, each
+across <code class="docutils literal notranslate"><span class="pre">meas_nc</span></code> qubits.</p>
+<p>Now we construct the circuits by composing the original circuit with a Pauli frame then
+adding a measurement at the end only to the measurement qubits. Metadata containing
+the classical measurement register and the applied Pauli is added to
+each of the circuits to tell the analysis class how to restore the original results.
+To make restoration easier, we store Paulis in the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">x</span> <span class="pre">symplectic</span> <span class="pre">form</span></code> in <code class="docutils literal notranslate"><span class="pre">metadata[&quot;rm_sig&quot;]</span></code>
+so we know whether to apply a bit flip to each bit of the result
+(the phase is not important for our purposes).</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+
+    <span class="c1"># Construct circuits</span>
+    <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orig_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pauli</span> <span class="ow">in</span> <span class="n">paulis</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">circ_nc</span> <span class="o">+</span> <span class="n">meas_nc</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="c1"># Append original circuit</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="p">,</span> <span class="n">circ_qubits</span><span class="p">,</span> <span class="n">circ_clbits</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Add Pauli frame</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">pauli</span><span class="p">,</span> <span class="n">meas_qubits</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Add final measurement</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">meas_qubits</span><span class="p">,</span> <span class="n">meas_clbits</span><span class="p">)</span>
+
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">orig_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_bits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_clbits</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_sig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pauli</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">circuits</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Now we write the analysis class, overriding <code class="docutils literal notranslate"><span class="pre">_run_analysis</span></code> as described above. We
+loop over each circuit to process the output bitstring. Since we’re using default level
+2 data, we access it with the <code class="docutils literal notranslate"><span class="pre">counts</span></code> key. We use the circuit metadata to calculate the bitwise XOR mask from the Pauli
+signature to restore the output to what it should be without the random Pauli frame
+at the end. We make a new <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> object since we’re rewriting the
+counts from the original experiment.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
+
+<span class="k">class</span> <span class="nc">RandomizedMeasurementAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Analysis for randomized measurement experiment.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
+
+        <span class="n">combined_counts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">():</span>
+            <span class="c1"># Get counts</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+            <span class="n">num_bits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">counts</span><span class="p">)))</span>
+
+            <span class="c1"># Get metadata</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+            <span class="n">clbits</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_bits&quot;</span><span class="p">]</span>
+            <span class="n">sig</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_sig&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Construct full signature</span>
+            <span class="n">full_sig</span> <span class="o">=</span> <span class="n">num_bits</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">bit</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">clbits</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
+                <span class="n">full_sig</span><span class="p">[</span><span class="n">bit</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+            <span class="c1"># Combine dicts</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">bitstring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_swap_bitstring</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">full_sig</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bitstring</span> <span class="ow">in</span> <span class="n">combined_counts</span><span class="p">:</span>
+                    <span class="n">combined_counts</span><span class="p">[</span><span class="n">bitstring</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">combined_counts</span><span class="p">[</span><span class="n">bitstring</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">combined_counts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">],</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>This is the helper function we’re using to apply the XOR mask and flip the bitstring
+output if the Pauli corresponding to that bit has a nonzero signature.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+    <span class="c1"># Helper dict to swap a clbit value</span>
+    <span class="n">_swap_bit</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_swap_bitstring</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bitstring</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Swap a bitstring based signature to flip bits at.&quot;&quot;&quot;</span>
+        <span class="c1"># This is very inefficient but demonstrates the basic idea</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_swap_bit</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">if</span> <span class="n">sig</span><span class="p">[</span><span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bitstring</span><span class="p">)]</span>
+        <span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>To test our code, we first simulate a noisy backend with asymmetric readout error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial requires the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> package for simulations.
+You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.providers.aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span><span class="p">,</span> <span class="n">noise</span>
+
+<span class="n">backend_ideal</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="p">()</span>
+
+<span class="c1"># Backend with asymetric readout error</span>
+<span class="n">p0g1</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">p1g0</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">noise_model</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">NoiseModel</span><span class="p">()</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_readout_error</span><span class="p">([[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p1g0</span><span class="p">,</span> <span class="n">p1g0</span><span class="p">],</span> <span class="p">[</span><span class="n">p0g1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p0g1</span><span class="p">]])</span>
+<span class="n">noise_backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="p">(</span><span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Let’s use a GHZ circuit as the input:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># GHZ Circuit</span>
+<span class="n">nq</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">nq</span><span class="p">)</span>
+<span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nq</span><span class="p">):</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+<span class="n">qc</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/custom_experiment_10_0.png" src="../_images/custom_experiment_10_0.png" />
+</div>
+</div>
+<p>Check that the experiment is appending a random Pauli and measurements as expected:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment parameters</span>
+<span class="n">total_shots</span> <span class="o">=</span> <span class="mi">100000</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">shots</span> <span class="o">=</span> <span class="n">total_shots</span> <span class="o">//</span> <span class="n">num_samples</span>
+
+<span class="c1"># Run ideal randomized meas experiment</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">RandomizedMeasurement</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/custom_experiment_11_0.png" src="../_images/custom_experiment_11_0.png" />
+</div>
+</div>
+<p>We now run the experiment with a GHZ circuit on an ideal backend, whic produces nearly
+perfect symmetrical results between <span class="math notranslate nohighlight">\(|0000\rangle\)</span> and <span class="math notranslate nohighlight">\(|1111\rangle\)</span>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expdata_ideal</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">AerSimulator</span><span class="p">(),</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">)</span>
+<span class="n">counts_ideal</span> <span class="o">=</span> <span class="n">expdata_ideal</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">counts_ideal</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 49957, &#39;0000&#39;: 50043}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Repeat the experiment on the backend with readout error and compare with results
+from running GHZ circuit itself:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run noisy randomized meas experiment with readout error</span>
+<span class="n">expdata_noise</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">noise_backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">)</span>
+<span class="n">counts_noise</span> <span class="o">=</span> <span class="n">expdata_noise</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+<span class="c1"># Run noisy simulation of the original circuit without randomization</span>
+<span class="n">meas_circ</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">meas_circ</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">noise_backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_circ</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">total_shots</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+<span class="n">counts_direct</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_counts</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.visualization</span> <span class="kn">import</span> <span class="n">plot_histogram</span>
+
+<span class="c1"># Plot counts, ideally randomized one should be more symmetric in noise</span>
+<span class="c1"># than direct one with asymmetric readout error</span>
+<span class="n">plot_histogram</span><span class="p">([</span><span class="n">counts_ideal</span><span class="p">,</span> <span class="n">counts_direct</span><span class="p">,</span> <span class="n">counts_noise</span><span class="p">],</span>
+            <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Ideal&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Asymmetric meas error (Direct)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Asymmetric meas error (Randomized)&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/custom_experiment_13_0.png" src="../_images/custom_experiment_13_0.png" />
+</div>
+</div>
+<p>For a GHZ state, we expect a symmetric noise model to also produce symmetric readout
+results. The asymmetric measurement of the original circuit on this backend (Direct on
+the plot legend) has been successfully symmetrized by the application of randomized
+measurement (Randomized on the plot legend).</p>
+<p>Note that since this experiment tracks the original and added classical registers, it is
+possible for the original circuit to have its own mid-circuit measurements that would be
+unaffected by the added randomized measurements, which use its own classical registers:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">nq</span><span class="p">)</span>
+<span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">qc</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
+<span class="n">qc</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nq</span><span class="p">):</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">RandomizedMeasurement</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;mpl&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/custom_experiment_14_0.png" src="../_images/custom_experiment_14_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../howtos/index.html" class="btn btn-neutral float-right" title="How-To Guides" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="visualization.html" class="btn btn-neutral" title="Visualization: Creating figures" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Writing your own experiment</a><ul>
+<li><a class="reference internal" href="#analysis-subclasses">Analysis Subclasses</a></li>
+<li><a class="reference internal" href="#custom-experiment-template">Custom experiment template</a></li>
+<li><a class="reference internal" href="#example-custom-experiment-randomized-measurement">Example custom experiment: randomized measurement</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

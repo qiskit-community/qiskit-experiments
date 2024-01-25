@@ -1,0 +1,8 @@
+
+
+FrequencyCal.num_qubits
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FrequencyCal.num_qubits

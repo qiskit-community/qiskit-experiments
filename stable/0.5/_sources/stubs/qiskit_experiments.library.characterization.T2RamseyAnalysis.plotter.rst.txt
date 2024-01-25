@@ -1,0 +1,8 @@
+
+
+T2RamseyAnalysis.plotter
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: T2RamseyAnalysis.plotter

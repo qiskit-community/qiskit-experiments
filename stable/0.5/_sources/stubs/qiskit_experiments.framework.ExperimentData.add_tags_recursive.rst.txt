@@ -1,0 +1,8 @@
+
+
+ExperimentData.add_tags_recursive
+==============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.add_tags_recursive

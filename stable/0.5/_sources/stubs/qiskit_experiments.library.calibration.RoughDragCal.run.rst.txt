@@ -1,0 +1,8 @@
+
+
+RoughDragCal.run
+=======================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughDragCal.run

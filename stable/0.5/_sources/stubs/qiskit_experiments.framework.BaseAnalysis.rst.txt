@@ -1,0 +1,77 @@
+﻿
+
+BaseAnalysis
+=========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BaseAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseAnalysis.options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseAnalysis.config
+   
+   
+      BaseAnalysis.copy
+   
+   
+      BaseAnalysis.from_config
+   
+   
+      BaseAnalysis.run
+   
+   
+      BaseAnalysis.set_options
+   
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+FineSXAmplitudeCal.num_qubits
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FineSXAmplitudeCal.num_qubits

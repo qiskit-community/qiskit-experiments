@@ -1,0 +1,53 @@
+﻿
+
+CurveData
+===========================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: CurveData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CurveData.get_subset_of
+   
+
+   
+   

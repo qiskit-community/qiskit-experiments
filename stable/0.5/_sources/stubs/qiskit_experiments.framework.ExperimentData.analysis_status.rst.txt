@@ -1,0 +1,8 @@
+
+
+ExperimentData.analysis_status
+===========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.analysis_status

@@ -1,0 +1,53 @@
+﻿
+
+FineFrequencyCal
+=======================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: FineFrequencyCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineFrequencyCal.analysis
+      FineFrequencyCal.backend
+      FineFrequencyCal.calibrations
+      FineFrequencyCal.experiment_options
+      FineFrequencyCal.experiment_type
+      FineFrequencyCal.num_qubits
+      FineFrequencyCal.physical_qubits
+      FineFrequencyCal.run_options
+      FineFrequencyCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineFrequencyCal.circuits
+      FineFrequencyCal.config
+      FineFrequencyCal.copy
+      FineFrequencyCal.from_config
+      FineFrequencyCal.run
+      FineFrequencyCal.set_experiment_options
+      FineFrequencyCal.set_run_options
+      FineFrequencyCal.set_transpile_options
+      FineFrequencyCal.update_calibrations
+   
+
+   
+   

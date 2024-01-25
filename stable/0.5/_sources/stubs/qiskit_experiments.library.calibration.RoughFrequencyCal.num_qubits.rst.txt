@@ -1,0 +1,8 @@
+
+
+RoughFrequencyCal.num_qubits
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughFrequencyCal.num_qubits

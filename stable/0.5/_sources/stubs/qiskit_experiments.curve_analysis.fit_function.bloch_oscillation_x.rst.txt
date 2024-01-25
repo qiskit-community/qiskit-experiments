@@ -1,0 +1,8 @@
+﻿
+
+bloch_oscillation_x
+==================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.fit_function
+
+.. autofunction:: bloch_oscillation_x

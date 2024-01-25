@@ -1,0 +1,8 @@
+
+
+ExperimentData.auto_save
+=====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.auto_save

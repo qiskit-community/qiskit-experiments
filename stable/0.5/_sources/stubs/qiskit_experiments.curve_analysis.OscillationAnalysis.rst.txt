@@ -1,0 +1,46 @@
+﻿
+
+OscillationAnalysis
+=====================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: OscillationAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      OscillationAnalysis.drawer
+      OscillationAnalysis.models
+      OscillationAnalysis.name
+      OscillationAnalysis.options
+      OscillationAnalysis.parameters
+      OscillationAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      OscillationAnalysis.config
+      OscillationAnalysis.copy
+      OscillationAnalysis.from_config
+      OscillationAnalysis.run
+      OscillationAnalysis.set_options
+   
+
+   
+   

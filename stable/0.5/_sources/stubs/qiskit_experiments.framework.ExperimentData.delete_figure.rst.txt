@@ -1,0 +1,8 @@
+
+
+ExperimentData.delete_figure
+=========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.delete_figure

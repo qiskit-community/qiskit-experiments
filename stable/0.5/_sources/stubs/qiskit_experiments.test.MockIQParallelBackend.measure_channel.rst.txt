@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.measure_channel
+=============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: MockIQParallelBackend.measure_channel

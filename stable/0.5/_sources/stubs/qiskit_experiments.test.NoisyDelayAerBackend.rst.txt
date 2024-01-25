@@ -1,0 +1,118 @@
+﻿
+
+NoisyDelayAerBackend
+============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: NoisyDelayAerBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      NoisyDelayAerBackend.options
+      
+   
+      
+      
+         
+      
+      NoisyDelayAerBackend.version
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      NoisyDelayAerBackend.available_devices
+   
+   
+      NoisyDelayAerBackend.available_methods
+   
+   
+      NoisyDelayAerBackend.clear_options
+   
+   
+      NoisyDelayAerBackend.configuration
+   
+   
+      NoisyDelayAerBackend.defaults
+   
+   
+      NoisyDelayAerBackend.from_backend
+   
+   
+      NoisyDelayAerBackend.name
+   
+   
+      NoisyDelayAerBackend.properties
+   
+   
+      NoisyDelayAerBackend.provider
+   
+   
+      NoisyDelayAerBackend.run
+   
+   
+      NoisyDelayAerBackend.set_option
+   
+   
+      NoisyDelayAerBackend.set_options
+   
+   
+      NoisyDelayAerBackend.status
+   
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+CrossResonanceHamiltonianAnalysis.options
+=====================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CrossResonanceHamiltonianAnalysis.options

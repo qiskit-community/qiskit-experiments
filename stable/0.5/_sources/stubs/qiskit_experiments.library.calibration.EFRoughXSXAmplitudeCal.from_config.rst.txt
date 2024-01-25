@@ -1,0 +1,8 @@
+
+
+EFRoughXSXAmplitudeCal.from_config
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: EFRoughXSXAmplitudeCal.from_config

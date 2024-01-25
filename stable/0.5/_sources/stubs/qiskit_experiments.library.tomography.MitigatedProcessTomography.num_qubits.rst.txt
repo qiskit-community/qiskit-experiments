@@ -1,0 +1,8 @@
+
+
+MitigatedProcessTomography.num_qubits
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: MitigatedProcessTomography.num_qubits

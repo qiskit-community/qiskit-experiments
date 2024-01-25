@@ -1,0 +1,8 @@
+
+
+PreparationBasis.circuit
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: PreparationBasis.circuit

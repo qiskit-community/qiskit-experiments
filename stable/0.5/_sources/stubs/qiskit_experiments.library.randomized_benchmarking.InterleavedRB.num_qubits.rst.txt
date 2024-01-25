@@ -1,0 +1,8 @@
+
+
+InterleavedRB.num_qubits
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: InterleavedRB.num_qubits

@@ -1,0 +1,53 @@
+﻿
+
+MitigatedStateTomography
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoexperiment:: MitigatedStateTomography
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MitigatedStateTomography.analysis
+      MitigatedStateTomography.backend
+      MitigatedStateTomography.experiment_options
+      MitigatedStateTomography.experiment_type
+      MitigatedStateTomography.num_experiments
+      MitigatedStateTomography.num_qubits
+      MitigatedStateTomography.physical_qubits
+      MitigatedStateTomography.run_options
+      MitigatedStateTomography.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MitigatedStateTomography.circuits
+      MitigatedStateTomography.component_experiment
+      MitigatedStateTomography.config
+      MitigatedStateTomography.copy
+      MitigatedStateTomography.from_config
+      MitigatedStateTomography.run
+      MitigatedStateTomography.set_experiment_options
+      MitigatedStateTomography.set_run_options
+      MitigatedStateTomography.set_transpile_options
+   
+
+   
+   

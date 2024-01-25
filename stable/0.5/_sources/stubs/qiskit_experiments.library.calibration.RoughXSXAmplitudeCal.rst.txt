@@ -1,0 +1,54 @@
+﻿
+
+RoughXSXAmplitudeCal
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: RoughXSXAmplitudeCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughXSXAmplitudeCal.analysis
+      RoughXSXAmplitudeCal.backend
+      RoughXSXAmplitudeCal.calibrations
+      RoughXSXAmplitudeCal.experiment_options
+      RoughXSXAmplitudeCal.experiment_type
+      RoughXSXAmplitudeCal.num_qubits
+      RoughXSXAmplitudeCal.physical_qubits
+      RoughXSXAmplitudeCal.run_options
+      RoughXSXAmplitudeCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughXSXAmplitudeCal.circuits
+      RoughXSXAmplitudeCal.config
+      RoughXSXAmplitudeCal.copy
+      RoughXSXAmplitudeCal.enable_restless
+      RoughXSXAmplitudeCal.from_config
+      RoughXSXAmplitudeCal.run
+      RoughXSXAmplitudeCal.set_experiment_options
+      RoughXSXAmplitudeCal.set_run_options
+      RoughXSXAmplitudeCal.set_transpile_options
+      RoughXSXAmplitudeCal.update_calibrations
+   
+
+   
+   

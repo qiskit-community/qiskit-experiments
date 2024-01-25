@@ -1,0 +1,8 @@
+
+
+CrossResonanceHamiltonian.physical_qubits
+=====================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CrossResonanceHamiltonian.physical_qubits

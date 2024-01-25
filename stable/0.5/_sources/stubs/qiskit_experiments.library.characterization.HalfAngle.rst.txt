@@ -1,0 +1,51 @@
+﻿
+
+HalfAngle
+=====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: HalfAngle
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      HalfAngle.analysis
+      HalfAngle.backend
+      HalfAngle.experiment_options
+      HalfAngle.experiment_type
+      HalfAngle.num_qubits
+      HalfAngle.physical_qubits
+      HalfAngle.run_options
+      HalfAngle.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      HalfAngle.circuits
+      HalfAngle.config
+      HalfAngle.copy
+      HalfAngle.from_config
+      HalfAngle.run
+      HalfAngle.set_experiment_options
+      HalfAngle.set_run_options
+      HalfAngle.set_transpile_options
+   
+
+   
+   

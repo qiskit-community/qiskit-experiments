@@ -1,0 +1,8 @@
+
+
+FineXDrag.experiment_type
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineXDrag.experiment_type

@@ -1,0 +1,8 @@
+
+
+ExperimentData.copy
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.copy

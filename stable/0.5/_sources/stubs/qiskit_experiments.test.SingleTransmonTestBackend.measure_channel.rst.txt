@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.measure_channel
+=================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: SingleTransmonTestBackend.measure_channel

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Characterization Experiments (qiskit_experiments.library.characterization) &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">API Reference</a> &gt;</li>
+        
+      <li>Characterization Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code>)</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<span class="target" id="module-qiskit_experiments.library.characterization"><span id="qiskit-experiments-characterization"></span></span><section id="characterization-experiments-qiskit-experiments-library-characterization">
+<h1>Characterization Experiments (<a class="reference internal" href="#module-qiskit_experiments.library.characterization" title="qiskit_experiments.library.characterization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code></a>)<a class="headerlink" href="#characterization-experiments-qiskit-experiments-library-characterization" title="Permalink to this heading">¶</a></h1>
+<section id="experiments">
+<h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T1</span></code></a>(physical_qubits, delays[, backend])</p></td>
+<td><p>An experiment to measure the qubit relaxation time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Ramsey.html#qiskit_experiments.library.characterization.T2Ramsey" title="qiskit_experiments.library.characterization.T2Ramsey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T2Ramsey</span></code></a>(physical_qubits, delays[, backend, ...])</p></td>
+<td><p>An experiment to measure the Ramsey frequency and the qubit dephasing time sensitive to inhomogeneous broadening.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>(physical_qubits, delays[, ...])</p></td>
+<td><p>An experiment to measure the dephasing time insensitive to inhomogeneous broadening using Hahn echos.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi" title="qiskit_experiments.library.characterization.Tphi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tphi</span></code></a>(physical_qubits, delays_t1, delays_t2)</p></td>
+<td><p>An experiment to measure the qubit dephasing rate in the <span class="math notranslate nohighlight">\(x - y\)</span> plane.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.QubitSpectroscopy.html#qiskit_experiments.library.characterization.QubitSpectroscopy" title="qiskit_experiments.library.characterization.QubitSpectroscopy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QubitSpectroscopy</span></code></a>(physical_qubits, frequencies)</p></td>
+<td><p>A spectroscopy experiment to obtain a frequency sweep of the qubit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian" title="qiskit_experiments.library.characterization.CrossResonanceHamiltonian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CrossResonanceHamiltonian</span></code></a>(physical_qubits[, ...])</p></td>
+<td><p>Cross resonance Hamiltonian tomography experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian" title="qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoedCrossResonanceHamiltonian</span></code></a>(physical_qubits)</p></td>
+<td><p>Echoed cross resonance Hamiltonian tomography experiment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Rabi.html#qiskit_experiments.library.characterization.Rabi" title="qiskit_experiments.library.characterization.Rabi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rabi</span></code></a>(physical_qubits, schedule[, ...])</p></td>
+<td><p>An experiment that scans a pulse amplitude to calibrate rotations on the <span class="math notranslate nohighlight">\(|0\rangle\)</span> &lt;-&gt; <span class="math notranslate nohighlight">\(|1\rangle\)</span> transition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.EFRabi.html#qiskit_experiments.library.characterization.EFRabi" title="qiskit_experiments.library.characterization.EFRabi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EFRabi</span></code></a>(physical_qubits, schedule[, ...])</p></td>
+<td><p>An experiment that scans the amplitude of a pulse inducing rotations on the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.HalfAngle.html#qiskit_experiments.library.characterization.HalfAngle" title="qiskit_experiments.library.characterization.HalfAngle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HalfAngle</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>An experiment class to measure the amount by which sx and x are not parallel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineAmplitude.html#qiskit_experiments.library.characterization.FineAmplitude" title="qiskit_experiments.library.characterization.FineAmplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineAmplitude</span></code></a>(physical_qubits, gate[, ...])</p></td>
+<td><p>An experiment to determine the optimal pulse amplitude by amplifying gate errors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html#qiskit_experiments.library.characterization.FineXAmplitude" title="qiskit_experiments.library.characterization.FineXAmplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineXAmplitude</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>A fine amplitude experiment with all the options set for the <span class="math notranslate nohighlight">\(\pi\)</span>-rotation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html#qiskit_experiments.library.characterization.FineSXAmplitude" title="qiskit_experiments.library.characterization.FineSXAmplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineSXAmplitude</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>A fine amplitude experiment with all the options set for the <span class="math notranslate nohighlight">\(\pi/2\)</span>-rotation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html#qiskit_experiments.library.characterization.FineZXAmplitude" title="qiskit_experiments.library.characterization.FineZXAmplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineZXAmplitude</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>A fine amplitude experiment for the <code class="code docutils literal notranslate"><span class="pre">RZXGate(np.pi</span> <span class="pre">/</span> <span class="pre">2)</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RamseyXY.html#qiskit_experiments.library.characterization.RamseyXY" title="qiskit_experiments.library.characterization.RamseyXY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RamseyXY</span></code></a>(physical_qubits[, backend, delays, ...])</p></td>
+<td><p>A sign-sensitive experiment to measure the frequency of a qubit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineFrequency.html#qiskit_experiments.library.characterization.FineFrequency" title="qiskit_experiments.library.characterization.FineFrequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineFrequency</span></code></a>(physical_qubits, delay_duration)</p></td>
+<td><p>An experiment to make a fine measurement of the qubit frequency.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RoughDrag.html#qiskit_experiments.library.characterization.RoughDrag" title="qiskit_experiments.library.characterization.RoughDrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoughDrag</span></code></a>(physical_qubits, schedule[, ...])</p></td>
+<td><p>An experiment that scans the DRAG parameter to find the optimal value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html#qiskit_experiments.library.characterization.ReadoutAngle" title="qiskit_experiments.library.characterization.ReadoutAngle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadoutAngle</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>An experiment to measure the angle between ground and excited state IQ clusters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineDrag.html#qiskit_experiments.library.characterization.FineDrag" title="qiskit_experiments.library.characterization.FineDrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineDrag</span></code></a>(physical_qubits, gate[, backend])</p></td>
+<td><p>An experiment that performs fine characterizations of DRAG pulse coefficients.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXDrag.html#qiskit_experiments.library.characterization.FineXDrag" title="qiskit_experiments.library.characterization.FineXDrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineXDrag</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>Class to fine characterize the DRAG parameter of an X gate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXDrag.html#qiskit_experiments.library.characterization.FineSXDrag" title="qiskit_experiments.library.characterization.FineSXDrag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineSXDrag</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>Class to fine characterize the DRAG parameter of an <span class="math notranslate nohighlight">\(SX\)</span> gate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a>([physical_qubits, backend])</p></td>
+<td><p>An experiment for characterizing local readout error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a>([physical_qubits, ...])</p></td>
+<td><p>Correlated readout error characterization experiment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ResonatorSpectroscopy.html#qiskit_experiments.library.characterization.ResonatorSpectroscopy" title="qiskit_experiments.library.characterization.ResonatorSpectroscopy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResonatorSpectroscopy</span></code></a>(physical_qubits[, ...])</p></td>
+<td><p>An experiment to perform frequency spectroscopy of the readout resonator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html#qiskit_experiments.library.characterization.MultiStateDiscrimination" title="qiskit_experiments.library.characterization.MultiStateDiscrimination"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiStateDiscrimination</span></code></a>(physical_qubits[, ...])</p></td>
+<td><p>An experiment that discriminates between the first <span class="math notranslate nohighlight">\(n\)</span> energy states.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey" title="qiskit_experiments.library.characterization.ZZRamsey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZZRamsey</span></code></a>(physical_qubits[, backend])</p></td>
+<td><p>An experiment to characterize the static <span class="math notranslate nohighlight">\(ZZ\)</span> interaction for a qubit pair.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1Analysis.html#qiskit_experiments.library.characterization.T1Analysis" title="qiskit_experiments.library.characterization.T1Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T1Analysis</span></code></a>([name])</p></td>
+<td><p>A class to analyze T1 experiments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html#qiskit_experiments.library.characterization.T1KerneledAnalysis" title="qiskit_experiments.library.characterization.T1KerneledAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T1KerneledAnalysis</span></code></a>([name])</p></td>
+<td><p>A class to analyze T1 experiments with kerneled data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2RamseyAnalysis.html#qiskit_experiments.library.characterization.T2RamseyAnalysis" title="qiskit_experiments.library.characterization.T2RamseyAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T2RamseyAnalysis</span></code></a>([name])</p></td>
+<td><p>T2 Ramsey result analysis class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2HahnAnalysis.html#qiskit_experiments.library.characterization.T2HahnAnalysis" title="qiskit_experiments.library.characterization.T2HahnAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T2HahnAnalysis</span></code></a>([name])</p></td>
+<td><p>A class to analyze T2Hahn experiments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.TphiAnalysis.html#qiskit_experiments.library.characterization.TphiAnalysis" title="qiskit_experiments.library.characterization.TphiAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TphiAnalysis</span></code></a>([analyses])</p></td>
+<td><p>A class to analyze <span class="math notranslate nohighlight">\(T_\phi\)</span> experiments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonianAnalysis.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonianAnalysis" title="qiskit_experiments.library.characterization.CrossResonanceHamiltonianAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CrossResonanceHamiltonianAnalysis</span></code></a>()</p></td>
+<td><p>A class to analyze cross resonance Hamiltonian tomography experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.DragCalAnalysis.html#qiskit_experiments.library.characterization.DragCalAnalysis" title="qiskit_experiments.library.characterization.DragCalAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DragCalAnalysis</span></code></a>([models, name])</p></td>
+<td><p>Drag calibration analysis based on a fit to a cosine function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineAmplitudeAnalysis.html#qiskit_experiments.library.characterization.FineAmplitudeAnalysis" title="qiskit_experiments.library.characterization.FineAmplitudeAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FineAmplitudeAnalysis</span></code></a>()</p></td>
+<td><p>An analysis class for fine amplitude calibrations to define the fixed parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RamseyXYAnalysis.html#qiskit_experiments.library.characterization.RamseyXYAnalysis" title="qiskit_experiments.library.characterization.RamseyXYAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RamseyXYAnalysis</span></code></a>()</p></td>
+<td><p>Ramsey XY analysis based on a fit to a cosine function and a sine function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ReadoutAngleAnalysis.html#qiskit_experiments.library.characterization.ReadoutAngleAnalysis" title="qiskit_experiments.library.characterization.ReadoutAngleAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadoutAngleAnalysis</span></code></a>()</p></td>
+<td><p>A class to analyze readout angle experiments</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ResonatorSpectroscopyAnalysis.html#qiskit_experiments.library.characterization.ResonatorSpectroscopyAnalysis" title="qiskit_experiments.library.characterization.ResonatorSpectroscopyAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResonatorSpectroscopyAnalysis</span></code></a>([name])</p></td>
+<td><p>Class to analysis resonator spectroscopy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis.html#qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis" title="qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalReadoutErrorAnalysis</span></code></a>()</p></td>
+<td><p>Local readout error characterization analysis # section: overview</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis.html#qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis" title="qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CorrelatedReadoutErrorAnalysis</span></code></a>()</p></td>
+<td><p>An analysis to characterize correlated readout error.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ZZRamseyAnalysis.html#qiskit_experiments.library.characterization.ZZRamseyAnalysis" title="qiskit_experiments.library.characterization.ZZRamseyAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZZRamseyAnalysis</span></code></a>()</p></td>
+<td><p>A class to analyze a <span class="math notranslate nohighlight">\(ZZ\)</span> Ramsey experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis.html#qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis" title="qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiStateDiscriminationAnalysis</span></code></a>()</p></td>
+<td><p>This class fits a multi-state discriminator to the data.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../stubs/qiskit_experiments.library.characterization.T1Analysis.html" class="btn btn-neutral float-right" title="T1Analysis" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="mod_calibration.html" class="btn btn-neutral" title="Calibration Experiments (qiskit_experiments.library.calibration)" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Characterization Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code>)</a><ul>
+<li><a class="reference internal" href="#experiments">Experiments</a></li>
+<li><a class="reference internal" href="#analysis">Analysis</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

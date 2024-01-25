@@ -1,0 +1,8 @@
+
+
+PulseBackend.defaults
+=============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: PulseBackend.defaults

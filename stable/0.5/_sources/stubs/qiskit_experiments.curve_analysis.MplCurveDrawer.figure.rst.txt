@@ -1,0 +1,8 @@
+
+
+MplCurveDrawer.figure
+=======================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: MplCurveDrawer.figure

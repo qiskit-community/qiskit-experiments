@@ -1,0 +1,52 @@
+﻿
+
+FineAmplitude
+=========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: FineAmplitude
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineAmplitude.analysis
+      FineAmplitude.backend
+      FineAmplitude.experiment_options
+      FineAmplitude.experiment_type
+      FineAmplitude.num_qubits
+      FineAmplitude.physical_qubits
+      FineAmplitude.run_options
+      FineAmplitude.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineAmplitude.circuits
+      FineAmplitude.config
+      FineAmplitude.copy
+      FineAmplitude.enable_restless
+      FineAmplitude.from_config
+      FineAmplitude.run
+      FineAmplitude.set_experiment_options
+      FineAmplitude.set_run_options
+      FineAmplitude.set_transpile_options
+   
+
+   
+   

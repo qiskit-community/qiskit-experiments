@@ -1,0 +1,8 @@
+
+
+ExperimentData.hub
+===============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.hub

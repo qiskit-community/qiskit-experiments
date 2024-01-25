@@ -1,0 +1,8 @@
+
+
+ParallelExperiment.component_experiment
+====================================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ParallelExperiment.component_experiment

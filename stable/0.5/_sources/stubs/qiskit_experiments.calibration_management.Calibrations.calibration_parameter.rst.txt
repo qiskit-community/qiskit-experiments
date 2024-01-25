@@ -1,0 +1,8 @@
+
+
+Calibrations.calibration_parameter
+============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: Calibrations.calibration_parameter

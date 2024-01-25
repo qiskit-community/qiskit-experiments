@@ -1,0 +1,8 @@
+
+
+HalfAngle.copy
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: HalfAngle.copy

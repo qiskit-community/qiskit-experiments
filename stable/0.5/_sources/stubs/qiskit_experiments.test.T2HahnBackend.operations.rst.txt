@@ -1,0 +1,8 @@
+
+
+T2HahnBackend.operations
+================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: T2HahnBackend.operations

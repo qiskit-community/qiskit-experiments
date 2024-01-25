@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Experiment Framework (qiskit_experiments.framework) &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">API Reference</a> &gt;</li>
+        
+      <li>Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<span class="target" id="module-qiskit_experiments.framework"><span id="qiskit-experiments-framework"></span></span><section id="experiment-framework-qiskit-experiments-framework">
+<h1>Experiment Framework (<a class="reference internal" href="#module-qiskit_experiments.framework" title="qiskit_experiments.framework"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code></a>)<a class="headerlink" href="#experiment-framework-qiskit-experiments-framework" title="Permalink to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>The experiment framework broadly defines an experiment as the execution of one or more
+circuits on a device, and analysis of the resulting measurement data
+to return one or more derived results.</p>
+<p>The interface for running an experiment is through the <em>Experiment</em> classes,
+such as those contained in the <a class="reference internal" href="library.html#module-qiskit_experiments.library" title="qiskit_experiments.library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a>.
+The following pseudo-code illustrates the typical workflow in Qiskit Experiments
+for</p>
+<ul class="simple">
+<li><p>Initializing a new experiment</p></li>
+<li><p>Running the experiment on a backend</p></li>
+<li><p>Saving result to an online database (for compatible providers)</p></li>
+<li><p>Viewing analysis results</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import an experiment</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">SomeExperiment</span>
+
+<span class="c1"># Initialize with desired qubits and options</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">SomeExperiment</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+<span class="c1"># Run on a backend</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="c1"># Wait for execution and analysis to finish</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="c1"># Optionally save results to database</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c1"># View analysis results</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The experiment class contains information for generating circuits and analysis
+of results. These can typically be configured with a variety of options.
+Once all options are set, you can call the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.run.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.run()</span></code></a> method to run
+the experiment on a Qiskit compatible <code class="docutils literal notranslate"><span class="pre">backend</span></code>.</p>
+<p>The steps of running an experiment involves generation experimental circuits
+according to the options you set and submission of a job to the specified
+<code class="docutils literal notranslate"><span class="pre">backend</span></code>. Once the job has finished executing an analysis job performs
+data analysis of the experiment execution results.</p>
+<p>The result of running an experiment is an <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> container
+which contains the analysis results, any figures generated during analysis,
+and the raw measurement data. These can each be accessed using the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.analysis_results.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a>, <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.figure.html#qiskit_experiments.framework.ExperimentData.figure" title="qiskit_experiments.framework.ExperimentData.figure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.figure()</span></code></a>
+and <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.data.html#qiskit_experiments.framework.ExperimentData.data" title="qiskit_experiments.framework.ExperimentData.data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.data()</span></code></a> methods respectively. Additional metadata
+for the experiment itself can be added via <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.metadata.html#qiskit_experiments.framework.ExperimentData.metadata" title="qiskit_experiments.framework.ExperimentData.metadata"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.metadata()</span></code></a>.</p>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
+<section id="experiment-data-classes">
+<h3>Experiment Data Classes<a class="headerlink" href="#experiment-data-classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>([experiment, backend, ...])</p></td>
+<td><p>Experiment data container class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus" title="qiskit_experiments.framework.ExperimentStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExperimentStatus</span></code></a>(value)</p></td>
+<td><p>Class for experiment status enumerated type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus" title="qiskit_experiments.framework.AnalysisStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisStatus</span></code></a>(value)</p></td>
+<td><p>Class for analysis callback status enumerated type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.AnalysisResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisResult</span></code></a>([name, value, ...])</p></td>
+<td><p>Class representing an analysis result for an experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a>(name, value[, chisq, ...])</p></td>
+<td><p>Dataclass for experiment analysis results</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentConfig.html#qiskit_experiments.framework.ExperimentConfig" title="qiskit_experiments.framework.ExperimentConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExperimentConfig</span></code></a>([cls, args, kwargs, ...])</p></td>
+<td><p>Store configuration settings for an Experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisConfig.html#qiskit_experiments.framework.AnalysisConfig" title="qiskit_experiments.framework.AnalysisConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisConfig</span></code></a>([cls, args, kwargs, options, ...])</p></td>
+<td><p>Store configuration settings for Analysis</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a>(*[, skipkeys, ...])</p></td>
+<td><p>JSON Encoder for Qiskit Experiments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a>(*args, **kwargs)</p></td>
+<td><p>JSON Decoder for Qiskit Experiments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.FigureData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FigureData</span></code></a>(figure[, name, metadata])</p></td>
+<td><p>Wrapper class for figures and figure metadata.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="composite-experiment-classes">
+<span id="composite-experiment"></span><h3>Composite Experiment Classes<a class="headerlink" href="#composite-experiment-classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment" title="qiskit_experiments.framework.ParallelExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelExperiment</span></code></a>(experiments[, backend, ...])</p></td>
+<td><p>Combine multiple experiments into a parallel experiment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html#qiskit_experiments.framework.BatchExperiment" title="qiskit_experiments.framework.BatchExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchExperiment</span></code></a>(experiments[, backend, ...])</p></td>
+<td><p>Combine multiple experiments into a batch experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeAnalysis.html#qiskit_experiments.framework.CompositeAnalysis" title="qiskit_experiments.framework.CompositeAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompositeAnalysis</span></code></a>(analyses[, flatten_results])</p></td>
+<td><p>Run analysis for composite experiments.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="base-classes">
+<h3>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a>(physical_qubits[, analysis, ...])</p></td>
+<td><p>Abstract base class for experiments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.BaseAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseAnalysis</span></code></a>()</p></td>
+<td><p>Abstract base class for analyzing Experiment data.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="experiment-configuration-helper-classes">
+<h3>Experiment Configuration Helper Classes<a class="headerlink" href="#experiment-configuration-helper-classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData" title="qiskit_experiments.framework.BackendData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BackendData</span></code></a>(backend)</p></td>
+<td><p>Class for providing joint interface for accessing backend data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming" title="qiskit_experiments.framework.BackendTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BackendTiming</span></code></a>(backend)</p></td>
+<td><p>Helper for calculating pulse and delay times for an experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a>()</p></td>
+<td><p>A mixin to facilitate restless experiments.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../stubs/qiskit_experiments.framework.ExperimentData.html" class="btn btn-neutral float-right" title="ExperimentData" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="main.html" class="btn btn-neutral" title="Qiskit Experiments (qiskit_experiments)" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#experiment-data-classes">Experiment Data Classes</a></li>
+<li><a class="reference internal" href="#composite-experiment-classes">Composite Experiment Classes</a></li>
+<li><a class="reference internal" href="#base-classes">Base Classes</a></li>
+<li><a class="reference internal" href="#experiment-configuration-helper-classes">Experiment Configuration Helper Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

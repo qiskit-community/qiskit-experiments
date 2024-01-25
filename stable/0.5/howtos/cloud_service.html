@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Save and load experiment data with the cloud service &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">How-To Guides</a> &gt;</li>
+        
+      <li>Save and load experiment data with the cloud service</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="save-and-load-experiment-data-with-the-cloud-service">
+<h1>Save and load experiment data with the cloud service<a class="headerlink" href="#save-and-load-experiment-data-with-the-cloud-service" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This guide is only for those who have access to the cloud service. You can
+check whether you do by logging into the IBM Quantum interface
+and seeing if you can see the <a class="reference external" href="https://quantum-computing.ibm.com/experiments">database</a>.</p>
+</div>
+<section id="problem">
+<h2>Problem<a class="headerlink" href="#problem" title="Permalink to this heading">¶</a></h2>
+<p>You want to save and retrieve experiment data from the cloud service.</p>
+</section>
+<section id="solution">
+<h2>Solution<a class="headerlink" href="#solution" title="Permalink to this heading">¶</a></h2>
+<section id="saving">
+<h3>Saving<a class="headerlink" href="#saving" title="Permalink to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This guide requires <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>. For how to migrate from the deprecated <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibmq-provider</span></code> to <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>,
+consult the <a class="reference external" href="https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html">migration guide</a>.</p>
+</div>
+<p>You must run the experiment on a real IBM
+backend and not a simulator to be able to save the experiment data. This is done by calling
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.save.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_provider</span> <span class="kn">import</span> <span class="n">IBMProvider</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization</span> <span class="kn">import</span> <span class="n">T1</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">provider</span> <span class="o">=</span> <span class="n">IBMProvider</span><span class="p">()</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;ibmq_lima&quot;</span><span class="p">)</span>
+
+<span class="n">t1_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">600e-6</span><span class="p">,</span> <span class="mf">50e-6</span><span class="p">)</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">t1_delays</span><span class="p">)</span>
+
+<span class="n">t1_expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>You can view the experiment online at
+https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="loading">
+<h3>Loading<a class="headerlink" href="#loading" title="Permalink to this heading">¶</a></h3>
+<p>Let’s load a <a class="reference external" href="https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571">previous T1
+experiment</a>
+(requires login to view), which we’ve made public by editing the <code class="docutils literal notranslate"><span class="pre">Share</span> <span class="pre">level</span></code> field:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.framework.experiment_data</span> <span class="kn">import</span> <span class="n">ExperimentData</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="o">.</span><span class="n">get_service_from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+<span class="n">load_expdata</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;9640736e-d797-4321-b063-d503f8e98571&quot;</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>To display the figure, which is serialized into a string, we need the
+<code class="docutils literal notranslate"><span class="pre">SVG</span></code> library:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">SVG</span>
+<span class="n">SVG</span><span class="p">(</span><span class="n">load_expdata</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<img alt="../_images/t1_loaded.png" src="../_images/t1_loaded.png" />
+<p>The analysis results have been retrieved as well:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">load_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: T1
+- value: 0.0001040+/-0.0000028
+- χ²: 0.8523786276663019
+- quality: good
+- extra: &lt;1 items&gt;
+- device_components: [&#39;Q0&#39;]
+- verified: False
+AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+- fitting method: least_squares
+- number of sub-models: 1
+* F_exp_decay(x) = amp * exp(-x/tau) + base
+- success: True
+- number of function evals: 9
+- degree of freedom: 9
+- chi-square: 7.671407648996717
+- reduced chi-square: 0.8523786276663019
+- Akaike info crit.: 0.6311217041870707
+- Bayesian info crit.: 2.085841653551072
+- init params:
+* amp = 0.923076923076923
+* tau = 0.00016946294665316433
+* base = 0.033466533466533464
+- fit params:
+* amp = 0.9266620487665083 ± 0.007096409569790425
+* tau = 0.00010401411623191737 ± 2.767679521974391e-06
+* base = 0.036302726197354626 ± 0.0037184540724124844
+- correlations:
+* (tau, base) = -0.6740808746060173
+* (amp, base) = -0.4231810882291163
+* (amp, tau) = 0.09302612202500576
+- quality: good
+- device_components: [&#39;Q0&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this heading">¶</a></h2>
+<p>Note that calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.save.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> before the experiment is complete will
+instantiate an experiment entry in the database, but it will not have
+complete data. To fix this, you can call <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.save.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> again once the
+experiment is done running.</p>
+<section id="auto-saving-an-experiment">
+<h3>Auto-saving an experiment<a class="headerlink" href="#auto-saving-an-experiment" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.auto_save.html#qiskit_experiments.framework.ExperimentData.auto_save" title="qiskit_experiments.framework.ExperimentData.auto_save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">auto_save()</span></code></a> feature automatically saves changes to the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object to the cloud service whenever it’s updated.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">t1_delays</span><span class="p">)</span>
+
+<span class="n">t1_expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
+&lt;ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="deleting-an-experiment">
+<h3>Deleting an experiment<a class="headerlink" href="#deleting-an-experiment" title="Permalink to this heading">¶</a></h3>
+<p>Both figures and analysis results can be deleted. Note that unless you
+have auto save on, the update has to be manually saved to the remote
+database by calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.save.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>. Because there are two analysis
+results, one for the T1 parameter and one for the curve fitting results, we must
+delete twice to fully remove the analysis results.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t1_expdata</span><span class="o">.</span><span class="n">delete_figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">delete_analysis_result</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">delete_analysis_result</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Are you sure you want to delete the experiment plot? [y/N]: y
+Are you sure you want to delete the analysis result? [y/N]: y
+Are you sure you want to delete the analysis result? [y/N]: y
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="tagging-and-sharing-experiments">
+<h3>Tagging and sharing experiments<a class="headerlink" href="#tagging-and-sharing-experiments" title="Permalink to this heading">¶</a></h3>
+<p>Tags and notes can be added to experiments to help identify specific experiments in the interface.
+For example, an experiment can be tagged and made public with the following code.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t1_expdata</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tag1&#39;</span><span class="p">,</span> <span class="s1">&#39;tag2&#39;</span><span class="p">]</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">share_level</span> <span class="o">=</span> <span class="s2">&quot;public&quot;</span>
+<span class="n">t1_expdata</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="s2">&quot;Example note.&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="web-interface">
+<h3>Web interface<a class="headerlink" href="#web-interface" title="Permalink to this heading">¶</a></h3>
+<p>You can also view experiment results as well as change the tags and share level at the <a class="reference external" href="https://quantum-computing.ibm.com/experiments?date_interval=last-90-days&amp;owner=me">IBM Quantum Experiments
+pane</a>
+on the cloud. The documentation below explains how to view, search, and share experiment
+data entries.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/">Experiments web interface documentation</a></p></li>
+</ul>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="job_splitting.html" class="btn btn-neutral float-right" title="Control the splitting of experiment circuits into jobs" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="index.html" class="btn btn-neutral" title="How-To Guides" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Save and load experiment data with the cloud service</a><ul>
+<li><a class="reference internal" href="#problem">Problem</a></li>
+<li><a class="reference internal" href="#solution">Solution</a><ul>
+<li><a class="reference internal" href="#saving">Saving</a></li>
+<li><a class="reference internal" href="#loading">Loading</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#discussion">Discussion</a><ul>
+<li><a class="reference internal" href="#auto-saving-an-experiment">Auto-saving an experiment</a></li>
+<li><a class="reference internal" href="#deleting-an-experiment">Deleting an experiment</a></li>
+<li><a class="reference internal" href="#tagging-and-sharing-experiments">Tagging and sharing experiments</a></li>
+<li><a class="reference internal" href="#web-interface">Web interface</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

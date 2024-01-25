@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.library.characterization.cr_hamiltonian &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.library.characterization.cr_hamiltonian</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.library.characterization.cr_hamiltonian</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cross resonance Hamiltonian tomography.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">pulse</span><span class="p">,</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.parameterexpression</span> <span class="kn">import</span> <span class="n">ParameterValueType</span>
+<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.warnings</span> <span class="kn">import</span> <span class="n">deprecate_arguments</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseExperiment</span><span class="p">,</span>
+    <span class="n">BackendTiming</span><span class="p">,</span>
+    <span class="n">Options</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization.analysis</span> <span class="kn">import</span> <span class="n">CrossResonanceHamiltonianAnalysis</span>
+
+
+<div class="viewcode-block" id="CrossResonanceHamiltonian"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian">[docs]</a><span class="k">class</span> <span class="nc">CrossResonanceHamiltonian</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Cross resonance Hamiltonian tomography experiment.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">        This experiment assumes the two qubit Hamiltonian in the form</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            H = \frac{I \otimes A}{2} + \frac{Z \otimes B}{2}</span>
+
+<span class="sd">        where :math:`A` and :math:`B` are linear combinations of</span>
+<span class="sd">        the Pauli operators :math:`\in {X, Y, Z}`.</span>
+<span class="sd">        The coefficient of each Pauli term in the Hamiltonian</span>
+<span class="sd">        can be estimated with this experiment.</span>
+
+<span class="sd">        This experiment is performed by stretching the pulse duration of a cross resonance pulse</span>
+<span class="sd">        and measuring the target qubit by projecting onto the x, y, and z bases.</span>
+<span class="sd">        The control qubit state dependent (controlled-) Rabi oscillation on the</span>
+<span class="sd">        target qubit is observed by repeating the experiment with the control qubit</span>
+<span class="sd">        both in the ground and excited states. The fit for the oscillations in the</span>
+<span class="sd">        three bases with the two control qubit preparations tomographically</span>
+<span class="sd">        reconstructs the Hamiltonian in the form shown above.</span>
+<span class="sd">        See Ref. [1] for more details.</span>
+
+<span class="sd">        More specifically, the following circuits are executed in this experiment.</span>
+
+<span class="sd">        .. parsed-literal::</span>
+
+<span class="sd">            (X measurement)</span>
+
+<span class="sd">                 ┌───┐┌────────────────────┐</span>
+<span class="sd">            q_0: ┤ P ├┤0                   ├────────────────────</span>
+<span class="sd">                 └───┘│  cr_tone(duration) │┌─────────┐┌────┐┌─┐</span>
+<span class="sd">            q_1: ─────┤1                   ├┤ Rz(π/2) ├┤ √X ├┤M├</span>
+<span class="sd">                      └────────────────────┘└─────────┘└────┘└╥┘</span>
+<span class="sd">            c: 1/═════════════════════════════════════════════╩═</span>
+<span class="sd">                                                              0</span>
+
+<span class="sd">            (Y measurement)</span>
+
+<span class="sd">                 ┌───┐┌────────────────────┐</span>
+<span class="sd">            q_0: ┤ P ├┤0                   ├─────────</span>
+<span class="sd">                 └───┘│  cr_tone(duration) │┌────┐┌─┐</span>
+<span class="sd">            q_1: ─────┤1                   ├┤ √X ├┤M├</span>
+<span class="sd">                      └────────────────────┘└────┘└╥┘</span>
+<span class="sd">            c: 1/══════════════════════════════════╩═</span>
+<span class="sd">                                                   0</span>
+
+<span class="sd">            (Z measurement)</span>
+
+<span class="sd">                 ┌───┐┌────────────────────┐</span>
+<span class="sd">            q_0: ┤ P ├┤0                   ├───</span>
+<span class="sd">                 └───┘│  cr_tone(duration) │┌─┐</span>
+<span class="sd">            q_1: ─────┤1                   ├┤M├</span>
+<span class="sd">                      └────────────────────┘└╥┘</span>
+<span class="sd">            c: 1/════════════════════════════╩═</span>
+<span class="sd">                                             0</span>
+
+<span class="sd">        The ``P`` gate on the control qubit (``q_0``) indicates the state preparation.</span>
+<span class="sd">        Since this experiment requires two sets of sub experiments with the control qubit in the</span>
+<span class="sd">        excited and ground state, ``P`` will become ``X`` gate or just be omitted, respectively.</span>
+<span class="sd">        Here ``cr_tone`` is implemented by a single cross resonance tone</span>
+<span class="sd">        driving the control qubit at the frequency of the target qubit.</span>
+<span class="sd">        The pulse envelope might be a flat-topped Gaussian implemented by the parametric pulse</span>
+<span class="sd">        :class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`.</span>
+
+<span class="sd">        This experiment scans the total duration of the cross resonance pulse</span>
+<span class="sd">        including the pulse ramps at both edges. The pulse shape is defined by the</span>
+<span class="sd">        :class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`, and</span>
+<span class="sd">        an effective length of these Gaussian ramps with :math:`\sigma` can be computed by</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \tau_{\rm edges}&#39; = \sqrt{2 \pi} \sigma,</span>
+
+<span class="sd">        which is usually shorter than the actual edge duration of</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \tau_{\rm edges} = 2 r \sigma,</span>
+
+<span class="sd">        where the :math:`r` is the ratio of the actual edge duration to :math:`\sigma`.</span>
+<span class="sd">        This effect must be considered in the following curve analysis to estimate</span>
+<span class="sd">        interaction rates.</span>
+
+<span class="sd">    # section: analysis_ref</span>
+<span class="sd">        :class:`CrossResonanceHamiltonianAnalysis`</span>
+
+<span class="sd">    # section: reference</span>
+<span class="sd">        .. ref_arxiv:: 1 1603.04821</span>
+
+<span class="sd">    # section: manual</span>
+<span class="sd">        .. ref_website:: Qiskit Textbook 6.7,</span>
+<span class="sd">            https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Number of CR pulses. The flat top duration per pulse is divided by this number.</span>
+    <span class="n">num_pulses</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">class</span> <span class="nc">CRPulseGate</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A pulse gate of cross resonance. Definition should be provided via calibration.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="n">ParameterValueType</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;cr_gate&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span><span class="p">])</span>
+
+    <span class="nd">@deprecate_arguments</span><span class="p">({</span><span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_qubits&quot;</span><span class="p">},</span> <span class="s2">&quot;0.5&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">flat_top_widths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cr_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">circuit</span><span class="o">.</span><span class="n">Gate</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">durations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new experiment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            physical_qubits: Two-value tuple of qubit indices on which to run tomography.</span>
+<span class="sd">                The first index stands for the control qubit.</span>
+<span class="sd">            flat_top_widths: Deprecated. The total duration of the square part of</span>
+<span class="sd">                cross resonance pulse(s) to scan, in units of dt.</span>
+<span class="sd">                The total pulse duration including Gaussian rising and falling edges is</span>
+<span class="sd">                implicitly computed with experiment parameters ``sigma`` and ``risefall``.</span>
+<span class="sd">            backend: Optional, the backend to run the experiment on.</span>
+<span class="sd">            cr_gate: Optional, circuit gate class representing the cross resonance pulse.</span>
+<span class="sd">                Providing this object allows us to run this experiment with circuit simulator,</span>
+<span class="sd">                and this object might be used for testing, development of analysis protocol,</span>
+<span class="sd">                and educational purpose without needing to wait for hardware queueing.</span>
+<span class="sd">                Note that this instance must provide matrix representation, such as</span>
+<span class="sd">                unitary gate or Hamiltonian gate, and the class is expected to be instantiated</span>
+<span class="sd">                with a single parameter ``width`` in units of sec.</span>
+<span class="sd">            durations: Optional. The total duration of cross resonance pulse(s) including</span>
+<span class="sd">                rising and falling edges. The minimum number should be larger than the</span>
+<span class="sd">                total lengths of these ramps. If not provided, then ``num_durations`` evenly</span>
+<span class="sd">                spaced durations between ``min_durations`` and ``max_durations`` are</span>
+<span class="sd">                automatically generated from these experiment options. The default numbers</span>
+<span class="sd">                are chosen to have a good sensitivity for the Hamiltonian coefficient</span>
+<span class="sd">                of interest at the rate around 1 MHz.</span>
+<span class="sd">                This argument should be provided in units of sec.</span>
+<span class="sd">            kwargs: Pulse parameters. See :meth:`experiment_options` for details.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: When ``qubits`` length is not 2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="s2">&quot;Length of qubits is not 2. Please provide index for control and target qubit.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gate_cls</span> <span class="o">=</span> <span class="n">cr_gate</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRPulseGate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">CrossResonanceHamiltonianAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">durations</span><span class="o">=</span><span class="n">durations</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">flat_top_widths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># TODO remove this in Qiskit Experiments 0.6</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">flat_top_widths</span><span class="o">=</span><span class="n">flat_top_widths</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+
+<span class="sd">        Experiment Options:</span>
+<span class="sd">            flat_top_widths (np.ndarray): Deprecated. Length of Gaussian flat top to scan.</span>
+<span class="sd">            durations (np.ndarray): The total duration of the cross resonance pulse(s) to scan,</span>
+<span class="sd">                in units of sec. Values should be longer than pulse ramps.</span>
+<span class="sd">            min_durations (int): The minimum default pulse duration in samples.</span>
+<span class="sd">            max_durations (int): The maximum default pulse duration in samples.</span>
+<span class="sd">            num_durations (int): The number of measured durations. The experiment automatically</span>
+<span class="sd">                creates durations of linear increment along with ``min_durations`` and</span>
+<span class="sd">                ``max_durations`` when user doesn&#39;t explicitly provide ``durations``.</span>
+<span class="sd">            amp (complex): Amplitude of the cross resonance tone.</span>
+<span class="sd">            amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.</span>
+<span class="sd">            sigma (float): Sigma of Gaussian rise and fall edges, in units of dt.</span>
+<span class="sd">            risefall (float): Ratio of edge durations to sigma.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">flat_top_widths</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># to be removed in Qiskit Experiments 0.6</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">durations</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">min_durations</span> <span class="o">=</span> <span class="mf">60e-9</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">max_durations</span> <span class="o">=</span> <span class="mf">1200e-9</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">num_durations</span> <span class="o">=</span> <span class="mi">48</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">amp_t</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">risefall</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="n">options</span>
+
+<div class="viewcode-block" id="CrossResonanceHamiltonian.set_experiment_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.set_experiment_options.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian.set_experiment_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;flat_top_widths&quot;</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="c1"># TODO remove this in Qiskit Experiments 0.6</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;flat_top_widths&#39; argument has been deprecated and will be removed. &quot;</span>
+                <span class="s2">&quot;Use &#39;durations&#39; instead. New variable includes pulse ramps, &quot;</span>
+                <span class="s2">&quot;and it cannot include zero in the sequence. &quot;</span>
+                <span class="s2">&quot;This argument will be dropped with this warning in Qiskit Experiments 0.6.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend for the experiment with timing analysis.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper function to get finite dt.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Backend dt value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># When backend timing is not initialized or backend doesn&#39;t report dt.</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="k">def</span> <span class="nf">_get_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="n">ParameterValueType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterValueType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper function to get flat top width.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            duration: Cross resonance pulse duration in units of sec.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A flat top widths of cross resonance pulse in units of sec.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dt</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">duration</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_sec</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">risefall</span>
+
+    <span class="k">def</span> <span class="nf">_get_durations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return cross resonance pulse durations in units of sec.&quot;&quot;&quot;</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span>
+
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">flat_top_widths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># TODO Remove this in Qiskit Experiments 0.6</span>
+            <span class="n">widths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">flat_top_widths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dt</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">widths</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">opt</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">opt</span><span class="o">.</span><span class="n">risefall</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">durations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">min_durations</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">max_durations</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">num_durations</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">durations</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_build_cr_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pulse_gate</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">Gate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single tone cross resonance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pulse_gate: A pulse gate to represent a single cross resonance pulse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A circuit definition for the cross resonance pulse to measure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cr_circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulse_gate</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">cr_circuit</span>
+
+    <span class="k">def</span> <span class="nf">_build_default_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pulse</span><span class="o">.</span><span class="n">ScheduleBlock</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;GaussianSquared cross resonance pulse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A schedule definition for the cross resonance pulse to measure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+
+        <span class="n">cr_drive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span><span class="o">.</span><span class="n">control_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">c_drive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span><span class="o">.</span><span class="n">drive_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">t_drive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span><span class="o">.</span><span class="n">drive_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">default_alignment</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cr&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cross_resonance</span><span class="p">:</span>
+            <span class="c1"># add cross resonance tone</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span>
+                    <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+                    <span class="n">amp</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">amp</span><span class="p">,</span>
+                    <span class="n">sigma</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span>
+                    <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">risefall</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">cr_drive</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># add cancellation tone</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">amp_t</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+                <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+                    <span class="n">pulse</span><span class="o">.</span><span class="n">GaussianSquare</span><span class="p">(</span>
+                        <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+                        <span class="n">amp</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">amp_t</span><span class="p">,</span>
+                        <span class="n">sigma</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span>
+                        <span class="n">risefall_sigma_ratio</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">risefall</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">t_drive</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pulse</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">t_drive</span><span class="p">)</span>
+
+            <span class="c1"># place holder for empty drive channels. this is necessary due to known pulse gate bug.</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">c_drive</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cross_resonance</span>
+
+<div class="viewcode-block" id="CrossResonanceHamiltonian.circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.circuits.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian.circuits">[docs]</a>    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of :class:`QuantumCircuit`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: When the backend is not set and cr gate is ``CRPulseGate`` type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_cls</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRPulseGate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
+                <span class="c1"># Backend is not set, but trying to provide CR gate as a pulse gate.</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                    <span class="s2">&quot;This experiment requires to have backend set to convert durations into samples &quot;</span>
+                    <span class="s2">&quot;with backend reported dt value and also it requires the channel mapping from &quot;</span>
+                    <span class="s2">&quot;the backend to build cross resonance pulse schedule. &quot;</span>
+                    <span class="s2">&quot;Please provide valid backend object supporting 2Q pulse gate.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pulse_gate_circuits</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unitary_circuits</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_pulse_gate_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Protocol to create circuits with pulse gate.</span>
+
+<span class="sd">        Pulse gate has backend timing constraints and duration should be in units of dt.</span>
+<span class="sd">        This method calls :meth:`_build_default_schedule` to generate actual schedule.</span>
+<span class="sd">        We assume backend has been set in this method call.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_default_schedule</span><span class="p">()</span>
+
+        <span class="c1"># Assume this parameter is in units of dt, because this controls pulse samples.</span>
+        <span class="n">param_duration</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)))</span>
+
+        <span class="c1"># Gate duration will be shown in sec, which is more intuitive.</span>
+        <span class="n">cr_gate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_cls</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">param_duration</span><span class="p">))</span>
+
+        <span class="c1"># Create parameterized circuits with calibration.</span>
+        <span class="n">tmp_circs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">control_state</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">meas_basis</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">):</span>
+                <span class="n">tmp_qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">control_state</span><span class="p">:</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span>
+                    <span class="n">other</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_cr_circuit</span><span class="p">(</span><span class="n">cr_gate</span><span class="p">),</span>
+                    <span class="n">qubits</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">meas_basis</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">meas_basis</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;control_state&quot;</span><span class="p">:</span> <span class="n">control_state</span><span class="p">,</span>
+                    <span class="s2">&quot;meas_basis&quot;</span><span class="p">:</span> <span class="n">meas_basis</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">add_calibration</span><span class="p">(</span><span class="n">cr_gate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span>
+                <span class="n">tmp_circs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_qc</span><span class="p">)</span>
+
+        <span class="n">circs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">duration</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_durations</span><span class="p">():</span>
+            <span class="c1"># Need to round pulse to satisfy hardware timing constraints.</span>
+            <span class="c1"># Convert into samples for assignment and validation.</span>
+            <span class="n">valid_duration_dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span><span class="o">.</span><span class="n">round_pulse</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+
+            <span class="c1"># Convert into sec to pass xval to analysis.</span>
+            <span class="c1"># Analysis expects xval of flat top widths in units of sec.</span>
+            <span class="n">flat_top_width_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">valid_duration_dt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flat_top_width_sec</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Input duration=</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> is less than pulse ramps lengths, resulting in &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;a negative flat top length of </span><span class="si">{</span><span class="n">flat_top_width_sec</span><span class="si">}</span><span class="s2"> sec. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;This cross resonance schedule is invalid.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="n">tmp_circs</span><span class="p">:</span>
+                <span class="c1"># Assign duration in dt to create pulse schedule.</span>
+                <span class="n">assigned_circ</span> <span class="o">=</span> <span class="n">circ</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">param_duration</span><span class="p">:</span> <span class="n">valid_duration_dt</span><span class="p">},</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">assigned_circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_pulses</span> <span class="o">*</span> <span class="n">flat_top_width_sec</span>
+                <span class="n">circs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">assigned_circ</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circs</span>
+
+    <span class="k">def</span> <span class="nf">_unitary_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Protocol to create circuits with unitary gate.</span>
+
+<span class="sd">        Unitary gate has no timing constraints and accepts duration in sec.</span>
+<span class="sd">        Basically, this method doesn&#39;t require backend apart from conversion of</span>
+<span class="sd">        sigma in samples into sec.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Assume this parameter is in units of sec.</span>
+        <span class="n">param_duration</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Gate duration will be shown in sec, which is more intuitive.</span>
+        <span class="n">cr_gate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_cls</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_width</span><span class="p">(</span><span class="n">param_duration</span><span class="p">))</span>
+
+        <span class="c1"># Create parameterized circuits without calibration.</span>
+        <span class="n">tmp_circs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">control_state</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">meas_basis</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">):</span>
+                <span class="n">tmp_qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">control_state</span><span class="p">:</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span>
+                    <span class="n">other</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_cr_circuit</span><span class="p">(</span><span class="n">cr_gate</span><span class="p">),</span>
+                    <span class="n">qubits</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">meas_basis</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">meas_basis</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+                    <span class="n">tmp_qc</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">tmp_qc</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;control_state&quot;</span><span class="p">:</span> <span class="n">control_state</span><span class="p">,</span>
+                    <span class="s2">&quot;meas_basis&quot;</span><span class="p">:</span> <span class="n">meas_basis</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">tmp_circs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_qc</span><span class="p">)</span>
+
+        <span class="n">circs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">duration</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_durations</span><span class="p">():</span>
+            <span class="n">flat_top_width_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_width</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flat_top_width_sec</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Input duration=</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> is less than pulse ramps lengths, resulting in &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;a negative flat top length of </span><span class="si">{</span><span class="n">flat_top_width_sec</span><span class="si">}</span><span class="s2"> sec. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;This cross resonance schedule is invalid.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="n">tmp_circs</span><span class="p">:</span>
+                <span class="c1"># Assign duration in sec since this is unitary gate.</span>
+                <span class="n">assigned_circ</span> <span class="o">=</span> <span class="n">circ</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">param_duration</span><span class="p">:</span> <span class="n">duration</span><span class="p">},</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">assigned_circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_pulses</span> <span class="o">*</span> <span class="n">flat_top_width_sec</span>
+                <span class="n">circs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">assigned_circ</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circs</span>
+
+    <span class="k">def</span> <span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set analysis option for initial guess that depends on experiment option values.&quot;&quot;&quot;</span>
+        <span class="n">edge_duration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_pulses</span>
+
+        <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">analyses</span><span class="p">():</span>
+            <span class="n">init_guess</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;t_off&quot;</span> <span class="ow">in</span> <span class="n">init_guess</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">init_guess</span><span class="p">[</span><span class="s2">&quot;t_off&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dt</span><span class="p">()</span> <span class="o">*</span> <span class="n">edge_duration</span>
+            <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="n">init_guess</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+        <span class="c1"># Store measurement level and meas return if they have been</span>
+        <span class="c1"># set for the experiment</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="EchoedCrossResonanceHamiltonian"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian">[docs]</a><span class="k">class</span> <span class="nc">EchoedCrossResonanceHamiltonian</span><span class="p">(</span><span class="n">CrossResonanceHamiltonian</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Echoed cross resonance Hamiltonian tomography experiment.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">        This is a variant of :class:`CrossResonanceHamiltonian`</span>
+<span class="sd">        for which the experiment framework is identical but the</span>
+<span class="sd">        cross resonance operation is realized as an echoed sequence</span>
+<span class="sd">        to remove unwanted single qubit rotations. The cross resonance</span>
+<span class="sd">        circuit looks like:</span>
+
+<span class="sd">        .. parsed-literal::</span>
+
+<span class="sd">                 ┌────────────────────┐  ┌───┐  ┌────────────────────┐</span>
+<span class="sd">            q_0: ┤0                   ├──┤ X ├──┤0                   ├──────────</span>
+<span class="sd">                 │  cr_tone(duration) │┌─┴───┴─┐│  cr_tone(duration) │┌────────┐</span>
+<span class="sd">            q_1: ┤1                   ├┤ Rz(π) ├┤1                   ├┤ Rz(-π) ├</span>
+<span class="sd">                 └────────────────────┘└───────┘└────────────────────┘└────────┘</span>
+
+<span class="sd">        Here two ``cr_tone`` are applied, where the latter one is with the</span>
+<span class="sd">        control qubit state flipped and with a phase flip of the target qubit frame.</span>
+<span class="sd">        This operation is equivalent to applying the ``cr_tone`` with a negative amplitude.</span>
+<span class="sd">        The Hamiltonian for this decomposition has no IX and ZI interactions,</span>
+<span class="sd">        and also a reduced IY interaction to some extent (not completely eliminated) [1].</span>
+<span class="sd">        Note that the CR Hamiltonian tomography experiment cannot detect the ZI term.</span>
+<span class="sd">        However, it is sensitive to the IX and IY terms.</span>
+
+<span class="sd">    # section: reference</span>
+<span class="sd">        .. ref_arxiv:: 1 2007.02925</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_pulses</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">_build_cr_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pulse_gate</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">Gate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single tone cross resonance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pulse_gate: A pulse gate to represent a single cross resonance pulse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A circuit definition for the cross resonance pulse to measure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cr_circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulse_gate</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulse_gate</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">cr_circuit</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cr_circuit</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

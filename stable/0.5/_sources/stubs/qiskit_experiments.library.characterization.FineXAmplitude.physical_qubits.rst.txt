@@ -1,0 +1,8 @@
+
+
+FineXAmplitude.physical_qubits
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineXAmplitude.physical_qubits

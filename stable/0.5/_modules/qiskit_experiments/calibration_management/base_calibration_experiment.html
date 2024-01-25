@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.calibration_management.base_calibration_experiment &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.calibration_management.base_calibration_experiment</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.calibration_management.base_calibration_experiment</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Base class for calibration-type experiments.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">ScheduleBlock</span>
+<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">StagedPassManager</span><span class="p">,</span> <span class="n">PassManager</span><span class="p">,</span> <span class="n">Layout</span><span class="p">,</span> <span class="n">CouplingMap</span>
+<span class="kn">from</span> <span class="nn">qiskit.transpiler.passes</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EnlargeWithAncilla</span><span class="p">,</span>
+    <span class="n">FullAncillaAllocation</span><span class="p">,</span>
+    <span class="n">ApplyLayout</span><span class="p">,</span>
+    <span class="n">SetLayout</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.calibrations</span> <span class="kn">import</span> <span class="n">Calibrations</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.update_library</span> <span class="kn">import</span> <span class="n">BaseUpdater</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.base_analysis</span> <span class="kn">import</span> <span class="n">BaseAnalysis</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.base_experiment</span> <span class="kn">import</span> <span class="n">BaseExperiment</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.experiment_data</span> <span class="kn">import</span> <span class="n">ExperimentData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">CalibrationError</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BaseCalibrationExperiment"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BaseCalibrationExperiment.html#qiskit_experiments.calibration_management.BaseCalibrationExperiment">[docs]</a><span class="k">class</span> <span class="nc">BaseCalibrationExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mixin class to create calibration experiments.</span>
+
+<span class="sd">    This abstract class extends a characterization experiment by turning it into a</span>
+<span class="sd">    calibration experiment. Such experiments allow schedule management and updating of an</span>
+<span class="sd">    instance of :class:`.Calibrations`. Furthermore, calibration experiments also specify</span>
+<span class="sd">    an auto_update variable which, by default, is set to True. If this variable,</span>
+<span class="sd">    is True then the run method of the experiment will call :meth:`~.ExperimentData.block_for_results`</span>
+<span class="sd">    and update the calibrations instance once the backend has returned the data.</span>
+
+<span class="sd">    This mixin class inherits from the :class:`.BaseExperiment` class since calibration</span>
+<span class="sd">    experiments by default call :meth:`~.ExperimentData.block_for_results`. This ensures that the next</span>
+<span class="sd">    calibration experiment cannot proceed before the calibration parameters have been</span>
+<span class="sd">    updated. Developers that wish to create a calibration experiment must subclass this</span>
+<span class="sd">    base class and the characterization experiment. Therefore, developers that use this</span>
+<span class="sd">    mixin class must pay special attention to their class definition. Indeed, the first</span>
+<span class="sd">    class should be this mixin and the second class should be the characterization</span>
+<span class="sd">    experiment since the run method from the mixin must be used. For example, the rough</span>
+<span class="sd">    frequency calibration experiment is defined as</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy)</span>
+
+<span class="sd">    This ensures that the ``run`` method of :class:`.RoughFrequencyCal` will be the</span>
+<span class="sd">    run method of the :class:`.BaseCalibrationExperiment` class. Furthermore, developers</span>
+<span class="sd">    must explicitly call the :meth:`__init__` methods of both parent classes.</span>
+
+<span class="sd">    Developers should strive to follow the convention that the first two arguments of</span>
+<span class="sd">    a calibration experiment are the qubit(s) and the :class:`.Calibrations` instance.</span>
+
+<span class="sd">    If the experiment uses custom schedules, which is typically the case, then</span>
+<span class="sd">    developers may chose to use the :meth:`get_schedules` method when creating the</span>
+<span class="sd">    circuits for the experiment. If :meth:`get_schedules` is used then the developer</span>
+<span class="sd">    must override at least one of the following methods used by :meth:`get_schedules`</span>
+<span class="sd">    to set the schedules:</span>
+
+<span class="sd">    #. :meth:`_get_schedules_from_options`</span>
+
+<span class="sd">    #. :meth:`_get_schedules_from_calibrations`</span>
+
+<span class="sd">    #. :meth:`_get_schedules_from_defaults`</span>
+
+<span class="sd">    These methods are called by :meth:`get_schedules`.</span>
+
+<span class="sd">    The :meth:`update_calibrations` method is responsible for updating the values of the parameters</span>
+<span class="sd">    stored in the instance of :class:`.Calibrations`. Here, :class:`BaseCalibrationExperiment`</span>
+<span class="sd">    provides a default update methodology that subclasses can override if a more elaborate behaviour</span>
+<span class="sd">    is needed. At the minimum the developer must set the variable :code:`_updater` which</span>
+<span class="sd">    should have an :code:`update` method and can be chosen from the library</span>
+<span class="sd">    :mod:`qiskit_experiments.calibration_management.update_library`. See also</span>
+<span class="sd">    :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater</span>
+<span class="sd">    is specified the experiment will still run but no update of the calibrations will be performed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn if BaseCalibrationExperiment is not the first parent.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">mro_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">mro_cls</span> <span class="ow">is</span> <span class="n">BaseCalibrationExperiment</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">mro_cls</span><span class="p">,</span> <span class="n">BaseExperiment</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span>
+                <span class="n">mro_cls</span><span class="p">,</span> <span class="n">BaseCalibrationExperiment</span>
+            <span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Calibration experiments must inherit from BaseCalibrationExperiment &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;before a BaseExperiment subclass: </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">mro_cls</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># pylint: disable=super-init-not-called</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">calibrations</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">schedule_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cal_parameter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">updater</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseUpdater</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">auto_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup the calibration experiment object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            calibrations: The calibrations instance with which to initialize the experiment.</span>
+<span class="sd">            args: Arguments for the characterization class.</span>
+<span class="sd">            schedule_name: An optional string which specifies the name of the schedule in</span>
+<span class="sd">                the calibrations that will be updated.</span>
+<span class="sd">            cal_parameter_name: An optional string which specifies the name of the parameter in</span>
+<span class="sd">                the calibrations that will be updated. If None is given then no parameter will</span>
+<span class="sd">                be updated. Subclasses may assign default values in their init.</span>
+<span class="sd">            updater: The updater class that updates the Calibrations instance. Different</span>
+<span class="sd">                calibration experiments will use different updaters.</span>
+<span class="sd">            auto_update: If set to True (the default) then the calibrations will automatically be</span>
+<span class="sd">                updated once the experiment has run and :meth:`.block_for_results` will be called.</span>
+<span class="sd">            kwargs: Keyword arguments for the characterization class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cals</span> <span class="o">=</span> <span class="n">calibrations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sched_name</span> <span class="o">=</span> <span class="n">schedule_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_param_name</span> <span class="o">=</span> <span class="n">cal_parameter_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updater</span> <span class="o">=</span> <span class="n">updater</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_update</span> <span class="o">=</span> <span class="n">auto_update</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibrations</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the calibrations.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cals</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the analysis instance for the experiment.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Analysis instance set to calibration experiment is implicitly patched to run</span>
+<span class="sd">            calibration updator to update the parameters in the calibration table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span>
+
+    <span class="nd">@analysis</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analysis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis instance for the experiment&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">analysis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Create direct alias to the original run method to avoid infinite recursion.</span>
+        <span class="c1"># .run method is overruled by the wrapped method</span>
+        <span class="c1"># and thus .run method cannot be called within the wrapper function.</span>
+        <span class="n">analysis_run</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">analysis_run</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_wrap_run_analysis</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">experiment_data</span> <span class="o">=</span> <span class="n">analysis_run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_update</span><span class="p">:</span>
+                <span class="n">experiment_data</span><span class="o">.</span><span class="n">add_analysis_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_calibrations</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">experiment_data</span>
+
+        <span class="c1"># Monkey patch run method.</span>
+        <span class="c1"># This calls update_calibrations immediately after standard analysis.</span>
+        <span class="c1"># This mechanism allows a composite experiment to invoke updator.</span>
+        <span class="c1"># Note that the composite experiment only takes circuits from individual experiment</span>
+        <span class="c1"># and the composite analysis calls analysis.run of each experiment.</span>
+        <span class="c1"># This is only place the updator function can be called from the composite experiment.</span>
+        <span class="n">analysis</span><span class="o">.</span><span class="n">run</span> <span class="o">=</span> <span class="n">_wrap_run_analysis</span>
+        <span class="n">BaseExperiment</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for a calibration experiment.</span>
+
+<span class="sd">        Experiment Options:</span>
+<span class="sd">            result_index (int): The index of the result from which to update the calibrations.</span>
+<span class="sd">            group (str): The calibration group to which the parameter belongs. This will default</span>
+<span class="sd">                to the value &quot;default&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="n">result_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return empty default transpile options as optimization_level is not used.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BaseCalibrationExperiment.set_transpile_options"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BaseCalibrationExperiment.set_transpile_options.html#qiskit_experiments.calibration_management.BaseCalibrationExperiment.set_transpile_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add a warning message.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If your experiment has overridden `_transpiled_circuits` and needs</span>
+<span class="sd">            transpile options then please also override `set_transpile_options`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transpile options are not used in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseCalibrationExperiment.update_calibrations"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.BaseCalibrationExperiment.update_calibrations.html#qiskit_experiments.calibration_management.BaseCalibrationExperiment.update_calibrations">[docs]</a>    <span class="k">def</span> <span class="nf">update_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update parameter values in the :class:`.Calibrations` instance.</span>
+
+<span class="sd">        The default behaviour is to call the update method of the class variable</span>
+<span class="sd">        :code:`__updater__` with simplistic options. Subclasses can override this</span>
+<span class="sd">        method to update the instance of :class:`.Calibrations` if they require a</span>
+<span class="sd">        more sophisticated behaviour as is the case for the :class:`.Rabi` and</span>
+<span class="sd">        :class:`.FineAmplitude` calibration experiments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updater</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updater</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cals</span><span class="p">,</span>
+                <span class="n">experiment_data</span><span class="p">,</span>
+                <span class="n">parameter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_param_name</span><span class="p">,</span>
+                <span class="n">schedule</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sched_name</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the physical qubits are contained in the schedule.</span>
+
+<span class="sd">        This is a helper method that experiment developers can call in their implementation</span>
+<span class="sd">        of :meth:`validate_schedules` when checking the schedules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: The schedule for which to check the qubits.</span>
+<span class="sd">            physical_qubits: The qubits that should be included in the schedule.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CalibrationError: If a physical qubit is not contained in the channels schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">physical_qubits</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">qubit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">channels</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Schedule </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not contain a channel &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;for the physical qubit </span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">n_expected_parameters</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the schedule has the expected number of parameters.</span>
+
+<span class="sd">        This is a helper method that experiment developers can call in their implementation</span>
+<span class="sd">        of :meth:`validate_schedules` when checking the schedules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: The schedule for which to check the qubits.</span>
+<span class="sd">            n_expected_parameters: The number of free parameters the schedule must have.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CalibrationError: If the schedule does not have n_expected_parameters parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_expected_parameters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The schedules </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must have &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_expected_parameters</span><span class="si">}</span><span class="s2"> parameters. Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add standard calibration metadata.&quot;&quot;&quot;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cal_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">group</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cal_param_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_param_name</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cal_schedule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sched_name</span>
+
+        <span class="c1"># Store measurement level and meas return if they have been</span>
+        <span class="c1"># set for the experiment</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span>
+
+    <span class="k">def</span> <span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override the transpiled circuits method to bring in the inst_map.</span>
+
+<span class="sd">        The transpilation should do the strict minimum to make the circuits hardware compatible.</span>
+<span class="sd">        Indeed, calibration experiments are designed with a specific gate sequence in mind. Any</span>
+<span class="sd">        transpiler operation that changes this gate sequence may compromise the validity of the</span>
+<span class="sd">        calibration experiment. Sub-classes may override this method to define their own</span>
+<span class="sd">        transpilation if need be.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of transpiled circuits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transpiled</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">():</span>
+            <span class="n">circ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_to_physical_qubits</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attach_calibrations</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+
+            <span class="n">transpiled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">transpiled</span>
+
+    <span class="k">def</span> <span class="nf">_map_to_physical_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map program qubits to physical qubits.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: The quantum circuit to map to device qubits.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A quantum circuit that has the same number of qubits as the backend and where</span>
+<span class="sd">            the physical qubits of the experiment have been properly mapped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">initial_layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">from_intlist</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">),</span> <span class="o">*</span><span class="n">circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">)</span>
+
+        <span class="n">coupling_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span><span class="o">.</span><span class="n">coupling_map</span>
+        <span class="k">if</span> <span class="n">coupling_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coupling_map</span> <span class="o">=</span> <span class="n">CouplingMap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span><span class="o">.</span><span class="n">coupling_map</span><span class="p">)</span>
+
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">PassManager</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">SetLayout</span><span class="p">(</span><span class="n">initial_layout</span><span class="p">),</span>
+                <span class="n">FullAncillaAllocation</span><span class="p">(</span><span class="n">coupling_map</span><span class="p">),</span>
+                <span class="n">EnlargeWithAncilla</span><span class="p">(),</span>
+                <span class="n">ApplyLayout</span><span class="p">(),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">StagedPassManager</span><span class="p">([</span><span class="s2">&quot;layout&quot;</span><span class="p">],</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_attach_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach the calibrations to the quantum circuit.</span>
+
+<span class="sd">        This method attaches calibrations from the `self._cals` instance to the transpiled</span>
+<span class="sd">        quantum circuits. Given how important this method is it is made abstract to force</span>
+<span class="sd">        potential calibration experiment developers to implement it and think about how</span>
+<span class="sd">        schedules are attached to the circuits. The implementation of this method is delegated</span>
+<span class="sd">        to the sub-classes so that they can map gate instructions to the schedules stored in the</span>
+<span class="sd">        ``Calibrations`` instance. This method is needed for most calibration experiments. However,</span>
+<span class="sd">        some experiments already attach circuits to the logical circuits and do not needed to run</span>
+<span class="sd">        ``_attach_calibrations``. In such experiments a simple ``pass`` statement will suffice.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

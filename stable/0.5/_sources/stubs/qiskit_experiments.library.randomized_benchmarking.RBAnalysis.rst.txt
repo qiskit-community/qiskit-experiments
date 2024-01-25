@@ -1,0 +1,46 @@
+﻿
+
+RBAnalysis
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoanalysis:: RBAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RBAnalysis.drawer
+      RBAnalysis.models
+      RBAnalysis.name
+      RBAnalysis.options
+      RBAnalysis.parameters
+      RBAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RBAnalysis.config
+      RBAnalysis.copy
+      RBAnalysis.from_config
+      RBAnalysis.run
+      RBAnalysis.set_options
+   
+
+   
+   

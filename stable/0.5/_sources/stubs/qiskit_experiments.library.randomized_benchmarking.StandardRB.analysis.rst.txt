@@ -1,0 +1,8 @@
+
+
+StandardRB.analysis
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: StandardRB.analysis

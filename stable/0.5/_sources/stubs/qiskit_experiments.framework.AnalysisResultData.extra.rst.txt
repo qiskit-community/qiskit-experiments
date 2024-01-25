@@ -1,0 +1,8 @@
+
+
+AnalysisResultData.extra
+=====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: AnalysisResultData.extra

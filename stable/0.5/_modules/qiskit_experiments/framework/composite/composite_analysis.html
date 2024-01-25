@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.framework.composite.composite_analysis &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.framework.composite.composite_analysis</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.framework.composite.composite_analysis</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Composite Experiment Analysis class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qiskit.result</span> <span class="kn">import</span> <span class="n">marginal_distribution</span>
+<span class="kn">from</span> <span class="nn">qiskit.result.postprocess</span> <span class="kn">import</span> <span class="n">format_counts_memory</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">ExperimentData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result_data</span> <span class="kn">import</span> <span class="n">AnalysisResultData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.base_analysis</span> <span class="kn">import</span> <span class="n">_requires_copy</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">AnalysisError</span>
+
+
+<div class="viewcode-block" id="CompositeAnalysis"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeAnalysis.html#qiskit_experiments.framework.CompositeAnalysis">[docs]</a><span class="k">class</span> <span class="nc">CompositeAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run analysis for composite experiments.</span>
+
+<span class="sd">    Composite experiments consist of several component experiments</span>
+<span class="sd">    run together in a single execution, the results of which are returned</span>
+<span class="sd">    as a single list of circuit result data in the :class:`ExperimentData`</span>
+<span class="sd">    container.</span>
+
+<span class="sd">    Analysis of this composite circuit data involves constructing</span>
+<span class="sd">    a list of experiment data containers for each component experiment containing</span>
+<span class="sd">    the marginalized circuit result data for that experiment. These are saved as</span>
+<span class="sd">    :meth:.~ExperimentData.child_data` in the main :class:`.ExperimentData` container.</span>
+<span class="sd">    Each component experiment data is then analyzed using the analysis class from</span>
+<span class="sd">    the corresponding component experiment.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        If the composite :class:`ExperimentData` does not already contain child</span>
+<span class="sd">        experiment data containers for the component experiments they will be</span>
+<span class="sd">        initialized and added to the experiment data when</span>
+<span class="sd">        :meth:`~.CompositeAnalysis.run` is called on the composite data.</span>
+
+<span class="sd">        When calling :meth:`~.CompositeAnalysis.run` on experiment data already</span>
+<span class="sd">        containing initialized component experiment data, any previously stored circuit</span>
+<span class="sd">        data will be cleared and replaced with the marginalized data from the composite</span>
+<span class="sd">        experiment data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analyses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">],</span> <span class="n">flatten_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a composite analysis class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            analyses: a list of component experiment analysis objects.</span>
+<span class="sd">            flatten_results: If True flatten all component experiment results</span>
+<span class="sd">                             into a single ExperimentData container, including</span>
+<span class="sd">                             nested composite experiments. If False save each</span>
+<span class="sd">                             component experiment results as a separate child</span>
+<span class="sd">                             ExperimentData container.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span> <span class="o">=</span> <span class="n">analyses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">flatten_results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_flatten_results</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CompositeAnalysis.component_analysis"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeAnalysis.component_analysis.html#qiskit_experiments.framework.CompositeAnalysis.component_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">component_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the component experiment Analysis instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index: Optional, the component index to return analysis for.</span>
+<span class="sd">                   If None return a list of all component analysis instances.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The analysis instance for the specified index, or a list of all</span>
+<span class="sd">            analysis instances if index is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CompositeAnalysis.copy"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeAnalysis.copy.html#qiskit_experiments.framework.CompositeAnalysis.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Recursively copy analysis</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_analyses</span> <span class="o">=</span> <span class="p">[</span><span class="n">analysis</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">_analyses</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="CompositeAnalysis.run"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeAnalysis.run.html#qiskit_experiments.framework.CompositeAnalysis.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
+        <span class="n">replace_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentData</span><span class="p">:</span>
+        <span class="c1"># Make a new copy of experiment data if not updating results</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">replace_results</span> <span class="ow">and</span> <span class="n">_requires_copy</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">):</span>
+            <span class="n">experiment_data</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span><span class="p">:</span>
+            <span class="c1"># Initialize child components if they are not initalized</span>
+            <span class="c1"># This only needs to be done if results are not being flattened</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_child_data</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
+
+        <span class="c1"># Run analysis with replace_results = True since we have already</span>
+        <span class="c1"># created the copy if it was required</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">,</span> <span class="n">replace_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
+        <span class="c1"># Return list of experiment data containers for each component experiment</span>
+        <span class="c1"># containing the marginalized data from the composite experiment</span>
+        <span class="n">component_expdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_experiment_data</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
+
+        <span class="c1"># Run the component analysis on each component data</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_expdata</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">component_expdata</span><span class="p">):</span>
+            <span class="c1"># Since copy for replace result is handled at the parent level</span>
+            <span class="c1"># we always run with replace result on component analysis</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sub_expdata</span><span class="p">,</span> <span class="n">replace_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Analysis is running in parallel so we add loop to wait</span>
+        <span class="c1"># for all component analysis to finish before returning</span>
+        <span class="c1"># the parent experiment analysis results</span>
+        <span class="k">for</span> <span class="n">sub_expdata</span> <span class="ow">in</span> <span class="n">component_expdata</span><span class="p">:</span>
+            <span class="n">sub_expdata</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+        <span class="c1"># Optionally flatten results from all component experiments</span>
+        <span class="c1"># for adding to the main experiment data container</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_results</span><span class="p">(</span><span class="n">component_expdata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_component_experiment_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of marginalized experiment data for component experiments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_data: a composite experiment experiment data container.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The list of analysis-ready marginalized experiment data for each</span>
+<span class="sd">            component experiment.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AnalysisError: If the component experiment data cannot be extracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span><span class="p">:</span>
+            <span class="c1"># Retrieve child data for component experiments for updating</span>
+            <span class="n">component_index</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;component_child_index&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">component_index</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;Unable to extract component child experiment data&quot;</span><span class="p">)</span>
+            <span class="n">component_expdata</span> <span class="o">=</span> <span class="p">[</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">child_data</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">component_index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Initialize temporary ExperimentData containers for</span>
+            <span class="c1"># each component experiment to analysis on. These will</span>
+            <span class="c1"># not be saved but results and figures will be collected</span>
+            <span class="c1"># from them</span>
+            <span class="n">component_expdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_component_experiment_data</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
+
+        <span class="c1"># Compute marginalize data for each component experiment</span>
+        <span class="n">marginalized_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marginalized_component_data</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+
+        <span class="c1"># Add the marginalized component data and component job metadata</span>
+        <span class="c1"># to each component child experiment. Note that this will clear</span>
+        <span class="c1"># any currently stored data in the experiment. Since copying of</span>
+        <span class="c1"># child data is handled by the `replace_results` kwarg of the</span>
+        <span class="c1"># parent container it is safe to always clear and replace the</span>
+        <span class="c1"># results of child containers in this step</span>
+        <span class="k">for</span> <span class="n">sub_expdata</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">component_expdata</span><span class="p">,</span> <span class="n">marginalized_data</span><span class="p">):</span>
+            <span class="c1"># Clear any previously stored data and add marginalized data</span>
+            <span class="n">sub_expdata</span><span class="o">.</span><span class="n">_result_data</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">sub_expdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">sub_data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">component_expdata</span>
+
+    <span class="k">def</span> <span class="nf">_marginalized_component_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composite_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return marginalized data for component experiments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            composite_data: a list of composite experiment circuit data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A List of lists of marginalized circuit data for each component</span>
+<span class="sd">            experiment in the composite experiment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Marginalize data</span>
+        <span class="n">marginalized_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">composite_data</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+            <span class="c1"># Add marginalized data to sub experiments</span>
+            <span class="k">if</span> <span class="s2">&quot;composite_clbits&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                <span class="n">composite_clbits</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;composite_clbits&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">composite_clbits</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Pre-process the memory if any to avoid redundant calls to format_counts_memory</span>
+            <span class="n">f_memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_memory</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">composite_clbits</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;composite_index&quot;</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">marginalized_data</span><span class="p">:</span>
+                    <span class="c1"># Initialize data list for marginalized</span>
+                    <span class="n">marginalized_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">sub_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;composite_metadata&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
+                <span class="k">if</span> <span class="s2">&quot;counts&quot;</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">composite_clbits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># `marginal_distribution() doesn&#39;t support int64 values</span>
+                        <span class="c1"># so detect and cast to an int. This can be removed</span>
+                        <span class="c1"># when Qiskit/qiskit-terra#9976 is released</span>
+                        <span class="n">counts</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                            <span class="n">counts</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                        <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">marginal_distribution</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">composite_clbits</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;memory&quot;</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">composite_clbits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># level 2</span>
+                        <span class="k">if</span> <span class="n">f_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">idx</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span>
+                                <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">composite_clbits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">composite_clbits</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span>
+                            <span class="p">)</span>
+                            <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">shot</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="n">f_memory</span><span class="p">]</span>
+                        <span class="c1"># level 1</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">mem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">])</span>
+
+                            <span class="c1"># Averaged level 1 data</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem</span><span class="p">[</span><span class="n">composite_clbits</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                            <span class="c1"># Single-shot level 1 data</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                                <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem</span><span class="p">[:,</span> <span class="n">composite_clbits</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sub_data</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+                <span class="n">marginalized_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_data</span><span class="p">)</span>
+
+        <span class="c1"># Sort by index</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">marginalized_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">marginalized_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_memory</span><span class="p">(</span><span class="n">datum</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">composite_clbits</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to convert level 2 memory (if it exists) to bit-string format.&quot;&quot;&quot;</span>
+        <span class="n">f_memory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;memory&quot;</span> <span class="ow">in</span> <span class="n">datum</span>
+            <span class="ow">and</span> <span class="n">composite_clbits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">num_cbits</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">cbit</span> <span class="k">for</span> <span class="n">cbit_list</span> <span class="ow">in</span> <span class="n">composite_clbits</span> <span class="k">for</span> <span class="n">cbit</span> <span class="ow">in</span> <span class="n">cbit_list</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;memory_slots&quot;</span><span class="p">:</span> <span class="n">num_cbits</span><span class="p">}</span>
+            <span class="n">f_memory</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">format_counts_memory</span><span class="p">(</span><span class="n">shot</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span> <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">f_memory</span>
+
+    <span class="k">def</span> <span class="nf">_add_child_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save empty component experiment data as child data.</span>
+
+<span class="sd">        This will initialize empty ExperimentData objects for each component</span>
+<span class="sd">        experiment and add them as child data to the main composite experiment</span>
+<span class="sd">        ExperimentData container container for saving.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_data: a composite experiment experiment data container.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">component_index</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;component_child_index&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">component_index</span><span class="p">:</span>
+            <span class="c1"># Child components are already initialized</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Initialize the component experiment data containers and add them</span>
+        <span class="c1"># as child data to the current experiment data</span>
+        <span class="n">child_components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_component_experiment_data</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
+        <span class="n">start_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">child_data</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subdata</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">child_components</span><span class="p">):</span>
+            <span class="n">experiment_data</span><span class="o">.</span><span class="n">add_child_data</span><span class="p">(</span><span class="n">subdata</span><span class="p">)</span>
+            <span class="n">component_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_index</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># Store the indices of the added child data in metadata</span>
+        <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;component_child_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">component_index</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_component_experiment_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize empty experiment data containers for component experiments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_data: a composite experiment experiment data container.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The list of experiment data containers for each component experiment</span>
+<span class="sd">            containing the component metadata, and tags, share level, and</span>
+<span class="sd">            auto save settings of the composite experiment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract component experiment types and metadata so they can be</span>
+        <span class="c1"># added to the component experiment data containers</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="n">num_components</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">)</span>
+        <span class="n">experiment_types</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;component_types&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_components</span><span class="p">)</span>
+        <span class="n">component_metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;component_metadata&quot;</span><span class="p">,</span> <span class="p">[{}]</span> <span class="o">*</span> <span class="n">num_components</span><span class="p">)</span>
+
+        <span class="c1"># Create component experiments and set the backend and</span>
+        <span class="c1"># metadata for the components</span>
+        <span class="n">component_expdata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">):</span>
+            <span class="n">subdata</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+            <span class="n">subdata</span><span class="o">.</span><span class="n">experiment_type</span> <span class="o">=</span> <span class="n">experiment_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">subdata</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">component_metadata</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span><span class="p">:</span>
+                <span class="c1"># Explicitly set auto_save to false so the temporary</span>
+                <span class="c1"># data can&#39;t accidentally be saved</span>
+                <span class="n">subdata</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Copy tags, share_level and auto_save from the parent</span>
+                <span class="c1"># experiment data if results are not being flattened.</span>
+                <span class="n">subdata</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">tags</span>
+                <span class="n">subdata</span><span class="o">.</span><span class="n">share_level</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">share_level</span>
+                <span class="n">subdata</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">auto_save</span>
+
+            <span class="n">component_expdata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subdata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">component_expdata</span>
+
+    <span class="k">def</span> <span class="nf">_set_flatten_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively set flatten_results to True for all composite components.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_results</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">CompositeAnalysis</span><span class="p">):</span>
+                <span class="n">analysis</span><span class="o">.</span><span class="n">_set_flatten_results</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_combine_results</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component_experiment_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Combine analysis results from component experiment data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            component_experiment_data: list of experiment data containers containing the</span>
+<span class="sd">                                       analysis results for each component experiment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A pair of the combined list of all analysis results from each of the</span>
+<span class="sd">            component experiments, and a list of all figures from each component</span>
+<span class="sd">            experiment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">figures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_expdata</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">component_experiment_data</span><span class="p">):</span>
+            <span class="n">figures</span> <span class="o">+=</span> <span class="n">sub_expdata</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">sub_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+                <span class="c1"># Add metadata to distinguish the component experiment</span>
+                <span class="c1"># the result was generated from</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;component_experiment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="n">sub_expdata</span><span class="o">.</span><span class="n">experiment_type</span><span class="p">,</span>
+                    <span class="s2">&quot;component_index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

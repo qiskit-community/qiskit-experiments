@@ -1,0 +1,53 @@
+﻿
+
+DataAction
+=============================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: DataAction
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DataAction.__call__
+   
+
+   
+   

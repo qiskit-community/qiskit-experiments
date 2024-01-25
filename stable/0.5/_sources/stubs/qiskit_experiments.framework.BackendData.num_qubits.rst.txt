@@ -1,0 +1,8 @@
+
+
+BackendData.num_qubits
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BackendData.num_qubits

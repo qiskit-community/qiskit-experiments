@@ -1,0 +1,51 @@
+﻿
+
+BaseDrawer
+===========================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autodrawer:: BaseDrawer
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseDrawer.figure
+      BaseDrawer.figure_options
+      BaseDrawer.options
+      BaseDrawer.style
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseDrawer.config
+      BaseDrawer.filled_x_area
+      BaseDrawer.filled_y_area
+      BaseDrawer.format_canvas
+      BaseDrawer.image
+      BaseDrawer.initialize_canvas
+      BaseDrawer.label_for
+      BaseDrawer.line
+      BaseDrawer.scatter
+      BaseDrawer.set_figure_options
+      BaseDrawer.set_options
+      BaseDrawer.textbox
+   
+
+   
+   

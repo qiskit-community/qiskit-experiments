@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Data Processor: Wrangling data &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibrations.html">Calibrations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">Tutorials</a> &gt;</li>
+        
+      <li>Data Processor: Wrangling data</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="data-processor-wrangling-data">
+<h1>Data Processor: Wrangling data<a class="headerlink" href="#data-processor-wrangling-data" title="Permalink to this heading">¶</a></h1>
+<p>Data processing is the act of taking the data returned by the backend and
+converting it into a format that can be analyzed.
+It is implemented as a chain of data processing steps that transform various input data,
+e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
+These data transformations may consist of multiple steps, such as kerneling and discrimination.
+Each step is implemented by a member of the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> class, also called a <cite>node</cite>.</p>
+<p>The data processor implements the <code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code> method. Once initialized, it
+can thus be used as a standard python function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="n">input_key</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">Node1</span><span class="p">(),</span> <span class="n">Node2</span><span class="p">(),</span> <span class="o">...</span><span class="p">])</span>
+<span class="n">out_data</span> <span class="o">=</span> <span class="n">processor</span><span class="p">(</span><span class="n">in_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The data input to the processor is a sequence of dictionaries each representing the result
+of a single circuit. The output of the processor is a numpy array whose shape and data type
+depend on the combination of the nodes in the data processor.</p>
+<p>Uncertainties that arise from quantum measurements or finite sampling can be taken into account
+in the nodes: a standard error can be generated in a node and can be propagated
+through the subsequent nodes in the data processor.
+Correlation between computed values is also considered.</p>
+<p>Let’s look at an example to see how to initialize an instance of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a> and
+create the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> nodes that process the data.</p>
+<section id="data-types-on-ibm-quantum-backends">
+<h2>Data types on IBM Quantum backends<a class="headerlink" href="#data-types-on-ibm-quantum-backends" title="Permalink to this heading">¶</a></h2>
+<p>IBM Quantum backends can return different types of data. There is counts data and IQ
+data <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, referred to as level 2 and level 1 data, respectively. Level 2 data
+corresponds to a dictionary with bit-strings as keys and the number of times the
+bit-string was measured as a value. Importantly for some experiments, the backends can
+return a lower data level known as IQ data. Here, I and Q stand for in phase and
+quadrature. The IQ are points in the complex plane corresponding to a time integrated
+measurement signal which is reflected or transmitted through the readout resonator
+depending on the setup. IQ data can be returned as “single” or “averaged” data. Here,
+single means that the outcome of each single shot is returned while average only returns
+the average of the IQ points over the measured shots. The type of data that an
+experiment should return is specified by the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.run_options.html#qiskit_experiments.framework.BaseExperiment.run_options" title="qiskit_experiments.framework.BaseExperiment.run_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_options()</span></code></a> of an
+experiment.</p>
+</section>
+<section id="processing-data-of-different-types">
+<h2>Processing data of different types<a class="headerlink" href="#processing-data-of-different-types" title="Permalink to this heading">¶</a></h2>
+<p>An experiment should work with the different data levels.
+Crucially, the analysis, such as a curve analysis, expects the
+same data format no matter the run options of the experiment.
+Transforming the data returned by the backend into the format
+that the analysis accepts is done by the <code class="docutils literal notranslate"><span class="pre">data_processing</span></code> library.
+The key class here is the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a>. It is initialized from
+two arguments. The first is the <code class="docutils literal notranslate"><span class="pre">input_key</span></code>, which is typically
+“memory” or “counts”, and identifies the key in the experiment data
+where the data is located. The second argument <code class="docutils literal notranslate"><span class="pre">data_actions</span></code>
+is a list of <code class="docutils literal notranslate"><span class="pre">nodes</span></code> where each node performs a processing step
+of the data processor. Crucially, the output of one node in the
+list is the input to the next node in the list.</p>
+<p>To illustrate the data processing module, we consider an example
+in which we measure a rabi oscillation with different data levels.
+The code below sets up the Rabi experiment.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">pulse</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.pulse_backend</span> <span class="kn">import</span> <span class="n">SingleTransmonTestBackend</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing</span> <span class="kn">import</span> <span class="n">DataProcessor</span><span class="p">,</span> <span class="n">nodes</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">Rabi</span>
+
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">()</span> <span class="k">as</span> <span class="n">sched</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+        <span class="n">pulse</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+        <span class="n">pulse</span><span class="o">.</span><span class="n">DriveChannel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">SingleTransmonTestBackend</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">Rabi</span><span class="p">(</span>
+    <span class="n">qubit</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+    <span class="n">schedule</span><span class="o">=</span><span class="n">sched</span><span class="p">,</span>
+    <span class="n">amplitudes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>We now run the Rabi experiment twice, once with level 1 data and
+once with level 2 data. Here, we manually configure two data
+processors but note that typically you do not need to do this
+yourself. We begin with single-shot IQ data.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">SVD</span><span class="p">(),</span> <span class="n">nodes</span><span class="o">.</span><span class="n">AverageData</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">nodes</span><span class="o">.</span><span class="n">MinMaxNormalize</span><span class="p">()]</span>
+<span class="n">iq_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">iq_processor</span><span class="p">)</span>
+
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/data_processor_1_0.png" src="../_images/data_processor_1_0.png" />
+</div>
+</div>
+<p>Since we requested IQ data we set the input key to “memory” which is
+the key under which the data is located in the experiment data. The
+<code class="docutils literal notranslate"><span class="pre">iq_processor</span></code> contains three nodes. The first node <code class="docutils literal notranslate"><span class="pre">SVD</span></code> is a
+singular value decomposition which projects the two-dimensional IQ
+data on its main axis. The second node averages the single-shot
+data. The output is a single float per quantum circuit. Finally,
+the last node <code class="docutils literal notranslate"><span class="pre">MinMaxNormalize</span></code> normalizes the measured signal to
+the interval [0, 1]. The <code class="docutils literal notranslate"><span class="pre">iq_dataprocessor</span></code> is then set as an option
+of the analysis class. For those who are wondering what single-shot IQ
+data looks like we plot the data returned by the zeroth and sixth circuit
+in the code block below.</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="n">IQPlotter</span><span class="p">,</span> <span class="n">MplDrawer</span>
+
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">IQPlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
+
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
+    <span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Circuit </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">points</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">idx</span><span class="p">)[</span><span class="s2">&quot;memory&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+<span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/data_processor_3_0.png" src="../_images/data_processor_3_0.png" />
+</div>
+</div>
+<p>Now we turn to counts data and see how the
+data processor needs to be changed.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)]</span>
+<span class="n">count_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">count_processor</span><span class="p">)</span>
+
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/data_processor_4_0.png" src="../_images/data_processor_4_0.png" />
+</div>
+</div>
+<p>Now, the <code class="docutils literal notranslate"><span class="pre">input_key</span></code> is “counts” since that is the key under which the counts
+data is saved in instances of <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>. The list of nodes
+comprises a single data action which converts the counts to an estimation
+of the probability of measuring the outcome “1”.</p>
+</section>
+<section id="writing-data-actions">
+<h2>Writing data actions<a class="headerlink" href="#writing-data-actions" title="Permalink to this heading">¶</a></h2>
+<p>The nodes in a data processor are all sub-classes of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a>.
+Users who wish to write their own data actions must (i) sub-class
+<a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> and (ii) implement the internal <code class="docutils literal notranslate"><span class="pre">_process</span></code> method
+called by instances of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a>. This method is the
+processing step that the node implements. It takes a numpy array as
+input and returns the processed numpy array as output. This output
+serves as the input for the next node in the data processing chain.
+Here, the input and output numpy arrays can have a different shape.</p>
+<p>In addition to the standard <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> the data processing package
+also supports trainable data actions as subclasses of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.TrainableDataAction.html#qiskit_experiments.data_processing.TrainableDataAction" title="qiskit_experiments.data_processing.TrainableDataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainableDataAction</span></code></a>.
+These nodes must first be trained on the data before they can
+process the data. An example of a <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.TrainableDataAction.html#qiskit_experiments.data_processing.TrainableDataAction" title="qiskit_experiments.data_processing.TrainableDataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainableDataAction</span></code></a> is the
+<a class="reference internal" href="../stubs/qiskit_experiments.data_processing.SVD.html#qiskit_experiments.data_processing.SVD" title="qiskit_experiments.data_processing.SVD"><code class="xref py py-class docutils literal notranslate"><span class="pre">SVD</span></code></a> node which must first learn the main axis of the data before
+it can project a data point onto this axis. To implement trainable nodes
+developers must also implement the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.train.html#qiskit_experiments.data_processing.DataProcessor.train" title="qiskit_experiments.data_processing.DataProcessor.train"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train()</span></code></a> method. This method is
+called when <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.train.html#qiskit_experiments.data_processing.DataProcessor.train" title="qiskit_experiments.data_processing.DataProcessor.train"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train()</span></code></a> is called.</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading">¶</a></h2>
+<p>Data is processed by data processors that
+call a list of nodes each acting once on the data. Data
+processing connects the data returned by the backend to the data that
+the analysis classes need. Typically, you will not need to implement
+the data processing yourself since Qiskit Experiments has built-in
+methods that determine the correct instance of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a> for
+your data. More advanced data processing includes, for example, handling
+<a class="reference internal" href="../manuals/measurement/restless_measurements.html"><span class="doc">restless measurements</span></a>.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Thomas Alexander, Naoki Kanazawa, Daniel J. Egger, Lauren Capelluto,
+Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
+Programming Quantum Computers Through the Cloud with Pulses, Quantum
+Science and Technology <strong>5</strong>, 044006 (2020). <a class="reference external" href="https://arxiv.org/abs/2004.06755">https://arxiv.org/abs/2004.06755</a>.</p>
+</aside>
+</aside>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Experiment manual: <a class="reference internal" href="../manuals/measurement/restless_measurements.html"><span class="doc">Restless Measurements</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="curve_analysis.html" class="btn btn-neutral float-right" title="Curve Analysis: Fitting your data" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="calibrations.html" class="btn btn-neutral" title="Calibrations: Schedules and gate parameters from experiments" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Data Processor: Wrangling data</a><ul>
+<li><a class="reference internal" href="#data-types-on-ibm-quantum-backends">Data types on IBM Quantum backends</a></li>
+<li><a class="reference internal" href="#processing-data-of-different-types">Processing data of different types</a></li>
+<li><a class="reference internal" href="#writing-data-actions">Writing data actions</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

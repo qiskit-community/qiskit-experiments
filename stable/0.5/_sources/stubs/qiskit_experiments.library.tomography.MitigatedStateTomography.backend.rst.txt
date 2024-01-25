@@ -1,0 +1,8 @@
+
+
+MitigatedStateTomography.backend
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: MitigatedStateTomography.backend

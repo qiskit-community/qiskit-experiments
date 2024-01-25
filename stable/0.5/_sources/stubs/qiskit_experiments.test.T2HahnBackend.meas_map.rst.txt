@@ -1,0 +1,8 @@
+
+
+T2HahnBackend.meas_map
+==============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: T2HahnBackend.meas_map

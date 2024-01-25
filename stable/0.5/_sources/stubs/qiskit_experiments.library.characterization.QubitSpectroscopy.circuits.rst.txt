@@ -1,0 +1,8 @@
+
+
+QubitSpectroscopy.circuits
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: QubitSpectroscopy.circuits

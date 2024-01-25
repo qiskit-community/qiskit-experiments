@@ -1,0 +1,8 @@
+
+
+HalfAngle.num_qubits
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: HalfAngle.num_qubits

@@ -1,0 +1,66 @@
+﻿
+
+FigureData
+=======================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: FigureData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      FigureData.metadata
+      
+   
+      
+      
+         
+      
+      FigureData.name
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FigureData.copy
+   
+
+   
+   

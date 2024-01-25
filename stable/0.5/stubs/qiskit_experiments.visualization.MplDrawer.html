@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>MplDrawer &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../apidocs/index.html">API Reference</a> &gt;</li>
+        
+          <li><a href="../apidocs/visualization.html">Visualization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.visualization</span></code>)</a> &gt;</li>
+        
+      <li>MplDrawer</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="mpldrawer">
+<h1>MplDrawer<a class="headerlink" href="#mpldrawer" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_experiments.visualization.MplDrawer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MplDrawer</span></span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/drawers/mpl_drawer.html#MplDrawer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.MplDrawer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drawer for MatplotLib backend.</p>
+<p class="rubric">Options</p>
+<p>The following can be set using <a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.set_options.html#qiskit_experiments.visualization.MplDrawer.set_options" title="qiskit_experiments.visualization.MplDrawer.set_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_options()</span></code></a>.</p>
+<dl>
+<dt>Options</dt><dd><ul>
+<li><p>Defined in the class <a class="reference internal" href="qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer" title="qiskit_experiments.visualization.drawers.base_drawer.BaseDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDrawer</span></code></a>:</p>
+<ul>
+<li><p><strong>axis</strong> (Any)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Arbitrary object that can be used as a canvas.</div>
+</div>
+</li>
+<li><p><strong>subplots</strong> (Tuple[int, int])</p>
+<div class="line-block">
+<div class="line">Default value: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)</div>
+<div class="line">Number of rows and columns when the experimental result is drawn in the multiple windows.</div>
+</div>
+</li>
+<li><p><strong>default_style</strong> (PlotStyle)</p>
+<div class="line-block">
+<div class="line">Default value: {<code class="docutils literal notranslate"><span class="pre">&quot;figsize&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;figsize&quot;</span></code>, (<code class="xref py py-obj docutils literal notranslate"><span class="pre">8</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">5</span></code>)), <code class="docutils literal notranslate"><span class="pre">&quot;legend_loc&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;legend_loc&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;tick_label_size&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;tick_label_size&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">14</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;axis_label_size&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;axis_label_size&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">16</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;textbox_rel_pos&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;textbox_rel_pos&quot;</span></code>, (<code class="xref py py-obj docutils literal notranslate"><span class="pre">0.5</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">-0.25</span></code>)), <code class="docutils literal notranslate"><span class="pre">&quot;textbox_text_size&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;textbox_text_size&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">12</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;errorbar_capsize&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;errorbar_capsize&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">4</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;symbol_size&quot;</span></code>: (<code class="docutils literal notranslate"><span class="pre">&quot;symbol_size&quot;</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">6.0</span></code>)}</div>
+<div class="line">The default style for drawer. This must contain all required style parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">drawer</span></code>, as is defined in <a class="reference internal" href="qiskit_experiments.visualization.PlotStyle.default_style.html#qiskit_experiments.visualization.PlotStyle.default_style" title="qiskit_experiments.visualization.PlotStyle.default_style"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PlotStyle.default_style()</span></code></a>. Subclasses can add extra required style parameters by overriding <code class="xref py py-meth docutils literal notranslate"><span class="pre">_default_style()</span></code>.</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Figure options</p>
+<p>The following can be set using <a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.set_figure_options.html#qiskit_experiments.visualization.MplDrawer.set_figure_options" title="qiskit_experiments.visualization.MplDrawer.set_figure_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_figure_options()</span></code></a>.</p>
+<dl>
+<dt>Options</dt><dd><ul>
+<li><p>Defined in the class <a class="reference internal" href="qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer" title="qiskit_experiments.visualization.drawers.base_drawer.BaseDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDrawer</span></code></a>:</p>
+<ul>
+<li><p><strong>xlabel</strong> (Union[str, List[str]])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">X-axis label string of the output figure. If there are multiple columns in the canvas, this could be a list of labels.</div>
+</div>
+</li>
+<li><p><strong>ylabel</strong> (Union[str, List[str]])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Y-axis label string of the output figure. If there are multiple rows in the canvas, this could be a list of labels.</div>
+</div>
+</li>
+<li><p><strong>xlim</strong> (Tuple[float, float])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Min and max value of the horizontal axis. If not provided, it is automatically scaled based on the input data points.</div>
+</div>
+</li>
+<li><p><strong>ylim</strong> (Tuple[float, float])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Min and max value of the vertical axis. If not provided, it is automatically scaled based on the input data points.</div>
+</div>
+</li>
+<li><p><strong>xval_unit</strong> (str)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Unit of x values. No scaling prefix is needed here as this is controlled by <code class="docutils literal notranslate"><span class="pre">xval_unit_scale</span></code>.</div>
+</div>
+</li>
+<li><p><strong>yval_unit</strong> (str)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Unit of y values. See <code class="docutils literal notranslate"><span class="pre">xval_unit</span></code> for details.</div>
+</div>
+</li>
+<li><p><strong>xval_unit_scale</strong> (bool)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></div>
+<div class="line">Whether to add an SI unit prefix to <code class="docutils literal notranslate"><span class="pre">xval_unit</span></code> if needed. For example, when the x values represent time and <code class="docutils literal notranslate"><span class="pre">xval_unit=&quot;s&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">xval_unit_scale=True</span></code> adds an SI unit prefix to <code class="docutils literal notranslate"><span class="pre">&quot;s&quot;</span></code> based on X values of plotted data. In the output figure, the prefix is automatically selected based on the maximum value in this axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms, 10 ms]. By default, this option is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>. If <code class="docutils literal notranslate"><span class="pre">False</span></code> is provided, the axis numbers will be displayed in the scientific notation.</div>
+</div>
+</li>
+<li><p><strong>yval_unit_scale</strong> (bool)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></div>
+<div class="line">Whether to add an SI unit prefix to <code class="docutils literal notranslate"><span class="pre">yval_unit</span></code> if needed. See <code class="docutils literal notranslate"><span class="pre">xval_unit_scale</span></code> for details.</div>
+</div>
+</li>
+<li><p><strong>figure_title</strong> (str)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Title of the figure. Defaults to None, i.e. nothing is shown.</div>
+</div>
+</li>
+<li><p><strong>series_params</strong> (Dict[str, Dict[str, Any]])</p>
+<div class="line-block">
+<div class="line">Default value: {}</div>
+<div class="line">A dictionary of parameters for each series. This is keyed on the name for each series. Sub-dictionary is expected to have the following three configurations, “canvas”, “color”, “symbol” and “label”; “canvas” is the integer index of axis (when multi-canvas plot is set), “color” is the color of the drawn graphics, “symbol” is the series marker style for scatter plots, and “label” is a user provided series label that appears in the legend.</div>
+</div>
+</li>
+<li><p><strong>custom_style</strong> (PlotStyle)</p>
+<div class="line-block">
+<div class="line">Default value: {}</div>
+<div class="line">The style definition to use when drawing. This overwrites style parameters in <code class="docutils literal notranslate"><span class="pre">default_style</span></code> in <a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.options.html#qiskit_experiments.visualization.MplDrawer.options" title="qiskit_experiments.visualization.MplDrawer.options"><code class="xref py py-attr docutils literal notranslate"><span class="pre">options</span></code></a>. Defaults to an empty PlotStyle instance (i.e., <code class="docutils literal notranslate"><span class="pre">PlotStyle()</span></code>).</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Initialization</p>
+<p>Create a BaseDrawer instance.</p>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.DefaultColors.html#qiskit_experiments.visualization.MplDrawer.DefaultColors" title="qiskit_experiments.visualization.MplDrawer.DefaultColors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.DefaultColors</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.DefaultMarkers.html#qiskit_experiments.visualization.MplDrawer.DefaultMarkers" title="qiskit_experiments.visualization.MplDrawer.DefaultMarkers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.DefaultMarkers</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.figure.html#qiskit_experiments.visualization.MplDrawer.figure" title="qiskit_experiments.visualization.MplDrawer.figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.figure</span></code></a></p></td>
+<td><p>Return figure object handler to be saved in the database.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.figure_options.html#qiskit_experiments.visualization.MplDrawer.figure_options" title="qiskit_experiments.visualization.MplDrawer.figure_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.figure_options</span></code></a></p></td>
+<td><p>Return the figure options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.options.html#qiskit_experiments.visualization.MplDrawer.options" title="qiskit_experiments.visualization.MplDrawer.options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.options</span></code></a></p></td>
+<td><p>Return the drawer options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.style.html#qiskit_experiments.visualization.MplDrawer.style" title="qiskit_experiments.visualization.MplDrawer.style"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.style</span></code></a></p></td>
+<td><p>The combined plot style for this drawer.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.config.html#qiskit_experiments.visualization.MplDrawer.config" title="qiskit_experiments.visualization.MplDrawer.config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.config</span></code></a>()</p></td>
+<td><p>Return the config dictionary for this drawer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.filled_x_area.html#qiskit_experiments.visualization.MplDrawer.filled_x_area" title="qiskit_experiments.visualization.MplDrawer.filled_x_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.filled_x_area</span></code></a>(x_ub, x_lb, y_data)</p></td>
+<td><p>Draw filled area as a function of y-values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.filled_y_area.html#qiskit_experiments.visualization.MplDrawer.filled_y_area" title="qiskit_experiments.visualization.MplDrawer.filled_y_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.filled_y_area</span></code></a>(x_data, y_ub, y_lb)</p></td>
+<td><p>Draw filled area as a function of x-values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.format_canvas.html#qiskit_experiments.visualization.MplDrawer.format_canvas" title="qiskit_experiments.visualization.MplDrawer.format_canvas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.format_canvas</span></code></a>()</p></td>
+<td><p>Final cleanup for the canvas appearance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.image.html#qiskit_experiments.visualization.MplDrawer.image" title="qiskit_experiments.visualization.MplDrawer.image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.image</span></code></a>(data[, extent, name, label, ...])</p></td>
+<td><p>Draw an image of numerical values, series names, or RGB/A values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.initialize_canvas.html#qiskit_experiments.visualization.MplDrawer.initialize_canvas" title="qiskit_experiments.visualization.MplDrawer.initialize_canvas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.initialize_canvas</span></code></a>()</p></td>
+<td><p>Initialize the drawer canvas.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.label_for.html#qiskit_experiments.visualization.MplDrawer.label_for" title="qiskit_experiments.visualization.MplDrawer.label_for"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.label_for</span></code></a>(name, label)</p></td>
+<td><p>Get the legend label for the given series, with optional overrides.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.line.html#qiskit_experiments.visualization.MplDrawer.line" title="qiskit_experiments.visualization.MplDrawer.line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.line</span></code></a>(x_data, y_data[, name, ...])</p></td>
+<td><p>Draw a line.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.scatter.html#qiskit_experiments.visualization.MplDrawer.scatter" title="qiskit_experiments.visualization.MplDrawer.scatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.scatter</span></code></a>(x_data, y_data[, x_err, ...])</p></td>
+<td><p>Draw scatter points, with optional error-bars.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.set_figure_options.html#qiskit_experiments.visualization.MplDrawer.set_figure_options" title="qiskit_experiments.visualization.MplDrawer.set_figure_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.set_figure_options</span></code></a>(**fields)</p></td>
+<td><p>Set the figure options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.set_options.html#qiskit_experiments.visualization.MplDrawer.set_options" title="qiskit_experiments.visualization.MplDrawer.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.set_options</span></code></a>(**fields)</p></td>
+<td><p>Set the drawer options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.visualization.MplDrawer.textbox.html#qiskit_experiments.visualization.MplDrawer.textbox" title="qiskit_experiments.visualization.MplDrawer.textbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MplDrawer.textbox</span></code></a>(description[, rel_pos])</p></td>
+<td><p>Draw text box.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="qiskit_experiments.visualization.MplDrawer.DefaultColors.html" class="btn btn-neutral float-right" title="MplDrawer.DefaultColors" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="qiskit_experiments.visualization.BaseDrawer.textbox.html" class="btn btn-neutral" title="BaseDrawer.textbox" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">MplDrawer</a><ul>
+<li><a class="reference internal" href="#qiskit_experiments.visualization.MplDrawer"><code class="docutils literal notranslate"><span class="pre">MplDrawer</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

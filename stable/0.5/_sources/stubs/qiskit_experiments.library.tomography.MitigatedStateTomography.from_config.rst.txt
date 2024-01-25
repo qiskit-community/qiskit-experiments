@@ -1,0 +1,8 @@
+
+
+MitigatedStateTomography.from_config
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedStateTomography.from_config

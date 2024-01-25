@@ -1,0 +1,8 @@
+
+
+ProcessTomography.experiment_type
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: ProcessTomography.experiment_type

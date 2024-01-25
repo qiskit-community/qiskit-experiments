@@ -1,0 +1,8 @@
+
+
+BaseCalibrationExperiment.physical_qubits
+===================================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: BaseCalibrationExperiment.physical_qubits

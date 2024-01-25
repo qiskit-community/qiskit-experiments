@@ -1,0 +1,8 @@
+
+
+RoughXSXAmplitudeCal.run_options
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughXSXAmplitudeCal.run_options

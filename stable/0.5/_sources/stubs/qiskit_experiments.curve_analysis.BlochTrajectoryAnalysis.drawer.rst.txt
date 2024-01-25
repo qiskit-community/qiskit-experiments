@@ -1,0 +1,8 @@
+
+
+BlochTrajectoryAnalysis.drawer
+================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: BlochTrajectoryAnalysis.drawer

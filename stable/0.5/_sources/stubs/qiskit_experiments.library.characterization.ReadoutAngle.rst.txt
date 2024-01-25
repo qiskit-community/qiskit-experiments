@@ -1,0 +1,51 @@
+﻿
+
+ReadoutAngle
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: ReadoutAngle
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ReadoutAngle.analysis
+      ReadoutAngle.backend
+      ReadoutAngle.experiment_options
+      ReadoutAngle.experiment_type
+      ReadoutAngle.num_qubits
+      ReadoutAngle.physical_qubits
+      ReadoutAngle.run_options
+      ReadoutAngle.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ReadoutAngle.circuits
+      ReadoutAngle.config
+      ReadoutAngle.copy
+      ReadoutAngle.from_config
+      ReadoutAngle.run
+      ReadoutAngle.set_experiment_options
+      ReadoutAngle.set_run_options
+      ReadoutAngle.set_transpile_options
+   
+
+   
+   

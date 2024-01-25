@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.test.pulse_backend &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.test.pulse_backend</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.test.pulse_backend</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;A Pulse simulation backend based on Qiskit-Dynamics&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">CircuitInstruction</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.library.standard_gates</span> <span class="kn">import</span> <span class="n">RZGate</span><span class="p">,</span> <span class="n">SXGate</span><span class="p">,</span> <span class="n">XGate</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.measure</span> <span class="kn">import</span> <span class="n">Measure</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">QubitProperties</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.models</span> <span class="kn">import</span> <span class="n">PulseDefaults</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.models.pulsedefaults</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">Schedule</span><span class="p">,</span> <span class="n">ScheduleBlock</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse.transforms</span> <span class="kn">import</span> <span class="n">block_to_schedule</span>
+<span class="kn">from</span> <span class="nn">qiskit.qobj.pulse_qobj</span> <span class="kn">import</span> <span class="n">PulseQobjInstruction</span>
+<span class="kn">from</span> <span class="nn">qiskit.qobj.utils</span> <span class="kn">import</span> <span class="n">MeasLevel</span><span class="p">,</span> <span class="n">MeasReturnType</span>
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info.states</span> <span class="kn">import</span> <span class="n">DensityMatrix</span><span class="p">,</span> <span class="n">Statevector</span>
+<span class="kn">from</span> <span class="nn">qiskit.result</span> <span class="kn">import</span> <span class="n">Result</span><span class="p">,</span> <span class="n">Counts</span>
+<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">InstructionProperties</span><span class="p">,</span> <span class="n">Target</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_dynamics</span> <span class="kn">import</span> <span class="n">Solver</span>
+<span class="kn">from</span> <span class="nn">qiskit_dynamics.pulse</span> <span class="kn">import</span> <span class="n">InstructionToSignals</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.discriminator</span> <span class="kn">import</span> <span class="n">BaseDiscriminator</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.utils</span> <span class="kn">import</span> <span class="n">FakeJob</span>
+
+
+<div class="viewcode-block" id="PulseBackend"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend">[docs]</a><span class="k">class</span> <span class="nc">PulseBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Abstract base class for pulse simulation backends in Qiskit Experiments.</span>
+
+<span class="sd">    This backend is designed for the tests in Qiskit Experiments as well as for the</span>
+<span class="sd">    tutorials in Qiskit Experiments. The backend has a Qiskit Dynamics pulse simulator</span>
+<span class="sd">    which allows it to simulate pulse schedules that are included in the calibrations</span>
+<span class="sd">    attached to quantum circuits. In addition, sub-classes should implement a set of default</span>
+<span class="sd">    schedules so that circuits that do not provide calibrations can also run, much like</span>
+<span class="sd">    the hardware backends. In addition, the backends are also capable of simulating level-</span>
+<span class="sd">    one (IQ data) and level-two (counts) data. Subclasses of these backends can have an</span>
+<span class="sd">    optional disciminator so that they can produce counts based on sampled IQ data. If</span>
+<span class="sd">    a discriminator is not provided then the counts will be produced from a statevector</span>
+<span class="sd">    or density matrix.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        Some of the functionality in this backend may move to Qiskit Dynamics and/or be</span>
+<span class="sd">        refactored. These backends are not intended as a general pulse-simulator backend</span>
+<span class="sd">        but rather to test the experiments and write short tutorials to demonstrate an</span>
+<span class="sd">        experiment without having to run on hardware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">static_hamiltonian</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">hamiltonian_operators</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">static_dissipators</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="n">solver_method</span><span class="o">=</span><span class="s2">&quot;RK23&quot;</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a backend with model information.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            static_hamiltonian: Time-independent term in the Hamiltonian.</span>
+<span class="sd">            hamiltonian_operators: List of time-dependent operators</span>
+<span class="sd">            static_dissipators: Constant dissipation operators. Defaults to None.</span>
+<span class="sd">            dt: Sample rate for simulating pulse schedules. Defaults to 0.1*1e-9.</span>
+<span class="sd">            solver_method: Numerical solver method to use. Check qiskit_dynamics for available</span>
+<span class="sd">                methods. Defaults to &quot;RK23&quot;.</span>
+<span class="sd">            seed: An optional seed given to the random number generator. If this argument is not</span>
+<span class="sd">                set then the seed defaults to 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PulseBackendV2&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A PulseBackend simulator&quot;</span><span class="p">,</span>
+            <span class="n">online_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
+            <span class="n">backend_version</span><span class="o">=</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># subclasses must implements default pulse schedules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+        <span class="c1"># The RNG to sample IQ data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># The instance to convert pulse schedules to signals for Qiskit Dynamics.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver_method</span> <span class="o">=</span> <span class="n">solver_method</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_hamiltonian</span> <span class="o">=</span> <span class="n">static_hamiltonian</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian_operators</span> <span class="o">=</span> <span class="n">hamiltonian_operators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="o">=</span> <span class="n">static_dissipators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span>
+            <span class="n">static_hamiltonian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">static_hamiltonian</span><span class="p">,</span>
+            <span class="n">hamiltonian_operators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian_operators</span><span class="p">,</span>
+            <span class="n">static_dissipators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dim</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># An internal cache of schedules to unitaries. The key is a hashed string representation.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># An optional discriminator that is used to create counts from IQ data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Contains information for circuit transpilation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="PulseBackend.defaults"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.defaults.html#qiskit_experiments.test.PulseBackend.defaults">[docs]</a>    <span class="k">def</span> <span class="nf">defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return backend pulse defaults&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseDiscriminator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the discriminator for the IQ data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span>
+
+    <span class="nd">@discriminator</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discriminator</span><span class="p">:</span> <span class="n">BaseDiscriminator</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the discriminator.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="o">=</span> <span class="n">discriminator</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the default options of the backend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
+            <span class="n">shots</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+            <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">,</span>
+            <span class="n">meas_return</span><span class="o">=</span><span class="n">MeasReturnType</span><span class="o">.</span><span class="n">AVERAGE</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_pulse_unitaries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default unitary matrices of the backend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span>
+
+    <span class="nd">@default_pulse_unitaries</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">default_pulse_unitaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unitaries</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default unitary pulses this allows the tests to simulate the pulses only once.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="n">unitaries</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_info</span><span class="p">(</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">CircuitInstruction</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns information that uniquely describes a circuit instruction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: The quantum circuit in which the instruction is located. This is needed to</span>
+<span class="sd">                access the register in the circuit.</span>
+<span class="sd">            instruction: A gate or operation in a QuantumCircuit</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of qubit index, gate parameters and instruction name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p_dict</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">operation</span>
+        <span class="n">qubit</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">qbit</span><span class="p">))</span> <span class="k">for</span> <span class="n">qbit</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">p_dict</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">p_dict</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">_iq_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">probability</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">phase</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates IQ data for each physical level.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            probability: probability of occupation</span>
+<span class="sd">            shots: Number of shots</span>
+<span class="sd">            centers: The central I and Q points for each level</span>
+<span class="sd">            width: Width of IQ data distribution</span>
+<span class="sd">            phase: Phase of IQ data, by default 0. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (I,Q) data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counts_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="n">probability</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">probability</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">full_i</span><span class="p">,</span> <span class="n">full_q</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">count_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">counts_n</span><span class="p">):</span>
+            <span class="n">full_i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count_i</span><span class="p">))</span>
+            <span class="n">full_q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count_i</span><span class="p">))</span>
+
+        <span class="n">full_i</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">full_i</span><span class="p">))</span>
+        <span class="n">full_q</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">full_q</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">complex_iq</span> <span class="o">=</span> <span class="p">(</span><span class="n">full_i</span> <span class="o">+</span> <span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">full_q</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">phase</span><span class="p">)</span>
+            <span class="n">full_i</span><span class="p">,</span> <span class="n">full_q</span> <span class="o">=</span> <span class="n">complex_iq</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">complex_iq</span><span class="o">.</span><span class="n">imag</span>
+
+        <span class="n">full_iq</span> <span class="o">=</span> <span class="mf">1e16</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">full_i</span><span class="p">],</span> <span class="p">[</span><span class="n">full_q</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="n">full_iq</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="k">def</span> <span class="nf">_iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A function to provide the points for the IQ centers when doing readout.</span>
+
+<span class="sd">        Subclasses can override this function, for instance, to provide circuit dependent</span>
+<span class="sd">        IQ cluster centers. If this function is not overridden then the IQ cluster centers returned</span>
+<span class="sd">        are evenly distributed on the unit sphere in the IQ plane with |0&gt; located at IQ point (0, 1).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: provided so that sub-classes that implement their own IQ simulation</span>
+<span class="sd">                by overriding this method can access circuit-level data (e.g. for</span>
+<span class="sd">                ReadoutSpectroscopy simulation).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Coordinates for IQ centers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">idx</span> <span class="o">*</span> <span class="n">theta</span><span class="p">))</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_state_to_measurement_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">meas_level</span><span class="p">:</span> <span class="n">MeasLevel</span><span class="p">,</span>
+        <span class="n">meas_return</span><span class="p">:</span> <span class="n">MeasReturnType</span><span class="p">,</span>
+        <span class="n">memory</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Counts</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert State objects to IQ data or Counts.</span>
+
+<span class="sd">        The counts are produced by sampling from the state vector if no discriminator is</span>
+<span class="sd">        present. Otherwise, IQ shots are generated and then discriminated based on the</span>
+<span class="sd">        discriminator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state: Quantum state information.</span>
+<span class="sd">            shots: Number of repetitions of each circuit, for sampling.</span>
+<span class="sd">            meas_level: Measurement level 1 returns IQ data. 2 returns counts.</span>
+<span class="sd">            meas_return: &quot;single&quot; returns information from every shot. &quot;avg&quot; returns average</span>
+<span class="sd">                measurement output (averaged over number of shots).</span>
+<span class="sd">            circuit: The circuit is provided so that :meth:`iq_data` can leverage any circuit-level</span>
+<span class="sd">                information that it might need to generate the IQ shots.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Measurement output as either counts or IQ data depending on the run input.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If unsuported measurement options are provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">memory_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_dissipators</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dim</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">DensityMatrix</span><span class="p">(</span><span class="n">state</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Statevector</span><span class="p">(</span><span class="n">state</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">memory</span><span class="p">:</span>
+                    <span class="n">memory_data</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">sample_memory</span><span class="p">(</span><span class="n">shots</span><span class="p">)</span>
+                    <span class="n">measurement_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">memory_data</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">measurement_data</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">sample_counts</span><span class="p">(</span><span class="n">shots</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">centers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span><span class="p">(</span><span class="n">circuit</span><span class="o">=</span><span class="n">circuit</span><span class="p">)</span>
+                <span class="n">iq_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_data</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(),</span> <span class="n">shots</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+                <span class="n">memory_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">iq_data</span><span class="p">)</span>
+                <span class="n">measurement_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">memory_data</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+
+        <span class="k">elif</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span><span class="p">(</span><span class="n">circuit</span><span class="o">=</span><span class="n">circuit</span><span class="p">)</span>
+            <span class="n">measurement_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_data</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(),</span> <span class="n">shots</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+                <span class="n">measurement_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">measurement_data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported measurement level </span><span class="si">{</span><span class="n">meas_level</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">measurement_data</span><span class="p">,</span> <span class="n">memory_data</span>
+
+<div class="viewcode-block" id="PulseBackend.solve"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.solve.html#qiskit_experiments.test.PulseBackend.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">Schedule</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solves for qubit dynamics under the action of a pulse instruction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: Pulse signal</span>
+<span class="sd">            qubits: (remove after multi-qubit gates is implemented)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Time-evolution unitary operator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Multi qubit gates are not yet implemented.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">ScheduleBlock</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="n">block_to_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+
+        <span class="n">signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="o">.</span><span class="n">get_signals</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="n">time_f</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">duration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="n">unitary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+            <span class="n">t_span</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">time_f</span><span class="p">],</span>
+            <span class="n">y0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y_0</span><span class="p">,</span>
+            <span class="n">t_eval</span><span class="o">=</span><span class="p">[</span><span class="n">time_f</span><span class="p">],</span>
+            <span class="n">signals</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_method</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">unitary</span></div>
+
+<div class="viewcode-block" id="PulseBackend.run"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.PulseBackend.run.html#qiskit_experiments.test.PulseBackend.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeJob</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run method takes circuits as input and returns FakeJob with IQ data or counts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            run_input: Circuits to run.</span>
+<span class="sd">            run_options: Any option that affects the way that the circuits are run. The options</span>
+<span class="sd">                that are currently supported are ``shots``, ``meas_level``, ``meas_return``,</span>
+<span class="sd">                and ``memory``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FakeJob with simulation data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">run_options</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">shots</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">meas_level</span><span class="p">)</span>
+        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_return&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">meas_return</span><span class="p">)</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_version</span><span class="p">,</span>
+            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run_input</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+            <span class="n">run_input</span> <span class="o">=</span> <span class="p">[</span><span class="n">run_input</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">run_input</span><span class="p">:</span>
+            <span class="n">unitaries</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># 1. Parse the calibrations and simulate any new schedule. Add U to the unitaries.</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">calibrations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">),</span> <span class="n">schedule_block</span> <span class="ow">in</span> <span class="n">schedule</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">schedule_key</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">schedule</span><span class="p">))</span>
+
+                    <span class="c1"># Simulate the schedule if not in the cache.</span>
+                    <span class="k">if</span> <span class="n">schedule_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">[</span><span class="n">schedule_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">schedule_block</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)</span>
+
+                    <span class="n">unitaries</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_cache</span><span class="p">[</span><span class="n">schedule_key</span><span class="p">]</span>
+
+            <span class="c1"># 2. Copy over any remaining instructions to the dict of unitaries.</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">unitary</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_pulse_unitaries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unitaries</span><span class="p">:</span>
+                    <span class="n">unitaries</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">unitary</span>
+
+            <span class="c1"># 3. Multiply the unitaries of the circuit instructions onto the ground state.</span>
+            <span class="n">state_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">inst_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">inst_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;barrier&quot;</span><span class="p">,</span> <span class="s2">&quot;measure&quot;</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">inst_name</span> <span class="o">==</span> <span class="s2">&quot;rz&quot;</span><span class="p">:</span>
+                    <span class="c1"># Ensures that the action in the qubit space is preserved.</span>
+                    <span class="n">unitary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">1.0</span><span class="n">j</span> <span class="o">*</span> <span class="n">idx</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">unitary</span> <span class="o">=</span> <span class="n">unitaries</span><span class="p">[(</span><span class="n">inst_name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">params</span><span class="p">)]</span>
+                <span class="n">state_t</span> <span class="o">=</span> <span class="n">unitary</span> <span class="o">@</span> <span class="n">state_t</span>
+
+            <span class="c1"># 4. Convert the probabilities to IQ data or counts.</span>
+            <span class="n">measurement_data</span><span class="p">,</span> <span class="n">memory_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_to_measurement_data</span><span class="p">(</span>
+                <span class="n">state_t</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">meas_level</span><span class="p">,</span> <span class="n">meas_return</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">circuit</span>
+            <span class="p">)</span>
+
+            <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
+                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
+                <span class="s2">&quot;meas_return&quot;</span><span class="p">:</span> <span class="n">meas_return</span><span class="p">,</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
+                <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_data</span>
+                <span class="k">if</span> <span class="n">memory_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_data</span>
+            <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">:</span>
+                <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_data</span>
+
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="SingleTransmonTestBackend"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.SingleTransmonTestBackend.html#qiskit_experiments.test.SingleTransmonTestBackend">[docs]</a><span class="k">class</span> <span class="nc">SingleTransmonTestBackend</span><span class="p">(</span><span class="n">PulseBackend</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A backend that corresponds to a three level anharmonic transmon qubit.</span>
+
+<span class="sd">    The Hamiltonian of the system is</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +</span>
+<span class="sd">                \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]</span>
+
+<span class="sd">    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level</span>
+<span class="sd">    :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are</span>
+<span class="sd">    the raising and lowering operators between levels :math:`j-1` and :math:`j`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">qubit_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e9</span><span class="p">,</span>
+        <span class="n">anharmonicity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.25e9</span><span class="p">,</span>
+        <span class="n">lambda_1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="n">lambda_2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8e9</span><span class="p">,</span>
+        <span class="n">gamma_1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e4</span><span class="p">,</span>
+        <span class="n">noise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise backend with hamiltonian parameters</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.</span>
+<span class="sd">            anharmonicity: Qubit anharmonicity $\\alpha$ = f12 - f01. Defaults to -0.25e9.</span>
+<span class="sd">            lambda_1: Strength of 0-1 transition. Defaults to 1e9.</span>
+<span class="sd">            lambda_2: Strength of 1-2 transition. Defaults to 0.8e9.</span>
+<span class="sd">            gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.</span>
+<span class="sd">            noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.</span>
+<span class="sd">                The strength is given by ``gamma_1``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qubit_frequency_02</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">qubit_frequency</span> <span class="o">+</span> <span class="n">anharmonicity</span>
+        <span class="n">ket0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">ket1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">ket2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">sigma_m1</span> <span class="o">=</span> <span class="n">ket0</span> <span class="o">@</span> <span class="n">ket1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">sigma_m2</span> <span class="o">=</span> <span class="n">ket1</span> <span class="o">@</span> <span class="n">ket2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">sigma_p1</span> <span class="o">=</span> <span class="n">sigma_m1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">sigma_p2</span> <span class="o">=</span> <span class="n">sigma_m2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">ket1</span> <span class="o">@</span> <span class="n">ket1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">ket2</span> <span class="o">@</span> <span class="n">ket2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+
+        <span class="n">drift</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">qubit_frequency</span> <span class="o">*</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">qubit_frequency_02</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="n">control</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">lambda_1</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_p1</span> <span class="o">+</span> <span class="n">sigma_m1</span><span class="p">)</span> <span class="o">+</span> <span class="n">lambda_2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_p2</span> <span class="o">+</span> <span class="n">sigma_m2</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">r_frame</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">qubit_frequency</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="n">t1_dissipator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_m1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">anharmonicity</span> <span class="o">=</span> <span class="n">anharmonicity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span> <span class="o">=</span> <span class="mf">8.589</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_12</span> <span class="o">=</span> <span class="mf">6.876</span>
+
+        <span class="k">if</span> <span class="n">noise</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">evaluation_mode</span> <span class="o">=</span> <span class="s2">&quot;dense_vectorized&quot;</span>
+            <span class="n">static_dissipators</span> <span class="o">=</span> <span class="p">[</span><span class="n">t1_dissipator</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">evaluation_mode</span> <span class="o">=</span> <span class="s2">&quot;dense&quot;</span>
+            <span class="n">static_dissipators</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">static_hamiltonian</span><span class="o">=</span><span class="n">drift</span><span class="p">,</span>
+            <span class="n">hamiltonian_operators</span><span class="o">=</span><span class="n">control</span><span class="p">,</span>
+            <span class="n">static_dissipators</span><span class="o">=</span><span class="n">static_dissipators</span><span class="p">,</span>
+            <span class="n">rotating_frame</span><span class="o">=</span><span class="n">r_frame</span><span class="p">,</span>
+            <span class="n">rwa_cutoff_freq</span><span class="o">=</span><span class="mf">1.9</span> <span class="o">*</span> <span class="n">qubit_frequency</span><span class="p">,</span>
+            <span class="n">rwa_carrier_freqs</span><span class="o">=</span><span class="p">[</span><span class="n">qubit_frequency</span><span class="p">],</span>
+            <span class="n">evaluation_mode</span><span class="o">=</span><span class="n">evaluation_mode</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="n">PulseDefaults</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;qubit_freq_est&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">qubit_frequency</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">],</span>
+                <span class="s2">&quot;meas_freq_est&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;buffer&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;pulse_library&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;cmd_def&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="s2">&quot;sequence&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="n">PulseQobjInstruction</span><span class="p">(</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parametric_pulse&quot;</span><span class="p">,</span>
+                                    <span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">ch</span><span class="o">=</span><span class="s2">&quot;d0&quot;</span><span class="p">,</span>
+                                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Xp_d0&quot;</span><span class="p">,</span>
+                                    <span class="n">pulse_shape</span><span class="o">=</span><span class="s2">&quot;drag&quot;</span><span class="p">,</span>
+                                    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                                        <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span><span class="p">,</span>
+                                        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                                        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                                    <span class="p">},</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+                            <span class="p">],</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                    <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;sx&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="s2">&quot;sequence&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="n">PulseQobjInstruction</span><span class="p">(</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;parametric_pulse&quot;</span><span class="p">,</span>
+                                    <span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">ch</span><span class="o">=</span><span class="s2">&quot;d0&quot;</span><span class="p">,</span>
+                                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;X90p_d0&quot;</span><span class="p">,</span>
+                                    <span class="n">pulse_shape</span><span class="o">=</span><span class="s2">&quot;drag&quot;</span><span class="p">,</span>
+                                    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+                                        <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rabi_rate_01</span><span class="p">,</span>
+                                        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                                        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                                    <span class="p">},</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+                            <span class="p">],</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+            <span class="n">qubit_properties</span><span class="o">=</span><span class="p">[</span><span class="n">QubitProperties</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">qubit_frequency</span><span class="p">)],</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">measure_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">x_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">160e-10</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">sx_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">160e-10</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">rz_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phi</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Measure</span><span class="p">(),</span> <span class="n">measure_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="n">x_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">SXGate</span><span class="p">(),</span> <span class="n">sx_props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">RZGate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_phi</span><span class="p">),</span> <span class="n">rz_props</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="n">InstructionToSignals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">carriers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;d0&quot;</span><span class="p">:</span> <span class="n">qubit_frequency</span><span class="p">})</span>
+
+        <span class="n">default_schedules</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="o">.</span><span class="n">instruction_schedule_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="o">.</span><span class="n">instruction_schedule_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simulated_pulse_unitaries</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="p">()):</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="n">default_schedules</span>
+        <span class="p">}</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

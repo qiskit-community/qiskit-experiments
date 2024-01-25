@@ -1,0 +1,46 @@
+﻿
+
+T2HahnAnalysis
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: T2HahnAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T2HahnAnalysis.drawer
+      T2HahnAnalysis.models
+      T2HahnAnalysis.name
+      T2HahnAnalysis.options
+      T2HahnAnalysis.parameters
+      T2HahnAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T2HahnAnalysis.config
+      T2HahnAnalysis.copy
+      T2HahnAnalysis.from_config
+      T2HahnAnalysis.run
+      T2HahnAnalysis.set_options
+   
+
+   
+   

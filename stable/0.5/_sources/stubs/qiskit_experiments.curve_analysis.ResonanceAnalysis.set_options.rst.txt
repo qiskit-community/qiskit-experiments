@@ -1,0 +1,8 @@
+
+
+ResonanceAnalysis.set_options
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: ResonanceAnalysis.set_options

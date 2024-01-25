@@ -1,0 +1,8 @@
+
+
+FineAmplitude.run_options
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineAmplitude.run_options

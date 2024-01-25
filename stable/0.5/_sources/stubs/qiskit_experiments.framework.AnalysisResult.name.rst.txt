@@ -1,0 +1,8 @@
+
+
+AnalysisResult.name
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.name

@@ -1,0 +1,8 @@
+
+
+EFRabi.run_options
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: EFRabi.run_options

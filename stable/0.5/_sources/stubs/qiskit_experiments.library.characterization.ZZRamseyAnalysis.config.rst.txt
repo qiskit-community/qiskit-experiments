@@ -1,0 +1,8 @@
+
+
+ZZRamseyAnalysis.config
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: ZZRamseyAnalysis.config

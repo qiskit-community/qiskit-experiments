@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.version
+====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoattribute:: NoisyDelayAerBackend.version

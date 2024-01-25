@@ -1,0 +1,8 @@
+
+
+FineFrequency.from_config
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineFrequency.from_config

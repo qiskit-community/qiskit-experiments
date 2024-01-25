@@ -1,0 +1,8 @@
+
+
+DecayAnalysis.copy
+====================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: DecayAnalysis.copy

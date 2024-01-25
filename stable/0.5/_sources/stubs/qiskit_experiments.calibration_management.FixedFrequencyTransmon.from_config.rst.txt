@@ -1,0 +1,8 @@
+
+
+FixedFrequencyTransmon.from_config
+============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: FixedFrequencyTransmon.from_config

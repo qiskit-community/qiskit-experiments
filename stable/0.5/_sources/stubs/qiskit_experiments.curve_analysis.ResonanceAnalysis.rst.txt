@@ -1,0 +1,46 @@
+﻿
+
+ResonanceAnalysis
+===================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: ResonanceAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ResonanceAnalysis.drawer
+      ResonanceAnalysis.models
+      ResonanceAnalysis.name
+      ResonanceAnalysis.options
+      ResonanceAnalysis.parameters
+      ResonanceAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ResonanceAnalysis.config
+      ResonanceAnalysis.copy
+      ResonanceAnalysis.from_config
+      ResonanceAnalysis.run
+      ResonanceAnalysis.set_options
+   
+
+   
+   

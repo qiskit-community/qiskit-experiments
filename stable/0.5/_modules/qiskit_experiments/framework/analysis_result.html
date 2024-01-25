@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.framework.analysis_result &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.framework.analysis_result</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.framework.analysis_result</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021-2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Analysis result class.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">uncertainties</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_ibm_experiment</span> <span class="kn">import</span> <span class="n">IBMExperimentService</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
+<span class="kn">from</span> <span class="nn">qiskit_ibm_experiment</span> <span class="kn">import</span> <span class="n">ResultQuality</span>
+<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.json</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ExperimentEncoder</span><span class="p">,</span>
+    <span class="n">ExperimentDecoder</span><span class="p">,</span>
+    <span class="n">_serialize_safe_float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.device_component</span> <span class="kn">import</span> <span class="n">DeviceComponent</span><span class="p">,</span> <span class="n">to_component</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.exceptions</span> <span class="kn">import</span> <span class="n">ExperimentDataError</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.utils</span> <span class="kn">import</span> <span class="n">qiskit_version</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AnalysisResult"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult">[docs]</a><span class="k">class</span> <span class="nc">AnalysisResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class representing an analysis result for an experiment.</span>
+
+<span class="sd">    Analysis results can also be stored using the experiments service.</span>
+
+<span class="sd">    The field ``db_data`` is a dataclass (`ExperimentDataclass`) containing</span>
+<span class="sd">    all the data that can be stored with the service and loaded from it, and</span>
+<span class="sd">    as such is subject to strict conventions.</span>
+
+<span class="sd">    Other data fields can be added and used freely, but they won&#39;t be saved</span>
+<span class="sd">    to the database.</span>
+
+<span class="sd">    Note that the ``result_data`` field of the dataclass is by itself a dictionary</span>
+<span class="sd">    capable of holding arbitrary values (in a dictionary indexed by a string).</span>
+
+<span class="sd">    The data fields in the ``db_data`` dataclass are:</span>
+
+<span class="sd">    * ``experiment_id``: ``str``</span>
+<span class="sd">    * ``result_id``: ``str``</span>
+<span class="sd">    * ``result_type``: ``str``</span>
+<span class="sd">    * ``device_components``: ``List[str]``</span>
+<span class="sd">    * ``quality``: ``str``</span>
+<span class="sd">    * ``verified``: ``bool``</span>
+<span class="sd">    * ``tags``: ``List[str]``</span>
+<span class="sd">    * ``backend_name``: ``str``</span>
+<span class="sd">    * ``chisq``: ``float``</span>
+<span class="sd">    * ``result_data``: ``Dict[str]``</span>
+
+<span class="sd">    Analysis data that does not fit into the other fields should be added to</span>
+<span class="sd">    the ``result_data`` dict, e.g. curve parameters in experiments doing a curve fit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">version</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_data_version</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">_json_encoder</span> <span class="o">=</span> <span class="n">ExperimentEncoder</span>
+    <span class="n">_json_decoder</span> <span class="o">=</span> <span class="n">ExperimentDecoder</span>
+
+    <span class="n">_extra_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">RESULT_QUALITY_TO_TEXT</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">GOOD</span><span class="p">:</span> <span class="s2">&quot;good&quot;</span><span class="p">,</span>
+        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">BAD</span><span class="p">:</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span>
+        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device_components</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">DeviceComponent</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">result_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">chisq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">quality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESULT_QUALITY_TO_TEXT</span><span class="p">[</span><span class="n">ResultQuality</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">],</span>
+        <span class="n">extra</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;AnalysisResult constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: analysis result name.</span>
+<span class="sd">            value: main analysis result value.</span>
+<span class="sd">            device_components: Target device components this analysis is for.</span>
+<span class="sd">            experiment_id: ID of the experiment.</span>
+<span class="sd">            result_id: Result ID. If ``None``, one is generated.</span>
+<span class="sd">            chisq: Reduced chi squared of the fit.</span>
+<span class="sd">            quality: Quality of the analysis. Refer to the experiment service</span>
+<span class="sd">                provider for valid values.</span>
+<span class="sd">            extra: Dictionary of extra analysis result data</span>
+<span class="sd">            verified: Whether the result quality has been verified.</span>
+<span class="sd">            tags: Tags for this analysis result.</span>
+<span class="sd">            service: Experiment service to be used to store result in database.</span>
+<span class="sd">            source: Class and Qiskit version information when loading from an</span>
+<span class="sd">                experiment service.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The AnalysisResult object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Data to be stored in DB.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
+            <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
+            <span class="n">result_id</span><span class="o">=</span><span class="n">result_id</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span>
+            <span class="n">result_type</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">chisq</span><span class="o">=</span><span class="n">chisq</span><span class="p">,</span>
+            <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+            <span class="n">verified</span><span class="o">=</span><span class="n">verified</span><span class="p">,</span>
+            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">[],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_result_data</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">chisq</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">device_components</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">device_components</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">comp</span> <span class="o">=</span> <span class="n">to_component</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_created_in_db</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">preferences</span><span class="p">[</span><span class="s2">&quot;auto_save&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="AnalysisResult.set_data"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.set_data.html#qiskit_experiments.framework.AnalysisResult.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">AnalysisResultData</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the analysis data stored in the class&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">new_device_components</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_component</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span> <span class="o">=</span> <span class="n">new_device_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESULT_QUALITY_TO_TEXT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnalysisResult.default_source"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.default_source.html#qiskit_experiments.framework.AnalysisResult.default_source">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default_source</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default source dictionary to generate&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_version&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_data_version</span><span class="p">,</span>
+            <span class="s2">&quot;qiskit_version&quot;</span><span class="p">:</span> <span class="n">qiskit_version</span><span class="p">(),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="AnalysisResult.format_result_data"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.format_result_data.html#qiskit_experiments.framework.AnalysisResult.format_result_data">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_result_data</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">chisq</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Formats the result data from the given arguments&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">AnalysisResult</span><span class="o">.</span><span class="n">default_source</span><span class="p">()</span>
+        <span class="n">result_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;_value&quot;</span><span class="p">:</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+            <span class="s2">&quot;_chisq&quot;</span><span class="p">:</span> <span class="n">chisq</span><span class="p">,</span>
+            <span class="s2">&quot;_extra&quot;</span><span class="p">:</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">extra</span> <span class="ow">or</span> <span class="p">{}),</span>
+            <span class="s2">&quot;_source&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Format special DB display fields</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">UFloat</span><span class="p">):</span>
+            <span class="n">db_value</span> <span class="o">=</span> <span class="n">AnalysisResult</span><span class="o">.</span><span class="n">_display_format</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">nominal_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">db_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_value</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnalysisResult</span><span class="o">.</span><span class="n">_display_format</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;unit&quot;</span> <span class="ow">in</span> <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_extra&quot;</span><span class="p">]:</span>
+                <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_extra&quot;</span><span class="p">][</span><span class="s2">&quot;unit&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">db_value</span> <span class="o">=</span> <span class="n">AnalysisResult</span><span class="o">.</span><span class="n">_display_format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">db_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_value</span>
+        <span class="k">return</span> <span class="n">result_data</span></div>
+
+<div class="viewcode-block" id="AnalysisResult.load"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.load.html#qiskit_experiments.framework.AnalysisResult.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a saved analysis result from a database service.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            result_id: Analysis result ID.</span>
+<span class="sd">            service: the database service.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The loaded analysis result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load data from the service</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">analysis_result</span><span class="p">(</span><span class="n">result_id</span><span class="p">,</span> <span class="n">json_decoder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_json_decoder</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">_created_in_db</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AnalysisResult.save"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.save.html#qiskit_experiments.framework.AnalysisResult.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suppress_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save this analysis result in the database.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            suppress_errors: should the method catch exceptions (true) or</span>
+<span class="sd">            pass them on, potentially aborting the experiemnt (false)</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ExperimentDataError: If the analysis result contains invalid data.</span>
+<span class="sd">            QiskitError: If the save to the database failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Analysis result cannot be saved because no experiment service is available.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">create_or_update_analysis_result</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="p">,</span> <span class="n">json_encoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_encoder</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_in_db</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_created_in_db</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="c1"># Don&#39;t automatically fail the experiment just because its data cannot be saved.</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to save the experiment data: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_errors</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis result save failed</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span></div>
+
+<div class="viewcode-block" id="AnalysisResult.copy"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.copy.html#qiskit_experiments.framework.AnalysisResult.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of the result with a new result ID&quot;&quot;&quot;</span>
+        <span class="n">new_instance</span> <span class="o">=</span> <span class="n">AnalysisResult</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">device_components</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device_components</span><span class="p">,</span>
+            <span class="n">experiment_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">new_instance</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return analysis result name.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Analysis result name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return analysis result value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Analysis result value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_value&quot;</span><span class="p">]</span>
+
+    <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis result value.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return extra analysis result data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Additional analysis result data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_extra&quot;</span><span class="p">]</span>
+
+    <span class="nd">@extra</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">extra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis result value.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExperimentDataError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The `extra` field of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a dict.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_extra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">device_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DeviceComponent</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return target device components for this analysis result.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Target device components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span>
+
+    <span class="nd">@device_components</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">device_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">DeviceComponent</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the device components&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">to_component</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return analysis result ID.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ID for this analysis result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ID of the experiment associated with this analysis result.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ID of experiment associated with this analysis result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_id</span>
+
+    <span class="nd">@experiment_id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the experiment id&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="n">new_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chisq</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the reduced χ² of this analysis.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">chisq</span>
+
+    <span class="nd">@chisq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">chisq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_chisq</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the reduced χ² of this analysis.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">chisq</span> <span class="o">=</span> <span class="n">new_chisq</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quality of this analysis.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Quality of this analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span>
+
+    <span class="nd">@quality</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the quality of this analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_quality: New analysis quality.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="n">new_quality</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">verified</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the verified flag.</span>
+
+<span class="sd">        The ``verified`` flag is intended to indicate whether the quality</span>
+<span class="sd">        value has been verified by a human.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Whether the quality has been verified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">verified</span>
+
+    <span class="nd">@verified</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">verified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verified</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the verified flag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verified: Whether the quality is verified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">verified</span> <span class="o">=</span> <span class="n">verified</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return tags associated with this result.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">tags</span>
+
+    <span class="nd">@tags</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set tags for this result.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_tags</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExperimentDataError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The `tags` field of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a list.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">new_tags</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database service.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Service that can be used to store this analysis result in a database.</span>
+<span class="sd">            ``None`` if not available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+
+    <span class="nd">@service</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the service to be used for storing result data in a database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            service: Service to be used.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ExperimentDataError: If an experiment service is already being used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ExperimentDataError</span><span class="p">(</span><span class="s2">&quot;An experiment service is already being used.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the class name and version.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;_source&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_source&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return current auto-save option.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Whether changes will be automatically saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span>
+
+    <span class="nd">@auto_save</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set auto save preference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            save_val: Whether to do auto-save.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">save_val</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span> <span class="o">=</span> <span class="n">save_val</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_display_format</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format values for supported types for display in database service&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="c1"># Pass supported value types directly</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># Safe handling on NaN float values that serialize to invalid JSON</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="s2">&quot;__value__&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
+            <span class="c1"># Convert complex floats to strings for display</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># For all other value types that cannot be natively displayed</span>
+        <span class="c1"># we return the class name</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- value: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- χ²: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- quality: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- extra: &lt;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span><span class="si">}</span><span class="s2"> items&gt;&quot;</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- device_components: </span><span class="si">{</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">device_components</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">- verified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verified</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, value=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, device_components=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_components</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, experiment_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, result_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, chisq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, quality=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, verified=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verified</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, extra=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, tags=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, experiment id=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_type</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_value&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;device_components&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">,</span>
+            <span class="s2">&quot;experiment_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+            <span class="s2">&quot;result_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="s2">&quot;chisq&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+            <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span>
+            <span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">,</span>
+            <span class="s2">&quot;verified&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">verified</span><span class="p">,</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

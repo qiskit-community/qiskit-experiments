@@ -1,0 +1,71 @@
+﻿
+
+AnalysisResultData
+===============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisResultData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      AnalysisResultData.value
+      
+   
+      
+      
+         
+      
+      AnalysisResultData.extra
+      
+   
+      
+      
+         
+      
+      AnalysisResultData.device_components
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+
+   
+   

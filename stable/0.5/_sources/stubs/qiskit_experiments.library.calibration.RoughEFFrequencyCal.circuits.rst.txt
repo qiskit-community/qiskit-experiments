@@ -1,0 +1,8 @@
+
+
+RoughEFFrequencyCal.circuits
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughEFFrequencyCal.circuits

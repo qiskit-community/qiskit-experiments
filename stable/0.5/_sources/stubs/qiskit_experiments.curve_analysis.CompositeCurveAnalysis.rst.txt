@@ -1,0 +1,115 @@
+﻿
+
+CompositeCurveAnalysis
+========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: CompositeCurveAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      CompositeCurveAnalysis.drawer
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.models
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.name
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.options
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.parameters
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.plotter
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CompositeCurveAnalysis.analyses
+   
+   
+      CompositeCurveAnalysis.config
+   
+   
+      CompositeCurveAnalysis.copy
+   
+   
+      CompositeCurveAnalysis.from_config
+   
+   
+      CompositeCurveAnalysis.run
+   
+   
+      CompositeCurveAnalysis.set_options
+   
+
+   
+   

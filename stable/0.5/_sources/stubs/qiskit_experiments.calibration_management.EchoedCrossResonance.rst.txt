@@ -1,0 +1,102 @@
+﻿
+
+EchoedCrossResonance
+==============================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoclass:: EchoedCrossResonance
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      EchoedCrossResonance.basis_gates
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EchoedCrossResonance.__getitem__
+   
+   
+      EchoedCrossResonance.__len__
+   
+   
+      EchoedCrossResonance.config
+   
+   
+      EchoedCrossResonance.default_values
+   
+   
+      EchoedCrossResonance.from_config
+   
+   
+      EchoedCrossResonance.get
+   
+   
+      EchoedCrossResonance.items
+   
+   
+      EchoedCrossResonance.keys
+   
+   
+      EchoedCrossResonance.num_qubits
+   
+   
+      EchoedCrossResonance.values
+   
+   
+   
+      EchoedCrossResonance.__getitem__
+   
+   
+      EchoedCrossResonance.__len__
+
+   
+   

@@ -1,0 +1,8 @@
+﻿
+
+gaussian
+=======================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.fit_function
+
+.. autofunction:: gaussian

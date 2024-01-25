@@ -1,0 +1,51 @@
+﻿
+
+QubitSpectroscopy
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: QubitSpectroscopy
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      QubitSpectroscopy.analysis
+      QubitSpectroscopy.backend
+      QubitSpectroscopy.experiment_options
+      QubitSpectroscopy.experiment_type
+      QubitSpectroscopy.num_qubits
+      QubitSpectroscopy.physical_qubits
+      QubitSpectroscopy.run_options
+      QubitSpectroscopy.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      QubitSpectroscopy.circuits
+      QubitSpectroscopy.config
+      QubitSpectroscopy.copy
+      QubitSpectroscopy.from_config
+      QubitSpectroscopy.run
+      QubitSpectroscopy.set_experiment_options
+      QubitSpectroscopy.set_run_options
+      QubitSpectroscopy.set_transpile_options
+   
+
+   
+   

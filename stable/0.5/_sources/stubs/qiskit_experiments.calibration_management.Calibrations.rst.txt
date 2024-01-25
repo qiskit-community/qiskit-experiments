@@ -1,0 +1,155 @@
+﻿
+
+Calibrations
+======================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoclass:: Calibrations
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      Calibrations.backend_name
+      
+   
+      
+      
+         
+      
+      Calibrations.backend_version
+      
+   
+      
+      
+         
+      
+      Calibrations.default_inst_map
+      
+   
+      
+      
+         
+      
+      Calibrations.libraries
+      
+   
+      
+      
+         
+      
+      Calibrations.parameters
+      
+   
+      
+      
+         
+      
+      Calibrations.schedule_dependency
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      Calibrations.add_parameter_value
+   
+   
+      Calibrations.add_schedule
+   
+   
+      Calibrations.calibration_parameter
+   
+   
+      Calibrations.config
+   
+   
+      Calibrations.from_backend
+   
+   
+      Calibrations.from_config
+   
+   
+      Calibrations.get_inst_map
+   
+   
+      Calibrations.get_parameter_value
+   
+   
+      Calibrations.get_schedule
+   
+   
+      Calibrations.get_template
+   
+   
+      Calibrations.has_template
+   
+   
+      Calibrations.inst_map_add
+   
+   
+      Calibrations.load
+   
+   
+      Calibrations.load_parameter_values
+   
+   
+      Calibrations.parameters_table
+   
+   
+      Calibrations.remove_schedule
+   
+   
+      Calibrations.save
+   
+   
+      Calibrations.schedule_information
+   
+   
+      Calibrations.schedules
+   
+   
+      Calibrations.update_inst_map
+   
+
+   
+   

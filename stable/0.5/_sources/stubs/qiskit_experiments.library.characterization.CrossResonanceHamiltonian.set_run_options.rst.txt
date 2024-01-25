@@ -1,0 +1,8 @@
+
+
+CrossResonanceHamiltonian.set_run_options
+=====================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: CrossResonanceHamiltonian.set_run_options

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.curve_analysis.utils &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.curve_analysis.utils</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.curve_analysis.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Utils in curve analysis.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">asteval</span>
+<span class="kn">import</span> <span class="nn">lmfit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qiskit.utils</span> <span class="kn">import</span> <span class="n">detach_prefix</span>
+<span class="kn">from</span> <span class="nn">uncertainties</span> <span class="kn">import</span> <span class="n">UFloat</span><span class="p">,</span> <span class="n">wrap</span> <span class="k">as</span> <span class="n">wrap_function</span>
+<span class="kn">from</span> <span class="nn">uncertainties</span> <span class="kn">import</span> <span class="n">unumpy</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.curve_analysis.curve_data</span> <span class="kn">import</span> <span class="n">CurveFitResult</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">AnalysisError</span><span class="p">,</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">AnalysisResultData</span>
+
+
+<span class="n">UNUMPY_FUNCS</span> <span class="o">=</span> <span class="p">{</span><span class="n">fn</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">unumpy</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">__all__</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="is_error_not_significant"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html#qiskit_experiments.curve_analysis.utils.is_error_not_significant">[docs]</a><span class="k">def</span> <span class="nf">is_error_not_significant</span><span class="p">(</span>
+    <span class="n">val</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">],</span>
+    <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">absolute</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the standard error of given value is not significant.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        val: Input value to evaluate. This is assumed to be float or ufloat.</span>
+<span class="sd">        fraction: Valid fraction of the nominal part to its standard error.</span>
+<span class="sd">            This function returns ``False`` if the nominal part is</span>
+<span class="sd">            smaller than the error by this fraction.</span>
+<span class="sd">        absolute: Use this value as a threshold if given.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``True`` if the standard error of given value is not significant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">absolute</span> <span class="k">if</span> <span class="n">absolute</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fraction</span> <span class="o">*</span> <span class="n">val</span><span class="o">.</span><span class="n">nominal_value</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">std_dev</span><span class="p">)</span> <span class="ow">or</span> <span class="n">val</span><span class="o">.</span><span class="n">std_dev</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="analysis_result_to_repr"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html#qiskit_experiments.curve_analysis.utils.analysis_result_to_repr">[docs]</a><span class="k">def</span> <span class="nf">analysis_result_to_repr</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">AnalysisResultData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function to create string representation from analysis result data object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        result: Analysis result data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        String representation of the data.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AnalysisError: When the result data is not likely fit parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result data </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid fit parameter data type.&quot;</span><span class="p">)</span>
+
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_val</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="c1"># Return value with unit with prefix, i.e. 1000 Hz -&gt; 1 kHz.</span>
+        <span class="k">if</span> <span class="n">unit</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">val</span><span class="p">,</span> <span class="n">val_prefix</span> <span class="o">=</span> <span class="n">detach_prefix</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">val_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2"> .3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">val_prefix</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-3</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="c1"># Only nominal part</span>
+        <span class="n">n_repr</span><span class="p">,</span> <span class="n">n_unit</span> <span class="o">=</span> <span class="n">_format_val</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value_repr</span> <span class="o">=</span> <span class="n">n_repr</span> <span class="o">+</span> <span class="n">n_unit</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Nominal part</span>
+        <span class="n">n_repr</span><span class="p">,</span> <span class="n">n_unit</span> <span class="o">=</span> <span class="n">_format_val</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">nominal_value</span><span class="p">)</span>
+
+        <span class="c1"># Standard error part</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">):</span>
+            <span class="n">s_repr</span><span class="p">,</span> <span class="n">s_unit</span> <span class="o">=</span> <span class="n">_format_val</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_unit</span> <span class="o">==</span> <span class="n">s_unit</span><span class="p">:</span>
+                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">n_repr</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00B1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="si">}{</span><span class="n">n_unit</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">n_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n_unit</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00B1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s_unit</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value_repr</span> <span class="o">=</span> <span class="n">n_repr</span> <span class="o">+</span> <span class="n">n_unit</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value_repr</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="convert_lmfit_result"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html#qiskit_experiments.curve_analysis.utils.convert_lmfit_result">[docs]</a><span class="k">def</span> <span class="nf">convert_lmfit_result</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimizer</span><span class="o">.</span><span class="n">MinimizerResult</span><span class="p">,</span>
+    <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">],</span>
+    <span class="n">xdata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ydata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.</span>
+
+<span class="sd">    :class:`.CurveFitResult` is a dataclass that can be serialized with the experiment JSON decoder.</span>
+<span class="sd">    In addition, this class converts LMFIT ``Parameter`` objects into ufloats so that</span>
+<span class="sd">    extra parameter computation in the analysis post-processing can perform</span>
+<span class="sd">    accurate error propagation with parameter correlation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        result: Output from LMFIT ``minimize``.</span>
+<span class="sd">        models: Model used for the fitting. Function description is extracted.</span>
+<span class="sd">        xdata: X values used for the fitting.</span>
+<span class="sd">        ydata: Y values used for the fitting.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        QiskitExperiments :class:`.CurveFitResult` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">):</span>
+            <span class="n">func_repr</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">expr</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">independent_vars</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">)</span>
+            <span class="n">func_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;F(</span><span class="si">{</span><span class="n">signature</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">model_descriptions</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_repr</span>
+
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CurveFitResult</span><span class="p">(</span>
+            <span class="n">model_repr</span><span class="o">=</span><span class="n">model_descriptions</span><span class="p">,</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">x_data</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+            <span class="n">y_data</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">covar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;covar&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">covar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">covar</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">covar</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">CurveFitResult</span><span class="p">(</span>
+        <span class="n">method</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+        <span class="n">model_repr</span><span class="o">=</span><span class="n">model_descriptions</span><span class="p">,</span>
+        <span class="n">success</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
+        <span class="n">nfev</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+        <span class="n">dof</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">nfree</span><span class="p">,</span>
+        <span class="n">init_params</span><span class="o">=</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">init_value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="n">chisq</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">chisqr</span><span class="p">,</span>
+        <span class="n">reduced_chisq</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">redchi</span><span class="p">,</span>
+        <span class="n">aic</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">aic</span><span class="p">,</span>
+        <span class="n">bic</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">bic</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="n">var_names</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span>
+        <span class="n">x_data</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+        <span class="n">y_data</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span>
+        <span class="n">covar</span><span class="o">=</span><span class="n">covar</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="eval_with_uncertainties"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html#qiskit_experiments.curve_analysis.utils.eval_with_uncertainties">[docs]</a><span class="k">def</span> <span class="nf">eval_with_uncertainties</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Y values with error propagation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: X values.</span>
+<span class="sd">        model: LMFIT model.</span>
+<span class="sd">        params: Fitter parameters in correlated ufloats.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Y values with uncertainty (uarray).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sub_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">):</span>
+        <span class="c1"># If the model has string expression, we regenerate unumpy fit function.</span>
+        <span class="c1"># Note that propagating the error through the function requires computation of</span>
+        <span class="c1"># derivatives, which is done by uncertainties.wrap (or perhaps manually).</span>
+        <span class="c1"># However, usually computation of derivative is heavy computing overhead,</span>
+        <span class="c1"># and it is better to use hard-coded derivative functions if it is known.</span>
+        <span class="c1"># The unumpy functions provide such derivatives, and it&#39;s much faster.</span>
+        <span class="c1"># Here we parse the expression with ASTEVAL, and replace the mapping to</span>
+        <span class="c1"># the functions in Python&#39;s math or numpy with one in unumpy module.</span>
+        <span class="c1"># Benchmarking with RamseyXY experiment with 100 data points,</span>
+        <span class="c1"># this yields roughly 60% computation time reduction.</span>
+        <span class="n">interpreter</span> <span class="o">=</span> <span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">()</span>
+        <span class="n">astcode</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="c1"># Replace function with unumpy version</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UNUMPY_FUNCS</span><span class="p">)</span>
+        <span class="c1"># Add parameters</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_params</span><span class="p">)</span>
+        <span class="c1"># Add x values</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">astcode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="c1"># User provided function does not support ufloats.</span>
+            <span class="c1"># Likely using not defined function in unumpy.</span>
+            <span class="c1"># This falls into normal derivative computation.</span>
+            <span class="k">pass</span>
+
+    <span class="n">wrapfunc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">wrap_function</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">func</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">wrapfunc</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">sub_params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filter_data"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.filter_data.html#qiskit_experiments.curve_analysis.utils.filter_data">[docs]</a><span class="k">def</span> <span class="nf">filter_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]],</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the list of filtered data</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: list of data dicts.</span>
+<span class="sd">        filters: kwargs for filtering based on metadata</span>
+<span class="sd">                 values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The list of filtered data. If no filters are provided this will be the</span>
+<span class="sd">        input list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="n">filtered_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">include</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="n">metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">include</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">include</span><span class="p">:</span>
+            <span class="n">filtered_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filtered_data</span></div>
+
+
+<div class="viewcode-block" id="mean_xy_data"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.mean_xy_data.html#qiskit_experiments.curve_analysis.utils.mean_xy_data">[docs]</a><span class="k">def</span> <span class="nf">mean_xy_data</span><span class="p">(</span>
+    <span class="n">xdata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ydata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shots</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return (x, y_mean, sigma) data.</span>
+
+<span class="sd">    The mean is taken over all :math:`y` data values with the same :math:`x` data value using</span>
+<span class="sd">    the specified method. For each :math:`x` the mean :math:`\overline{y}` and variance</span>
+<span class="sd">    :math:`\sigma^2` are computed as</span>
+
+<span class="sd">    * ``&quot;sample&quot;`` (default): *Sample mean and variance*</span>
+
+<span class="sd">      * :math:`\overline{y} = \sum_{i=1}^N y_i / N`,</span>
+
+<span class="sd">      * :math:`\sigma^2 = \sum_{i=1}^N ((\overline{y} - y_i)^2) / N`</span>
+
+<span class="sd">    * ``&quot;iwv&quot;``: *Inverse-weighted variance*</span>
+
+<span class="sd">      * :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`</span>
+<span class="sd">      * :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`</span>
+
+<span class="sd">    * ``&quot;shots_weighted_variance&quot;``: *Sample mean and variance with weights from shots*</span>
+
+<span class="sd">      * :math:`\overline{y} = \sum_{i=1}^N n_i y_i / M`,</span>
+
+<span class="sd">      * :math:`\sigma^2 = \sum_{i=1}^N (n_i \sigma_i / M)^2`,</span>
+<span class="sd">        where :math:`n_i` is the number of shots per data point and :math:`M = \sum_{i=1}^N n_i`</span>
+<span class="sd">        is a total number of shots from different circuit execution at the same :math:`x` value.</span>
+<span class="sd">        If ``shots`` is not provided, this applies uniform weights to all values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        xdata: 1D or 2D array of xdata from curve_fit_data or</span>
+<span class="sd">            multi_curve_fit_data</span>
+<span class="sd">        ydata: array of ydata returned from curve_fit_data or</span>
+<span class="sd">            multi_curve_fit_data</span>
+<span class="sd">        sigma: Optional, array of standard deviations in ydata.</span>
+<span class="sd">        shots: Optional, array of shots used to get a data point.</span>
+<span class="sd">        method: The method to use for computing y means and</span>
+<span class="sd">            standard deviations sigma (default: &quot;sample&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: ``(x, y_mean, sigma, shots)``, where ``x`` is an arrays of unique</span>
+<span class="sd">        x-values, ``y`` is an array of sample mean y-values, ``sigma`` is an array of</span>
+<span class="sd">        sample standard deviation of y values, and ``shots`` are the total number of</span>
+<span class="sd">        experiment shots used to evaluate the data point. If ``shots`` in the function</span>
+<span class="sd">        call is ``None``, the numbers appear in the returned value will represent just a</span>
+<span class="sd">        number of duplicated x value entries.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        QiskitError: If the &quot;ivw&quot; method is used without providing a sigma.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">y_sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">y_shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shots</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">shots</span><span class="p">)):</span>
+        <span class="c1"># this will become standard average</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xdata</span><span class="p">)</span>
+
+    <span class="c1"># Sample mean and variance method</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;sample&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="c1"># Get positions of y to average</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">xdata</span> <span class="o">==</span> <span class="n">x_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">ydata</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">ns</span> <span class="o">=</span> <span class="n">shots</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+
+            <span class="c1"># Compute sample mean and sample standard error of the mean</span>
+            <span class="n">y_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+            <span class="n">y_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">y_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ys</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">ys</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">y_shots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x_means</span><span class="p">,</span> <span class="n">y_means</span><span class="p">,</span> <span class="n">y_sigmas</span><span class="p">,</span> <span class="n">y_shots</span>
+
+    <span class="c1"># Inverse-weighted variance method</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;iwv&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="s2">&quot;The inverse-weighted variance method cannot be used with `sigma=None`&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="c1"># Get positions of y to average</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">xdata</span> <span class="o">==</span> <span class="n">x_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">ydata</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">ns</span> <span class="o">=</span> <span class="n">shots</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+
+            <span class="c1"># Compute the inverse-variance weighted y mean and variance</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">y_var</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+            <span class="n">y_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_var</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">ys</span><span class="p">)</span>
+            <span class="n">y_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_var</span><span class="p">)</span>
+            <span class="n">y_shots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x_means</span><span class="p">,</span> <span class="n">y_means</span><span class="p">,</span> <span class="n">y_sigmas</span><span class="p">,</span> <span class="n">y_shots</span>
+
+    <span class="c1"># Quadrature sum of variance</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;shots_weighted&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_means</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="c1"># Get positions of y to average</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">xdata</span> <span class="o">==</span> <span class="n">x_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">ydata</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">ss</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">ns</span> <span class="o">=</span> <span class="n">shots</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">ns</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+            <span class="c1"># Compute sample mean and sum of variance with weights based on shots</span>
+            <span class="n">y_means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">ys</span><span class="p">)</span>
+            <span class="n">y_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ss</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">y_shots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x_means</span><span class="p">,</span> <span class="n">y_means</span><span class="p">,</span> <span class="n">y_sigmas</span><span class="p">,</span> <span class="n">y_shots</span>
+
+    <span class="c1"># Invalid method</span>
+    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="multi_mean_xy_data"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.multi_mean_xy_data.html#qiskit_experiments.curve_analysis.utils.multi_mean_xy_data">[docs]</a><span class="k">def</span> <span class="nf">multi_mean_xy_data</span><span class="p">(</span>
+    <span class="n">series</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">xdata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ydata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shots</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take mean of multi series data set. See :func:`.mean_xy_data`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series: Series index.</span>
+<span class="sd">        xdata: 1D or 2D array of xdata from curve_fit_data or</span>
+<span class="sd">               multi_curve_fit_data</span>
+<span class="sd">        ydata: array of ydata returned from curve_fit_data or</span>
+<span class="sd">               multi_curve_fit_data</span>
+<span class="sd">        sigma: Optional, array of standard deviations in ydata.</span>
+<span class="sd">        shots: Optional, array of shots used to get a data point.</span>
+<span class="sd">        method: The method to use for computing y means and</span>
+<span class="sd">                standard deviations sigma (default: &quot;sample&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of ``(series, xdata, ydata, sigma, shots)``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">series_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+
+    <span class="n">series_means</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xdata_means</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ydata_means</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sigma_means</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">shots_sums</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Get x, y, sigma data for series and process mean data</span>
+    <span class="k">for</span> <span class="n">series_val</span> <span class="ow">in</span> <span class="n">series_vals</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">series</span> <span class="o">==</span> <span class="n">series_val</span>
+        <span class="n">sigma_i</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span> <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">shots_i</span> <span class="o">=</span> <span class="n">shots</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span> <span class="k">if</span> <span class="n">shots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">x_mean</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">sigma_mean</span><span class="p">,</span> <span class="n">shots_sum</span> <span class="o">=</span> <span class="n">mean_xy_data</span><span class="p">(</span>
+            <span class="n">xdata</span><span class="p">[</span><span class="n">idxs</span><span class="p">],</span> <span class="n">ydata</span><span class="p">[</span><span class="n">idxs</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_i</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots_i</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span>
+        <span class="p">)</span>
+        <span class="n">series_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">x_mean</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">series_val</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">xdata_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_mean</span><span class="p">)</span>
+        <span class="n">ydata_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_mean</span><span class="p">)</span>
+        <span class="n">sigma_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigma_mean</span><span class="p">)</span>
+        <span class="n">shots_sums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_sum</span><span class="p">)</span>
+
+    <span class="c1"># Concatenate lists</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">series_means</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">xdata_means</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ydata_means</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">sigma_means</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">shots_sums</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="data_sort"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html#qiskit_experiments.curve_analysis.utils.data_sort">[docs]</a><span class="k">def</span> <span class="nf">data_sort</span><span class="p">(</span>
+    <span class="n">series</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">xdata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">ydata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shots</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sort data.</span>
+
+<span class="sd">    Input x values may not be lined up in order, since experiment may accept user input array,</span>
+<span class="sd">    or data may be concatenated with previous scan. This sometimes confuses the algorithmic</span>
+<span class="sd">    generation of initial guesses especially when guess depends on derivative.</span>
+
+<span class="sd">    This returns data set that is sorted by xdata and series in ascending order.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        series: Series index.</span>
+<span class="sd">        xdata: 1D or 2D array of xdata.</span>
+<span class="sd">        ydata: Array of ydata.</span>
+<span class="sd">        sigma: Optional, array of standard deviations in ydata.</span>
+<span class="sd">        shots: Optional, array of shots used to get a data point.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of (series, xdata, ydata, sigma, shots) sorted in ascending order of xdata</span>
+<span class="sd">        and series.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shots</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">sorted_data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">shots</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">)</span><span class="o">.</span><span class="n">T</span></div>
+
+
+<div class="viewcode-block" id="level2_probability"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html#qiskit_experiments.curve_analysis.utils.level2_probability">[docs]</a><span class="k">def</span> <span class="nf">level2_probability</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the outcome probability mean and variance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: A data dict containing count data.</span>
+<span class="sd">        outcome: bitstring for desired outcome probability.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (p_mean, p_var) of the probability mean and variance</span>
+<span class="sd">               estimated from the counts.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This assumes a binomial distribution where :math:`K` counts</span>
+<span class="sd">        of the desired outcome from :math:`N` shots the</span>
+<span class="sd">        mean probability is :math:`p = K / N` and the variance is</span>
+<span class="sd">        :math:`\\sigma^2 = p (1-p) / N`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+
+    <span class="n">shots</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">p_mean</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">shots</span>
+    <span class="n">p_var</span> <span class="o">=</span> <span class="n">p_mean</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">shots</span>
+    <span class="k">return</span> <span class="n">p_mean</span><span class="p">,</span> <span class="n">p_var</span></div>
+
+
+<div class="viewcode-block" id="probability"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.probability.html#qiskit_experiments.curve_analysis.utils.probability">[docs]</a><span class="k">def</span> <span class="nf">probability</span><span class="p">(</span><span class="n">outcome</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return probability data processor callback used by the analysis classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">level2_probability</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_processor</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

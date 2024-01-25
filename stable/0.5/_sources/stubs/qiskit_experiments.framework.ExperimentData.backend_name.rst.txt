@@ -1,0 +1,8 @@
+
+
+ExperimentData.backend_name
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.backend_name

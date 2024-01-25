@@ -1,0 +1,8 @@
+
+
+ExperimentData.add_child_data
+==========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.add_child_data

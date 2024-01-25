@@ -1,0 +1,8 @@
+
+
+MitigatedTomographyAnalysis.run
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedTomographyAnalysis.run

@@ -1,0 +1,8 @@
+
+
+CurveFitResult.ufloat_params
+==============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: CurveFitResult.ufloat_params

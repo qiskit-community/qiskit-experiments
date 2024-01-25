@@ -1,0 +1,8 @@
+
+
+MultiStateDiscriminationAnalysis.from_config
+========================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: MultiStateDiscriminationAnalysis.from_config

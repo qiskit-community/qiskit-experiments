@@ -1,0 +1,8 @@
+
+
+ExperimentStatus.VALIDATING
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: ExperimentStatus.VALIDATING

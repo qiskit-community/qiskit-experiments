@@ -1,0 +1,8 @@
+
+
+InterleavedRB.backend
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: InterleavedRB.backend

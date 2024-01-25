@@ -1,0 +1,68 @@
+﻿
+
+BaseDiscriminator
+====================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: BaseDiscriminator
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseDiscriminator.discriminator
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseDiscriminator.config
+   
+   
+      BaseDiscriminator.from_config
+   
+   
+      BaseDiscriminator.is_trained
+   
+   
+      BaseDiscriminator.predict
+   
+
+   
+   

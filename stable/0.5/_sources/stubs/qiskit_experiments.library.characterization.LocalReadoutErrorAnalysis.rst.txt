@@ -1,0 +1,41 @@
+﻿
+
+LocalReadoutErrorAnalysis
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: LocalReadoutErrorAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      LocalReadoutErrorAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      LocalReadoutErrorAnalysis.config
+      LocalReadoutErrorAnalysis.copy
+      LocalReadoutErrorAnalysis.from_config
+      LocalReadoutErrorAnalysis.run
+      LocalReadoutErrorAnalysis.set_options
+   
+
+   
+   

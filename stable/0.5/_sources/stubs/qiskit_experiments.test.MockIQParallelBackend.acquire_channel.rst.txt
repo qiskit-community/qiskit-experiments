@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.acquire_channel
+=============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: MockIQParallelBackend.acquire_channel

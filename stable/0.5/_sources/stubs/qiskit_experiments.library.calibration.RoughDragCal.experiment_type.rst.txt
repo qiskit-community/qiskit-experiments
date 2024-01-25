@@ -1,0 +1,8 @@
+
+
+RoughDragCal.experiment_type
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughDragCal.experiment_type

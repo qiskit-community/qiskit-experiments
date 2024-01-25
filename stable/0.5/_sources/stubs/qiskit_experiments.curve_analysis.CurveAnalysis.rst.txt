@@ -1,0 +1,112 @@
+﻿
+
+CurveAnalysis
+===============================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: CurveAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      CurveAnalysis.drawer
+      
+   
+      
+      
+         
+      
+      CurveAnalysis.models
+      
+   
+      
+      
+         
+      
+      CurveAnalysis.name
+      
+   
+      
+      
+         
+      
+      CurveAnalysis.options
+      
+   
+      
+      
+         
+      
+      CurveAnalysis.parameters
+      
+   
+      
+      
+         
+      
+      CurveAnalysis.plotter
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CurveAnalysis.config
+   
+   
+      CurveAnalysis.copy
+   
+   
+      CurveAnalysis.from_config
+   
+   
+      CurveAnalysis.run
+   
+   
+      CurveAnalysis.set_options
+   
+
+   
+   

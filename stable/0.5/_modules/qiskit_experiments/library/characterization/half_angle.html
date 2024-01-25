@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.library.characterization.half_angle &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.library.characterization.half_angle</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.library.characterization.half_angle</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;Half angle characterization.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">Backend</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.curve_analysis.standard_analysis</span> <span class="kn">import</span> <span class="n">ErrorAmplificationAnalysis</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.curve_analysis</span> <span class="kn">import</span> <span class="n">ParameterRepr</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.warnings</span> <span class="kn">import</span> <span class="n">qubit_deprecate</span>
+
+
+<div class="viewcode-block" id="HalfAngle"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html#qiskit_experiments.library.characterization.HalfAngle">[docs]</a><span class="k">class</span> <span class="nc">HalfAngle</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment class to measure the amount by which sx and x are not parallel.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">        This experiment runs circuits that repeat blocks of :code:`sx - sx - y` gates</span>
+<span class="sd">        inserted in a Ramsey type experiment, i.e. the full gate sequence is thus</span>
+<span class="sd">        :code:`Ry(π/2) - [sx - sx - y] ^ n - sx` where :code:`n` is varied.</span>
+
+<span class="sd">        .. parsed-literal::</span>
+
+<span class="sd">                    ┌─────────┐┌────┐┌────┐┌───┐   ┌────┐┌────┐┌───┐┌────┐ ░ ┌─┐</span>
+<span class="sd">               q_0: ┤ Ry(π/2) ├┤ sx ├┤ sx ├┤ y ├...┤ sx ├┤ sx ├┤ y ├┤ sx ├─░─┤M├</span>
+<span class="sd">                    └─────────┘└────┘└────┘└───┘   └────┘└────┘└───┘└────┘ ░ └╥┘</span>
+<span class="sd">            meas: 1/════════════════════════════...═══════════════════════════╩═</span>
+<span class="sd">                                                                              0</span>
+
+<span class="sd">        This sequence measures angle errors where the axis of the :code:`sx` and :code:`x`</span>
+<span class="sd">        rotation are not parallel. A similar experiment is described in Ref.~[1] where the</span>
+<span class="sd">        gate sequence :code:`x - y` is repeated to amplify errors caused by non-orthogonal</span>
+<span class="sd">        :code:`x` and :code:`y` rotation axes. Such errors can occur due to phase errors.</span>
+<span class="sd">        For example, the non-linearities in the mixer&#39;s skew for :math:`\pi/2` pulses may</span>
+<span class="sd">        be different from the :math:`\pi` pulse.</span>
+
+<span class="sd">    # section: analysis_ref</span>
+<span class="sd">        :class:`.ErrorAmplificationAnalysis`</span>
+
+<span class="sd">    # section: reference</span>
+<span class="sd">        .. ref_arxiv:: 1 1504.06597</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the half angle experiment.</span>
+
+<span class="sd">        Experiment Options:</span>
+<span class="sd">            repetitions (List[int]): A list of the number of times that the gate</span>
+<span class="sd">                sequence :code:`[sx sx y]` is repeated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">repetitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpile options.</span>
+
+<span class="sd">        The basis gates option should not be changed since it will affect the gates and</span>
+<span class="sd">        the pulses that are run on the hardware.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_transpile_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">basis_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;rz&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">inst_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@qubit_deprecate</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a half angle experiment on the given qubit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            physical_qubits: List containing the qubits on which to run the</span>
+<span class="sd">                fine amplitude calibration experiment.</span>
+<span class="sd">            backend: Optional, the backend to run the experiment on.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">analysis</span> <span class="o">=</span> <span class="n">ErrorAmplificationAnalysis</span><span class="p">()</span>
+
+        <span class="n">default_bounds</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">default_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;d_theta&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)})</span>
+
+        <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
+            <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;angle_per_gate&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+                <span class="s2">&quot;phase_offset&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">result_parameters</span><span class="o">=</span><span class="p">[</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;d_theta&quot;</span><span class="p">,</span> <span class="s2">&quot;d_hac&quot;</span><span class="p">,</span> <span class="s2">&quot;rad&quot;</span><span class="p">)],</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">default_bounds</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pre_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the preparation circuit for the experiment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HalfAngle.circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.circuits.html#qiskit_experiments.library.characterization.HalfAngle.circuits">[docs]</a>    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the circuits for the half angle calibration experiment.&quot;&quot;&quot;</span>
+
+        <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">repetition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">repetitions</span><span class="p">:</span>
+            <span class="n">circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_circuit</span><span class="p">()</span>
+
+            <span class="c1"># First ry gate</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Error amplifying sequence</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repetition</span><span class="p">):</span>
+                <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">circuit</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
+
+            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span>
+                <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">,</span>
+                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">repetition</span><span class="p">,</span>
+                <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;repetition number&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">circuits</span></div>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+        <span class="c1"># Store measurement level and meas return if they have been</span>
+        <span class="c1"># set for the experiment</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

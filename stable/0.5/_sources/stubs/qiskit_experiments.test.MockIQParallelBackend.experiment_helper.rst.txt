@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.experiment_helper
+===============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQParallelBackend.experiment_helper

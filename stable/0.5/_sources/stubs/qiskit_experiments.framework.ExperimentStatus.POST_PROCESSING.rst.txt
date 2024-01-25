@@ -1,0 +1,8 @@
+
+
+ExperimentStatus.POST_PROCESSING
+=============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: ExperimentStatus.POST_PROCESSING

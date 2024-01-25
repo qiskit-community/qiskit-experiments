@@ -1,0 +1,8 @@
+
+
+FitOptions.add_extra_options
+==============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: FitOptions.add_extra_options

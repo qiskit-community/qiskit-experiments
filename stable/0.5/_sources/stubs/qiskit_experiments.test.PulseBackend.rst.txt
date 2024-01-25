@@ -1,0 +1,201 @@
+﻿
+
+PulseBackend
+====================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: PulseBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      PulseBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.default_pulse_unitaries
+      
+   
+      
+      
+         
+      
+      PulseBackend.discriminator
+      
+   
+      
+      
+         
+      
+      PulseBackend.dt
+      
+   
+      
+      
+         
+      
+      PulseBackend.dtm
+      
+   
+      
+      
+         
+      
+      PulseBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      PulseBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.instructions
+      
+   
+      
+      
+         
+      
+      PulseBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      PulseBackend.meas_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      PulseBackend.operation_names
+      
+   
+      
+      
+         
+      
+      PulseBackend.operations
+      
+   
+      
+      
+         
+      
+      PulseBackend.options
+      
+   
+      
+      
+         
+      
+      PulseBackend.provider
+      
+   
+      
+      
+         
+      
+      PulseBackend.target
+      
+   
+      
+      
+         
+      
+      PulseBackend.version
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PulseBackend.acquire_channel
+   
+   
+      PulseBackend.control_channel
+   
+   
+      PulseBackend.defaults
+   
+   
+      PulseBackend.drive_channel
+   
+   
+      PulseBackend.measure_channel
+   
+   
+      PulseBackend.qubit_properties
+   
+   
+      PulseBackend.run
+   
+   
+      PulseBackend.set_options
+   
+   
+      PulseBackend.solve
+   
+
+   
+   

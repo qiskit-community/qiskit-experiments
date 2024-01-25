@@ -1,0 +1,8 @@
+
+
+AnalysisResultData.value
+=====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: AnalysisResultData.value

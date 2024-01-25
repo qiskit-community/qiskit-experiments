@@ -1,0 +1,8 @@
+
+
+LocalReadoutError.transpile_options
+===============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: LocalReadoutError.transpile_options

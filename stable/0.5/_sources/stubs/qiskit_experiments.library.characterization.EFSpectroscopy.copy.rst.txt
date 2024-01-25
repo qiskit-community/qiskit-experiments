@@ -1,0 +1,8 @@
+
+
+EFSpectroscopy.copy
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: EFSpectroscopy.copy

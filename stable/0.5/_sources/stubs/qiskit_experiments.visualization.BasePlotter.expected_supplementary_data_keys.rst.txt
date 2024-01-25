@@ -1,0 +1,8 @@
+
+
+BasePlotter.expected_supplementary_data_keys
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BasePlotter.expected_supplementary_data_keys

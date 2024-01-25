@@ -1,0 +1,8 @@
+
+
+ExperimentEncoder.key_separator
+============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: ExperimentEncoder.key_separator

@@ -1,0 +1,105 @@
+﻿
+
+ExperimentStatus
+=============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExperimentStatus
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ExperimentStatus.EMPTY
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.INITIALIZING
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.VALIDATING
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.QUEUED
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.RUNNING
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.CANCELLED
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.POST_PROCESSING
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.DONE
+      
+   
+      
+      
+         
+      
+      ExperimentStatus.ERROR
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+
+   
+   

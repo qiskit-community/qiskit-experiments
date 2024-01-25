@@ -1,0 +1,8 @@
+
+
+AnalysisConfig.analysis
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: AnalysisConfig.analysis

@@ -1,0 +1,8 @@
+
+
+BaseDrawer.line
+================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BaseDrawer.line

@@ -1,0 +1,145 @@
+﻿
+
+ParallelExperiment
+===============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ParallelExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ParallelExperiment.analysis
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.backend
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.experiment_options
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.experiment_type
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.num_experiments
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.num_qubits
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.physical_qubits
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.run_options
+      
+   
+      
+      
+         
+      
+      ParallelExperiment.transpile_options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ParallelExperiment.circuits
+   
+   
+      ParallelExperiment.component_experiment
+   
+   
+      ParallelExperiment.config
+   
+   
+      ParallelExperiment.copy
+   
+   
+      ParallelExperiment.from_config
+   
+   
+      ParallelExperiment.run
+   
+   
+      ParallelExperiment.set_experiment_options
+   
+   
+      ParallelExperiment.set_run_options
+   
+   
+      ParallelExperiment.set_transpile_options
+   
+
+   
+   

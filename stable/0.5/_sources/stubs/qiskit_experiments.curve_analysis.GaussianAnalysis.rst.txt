@@ -1,0 +1,46 @@
+﻿
+
+GaussianAnalysis
+==================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: GaussianAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      GaussianAnalysis.drawer
+      GaussianAnalysis.models
+      GaussianAnalysis.name
+      GaussianAnalysis.options
+      GaussianAnalysis.parameters
+      GaussianAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      GaussianAnalysis.config
+      GaussianAnalysis.copy
+      GaussianAnalysis.from_config
+      GaussianAnalysis.run
+      GaussianAnalysis.set_options
+   
+
+   
+   

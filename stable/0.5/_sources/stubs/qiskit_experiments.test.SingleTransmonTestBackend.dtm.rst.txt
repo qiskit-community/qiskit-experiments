@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.dtm
+=====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: SingleTransmonTestBackend.dtm

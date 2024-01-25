@@ -1,0 +1,8 @@
+
+
+BaseCalibrationExperiment.num_qubits
+==============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: BaseCalibrationExperiment.num_qubits

@@ -1,0 +1,51 @@
+﻿
+
+T1
+==============================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: T1
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1.analysis
+      T1.backend
+      T1.experiment_options
+      T1.experiment_type
+      T1.num_qubits
+      T1.physical_qubits
+      T1.run_options
+      T1.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1.circuits
+      T1.config
+      T1.copy
+      T1.from_config
+      T1.run
+      T1.set_experiment_options
+      T1.set_run_options
+      T1.set_transpile_options
+   
+
+   
+   

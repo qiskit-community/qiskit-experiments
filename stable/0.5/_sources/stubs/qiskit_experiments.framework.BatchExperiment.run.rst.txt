@@ -1,0 +1,8 @@
+
+
+BatchExperiment.run
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BatchExperiment.run

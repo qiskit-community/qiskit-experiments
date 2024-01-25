@@ -1,0 +1,8 @@
+
+
+ExperimentData.notes
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.notes

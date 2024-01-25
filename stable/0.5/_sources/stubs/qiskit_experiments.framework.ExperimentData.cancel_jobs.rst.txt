@@ -1,0 +1,8 @@
+
+
+ExperimentData.cancel_jobs
+=======================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.cancel_jobs

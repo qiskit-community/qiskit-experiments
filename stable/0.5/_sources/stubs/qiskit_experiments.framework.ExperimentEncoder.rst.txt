@@ -1,0 +1,72 @@
+﻿
+
+ExperimentEncoder
+==============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExperimentEncoder
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ExperimentEncoder.item_separator
+      
+   
+      
+      
+         
+      
+      ExperimentEncoder.key_separator
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ExperimentEncoder.default
+   
+   
+      ExperimentEncoder.encode
+   
+   
+      ExperimentEncoder.iterencode
+   
+
+   
+   

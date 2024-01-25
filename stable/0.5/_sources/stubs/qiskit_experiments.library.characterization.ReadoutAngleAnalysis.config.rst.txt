@@ -1,0 +1,8 @@
+
+
+ReadoutAngleAnalysis.config
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: ReadoutAngleAnalysis.config

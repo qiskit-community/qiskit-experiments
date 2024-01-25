@@ -1,0 +1,8 @@
+
+
+FineSXAmplitudeCal.analysis
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FineSXAmplitudeCal.analysis

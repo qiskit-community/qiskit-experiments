@@ -1,0 +1,190 @@
+﻿
+
+MockIQBackend
+=====================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: MockIQBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MockIQBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.dt
+      
+   
+      
+      
+         
+      
+      MockIQBackend.dtm
+      
+   
+      
+      
+         
+      
+      MockIQBackend.experiment_helper
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instructions
+      
+   
+      
+      
+         
+      
+      MockIQBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      MockIQBackend.meas_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      MockIQBackend.operation_names
+      
+   
+      
+      
+         
+      
+      MockIQBackend.operations
+      
+   
+      
+      
+         
+      
+      MockIQBackend.options
+      
+   
+      
+      
+         
+      
+      MockIQBackend.provider
+      
+   
+      
+      
+         
+      
+      MockIQBackend.target
+      
+   
+      
+      
+         
+      
+      MockIQBackend.version
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MockIQBackend.acquire_channel
+   
+   
+      MockIQBackend.control_channel
+   
+   
+      MockIQBackend.drive_channel
+   
+   
+      MockIQBackend.measure_channel
+   
+   
+      MockIQBackend.qubit_properties
+   
+   
+      MockIQBackend.run
+   
+   
+      MockIQBackend.set_options
+   
+
+   
+   

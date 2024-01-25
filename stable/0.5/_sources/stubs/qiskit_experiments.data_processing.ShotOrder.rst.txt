@@ -1,0 +1,50 @@
+﻿
+
+ShotOrder
+============================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: ShotOrder
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ShotOrder.circuit_first
+      
+   
+      
+      
+         
+      
+      ShotOrder.shot_first
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+   

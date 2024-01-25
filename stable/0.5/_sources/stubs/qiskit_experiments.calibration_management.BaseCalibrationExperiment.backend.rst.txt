@@ -1,0 +1,8 @@
+
+
+BaseCalibrationExperiment.backend
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: BaseCalibrationExperiment.backend

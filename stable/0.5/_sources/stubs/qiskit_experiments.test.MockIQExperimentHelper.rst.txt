@@ -1,0 +1,72 @@
+﻿
+
+MockIQExperimentHelper
+==============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: MockIQExperimentHelper
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MockIQExperimentHelper.iq_cluster_centers
+      
+   
+      
+      
+         
+      
+      MockIQExperimentHelper.iq_cluster_width
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MockIQExperimentHelper.compute_probabilities
+   
+   
+      MockIQExperimentHelper.iq_clusters
+   
+   
+      MockIQExperimentHelper.iq_phase
+   
+
+   
+   

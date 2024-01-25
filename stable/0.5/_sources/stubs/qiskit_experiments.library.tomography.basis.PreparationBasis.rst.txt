@@ -1,0 +1,74 @@
+﻿
+
+PreparationBasis
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: PreparationBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      PreparationBasis.name
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PreparationBasis.circuit
+   
+   
+      PreparationBasis.index_shape
+   
+   
+      PreparationBasis.matrix
+   
+   
+      PreparationBasis.matrix_shape
+   
+
+   
+   

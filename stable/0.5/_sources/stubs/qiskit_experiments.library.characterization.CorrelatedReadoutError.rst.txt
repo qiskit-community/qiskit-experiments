@@ -1,0 +1,51 @@
+﻿
+
+CorrelatedReadoutError
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: CorrelatedReadoutError
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CorrelatedReadoutError.analysis
+      CorrelatedReadoutError.backend
+      CorrelatedReadoutError.experiment_options
+      CorrelatedReadoutError.experiment_type
+      CorrelatedReadoutError.num_qubits
+      CorrelatedReadoutError.physical_qubits
+      CorrelatedReadoutError.run_options
+      CorrelatedReadoutError.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CorrelatedReadoutError.circuits
+      CorrelatedReadoutError.config
+      CorrelatedReadoutError.copy
+      CorrelatedReadoutError.from_config
+      CorrelatedReadoutError.run
+      CorrelatedReadoutError.set_experiment_options
+      CorrelatedReadoutError.set_run_options
+      CorrelatedReadoutError.set_transpile_options
+   
+
+   
+   

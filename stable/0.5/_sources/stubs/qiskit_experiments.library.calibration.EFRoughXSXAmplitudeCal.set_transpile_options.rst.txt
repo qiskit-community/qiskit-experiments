@@ -1,0 +1,8 @@
+
+
+EFRoughXSXAmplitudeCal.set_transpile_options
+===================================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: EFRoughXSXAmplitudeCal.set_transpile_options

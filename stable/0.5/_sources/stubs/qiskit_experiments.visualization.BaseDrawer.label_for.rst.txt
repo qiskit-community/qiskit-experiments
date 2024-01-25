@@ -1,0 +1,8 @@
+
+
+BaseDrawer.label_for
+=====================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BaseDrawer.label_for
