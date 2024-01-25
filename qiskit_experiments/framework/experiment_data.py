@@ -2549,7 +2549,9 @@ class ExperimentData:
                     DeprecationWarning,
                     stacklevel=2,
                 )
-                return IBMExperimentService(token=provider._account.token, url=provider._account.url)
+                return IBMExperimentService(
+                    token=provider._account.token, url=provider._account.url
+                )
             return None
         except Exception:  # pylint: disable=broad-except
             return None
