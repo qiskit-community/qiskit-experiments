@@ -18,7 +18,8 @@ Saving
 ~~~~~~
 
 .. note::
-    This guide requires :mod:`qiskit-ibm-runtime`. For how to migrate from the older :mod:`qiskit-ibm-provider` to :mod:`qiskit-ibm-runtime`,
+    This guide requires :mod:`qiskit-ibm-runtime` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :mod:`qiskit-ibm-provider` to :mod:`qiskit-ibm-runtime`,
     consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 You must run the experiment on a real IBM

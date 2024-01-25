@@ -2533,9 +2533,9 @@ class ExperimentData:
             if hasattr(backend, "service"):
                 token = backend.service._account.token
                 return IBMExperimentService(token=token, url=backend.service._account.url)
+            return ExperimentData.get_service_from_provider(backend.provider)
         except Exception:  # pylint: disable=broad-except
             return None
-        return ExperimentData.get_service_from_provider(backend.provider)
 
     @staticmethod
     def get_service_from_provider(provider):
@@ -2543,15 +2543,14 @@ class ExperimentData:
         try:
             # qiskit-ibm-provider style
             if hasattr(provider, "_account"):
-                token = provider._account.token
                 warnings.warn(
                     "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
                     "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
-                service = IBMExperimentService(token=token, url=provider._account.url)
-                return service
+                return IBMExperimentService(token=provider._account.token, url=provider._account.url)
+            return None
         except Exception:  # pylint: disable=broad-except
             return None
 
