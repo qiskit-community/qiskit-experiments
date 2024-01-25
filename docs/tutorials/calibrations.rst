@@ -15,7 +15,7 @@ backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the under
 pulses with `Qiskit Dynamics <https://qiskit.org/documentation/dynamics/>`_ on a
 three-level model of a transmon. You can also run these experiments on any real backend
 with Pulse enabled (see
-:external+qiskit:doc:`tutorials/circuits_advanced/08_gathering_system_information`).
+:class:`qiskit.providers.models.BackendConfiguration`).
 
 We will run experiments to 
 find the qubit frequency, calibrate the amplitude of DRAG pulses, and choose the value 

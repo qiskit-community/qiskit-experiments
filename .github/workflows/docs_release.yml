@@ -20,10 +20,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -U virtualenv setuptools wheel tox
         sudo apt-get install graphviz pandoc
-    - name: Build and publish
+    - name: Build docs
       env:
-        encrypted_rclone_key: ${{ secrets.encrypted_rclone_key }}
-        encrypted_rclone_iv: ${{ secrets.encrypted_rclone_iv }}
         QISKIT_DOCS_BUILD_TUTORIALS: 'always'
-      run: |
-        tools/deploy_documentation.sh
+      run: EXPERIMENTS_DEV_DOCS=1 PROD_BUILD=1 tox -edocs
+    - name: Bypass Jekyll Processing # Necessary for setting the correct css path
+      run: touch docs/_build/html/.nojekyll
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: docs/_build/html/
+        clean-exclude: |
+          stable/*
+          dev/*

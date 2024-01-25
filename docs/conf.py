@@ -145,6 +145,11 @@ html_context = {
     "expandable_sidebar": True,
 }
 
+
+html_title = f"{project} {release}"
+
+docs_url_prefix = "qiskit-experiments"
+
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
@@ -160,7 +165,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/documentation/partners/qiskit_ibm_provider", None),
+    "qiskit_ibm_provider": ("https://docs.quantum.ibm.com/api/qiskit-ibm-provider", None),
 }
 
 
