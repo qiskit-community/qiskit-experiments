@@ -655,10 +655,7 @@ class ExperimentData:
             self._set_hgp_from_provider(provider)
         # qiskit-ibm-runtime style
         elif hasattr(self._backend, "_instance"):
-            try:
-                self.hgp = self._backend._instance
-            except (QiskitError, TypeError):
-                pass
+            self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
