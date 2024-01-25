@@ -10,6 +10,11 @@ You want to run experiments in a `Runtime session
 Solution
 --------
 
+.. note::
+    This guide requires :mod:`qiskit-ibm-runtime` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :mod:`qiskit-ibm-provider` to :mod:`qiskit-ibm-runtime`,
+    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
+
 Use the :class:`~qiskit_ibm_runtime.IBMBackend` object in :mod:`qiskit-ibm-runtime`, which supports sessions.
 
 In this example, we will set the ``max_circuits`` property to an artificially low value so that the experiment will be
@@ -29,7 +34,6 @@ large number of circuits that can't fit in a single job, it may be helpful to fo
 
     backend.open_session()
     exp = ProcessTomography(qc)
-
     # Artificially lower circuits per job, adjust value for your own application
     exp.set_experiment_options(max_circuits=3)
     exp_data = exp.run(backend)
