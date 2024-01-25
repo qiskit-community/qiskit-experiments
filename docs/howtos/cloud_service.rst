@@ -18,8 +18,9 @@ Saving
 ~~~~~~
 
 .. note::
-    This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
-    consult the `migration guide <https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    This guide requires :mod:`qiskit-ibm-runtime` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :mod:`qiskit-ibm-provider` to :mod:`qiskit-ibm-runtime`,
+    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 You must run the experiment on a real IBM
 backend and not a simulator to be able to save the experiment data. This is done by calling
@@ -27,12 +28,12 @@ backend and not a simulator to be able to save the experiment data. This is done
 
 .. jupyter-input::
 
-    from qiskit_ibm_provider import IBMProvider
+    from qiskit_ibm_runtime import QiskitRuntimeService
     from qiskit_experiments.library.characterization import T1
     import numpy as np
 
-    provider = IBMProvider()
-    backend = provider.get_backend("ibmq_lima")
+    service = QiskitRuntimeService(channel="ibm_quantum")
+    backend = service.backend("ibm_osaka")
     
     t1_delays = np.arange(1e-6, 600e-6, 50e-6)
 
@@ -142,7 +143,7 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 .. jupyter-output::
 
     You can view the experiment online at https://quantum.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
-    <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
+    <ExperimentData[T1], backend: ibm_osaka, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
 
 Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
 

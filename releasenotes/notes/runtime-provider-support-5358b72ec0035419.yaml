@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Experiments run via the ``qiskit-ibm-runtime`` provider can now be saved
+    to the cloud service.
+upgrade:
+  - |
+    With the impending deprecation of the ``qiskit-ibm-provider`` package, support for
+    ``qiskit-ibm-provider`` is now deprecated and will be removed
+    in the next release. Users should migrate to ``qiskit-ibm-runtime`` following the
+    `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`.
