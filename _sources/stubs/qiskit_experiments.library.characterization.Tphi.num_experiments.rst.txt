@@ -1,0 +1,8 @@
+
+
+Tphi.num_experiments
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: Tphi.num_experiments

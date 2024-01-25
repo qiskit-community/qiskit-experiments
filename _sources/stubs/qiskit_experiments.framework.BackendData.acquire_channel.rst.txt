@@ -1,0 +1,8 @@
+
+
+BackendData.acquire_channel
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BackendData.acquire_channel

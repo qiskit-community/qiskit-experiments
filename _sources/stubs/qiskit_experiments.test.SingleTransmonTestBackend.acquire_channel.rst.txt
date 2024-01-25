@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.acquire_channel
+=================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: SingleTransmonTestBackend.acquire_channel

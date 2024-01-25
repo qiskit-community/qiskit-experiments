@@ -1,0 +1,8 @@
+
+
+PreparationBasis.matrix_shape
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: PreparationBasis.matrix_shape

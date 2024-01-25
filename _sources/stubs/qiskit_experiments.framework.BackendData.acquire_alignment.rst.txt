@@ -1,0 +1,8 @@
+
+
+BackendData.acquire_alignment
+==========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BackendData.acquire_alignment

@@ -1,0 +1,8 @@
+
+
+MplDrawer.figure
+=================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoproperty:: MplDrawer.figure

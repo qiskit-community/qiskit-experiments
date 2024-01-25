@@ -1,0 +1,8 @@
+
+
+BaseExperiment.config
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BaseExperiment.config

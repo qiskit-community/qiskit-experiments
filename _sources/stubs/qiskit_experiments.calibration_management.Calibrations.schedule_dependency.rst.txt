@@ -1,0 +1,8 @@
+
+
+Calibrations.schedule_dependency
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: Calibrations.schedule_dependency

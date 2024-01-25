@@ -1,0 +1,8 @@
+
+
+FineAmplitude.num_qubits
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineAmplitude.num_qubits

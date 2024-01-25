@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.visualization.plotters.iq_plotter &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.visualization.plotters.iq_plotter</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.visualization.plotters.iq_plotter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022, 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;Plotter for IQ data.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.discriminator</span> <span class="kn">import</span> <span class="n">BaseDiscriminator</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">Options</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">DataExtentCalculator</span><span class="p">,</span> <span class="n">ExtentTuple</span>
+<span class="kn">from</span> <span class="nn">.base_plotter</span> <span class="kn">import</span> <span class="n">BasePlotter</span>
+
+
+<div class="viewcode-block" id="IQPlotter"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.IQPlotter.html#qiskit_experiments.visualization.IQPlotter">[docs]</a><span class="k">class</span> <span class="nc">IQPlotter</span><span class="p">(</span><span class="n">BasePlotter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A plotter class to plot IQ data.</span>
+
+<span class="sd">    :class:`.IQPlotter` plots results from experiments which used measurement-level 1,</span>
+<span class="sd">    i.e. IQ data. This class also supports plotting predictions from a discriminator</span>
+<span class="sd">    (subclass of :class:`.BaseDiscriminator`), which is used to classify IQ results into</span>
+<span class="sd">    labels. The discriminator labels are matched with the series names to generate an</span>
+<span class="sd">    image of the predictions. Points that are misclassified by the discriminator are</span>
+<span class="sd">    flagged in the figure (see the ``flag_misclassified`` option). A canonical</span>
+<span class="sd">    application of :class:`.IQPlotter` is for classification of single-qubit readout for</span>
+<span class="sd">    different prepared states.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Create plotter</span>
+<span class="sd">            plotter = IQPlotter(MplDrawer())</span>
+
+<span class="sd">            # Iterate over results, one per prepared state. Add points and centroid to</span>
+<span class="sd">            # plotter and set label for prepared states as |n&gt; where n is the</span>
+<span class="sd">            # prepared-state number.</span>
+<span class="sd">            series_params = {}</span>
+<span class="sd">            for res in results:</span>
+<span class="sd">                # Get IQ points from result memory.</span>
+<span class="sd">                points = res.memory</span>
+
+<span class="sd">                # Compute centroid as mean of all points.</span>
+<span class="sd">                centroid = np.mean(points, axis=1)</span>
+
+<span class="sd">                # Get ``prep``, which is part of the result metadata.</span>
+<span class="sd">                prep = res.prep</span>
+
+<span class="sd">                # Create label as a ket instead of just a state number (i.e., prep).</span>
+<span class="sd">                series_params[prep] = {</span>
+<span class="sd">                    &quot;label&quot;:f&quot;|{prep}&gt;&quot;,</span>
+<span class="sd">                }</span>
+
+<span class="sd">                plotter.set_series_data(prep, points=points, centroid=centroid)</span>
+<span class="sd">            plotter.set_figure_options(series_params=series_params)</span>
+<span class="sd">            ...</span>
+<span class="sd">            # Optional: Add trained discriminator.</span>
+<span class="sd">            discrim = MyIQDiscriminator()</span>
+<span class="sd">            # Discriminator labels are the same as series names.</span>
+<span class="sd">            discrim.fit(train_data, train_labels)</span>
+<span class="sd">            plotter.set_supplementary_data(discriminator=discrim)</span>
+<span class="sd">            ...</span>
+<span class="sd">            # Plot figure.</span>
+<span class="sd">            fig = plotter.figure()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IQPlotter.expected_series_data_keys"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.IQPlotter.expected_series_data_keys.html#qiskit_experiments.visualization.IQPlotter.expected_series_data_keys">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected series data keys supported by this plotter.</span>
+
+<span class="sd">        Data Keys:</span>
+<span class="sd">            points: Single-shot IQ data.</span>
+<span class="sd">            centroid: Averaged IQ data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;points&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="IQPlotter.expected_supplementary_data_keys"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.IQPlotter.expected_supplementary_data_keys.html#qiskit_experiments.visualization.IQPlotter.expected_supplementary_data_keys">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected figures data keys supported by this plotter.</span>
+
+<span class="sd">        Data Keys:</span>
+<span class="sd">            discriminator: A trained discriminator that classifies IQ points. If</span>
+<span class="sd">                provided, the predictions of the discriminator will be sampled to</span>
+<span class="sd">                generate a background image, indicating the regions for each predicted</span>
+<span class="sd">                outcome. The predictions are assumed to be series names (``Union[str,</span>
+<span class="sd">                int, float]``). The generated image allows viewers to see how well the</span>
+<span class="sd">                discriminator classifies the provided series data. Must be a subclass of</span>
+<span class="sd">                :class:`.BaseDiscriminator`. See :attr:`options` for ways to control the</span>
+<span class="sd">                generation of the discriminator prediction image.</span>
+<span class="sd">            fidelity: A float representing the fidelity of the discrimination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;discriminator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fidelity&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_compute_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExtentTuple</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the extent tuple of the data being plotted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing</span>
+<span class="sd">            all the data for this plotter. If the plotter contains no data, ``None`` is</span>
+<span class="sd">            returned instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ext_calc</span> <span class="o">=</span> <span class="n">DataExtentCalculator</span><span class="p">(</span>
+            <span class="n">multiplier</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_multiplier</span><span class="p">,</span>
+            <span class="n">aspect_ratio</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_aspect_ratio</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">has_registered_data</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">series</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">points</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">)</span>
+                <span class="n">ext_calc</span><span class="o">.</span><span class="n">register_data</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+                <span class="n">has_registered_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">centroid</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+                <span class="n">ext_calc</span><span class="o">.</span><span class="n">register_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">has_registered_data</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">xlim</span><span class="p">:</span>
+            <span class="n">ext_calc</span><span class="o">.</span><span class="n">register_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">xlim</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">has_registered_data</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">ylim</span><span class="p">:</span>
+            <span class="n">ext_calc</span><span class="o">.</span><span class="n">register_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">ylim</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">has_registered_data</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">has_registered_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ext_calc</span><span class="o">.</span><span class="n">extent</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_compute_discriminator_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExtentTuple</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the array/image sampled from the discriminator predictions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of</span>
+<span class="sd">            predictions and ``extent`` is a tuple of the extent ``(x_min, x_max, y_min,</span>
+<span class="sd">            y_max)`` of the image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If the discriminator is not provided, cannot compute the image.</span>
+        <span class="k">if</span> <span class="s2">&quot;discriminator&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_extent</span><span class="p">:</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_extent</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_extent</span><span class="p">()</span>
+        <span class="c1"># If ``extent`` is None, we don&#39;t have data to plot and thus cannot generate the</span>
+        <span class="c1"># discriminator image.</span>
+        <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># Get the discriminator and check if it is trained. If not, return.</span>
+        <span class="n">discrim</span><span class="p">:</span> <span class="n">BaseDiscriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">&quot;discriminator&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">discrim</span><span class="o">.</span><span class="n">is_trained</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># Compute discriminator resolution.</span>
+        <span class="n">extent_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">extent_range</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">extent_range</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_max_resolution</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Create coordinates for each pixel in the image, in the same units as `extent`.</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">resolution</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">resolution</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Get predictions for coordinates from the discriminator.</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">discrim</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+        <span class="c1"># Unwrap predictions into a 2D array</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">resolution</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">extent</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return iq-plotter specific default plotter options.</span>
+
+<span class="sd">        Options:</span>
+<span class="sd">            plot_discriminator (bool): Whether to plot an image showing the predictions</span>
+<span class="sd">                of the ``discriminator`` entry in :attr:`supplementary_data`. If True,</span>
+<span class="sd">                the &quot;discriminator&quot; supplementary data entry must be set.</span>
+<span class="sd">            discriminator_multiplier (float): The multiplier to use when computing the</span>
+<span class="sd">                extent of the discriminator plot. The range of the series data is taken</span>
+<span class="sd">                as the base value and multiplied by ``discriminator_extent_multiplier``</span>
+<span class="sd">                to compute the extent of the discriminator predictions. Defaults to 1.1.</span>
+<span class="sd">            discriminator_aspect_ratio (float): The aspect ratio of the extent of the</span>
+<span class="sd">                discriminator predictions, being ``width/height``. Defaults to ``1`` for</span>
+<span class="sd">                a square region.</span>
+<span class="sd">            discriminator_max_resolution (int): The number of pixels to use for the</span>
+<span class="sd">                largest edge of the discriminator extent, used when sampling the</span>
+<span class="sd">                discriminator to create the prediction image. Defaults to 1024.</span>
+<span class="sd">            discriminator_alpha (float): The transparency of the discriminator</span>
+<span class="sd">                prediction image. Defaults to 0.2 (i.e., 20%).</span>
+<span class="sd">            discriminator_extent (Optional[ExtentTuple]): An optional tuple defining the</span>
+<span class="sd">                extent of the image created by sampling from the discriminator. If</span>
+<span class="sd">                ``None``, the extent tuple is computed using</span>
+<span class="sd">                ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the</span>
+<span class="sd">                series-data ``points`` and ``centroid``. Defaults to ``None``.</span>
+<span class="sd">            flag_misclassified (bool): Whether to mark misclassified IQ values from all</span>
+<span class="sd">                ``points`` series data, based on whether their series name is not the</span>
+<span class="sd">                same as the prediction from the discriminator provided as supplementary</span>
+<span class="sd">                data. If ``discriminator`` is not provided, ``flag_misclassified`` has</span>
+<span class="sd">                no effect. Defaults to True.</span>
+<span class="sd">            misclassified_symbol (str): Symbol for misclassified points, as a</span>
+<span class="sd">                drawer-compatible string. Defaults to &quot;x&quot;.</span>
+<span class="sd">            misclassified_color (str | tuple): Color for misclassified points, as a</span>
+<span class="sd">                drawer-compatible string or RGB tuple. Defaults to &quot;r&quot;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="c1"># Discriminator options</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plot_discriminator</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">discriminator_multiplier</span> <span class="o">=</span> <span class="mf">1.1</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">discriminator_aspect_ratio</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">discriminator_max_resolution</span> <span class="o">=</span> <span class="mi">1024</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">discriminator_alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">discriminator_extent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Points options</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">flag_misclassified</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">misclassified_symbol</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">misclassified_color</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+        <span class="n">fig_opts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_figure_options</span><span class="p">()</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;In-Phase&quot;</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;Quadrature&quot;</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">xval_unit</span> <span class="o">=</span> <span class="s2">&quot;arb.&quot;</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">yval_unit</span> <span class="o">=</span> <span class="s2">&quot;arb.&quot;</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">xval_unit_scale</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">yval_unit_scale</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">fig_opts</span>
+
+    <span class="k">def</span> <span class="nf">_misclassified_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of IQ coordinates for points that are misclassified by the discriminator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            series_name: The series name to use as the expected discriminator label. If</span>
+<span class="sd">                the discriminator returns a prediction that doesn&#39;t equal</span>
+<span class="sd">                ``series_name``, it is marked as misclassified.</span>
+<span class="sd">            points: The list of points to check for misclassification.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A NumPy array of IQ points, being those that were misclassified by the</span>
+<span class="sd">            discriminator. If the discriminator isn&#39;t set and trained, then `None` is</span>
+<span class="sd">            returned. The array may be empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if we have a discriminator, and if it is trained. If not, return None.</span>
+        <span class="k">if</span> <span class="s2">&quot;discriminator&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">discrim</span><span class="p">:</span> <span class="n">BaseDiscriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">&quot;discriminator&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">discrim</span><span class="o">.</span><span class="n">is_trained</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">classifications</span> <span class="o">=</span> <span class="n">discrim</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">misclassified</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">classifications</span> <span class="o">!=</span> <span class="n">series_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">points</span><span class="p">[</span><span class="n">misclassified</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots an IQ figure.&quot;&quot;&quot;</span>
+        <span class="c1"># Plot discriminator first so that subsequent graphics change the automatic limits. This is a</span>
+        <span class="c1"># function of the way `imshow` works for Matplotlib, in that the limits are automatically changed</span>
+        <span class="c1"># to the extents of the image being plotted. If `image` is called after `scatter`, then the</span>
+        <span class="c1"># automatic axis limits will be set to match the extent of the image.</span>
+        <span class="k">if</span> <span class="s2">&quot;discriminator&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot_discriminator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">subplots</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Plotting discriminator predictions with subplots is not well supported by &quot;</span>
+                    <span class="s2">&quot;IQPlotter as the predictions image will only be drawn on one subplot.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">discrim</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_discriminator_image</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">discrim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Discriminator was provided but the sampled predictions image could not be &quot;</span>
+                    <span class="s2">&quot;generated.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">image</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">discrim</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="n">extent</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;discriminator&quot;</span><span class="p">,</span>
+                    <span class="n">cmap_use_series_colors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator_alpha</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="c1"># Plot points and centroids</span>
+        <span class="k">for</span> <span class="n">ser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="p">:</span>
+            <span class="n">has_plotted_centroid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">centroid</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                    <span class="n">centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">ser</span><span class="p">,</span>
+                    <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                    <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">has_plotted_centroid</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">points</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                    <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">ser</span><span class="p">,</span>
+                    <span class="n">legend</span><span class="o">=</span><span class="ow">not</span> <span class="n">has_plotted_centroid</span><span class="p">,</span>
+                    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">flag_misclassified</span><span class="p">:</span>
+                    <span class="n">misclassified_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misclassified_points</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">misclassified_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                            <span class="n">misclassified_points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                            <span class="n">misclassified_points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;misclassified&quot;</span><span class="p">,</span>
+                            <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                            <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                            <span class="n">marker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">misclassified_symbol</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">misclassified_color</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+        <span class="c1"># Fidelity report</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">textbox</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_report</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write fidelity report with supplementary_data.</span>
+
+<span class="sd">        Subclass can override this method to customize fidelity report. By default, this</span>
+<span class="sd">        writes the fidelity of the discriminator in the fidelity report.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Fidelity report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;fidelity&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
+            <span class="n">fidelity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">&quot;fidelity&quot;</span><span class="p">]</span>
+            <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;fidelity = </span><span class="si">{</span><span class="n">fidelity</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">report</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

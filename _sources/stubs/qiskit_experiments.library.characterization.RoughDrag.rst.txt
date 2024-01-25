@@ -1,0 +1,52 @@
+﻿
+
+RoughDrag
+=====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: RoughDrag
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughDrag.analysis
+      RoughDrag.backend
+      RoughDrag.experiment_options
+      RoughDrag.experiment_type
+      RoughDrag.num_qubits
+      RoughDrag.physical_qubits
+      RoughDrag.run_options
+      RoughDrag.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughDrag.circuits
+      RoughDrag.config
+      RoughDrag.copy
+      RoughDrag.enable_restless
+      RoughDrag.from_config
+      RoughDrag.run
+      RoughDrag.set_experiment_options
+      RoughDrag.set_run_options
+      RoughDrag.set_transpile_options
+   
+
+   
+   

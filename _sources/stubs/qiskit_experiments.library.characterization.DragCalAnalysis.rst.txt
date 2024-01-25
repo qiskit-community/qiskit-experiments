@@ -1,0 +1,46 @@
+﻿
+
+DragCalAnalysis
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: DragCalAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DragCalAnalysis.drawer
+      DragCalAnalysis.models
+      DragCalAnalysis.name
+      DragCalAnalysis.options
+      DragCalAnalysis.parameters
+      DragCalAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DragCalAnalysis.config
+      DragCalAnalysis.copy
+      DragCalAnalysis.from_config
+      DragCalAnalysis.run
+      DragCalAnalysis.set_options
+   
+
+   
+   

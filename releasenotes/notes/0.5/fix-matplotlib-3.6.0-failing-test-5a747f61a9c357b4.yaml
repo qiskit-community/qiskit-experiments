@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed a bug where :class:`.CurveAnalysis` tests would fail with matplotlib 3.6.0 owing to a deprecated
-    function call used in :class:`.MplCurveDrawer`. The new :class:`.MplCurveDrawer` no longer uses the
-    deprecated function.

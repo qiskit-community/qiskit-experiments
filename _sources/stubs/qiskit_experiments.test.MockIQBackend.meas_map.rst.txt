@@ -1,0 +1,8 @@
+
+
+MockIQBackend.meas_map
+==============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.meas_map

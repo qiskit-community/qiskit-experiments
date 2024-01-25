@@ -1,0 +1,8 @@
+
+
+FineXAmplitude.experiment_options
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineXAmplitude.experiment_options

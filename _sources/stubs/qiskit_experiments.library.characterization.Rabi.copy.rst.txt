@@ -1,0 +1,8 @@
+
+
+Rabi.copy
+=====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: Rabi.copy

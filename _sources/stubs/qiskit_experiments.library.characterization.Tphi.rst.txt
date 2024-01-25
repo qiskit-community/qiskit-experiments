@@ -1,0 +1,53 @@
+﻿
+
+Tphi
+================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: Tphi
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      Tphi.analysis
+      Tphi.backend
+      Tphi.experiment_options
+      Tphi.experiment_type
+      Tphi.num_experiments
+      Tphi.num_qubits
+      Tphi.physical_qubits
+      Tphi.run_options
+      Tphi.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      Tphi.circuits
+      Tphi.component_experiment
+      Tphi.config
+      Tphi.copy
+      Tphi.from_config
+      Tphi.run
+      Tphi.set_experiment_options
+      Tphi.set_run_options
+      Tphi.set_transpile_options
+   
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+MplDrawer.options
+==================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoproperty:: MplDrawer.options

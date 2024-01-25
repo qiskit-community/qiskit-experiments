@@ -1,0 +1,8 @@
+
+
+FineAmplitudeAnalysis.copy
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineAmplitudeAnalysis.copy

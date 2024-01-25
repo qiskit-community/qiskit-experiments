@@ -1,0 +1,8 @@
+
+
+HalfAngle.analysis
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: HalfAngle.analysis

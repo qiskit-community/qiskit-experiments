@@ -1,0 +1,8 @@
+
+
+T2Ramsey.from_config
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T2Ramsey.from_config

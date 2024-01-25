@@ -1,0 +1,8 @@
+
+
+EFRabi.num_qubits
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: EFRabi.num_qubits

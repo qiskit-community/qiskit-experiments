@@ -1,0 +1,8 @@
+
+
+StandardRB.circuits
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. automethod:: StandardRB.circuits

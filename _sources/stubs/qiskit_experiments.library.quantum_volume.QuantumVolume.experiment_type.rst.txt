@@ -1,0 +1,8 @@
+
+
+QuantumVolume.experiment_type
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.quantum_volume
+
+.. autoproperty:: QuantumVolume.experiment_type

@@ -1,0 +1,8 @@
+
+
+ExperimentData.save_metadata
+=========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.save_metadata

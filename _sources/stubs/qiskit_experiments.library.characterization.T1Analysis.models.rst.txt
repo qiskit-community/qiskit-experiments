@@ -1,0 +1,8 @@
+
+
+T1Analysis.models
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: T1Analysis.models

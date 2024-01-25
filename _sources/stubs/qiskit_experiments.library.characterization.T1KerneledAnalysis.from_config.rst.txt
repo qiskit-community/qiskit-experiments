@@ -1,0 +1,8 @@
+
+
+T1KerneledAnalysis.from_config
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T1KerneledAnalysis.from_config

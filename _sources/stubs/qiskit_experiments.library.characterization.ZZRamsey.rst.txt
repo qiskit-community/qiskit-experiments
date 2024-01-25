@@ -1,0 +1,54 @@
+﻿
+
+ZZRamsey
+====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: ZZRamsey
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ZZRamsey.analysis
+      ZZRamsey.backend
+      ZZRamsey.experiment_options
+      ZZRamsey.experiment_type
+      ZZRamsey.num_qubits
+      ZZRamsey.physical_qubits
+      ZZRamsey.run_options
+      ZZRamsey.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ZZRamsey.circuits
+      ZZRamsey.config
+      ZZRamsey.copy
+      ZZRamsey.delays
+      ZZRamsey.frequency
+      ZZRamsey.from_config
+      ZZRamsey.parametrized_circuits
+      ZZRamsey.run
+      ZZRamsey.set_experiment_options
+      ZZRamsey.set_run_options
+      ZZRamsey.set_transpile_options
+   
+
+   
+   

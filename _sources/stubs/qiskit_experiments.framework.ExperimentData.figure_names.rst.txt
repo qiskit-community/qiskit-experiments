@@ -1,0 +1,8 @@
+
+
+ExperimentData.figure_names
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.figure_names

@@ -1,0 +1,8 @@
+
+
+BaseCalibrationExperiment.experiment_type
+===================================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: BaseCalibrationExperiment.experiment_type

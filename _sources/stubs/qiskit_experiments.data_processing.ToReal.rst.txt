@@ -1,0 +1,56 @@
+﻿
+
+ToReal
+=========================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: ToReal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ToReal.__call__
+   
+   
+   
+      ToReal.__call__
+
+   
+   

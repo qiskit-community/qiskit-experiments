@@ -1,0 +1,96 @@
+﻿
+
+BaseCurveDrawer
+=================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: BaseCurveDrawer
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseCurveDrawer.figure
+      
+   
+      
+      
+         
+      
+      BaseCurveDrawer.options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseCurveDrawer.config
+   
+   
+      BaseCurveDrawer.draw_confidence_interval
+   
+   
+      BaseCurveDrawer.draw_fit_line
+   
+   
+      BaseCurveDrawer.draw_fit_report
+   
+   
+      BaseCurveDrawer.draw_formatted_data
+   
+   
+      BaseCurveDrawer.draw_raw_data
+   
+   
+      BaseCurveDrawer.format_canvas
+   
+   
+      BaseCurveDrawer.initialize_canvas
+   
+   
+      BaseCurveDrawer.set_options
+   
+
+   
+   

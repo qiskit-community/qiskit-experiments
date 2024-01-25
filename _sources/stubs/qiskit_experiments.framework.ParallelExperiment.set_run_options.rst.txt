@@ -1,0 +1,8 @@
+
+
+ParallelExperiment.set_run_options
+===============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ParallelExperiment.set_run_options

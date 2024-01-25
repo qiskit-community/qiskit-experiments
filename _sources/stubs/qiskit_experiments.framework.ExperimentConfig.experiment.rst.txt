@@ -1,0 +1,8 @@
+
+
+ExperimentConfig.experiment
+========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentConfig.experiment

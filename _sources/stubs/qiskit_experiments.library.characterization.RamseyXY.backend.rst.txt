@@ -1,0 +1,8 @@
+
+
+RamseyXY.backend
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: RamseyXY.backend

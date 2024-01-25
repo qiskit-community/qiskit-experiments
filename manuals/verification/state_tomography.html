@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Quantum State Tomography &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../index.html">Experiment Manuals</a> &gt;</li>
+        
+      <li>Quantum State Tomography</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="quantum-state-tomography">
+<h1>Quantum State Tomography<a class="headerlink" href="#quantum-state-tomography" title="Permalink to this heading">¶</a></h1>
+<p>Quantum tomography is an experimental procedure to reconstruct a description of
+part of a quantum system from the measurement outcomes of a specific set of
+experiments. In particular, quantum state tomography reconstructs the density matrix
+of a quantum state by preparing the state many times and measuring them in a tomographically
+complete basis of measurement operators.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial requires the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> package for simulations.
+You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
+</div>
+<p>We first initialize a simulator to run the experiments on.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>To run a state tomography experiment, we initialize the experiment with a circuit to
+prepare the state to be measured. We can also pass in an
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.Operator.html#qiskit.quantum_info.Operator" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></a> or a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.Statevector.html#qiskit.quantum_info.Statevector" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>
+to describe the preparation circuit.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">qiskit</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ParallelExperiment</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">StateTomography</span>
+
+<span class="c1"># GHZ State preparation circuit</span>
+<span class="n">nq</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">qc_ghz</span> <span class="o">=</span> <span class="n">qiskit</span><span class="o">.</span><span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">nq</span><span class="p">)</span>
+<span class="n">qc_ghz</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">qc_ghz</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nq</span><span class="p">):</span>
+    <span class="n">qc_ghz</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+<span class="c1"># QST Experiment</span>
+<span class="n">qstexp1</span> <span class="o">=</span> <span class="n">StateTomography</span><span class="p">(</span><span class="n">qc_ghz</span><span class="p">)</span>
+<span class="n">qstdata1</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="c1"># Print results</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: state
+- value: DensityMatrix([[ 0.47884115+0.j        , -0.00276693+0.00097656j,
+                 0.00797526-0.0086263j , -0.01074219-0.45361328j],
+               [-0.00276693-0.00097656j,  0.01888021+0.j        ,
+                -0.00195312-0.00146484j, -0.0086263 +0.00113932j],
+               [ 0.00797526+0.0086263j , -0.00195312+0.00146484j,
+                 0.01920573+0.j        ,  0.00113932+0.00097656j],
+               [-0.01074219+0.45361328j, -0.0086263 -0.00113932j,
+                 0.00113932-0.00097656j,  0.48307292+0.j        ]],
+              dims=(2, 2))
+- extra: &lt;7 items&gt;
+- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: state_fidelity
+- value: 0.9345703124999994
+- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: positive
+- value: True
+- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<section id="tomography-results">
+<h2>Tomography Results<a class="headerlink" href="#tomography-results" title="Permalink to this heading">¶</a></h2>
+<p>The main result for tomography is the fitted state, which is stored as a
+<code class="docutils literal notranslate"><span class="pre">DensityMatrix</span></code> object:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">state_result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.47884115+0.j        , -0.00276693+0.00097656j,
+                 0.00797526-0.0086263j , -0.01074219-0.45361328j],
+               [-0.00276693-0.00097656j,  0.01888021+0.j        ,
+                -0.00195312-0.00146484j, -0.0086263 +0.00113932j],
+               [ 0.00797526+0.0086263j , -0.00195312+0.00146484j,
+                 0.01920573+0.j        ,  0.00113932+0.00097656j],
+               [-0.01074219+0.45361328j, -0.0086263 -0.00113932j,
+                 0.00113932-0.00097656j,  0.48307292+0.j        ]],
+              dims=(2, 2))
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can also visualize the density matrix:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.visualization</span> <span class="kn">import</span> <span class="n">plot_state_city</span>
+<span class="n">plot_state_city</span><span class="p">(</span><span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Density Matrix&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/state_tomography_3_0.png" src="../../_images/state_tomography_3_0.png" />
+</div>
+</div>
+<p>The state fidelity of the fitted state with the ideal state prepared by
+the input circuit is stored in the <code class="docutils literal notranslate"><span class="pre">&quot;state_fidelity&quot;</span></code> result field.
+Note that if the input circuit contained any measurements the ideal
+state cannot be automatically generated and this field will be set to
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fid_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state_fidelity&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State Fidelity = </span><span class="si">{:.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fid_result</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.93457
+</pre></div>
+</div>
+</div>
+</div>
+<section id="additional-state-metadata">
+<h3>Additional state metadata<a class="headerlink" href="#additional-state-metadata" title="Permalink to this heading">¶</a></h3>
+<p>Additional data is stored in the tomography under the
+<code class="docutils literal notranslate"><span class="pre">&quot;state_metadata&quot;</span></code> field. This includes</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: the eigenvalues of the fitted state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code>: the trace of the fitted state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">positive</span></code>: Whether the eigenvalues are all non-negative</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">positive_delta</span></code>: the deviation from positivity given by 1-norm of negative
+eigenvalues.</p></li>
+</ul>
+<p>If trace rescaling was performed this dictionary will also contain a <code class="docutils literal notranslate"><span class="pre">raw_trace</span></code> field
+containing the trace before rescaling. Futhermore, if the state was rescaled to be
+positive or trace 1 an additional field <code class="docutils literal notranslate"><span class="pre">raw_eigvals</span></code> will contain the state
+eigenvalues before rescaling was performed.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_result</span><span class="o">.</span><span class="n">extra</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.000000000000001,
+ &#39;eigvals&#39;: array([0.93483903, 0.0333839 , 0.02099366, 0.01078341]),
+ &#39;raw_eigvals&#39;: array([0.93483903, 0.0333839 , 0.02099366, 0.01078341]),
+ &#39;rescaled_psd&#39;: False,
+ &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
+  &#39;fitter_time&#39;: 0.00775909423828125},
+ &#39;conditional_probability&#39;: 1.0,
+ &#39;positive&#39;: True}
+</pre></div>
+</div>
+</div>
+</div>
+<p>To see the effect of rescaling, we can perform a “bad” fit with very low
+counts:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># QST Experiment</span>
+<span class="n">bad_data</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">bad_state_result</span> <span class="o">=</span> <span class="n">bad_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+
+<span class="c1"># Print result</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bad_state_result</span><span class="p">)</span>
+
+<span class="c1"># Show extra data</span>
+<span class="n">bad_state_result</span><span class="o">.</span><span class="n">extra</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: state
+- value: DensityMatrix([[ 0.47531499+0.j        ,  0.06710047+0.01597792j,
+                -0.00285223+0.16288224j, -0.06494529-0.46246755j],
+               [ 0.06710047-0.01597792j,  0.01000971+0.j        ,
+                 0.00507271+0.02309005j, -0.02471441-0.06310363j],
+               [-0.00285223-0.16288224j,  0.00507271-0.02309005j,
+                 0.05583405+0.j        , -0.15808993+0.02503076j],
+               [-0.06494529+0.46246755j, -0.02471441+0.06310363j,
+                -0.15808993-0.02503076j,  0.45884125+0.j        ]],
+              dims=(2, 2))
+- extra: &lt;7 items&gt;
+- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
+- verified: False
+</pre></div>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.0000000000000018,
+ &#39;eigvals&#39;: array([1., 0., 0., 0.]),
+ &#39;raw_eigvals&#39;: array([ 1.07565591,  0.06852995,  0.01317105, -0.15735692]),
+ &#39;rescaled_psd&#39;: True,
+ &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
+  &#39;fitter_time&#39;: 0.0052525997161865234},
+ &#39;conditional_probability&#39;: 1.0,
+ &#39;positive&#39;: True}
+</pre></div>
+</div>
+</div>
+</div>
+<section id="tomography-fitters">
+<h4>Tomography Fitters<a class="headerlink" href="#tomography-fitters" title="Permalink to this heading">¶</a></h4>
+<p>The default fitters is <code class="docutils literal notranslate"><span class="pre">linear_inversion</span></code>, which reconstructs the
+state using <em>dual basis</em> of the tomography basis. This will typically
+result in a non-positive reconstructed state. This state is rescaled to
+be positive-semidefinite (PSD) by computing its eigen-decomposition and
+rescaling its eigenvalues using the approach from Ref. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>There are several other fitters are included (See API documentation for
+details). For example, if <code class="docutils literal notranslate"><span class="pre">cvxpy</span></code> is installed we can use the
+<a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html#qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq" title="qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">cvxpy_gaussian_lstsq()</span></code></a> fitter, which allows constraining the fit to be
+PSD without requiring rescaling.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cvxpy</span>
+
+    <span class="c1"># Set analysis option for cvxpy fitter</span>
+    <span class="n">qstexp1</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">fitter</span><span class="o">=</span><span class="s1">&#39;cvxpy_gaussian_lstsq&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Re-run experiment</span>
+    <span class="n">qstdata2</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+    <span class="n">state_result2</span> <span class="o">=</span> <span class="n">qstdata2</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">state_result2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">extra:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state_result2</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CVXPY is not installed&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: state
+- value: DensityMatrix([[ 0.48689315+0.00000000e+00j, -0.00571489-1.32962493e-02j,
+                -0.00658354+9.21998338e-03j, -0.01554976-4.51967094e-01j],
+               [-0.00571489+1.32962493e-02j,  0.03158116+0.00000000e+00j,
+                -0.0047215 -3.48165396e-04j,  0.00617003-1.21117578e-02j],
+               [-0.00658354-9.21998338e-03j, -0.0047215 +3.48165396e-04j,
+                 0.0177069 +0.00000000e+00j,  0.008346  +1.52593388e-02j],
+               [-0.01554976+4.51967094e-01j,  0.00617003+1.21117578e-02j,
+                 0.008346  -1.52593388e-02j,  0.46381879+0.00000000e+00j]],
+              dims=(2, 2))
+- extra: &lt;7 items&gt;
+- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
+- verified: False
+
+extra:
+- trace: 1.0000000008394812
+- eigvals: [0.92824829 0.04595013 0.02131521 0.00448637]
+- raw_eigvals: [0.92824829 0.04595013 0.02131521 0.00448637]
+- rescaled_psd: False
+- fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.02212667465209961}
+- conditional_probability: 1.0
+- positive: True
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="parallel-tomography-experiment">
+<h4>Parallel Tomography Experiment<a class="headerlink" href="#parallel-tomography-experiment" title="Permalink to this heading">¶</a></h4>
+<p>We can also use the <a class="reference internal" href="../../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment" title="qiskit_experiments.framework.ParallelExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelExperiment</span></code></a> class to
+run subsystem tomography on multiple qubits in parallel.</p>
+<p>For example if we want to perform 1-qubit QST on several qubits at once:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span class="n">num_qubits</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">gates</span> <span class="o">=</span> <span class="p">[</span><span class="n">qiskit</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">RXGate</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_qubits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">)]</span>
+
+<span class="n">subexps</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">StateTomography</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gate</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">parexp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">(</span><span class="n">subexps</span><span class="p">)</span>
+<span class="n">pardata</span> <span class="o">=</span> <span class="n">parexp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">pardata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>View component experiment analysis results:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">expdata</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pardata</span><span class="o">.</span><span class="n">child_data</span><span class="p">()):</span>
+    <span class="n">state_result_i</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+    <span class="n">fid_result_i</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state_fidelity&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">PARALLEL EXP </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State Fidelity: </span><span class="si">{:.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fid_result_i</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state_result_i</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
+PARALLEL EXP 0
+State Fidelity: 0.97559
+State: DensityMatrix([[0.97558594+0.j        , 0.02148438-0.01367188j],
+               [0.02148438+0.01367188j, 0.02441406+0.j        ]],
+              dims=(2,))
+
+PARALLEL EXP 1
+State Fidelity: 0.99649
+State: DensityMatrix([[ 0.83789063+0.j        , -0.01269531+0.36425781j],
+               [-0.01269531-0.36425781j,  0.16210938+0.j        ]],
+              dims=(2,))
+
+PARALLEL EXP 2
+State Fidelity: 0.97852
+State: DensityMatrix([[ 0.50292969+0.j        , -0.00488281+0.47851562j],
+               [-0.00488281-0.47851562j,  0.49707031+0.j        ]],
+              dims=(2,))
+
+PARALLEL EXP 3
+State Fidelity: 0.98959
+State: DensityMatrix([[0.15234375+0.j        , 0.00488281+0.34472656j],
+               [0.00488281-0.34472656j, 0.84765625+0.j        ]],
+              dims=(2,))
+
+PARALLEL EXP 4
+State Fidelity: 0.98047
+State: DensityMatrix([[0.01953125+0.j        , 0.01171875-0.00585938j],
+               [0.01171875+0.00585938j, 0.98046875+0.j        ]],
+              dims=(2,))
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="references">
+<h4>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h4>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012),
+<a class="reference external" href="https://arxiv.org/abs/arXiv:1106.5458">open access</a>.</p>
+</aside>
+</aside>
+</section>
+<section id="see-also">
+<h4>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.StateTomography.html#qiskit_experiments.library.tomography.StateTomography" title="qiskit_experiments.library.tomography.StateTomography"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StateTomography</span></code></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../characterization/t1.html" class="btn btn-neutral float-right" title="T1 Characterization" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="randomized_benchmarking.html" class="btn btn-neutral" title="Randomized Benchmarking" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Quantum State Tomography</a><ul>
+<li><a class="reference internal" href="#tomography-results">Tomography Results</a><ul>
+<li><a class="reference internal" href="#additional-state-metadata">Additional state metadata</a><ul>
+<li><a class="reference internal" href="#tomography-fitters">Tomography Fitters</a></li>
+<li><a class="reference internal" href="#parallel-tomography-experiment">Parallel Tomography Experiment</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/underscore.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

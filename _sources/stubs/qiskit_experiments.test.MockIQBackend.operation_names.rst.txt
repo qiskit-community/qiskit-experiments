@@ -1,0 +1,8 @@
+
+
+MockIQBackend.operation_names
+=====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.operation_names

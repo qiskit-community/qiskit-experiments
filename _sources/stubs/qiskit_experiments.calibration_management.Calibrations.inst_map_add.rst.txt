@@ -1,0 +1,8 @@
+
+
+Calibrations.inst_map_add
+===================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: Calibrations.inst_map_add

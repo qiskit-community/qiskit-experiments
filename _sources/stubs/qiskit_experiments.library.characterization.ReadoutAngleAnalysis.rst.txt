@@ -1,0 +1,41 @@
+﻿
+
+ReadoutAngleAnalysis
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: ReadoutAngleAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ReadoutAngleAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ReadoutAngleAnalysis.config
+      ReadoutAngleAnalysis.copy
+      ReadoutAngleAnalysis.from_config
+      ReadoutAngleAnalysis.run
+      ReadoutAngleAnalysis.set_options
+   
+
+   
+   

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.library.randomized_benchmarking.standard_rb &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.library.randomized_benchmarking.standard_rb</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.library.randomized_benchmarking.standard_rb</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Standard RB Experiment class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Integral</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">default_rng</span>
+<span class="kn">from</span> <span class="nn">numpy.random.bit_generator</span> <span class="kn">import</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">SeedSequence</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">Barrier</span>
+<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">BackendV2Converter</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">,</span> <span class="n">BackendV2</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse.instruction_schedule_map</span> <span class="kn">import</span> <span class="n">CalibrationPublisher</span>
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">Clifford</span>
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info.random</span> <span class="kn">import</span> <span class="n">random_clifford</span>
+<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">CouplingMap</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.warnings</span> <span class="kn">import</span> <span class="n">deprecate_arguments</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.restless_mixin</span> <span class="kn">import</span> <span class="n">RestlessMixin</span>
+
+<span class="kn">from</span> <span class="nn">.clifford_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CliffordUtils</span><span class="p">,</span>
+    <span class="n">compose_1q</span><span class="p">,</span>
+    <span class="n">compose_2q</span><span class="p">,</span>
+    <span class="n">inverse_1q</span><span class="p">,</span>
+    <span class="n">inverse_2q</span><span class="p">,</span>
+    <span class="n">_clifford_1q_int_to_instruction</span><span class="p">,</span>
+    <span class="n">_clifford_2q_int_to_instruction</span><span class="p">,</span>
+    <span class="n">_transpile_clifford_circuit</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.rb_analysis</span> <span class="kn">import</span> <span class="n">RBAnalysis</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">SequenceElementType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Clifford</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="StandardRB"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB">[docs]</a><span class="k">class</span> <span class="nc">StandardRB</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">RestlessMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An experiment to characterize the error rate of a gate set on a device.</span>
+
+<span class="sd">    # section: overview</span>
+
+<span class="sd">    Randomized Benchmarking (RB) is an efficient and robust method</span>
+<span class="sd">    for estimating the average error rate of a set of quantum gate operations.</span>
+<span class="sd">    See `Qiskit Textbook</span>
+<span class="sd">    &lt;https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html&gt;`_</span>
+<span class="sd">    for an explanation on the RB method.</span>
+
+<span class="sd">    A standard RB experiment generates sequences of random Cliffords</span>
+<span class="sd">    such that the unitary computed by the sequences is the identity.</span>
+<span class="sd">    After running the sequences on a backend, it calculates the probabilities to get back to</span>
+<span class="sd">    the ground state, fits an exponentially decaying curve, and estimates</span>
+<span class="sd">    the Error Per Clifford (EPC), as described in Refs. [1, 2].</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed</span>
+<span class="sd">        from ``0`` to ``1`` for RB experiments. That may result in shorter RB circuits</span>
+<span class="sd">        hence slower decay curves than before.</span>
+
+<span class="sd">    # section: analysis_ref</span>
+<span class="sd">        :class:`RBAnalysis`</span>
+
+<span class="sd">    # section: reference</span>
+<span class="sd">        .. ref_arxiv:: 1 1009.3639</span>
+<span class="sd">        .. ref_arxiv:: 2 1109.6887</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@deprecate_arguments</span><span class="p">({</span><span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_qubits&quot;</span><span class="p">},</span> <span class="s2">&quot;0.5&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">lengths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">SeedSequence</span><span class="p">,</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">Generator</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">full_sampling</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a standard randomized benchmarking experiment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            physical_qubits: List of physical qubits for the experiment.</span>
+<span class="sd">            lengths: A list of RB sequences lengths.</span>
+<span class="sd">            backend: The backend to run the experiment on.</span>
+<span class="sd">            num_samples: Number of samples to generate for each sequence length.</span>
+<span class="sd">            seed: Optional, seed used to initialize ``numpy.random.default_rng``.</span>
+<span class="sd">                  when generating circuits. The ``default_rng`` will be initialized</span>
+<span class="sd">                  with this seed value everytime :meth:`circuits` is called.</span>
+<span class="sd">            full_sampling: If True all Cliffords are independently sampled for all lengths.</span>
+<span class="sd">                           If False for sample of lengths longer sequences are constructed</span>
+<span class="sd">                           by appending additional samples to shorter sequences.</span>
+<span class="sd">                           The default is False.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If any invalid argument is supplied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initialize base experiment</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">RBAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="c1"># Verify parameters</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should only contain &quot;</span> <span class="s2">&quot;positive elements.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lengths</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should not contain &quot;</span> <span class="s2">&quot;duplicate elements.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_samples</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of samples </span><span class="si">{</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> should &quot;</span> <span class="s2">&quot;be positive.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set configurable options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span>
+            <span class="n">lengths</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">lengths</span><span class="p">),</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">full_sampling</span><span class="o">=</span><span class="n">full_sampling</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+
+<span class="sd">        Experiment Options:</span>
+<span class="sd">            lengths (List[int]): A list of RB sequences lengths.</span>
+<span class="sd">            num_samples (int): Number of samples to generate for each sequence length.</span>
+<span class="sd">            seed (None or int or SeedSequence or BitGenerator or Generator): A seed</span>
+<span class="sd">                used to initialize ``numpy.random.default_rng`` when generating circuits.</span>
+<span class="sd">                The ``default_rng`` will be initialized with this seed value everytime</span>
+<span class="sd">                :meth:`circuits` is called.</span>
+<span class="sd">            full_sampling (bool): If True all Cliffords are independently sampled for</span>
+<span class="sd">                all lengths. If False for sample of lengths longer sequences are constructed</span>
+<span class="sd">                by appending additional Clifford samples to shorter sequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
+            <span class="n">lengths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">full_sampling</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpiler options for transpiling RB circuits.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="n">optimization_level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend V2 for RB experiments since RB experiments only support BackendV2</span>
+<span class="sd">        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;simulator&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">():</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">BackendV2Converter</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">add_delay</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StandardRB.circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.circuits.html#qiskit_experiments.library.randomized_benchmarking.StandardRB.circuits">[docs]</a>    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of RB circuits.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of :class:`QuantumCircuit`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sample random Clifford sequences</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_sequences</span><span class="p">()</span>
+        <span class="c1"># Convert each sequence into circuit and append the inverse to the end.</span>
+        <span class="n">circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences_to_circuits</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+        <span class="c1"># Add metadata for each circuit</span>
+        <span class="k">for</span> <span class="n">circ</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="n">sequences</span><span class="p">):</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
+                <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;Clifford&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;physical_qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="n">circuits</span></div>
+
+    <span class="k">def</span> <span class="nf">_sample_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample RB sequences</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of RB sequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">full_sampling</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">num_samples</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">lengths</span><span class="p">:</span>
+                    <span class="n">sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sample_sequence</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">rng</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">num_samples</span><span class="p">):</span>
+                <span class="n">longest_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sample_sequence</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">lengths</span><span class="p">),</span> <span class="n">rng</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">lengths</span><span class="p">:</span>
+                    <span class="n">sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">longest_seq</span><span class="p">[:</span><span class="n">length</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">sequences</span>
+
+    <span class="k">def</span> <span class="nf">_get_basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get sorted basis gates to use in basis transformation during circuit generation.</span>
+
+<span class="sd">        - Return None if this experiment is an RB with 3 or more qubits.</span>
+<span class="sd">        - Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.</span>
+<span class="sd">        - Return None if all 2q-gates supported on the physical qubits of the backend are one-way</span>
+<span class="sd">        directed (e.g. cx(0, 1) is supported but cx(1, 0) is not supported).</span>
+
+<span class="sd">        In all those case when None are returned, basis transformation will be skipped in the</span>
+<span class="sd">        circuit generation step (i.e. :meth:`circuits`) and it will be done in the successive</span>
+<span class="sd">        transpilation step (i.e. :meth:`_transpiled_circuits`) that calls :func:`transpile`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Sorted basis gate names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 3 or more qubits case: Return None (skip basis transformation in circuit generation)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># 1 qubit case: Return all basis gates (or None if no basis gates are supplied)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">basis_gates</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">):</span>
+                    <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">operation_names</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">):</span>
+                    <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">basis_gates</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">))</span> <span class="k">if</span> <span class="n">basis_gates</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">is_bidirectional</span><span class="p">(</span><span class="n">coupling_map</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">coupling_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># None for a coupling map implies all-to-all coupling</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">coupling_map</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span><span class="o">.</span><span class="n">get_edges</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="c1"># 2 qubits case: Return all basis gates except for one-way directed 2q-gates.</span>
+        <span class="c1"># Return None if there is no bidirectional 2q-gates in basis gates.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">basis_gates</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                    <span class="n">has_bidirectional_2q_gates</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">op_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">operation_from_name</span><span class="p">(</span><span class="n">op_name</span><span class="p">)</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">is_bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">build_coupling_map</span><span class="p">(</span><span class="n">op_name</span><span class="p">)):</span>
+                                <span class="n">has_bidirectional_2q_gates</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                        <span class="n">basis_gates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_bidirectional_2q_gates</span><span class="p">:</span>
+                        <span class="n">basis_gates</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">):</span>
+                    <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">coupling_map</span>
+                    <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_bidirectional</span><span class="p">(</span><span class="n">CouplingMap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)):</span>
+                        <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">basis_gates</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">))</span> <span class="k">if</span> <span class="n">basis_gates</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_sequences_to_circuits</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert an RB sequence into circuit and append the inverse to the end.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of RB circuits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_basis_gates</span><span class="p">()</span>
+        <span class="c1"># Circuit generation</span>
+        <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">full_sampling</span>
+                <span class="ow">or</span> <span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">lengths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="n">prev_elem</span><span class="p">,</span> <span class="n">prev_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__identity_clifford</span><span class="p">(),</span> <span class="p">[]</span>
+
+            <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
+                <span class="n">circ</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_instruction</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">),</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+                <span class="n">circ</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Barrier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">),</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+
+            <span class="c1"># Compute inverse, compute only the difference from the previous shorter sequence</span>
+            <span class="n">prev_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__compose_clifford_seq</span><span class="p">(</span><span class="n">prev_elem</span><span class="p">,</span> <span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prev_seq</span><span class="p">)</span> <span class="p">:])</span>
+            <span class="n">prev_seq</span> <span class="o">=</span> <span class="n">seq</span>
+            <span class="n">inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__adjoint_clifford</span><span class="p">(</span><span class="n">prev_elem</span><span class="p">)</span>
+
+            <span class="n">circ</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_instruction</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">),</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>  <span class="c1"># includes insertion of the barrier before measurement</span>
+            <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">circuits</span>
+
+    <span class="k">def</span> <span class="nf">__sample_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]:</span>
+        <span class="c1"># Sample an RB sequence with the given length.</span>
+        <span class="c1"># Return integer instead of Clifford object for 1 or 2 qubits case for speed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">CliffordUtils</span><span class="o">.</span><span class="n">NUM_CLIFFORD_1_QUBIT</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">CliffordUtils</span><span class="o">.</span><span class="n">NUM_CLIFFORD_2_QUBIT</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
+        <span class="c1"># Return circuit object instead of Clifford object for 3 or more qubits case for speed</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">random_clifford</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span><span class="o">.</span><span class="n">to_circuit</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_to_instruction</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">:</span> <span class="n">SequenceElementType</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+        <span class="c1"># Switching for speed up</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">Integral</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_clifford_1q_int_to_instruction</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_clifford_2q_int_to_instruction</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">elem</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__identity_clifford</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequenceElementType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">Clifford</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__compose_clifford_seq</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">base_elem</span><span class="p">:</span> <span class="n">SequenceElementType</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequenceElementType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+                <span class="n">compose_1q</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">compose_2q</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">base_elem</span>
+            <span class="p">)</span>
+        <span class="c1"># 3 or more qubits: compose Clifford from circuits for speed</span>
+        <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">base_elem</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">Clifford</span><span class="o">.</span><span class="n">from_circuit</span><span class="p">(</span><span class="n">circ</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__adjoint_clifford</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="n">SequenceElementType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequenceElementType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inverse_1q</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inverse_2q</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Clifford</span><span class="o">.</span><span class="n">from_circuit</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="n">adjoint</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">adjoint</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits, transpiled.&quot;&quot;&quot;</span>
+        <span class="n">has_custom_transpile_option</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="p">))</span><span class="o">.</span><span class="n">issubset</span><span class="p">({</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="s2">&quot;optimization_level&quot;</span><span class="p">})</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimization_level&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">has_no_undirected_2q_basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_basis_gates</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">has_custom_transpile_option</span> <span class="ow">or</span> <span class="n">has_no_undirected_2q_basis</span><span class="p">:</span>
+            <span class="n">transpiled</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_transpiled_circuits</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transpiled</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">_transpile_clifford_circuit</span><span class="p">(</span><span class="n">circ</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="c1"># Set custom calibrations provided in backend</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">):</span>
+                <span class="n">qargs_patterns</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">]</span>  <span class="c1"># for self.num_qubits == 1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">qargs_patterns</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">1</span><span class="p">],),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">,</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="p">]</span>
+
+                <span class="n">instructions</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># (op_name, qargs) for each element where qargs means qubit tuple</span>
+                <span class="k">for</span> <span class="n">qargs</span> <span class="ow">in</span> <span class="n">qargs_patterns</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">op_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">operation_names_for_qargs</span><span class="p">(</span><span class="n">qargs</span><span class="p">):</span>
+                        <span class="n">instructions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">op_name</span><span class="p">,</span> <span class="n">qargs</span><span class="p">))</span>
+
+                <span class="n">common_calibrations</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">op_name</span><span class="p">,</span> <span class="n">qargs</span> <span class="ow">in</span> <span class="n">instructions</span><span class="p">:</span>
+                    <span class="n">inst_prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">op_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">qargs</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">inst_prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">schedule</span> <span class="o">=</span> <span class="n">inst_prop</span><span class="o">.</span><span class="n">calibration</span>
+                    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                        <span class="c1"># TODO remove after qiskit-terra/#9681 is in stable release.</span>
+                        <span class="n">schedule</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">schedule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">publisher</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;publisher&quot;</span><span class="p">,</span> <span class="n">CalibrationPublisher</span><span class="o">.</span><span class="n">QISKIT</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">publisher</span> <span class="o">!=</span> <span class="n">CalibrationPublisher</span><span class="o">.</span><span class="n">BACKEND_PROVIDER</span><span class="p">:</span>
+                        <span class="n">common_calibrations</span><span class="p">[</span><span class="n">op_name</span><span class="p">][(</span><span class="n">qargs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())]</span> <span class="o">=</span> <span class="n">schedule</span>
+
+                <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="n">transpiled</span><span class="p">:</span>
+                    <span class="c1"># This logic is inefficient in terms of payload size and backend compilation</span>
+                    <span class="c1"># because this binds every custom pulse to a circuit regardless of</span>
+                    <span class="c1"># its existence. It works but redundant calibration must be removed -- NK.</span>
+                    <span class="n">circ</span><span class="o">.</span><span class="n">calibrations</span> <span class="o">=</span> <span class="n">common_calibrations</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gate_error_ratio&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Gate errors are not computed, then counting ops is not necessary.</span>
+            <span class="k">return</span> <span class="n">transpiled</span>
+
+        <span class="c1"># Compute average basis gate numbers per Clifford operation</span>
+        <span class="c1"># This is probably main source of performance regression.</span>
+        <span class="c1"># This should be integrated into transpile pass in future.</span>
+        <span class="n">qubit_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">bit</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">transpiled</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">qubits</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="n">transpiled</span><span class="p">:</span>
+            <span class="n">count_ops_result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="c1"># This is physical circuits, i.e. qargs is physical index</span>
+            <span class="k">for</span> <span class="n">inst</span><span class="p">,</span> <span class="n">qargs</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">circ</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">,</span> <span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">,</span> <span class="s2">&quot;snapshot&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">qinds</span> <span class="o">=</span> <span class="p">[</span><span class="n">qubit_indices</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">qinds</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Not aware of multi-qubit gate direction</span>
+                <span class="n">formatted_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qinds</span><span class="p">)),</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">count_ops_result</span><span class="p">[</span><span class="n">formatted_key</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;count_ops&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">count_ops_result</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">transpiled</span>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+        <span class="c1"># Store measurement level and meas return if they have been</span>
+        <span class="c1"># set for the experiment</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/underscore.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+      <script src="../../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

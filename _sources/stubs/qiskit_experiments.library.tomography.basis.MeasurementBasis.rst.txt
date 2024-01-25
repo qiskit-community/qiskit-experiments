@@ -1,0 +1,77 @@
+﻿
+
+MeasurementBasis
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: MeasurementBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MeasurementBasis.name
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MeasurementBasis.circuit
+   
+   
+      MeasurementBasis.index_shape
+   
+   
+      MeasurementBasis.matrix
+   
+   
+      MeasurementBasis.matrix_shape
+   
+   
+      MeasurementBasis.outcome_shape
+   
+
+   
+   

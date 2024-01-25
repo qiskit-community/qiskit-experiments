@@ -1,0 +1,8 @@
+
+
+MplCurveDrawer.initialize_canvas
+==================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: MplCurveDrawer.initialize_canvas

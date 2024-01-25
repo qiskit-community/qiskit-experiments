@@ -1,0 +1,8 @@
+
+
+PauliPreparationBasis.matrix
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: PauliPreparationBasis.matrix

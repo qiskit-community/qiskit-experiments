@@ -1,0 +1,8 @@
+
+
+MockIQParallelExperimentHelper.iq_clusters
+==================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: MockIQParallelExperimentHelper.iq_clusters

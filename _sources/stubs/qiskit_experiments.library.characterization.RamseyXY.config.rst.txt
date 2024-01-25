@@ -1,0 +1,8 @@
+
+
+RamseyXY.config
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: RamseyXY.config

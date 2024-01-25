@@ -1,0 +1,86 @@
+﻿
+
+AnalysisConfig
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisConfig
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      AnalysisConfig.version
+      
+   
+      
+      
+         
+      
+      AnalysisConfig.args
+      
+   
+      
+      
+         
+      
+      AnalysisConfig.kwargs
+      
+   
+      
+      
+         
+      
+      AnalysisConfig.options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      AnalysisConfig.analysis
+   
+
+   
+   

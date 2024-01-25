@@ -1,0 +1,8 @@
+
+
+BackendData.drive_freqs
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BackendData.drive_freqs

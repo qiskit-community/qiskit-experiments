@@ -1,0 +1,201 @@
+﻿
+
+SingleTransmonTestBackend
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: SingleTransmonTestBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      SingleTransmonTestBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.default_pulse_unitaries
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.discriminator
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.dt
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.dtm
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.instructions
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.meas_map
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.operation_names
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.operations
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.options
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.provider
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.target
+      
+   
+      
+      
+         
+      
+      SingleTransmonTestBackend.version
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      SingleTransmonTestBackend.acquire_channel
+   
+   
+      SingleTransmonTestBackend.control_channel
+   
+   
+      SingleTransmonTestBackend.defaults
+   
+   
+      SingleTransmonTestBackend.drive_channel
+   
+   
+      SingleTransmonTestBackend.measure_channel
+   
+   
+      SingleTransmonTestBackend.qubit_properties
+   
+   
+      SingleTransmonTestBackend.run
+   
+   
+      SingleTransmonTestBackend.set_options
+   
+   
+      SingleTransmonTestBackend.solve
+   
+
+   
+   

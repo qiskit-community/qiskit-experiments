@@ -1,0 +1,8 @@
+
+
+AnalysisResult.value
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.value

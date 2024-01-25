@@ -1,0 +1,56 @@
+﻿
+
+MarginalizeCounts
+====================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: MarginalizeCounts
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MarginalizeCounts.__call__
+   
+   
+   
+      MarginalizeCounts.__call__
+
+   
+   

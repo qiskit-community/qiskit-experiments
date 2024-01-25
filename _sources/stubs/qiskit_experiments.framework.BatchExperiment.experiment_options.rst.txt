@@ -1,0 +1,8 @@
+
+
+BatchExperiment.experiment_options
+===============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BatchExperiment.experiment_options

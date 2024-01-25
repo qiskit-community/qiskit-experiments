@@ -1,0 +1,53 @@
+﻿
+
+MplDrawer
+==========================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autodrawer:: MplDrawer
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MplDrawer.DefaultColors
+      MplDrawer.DefaultMarkers
+      MplDrawer.figure
+      MplDrawer.figure_options
+      MplDrawer.options
+      MplDrawer.style
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MplDrawer.config
+      MplDrawer.filled_x_area
+      MplDrawer.filled_y_area
+      MplDrawer.format_canvas
+      MplDrawer.image
+      MplDrawer.initialize_canvas
+      MplDrawer.label_for
+      MplDrawer.line
+      MplDrawer.scatter
+      MplDrawer.set_figure_options
+      MplDrawer.set_options
+      MplDrawer.textbox
+   
+
+   
+   

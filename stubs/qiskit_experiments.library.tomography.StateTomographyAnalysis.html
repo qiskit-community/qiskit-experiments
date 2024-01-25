@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>StateTomographyAnalysis &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../apidocs/index.html">API Reference</a> &gt;</li>
+        
+          <li><a href="../apidocs/mod_tomography.html">Tomography Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography</span></code>)</a> &gt;</li>
+        
+      <li>StateTomographyAnalysis</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="statetomographyanalysis">
+<h1>StateTomographyAnalysis<a class="headerlink" href="#statetomographyanalysis" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_experiments.library.tomography.StateTomographyAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StateTomographyAnalysis</span></span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/qst_analysis.html#StateTomographyAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.StateTomographyAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>State tomography experiment analysis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The API for tomography fitters is still under development so may change
+in future releases.</p>
+</div>
+<p class="rubric">Overview</p>
+<p>Fitter Functions</p>
+<p>Built-in fitter functions may be selected using the following string
+labels, refer to the corresponding functions documentation for additional
+details on the fitters.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;linear_inversion&quot;</span></code>:
+<a class="reference internal" href="qiskit_experiments.library.tomography.fitters.linear_inversion.html#qiskit_experiments.library.tomography.fitters.linear_inversion" title="qiskit_experiments.library.tomography.fitters.linear_inversion"><code class="xref py py-func docutils literal notranslate"><span class="pre">linear_inversion()</span></code></a> (Default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;scipy_linear_lstsq&quot;</span></code>:
+<a class="reference internal" href="qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq.html#qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq" title="qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy_linear_lstsq()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cvxpy_linear_lstsq&quot;</span></code>:
+<a class="reference internal" href="qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq.html#qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq" title="qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">cvxpy_linear_lstsq()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;scipy_gaussian_lstsq&quot;</span></code>:
+<a class="reference internal" href="qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq.html#qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq" title="qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy_gaussian_lstsq()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cvxpy_gaussian_lstsq&quot;</span></code>:
+<a class="reference internal" href="qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html#qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq" title="qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">cvxpy_gaussian_lstsq()</span></code></a></p></li>
+</ul>
+<p>PSD Rescaling</p>
+<p>For fitters that do not constrain the reconstructed state to be
+<cite>positive-semidefinite</cite> (PSD) we construct the maximum-likelihood
+nearest PSD state under the assumption of Gaussian measurement noise
+using the rescaling method in Reference [1]. For fitters that already
+support PSD constraints this option can be disabled by setting
+<code class="docutils literal notranslate"><span class="pre">rescale_positive=False</span></code>.</p>
+<p class="rubric">References</p>
+<p>[1] John A. Smolin, Jay M. Gambetta, Graeme Smith, <em>Maximum Likelihood, Minimum Effort</em>, Phys. Rev. Lett. 108, 070502 (2012), doi: 10.1103/PhysRevLett.108.070502 <a class="reference external" href="http://arxiv.org/abs/1106.5458v2">(open)</a></p>
+<p class="rubric">Analysis options</p>
+<p>These are the keyword arguments of <a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.run.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.run" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p>
+<dl>
+<dt>Options</dt><dd><ul>
+<li><p>Defined in the class <a class="reference internal" href="#qiskit_experiments.library.tomography.StateTomographyAnalysis" title="qiskit_experiments.library.tomography.qst_analysis.StateTomographyAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">StateTomographyAnalysis</span></code></a>:</p>
+<ul>
+<li><p><strong>measurement_basis</strong> (<a class="reference internal" href="qiskit_experiments.library.tomography.basis.MeasurementBasis.html#qiskit_experiments.library.tomography.basis.MeasurementBasis" title="qiskit_experiments.library.tomography.basis.MeasurementBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasurementBasis</span></code></a>)</p>
+<div class="line-block">
+<div class="line">Default value: Instance of <a class="reference internal" href="qiskit_experiments.library.tomography.basis.PauliMeasurementBasis.html#qiskit_experiments.library.tomography.basis.PauliMeasurementBasis" title="qiskit_experiments.library.tomography.basis.PauliMeasurementBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">PauliMeasurementBasis</span></code></a></div>
+<div class="line">The measurement <a class="reference internal" href="qiskit_experiments.library.tomography.basis.MeasurementBasis.html#qiskit_experiments.library.tomography.basis.MeasurementBasis" title="qiskit_experiments.library.tomography.basis.MeasurementBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasurementBasis</span></code></a> to use for tomographic state reconstruction.</div>
+</div>
+</li>
+<li><p><strong>fitter</strong> (str or Callable)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="docutils literal notranslate"><span class="pre">&quot;linear_inversion&quot;</span></code></div>
+<div class="line">The fitter function to use for reconstruction. This can  be a string to select one of the built-in fitters, or a callable to supply a custom fitter function. See the <cite>Fitter Functions</cite> section for additional information.</div>
+</div>
+</li>
+<li><p><strong>fitter_options</strong> (dict)</p>
+<div class="line-block">
+<div class="line">Default value: {}</div>
+<div class="line">Any addition kwarg options to be supplied to the fitter function. For documentation of available kwargs refer to the fitter function documentation.</div>
+</div>
+</li>
+<li><p><strong>rescale_positive</strong> (bool)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></div>
+<div class="line">If True rescale the state returned by the fitter to be positive-semidefinite. See the <cite>PSD Rescaling</cite> section for additional information (Default: True).</div>
+</div>
+</li>
+<li><p><strong>rescale_trace</strong> (bool)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></div>
+<div class="line">If True rescale the state returned by the fitter have either trace 1 for <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.DensityMatrix.html#qiskit.quantum_info.DensityMatrix" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DensityMatrix</span></code></a>, or trace dim for <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.Choi.html#qiskit.quantum_info.Choi" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choi</span></code></a> matrices (Default: True).</div>
+</div>
+</li>
+<li><p><strong>measurement_qubits</strong> (Sequence[int])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, the physical qubits with tomographic measurements. If not specified will be set to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">...,</span> <span class="pre">N-1]</span></code> for N-qubit tomographic measurements.</div>
+</div>
+</li>
+<li><p><strong>target</strong> (str or <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.DensityMatrix.html#qiskit.quantum_info.DensityMatrix" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DensityMatrix</span></code></a> or <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.quantum_info.Statevector.html#qiskit.quantum_info.Statevector" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, set a custom target quantum state for computing the <a class="reference external" href="https://qiskit.org/documentation/apidoc/quantum_info.html#qiskit.quantum_info.state_fidelity" title="(in Qiskit v0.45)"><code class="xref py py-func docutils literal notranslate"><span class="pre">state_fidelity()</span></code></a> of the fitted state against (Default: None).</div>
+</div>
+</li>
+<li><p><strong>conditional_circuit_clbits</strong> (list[int])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, the clbit indices in the source circuit to be conditioned on when reconstructing the state. Enabling this will return a list of reconstrated state components conditional on the values of these clbit values. The integer value of the conditioning clbits is stored in state analysis result extra field <cite>“conditional_circuit_outcome”</cite>.</div>
+</div>
+</li>
+<li><p><strong>conditional_measurement_indices</strong> (list[int])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, indices of tomography measurement qubits to used for conditional state reconstruction. Enabling this will return a list of reconstrated state components conditioned on the remaining tomographic bases conditional on the basis index, and outcome value for these measurements. The conditionl measurement basis index and integer value of the measurement outcome is stored in state analysis result extra fields <cite>“conditional_measurement_index”</cite> and <cite>“conditional_measurement_outcome”</cite> respectively.</div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Defined in the class <a class="reference internal" href="qiskit_experiments.library.tomography.TomographyAnalysis.html#qiskit_experiments.library.tomography.TomographyAnalysis" title="qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomographyAnalysis</span></code></a>:</p>
+<ul>
+<li><p><strong>preparation_basis</strong> (<a class="reference internal" href="qiskit_experiments.library.tomography.basis.PreparationBasis.html#qiskit_experiments.library.tomography.basis.PreparationBasis" title="qiskit_experiments.library.tomography.basis.PreparationBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreparationBasis</span></code></a>)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">The preparation <a class="reference internal" href="qiskit_experiments.library.tomography.basis.PreparationBasis.html#qiskit_experiments.library.tomography.basis.PreparationBasis" title="qiskit_experiments.library.tomography.basis.PreparationBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreparationBasis</span></code></a> to use for tomographic reconstruction for <a class="reference internal" href="qiskit_experiments.library.tomography.ProcessTomography.html#qiskit_experiments.library.tomography.ProcessTomography" title="qiskit_experiments.library.tomography.ProcessTomography"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessTomography</span></code></a>.</div>
+</div>
+</li>
+<li><p><strong>preparation_qubits</strong> (Sequence[int])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, the physical qubits with tomographic preparations. If not specified will be set to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">...,</span> <span class="pre">N-1]</span></code> for N-qubit tomographic preparations.</div>
+</div>
+</li>
+<li><p><strong>target_bootstrap_samples</strong> (int)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">0</span></code></div>
+<div class="line">Optional, number of outcome re-samples to draw from measurement data for each basis for computing a bootstrapped standard error of fidelity with the target state. If 0 no bootstrapping will be performed and the target fidelity will not include a standard error (Default: 0).</div>
+</div>
+</li>
+<li><p><strong>target_bootstrap_seed</strong> (int | None | Generator)</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, RNG seed or Generator to use for bootstrapping data for boostrapped fidelity standard error calculation (Default: None).</div>
+</div>
+</li>
+<li><p><strong>conditional_preparation_indices</strong> (list[int])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Optional, indices of tomography preparation qubits to used for conditional state reconstruction. Enabling this will return a list of reconstrated channel components conditioned on the remaining tomographic bases conditional on the basis index. The conditionl preparation basis index is stored in state analysis result extra fields <cite>“conditional_preparation_index”</cite>.</div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Defined in the class <a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAnalysis</span></code></a>:</p>
+<ul>
+<li><p><strong>figure_names</strong> (str or List[str])</p>
+<div class="line-block">
+<div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></div>
+<div class="line">Identifier of figures that appear in the experiment data to sort figures by name.</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Fitters starting with <code class="docutils literal notranslate"><span class="pre">&quot;cvxpy_*&quot;</span></code> require the optional CVXPY Python
+package to be installed.</p>
+</div>
+<p class="rubric">See also</p>
+<ul class="simple">
+<li><p>Superclass <a class="reference internal" href="qiskit_experiments.library.tomography.TomographyAnalysis.html#qiskit_experiments.library.tomography.TomographyAnalysis" title="qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis</span></code></a></p></li>
+</ul>
+<p class="rubric">Initialization</p>
+<p>Initialize the analysis object.</p>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.options.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.options" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.options</span></code></a></p></td>
+<td><p>Return the analysis options for <a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.run.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.run" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.config.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.config" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.config</span></code></a>()</p></td>
+<td><p>Return the config dataclass for this analysis</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.copy.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.copy" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.copy</span></code></a>()</p></td>
+<td><p>Return a copy of the analysis</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.from_config.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.from_config" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.from_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.from_config</span></code></a>(config)</p></td>
+<td><p>Initialize an analysis class from analysis config</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.run.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.run" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.run</span></code></a>(experiment_data)</p></td>
+<td><p>Run analysis and update ExperimentData with analysis result.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.set_options.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.set_options" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.set_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StateTomographyAnalysis.set_options</span></code></a>(**fields)</p></td>
+<td><p>Set the analysis options for <a class="reference internal" href="qiskit_experiments.library.tomography.StateTomographyAnalysis.run.html#qiskit_experiments.library.tomography.StateTomographyAnalysis.run" title="qiskit_experiments.library.tomography.StateTomographyAnalysis.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="qiskit_experiments.library.tomography.StateTomographyAnalysis.options.html" class="btn btn-neutral float-right" title="StateTomographyAnalysis.options" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="qiskit_experiments.library.tomography.TomographyAnalysis.set_options.html" class="btn btn-neutral" title="TomographyAnalysis.set_options" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">StateTomographyAnalysis</a><ul>
+<li><a class="reference internal" href="#qiskit_experiments.library.tomography.StateTomographyAnalysis"><code class="docutils literal notranslate"><span class="pre">StateTomographyAnalysis</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

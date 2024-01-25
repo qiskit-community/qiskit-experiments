@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Visualization: Creating figures &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">Tutorials</a> &gt;</li>
+        
+      <li>Visualization: Creating figures</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="visualization-creating-figures">
+<h1>Visualization: Creating figures<a class="headerlink" href="#visualization-creating-figures" title="Permalink to this heading">¶</a></h1>
+<p>The Visualization module provides plotting functionality for creating figures from experiment and analysis results.
+This includes <code class="docutils literal notranslate"><span class="pre">plotter</span></code> and <code class="docutils literal notranslate"><span class="pre">drawer</span></code> classes to plot data in <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> and its subclasses.
+Plotters define the kind of figures to plot, while drawers are backends that enable them to be visualized.</p>
+<p>How much you will interact directly with the visualization module depends on your use case:</p>
+<ul class="simple">
+<li><p><strong>Running library experiments as-is:</strong> You won’t need to interact with the visualization module.</p></li>
+<li><p><strong>Running library experiments with custom styling for figures</strong>: You will be setting figure options through the plotter.</p></li>
+<li><p><strong>Making plots using a plotting library other than Matplotlib</strong>: You will need to define a custom drawer class.</p></li>
+<li><p><strong>Writing your own analysis class</strong>: If you want to use the the default plotter and drawer settings,
+you don’t need to interact with the visualization module. Optionally, you can customize
+your plotter and drawer.</p></li>
+</ul>
+<p>Plotters inherit from <a class="reference internal" href="../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter" title="qiskit_experiments.visualization.BasePlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlotter</span></code></a> and define a type of figure that may be generated from
+experiment or analysis data. For example, the results from <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> — or any other
+experiment where results are plotted against a single parameter (i.e., <span class="math notranslate nohighlight">\(x\)</span>) — can be plotted
+using the <a class="reference internal" href="../stubs/qiskit_experiments.visualization.CurvePlotter.html#qiskit_experiments.visualization.CurvePlotter" title="qiskit_experiments.visualization.CurvePlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurvePlotter</span></code></a> class, which plots X-Y-like values.</p>
+<p>These plotter classes act as a bridge (from the common bridge pattern in software development) between
+analysis classes (or even users) and plotting backends such as Matplotlib. Drawers are the backends, with
+a common interface defined in <a class="reference internal" href="../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer" title="qiskit_experiments.visualization.BaseDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDrawer</span></code></a>. Though Matplotlib is the only officially supported
+plotting backend in Qiskit Experiments through <a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer" title="qiskit_experiments.visualization.MplDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MplDrawer</span></code></a>, custom drawers can be
+implemented by users to use alternative backends. As long as the backend is a subclass of
+<a class="reference internal" href="../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer" title="qiskit_experiments.visualization.BaseDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDrawer</span></code></a>, and implements all the necessary functionality, all plotters should be able to
+generate figures with the alternative backend.</p>
+<section id="generating-and-customizing-a-figure-using-a-plotter">
+<h2>Generating and customizing a figure using a plotter<a class="headerlink" href="#generating-and-customizing-a-figure-using-a-plotter" title="Permalink to this heading">¶</a></h2>
+<p>First, we display the default figure from a <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Rabi.html#qiskit_experiments.library.characterization.Rabi" title="qiskit_experiments.library.characterization.Rabi"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rabi</span></code></a> experiment as a starting point:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">pulse</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.pulse_backend</span> <span class="kn">import</span> <span class="n">SingleTransmonTestBackend</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing</span> <span class="kn">import</span> <span class="n">DataProcessor</span><span class="p">,</span> <span class="n">nodes</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">Rabi</span>
+
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">()</span> <span class="k">as</span> <span class="n">sched</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span>
+        <span class="n">pulse</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">),</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+        <span class="n">pulse</span><span class="o">.</span><span class="n">DriveChannel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">SingleTransmonTestBackend</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="n">rabi</span> <span class="o">=</span> <span class="n">Rabi</span><span class="p">(</span>
+    <span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
+    <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+    <span class="n">schedule</span><span class="o">=</span><span class="n">sched</span><span class="p">,</span>
+    <span class="n">amplitudes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">rabi_data</span> <span class="o">=</span> <span class="n">rabi</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">rabi_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/visualization_0_0.png" src="../_images/visualization_0_0.png" />
+</div>
+</div>
+<p>This is the default figure generated by <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.OscillationAnalysis.html#qiskit_experiments.curve_analysis.OscillationAnalysis" title="qiskit_experiments.curve_analysis.OscillationAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">OscillationAnalysis</span></code></a>, the data analysis
+class for the Rabi experiment. The fitted cosine is shown as a blue line, with the
+individual measurements from the experiment shown as data points with error bars corresponding
+to their uncertainties. We are also given a small fit report in the caption showing the
+<code class="docutils literal notranslate"><span class="pre">rabi_rate</span></code>.</p>
+<p>The plotter that generated the figure can be accessed through the analysis instance,
+and customizing the figure can be done by setting the plotter’s options. We now modify
+the color, symbols, and size of our plot, as well as change the axis labels for the amplitude units:</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve the plotter from the analysis instance</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">rabi</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
+
+<span class="c1"># Change the x-axis unit values</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+    <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;arb.&quot;</span><span class="p">,</span>
+    <span class="n">xval_unit_scale</span><span class="o">=</span><span class="kc">False</span>   <span class="c1"># Don&#39;t scale the unit with SI prefixes</span>
+<span class="p">)</span>
+
+<span class="c1"># Change the color and symbol for the cosine</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;cos&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">}}</span>
+<span class="p">)</span>
+
+<span class="c1"># Set figsize directly so we don&#39;t overwrite the entire style</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Generate the new figure</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/visualization_2_0.png" src="../_images/visualization_2_0.png" />
+</div>
+</div>
+<p>Plotters have two sets of options that customize their behavior and figure content:
+<code class="docutils literal notranslate"><span class="pre">options</span></code>, which have class-specific parameters that define how an instance behaves,
+and <code class="docutils literal notranslate"><span class="pre">figure_options</span></code>, which have figure-specific parameters that control aspects of the
+figure itself, such as axis labels and series colors.</p>
+<p>Here is a more complicated experiment in which we customize the figure of a DRAG
+experiment before it’s run, so that we don’t need to regenerate the figure like in
+the previous example. First, we run the experiment without customizing the options
+to see what the default figure looks like:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">RoughDrag</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="n">PlotStyle</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.mock_iq_helpers</span> <span class="kn">import</span> <span class="n">MockIQDragHelper</span> <span class="k">as</span> <span class="n">DragHelper</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.test.mock_iq_backend</span> <span class="kn">import</span> <span class="n">MockIQBackend</span>
+<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">pulse</span>
+<span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">DriveChannel</span><span class="p">,</span> <span class="n">Drag</span>
+
+
+<span class="n">beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xp</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">pulse</span><span class="o">.</span><span class="n">Drag</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mf">0.66</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">beta</span><span class="p">),</span> <span class="n">pulse</span><span class="o">.</span><span class="n">DriveChannel</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">drag_experiment_helper</span> <span class="o">=</span> <span class="n">DragHelper</span><span class="p">(</span><span class="n">gate_name</span><span class="o">=</span><span class="s2">&quot;Drag(xp)&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">MockIQBackend</span><span class="p">(</span><span class="n">drag_experiment_helper</span><span class="p">,</span> <span class="n">rng_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="n">drag</span> <span class="o">=</span> <span class="n">RoughDrag</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">xp</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="n">drag_data</span> <span class="o">=</span> <span class="n">drag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">drag_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/visualization_3_0.png" src="../_images/visualization_3_0.png" />
+</div>
+</div>
+<p>Now we specify the figure options before running the experiment for a second time:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">drag</span> <span class="o">=</span> <span class="n">RoughDrag</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">xp</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="c1"># Set plotter options</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">drag</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
+
+<span class="c1"># Update series parameters</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;nrep=1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">27</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">158</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">119</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span>
+            <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;nrep=3&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">217</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">95</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span>
+            <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;nrep=5&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">117</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">112</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="mi">179</span><span class="o">/</span><span class="mi">255</span><span class="p">),</span>
+            <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Set figure options</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+    <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;arb.&quot;</span><span class="p">,</span>
+    <span class="n">xval_unit_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">figure_title</span><span class="o">=</span><span class="s2">&quot;Rough DRAG Experiment on Qubit 0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Set style parameters</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;symbol_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;legend_loc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;upper center&quot;</span>
+
+<span class="n">drag_data</span> <span class="o">=</span> <span class="n">drag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">drag_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/visualization_4_0.png" src="../_images/visualization_4_0.png" />
+</div>
+</div>
+<p>As can be seen in the figure, the different series generated by the experiment
+were styled differently according to the <code class="docutils literal notranslate"><span class="pre">series_params</span></code> attribute of <code class="docutils literal notranslate"><span class="pre">figure_options</span></code>.</p>
+</section>
+<section id="customizing-plotting-in-your-experiment">
+<h2>Customizing plotting in your experiment<a class="headerlink" href="#customizing-plotting-in-your-experiment" title="Permalink to this heading">¶</a></h2>
+<p>Plotters are easily integrated into custom analysis classes. To add a plotter instance
+to such a class, we define a new <code class="docutils literal notranslate"><span class="pre">plotter</span></code> property, pass it relevant data in the
+analysis class’s <code class="docutils literal notranslate"><span class="pre">_run_analysis</span></code> method, and return the generated figure alongside our
+analysis results. We use the <a class="reference internal" href="../stubs/qiskit_experiments.visualization.IQPlotter.html#qiskit_experiments.visualization.IQPlotter" title="qiskit_experiments.visualization.IQPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IQPlotter</span></code></a> class to illustrate how this is done for an
+arbitrary analysis class.</p>
+<p>To ensure that we have an interface similar to existing analysis classes, we make our plotter
+accessible as an <code class="docutils literal notranslate"><span class="pre">analysis.plotter</span></code> property and analysis.options.plotter option.
+The code below accomplishes this for our example <code class="docutils literal notranslate"><span class="pre">MyIQAnalysis</span></code> analysis class. We
+set the drawer to <a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer" title="qiskit_experiments.visualization.MplDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MplDrawer</span></code></a> to use <a class="reference external" href="https://matplotlib.org/stable/index.html#module-matplotlib" title="(in Matplotlib v3.8.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code></a> by default. The plotter property of our
+analysis class makes it easier to access the plotter instance; i.e., using <code class="docutils literal notranslate"><span class="pre">self.plotter</span></code>
+and <code class="docutils literal notranslate"><span class="pre">analysis.plotter</span></code>. We set default options and figure options in
+<code class="docutils literal notranslate"><span class="pre">_default_options</span></code>, but you can still override them as we did above.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MyIQAnalysis</span></code> class accepts single-shot level 1 IQ data, which consists of an
+in-phase and quadrature measurement for each shot and circuit. <code class="docutils literal notranslate"><span class="pre">_run_analysis</span></code> is
+passed an <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> instance which contains IQ data as a list of dictionaries
+(one per circuit) where their “memory” entries are lists of IQ values (one per shot).
+Each dictionary has a “metadata” entry, with the name of a prepared state: “0”, “1”,
+or “2”. These are our series names.</p>
+<p>Our goal is to create a figure that displays the single-shot IQ values of each
+prepared-state (one per circuit). We process the “memory” data passed to the
+analysis class and set the points and centroid series data in the plotter.
+This is accomplished in the code below, where we also train a discriminator
+to label the IQ points as one of the three prepared states. <a class="reference internal" href="../stubs/qiskit_experiments.visualization.IQPlotter.html#qiskit_experiments.visualization.IQPlotter" title="qiskit_experiments.visualization.IQPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IQPlotter</span></code></a> supports
+plotting a discriminator as optional supplementary data, which will show predicted
+series over the axis area.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xp</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">Drag</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">0.208519</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">),</span> <span class="n">DriveChannel</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">x_plus</span> <span class="o">=</span> <span class="n">xp</span>
+<span class="n">drag</span> <span class="o">=</span> <span class="n">RoughDrag</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">x_plus</span><span class="p">)</span>
+
+<span class="n">expdata</span> <span class="o">=</span> <span class="n">drag</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BasePlotter</span><span class="p">,</span>
+    <span class="n">IQPlotter</span><span class="p">,</span>
+    <span class="n">MplDrawer</span><span class="p">,</span>
+    <span class="n">PlotStyle</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">MYIQAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="c1"># We create the plotter and create an option for it.</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">IQPlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;In-phase&quot;</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Quadrature&quot;</span><span class="p">,</span>
+            <span class="n">figure_title</span><span class="o">=</span><span class="s2">&quot;My IQ Analysis Figure&quot;</span><span class="p">,</span>
+            <span class="n">series_params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|0&gt;&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|1&gt;&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|2&gt;&quot;</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">options</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span>
+
+    <span class="k">def</span> <span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="c1"># Analysis code</span>
+                <span class="n">analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_result</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span>
+
+                <span class="c1"># Plotting code</span>
+                <span class="n">series_name</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">points</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+                <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                    <span class="n">series_name</span><span class="p">,</span>
+                    <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                    <span class="n">centroid</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Add discriminator to IQPlotter</span>
+        <span class="n">discriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_discriminator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="n">discriminator</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>If we run the above analysis on some appropriate experiment data, as previously
+described, our class will generate a figure showing IQ points and their centroids.</p>
+</section>
+<section id="creating-your-own-plotter">
+<h2>Creating your own plotter<a class="headerlink" href="#creating-your-own-plotter" title="Permalink to this heading">¶</a></h2>
+<p>You can create a custom figure plotter by subclassing <a class="reference internal" href="../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter" title="qiskit_experiments.visualization.BasePlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlotter</span></code></a> and overriding
+<a class="reference internal" href="../stubs/qiskit_experiments.visualization.BasePlotter.expected_series_data_keys.html#qiskit_experiments.visualization.BasePlotter.expected_series_data_keys" title="qiskit_experiments.visualization.BasePlotter.expected_series_data_keys"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expected_series_data_keys()</span></code></a>,
+<a class="reference internal" href="../stubs/qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys.html#qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys" title="qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys"><code class="xref py py-meth docutils literal notranslate"><span class="pre">expected_supplementary_data_keys()</span></code></a>, and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_plot_figure()</span></code>.</p>
+<p>The first two methods allow you to define a list of supported data-keys
+as strings, which identify the different data to plot. The third method,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_plot_figure()</span></code>, must contain your code to generate a figure by calling methods
+on the plotter’s drawer instance (self.drawer). When <code class="docutils literal notranslate"><span class="pre">plotter.figure()</span></code> is called
+by an analysis class, the plotter calls <code class="docutils literal notranslate"><span class="pre">_plot_figure()</span></code> and then returns your figure
+object which is added to the experiment data instance. It is also good practice to
+set default values for figure options, such as axis labels. You can do this by
+overriding the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_default_figure_options()</span></code> method in your plotter subclass.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h2>
+<p>API documentation: <a class="reference internal" href="../apidocs/visualization.html"><span class="doc">Visualization Module</span></a></p>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="custom_experiment.html" class="btn btn-neutral float-right" title="Writing your own experiment" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="curve_analysis.html" class="btn btn-neutral" title="Curve Analysis: Fitting your data" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Visualization: Creating figures</a><ul>
+<li><a class="reference internal" href="#generating-and-customizing-a-figure-using-a-plotter">Generating and customizing a figure using a plotter</a></li>
+<li><a class="reference internal" href="#customizing-plotting-in-your-experiment">Customizing plotting in your experiment</a></li>
+<li><a class="reference internal" href="#creating-your-own-plotter">Creating your own plotter</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

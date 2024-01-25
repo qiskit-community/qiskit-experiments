@@ -1,0 +1,8 @@
+
+
+AnalysisResult.verified
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.verified

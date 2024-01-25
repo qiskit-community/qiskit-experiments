@@ -1,0 +1,8 @@
+
+
+DampedOscillationAnalysis.models
+==================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: DampedOscillationAnalysis.models

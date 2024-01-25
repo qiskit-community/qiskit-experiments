@@ -1,0 +1,46 @@
+﻿
+
+T1KerneledAnalysis
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: T1KerneledAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1KerneledAnalysis.drawer
+      T1KerneledAnalysis.models
+      T1KerneledAnalysis.name
+      T1KerneledAnalysis.options
+      T1KerneledAnalysis.parameters
+      T1KerneledAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1KerneledAnalysis.config
+      T1KerneledAnalysis.copy
+      T1KerneledAnalysis.from_config
+      T1KerneledAnalysis.run
+      T1KerneledAnalysis.set_options
+   
+
+   
+   

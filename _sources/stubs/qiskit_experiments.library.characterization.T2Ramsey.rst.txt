@@ -1,0 +1,51 @@
+﻿
+
+T2Ramsey
+====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: T2Ramsey
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T2Ramsey.analysis
+      T2Ramsey.backend
+      T2Ramsey.experiment_options
+      T2Ramsey.experiment_type
+      T2Ramsey.num_qubits
+      T2Ramsey.physical_qubits
+      T2Ramsey.run_options
+      T2Ramsey.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T2Ramsey.circuits
+      T2Ramsey.config
+      T2Ramsey.copy
+      T2Ramsey.from_config
+      T2Ramsey.run
+      T2Ramsey.set_experiment_options
+      T2Ramsey.set_run_options
+      T2Ramsey.set_transpile_options
+   
+
+   
+   

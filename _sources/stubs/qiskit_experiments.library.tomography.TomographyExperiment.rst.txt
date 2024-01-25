@@ -1,0 +1,51 @@
+﻿
+
+TomographyExperiment
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoexperiment:: TomographyExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      TomographyExperiment.analysis
+      TomographyExperiment.backend
+      TomographyExperiment.experiment_options
+      TomographyExperiment.experiment_type
+      TomographyExperiment.num_qubits
+      TomographyExperiment.physical_qubits
+      TomographyExperiment.run_options
+      TomographyExperiment.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      TomographyExperiment.circuits
+      TomographyExperiment.config
+      TomographyExperiment.copy
+      TomographyExperiment.from_config
+      TomographyExperiment.run
+      TomographyExperiment.set_experiment_options
+      TomographyExperiment.set_run_options
+      TomographyExperiment.set_transpile_options
+   
+
+   
+   

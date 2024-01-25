@@ -1,0 +1,8 @@
+
+
+FineDrag.experiment_options
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineDrag.experiment_options

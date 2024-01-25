@@ -1,0 +1,8 @@
+
+
+CompositeAnalysis.from_config
+==========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: CompositeAnalysis.from_config

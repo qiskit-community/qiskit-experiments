@@ -1,0 +1,8 @@
+
+
+BaseDrawer.figure_options
+==========================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoproperty:: BaseDrawer.figure_options

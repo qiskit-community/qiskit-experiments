@@ -1,0 +1,8 @@
+
+
+ExperimentEncoder.iterencode
+=========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentEncoder.iterencode

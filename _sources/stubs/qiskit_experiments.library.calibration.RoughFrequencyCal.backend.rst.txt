@@ -1,0 +1,8 @@
+
+
+RoughFrequencyCal.backend
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughFrequencyCal.backend

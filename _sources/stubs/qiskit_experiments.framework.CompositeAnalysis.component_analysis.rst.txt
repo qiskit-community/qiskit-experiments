@@ -1,0 +1,8 @@
+
+
+CompositeAnalysis.component_analysis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: CompositeAnalysis.component_analysis

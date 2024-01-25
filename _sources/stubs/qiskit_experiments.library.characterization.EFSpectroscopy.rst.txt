@@ -1,0 +1,51 @@
+﻿
+
+EFSpectroscopy
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: EFSpectroscopy
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EFSpectroscopy.analysis
+      EFSpectroscopy.backend
+      EFSpectroscopy.experiment_options
+      EFSpectroscopy.experiment_type
+      EFSpectroscopy.num_qubits
+      EFSpectroscopy.physical_qubits
+      EFSpectroscopy.run_options
+      EFSpectroscopy.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      EFSpectroscopy.circuits
+      EFSpectroscopy.config
+      EFSpectroscopy.copy
+      EFSpectroscopy.from_config
+      EFSpectroscopy.run
+      EFSpectroscopy.set_experiment_options
+      EFSpectroscopy.set_run_options
+      EFSpectroscopy.set_transpile_options
+   
+
+   
+   

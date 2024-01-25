@@ -1,0 +1,8 @@
+
+
+ExperimentData.get_service_from_backend
+====================================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.get_service_from_backend

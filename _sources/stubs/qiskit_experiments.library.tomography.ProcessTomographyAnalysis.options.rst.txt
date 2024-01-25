@@ -1,0 +1,8 @@
+
+
+ProcessTomographyAnalysis.options
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: ProcessTomographyAnalysis.options

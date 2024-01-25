@@ -1,0 +1,8 @@
+
+
+EchoedCrossResonance.default_values
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: EchoedCrossResonance.default_values

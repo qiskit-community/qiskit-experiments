@@ -1,0 +1,8 @@
+
+
+InterleavedRB.copy
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. automethod:: InterleavedRB.copy

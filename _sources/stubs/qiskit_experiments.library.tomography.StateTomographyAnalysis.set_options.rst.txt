@@ -1,0 +1,8 @@
+
+
+StateTomographyAnalysis.set_options
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: StateTomographyAnalysis.set_options

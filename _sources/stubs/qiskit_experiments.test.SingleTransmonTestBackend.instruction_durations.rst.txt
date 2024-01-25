@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.instruction_durations
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: SingleTransmonTestBackend.instruction_durations

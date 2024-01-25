@@ -1,0 +1,181 @@
+﻿
+
+T2HahnBackend
+=====================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: T2HahnBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      T2HahnBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.dt
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.dtm
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.instructions
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.meas_map
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.operation_names
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.operations
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.options
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.provider
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.target
+      
+   
+      
+      
+         
+      
+      T2HahnBackend.version
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T2HahnBackend.acquire_channel
+   
+   
+      T2HahnBackend.control_channel
+   
+   
+      T2HahnBackend.drive_channel
+   
+   
+      T2HahnBackend.measure_channel
+   
+   
+      T2HahnBackend.qubit_properties
+   
+   
+      T2HahnBackend.run
+   
+   
+      T2HahnBackend.set_options
+   
+
+   
+   

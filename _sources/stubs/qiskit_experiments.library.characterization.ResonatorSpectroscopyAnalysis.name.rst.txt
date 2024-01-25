@@ -1,0 +1,8 @@
+
+
+ResonatorSpectroscopyAnalysis.name
+==============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: ResonatorSpectroscopyAnalysis.name

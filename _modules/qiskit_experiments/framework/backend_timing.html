@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.framework.backend_timing &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.framework.backend_timing</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.framework.backend_timing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;Backend timing helper functions&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">gcd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span>
+
+
+<span class="k">def</span> <span class="nf">lcm</span><span class="p">(</span><span class="n">int1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">int2</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Least common multiple</span>
+
+<span class="sd">    ``math.lcm`` was added in Python 3.9. This function should be replaced with</span>
+<span class="sd">    ``from math import lcm`` after dropping support for Python 3.8.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        ``math.lcm`` supports an arbitrary number of arguments, but this</span>
+<span class="sd">        version supports exactly two.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">int1</span> <span class="o">*</span> <span class="n">int2</span> <span class="o">//</span> <span class="n">gcd</span><span class="p">(</span><span class="n">int1</span><span class="p">,</span> <span class="n">int2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BackendTiming"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming">[docs]</a><span class="k">class</span> <span class="nc">BackendTiming</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper for calculating pulse and delay times for an experiment</span>
+
+<span class="sd">    The methods and properties provided by this class help with calculating</span>
+<span class="sd">    delay and pulse timing that depends on the timing constraints of the</span>
+<span class="sd">    backend.</span>
+
+<span class="sd">    When designing qubit characterization experiments, it is often necessary to</span>
+<span class="sd">    deal with precise timing of pulses and delays. The fact that physical</span>
+<span class="sd">    backends (i.e. not simulators) only support sampling time at intervals of</span>
+<span class="sd">    ``dt`` complicates this process as times must be rounded. Besides the</span>
+<span class="sd">    sampling time, there can be additional constraints like a minimum pulse</span>
+<span class="sd">    length or a pulse granularity, which specifies the allowed increments of a</span>
+<span class="sd">    pulse length in samples (i.e., for a granularity of 16, pulse lengths of 64</span>
+<span class="sd">    and 80 samples are valid but not any number in between).</span>
+
+<span class="sd">    Here are some specific problems that can occur when dealing with timing</span>
+<span class="sd">    constraints for pulses and delays:</span>
+
+<span class="sd">    - An invalid pulse length or pulse start time could result in an error from</span>
+<span class="sd">      the backend.</span>
+<span class="sd">    - An invalid delay length could be rounded by the backend, and this</span>
+<span class="sd">      rounding could lead to error in analysis that assumes the unrounded</span>
+<span class="sd">      value.</span>
+<span class="sd">    - An invalid delay length that requires rounding could trigger a new</span>
+<span class="sd">      scheduling pass of a circuit during transpilation, which is a</span>
+<span class="sd">      computationally expensive process. Scheduling the circuit with valid</span>
+<span class="sd">      timing to start out can avoid this rescheduling.</span>
+<span class="sd">    - While there are separate alignment requirements for drive</span>
+<span class="sd">      (``pulse_alignment``) and for measurement (``acquire_alignment``)</span>
+<span class="sd">      channels, the nature of pulse and circuit instruction alignment can</span>
+<span class="sd">      couple the timing of different instructions, resulting in improperly</span>
+<span class="sd">      aligned instructions.  For example, consider this circuit:</span>
+
+<span class="sd">      .. code-block:: python</span>
+
+<span class="sd">          from qiskit import QuantumCircuit</span>
+<span class="sd">          qc = QuantumCircuit(1, 1)</span>
+<span class="sd">          qc.x(0)</span>
+<span class="sd">          qc.delay(delay, 0)</span>
+<span class="sd">          qc.x(0)</span>
+<span class="sd">          qc.delay(delay2, 0)</span>
+<span class="sd">          qc.measure(0, 0)</span>
+
+<span class="sd">      Because the circuit instructions are all pushed together sequentially in</span>
+<span class="sd">      time without extra delays, whether or not the ``measure`` instruction</span>
+<span class="sd">      occurs at a valid time depends on the details of the circuit. In</span>
+<span class="sd">      particular, since the ``x`` gates typically have durations that are</span>
+<span class="sd">      multiples of ``acquire_alignment`` (because ``granularity`` usually is),</span>
+<span class="sd">      the ``measure`` start will occur at a time consistent with</span>
+<span class="sd">      ``acquire_alignment`` when ``delay + delay2`` is a multiple of</span>
+<span class="sd">      ``acquire_alignment``. Note that in the case of IBM Quantum backends,</span>
+<span class="sd">      when ``acquire_alignment`` is not satisfied, there is no error reported</span>
+<span class="sd">      by Qiskit or by the backend. Instead the measurement pulse is misaligned</span>
+<span class="sd">      relative to the start of the signal acquisition, resulting in an</span>
+<span class="sd">      incorrect phase and often an incorrect state discrimination.</span>
+
+<span class="sd">    To help avoid these problems, :class:`.BackendTiming` provides methods for</span>
+<span class="sd">    calculating pulse and delay durations. These methods work with samples and</span>
+<span class="sd">    seconds as appropriate. If these methods are used for all durations in a</span>
+<span class="sd">    circuit, the alignment constraints should always be satisfied.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        For delay duration, the least common multiple of ``pulse_alignment``</span>
+<span class="sd">        and ``acquire_alignment`` is used as the granularity. Thus, in the</span>
+<span class="sd">        example above about the coupling between ``pulse_alignment`` and</span>
+<span class="sd">        ``acquire_alignment`` , ``delay`` and ``delay2`` would each be rounded</span>
+<span class="sd">        to a multiple of ``acquire_alignment`` and so the sum would always be a</span>
+<span class="sd">        multiple of each alignment value as well. This approach modifies  some</span>
+<span class="sd">        valid circuits (like each delay being half of ``acquire_alignment``)</span>
+<span class="sd">        but has the benefit of always being valid without detailed analysis of</span>
+<span class="sd">        the full circuit.</span>
+
+<span class="sd">    As an example use-case for :class:`.BackendTiming`, consider a T1 experiment</span>
+<span class="sd">    where delay times are specified in seconds in a</span>
+<span class="sd">    :meth:`qiskit_experiments.framework.BaseExperiment.circuits` method as</span>
+<span class="sd">    follows:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def circuits(self):</span>
+<span class="sd">            # Pass backend to BackendTiming</span>
+<span class="sd">            timing = BackendTiming(self.backend)</span>
+
+<span class="sd">            circuits = []</span>
+<span class="sd">            # delays is a list of delay values in seconds</span>
+<span class="sd">            for delay in self.experiment_options.delays:</span>
+<span class="sd">                circ = QuantumCircuit(1, 1)</span>
+<span class="sd">                circ.x(0)</span>
+<span class="sd">                # Convert delay into appropriate units for backend and also set</span>
+<span class="sd">                # those units with delay_unit</span>
+<span class="sd">                circ.delay(timing.round_delay(time=delay), 0, timing.delay_unit)</span>
+<span class="sd">                circ.measure(0, 0)</span>
+
+<span class="sd">                # Use delay_time to get the actual value in seconds that was</span>
+<span class="sd">                # set on the backend for the xval rather than the delay</span>
+<span class="sd">                # variable&#39;s nominal value.</span>
+<span class="sd">                circ.metadata = {</span>
+<span class="sd">                    &quot;unit&quot;: &quot;s&quot;,</span>
+<span class="sd">                    &quot;xval&quot;: timing.delay_time(time=delay),</span>
+<span class="sd">                }</span>
+
+<span class="sd">                circuits.append(circ)</span>
+
+<span class="sd">    As another example, consider a time Rabi experiment where the width of a</span>
+<span class="sd">    pulse in a schedule is stretched:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from qiskit import pulse</span>
+<span class="sd">        from qiskit.circuit import Gate, Parameter</span>
+
+
+<span class="sd">        def circuits(self):</span>
+<span class="sd">            chan = pulse.DriveChannel(0)</span>
+<span class="sd">            dur = Paramater(&quot;duration&quot;)</span>
+
+<span class="sd">            with pulse.build() as sched:</span>
+<span class="sd">                pulse.play(pulse.Gaussian(duration=dur, amp=1, sigma=dur / 4), chan)</span>
+
+<span class="sd">            gate = Gate(&quot;Rabi&quot;, num_qubits=1, params=[dur])</span>
+
+<span class="sd">            template_circ = QuantumCircuit(1, 1)</span>
+<span class="sd">            template_circ.append(gate, [0])</span>
+<span class="sd">            template_circ.measure(0, 0)</span>
+<span class="sd">            template_circ.add_calibration(gate, (0,), sched)</span>
+
+<span class="sd">            # Pass backend to BackendTiming</span>
+<span class="sd">            timing = BackendTiming(self.backend)</span>
+
+<span class="sd">            circs = []</span>
+<span class="sd">            # durations is a list of pulse durations in seconds</span>
+<span class="sd">            for duration in self.experiment_options.durations:</span>
+<span class="sd">                # Calculate valid sample number closest to this duration</span>
+<span class="sd">                circ = template_circ.assign_parameters(</span>
+<span class="sd">                    {dur: timing.round_pulse(time=duration)},</span>
+<span class="sd">                    inplace=False,</span>
+<span class="sd">                )</span>
+<span class="sd">                # Track corresponding duration for the pulse in seconds</span>
+<span class="sd">                circ.metadata = {</span>
+<span class="sd">                    &quot;xval&quot;: timing.pulse_time(time=duration),</span>
+<span class="sd">                    &quot;unit&quot;: &quot;s&quot;,</span>
+<span class="sd">                }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize backend timing object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment: the experiment to provide timing help for</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">backend_data</span> <span class="o">=</span> <span class="n">BackendData</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+
+        <span class="c1"># Pull all the timing data from the backend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acquire_alignment</span> <span class="o">=</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">acquire_alignment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_granularity</span> <span class="o">=</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">granularity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_length</span> <span class="o">=</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">min_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pulse_alignment</span> <span class="o">=</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">pulse_alignment</span>
+        <span class="c1">#: The backend&#39;s ``dt`` value, copied to :class:`.BackendTiming` for convenience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">delay_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The delay unit for the current backend</span>
+
+<span class="sd">        &quot;dt&quot; is used if dt is present in the backend configuration. Otherwise</span>
+<span class="sd">        &quot;s&quot; is used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;dt&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;s&quot;</span>
+
+<div class="viewcode-block" id="BackendTiming.round_delay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.round_delay.html#qiskit_experiments.framework.BackendTiming.round_delay">[docs]</a>    <span class="k">def</span> <span class="nf">round_delay</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delay duration closest to input and consistent with timing constraints</span>
+
+<span class="sd">        This method produces the value to pass for the ``duration`` of a</span>
+<span class="sd">        ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills</span>
+<span class="sd">        the time until the next valid pulse, assuming the ``Delay`` instruction</span>
+<span class="sd">        begins on a sample that is also valid for a pulse to begin on.</span>
+
+<span class="sd">        The pulse timing constraints of the backend are considered in order to</span>
+<span class="sd">        give the number of samples closest to the input (either ``time`` or</span>
+<span class="sd">        ``samples``) for the start of a pulse in a subsequent instruction to be</span>
+<span class="sd">        valid. The delay value in samples is rounded to the least common</span>
+<span class="sd">        multiple of the pulse and acquire alignment values in order to ensure</span>
+<span class="sd">        that either type of pulse will be aligned.</span>
+
+<span class="sd">        If :meth:`.BackendTiming.delay_unit` is ``s``, ``time`` is</span>
+<span class="sd">        returned directly. Typically, this is the case for a simulator where</span>
+<span class="sd">        converting to sample number is not needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time: The nominal delay time to convert in seconds</span>
+<span class="sd">            samples: The nominal delay time to convert in samples</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The delay duration in samples if :meth:`.BackendTiming.delay_unit`</span>
+<span class="sd">            is ``dt``. Otherwise return ``time``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
+<span class="sd">                neither is passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Either time or samples must be a numerical value.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Only one of time and samples can be a numerical value.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="n">granularity</span> <span class="o">=</span> <span class="n">lcm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pulse_alignment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquire_alignment</span><span class="p">)</span>
+
+        <span class="n">samples_out</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">samples</span> <span class="o">/</span> <span class="n">granularity</span><span class="p">)</span> <span class="o">*</span> <span class="n">granularity</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples_out</span></div>
+
+<div class="viewcode-block" id="BackendTiming.round_pulse"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.round_pulse.html#qiskit_experiments.framework.BackendTiming.round_pulse">[docs]</a>    <span class="k">def</span> <span class="nf">round_pulse</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of samples giving the valid pulse duration closest to the input</span>
+
+<span class="sd">        The multiple of the pulse granularity giving the time closest to the</span>
+<span class="sd">        input (either ``time`` or ``samples``) is used. The returned value is</span>
+<span class="sd">        always at least the backend&#39;s ``min_length``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time: Nominal pulse duration in seconds</span>
+<span class="sd">            samples: Nominal pulse duration in samples</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The number of samples corresponding to the input</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
+<span class="sd">                neither is passed.</span>
+<span class="sd">            QiskitError: The backend does not include a dt value.</span>
+<span class="sd">            QiskitError: If the algorithm used to calculate the pulse length</span>
+<span class="sd">                produces a length that is not commensurate with the pulse or</span>
+<span class="sd">                acquire alignment values. This should not happen unless the</span>
+<span class="sd">                alignment constraints provided by the backend do not fit the</span>
+<span class="sd">                assumptions that the algorithm makes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Either time or samples must be a numerical value.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Only one of time and samples can be a numerical value.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Backend has no dt value.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">samples</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_granularity</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_granularity</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_length</span><span class="p">)</span>
+
+        <span class="n">pulse_alignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pulse_alignment</span>
+        <span class="n">acquire_alignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquire_alignment</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="o">%</span> <span class="n">pulse_alignment</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="s2">&quot;Pulse duration calculation does not match pulse alignment constraints!&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="o">%</span> <span class="n">acquire_alignment</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="s2">&quot;Pulse duration calculation does not match acquire alignment constraints!&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span></div>
+
+<div class="viewcode-block" id="BackendTiming.delay_time"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.delay_time.html#qiskit_experiments.framework.BackendTiming.delay_time">[docs]</a>    <span class="k">def</span> <span class="nf">delay_time</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The closest valid delay time in seconds to the input</span>
+
+<span class="sd">        If the backend reports ``dt``, this method uses</span>
+<span class="sd">        :meth:`.BackendTiming.round_delay` and converts the result back into</span>
+<span class="sd">        seconds. Otherwise, if ``time`` was passed, it is returned directly.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time: The nominal delay time to convert in seconds</span>
+<span class="sd">            samples: The nominal delay time to convert in samples</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The realizable delay time in seconds</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
+<span class="sd">                neither is passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_delay</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BackendTiming.pulse_time"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.pulse_time.html#qiskit_experiments.framework.BackendTiming.pulse_time">[docs]</a>    <span class="k">def</span> <span class="nf">pulse_time</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The closest valid pulse duration to the input in seconds</span>
+
+<span class="sd">        This method uses :meth:`.BackendTiming.round_pulse` and then</span>
+<span class="sd">        converts back into seconds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time: Nominal pulse duration in seconds</span>
+<span class="sd">            samples: Nominal pulse duration in samples</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The realizable pulse time in seconds</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
+<span class="sd">                neither is passed.</span>
+<span class="sd">            QiskitError: The backend does not include a dt value.</span>
+<span class="sd">            QiskitError: If the algorithm used to calculate the pulse length</span>
+<span class="sd">                produces a length that is not commensurate with the pulse or</span>
+<span class="sd">                acquire alignment values. This should not happen unless the</span>
+<span class="sd">                alignment constraints provided by the backend do not fit the</span>
+<span class="sd">                assumptions that the algorithm makes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_pulse</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">)</span></div></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

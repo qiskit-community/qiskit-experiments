@@ -1,0 +1,53 @@
+﻿
+
+RoughFrequencyCal
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: RoughFrequencyCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughFrequencyCal.analysis
+      RoughFrequencyCal.backend
+      RoughFrequencyCal.calibrations
+      RoughFrequencyCal.experiment_options
+      RoughFrequencyCal.experiment_type
+      RoughFrequencyCal.num_qubits
+      RoughFrequencyCal.physical_qubits
+      RoughFrequencyCal.run_options
+      RoughFrequencyCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RoughFrequencyCal.circuits
+      RoughFrequencyCal.config
+      RoughFrequencyCal.copy
+      RoughFrequencyCal.from_config
+      RoughFrequencyCal.run
+      RoughFrequencyCal.set_experiment_options
+      RoughFrequencyCal.set_run_options
+      RoughFrequencyCal.set_transpile_options
+      RoughFrequencyCal.update_calibrations
+   
+
+   
+   

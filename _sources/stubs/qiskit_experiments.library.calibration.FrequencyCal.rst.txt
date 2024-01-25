@@ -1,0 +1,54 @@
+﻿
+
+FrequencyCal
+===================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: FrequencyCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FrequencyCal.analysis
+      FrequencyCal.backend
+      FrequencyCal.calibrations
+      FrequencyCal.experiment_options
+      FrequencyCal.experiment_type
+      FrequencyCal.num_qubits
+      FrequencyCal.physical_qubits
+      FrequencyCal.run_options
+      FrequencyCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FrequencyCal.circuits
+      FrequencyCal.config
+      FrequencyCal.copy
+      FrequencyCal.enable_restless
+      FrequencyCal.from_config
+      FrequencyCal.run
+      FrequencyCal.set_experiment_options
+      FrequencyCal.set_run_options
+      FrequencyCal.set_transpile_options
+      FrequencyCal.update_calibrations
+   
+
+   
+   

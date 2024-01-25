@@ -1,0 +1,8 @@
+
+
+SVD.train
+============================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. automethod:: SVD.train

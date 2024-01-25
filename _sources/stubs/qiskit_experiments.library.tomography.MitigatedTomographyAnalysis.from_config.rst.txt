@@ -1,0 +1,8 @@
+
+
+MitigatedTomographyAnalysis.from_config
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedTomographyAnalysis.from_config

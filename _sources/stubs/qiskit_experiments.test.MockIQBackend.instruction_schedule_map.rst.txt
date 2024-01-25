@@ -1,0 +1,8 @@
+
+
+MockIQBackend.instruction_schedule_map
+==============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.instruction_schedule_map

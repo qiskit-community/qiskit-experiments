@@ -1,0 +1,8 @@
+
+
+PauliPreparationBasis.index_shape
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: PauliPreparationBasis.index_shape

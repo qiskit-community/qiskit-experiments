@@ -1,0 +1,8 @@
+
+
+EFRoughXSXAmplitudeCal.circuits
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: EFRoughXSXAmplitudeCal.circuits

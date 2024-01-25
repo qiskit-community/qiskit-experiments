@@ -1,0 +1,83 @@
+﻿
+
+FitOptions
+============================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: FitOptions
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      FitOptions.bounds
+      
+   
+      
+      
+         
+      
+      FitOptions.fitter_opts
+      
+   
+      
+      
+         
+      
+      FitOptions.options
+      
+   
+      
+      
+         
+      
+      FitOptions.p0
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FitOptions.add_extra_options
+   
+   
+      FitOptions.copy
+   
+
+   
+   

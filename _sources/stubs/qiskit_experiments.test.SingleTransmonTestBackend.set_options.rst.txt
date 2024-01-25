@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.set_options
+=============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: SingleTransmonTestBackend.set_options

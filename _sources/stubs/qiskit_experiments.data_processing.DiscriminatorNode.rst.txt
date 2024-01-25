@@ -1,0 +1,56 @@
+﻿
+
+DiscriminatorNode
+====================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: DiscriminatorNode
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DiscriminatorNode.__call__
+   
+   
+   
+      DiscriminatorNode.__call__
+
+   
+   

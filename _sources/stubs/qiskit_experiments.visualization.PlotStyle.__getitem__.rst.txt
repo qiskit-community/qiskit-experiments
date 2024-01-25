@@ -1,0 +1,8 @@
+
+
+PlotStyle.__getitem__
+======================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: PlotStyle.__getitem__

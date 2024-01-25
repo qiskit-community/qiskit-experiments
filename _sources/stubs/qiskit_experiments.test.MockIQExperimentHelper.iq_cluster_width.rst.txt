@@ -1,0 +1,8 @@
+
+
+MockIQExperimentHelper.iq_cluster_width
+===============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQExperimentHelper.iq_cluster_width

@@ -1,0 +1,46 @@
+﻿
+
+T1Analysis
+======================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: T1Analysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1Analysis.drawer
+      T1Analysis.models
+      T1Analysis.name
+      T1Analysis.options
+      T1Analysis.parameters
+      T1Analysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      T1Analysis.config
+      T1Analysis.copy
+      T1Analysis.from_config
+      T1Analysis.run
+      T1Analysis.set_options
+   
+
+   
+   

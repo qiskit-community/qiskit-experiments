@@ -1,0 +1,8 @@
+
+
+BaseCurveDrawer.draw_confidence_interval
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: BaseCurveDrawer.draw_confidence_interval

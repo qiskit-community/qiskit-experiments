@@ -1,0 +1,8 @@
+
+
+FineAmplitude.circuits
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineAmplitude.circuits

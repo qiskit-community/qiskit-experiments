@@ -1,0 +1,8 @@
+
+
+MarginalizeCounts.__call__
+=============================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. automethod:: MarginalizeCounts.__call__

@@ -1,0 +1,100 @@
+﻿
+
+ExperimentConfig
+=============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExperimentConfig
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ExperimentConfig.version
+      
+   
+      
+      
+         
+      
+      ExperimentConfig.args
+      
+   
+      
+      
+         
+      
+      ExperimentConfig.kwargs
+      
+   
+      
+      
+         
+      
+      ExperimentConfig.experiment_options
+      
+   
+      
+      
+         
+      
+      ExperimentConfig.transpile_options
+      
+   
+      
+      
+         
+      
+      ExperimentConfig.run_options
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ExperimentConfig.experiment
+   
+
+   
+   

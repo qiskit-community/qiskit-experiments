@@ -1,0 +1,8 @@
+
+
+QubitSpectroscopy.run_options
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: QubitSpectroscopy.run_options

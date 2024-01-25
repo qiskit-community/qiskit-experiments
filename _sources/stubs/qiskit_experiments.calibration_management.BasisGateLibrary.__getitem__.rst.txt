@@ -1,0 +1,8 @@
+
+
+BasisGateLibrary.__getitem__
+======================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: BasisGateLibrary.__getitem__

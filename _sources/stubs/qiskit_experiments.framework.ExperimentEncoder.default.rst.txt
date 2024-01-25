@@ -1,0 +1,8 @@
+
+
+ExperimentEncoder.default
+======================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentEncoder.default

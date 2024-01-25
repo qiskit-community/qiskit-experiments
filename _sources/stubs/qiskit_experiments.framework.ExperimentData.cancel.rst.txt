@@ -1,0 +1,8 @@
+
+
+ExperimentData.cancel
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.cancel

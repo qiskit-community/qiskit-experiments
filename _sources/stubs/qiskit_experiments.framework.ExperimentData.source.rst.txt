@@ -1,0 +1,8 @@
+
+
+ExperimentData.source
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.source

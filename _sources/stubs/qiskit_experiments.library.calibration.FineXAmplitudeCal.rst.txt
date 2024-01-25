@@ -1,0 +1,54 @@
+﻿
+
+FineXAmplitudeCal
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: FineXAmplitudeCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineXAmplitudeCal.analysis
+      FineXAmplitudeCal.backend
+      FineXAmplitudeCal.calibrations
+      FineXAmplitudeCal.experiment_options
+      FineXAmplitudeCal.experiment_type
+      FineXAmplitudeCal.num_qubits
+      FineXAmplitudeCal.physical_qubits
+      FineXAmplitudeCal.run_options
+      FineXAmplitudeCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FineXAmplitudeCal.circuits
+      FineXAmplitudeCal.config
+      FineXAmplitudeCal.copy
+      FineXAmplitudeCal.enable_restless
+      FineXAmplitudeCal.from_config
+      FineXAmplitudeCal.run
+      FineXAmplitudeCal.set_experiment_options
+      FineXAmplitudeCal.set_run_options
+      FineXAmplitudeCal.set_transpile_options
+      FineXAmplitudeCal.update_calibrations
+   
+
+   
+   

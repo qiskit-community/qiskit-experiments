@@ -1,0 +1,8 @@
+
+
+FineZXAmplitude.set_run_options
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineZXAmplitude.set_run_options

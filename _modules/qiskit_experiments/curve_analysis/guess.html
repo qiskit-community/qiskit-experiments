@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>qiskit_experiments.curve_analysis.guess &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>qiskit_experiments.curve_analysis.guess</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <h1>Source code for qiskit_experiments.curve_analysis.guess</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A library of parameter guess functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">AnalysisError</span>
+
+
+<div class="viewcode-block" id="frequency"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.frequency.html#qiskit_experiments.curve_analysis.guess.frequency">[docs]</a><span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">filter_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get frequency of oscillating signal.</span>
+
+<span class="sd">    First this tries FFT. If the true value is likely below or near the frequency resolution,</span>
+<span class="sd">    the function tries low frequency fit with</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        f_{\rm est} = \frac{1}{2\pi {\rm max}\left| y \right|}</span>
+<span class="sd">            {\rm max} \left| \frac{dy}{dx} \right|</span>
+
+<span class="sd">    given :math:`y = A \cos (2\pi f x + phi)`. In this mode, y data points are</span>
+<span class="sd">    smoothed by a Savitzky-Golay filter to protect against outlier points.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This function returns always positive frequency.</span>
+<span class="sd">        This function is sensitive to the DC offset.</span>
+<span class="sd">        This function assumes sorted, no-overlapping x values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Array of x values.</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        filter_window: Window size of Savitzky-Golay filter. This should be odd number.</span>
+<span class="sd">        filter_dim: Dimension of Savitzky-Golay filter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Frequency estimation of oscillation signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># to run FFT x interval should be identical</span>
+    <span class="n">sampling_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sampling_interval</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># resampling with minimum xdata interval</span>
+        <span class="n">sampling_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sampling_interval</span><span class="p">)</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sampling_interval</span><span class="p">)</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">xp</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sampling_interval</span> <span class="o">=</span> <span class="n">sampling_interval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="n">fft_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">y_</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_</span><span class="p">))</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_</span><span class="p">),</span> <span class="n">sampling_interval</span><span class="p">)</span>
+
+    <span class="n">positive_freqs</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">positive_fft_data</span> <span class="o">=</span> <span class="n">fft_data</span><span class="p">[</span><span class="n">freqs</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">freq_guess</span> <span class="o">=</span> <span class="n">positive_freqs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">positive_fft_data</span><span class="p">))]</span>
+
+    <span class="k">if</span> <span class="n">freq_guess</span> <span class="o">&lt;</span> <span class="mf">1.5</span> <span class="o">/</span> <span class="p">(</span><span class="n">sampling_interval</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_</span><span class="p">)):</span>
+        <span class="c1"># low frequency fit, use this mode when the estimate is near the resolution</span>
+        <span class="n">y_smooth</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="n">filter_window</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="n">filter_dim</span><span class="p">)</span>
+
+        <span class="c1"># no offset is assumed</span>
+        <span class="n">y_amp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_smooth</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">y_amp</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="c1"># no oscillation signal</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">freq_guess</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_smooth</span><span class="p">)</span> <span class="o">/</span> <span class="n">sampling_interval</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">y_amp</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">freq_guess</span></div>
+
+
+<div class="viewcode-block" id="max_height"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.max_height.html#qiskit_experiments.curve_analysis.guess.max_height">[docs]</a><span class="k">def</span> <span class="nf">max_height</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">percentile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get maximum value of y curve and its index.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        percentile: Return that percentile value if provided, otherwise just return max value.</span>
+<span class="sd">        absolute: Use absolute y value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The maximum y value and index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">percentile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">percentile</span><span class="p">),</span> <span class="n">absolute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">,</span> <span class="n">absolute</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="min_height"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.min_height.html#qiskit_experiments.curve_analysis.guess.min_height">[docs]</a><span class="k">def</span> <span class="nf">min_height</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">percentile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get minimum value of y curve and its index.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        percentile: Return that percentile value if provided, otherwise just return min value.</span>
+<span class="sd">        absolute: Use absolute y value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The minimum y value and index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">percentile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">percentile</span><span class="p">),</span> <span class="n">absolute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">,</span> <span class="n">absolute</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">find_height</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get specific value of y curve defined by a callback and its index.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        find_height: A callback to find preferred y value.</span>
+<span class="sd">        absolute: Use absolute y value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The target y value and index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">absolute</span><span class="p">:</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="n">y_target</span> <span class="o">=</span> <span class="n">find_height</span><span class="p">(</span><span class="n">y_</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_</span> <span class="o">-</span> <span class="n">y_target</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">y_target</span><span class="p">,</span> <span class="n">index</span>
+
+
+<div class="viewcode-block" id="exp_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.exp_decay.html#qiskit_experiments.curve_analysis.guess.exp_decay">[docs]</a><span class="k">def</span> <span class="nf">exp_decay</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get exponential decay parameter from monotonically increasing (decreasing) curve.</span>
+
+<span class="sd">    This assumes following function form.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y(x) = e^{\alpha x}</span>
+
+<span class="sd">    We can calculate :math:`\alpha` as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \alpha = \log(y(x)) / x</span>
+
+<span class="sd">    To find this number, the numpy polynomial fit with ``deg=1`` is used.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Array of x values.</span>
+<span class="sd">        y: Array of y values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Decay rate of signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">inds</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">inds</span><span class="p">]),</span> <span class="n">deg</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="oscillation_exp_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html#qiskit_experiments.curve_analysis.guess.oscillation_exp_decay">[docs]</a><span class="k">def</span> <span class="nf">oscillation_exp_decay</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">filter_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">freq_guess</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get exponential decay parameter from oscillating signal.</span>
+
+<span class="sd">    This assumes following function form.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y(x) = e^{\alpha x} F(x),</span>
+
+<span class="sd">    where :math:`F(x)` is arbitrary oscillation function oscillating at ``freq_guess``.</span>
+<span class="sd">    This function first applies a Savitzky-Golay filter to y value,</span>
+<span class="sd">    then run scipy peak search to extract peak positions.</span>
+<span class="sd">    If ``freq_guess`` is provided, the search function will be robust to fake peaks due to noise.</span>
+<span class="sd">    This function calls :func:`exp_decay` function for extracted x and y values at peaks.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        y values should contain more than one cycle of oscillation to use this guess approach.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Array of x values.</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        filter_window: Window size of Savitzky-Golay filter. This should be odd number.</span>
+<span class="sd">        filter_dim: Dimension of Savitzky-Golay filter.</span>
+<span class="sd">        freq_guess: Optional. Initial frequency guess of :math:`F(x)`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Decay rate of signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_smoothed</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="n">filter_window</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="n">filter_dim</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">freq_guess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq_guess</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq_guess</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">width_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="n">period</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">width_samples</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">peak_pos</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">find_peaks</span><span class="p">(</span><span class="n">y_smoothed</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">width_samples</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peak_pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="n">x_peaks</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">peak_pos</span><span class="p">]</span>
+    <span class="n">y_peaks</span> <span class="o">=</span> <span class="n">y_smoothed</span><span class="p">[</span><span class="n">peak_pos</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">exp_decay</span><span class="p">(</span><span class="n">x_peaks</span><span class="p">,</span> <span class="n">y_peaks</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="full_width_half_max"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.full_width_half_max.html#qiskit_experiments.curve_analysis.guess.full_width_half_max">[docs]</a><span class="k">def</span> <span class="nf">full_width_half_max</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">peak_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get full width half maximum value of the peak. Offset of y should be removed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Array of x values.</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        peak_index: Index of peak.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        FWHM of the peak.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AnalysisError: When peak is too broad and line width is not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">peak_height</span> <span class="o">=</span> <span class="n">y_</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span>
+    <span class="n">halfmax_removed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">y_</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">peak_height</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">r_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">[(</span><span class="n">halfmax_removed</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="n">peak_index</span><span class="p">])])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">r_bound</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">l_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">[(</span><span class="n">halfmax_removed</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">x</span><span class="p">[</span><span class="n">peak_index</span><span class="p">])])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">l_bound</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">r_bound</span> <span class="ow">and</span> <span class="n">l_bound</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">r_bound</span> <span class="o">-</span> <span class="n">l_bound</span>
+    <span class="k">elif</span> <span class="n">r_bound</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_bound</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">peak_index</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">l_bound</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">l_bound</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;FWHM of input curve was not found. Perhaps scanning range is too narrow.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="constant_spectral_offset"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.constant_spectral_offset.html#qiskit_experiments.curve_analysis.guess.constant_spectral_offset">[docs]</a><span class="k">def</span> <span class="nf">constant_spectral_offset</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">filter_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get constant offset of spectral baseline.</span>
+
+<span class="sd">    This function searches constant offset by finding a region where 1st and 2nd order</span>
+<span class="sd">    differentiation are close to zero. A return value is an average y value of that region.</span>
+<span class="sd">    To suppress the noise contribution to derivatives, this function also applies a</span>
+<span class="sd">    Savitzky-Golay filter to y value.</span>
+
+<span class="sd">    This method is more robust to offset error than just taking median or average of y values</span>
+<span class="sd">    especially when a peak width is wider compared to the scan range.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        filter_window: Window size of Savitzky-Golay filter. This should be odd number.</span>
+<span class="sd">        filter_dim: Dimension of Savitzky-Golay filter.</span>
+<span class="sd">        ratio: Threshold value to decide flat region. This value represent a ratio</span>
+<span class="sd">            to the maximum derivative value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Offset value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_smoothed</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="n">filter_window</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="n">filter_dim</span><span class="p">)</span>
+
+    <span class="n">ydiff1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_smoothed</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+    <span class="n">ydiff2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_smoothed</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">prepend</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+    <span class="n">non_peaks</span> <span class="o">=</span> <span class="n">y_smoothed</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">ydiff1</span> <span class="o">&lt;</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">ydiff1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ydiff2</span> <span class="o">&lt;</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">ydiff2</span><span class="p">))</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_peaks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">non_peaks</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="constant_sinusoidal_offset"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset.html#qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset">[docs]</a><span class="k">def</span> <span class="nf">constant_sinusoidal_offset</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get constant offset of sinusoidal signal.</span>
+
+<span class="sd">    This function finds 95 and 5 percentile y values and take an average of them.</span>
+<span class="sd">    This method is robust to the dependency on sampling window, i.e.</span>
+<span class="sd">    if we sample sinusoidal signal for 2/3 of its period, simple averaging may induce</span>
+<span class="sd">    a drift towards positive or negative direction depending on the phase offset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Array of y values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Offset value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">maxv</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">max_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
+    <span class="n">minv</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">min_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">maxv</span> <span class="o">+</span> <span class="n">minv</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rb_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.rb_decay.html#qiskit_experiments.curve_analysis.guess.rb_decay">[docs]</a><span class="k">def</span> <span class="nf">rb_decay</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get base of exponential decay function which is assumed to be close to 1.</span>
+
+<span class="sd">    This assumes following model:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y(x) = a \alpha^x + b.</span>
+
+<span class="sd">    To estimate the base of decay function :math:`\alpha`, we consider</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y&#39;(x) = y(x) - b = a \alpha^x,</span>
+
+<span class="sd">    and thus,</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y&#39;(x+dx) = a \alpha^x \alpha^dx.</span>
+
+<span class="sd">    By considering the ratio of y values at :math:`x+dx` to :math:`x`,</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        ry = \frac{a \alpha^x \alpha^dx}{a \alpha^x} = \alpha^dx.</span>
+
+<span class="sd">    From this relationship, we can estimate :math:`\alpha` as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \alpha = ry^\frac{1}{dx}.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Array of x values.</span>
+<span class="sd">        y: Array of y values.</span>
+<span class="sd">        b: Asymptote of decay function.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Base of decay function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">valid_inds</span> <span class="o">=</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">b</span>
+
+    <span class="c1"># Remove y values below b</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">valid_inds</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid_inds</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># If number of element is 1, assume y(0) = 1.0 and directly compute alpha.</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">b</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">ry</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ry</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">dx</span><span class="p">))</span></div>
+</pre></div>
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/underscore.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+      <script src="../../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

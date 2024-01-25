@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Restless Measurements &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Experiment Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidocs/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../index.html">Experiment Manuals</a> &gt;</li>
+        
+      <li>Restless Measurements</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<section id="restless-measurements">
+<h1>Restless Measurements<a class="headerlink" href="#restless-measurements" title="Permalink to this heading">¶</a></h1>
+<p>When running circuits, the qubits are typically reset to the ground state after
+each measurement to ensure that the next circuit has a well-defined initial state.
+This can be done passively by waiting several <span class="math notranslate nohighlight">\(T_1\)</span>-times so that qubits in
+the excited state decay to <span class="math notranslate nohighlight">\(\left\vert0\right\rangle\)</span>. Since <span class="math notranslate nohighlight">\(T_1\)</span>-times
+are continuously improving (they already increased beyond <span class="math notranslate nohighlight">\(100\,\mu s\)</span>), this
+initialization procedure is now inefficient. This makes active reset necessary.
+Active qubit reset, as employed by IBM Quantum systems is more efficient and saves
+time but also lasts a few microseconds (between <span class="math notranslate nohighlight">\(3\)</span> and <span class="math notranslate nohighlight">\(5\,\mu s\)</span>).
+Furthermore, a delay, typically lasting <span class="math notranslate nohighlight">\(250\,\mu s\)</span>, after the reset
+operation is often necessary to ensure a high initialization quality.
+However, for several types of characterization and calibration experiments we can
+avoid qubit reset by post-processing the measurement outcomes and continue directly
+with the next circuit after an optional short delay, even if the qubit was measured
+in the excited state. Foregoing qubit reset is the main idea behind restless measurements.</p>
+<p>The IBM Quantum systems have dynamical repetition delays enabled. We can thus choose
+the delay between the execution of two quantum circuits. This delay
+typically ranges from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(500\,\mu s\)</span> depending on the system.
+The default value for most devices is <span class="math notranslate nohighlight">\(250\,\mu s\)</span>. Restless measurements
+set this delay to small values such as <span class="math notranslate nohighlight">\(1\,\mu s\)</span> or lower. Note that sometimes
+the measurement instructions already contain a delay after the measurement pulse to
+allow the readout resonator to depopulate.</p>
+<p>When the qubit is not reset it will either be in the <span class="math notranslate nohighlight">\(\left\vert0\right\rangle\)</span>
+or in the <span class="math notranslate nohighlight">\(\left\vert1\right\rangle\)</span> state when the next circuit starts.
+Therefore, the measured outcomes of the restless experiments require post-processing.
+The following example, taken from Ref. <a class="footnote-reference brackets" href="#id5" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, illustrates what happens to the single
+measurement outcomes represented as complex numbers in the IQ plane in a restless
+setting. Here, we run three circuits with an identity gate and three circuits with
+an <span class="math notranslate nohighlight">\(X\)</span> gate, each followed by a measurement. The numbers in the IQ shots indicate the
+order in which the shots were acquired. The IQ plane on the left shows the single
+measurement shots gathered when the qubits are reset. Here, the blue and red points,
+corresponding to measurements following the <span class="math notranslate nohighlight">\(Id\)</span> and <span class="math notranslate nohighlight">\(X\)</span> gates, are associated with the
+<span class="math notranslate nohighlight">\(\left\vert0\right\rangle\)</span> and <span class="math notranslate nohighlight">\(\left\vert1\right\rangle\)</span> states,
+respectively.
+By contrast, with restless measurements the qubit is not reset after a
+measurement. As one can see in the IQ plane on the right the single measurement
+outcomes of the <span class="math notranslate nohighlight">\(Id`\)</span> and <span class="math notranslate nohighlight">\(X\)</span> circuits no longer match with the
+<span class="math notranslate nohighlight">\(\left\vert0\right\rangle\)</span> and <span class="math notranslate nohighlight">\(\left\vert1\right\rangle\)</span> states,
+respectively. This is why restless measurements need special post-processing.</p>
+<a class="reference internal image-reference" href="../../_images/restless_shots.png"><img alt="../../_images/restless_shots.png" src="../../_images/restless_shots.png" style="width: 600px;" /></a>
+<section id="enabling-restless-measurements">
+<h2>Enabling restless measurements<a class="headerlink" href="#enabling-restless-measurements" title="Permalink to this heading">¶</a></h2>
+<p>In Qiskit Experiments, the experiments that support restless measurements
+have a special method <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.enable_restless.html#qiskit_experiments.framework.RestlessMixin.enable_restless" title="qiskit_experiments.framework.RestlessMixin.enable_restless"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_restless()</span></code></a> to set the restless run options
+and define the data processor that will process the measured data.
+If you are an experiment developer, you can add the <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a>
+to your experiment class to add support for restless measurements.
+Here, we will show how to activate restless measurements using
+a fake backend and a rough DRAG experiment. Note however, that you will not
+observe any meaningful outcomes with fake backends since the circuit simulator
+they use always starts with the qubits in the ground state.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">RoughDragCal</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Calibrations</span><span class="p">,</span>
+    <span class="n">FixedFrequencyTransmon</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.data_processor</span> <span class="kn">import</span> <span class="n">DataProcessor</span>
+<span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+
+<span class="c1"># replace this lines with an IBM Quantum backend to run the experiment.</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">FakePerth</span><span class="p">()</span>
+<span class="n">cals</span> <span class="o">=</span> <span class="n">Calibrations</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">libraries</span><span class="o">=</span><span class="p">[</span><span class="n">FixedFrequencyTransmon</span><span class="p">()])</span>
+
+<span class="c1"># Define the experiment</span>
+<span class="n">qubit</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">cal_drag</span> <span class="o">=</span> <span class="n">RoughDragCal</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">cals</span><span class="p">,</span> <span class="n">schedule_name</span><span class="o">=</span><span class="s1">&#39;sx&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+
+<span class="c1"># Enable restless measurements by setting the run options and data processor</span>
+<span class="n">cal_drag</span><span class="o">.</span><span class="n">enable_restless</span><span class="p">(</span><span class="n">rep_delay</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">cal_drag</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_processor</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cal_drag</span><span class="o">.</span><span class="n">run_options</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DataProcessor(input_key=memory, nodes=[RestlessToCounts(validate=True), Probability(validate=True, outcome=1, alpha_prior=[0.5, 0.5])])
+Options(meas_level=&lt;MeasLevel.CLASSIFIED: 2&gt;, rep_delay=1e-06, init_qubits=False, memory=True, meas_return=&lt;MeasReturnType.SINGLE: &#39;single&#39;&gt;, use_measure_esp=False)
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, a restless data processor is automatically chosen for the experiment. This
+data processor post-processes the restless measured shots according to the order in which
+they were acquired. Furthermore, the appropriate run options are also set. Note that
+these run options might be unique to IBM Quantum providers. Therefore, execute may fail
+on non-IBM Quantum providers if the required options are not supported.</p>
+<p>After calling <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.enable_restless.html#qiskit_experiments.framework.RestlessMixin.enable_restless" title="qiskit_experiments.framework.RestlessMixin.enable_restless"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_restless()</span></code></a> the experiment is ready to be run
+in a restless mode. With a hardware backend, this would be done by calling the
+<a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseExperiment.run.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">drag_data_restless</span> <span class="o">=</span> <span class="n">cal_drag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>As shown by the example, the code is identical to running a normal experiment aside
+from a call to the method <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.enable_restless.html#qiskit_experiments.framework.RestlessMixin.enable_restless" title="qiskit_experiments.framework.RestlessMixin.enable_restless"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_restless()</span></code></a>. Note that you can also choose to keep
+the standard data processor by providing it to the analysis options and telling
+<a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.enable_restless.html#qiskit_experiments.framework.RestlessMixin.enable_restless" title="qiskit_experiments.framework.RestlessMixin.enable_restless"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_restless()</span></code></a> not to override the data processor.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DataProcessor</span><span class="p">,</span>
+    <span class="n">Probability</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># define a standard data processor.</span>
+<span class="n">standard_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">Probability</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)])</span>
+
+<span class="n">cal_drag</span> <span class="o">=</span> <span class="n">RoughDragCal</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">cals</span><span class="p">,</span> <span class="n">schedule_name</span><span class="o">=</span><span class="s1">&#39;sx&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="n">cal_drag</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">standard_processor</span><span class="p">)</span>
+
+<span class="c1"># enable restless mode and set override_processor_by_restless to False.</span>
+<span class="n">cal_drag</span><span class="o">.</span><span class="n">enable_restless</span><span class="p">(</span><span class="n">rep_delay</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">override_processor_by_restless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>If you run the experiment in this setting you will see that the data is often
+unusable which illustrates the importance of the data processing. As detailed
+in Ref. <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, restless measurements can be done with a wide variety
+of experiments such as fine amplitude and drag error amplifying gate sequences
+as well as randomized benchmarking.</p>
+</section>
+<section id="calculating-restless-quantum-processor-speed-ups">
+<h2>Calculating restless quantum processor speed-ups<a class="headerlink" href="#calculating-restless-quantum-processor-speed-ups" title="Permalink to this heading">¶</a></h2>
+<p>Following Ref. <a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, we can compare the time spent by the quantum processor executing
+restless and standard jobs. This allows us to compute the effective speed-up we gain
+when performing restless experiments. Note that we do not consider any classical
+run-time contributions such as runtime-compilation or data transfer times <a class="footnote-reference brackets" href="#id7" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.
+The time to run <span class="math notranslate nohighlight">\(K\)</span> circuits and gather <span class="math notranslate nohighlight">\(N\)</span> shots for each
+circuit is</p>
+<div class="math notranslate nohighlight">
+\[\tau^{(x)} = NK\left(\tau^{(x)}_\text{reset}+\tau^{(x)}_\text{delay}+
+\langle{\tau}_\text{circ}\rangle+\tau_\text{meas}\right),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau^{(x)}_\text{reset}\)</span> and <span class="math notranslate nohighlight">\(\tau^{(x)}_\text{delay}\)</span>
+are the reset and post measurement delay times, respectively. The superscript
+<span class="math notranslate nohighlight">\((x)\)</span> indicates restless <span class="math notranslate nohighlight">\((r)\)</span> or standard <span class="math notranslate nohighlight">\((s)\)</span> measurements.
+The average duration of all <span class="math notranslate nohighlight">\(K\)</span> circuits in an experiment is
+<span class="math notranslate nohighlight">\(\langle{\tau}_\text{circ}\rangle=K^{-1}\sum_{k=1}^{K} \tau_{\text{circ},k}\)</span>
+where <span class="math notranslate nohighlight">\(\tau_{\text{circ},k}\)</span> is the duration of only the gates in circuit
+<span class="math notranslate nohighlight">\(k\)</span>. We therefore compute the quantum processor speed-up of restless
+measurements as <span class="math notranslate nohighlight">\(\tau^{(\text{s})}/\tau^{(\text{r})}\)</span> which is independent
+of the number of circuits and shots.</p>
+<p>We approximate the standard reset time in IBM Quantum backends by
+<span class="math notranslate nohighlight">\(\tau^{(s)}_\text{reset} = 4\,\mu s\)</span> whereas <span class="math notranslate nohighlight">\(\tau^{(r)}_\text{reset} = 0\,\mu s\)</span>
+since we do not reset the qubit in a restless experiment. By default, the repetition delay is
+<span class="math notranslate nohighlight">\(\tau^{(s)}_\text{delay} = 250\,\mu s\)</span>. For our restless experiments we
+set <span class="math notranslate nohighlight">\(\tau^{(r)}_\text{delay} = 1\,\mu s\)</span>. These speed-ups can be evaluated
+using the code below.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">transpile</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span>
+
+<span class="n">dt</span> <span class="o">=</span> <span class="n">BackendData</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span>
+<span class="n">inst_map</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">instruction_schedule_map</span>
+<span class="n">meas_length</span> <span class="o">=</span> <span class="n">inst_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="p">))</span><span class="o">.</span><span class="n">duration</span> <span class="o">*</span> <span class="n">dt</span>
+
+<span class="c1"># Compute the average duration of all circuits</span>
+<span class="c1"># Remove measurement instructions</span>
+<span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qc</span> <span class="ow">in</span> <span class="n">cal_drag</span><span class="o">.</span><span class="n">circuits</span><span class="p">():</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">remove_final_measurements</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+
+<span class="c1"># Schedule the circuits to obtain the duration of all the gates</span>
+<span class="n">executed_circs</span> <span class="o">=</span> <span class="n">transpile</span><span class="p">(</span>
+    <span class="n">circuits</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">,</span>
+    <span class="n">initial_layout</span><span class="o">=</span><span class="p">[</span><span class="n">qubit</span><span class="p">],</span>
+    <span class="n">scheduling_method</span><span class="o">=</span><span class="s2">&quot;alap&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">cal_drag</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">durations</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">duration</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">executed_circs</span><span class="p">]</span>
+
+<span class="n">tau</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">))</span>
+
+<span class="n">n_circs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cal_drag</span><span class="o">.</span><span class="n">circuits</span><span class="p">())</span>
+<span class="c1"># can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-provider</span>
+
+<span class="n">delay_s</span> <span class="o">=</span> <span class="mf">0.0025</span>
+<span class="n">delay_r</span> <span class="o">=</span> <span class="mf">1e-6</span>  <span class="c1"># restless delay</span>
+<span class="n">reset</span> <span class="o">=</span> <span class="mf">4e-6</span>  <span class="c1"># Estimated reset duration</span>
+<span class="n">speed_up</span> <span class="o">=</span> <span class="p">(</span><span class="n">meas_length</span> <span class="o">+</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">delay_s</span> <span class="o">+</span> <span class="n">tau</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">meas_length</span> <span class="o">+</span> <span class="n">delay_r</span> <span class="o">+</span> <span class="n">tau</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The QPU will spend </span><span class="si">{</span><span class="n">speed_up</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x less time running restless Drag.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The QPU will spend 1326.1x less time running restless Drag.
+</pre></div>
+</div>
+</div>
+</div>
+<p>The example above is applicable to other experiments and shows that restless
+measurements can greatly speed-up characterization and calibration tasks.</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id5" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
+characterization of superconducting quantum processors without qubit reset,
+PRX Quantum <strong>2</strong>, 020324 (2021). <a class="reference external" href="https://arxiv.org/abs/2010.06576">https://arxiv.org/abs/2010.06576</a>.</p>
+</aside>
+<aside class="footnote brackets" id="id6" role="note">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
+Minimum quantum run-time characterization and calibration via restless
+measurements with dynamic repetition rates, Physics Review Applied <strong>17</strong>,
+064061 (2022). <a class="reference external" href="https://arxiv.org/abs/2202.06981">https://arxiv.org/abs/2202.06981</a>.</p>
+</aside>
+<aside class="footnote brackets" id="id7" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Andrew Wack, Hanhee Paik, Ali Javadi-Abhari, Petar Jurcevic, Ismael Faro,
+Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
+attributes to measure the performance of near-term quantum computers,
+<a class="reference external" href="https://arxiv.org/abs/2110.14108">https://arxiv.org/abs/2110.14108</a>.</p>
+</aside>
+</aside>
+</section>
+<section id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../../apidocs/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="readout_mitigation.html" class="btn btn-neutral" title="Readout Mitigation" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Restless Measurements</a><ul>
+<li><a class="reference internal" href="#enabling-restless-measurements">Enabling restless measurements</a></li>
+<li><a class="reference internal" href="#calculating-restless-quantum-processor-speed-ups">Calculating restless quantum processor speed-ups</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/underscore.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+
+
+FitOptions.bounds
+===================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: FitOptions.bounds

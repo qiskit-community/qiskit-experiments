@@ -1,0 +1,8 @@
+
+
+IQPlotter.options
+==================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoproperty:: IQPlotter.options

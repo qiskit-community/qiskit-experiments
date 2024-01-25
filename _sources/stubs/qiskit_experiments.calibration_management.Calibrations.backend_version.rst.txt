@@ -1,0 +1,8 @@
+
+
+Calibrations.backend_version
+======================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: Calibrations.backend_version

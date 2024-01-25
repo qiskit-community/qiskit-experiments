@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.run
+================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: NoisyDelayAerBackend.run

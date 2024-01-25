@@ -1,0 +1,8 @@
+
+
+FineSXAmplitudeCal.circuits
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FineSXAmplitudeCal.circuits

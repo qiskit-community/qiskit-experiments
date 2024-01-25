@@ -1,0 +1,46 @@
+﻿
+
+InterleavedRBAnalysis
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoanalysis:: InterleavedRBAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      InterleavedRBAnalysis.drawer
+      InterleavedRBAnalysis.models
+      InterleavedRBAnalysis.name
+      InterleavedRBAnalysis.options
+      InterleavedRBAnalysis.parameters
+      InterleavedRBAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      InterleavedRBAnalysis.config
+      InterleavedRBAnalysis.copy
+      InterleavedRBAnalysis.from_config
+      InterleavedRBAnalysis.run
+      InterleavedRBAnalysis.set_options
+   
+
+   
+   

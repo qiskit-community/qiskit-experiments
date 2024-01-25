@@ -1,0 +1,8 @@
+
+
+T2Hahn.backend
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: T2Hahn.backend

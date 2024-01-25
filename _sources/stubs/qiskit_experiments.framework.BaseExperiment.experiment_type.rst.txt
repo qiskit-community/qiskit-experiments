@@ -1,0 +1,8 @@
+
+
+BaseExperiment.experiment_type
+===========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BaseExperiment.experiment_type

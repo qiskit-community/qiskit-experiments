@@ -1,0 +1,8 @@
+
+
+PulseBackend.coupling_map
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.coupling_map

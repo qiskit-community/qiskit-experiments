@@ -1,0 +1,8 @@
+
+
+MitigatedProcessTomography.set_run_options
+================================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedProcessTomography.set_run_options

@@ -1,0 +1,56 @@
+﻿
+
+AverageData
+==============================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: AverageData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      AverageData.__call__
+   
+   
+   
+      AverageData.__call__
+
+   
+   

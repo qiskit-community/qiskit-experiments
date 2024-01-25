@@ -1,0 +1,8 @@
+
+
+PulseBackend.provider
+=============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.provider

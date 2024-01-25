@@ -1,0 +1,8 @@
+
+
+PlotStyle.merge
+================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: PlotStyle.merge

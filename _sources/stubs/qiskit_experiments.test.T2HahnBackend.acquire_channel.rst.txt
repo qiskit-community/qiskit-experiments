@@ -1,0 +1,8 @@
+
+
+T2HahnBackend.acquire_channel
+=====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: T2HahnBackend.acquire_channel

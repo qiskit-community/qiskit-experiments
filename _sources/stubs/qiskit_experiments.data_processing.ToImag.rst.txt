@@ -1,0 +1,56 @@
+﻿
+
+ToImag
+=========================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: ToImag
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      ToImag.__call__
+   
+   
+   
+      ToImag.__call__
+
+   
+   

@@ -1,0 +1,8 @@
+
+
+EchoedCrossResonanceHamiltonian.run_options
+=======================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: EchoedCrossResonanceHamiltonian.run_options

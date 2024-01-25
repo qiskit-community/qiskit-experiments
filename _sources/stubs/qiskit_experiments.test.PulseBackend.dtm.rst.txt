@@ -1,0 +1,8 @@
+
+
+PulseBackend.dtm
+========================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.dtm

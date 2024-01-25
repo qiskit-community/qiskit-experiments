@@ -1,0 +1,8 @@
+
+
+PulseBackend.qubit_properties
+=====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: PulseBackend.qubit_properties

@@ -1,0 +1,8 @@
+
+
+SkQDA.discriminator
+======================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoproperty:: SkQDA.discriminator

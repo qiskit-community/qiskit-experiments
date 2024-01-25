@@ -1,0 +1,8 @@
+
+
+CliffordUtils.clifford_2_qubit_circuit
+=========================================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. automethod:: CliffordUtils.clifford_2_qubit_circuit

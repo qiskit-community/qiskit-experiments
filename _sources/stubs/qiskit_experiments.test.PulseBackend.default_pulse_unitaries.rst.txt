@@ -1,0 +1,8 @@
+
+
+PulseBackend.default_pulse_unitaries
+============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.default_pulse_unitaries

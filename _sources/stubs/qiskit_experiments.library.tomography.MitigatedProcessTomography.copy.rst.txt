@@ -1,0 +1,8 @@
+
+
+MitigatedProcessTomography.copy
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedProcessTomography.copy

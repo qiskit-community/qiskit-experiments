@@ -1,0 +1,8 @@
+
+
+AnalysisResult.service
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.service

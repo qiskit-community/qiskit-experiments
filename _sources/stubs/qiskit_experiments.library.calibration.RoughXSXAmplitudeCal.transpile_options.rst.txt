@@ -1,0 +1,8 @@
+
+
+RoughXSXAmplitudeCal.transpile_options
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughXSXAmplitudeCal.transpile_options

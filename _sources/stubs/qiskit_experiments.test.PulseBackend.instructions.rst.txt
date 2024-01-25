@@ -1,0 +1,8 @@
+
+
+PulseBackend.instructions
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.instructions

@@ -1,0 +1,81 @@
+﻿
+
+TrainableDataAction
+======================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: TrainableDataAction
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      TrainableDataAction.is_trained
+      
+   
+      
+      
+         
+      
+      TrainableDataAction.parameters
+      
+   
+   
+   
+
+   
+   
+
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      TrainableDataAction.__call__
+   
+   
+      TrainableDataAction.set_parameters
+   
+   
+      TrainableDataAction.train
+   
+   
+   
+      TrainableDataAction.__call__
+
+   
+   

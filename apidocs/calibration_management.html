@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+  <html class="no-js" lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <title>Calibration Management (qiskit_experiments.calibration_management) &mdash; Qiskit Experiments 0.5 0.5.4</title>
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" /><link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@qiskit/web-components/experimental-bundled-ui-shell.js"></script>
+  <style>
+    qiskit-ui-shell:not(:defined) {
+      display: block;
+      margin-bottom: 3.5rem;
+    }
+  </style>
+
+  <!-- SEGMENT ANALYTICS -->
+    <script>
+      (function () {
+        window._analytics = {
+          segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+          coremetrics: false,
+          optimizely: false,
+          googleAddServices: false,
+          fullStory: false,
+          autoPageEventSpa: false,
+          autoFormEvents: false,
+          autoPageView: false
+        }
+
+        window.digitalData = {
+          page: {
+            pageInfo: {
+              productTitle: 'IBM Q Experience',
+              analytics: {
+                category: 'Qiskit.org'
+              }
+            }
+          }
+        }
+      }());
+    </script>
+    <script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+    <script>
+      (function () {
+        'use strict'
+
+        if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+        const category = window.digitalData.page.pageInfo.analytics.category
+        const productTitle = window.digitalData.page.pageInfo.productTitle
+        const routeName = 'documentation'
+
+        window.bluemixAnalytics.pageEvent(category, routeName, {
+          navigationType: 'pushState',
+          productTitle: productTitle,
+          title: document.title
+        })
+
+        window.trackCta = (action) => {
+          if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+          const category = window.digitalData.page.pageInfo.analytics.category
+          const productTitle = window.digitalData.page.pageInfo.productTitle
+
+          window.bluemixAnalytics.trackEvent('CTA Clicked', {
+            productTitle,
+            category,
+            CTA: action
+          })
+        }
+
+      }());
+    </script></head>
+<body class="pytorch-body">
+  <!-- UNIFIED TOP MENU -->
+  <qiskit-ui-shell variant="hide-account"></qiskit-ui-shell>
+
+   
+
+    <!-- LEFT SIDE BAR -->
+
+    <!-- if translations available, display language dropdown menu -->
+    
+
+    <!-- Menu becomes dropdown in mobile view -->
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <!-- left side bar main content -->
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+    <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="sidebar">
+    <div class="pytorch-left-menu-search">
+        <div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Qiskit Experiments 0.5 Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+
+    <!-- render sidebar from the toctree -->
+    
+    
+        <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">All Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/calibrations.html">Calibrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/data_processor.html">Data Processor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/curve_analysis.html">Curve Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/custom_experiment.html">Custom Experiments</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howtos/index.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/documentation/experiments/dev">Development Branch Docs</a></li>
+</ul>
+
+    
+
+    <!-- PREVIOUS RELEASES -->
+        
+
+    </div>
+  </div>
+</nav>
+
+<!-- OPTIONAL EXPANDABLE FUNCTIONALITY -->
+
+<script>
+    var expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    var j;
+    for (i = 0; i < expandable_rows.length; i++) {
+        // add the chevron icon
+        expandable_rows[i].classList.add("expandable")
+        // expand the dropdown if user is currently on a page included in the dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        if (subheadings.classList.contains("current")) {
+            subheadings.style.display = "block"
+            subheadings.style.marginLeft = "0.5rem";
+            expandable_rows[i].classList.add("open");
+        } else {subheadings.style.display = "none"}
+
+        // expand and unexpand dropdown when clicked
+        expandable_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+
+    }
+</script>
+
+
+<!-- STYLING -->
+<script>
+    // indent subheadings under captions
+    expandable_rows = document.getElementsByClassName("caption");
+    var i;
+    for (i = 0; i < expandable_rows.length; i++) {
+        expandable_rows[i].nextElementSibling.style.marginLeft = "1rem"
+
+        // un-bold subheadings in dropdown
+        var subheadings = expandable_rows[i].nextElementSibling
+        for (j = 0; j < subheadings.children.length; j++) {
+            subheadings.children[j].style.fontWeight = "unset"
+        }
+    }
+
+    // adjust toctree class name to style external links
+    var toc_rows = document.getElementsByClassName("toctree-l1");
+    var i;
+    for (i = 0; i < toc_rows.length; i++) {
+        if (toc_rows[i].children[0].className === "reference external") {
+            toc_rows[i].className = "toctree-l1-external"
+            }
+    }
+
+    // expand and unexpand previous releases dropdown when clicked
+    var release_rows = document.getElementsByClassName("sidebar-l1-expandable");
+    for (i = 0; i < expandable_rows.length; i++) {
+        release_rows[i].addEventListener("click", function() {
+            this.classList.toggle("open");
+            var clicked_subheadings = this.nextElementSibling;
+            if (clicked_subheadings.style.display === "block") {
+            clicked_subheadings.style.display = "none";
+            } else {
+            clicked_subheadings.style.display = "block";
+            }
+        });
+    }
+</script>
+
+    <div class="pytorch-container">
+
+      <!-- BREADCRUMB MINI MENU BELOW TOP NAV BAR -->
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+            Qiskit Experiments 0.5 documentation
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="index.html">API Reference</a> &gt;</li>
+        
+      <li>Calibration Management (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code>)</li>
+    
+  </ul>
+</div>
+        </div>
+      </div>
+
+      <!-- MAIN CENTRE CONTENT -->
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        
+        <div class="pytorch-content-left">
+          <div class="rst-content">
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the documentation for the current state of the development branch
+of Qiskit Experiments. The documentation or APIs here can change prior to being
+released.</p>
+</div>
+<span class="target" id="module-qiskit_experiments.calibration_management"><span id="qiskit-experiments-calibration-management"></span></span><section id="calibration-management-qiskit-experiments-calibration-management">
+<h1>Calibration Management (<a class="reference internal" href="#module-qiskit_experiments.calibration_management" title="qiskit_experiments.calibration_management"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code></a>)<a class="headerlink" href="#calibration-management-qiskit-experiments-calibration-management" title="Permalink to this heading">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The calibrations interface is still in active development. It may have
+breaking API changes without deprecation warnings in future releases until
+otherwise indicated.</p>
+</div>
+<p>Calibrating qubit setups is the task of finding the pulse shapes and parameter
+values that maximizes the fidelity of the resulting quantum operations. This
+therefore requires experiments which are analyzed to extract parameter values.
+Furthermore, the resulting parameter values and schedules must be managed. The
+calibration management module in Qiskit experiments allows users to manage
+the resulting schedules and parameter values from obtained when running
+calibration experiments from the <a class="reference internal" href="library.html#module-qiskit_experiments.library" title="qiskit_experiments.library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a>.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Calibrations</span></code></a>([coupling_map, ...])</p></td>
+<td><p>A class to manage schedules with calibrated parameter values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.ParameterValue.html#qiskit_experiments.calibration_management.ParameterValue" title="qiskit_experiments.calibration_management.ParameterValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParameterValue</span></code></a>([value, date_time, valid, ...])</p></td>
+<td><p>A data class to store parameter values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.FixedFrequencyTransmon.html#qiskit_experiments.calibration_management.FixedFrequencyTransmon" title="qiskit_experiments.calibration_management.FixedFrequencyTransmon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FixedFrequencyTransmon</span></code></a>([basis_gates, ...])</p></td>
+<td><p>A library of gates for fixed-frequency superconducting qubit architectures.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.EchoedCrossResonance.html#qiskit_experiments.calibration_management.EchoedCrossResonance" title="qiskit_experiments.calibration_management.EchoedCrossResonance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EchoedCrossResonance</span></code></a>([basis_gates, ...])</p></td>
+<td><p>A library for echoed cross-resonance gates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.BasisGateLibrary.html#qiskit_experiments.calibration_management.BasisGateLibrary" title="qiskit_experiments.calibration_management.BasisGateLibrary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasisGateLibrary</span></code></a>([basis_gates, default_values])</p></td>
+<td><p>A base class for libraries of basis gates to make it easier to setup Calibrations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.BaseCalibrationExperiment.html#qiskit_experiments.calibration_management.BaseCalibrationExperiment" title="qiskit_experiments.calibration_management.BaseCalibrationExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseCalibrationExperiment</span></code></a>(calibrations, *args)</p></td>
+<td><p>A mixin class to create calibration experiments.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="managing-calibration-data">
+<h2>Managing Calibration Data<a class="headerlink" href="#managing-calibration-data" title="Permalink to this heading">¶</a></h2>
+<p>Calibrations are managed by the <a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrations</span></code></a> class. This class stores schedules
+which are intended to be fully parameterized, including the index of the channels. This
+class:</p>
+<ul class="simple">
+<li><p>supports having different schedules share parameters</p></li>
+<li><p>allows default schedules for qubits that can be overridden for specific qubits.</p></li>
+</ul>
+<p>The following code illustrates how a user can create a parameterized schedule, add
+values to the parameters and query a schedule.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dur</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;dur&quot;</span><span class="p">)</span>
+<span class="n">amp</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;σ&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xp</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">),</span> <span class="n">DriveChannel</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch0&quot;</span><span class="p">)))</span>
+
+<span class="n">cals</span> <span class="o">=</span> <span class="n">Calibrations</span><span class="p">()</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+
+<span class="c1"># add duration and sigma parameter values for all qubits.</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_parameter_value</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="s2">&quot;dur&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_parameter_value</span><span class="p">(</span><span class="mf">35.5</span><span class="p">,</span> <span class="s2">&quot;σ&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add an amplitude for qubit 3.</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_parameter_value</span><span class="p">(</span><span class="mf">0.2</span><span class="o">+</span><span class="mf">0.05</span><span class="n">j</span><span class="p">,</span> <span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">),</span> <span class="s2">&quot;xp&quot;</span><span class="p">)</span>
+
+<span class="c1"># Retrieve an xp pulse with all parameters assigned</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">get_schedule</span><span class="p">(</span><span class="s2">&quot;xp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">))</span>
+
+<span class="c1"># Retrieve an xp pulse with unassigned amplitude</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">get_schedule</span><span class="p">(</span><span class="s2">&quot;xp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">),</span> <span class="n">free_params</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The Calibrations make a couple of assumptions which are discussed below.</p>
+<section id="parametric-channel-naming-convention">
+<h3>Parametric channel naming convention<a class="headerlink" href="#parametric-channel-naming-convention" title="Permalink to this heading">¶</a></h3>
+<p>Parametrized channel indices must be named according to a predefined pattern to properly
+identify the channels and control channels when assigning values to the parametric
+channel indices. A channel must have a name that starts with <code class="docutils literal notranslate"><span class="pre">ch</span></code> followed by an integer.
+For control channels, this integer can be followed by a sequence <code class="docutils literal notranslate"><span class="pre">.integer</span></code>.
+Optionally, the name can end with <code class="docutils literal notranslate"><span class="pre">$integer</span></code> to specify the index of a control channel
+for the case when a set of qubits share multiple control channels. For example,
+valid channel names include <code class="docutils literal notranslate"><span class="pre">&quot;ch0&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ch1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ch0.1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ch0$&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ch2$3&quot;</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">&quot;ch1.0.3$2&quot;</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">.</span></code> delimiter is used to specify the different qubits when looking for control
+channels. The optional $ delimiter is used to specify which control channel to use
+if several control channels work together on the same qubits. For example, if the
+control channel configuration is <code class="docutils literal notranslate"><span class="pre">{(3,2):</span> <span class="pre">[ControlChannel(3),</span> <span class="pre">ControlChannel(12)]}</span></code>
+then given qubits <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">3)</span></code> the name <code class="docutils literal notranslate"><span class="pre">&quot;ch1.0$1&quot;</span></code> will resolve to <code class="docutils literal notranslate"><span class="pre">ControlChannel(12)</span></code> while
+<code class="docutils literal notranslate"><span class="pre">&quot;ch1.0$0&quot;</span></code> will resolve to <code class="docutils literal notranslate"><span class="pre">ControlChannel(3)</span></code>. A channel can only have one parameter.</p>
+</section>
+<section id="parameter-naming-restriction">
+<h3>Parameter naming restriction<a class="headerlink" href="#parameter-naming-restriction" title="Permalink to this heading">¶</a></h3>
+<p>Each parameter must have a unique name within each schedule. For example, it is
+acceptable to have a parameter named <code class="docutils literal notranslate"><span class="pre">amp</span></code> in the schedule <code class="docutils literal notranslate"><span class="pre">xp</span></code> and a different
+parameter instance named <code class="docutils literal notranslate"><span class="pre">amp</span></code> in the schedule named <code class="docutils literal notranslate"><span class="pre">xm</span></code>. It is not acceptable
+to have two parameters named <code class="docutils literal notranslate"><span class="pre">amp</span></code> in the same schedule. The naming restriction
+only applies to parameters used in the immediate scope of the schedule. Schedules
+called by Call instructions have their own scope for Parameter names.</p>
+<p>The code block below illustrates the creation of a template schedule for a echoed cross-
+resonance gate.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">amp_cr</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">)</span>
+<span class="n">amp</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">)</span>
+<span class="n">d0</span> <span class="o">=</span> <span class="n">DriveChannel</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch0&quot;</span><span class="p">))</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="n">ControlChannel</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;ch0.1&quot;</span><span class="p">))</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;σ&quot;</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<span class="n">dur_xp</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+<span class="n">dur_cr</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xp</span><span class="p">:</span>
+    <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">dur_xp</span><span class="p">,</span> <span class="n">amp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">),</span> <span class="n">d0</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;cr&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cr</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">pulse</span><span class="o">.</span><span class="n">align_sequential</span><span class="p">():</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">GaussianSquare</span><span class="p">(</span><span class="n">dur_cr</span><span class="p">,</span> <span class="n">amp_cr</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">c1</span><span class="p">)</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">GaussianSquare</span><span class="p">(</span><span class="n">dur_cr</span><span class="p">,</span> <span class="o">-</span><span class="n">amp_cr</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">c1</span><span class="p">)</span>
+            <span class="n">pulse</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+
+<span class="n">cals</span> <span class="o">=</span> <span class="n">Calibrations</span><span class="p">()</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+<span class="n">cals</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">cr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that a registered template schedule can be retrieve by doing</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xp</span> <span class="o">=</span> <span class="n">cals</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;xp&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which would return the default xp schedule block template for all qubits.</p>
+</section>
+</section>
+</section>
+
+
+             </article>
+            </div>
+            <footer>
+<!-- USER FEEDBACK -->
+  
+
+    <hr class="helpful-hr hr-top">
+      <div class="helpful-container">
+        <div class="helpful-question">Was this page helpful?</div>
+        <a class="helpful-question yes-link" onclick="clicked('yes')">Yes</a>
+        <a class="helpful-question no-link" onclick="clicked('no')">No</a>
+        <div class="was-helpful-thank-you" id="was-helpful-thank-you">Thank you!</div>
+      </div>
+    <hr class="helpful-hr hr-bottom"/>
+  
+  
+
+  <!-- NEXT/PREVIOUS BUTTONS -->
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+      <a href="../stubs/qiskit_experiments.calibration_management.Calibrations.html" class="btn btn-neutral float-right" title="Calibrations" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-purple.svg" class="next-page"></a>
+    
+    
+      <a href="../stubs/qiskit_experiments.curve_analysis.utils.probability.html" class="btn btn-neutral" title="probability" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-purple.svg" class="previous-page"> Previous</a>
+    
+  </div>
+
+  <div role="contentinfo">
+    <p>
+    <!-- SHOW QISKIT COPYRIGHT TEXT -->
+        &copy; Copyright 2021-2024, Qiskit Development Team.
+
+    <!-- SHOW DATE PAGE LAST UPDATED -->
+      Last updated on 2024/01/25.
+
+    </p>
+  </div>
+
+<!-- SHOW 'MADE WITH SPHINX' TEXT -->
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using <a href="https://github.com/Qiskit/qiskit_sphinx_theme">Qiskit Sphinx Theme </a> (based on <a href="https://github.com/pytorch/pytorch_sphinx_theme"> PyTorch Sphinx Theme</a>).
+      </div>
+     
+<br>
+</footer>
+
+<script>
+  function clicked(ctaType) {
+    document.getElementById('was-helpful-thank-you').style.visibility = 'visible';
+    window.trackCta(`Helpful - ${ctaType}`);
+  }
+</script>
+
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE AUTOSUMMARY MENU -->
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Calibration Management (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code>)</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#managing-calibration-data">Managing Calibration Data</a><ul>
+<li><a class="reference internal" href="#parametric-channel-naming-convention">Parametric channel naming convention</a></li>
+<li><a class="reference internal" href="#parameter-naming-restriction">Parameter naming restriction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+  <!-- MOBILE MENU FOR SIDEBAR -->
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/thebelab-helper.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+    <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <!-- enable language dropdown menu expand -->
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+</body>
+</html>

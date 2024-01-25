@@ -1,0 +1,8 @@
+
+
+BaseAnalysis.options
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BaseAnalysis.options

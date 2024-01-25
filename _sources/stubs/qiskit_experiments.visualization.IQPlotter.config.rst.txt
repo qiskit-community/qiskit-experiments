@@ -1,0 +1,8 @@
+
+
+IQPlotter.config
+=================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: IQPlotter.config

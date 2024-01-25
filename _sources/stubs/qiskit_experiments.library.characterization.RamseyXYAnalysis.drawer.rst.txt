@@ -1,0 +1,8 @@
+
+
+RamseyXYAnalysis.drawer
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: RamseyXYAnalysis.drawer

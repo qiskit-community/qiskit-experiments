@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.discriminator
+===============================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: SingleTransmonTestBackend.discriminator

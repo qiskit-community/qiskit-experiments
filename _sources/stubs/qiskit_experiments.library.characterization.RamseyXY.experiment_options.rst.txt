@@ -1,0 +1,8 @@
+
+
+RamseyXY.experiment_options
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: RamseyXY.experiment_options
