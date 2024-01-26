@@ -23,7 +23,7 @@ jobs:
           python setup.py sdist
           python setup.py bdist_wheel
         shell: bash
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./dist/qiskit*
       - name: Publish to PyPi
