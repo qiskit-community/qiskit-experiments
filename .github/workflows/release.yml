@@ -12,7 +12,11 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+<<<<<<< HEAD
       - uses: actions/setup-python@v5
+=======
+      - uses: actions/setup-python@v4
+>>>>>>> 55d01bb0 (Bump actions/checkout from 3 to 4 (#1378))
         name: Install Python
         with:
           python-version: '3.8'
