@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Getting Started - Qiskit Experiments 0.5.0-132-g862e2050</title>
+        <title>Getting Started - Qiskit Experiments 0.5.0-133-g5661cb07</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-132-g862e2050</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-133-g5661cb07</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-132-g862e2050</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-133-g5661cb07</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -819,32 +819,32 @@ exponential decay model of the <span class="math notranslate nohighlight">\(T_1\
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 24
+ - number of function evals: 19
  - degree of freedom: 18
- - chi-square: 22.083312602389327
- - reduced chi-square: 1.2268507001327404
- - Akaike info crit.: 7.056295794007221
- - Bayesian info crit.: 10.18986310717749
+ - chi-square: 20.154924399713938
+ - reduced chi-square: 1.1197180222063299
+ - Akaike info crit.: 5.137450365777946
+ - Bayesian info crit.: 8.271017678948215
  - init params:
-  * amp = 0.8946341463414634
-  * tau = 0.00023281743905108855
-  * base = 0.08536585365853659
+  * amp = 0.895609756097561
+  * tau = 0.0002293530911871578
+  * base = 0.07073170731707316
  - fit params:
-  * amp = 0.9579890386744196 ± 0.008441696714401477
-  * tau = 0.00019060182303979714 ± 5.29661303418072e-06
-  * base = 0.035591690273875785 ± 0.0073033066137904385
+  * amp = 0.9530892225004785 ± 0.008849723155739661
+  * tau = 0.00020461110488698709 ± 5.964012449195651e-06
+  * base = 0.021267227585337986 ± 0.008135085741075557
  - correlations:
-  * (tau, base) = -0.8878908774542998
-  * (amp, base) = -0.5647036850180112
-  * (amp, tau) = 0.30050394920973444
+  * (tau, base) = -0.904556347299274
+  * (amp, base) = -0.6276058029562681
+  * (amp, tau) = 0.3902343533842321
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000191+/-0.000005
-- χ²: 1.2268507001327404
+- value: 0.000205+/-0.000006
+- χ²: 1.1197180222063299
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -870,8 +870,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019060182303979714
-5.29661303418072e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00020461110488698709
+5.964012449195651e-06
 </pre></div>
 </div>
 </div>
@@ -897,7 +897,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 20, &#39;1&#39;: 1004}, &#39;job_id&#39;: &#39;c6fe8604-8056-486d-b5cc-06e13b29c030&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 34, &#39;1&#39;: 990}, &#39;job_id&#39;: &#39;8a49e3e1-9ca4-4e79-b658-dc8782b48ffa&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1165,24 +1165,24 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 24
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 17.072468518855366
- - reduced chi-square: 0.9484704732697425
- - Akaike info crit.: 1.6518387033584947
- - Bayesian info crit.: 4.785406016528764
+ - chi-square: 19.106691088508608
+ - reduced chi-square: 1.0614828382504782
+ - Akaike info crit.: 4.015839249790993
+ - Bayesian info crit.: 7.149406562961262
  - init params:
-  * amp = 0.8614634146341463
-  * tau = 0.0002728417799051327
-  * base = 0.11463414634146342
+  * amp = 0.8634146341463415
+  * tau = 0.00027076326796146355
+  * base = 0.1126829268292683
  - fit params:
-  * amp = 0.9909889004097071 ± 0.013499291441928405
-  * tau = 0.00027569766839496057 ± 1.0895815931451765e-05
-  * base = -0.004429057924209779 ± 0.01513806287898046
+  * amp = 0.9932759438129656 ± 0.013499214426624802
+  * tau = 0.00027597060090124803 ± 1.088224042394153e-05
+  * base = -0.006960755926195227 ± 0.015139213363582534
  - correlations:
-  * (tau, base) = -0.9507961163475863
-  * (amp, base) = -0.8597736465100712
-  * (amp, tau) = 0.7210363439184788
+  * (tau, base) = -0.9510516109446739
+  * (amp, base) = -0.8596013189694275
+  * (amp, tau) = 0.7212406101008871
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1190,7 +1190,7 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
 AnalysisResult
 - name: T1
 - value: 0.000276+/-0.000011
-- χ²: 0.9484704732697425
+- χ²: 1.0614828382504782
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1206,48 +1206,44 @@ Component experiment 1
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 33
+ - number of function evals: 16
  - degree of freedom: 7
- - chi-square: 38.62194178592126
- - reduced chi-square: 5.517420255131609
- - Akaike info crit.: 19.512354620256673
- - Bayesian info crit.: 20.42010989923881
+ - chi-square: 211.75304763611203
+ - reduced chi-square: 30.250435376587433
+ - Akaike info crit.: 36.52835633049006
+ - Bayesian info crit.: 37.4361116094722
  - init params:
-  * a = 0.7111454633537337
-  * alpha = 0.9832985355558697
+  * a = 0.7107716684087296
+  * alpha = 0.9824430460068305
   * b = 0.25
  - fit params:
-  * a = 0.6444952930772783 ± 0.003671060287259657
-  * alpha = 0.9758148233793362 ± 0.0005452184440523917
-  * b = 0.3338150127621817 ± 0.005288413821810782
- - correlations:
-  * (alpha, b) = -0.954813477940289
-  * (a, b) = -0.7576311718754414
-  * (a, alpha) = 0.5719495786084631
+  * a = 0.7115754644060732
+  * alpha = 0.982491838631217
+  * b = 0.25208432899602623
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9758+/-0.0005
-- χ²: 5.517420255131609
+- value: 0.982491838631217+/-nan
+- χ²: 30.250435376587433
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0181+/-0.0004
-- χ²: 5.517420255131609
+- value: 0.013131121026587228+/-nan
+- χ²: 30.250435376587433
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.01157+/-0.00026
-- χ²: 5.517420255131609
+- value: 0.008358173693448467+/-nan
+- χ²: 30.250435376587433
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
@@ -1417,7 +1413,7 @@ In this instance, the analysis will not generate a figure for the child experime
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/01/26</div>
+              Last updated on 2024/01/27</div>
           </div>
           <div class="right-details">
             
@@ -1467,7 +1463,7 @@ In this instance, the analysis will not generate a figure for the child experime
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b677953b"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=11181b26"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
