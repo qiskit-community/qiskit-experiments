@@ -91,12 +91,15 @@ class MplDrawer(BaseDrawer):
             # especially when the analysis consists of multiple curves.
             # Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.
             # This draws inset axes with shared x and y axis.
-            if self.figure_options.custom_style.get("style_name", None) == "residuals" and n_subplots != 2:
+            if (
+                self.figure_options.custom_style.get("style_name", None) == "residuals"
+                and n_subplots != 2
+            ):
                 # raising an error for residual plotting that isn't on individual plot per figure.
                 raise QiskitError(
                     "Residual plots and residual plotting style is supported for "
                     "figures with one sub-plot only."
-                    )
+                )
 
             inset_ax_h_list = self.figure_options.custom_style.get(
                 "sub_plot_heights_list", [1 / n_rows] * n_rows

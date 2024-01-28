@@ -59,8 +59,7 @@ class CurvePlotter(BasePlotter):
             "y_interp",
             "y_interp_err",
             "x_residuals",
-            "y_residuals"
-
+            "y_residuals",
         ]
 
     @classmethod
@@ -173,7 +172,6 @@ class CurvePlotter(BasePlotter):
                 series_name = ser + "_residuals"
                 x, y = self.data_for(ser, ["x_residuals", "y_residuals"])
                 self.drawer.scatter(x, y, name=series_name)
-
 
             # Fit report
             report = self._write_report()
