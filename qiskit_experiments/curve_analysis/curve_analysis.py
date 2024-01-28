@@ -368,7 +368,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         valid_uncertainty = np.all(np.isfinite(curve_data.yerr.to_numpy()))
 
         # creating storage for residual plotting
-        if self.options.plot_residuals:
+        if self.options.get("plot_residuals", None):
             residual_weights_list = []
 
         for i, sub_data in list(curve_data.groupby("class_id")):
@@ -396,7 +396,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             partial_weighted_residuals.append(model_weighted_residual)
 
             # adding weights to weights_list for residuals
-            if self.options.plot_residuals:
+            if self.options.get("plot_residuals", None):
                 if isinstance(weights_list, np.ndarray):
                     residual_weights_list.append(weights_list)
                 else:
@@ -438,7 +438,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 res = new
 
         residuals_model = []
-        if res.success and self.options.plot_residuals:
+        if res.success and self.options.get("plot_residuals", None):
             for weights in residual_weights_list:
                 if isinstance(weights, np.ndarray):
                     print("The weights are:")
