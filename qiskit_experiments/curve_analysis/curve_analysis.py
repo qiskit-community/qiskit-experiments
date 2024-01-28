@@ -447,12 +447,16 @@ class CurveAnalysis(BaseCurveAnalysis):
                 else:
                     residuals_model.append(res.residual)
 
+        # concatenate the weights if they are in separate lists.
+        if residuals_model:
+            residuals_model = np.concatenate(residuals_model)
+
         return convert_lmfit_result(
             res,
             self._models,
             curve_data.xval.to_numpy(),
             curve_data.yval.to_numpy(),
-            np.concatenate(residuals_model),
+            residuals_model,
         )
 
     def _create_figures(
