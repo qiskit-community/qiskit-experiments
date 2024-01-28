@@ -15,10 +15,12 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import warnings
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 from itertools import groupby
 from operator import itemgetter
+
 
 import lmfit
 import numpy as np
@@ -38,6 +40,7 @@ from .utils import (
     inverse_weighted_variance,
     sample_average,
 )
+from qiskit_experiments.visualization import PlotStyle
 
 
 class CurveAnalysis(BaseCurveAnalysis):
@@ -151,6 +154,67 @@ class CurveAnalysis(BaseCurveAnalysis):
     def model_names(self) -> List[str]:
         """Return model names."""
         return [getattr(m, "_name", f"model-{i}") for i, m in enumerate(self._models)]
+
+    def set_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            KeyError: When removed option ``curve_fitter`` is set.
+        """
+        super().set_options(**fields)
+        if fields.get("plot_residuals", None):
+            # checking there are no subplots for the figure to prevent collision in subplot indexes.
+            if self.plotter.options.get("subplots") != (1, 1):
+                warnings.warn(
+                    "Residuals plotting is currently supported for analysis with 1 subplot.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                fields["plot_residuals"] = False
+            else:
+                # check we have model to fit into
+                if self.models:
+                    self.plotter.set_figure_options(
+                        ylabel=[
+                            self.plotter.figure_options.get("ylabel", ""),
+                            "Residuals",
+                        ],
+                    )
+                    model_names = self.model_names()
+                    for model_name in model_names:
+                        self.plotter.set_figure_options(
+                            sharey=False,
+                            series_params={
+                                **self.plotter.figure_options["series_params"],
+                                **{
+                                    model_name: {
+                                        "canvas": 0,
+                                    },
+                                    model_name
+                                    + "_residuals": {
+                                        "canvas": 1,
+                                    },
+                                },
+                            },
+                        )
+
+                    # Here add the configuration for the residuals plot:
+                    self.plotter.set_options(
+                        subplots=(2, 1),
+                        style=PlotStyle(
+                            {
+                                "figsize": (8, 8),
+                                "legend_loc": "lower right",
+                                "textbox_rel_pos": (0.28, -0.10),
+                                "sub_plot_heights_list": [7 / 10, 3 / 10],
+                                "sub_plot_widths_list": [1],
+                                "style_name": "residuals",
+                            }
+                        ),
+                    )
 
     def _run_data_processing(
         self,
