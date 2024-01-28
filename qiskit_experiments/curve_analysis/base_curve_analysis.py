@@ -36,6 +36,7 @@ from qiskit_experiments.visualization import (
     CurvePlotter,
     LegacyCurveCompatDrawer,
     MplDrawer,
+    PlotStyle,
 )
 
 from .curve_data import CurveFitResult, ParameterRepr
@@ -277,6 +278,53 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 plotter = self.options.plotter
                 plotter.drawer = compat_drawer
                 fields["plotter"] = plotter
+
+        if fields.get("plot_residuals", None):
+            # checking there are no subplots for the figure to prevent collision in subplot indexes.
+            if self.plotter.options.get("subplots") != (1, 1):
+                warnings.warn(
+                    "Residuals plotting is currently supported for analysis with 1 subplot.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                fields["plot_residuals"] = False
+            else:
+                # check we have model to fit into
+                if self.models != []:
+                    model_names = self.model_names()
+                    for model_name in model_names:
+                        self.plotter.set_figure_options(
+                            ylabel=[
+                                    self.plotter.figure_options.get("ylabel", ""),
+                                    "Residuals",
+                                    ],
+                            ylim=[self.plotter.figure_options.get("ylim", None),
+                                  (-0.1, 0.1),
+                                  ],
+                            series_params={
+                                model_name: {
+                                    "canvas": 0,
+                                },
+                                model_name + "_residuals": {
+                                    "canvas": 1,
+                                },
+                            }
+                        )
+
+                    # Here add the configuration for the residuals plot:
+                    self.plotter.set_options(
+                        subplots=(2, 1),
+                        style=PlotStyle(
+                            {
+                                "figsize": (8, 7),
+                                "legend_loc": "lower right",
+                                "textbox_rel_pos": (0.28, -0.10),
+                                "sub_plot_heights_list": [4 / 5, 1 / 5],
+                                "sub_plot_widths_list": [1],
+                                "style_name": "residuals",
+                            }
+                        ),
+                    )
 
         super().set_options(**fields)
 
