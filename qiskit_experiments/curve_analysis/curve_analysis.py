@@ -447,9 +447,8 @@ class CurveAnalysis(BaseCurveAnalysis):
                 else:
                     residuals_model.append(res.residual)
 
-        # concatenate the weights if they are in separate lists.
         if residuals_model:
-            residuals_model = np.concatenate(residuals_model)
+            residuals_model = np.array(residuals_model)
 
         return convert_lmfit_result(
             res,
@@ -593,7 +592,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     fit_curves.append(residuals_data)
                     residuals_data[:, columns.index("xval")] = xval
                     residuals_data[:, columns.index("yval")] = unp.nominal_values(
-                        fit_data.residuals
+                        fit_data.residuals[i]
                     )
                     residuals_data[:, columns.index("name")] = model_names[i]
                     residuals_data[:, columns.index("class_id")] = i
