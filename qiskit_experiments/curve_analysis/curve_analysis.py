@@ -364,8 +364,13 @@ class CurveAnalysis(BaseCurveAnalysis):
             fit_options = [fit_options]
 
         # Create convenient function to compute residual of the models.
-        partial_residuals = []
+        partial_weighted_residuals = []
         valid_uncertainty = np.all(np.isfinite(curve_data.yerr.to_numpy()))
+
+        # creating storage for residual plotting
+        if self.options.plot_residuals:
+            residual_weights_list = []
+
         for i, sub_data in list(curve_data.groupby("class_id")):
             if valid_uncertainty:
                 nonzero_yerr = np.where(
@@ -379,20 +384,27 @@ class CurveAnalysis(BaseCurveAnalysis):
                 # some yerr values might be very close to zero, yielding significant weights.
                 # With such outlier, the fit doesn't sense residual of other data points.
                 maximum_weight = np.percentile(raw_weights, 90)
-                weights = np.clip(raw_weights, 0.0, maximum_weight)
+                weights_list = np.clip(raw_weights, 0.0, maximum_weight)
             else:
-                weights = None
-            model_residual = partial(
+                weights_list = None
+            model_weighted_residual = partial(
                 self._models[i]._residual,
                 data=sub_data.yval.to_numpy(),
-                weights=weights,
+                weights=weights_list,
                 x=sub_data.xval.to_numpy(),
             )
-            partial_residuals.append(model_residual)
+            partial_weighted_residuals.append(model_weighted_residual)
+
+            # adding weights to weights_list for residuals
+            if self.options.plot_residuals:
+                if isinstance(weights_list, np.ndarray):
+                    residual_weights_list.append(weights_list)
+                else:
+                    residual_weights_list.append(None)
 
         # Run fit for each configuration
         res = None
-        for fit_option in fit_options:
+        for idx, fit_option in enumerate(fit_options):
             # Setup parameter configuration, i.e. init value, bounds
             guess_params = lmfit.Parameters()
             for name in unite_parameter_names:
@@ -408,7 +420,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             try:
                 with np.errstate(all="ignore"):
                     new = lmfit.minimize(
-                        fcn=lambda x: np.concatenate([p(x) for p in partial_residuals]),
+                        fcn=lambda x: np.concatenate([p(x) for p in partial_weighted_residuals]),
                         params=guess_params,
                         method=self.options.fit_method,
                         scale_covar=not valid_uncertainty,
@@ -425,11 +437,26 @@ class CurveAnalysis(BaseCurveAnalysis):
             if new.success and res.redchi > new.redchi:
                 res = new
 
+        residuals_model = []
+        if res.success and self.options.plot_residuals:
+            for weights in residual_weights_list:
+                if isinstance(weights, np.ndarray):
+                    print("The weights are:")
+                    print(weights)
+                    print("The res are:")
+                    print(res.residual)
+                    residuals_model.append(
+                        [res / np.abs(weight) for res, weight in zip(res.residual, weights)]
+                    )
+                else:
+                    residuals_model.append(res.residual)
+
         return convert_lmfit_result(
             res,
             self._models,
             curve_data.xval.to_numpy(),
             curve_data.yval.to_numpy(),
+            np.concatenate(residuals_model),
         )
 
     def _create_figures(
@@ -475,6 +502,14 @@ class CurveAnalysis(BaseCurveAnalysis):
                 self.plotter.set_series_data(
                     series_name=name,
                     y_interp_err=fit_stdev,
+                )
+
+            residuals_data = data[data.category == "residuals"]
+            if self.options.get("plot_residuals", None) and len(residuals_data):
+                self.plotter.set_series_data(
+                    series_name=name,
+                    x_residuals=residuals_data.xval.to_numpy(),
+                    y_residuals=residuals_data.yval.to_numpy(),
                 )
 
         return [self.plotter.figure()]
@@ -549,7 +584,22 @@ class CurveAnalysis(BaseCurveAnalysis):
                 model_fit[:, columns.index("name")] = model_names[i]
                 model_fit[:, columns.index("class_id")] = i
                 model_fit[:, columns.index("category")] = "fitted"
+
+                # need to check here the analysis options with self.options.get("plot_residuals", None)
+                # if self.plotter.options.style.get("style_name", None) == "residuals":
+                if self.options.get("plot_residuals", None):
+                    # need to add here the residuals plot.
+                    residuals_data = np.full((len(xval), len(columns)), None, dtype=object)
+                    fit_curves.append(residuals_data)
+                    residuals_data[:, columns.index("xval")] = xval
+                    residuals_data[:, columns.index("yval")] = unp.nominal_values(
+                        fit_data.residuals
+                    )
+                    residuals_data[:, columns.index("name")] = model_names[i]
+                    residuals_data[:, columns.index("class_id")] = i
+                    residuals_data[:, columns.index("category")] = "residuals"
             table = table.append_list_values(other=np.vstack(fit_curves))
+
             analysis_results.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
