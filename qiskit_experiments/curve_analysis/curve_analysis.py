@@ -404,7 +404,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Run fit for each configuration
         res = None
-        for idx, fit_option in enumerate(fit_options):
+        for fit_option in fit_options:
             # Setup parameter configuration, i.e. init value, bounds
             guess_params = lmfit.Parameters()
             for name in unite_parameter_names:
@@ -441,10 +441,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         if res.success and self.options.get("plot_residuals", None):
             for weights in residual_weights_list:
                 if isinstance(weights, np.ndarray):
-                    print("The weights are:")
-                    print(weights)
-                    print("The res are:")
-                    print(res.residual)
                     residuals_model.append(
                         [res / np.abs(weight) for res, weight in zip(res.residual, weights)]
                     )
