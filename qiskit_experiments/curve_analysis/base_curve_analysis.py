@@ -298,9 +298,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                                     self.plotter.figure_options.get("ylabel", ""),
                                     "Residuals",
                                     ],
-                            ylim=[self.plotter.figure_options.get("ylim", None),
-                                  (-0.1, 0.1),
-                                  ],
+                            sharey=False,
                             series_params={
                                 model_name: {
                                     "canvas": 0,
