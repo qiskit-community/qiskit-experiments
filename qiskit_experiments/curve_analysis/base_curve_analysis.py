@@ -295,18 +295,19 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                     for model_name in model_names:
                         self.plotter.set_figure_options(
                             ylabel=[
-                                    self.plotter.figure_options.get("ylabel", ""),
-                                    "Residuals",
-                                    ],
+                                self.plotter.figure_options.get("ylabel", ""),
+                                "Residuals",
+                            ],
                             sharey=False,
                             series_params={
                                 model_name: {
                                     "canvas": 0,
                                 },
-                                model_name + "_residuals": {
+                                model_name
+                                + "_residuals": {
                                     "canvas": 1,
                                 },
-                            }
+                            },
                         )
 
                     # Here add the configuration for the residuals plot:
