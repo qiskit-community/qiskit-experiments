@@ -29,6 +29,7 @@ from uncertainties import unumpy as unp
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.visualization import PlotStyle
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
@@ -40,7 +41,6 @@ from .utils import (
     inverse_weighted_variance,
     sample_average,
 )
-from qiskit_experiments.visualization import PlotStyle
 
 
 class CurveAnalysis(BaseCurveAnalysis):
