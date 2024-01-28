@@ -171,7 +171,7 @@ class CurvePlotter(BasePlotter):
             if self.data_exists_for(ser, ["x_residuals", "y_residuals"]):
                 series_name = ser + "_residuals"
                 x, y = self.data_for(ser, ["x_residuals", "y_residuals"])
-                self.drawer.scatter(x, y, name=series_name)
+                self.drawer.scatter(x, y, name=series_name, legend=True)
 
             # Fit report
             report = self._write_report()
