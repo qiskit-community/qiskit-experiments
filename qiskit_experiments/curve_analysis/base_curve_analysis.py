@@ -291,21 +291,26 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             else:
                 # check we have model to fit into
                 if self.models != []:
+                    self.plotter.set_figure_options(
+                        ylabel=[
+                            self.plotter.figure_options.get("ylabel", ""),
+                            "Residuals",
+                        ],
+                    )
                     model_names = self.model_names()
                     for model_name in model_names:
                         self.plotter.set_figure_options(
-                            ylabel=[
-                                self.plotter.figure_options.get("ylabel", ""),
-                                "Residuals",
-                            ],
                             sharey=False,
                             series_params={
-                                model_name: {
-                                    "canvas": 0,
-                                },
-                                model_name
-                                + "_residuals": {
-                                    "canvas": 1,
+                                **self.plotter.figure_options["series_params"],
+                                **{
+                                    model_name: {
+                                        "canvas": 0,
+                                    },
+                                    model_name
+                                    + "_residuals": {
+                                        "canvas": 1,
+                                    },
                                 },
                             },
                         )
@@ -315,10 +320,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                         subplots=(2, 1),
                         style=PlotStyle(
                             {
-                                "figsize": (8, 7),
+                                "figsize": (8, 8),
                                 "legend_loc": "lower right",
                                 "textbox_rel_pos": (0.28, -0.10),
-                                "sub_plot_heights_list": [4 / 5, 1 / 5],
+                                "sub_plot_heights_list": [7 / 10, 3 / 10],
                                 "sub_plot_widths_list": [1],
                                 "style_name": "residuals",
                             }
