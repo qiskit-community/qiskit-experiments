@@ -35,8 +35,10 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         lossy TLS notches, and hence this analysis doesn't provide any
         generic mathematical model to fit the measurement data.
         A developer may subclass this to conduct own analysis.
+        The :meth:`StarkP1SpectAnalysis._run_spect_analysis` is a hook method where
+        you can define a custom analysis protocol.
 
-        This analysis just visualizes the measured P1 values against Stark tone amplitudes.
+        By default, this analysis just visualizes the measured P1 values against Stark tone amplitudes.
         The tone amplitudes can be converted into the amount of Stark shift
         when the calibrated coefficients are provided in the analysis option,
         or the calibration experiment results are available in the result database.
