@@ -23,8 +23,8 @@ from qiskit.providers.fake_provider import FakeHanoiV2
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.library import StarkP1Spectroscopy
-from qiskit_experiments.library.driven_freq_tuning.analyses import StarkP1SpectAnalysis
-from qiskit_experiments.library.driven_freq_tuning import coefficient_utils as util
+from qiskit_experiments.library.driven_freq_tuning.p1_spect_analysis import StarkP1SpectAnalysis
+from qiskit_experiments.library.driven_freq_tuning.coefficient import StarkCoefficients
 from qiskit_experiments.test import FakeService
 
 
@@ -100,7 +100,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
 
     def test_scanning_frequency_with_coeffs(self):
         """Test scanning frequency with manually provided Stark coefficients."""
-        coeffs = util.StarkCoefficients(
+        coeffs = StarkCoefficients(
             pos_coef_o1=5e6,
             pos_coef_o2=200e6,
             pos_coef_o3=-50e6,
@@ -112,7 +112,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         exp = StarkP1Spectroscopy((0,), backend=FakeHanoiV2())
 
         ref_amps = np.array([-0.50, -0.25, 0.0, 0.25, 0.50], dtype=float)
-        test_freqs = util.convert_amp_to_freq(ref_amps, coeffs)
+        test_freqs = coeffs.convert_amp_to_freq(ref_amps)
         exp.set_experiment_options(
             xvals=test_freqs,
             xval_type="frequency",
@@ -123,7 +123,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
 
     def test_scanning_frequency_around_zero(self):
         """Test scanning frequency around zero."""
-        coeffs = util.StarkCoefficients(
+        coeffs = StarkCoefficients(
             pos_coef_o1=5e6,
             pos_coef_o2=100e6,
             pos_coef_o3=10e6,
@@ -230,7 +230,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         mock_result_id = "d067ae34-96db-4e8e-adc8-030305d3d404"
         mock_backend = FakeHanoiV2().name
 
-        coeffs = util.StarkCoefficients(
+        coeffs = StarkCoefficients(
             pos_coef_o1=po1,
             pos_coef_o2=po2,
             pos_coef_o3=po3,
@@ -260,7 +260,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         analysis = StarkP1SpectAnalysisReturnXvals()
 
         xvals = np.linspace(-1, 1, 11)
-        ref_fvals = util.convert_amp_to_freq(xvals, coeffs)
+        ref_fvals = coeffs.convert_amp_to_freq(xvals)
 
         exp_data = ExperimentData(
             service=service,
@@ -280,7 +280,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         This is just a difference of API from the test_running_analysis_with_service.
         Data driven test is omitted here.
         """
-        coeffs = util.StarkCoefficients(
+        coeffs = StarkCoefficients(
             pos_coef_o1=5e6,
             pos_coef_o2=200e6,
             pos_coef_o3=-50e6,
@@ -294,7 +294,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         analysis.set_options(stark_coefficients=coeffs)
 
         xvals = np.linspace(-1, 1, 11)
-        ref_fvals = util.convert_amp_to_freq(xvals, coeffs)
+        ref_fvals = coeffs.convert_amp_to_freq(xvals)
 
         exp_data = ExperimentData()
         for x in xvals:

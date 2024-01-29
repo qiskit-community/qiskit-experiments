@@ -17,7 +17,7 @@ from test.base import QiskitExperimentsTestCase
 from ddt import ddt, named_data, data, unpack
 import numpy as np
 
-from qiskit_experiments.library.driven_freq_tuning import coefficient_utils as util
+from qiskit_experiments.library.driven_freq_tuning import coefficient as util
 from qiskit_experiments.test import FakeService
 
 
@@ -38,6 +38,19 @@ class TestStarkUtil(QiskitExperimentsTestCase):
         )
         self.assertListEqual(coeffs.positive_coeffs(), [3e6, 2e6, 1e6])
         self.assertListEqual(coeffs.negative_coeffs(), [-3e6, -2e6, -1e6])
+
+    def test_roundtrip_coefficients(self):
+        """Test serializing and deserializing the coefficient object."""
+        coeffs = util.StarkCoefficients(
+            pos_coef_o1=1e6,
+            pos_coef_o2=2e6,
+            pos_coef_o3=3e6,
+            neg_coef_o1=-1e6,
+            neg_coef_o2=-2e6,
+            neg_coef_o3=-3e6,
+            offset=0,
+        )
+        self.assertRoundTripSerializable(coeffs)
 
     @named_data(
         ["ordinary", 5e6, 200e6, -50e6, 5e6, -180e6, -40e6, 100e3],
@@ -66,8 +79,8 @@ class TestStarkUtil(QiskitExperimentsTestCase):
             offset=offset,
         )
         target_freqs = np.linspace(-70e6, 70e6, 11)
-        test_amps = util.convert_freq_to_amp(target_freqs, coeffs)
-        test_freqs = util.convert_amp_to_freq(test_amps, coeffs)
+        test_amps = coeffs.convert_freq_to_amp(target_freqs)
+        test_freqs = coeffs.convert_amp_to_freq(test_amps)
 
         np.testing.assert_array_almost_equal(test_freqs, target_freqs, decimal=2)
 
@@ -93,13 +106,12 @@ class TestStarkUtil(QiskitExperimentsTestCase):
         # This numerical solution is correct up to amp resolution of 0.001
         nop = int((max_amp - min_amp) / 0.001)
         amps = np.linspace(min_amp, max_amp, nop)
-        freqs = util.convert_amp_to_freq(amps, coeffs)
+        freqs = coeffs.convert_amp_to_freq(amps)
 
         # This finds strict solution, unless it has a bug
-        min_freq, max_freq = util.find_min_max_frequency(
+        min_freq, max_freq = coeffs.find_min_max_frequency(
             min_amp=min_amp,
             max_amp=max_amp,
-            coeffs=coeffs,
         )
 
         # Allow 1kHz tolerance because ref is approximate value

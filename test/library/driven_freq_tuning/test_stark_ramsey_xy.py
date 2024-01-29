@@ -21,8 +21,10 @@ from qiskit import pulse
 from qiskit.providers.fake_provider import FakeHanoiV2
 
 from qiskit_experiments.library import StarkRamseyXY, StarkRamseyXYAmpScan
-from qiskit_experiments.library.driven_freq_tuning.analyses import StarkRamseyXYAmpScanAnalysis
-from qiskit_experiments.library.driven_freq_tuning import coefficient_utils as util
+from qiskit_experiments.library.driven_freq_tuning.ramsey_amp_scan_analysis import (
+    StarkRamseyXYAmpScanAnalysis,
+)
+from qiskit_experiments.library.driven_freq_tuning.coefficient import StarkCoefficients
 from qiskit_experiments.framework import ExperimentData
 
 
@@ -243,7 +245,7 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         exp_data = ExperimentData()
         exp_data.metadata.update({"stark_length": 50e-9})
 
-        ref_coeffs = util.StarkCoefficients(
+        ref_coeffs = StarkCoefficients(
             pos_coef_o1=c1p,
             pos_coef_o2=c2p,
             pos_coef_o3=c3p,
@@ -252,7 +254,7 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
             neg_coef_o3=c3n,
             offset=ferr,
         )
-        yvals = util.convert_amp_to_freq(xvals, ref_coeffs)
+        yvals = ref_coeffs.convert_amp_to_freq(xvals)
 
         # Generate fake data based on fit model.
         for x, y in zip(xvals, yvals):
@@ -288,7 +290,7 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         # comparing coefficients don't physically sound.
         # Curves must be agreed within the tolerance of 1.5 * 1 MHz.
         fit_coeffs = exp_data.analysis_results("stark_coefficients").value
-        fit_yvals = util.convert_amp_to_freq(xvals, fit_coeffs)
+        fit_yvals = fit_coeffs.convert_amp_to_freq(xvals)
 
         np.testing.assert_array_almost_equal(
             yvals,

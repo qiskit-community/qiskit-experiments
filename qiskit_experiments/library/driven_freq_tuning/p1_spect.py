@@ -22,11 +22,10 @@ from qiskit.providers.backend import Backend
 from qiskit.utils import optionals as _optional
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
-from .analyses import StarkP1SpectAnalysis
+from .p1_spect_analysis import StarkP1SpectAnalysis
 
-from .coefficient_utils import (
+from .coefficient import (
     StarkCoefficients,
-    convert_freq_to_amp,
     retrieve_coefficients_from_backend,
 )
 
@@ -188,7 +187,7 @@ class StarkP1Spectroscopy(BaseExperiment):
                     backend=self.backend,
                     qubit=self.physical_qubits[0],
                 )
-            return convert_freq_to_amp(freqs=params, coeffs=coeffs)
+            return coeffs.convert_freq_to_amp(freqs=params)
         return params
 
     def parameterized_circuits(self) -> tuple[QuantumCircuit, ...]:

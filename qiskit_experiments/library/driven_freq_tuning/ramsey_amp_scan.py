@@ -22,7 +22,7 @@ from qiskit.providers.backend import Backend
 from qiskit.utils import optionals as _optional
 
 from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
-from .analyses import StarkRamseyXYAmpScanAnalysis
+from .ramsey_amp_scan_analysis import StarkRamseyXYAmpScanAnalysis
 
 if _optional.HAS_SYMENGINE:
     import symengine as sym

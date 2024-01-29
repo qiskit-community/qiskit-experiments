@@ -39,28 +39,25 @@ Analysis
     StarkP1SpectAnalysis
 
 
-Utilities
-=========
+Stark Coefficient
+=================
 
 .. autosummary::
     :toctree: ../stubs/
 
     StarkCoefficients
-    convert_amp_to_freq
-    convert_freq_to_amp
     retrieve_coefficients_from_backend
     retrieve_coefficients_from_service
 """
 
-from .analyses import StarkRamseyXYAmpScanAnalysis, StarkP1SpectAnalysis
+from .ramsey_amp_scan_analysis import StarkRamseyXYAmpScanAnalysis
+from .p1_spect_analysis import StarkP1SpectAnalysis
 from .ramsey import StarkRamseyXY
 from .ramsey_amp_scan import StarkRamseyXYAmpScan
 from .p1_spect import StarkP1Spectroscopy
 
-from .coefficient_utils import (
+from .coefficient import (
     StarkCoefficients,
-    convert_amp_to_freq,
-    convert_freq_to_amp,
     retrieve_coefficients_from_backend,
     retrieve_coefficients_from_service,
 )
