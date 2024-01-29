@@ -29,16 +29,24 @@ from qiskit_experiments.visualization import BasePlotter, MplDrawer
 
 
 class QuantumVolumePlotter(BasePlotter):
-    """Plotter for QuantumVolumeAnalysis"""
+    """Plotter for QuantumVolumeAnalysis
+
+    .. note::
+
+        This plotter only supports one series, named ``hops``, which it expects
+        to have an ``individual`` data key containing the individual heavy
+        output probabilities for each circuit in the experiment. Additional
+        series will be ignored.
+    """
 
     @classmethod
     def expected_series_data_keys(cls) -> List[str]:
         """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
-            hops: Heavy-output probability fraction for each circuit
+            individual: Heavy-output probability fraction for each individual circuit
         """
-        return ["hops"]
+        return ["individual"]
 
     @classmethod
     def expected_supplementary_data_keys(cls) -> List[str]:
@@ -89,8 +97,7 @@ class QuantumVolumePlotter(BasePlotter):
         return options
 
     def _plot_figure(self):
-        series = self.series[0]
-        (hops,) = self.data_for(series, ["hops"])
+        (hops,) = self.data_for("hops", ["individual"])
         trials = np.arange(1, 1 + len(hops))
         hop_accumulative = np.cumsum(hops) / trials
         hop_twosigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trials) ** 0.5
@@ -185,7 +192,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
         if self.options.plot:
-            self.options.plotter.set_series_data("hops", hops=hop_result.extra["HOPs"])
+            self.options.plotter.set_series_data("hops", individual=hop_result.extra["HOPs"])
             self.options.plotter.set_supplementary_data(depth=hop_result.extra["depth"])
             figures = [self.options.plotter.figure()]
         else:
