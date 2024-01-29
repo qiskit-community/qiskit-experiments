@@ -91,8 +91,6 @@ def convert_freq_to_amp(
             fit = [*coeffs.negative_coeffs(), -shift]
         amp_candidates = np.roots(fit)
         # Because the fit function is third order, we get three solutions here.
-        # Only one valid solution must exist because we assume
-        # a monotonic trend for Stark shift against tone amplitude in domain of definition.
         criteria = np.all(
             [
                 # Frequency shift and tone have the same sign by definition
@@ -110,8 +108,8 @@ def convert_freq_to_amp(
         if len(valid_amps) > 1:
             # We assume a monotonic trend but sometimes a large third-order term causes
             # inflection point and inverts the trend in larger amplitudes.
-            # In this case we would have more than one solutions, but we can
-            # take the smallerst amplitude before reaching to the inflection point.
+            # In this case we would have more than one solution, but we can
+            # take the smallest amplitude before reaching to the inflection point.
             before_inflection = np.argmin(np.abs(valid_amps.real))
             valid_amp = float(valid_amps[before_inflection].real)
         else:

@@ -121,7 +121,7 @@ class TestStarkP1Spectroscopy(QiskitExperimentsTestCase):
         params = exp.parameters()
         np.testing.assert_array_almost_equal(params, ref_amps)
 
-    def test_scaning_frequency_around_zero(self):
+    def test_scanning_frequency_around_zero(self):
         """Test scanning frequency around zero."""
         coeffs = util.StarkCoefficients(
             pos_coef_o1=5e6,
