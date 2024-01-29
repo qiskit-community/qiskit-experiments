@@ -20,6 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit_ibm_experiment.service import IBMExperimentService
 from qiskit_ibm_experiment.exceptions import IBMApiError
 
+from qiskit_experiments.framework.json import ExperimentDecoder
 from qiskit_experiments.framework.backend_data import BackendData
 from qiskit_experiments.framework.experiment_data import ExperimentData
 
@@ -223,11 +224,14 @@ def retrieve_coefficients_from_service(
         RuntimeError: When stark_coefficients entry doesn't exist in the service.
     """
     try:
+        if isinstance(qubit, (list, tuple)) and len(qubit) == 1:
+            qubit = qubit[0]
         retrieved = service.analysis_results(
             device_components=[f"Q{qubit}"],
             result_type="stark_coefficients",
             backend_name=backend_name,
             sort_by=["creation_datetime:desc"],
+            json_decoder=ExperimentDecoder,
         )
     except (IBMApiError, ValueError) as ex:
         raise RuntimeError(
@@ -238,7 +242,15 @@ def retrieve_coefficients_from_service(
             "Analysis result of stark_coefficients is not found in the "
             "experiment service. Run and save the result of StarkRamseyXYAmpScan."
         )
-    return retrieved[0].result_data["value"]
+
+    result_data_dict = retrieved[0].result_data
+    if "_value" in result_data_dict:
+        # In IBM Experiment service, the result_data["value"] returns
+        # a display value for the experiment service webpage.
+        # Original data is stored in "_value".
+        # TODO: this must be handled by experiment service.
+        return result_data_dict["_value"]
+    return result_data_dict["value"]
 
 
 def retrieve_coefficients_from_backend(
