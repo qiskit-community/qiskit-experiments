@@ -17,7 +17,7 @@ from test.base import QiskitExperimentsTestCase
 from ddt import ddt, named_data, data, unpack
 import numpy as np
 
-from qiskit_experiments.library.driven_freq_tuning import coefficient as util
+from qiskit_experiments.library.driven_freq_tuning import coefficients as util
 from qiskit_experiments.test import FakeService
 
 

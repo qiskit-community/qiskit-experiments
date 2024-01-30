@@ -24,7 +24,7 @@ from qiskit_experiments.library import StarkRamseyXY, StarkRamseyXYAmpScan
 from qiskit_experiments.library.driven_freq_tuning.ramsey_amp_scan_analysis import (
     StarkRamseyXYAmpScanAnalysis,
 )
-from qiskit_experiments.library.driven_freq_tuning.coefficient import StarkCoefficients
+from qiskit_experiments.library.driven_freq_tuning.coefficients import StarkCoefficients
 from qiskit_experiments.framework import ExperimentData
 
 

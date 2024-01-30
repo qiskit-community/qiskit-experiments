@@ -22,7 +22,7 @@ from uncertainties import unumpy as unp
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.visualization as vis
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
-from .coefficient import StarkCoefficients
+from .coefficients import StarkCoefficients
 
 
 class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):

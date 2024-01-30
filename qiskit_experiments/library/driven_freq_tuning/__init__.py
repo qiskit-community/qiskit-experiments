@@ -56,7 +56,7 @@ from .ramsey import StarkRamseyXY
 from .ramsey_amp_scan import StarkRamseyXYAmpScan
 from .p1_spect import StarkP1Spectroscopy
 
-from .coefficient import (
+from .coefficients import (
     StarkCoefficients,
     retrieve_coefficients_from_backend,
     retrieve_coefficients_from_service,

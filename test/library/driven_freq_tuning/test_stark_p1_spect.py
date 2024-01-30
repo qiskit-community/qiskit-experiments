@@ -24,7 +24,7 @@ from qiskit.providers.fake_provider import FakeHanoiV2
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.library import StarkP1Spectroscopy
 from qiskit_experiments.library.driven_freq_tuning.p1_spect_analysis import StarkP1SpectAnalysis
-from qiskit_experiments.library.driven_freq_tuning.coefficient import StarkCoefficients
+from qiskit_experiments.library.driven_freq_tuning.coefficients import StarkCoefficients
 from qiskit_experiments.test import FakeService
 
 

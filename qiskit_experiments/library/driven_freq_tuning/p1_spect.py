@@ -24,7 +24,7 @@ from qiskit.utils import optionals as _optional
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from .p1_spect_analysis import StarkP1SpectAnalysis
 
-from .coefficient import (
+from .coefficients import (
     StarkCoefficients,
     retrieve_coefficients_from_backend,
 )

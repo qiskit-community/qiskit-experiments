@@ -20,7 +20,7 @@ import qiskit_experiments.data_processing as dp
 import qiskit_experiments.visualization as vis
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
-from .coefficient import (
+from .coefficients import (
     StarkCoefficients,
     retrieve_coefficients_from_service,
 )
