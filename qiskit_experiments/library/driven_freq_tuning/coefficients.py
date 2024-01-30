@@ -232,6 +232,9 @@ def retrieve_coefficients_from_service(
             backend_name=backend_name,
             sort_by=["creation_datetime:desc"],
             json_decoder=ExperimentDecoder,
+            # Returns the latest value only. IBM service returns 10 entries by default.
+            # This could contain old data from previous version, which might not be deserialized.
+            limit=1,
         )
     except (IBMApiError, ValueError) as ex:
         raise RuntimeError(
