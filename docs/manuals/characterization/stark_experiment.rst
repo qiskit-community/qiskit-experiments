@@ -265,7 +265,7 @@ The saved object can be retrieved either from the service or file, as follows.
     # When you have access to Experiment service
     from qiskit_experiments.library.driven_freq_tuning import retrieve_coefficients_from_backend
 
-    coefficients = retrieve_coefficients_from_backend(backend, (0,))
+    coefficients = retrieve_coefficients_from_backend(backend, 0)
 
     # Alternatively you can load from file
     from qiskit_experiments.framework import ExperimentDecoder

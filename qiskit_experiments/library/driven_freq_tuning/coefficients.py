@@ -224,8 +224,6 @@ def retrieve_coefficients_from_service(
         RuntimeError: When stark_coefficients entry doesn't exist in the service.
     """
     try:
-        if isinstance(qubit, (list, tuple)) and len(qubit) == 1:
-            qubit = qubit[0]
         retrieved = service.analysis_results(
             device_components=[f"Q{qubit}"],
             result_type="stark_coefficients",
