@@ -214,8 +214,8 @@ the height of this GaussianSquare flat-top.
 Workflow
 --------
 
-In this example, you'll learn how to measure a spectrum of qubit relaxation property
-with fixed frequency transmons.
+In this example, you'll learn how to measure a spectrum of qubit relaxation versus
+frequency with fixed frequency transmons.
 As you already know, we give an offset to the qubit frequency with a Stark tone,
 and the workflow starts from characterizing the amount of the Stark shift against
 the Stark amplitude :math:`\bar{\Omega}` that you can experimentally control.
@@ -232,8 +232,7 @@ You first need to run the :class:`.StarkRamseyXYAmpScan` experiment that scans :
 and estimates the amount of the resultant frequency shift.
 This experiment fits the frequency shift to a polynomial model which is a function of :math:`\bar{\Omega}`.
 You can obtain the :class:`.StarkCoefficients` object that contains
-all polynomial coefficients to map and reverse-map the :math:`\bar{\Omega}` to corresponding frequency value.
-
+all polynomial coefficients to map and reverse-map the :math:`\bar{\Omega}` to a corresponding frequency value.
 
 This object may be necessary for the following spectroscopy experiment.
 Since Stark coefficients are stable for a relatively long time,
@@ -274,12 +273,12 @@ The saved object can be retrieved either from the service or file, as follows.
     with open("coefficients.json", "r") as fp:
         coefficients = json.load(fp, cls=ExperimentDecoder)
 
-Now you can measure the spectrum of qubit relaxation property.
+Now you can measure the qubit relaxation spectrum.
 The :class:`.StarkP1Spectroscopy` experiment also scans :math:`\bar{\Omega}`,
 but instead of measuring the frequency shift, it measures the excited state population P1
 after certain delay, :code:`t1_delay` in the experiment options, following the state population.
 You can scan the :math:`\bar{\Omega}` values either in the "frequency" or "amplitude" domain,
-but the :code:`stark_coefficients` options must be set when you prefer the frequency sweep.
+but the :code:`stark_coefficients` option must be set to perform the frequency sweep.
 
 .. jupyter-input::
 
@@ -298,7 +297,7 @@ but the :code:`stark_coefficients` options must be set when you prefer the frequ
 
     exp_data = exp.run().block_for_results()
 
-You may find notches in the P1 spectrum, which may indicate the existence of TLS
+You may find notches in the P1 spectrum, which may indicate the existence of TLS's
 in the vicinity of your qubit drive frequency.
 
 .. jupyter-input::
@@ -307,10 +306,10 @@ in the vicinity of your qubit drive frequency.
 
 .. image:: ./stark_experiment_example.png
 
-Note that this experiment doesn't yield any analysis result because a landscape of P1 spectrum
-is hardly predicted due to random occurrence of the TLS or frequency collision.
-If you have own protocol to extract meaningful quantities from the data,
-you can write a custom analysis class and give it to the experiment instance before execution.
+Note that this experiment doesn't yield any analysis result because the landscape of a P1 spectrum
+can not be predicted due to the random occurrences of the TLS and frequency collisions.
+If you have your own protocol to extract meaningful quantities from the data,
+you can write a custom analysis subclass and give it to the experiment instance before execution.
 See :class:`.StarkP1SpectAnalysis` for more details.
 
 This protocol can be parallelized among many qubits unless crosstalk matters.
