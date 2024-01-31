@@ -257,7 +257,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
             try:
                 uid = model_names.index(name)
-            except IndexError:
+            except ValueError:
                 uid = pd.NA
             curve_data.add_row(
                 name=name,

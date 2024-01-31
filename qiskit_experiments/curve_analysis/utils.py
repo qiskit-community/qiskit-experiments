@@ -248,7 +248,7 @@ def shot_weighted_average(
         # Shot number is unknown
         return np.mean(yvals), np.nan, pd.NA
 
-    total_shots = np.sum(shots.astype(float))
+    total_shots = np.sum(shots)
     weights = shots / total_shots
 
     avg_yval = np.sum(weights * yvals)
@@ -277,7 +277,7 @@ def inverse_weighted_variance(
     if len(yvals) == 1:
         return yvals[0], yerrs[0], shots[0]
 
-    total_shots = np.sum(shots.astype(float))
+    total_shots = np.sum(shots)
     weights = 1 / yerrs**2
     yvar = 1 / np.sum(weights)
 
@@ -308,7 +308,7 @@ def sample_average(
     if len(yvals) == 1:
         return yvals[0], 0.0, shots[0]
 
-    total_shots = np.sum(shots.astype(float))
+    total_shots = np.sum(shots)
 
     avg_yval = np.mean(yvals)
     avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))

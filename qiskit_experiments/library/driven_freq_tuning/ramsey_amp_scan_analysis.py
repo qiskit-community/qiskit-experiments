@@ -254,26 +254,21 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
     ) -> curve.ScatterTable:
 
         curve_data = super()._format_data(curve_data, category="ramsey_xy")
-        ramsey_xy = curve_data[curve_data.category == "ramsey_xy"]
+        ramsey_xy = curve_data.filter(category="ramsey_xy")
+        y_mean = ramsey_xy.y.mean()
 
         # Create phase data by arctan(Y/X)
-        columns = list(curve_data.columns)
-        phase_data = np.empty((0, len(columns)))
-        y_mean = ramsey_xy.yval.mean()
-
-        grouped = ramsey_xy.groupby("name")
         for m_id, direction in enumerate(("pos", "neg")):
-            x_quadrature = grouped.get_group(f"X{direction}")
-            y_quadrature = grouped.get_group(f"Y{direction}")
-            if not np.array_equal(x_quadrature.xval, y_quadrature.xval):
+            x_quadrature = ramsey_xy.filter(kind=f"X{direction}")
+            y_quadrature = ramsey_xy.filter(kind=f"Y{direction}")
+            if not np.array_equal(x_quadrature.x, y_quadrature.x):
                 raise ValueError(
                     "Amplitude values of X and Y quadrature are different. "
                     "Same values must be used."
                 )
-            x_uarray = unp.uarray(x_quadrature.yval, x_quadrature.yerr)
-            y_uarray = unp.uarray(y_quadrature.yval, y_quadrature.yerr)
-
-            amplitudes = x_quadrature.xval.to_numpy()
+            x_uarray = unp.uarray(x_quadrature.y, x_quadrature.y_err)
+            y_uarray = unp.uarray(y_quadrature.y, y_quadrature.y_err)
+            amplitudes = x_quadrature.x
 
             # pylint: disable=no-member
             phase = unp.arctan2(y_uarray - y_mean, x_uarray - y_mean)
@@ -288,17 +283,24 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 unwrapped_phase = unwrapped_phase + (phase_n[-1] - unwrapped_phase[-1])
 
             # Store new data
-            tmp = np.empty((len(amplitudes), len(columns)), dtype=object)
-            tmp[:, columns.index("xval")] = amplitudes
-            tmp[:, columns.index("yval")] = unwrapped_phase / self._freq_phase_coef()
-            tmp[:, columns.index("yerr")] = phase_s / self._freq_phase_coef()
-            tmp[:, columns.index("name")] = f"FREQ{direction}"
-            tmp[:, columns.index("class_id")] = m_id
-            tmp[:, columns.index("shots")] = x_quadrature.shots + y_quadrature.shots
-            tmp[:, columns.index("category")] = category
-            phase_data = np.r_[phase_data, tmp]
+            unwrapped_phase /= self._freq_phase_coef()
+            phase_s /= self._freq_phase_coef()
+            shot_sums = x_quadrature.shots + y_quadrature.shots
+            for new_x, new_y, new_y_err, shot in zip(
+                amplitudes, unwrapped_phase, phase_s, shot_sums
+            ):
+                curve_data.add_row(
+                    x=new_x,
+                    y=new_y,
+                    y_err=new_y_err,
+                    name=f"FREQ{direction}",
+                    class_id=m_id,
+                    shots=shot,
+                    category=category,
+                    analysis=self.name,
+                )
 
-        return curve_data.append_list_values(other=phase_data)
+        return curve_data
 
     def _generate_fit_guesses(
         self,
@@ -355,39 +357,39 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
     ) -> List["matplotlib.figure.Figure"]:
 
         # plot unwrapped phase on first axis
-        for d in ("pos", "neg"):
-            sub_data = curve_data[(curve_data.name == f"FREQ{d}") & (curve_data.category == "freq")]
+        for direction in ("pos", "neg"):
+            sub_data = curve_data.filter(kind=f"FREQ{direction}", category="freq")
             self.plotter.set_series_data(
-                series_name=f"F{d}",
-                x_formatted=sub_data.xval.to_numpy(),
-                y_formatted=sub_data.yval.to_numpy(),
-                y_formatted_err=sub_data.yerr.to_numpy(),
+                series_name=f"F{direction}",
+                x_formatted=sub_data.x,
+                y_formatted=sub_data.y,
+                y_formatted_err=sub_data.y_err,
             )
 
         # plot raw RamseyXY plot on second axis
         for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
-            sub_data = curve_data[(curve_data.name == name) & (curve_data.category == "ramsey_xy")]
+            sub_data = curve_data.filter(kind=name, category="ramsey_xy")
             self.plotter.set_series_data(
                 series_name=name,
-                x_formatted=sub_data.xval.to_numpy(),
-                y_formatted=sub_data.yval.to_numpy(),
-                y_formatted_err=sub_data.yerr.to_numpy(),
+                x_formatted=sub_data.x,
+                y_formatted=sub_data.y,
+                y_formatted_err=sub_data.y_err,
             )
 
         # find base and amplitude guess
-        ramsey_xy = curve_data[curve_data.category == "ramsey_xy"]
-        offset_guess = 0.5 * (ramsey_xy.yval.min() + ramsey_xy.yval.max())
-        amp_guess = 0.5 * np.ptp(ramsey_xy.yval)
+        ramsey_xy = curve_data.filter(category="ramsey_xy")
+        offset_guess = 0.5 * (np.min(ramsey_xy.y) + np.max(ramsey_xy.y))
+        amp_guess = 0.5 * np.ptp(ramsey_xy.y)
 
         # plot frequency and Ramsey fit lines
-        line_data = curve_data[curve_data.category == "fitted"]
+        line_data = curve_data.filter(category="fitted")
         for direction in ("pos", "neg"):
-            sub_data = line_data[line_data.name == f"FREQ{direction}"]
+            sub_data = line_data.filter(kind=f"FREQ{direction}")
             if len(sub_data) == 0:
                 continue
-            xval = sub_data.xval.to_numpy()
-            yn = sub_data.yval.to_numpy()
-            ys = sub_data.yerr.to_numpy()
+            xval = sub_data.x
+            yn = sub_data.y
+            ys = sub_data.y_err
             yval = unp.uarray(yn, ys) * self._freq_phase_coef()
 
             # Ramsey fit lines are predicted from the phase fit line.

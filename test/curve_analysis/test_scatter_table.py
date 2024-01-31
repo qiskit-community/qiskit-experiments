@@ -116,7 +116,13 @@ class TestScatterTable(QiskitExperimentsTestCase):
         np.testing.assert_array_equal(obj.name, np.array(["model1", None]))
         np.testing.assert_array_equal(obj.class_id, np.array([0, None]))
         np.testing.assert_array_equal(obj.category, np.array(["raw", "raw"]))
-        np.testing.assert_array_equal(obj.shots, np.array([1000, None], dtype=object))
+        np.testing.assert_array_equal(
+            # Numpy tries to handle nan strictly, but isnan only works for float dtype.
+            # Original data is object type, because we want to keep shot number integer,
+            # and there is no Numpy nullable integer.
+            obj.shots.astype(float),
+            np.array([1000, np.nan], dtype=float),
+        )
         np.testing.assert_array_equal(obj.analysis, np.array(["Test", None]))
 
     def test_set_values(self):

@@ -159,7 +159,7 @@ class ScatterTable:
     @property
     def shots(self) -> np.ndarray:
         """Shot number used to acquire data points."""
-        return self._data.shots.to_numpy(dtype=object, na_value=None)
+        return self._data.shots.to_numpy(dtype=object, na_value=np.nan)
 
     @shots.setter
     def shots(self, new_values: np.ndarray):
