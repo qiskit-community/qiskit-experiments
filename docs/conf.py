@@ -162,7 +162,7 @@ html_context = {
 
 html_title = f"{project} {release}"
 
-docs_url_prefix = "ecosystem/experiments"
+docs_url_prefix = "qiskit-experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
 
@@ -171,7 +171,6 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
     "qiskit_dynamics": ("https://qiskit.org/documentation/dynamics", None),
     "qiskit_ibm_runtime": ("https://qiskit.org/ecosystem/ibm-runtime/", None),
