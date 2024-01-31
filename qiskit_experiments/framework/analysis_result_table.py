@@ -22,6 +22,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
+
 
 class AnalysisResultTable:
     """A table-like dataset for analysis results.
@@ -270,12 +272,12 @@ class AnalysisResultTable:
         with self._lock:
             if isinstance(key, int):
                 if key >= len(self):
-                    raise KeyError(f"Analysis result {key} not found.")
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
                 return [self._data.index[key]]
             if isinstance(key, slice):
                 keys = list(self._data.index)[key]
                 if len(keys) == 0:
-                    raise KeyError(f"Analysis result {key} not found.")
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
                 return keys
             if isinstance(key, str):
                 if key in self._data.index:
@@ -283,7 +285,7 @@ class AnalysisResultTable:
                 # This key is name of entry
                 loc = self._data["name"] == key
                 if not any(loc):
-                    raise KeyError(f"Analysis result {key} not found.")
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
                 return list(self._data.index[loc])
 
         raise TypeError(f"Invalid key type {type(key)}. The key must be either int, slice, or str.")

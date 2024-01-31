@@ -525,7 +525,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                         x=xval,
                         y=yval,
                         y_err=yerr,
-                        shots=pd.NA,
                         analysis=self.name,
                     )
             analysis_results.extend(

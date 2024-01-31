@@ -404,7 +404,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                             x=xval,
                             y=yval,
                             y_err=yerr,
-                            shots=pd.NA,
                             analysis=analysis.name,
                         )
                 analysis_results.extend(
@@ -423,7 +422,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             curve_data_set.append(table)
 
-        combined_curve_data = pd.concat(curve_data_set)
+        combined_curve_data = ScatterTable.from_dataframe(
+            pd.concat([d.dataframe for d in curve_data_set])
+        )
         total_quality = self._evaluate_quality(fit_dataset)
 
         # After the quality is determined, plot can become a boolean flag for whether

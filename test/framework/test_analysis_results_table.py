@@ -16,6 +16,7 @@ from test.base import QiskitExperimentsTestCase
 
 import uuid
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
 class TestAnalysisTable(QiskitExperimentsTestCase):
@@ -38,7 +39,7 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
     def test_drop_non_existing_entry(self):
         """Test dropping non-existing entry raises ValueError."""
         table = AnalysisResultTable()
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ExperimentEntryNotFound):
             table.del_data("9a0bdec8")
 
     def test_raises_adding_duplicated_index(self):

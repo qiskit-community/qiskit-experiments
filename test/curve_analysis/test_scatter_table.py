@@ -119,6 +119,43 @@ class TestScatterTable(QiskitExperimentsTestCase):
         np.testing.assert_array_equal(obj.shots, np.array([1000, None], dtype=object))
         np.testing.assert_array_equal(obj.analysis, np.array(["Test", None]))
 
+    def test_set_values(self):
+        """Test setting new column values through setter."""
+        obj = ScatterTable()
+        # add three empty rows
+        obj.add_row()
+        obj.add_row()
+        obj.add_row()
+
+        # Set sequence
+        obj.x = [0.1, 0.2, 0.3]
+        obj.y = [1.3, 1.4, 1.5]
+        obj.y_err = [0.3, 0.5, 0.7]
+
+        # Broadcast single value
+        obj.class_id = 0
+        obj.name = "model0"
+
+        np.testing.assert_array_equal(obj.x, np.array([0.1, 0.2, 0.3]))
+        np.testing.assert_array_equal(obj.y, np.array([1.3, 1.4, 1.5]))
+        np.testing.assert_array_equal(obj.y_err, np.array([0.3, 0.5, 0.7]))
+        np.testing.assert_array_equal(obj.class_id, np.array([0, 0, 0]))
+        np.testing.assert_array_equal(obj.name, np.array(["model0", "model0", "model0"]))
+
+    def test_set_y(self):
+        """Test setting new values to y column."""
+        obj = ScatterTable()
+        obj.add_row(x=0.1, y=2.0, y_err=0.3)
+        obj.y = [0.5]
+        np.testing.assert_array_equal(obj.y, np.array([0.5]))
+
+    def test_set_y_err(self):
+        """Test setting new values to y_err column."""
+        obj = ScatterTable()
+        obj.add_row(x=0.1, y=2.0, y_err=0.3)
+        obj.y_err = [0.5]
+        np.testing.assert_array_equal(obj.y_err, np.array([0.5]))
+
     def test_filter_data_by_class_id(self):
         """Test filter table data with data UID."""
         obj = ScatterTable.from_dataframe(self.reference)

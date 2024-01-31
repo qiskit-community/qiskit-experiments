@@ -109,7 +109,7 @@ class ScatterTable:
 
     @x.setter
     def x(self, new_values):
-        self._data.loc[:, "x"] = new_values
+        self._data.loc[:, "xval"] = new_values
 
     @property
     def y(self) -> np.ndarray:
@@ -118,7 +118,7 @@ class ScatterTable:
 
     @y.setter
     def y(self, new_values: np.ndarray):
-        self._data.loc[:, "y"] = new_values
+        self._data.loc[:, "yval"] = new_values
 
     @property
     def y_err(self) -> np.ndarray:
@@ -127,7 +127,7 @@ class ScatterTable:
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
-        self._data.loc[:, "y_err"] = new_values
+        self._data.loc[:, "yerr"] = new_values
 
     @property
     def name(self) -> np.ndarray:
