@@ -111,33 +111,38 @@ class FakeService:
         # backend - the query methods `experiment` and `experiments` are supposed to return an
         #    an instantiated backend object, and not only the backend name. We assume that the fake
         #    service works with the fake backend (class FakeBackend).
-        self.exps = pd.concat(
+        row = pd.DataFrame(
             [
-                self.exps,
-                pd.DataFrame(
-                    [
-                        {
-                            "experiment_type": experiment_type,
-                            "experiment_id": experiment_id,
-                            "parent_id": parent_id,
-                            "backend_name": backend_name,
-                            "metadata": metadata,
-                            "job_ids": job_ids,
-                            "tags": tags,
-                            "notes": notes,
-                            "share_level": kwargs.get("share_level", None),
-                            "device_components": [],
-                            "start_datetime": datetime(2022, 1, 1)
-                            + timedelta(hours=len(self.exps)),
-                            "figure_names": [],
-                            "backend": FakeBackend(backend_name=backend_name),
-                        }
-                    ],
-                    columns=self.exps.columns,
-                ),
+                {
+                    "experiment_type": experiment_type,
+                    "experiment_id": experiment_id,
+                    "parent_id": parent_id,
+                    "backend_name": backend_name,
+                    "metadata": metadata,
+                    "job_ids": job_ids,
+                    "tags": tags,
+                    "notes": notes,
+                    "share_level": kwargs.get("share_level", None),
+                    "device_components": [],
+                    "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
+                    "figure_names": [],
+                    "backend": FakeBackend(backend_name=backend_name),
+                }
             ],
-            ignore_index=True,
+            columns=self.exps.columns,
         )
+        if len(self.exps) > 0:
+            self.exps = pd.concat(
+                [
+                    self.exps,
+                    row,
+                ],
+                ignore_index=True,
+            )
+        else:
+            # Avoid the FutureWarning on concatenating empty DataFrames
+            # introduced in https://github.com/pandas-dev/pandas/pull/52532
+            self.exps = row
 
         return experiment_id
 
@@ -293,35 +298,39 @@ class FakeService:
         #    `IBMExperimentService.create_analysis_result`. Since `DbExperimentData` does not set it
         #    via kwargs (as it does with chisq), the user cannot control the time and the service
         #    alone decides about it. Here we've chosen to set the start date of the experiment.
-        self.results = pd.concat(
+        row = pd.DataFrame(
             [
-                self.results,
-                pd.DataFrame(
-                    [
-                        {
-                            "result_data": result_data,
-                            "result_id": result_id,
-                            "result_type": result_type,
-                            "device_components": device_components,
-                            "experiment_id": experiment_id,
-                            "quality": quality,
-                            "verified": verified,
-                            "tags": tags,
-                            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id]
-                            .iloc[0]
-                            .backend_name,
-                            "chisq": kwargs.get("chisq", None),
-                            "creation_datetime": self.exps.loc[
-                                self.exps.experiment_id == experiment_id
-                            ]
-                            .iloc[0]
-                            .start_datetime,
-                        }
-                    ]
-                ),
-            ],
-            ignore_index=True,
+                {
+                    "result_data": result_data,
+                    "result_id": result_id,
+                    "result_type": result_type,
+                    "device_components": device_components,
+                    "experiment_id": experiment_id,
+                    "quality": quality,
+                    "verified": verified,
+                    "tags": tags,
+                    "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id]
+                    .iloc[0]
+                    .backend_name,
+                    "chisq": kwargs.get("chisq", None),
+                    "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id]
+                    .iloc[0]
+                    .start_datetime,
+                }
+            ]
         )
+        if len(self.results) > 0:
+            self.results = pd.concat(
+                [
+                    self.results,
+                    row,
+                ],
+                ignore_index=True,
+            )
+        else:
+            # Avoid the FutureWarning on concatenating empty DataFrames
+            # introduced in https://github.com/pandas-dev/pandas/pull/52532
+            self.results = row
 
         # a helper method for updating the experiment's device components, see usage below
         def add_new_components(expcomps):

@@ -32,6 +32,7 @@ import io
 import sys
 import json
 import traceback
+import warnings
 import numpy as np
 import pandas as pd
 from dateutil import tz
@@ -652,16 +653,15 @@ class ExperimentData:
         provider = self._backend_data.provider
         if provider is not None:
             self._set_hgp_from_provider(provider)
+        # qiskit-ibm-runtime style
+        elif hasattr(self._backend, "_instance"):
+            self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
 
     def _set_hgp_from_provider(self, provider):
         try:
-            # qiskit-ibmq-provider style
-            if hasattr(provider, "credentials"):
-                creds = provider.credentials
-                self.hgp = f"{creds.hub}/{creds.group}/{creds.project}"
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
                 for hgp_string, hgp in provider._hgps.items():
@@ -2505,21 +2505,31 @@ class ExperimentData:
     @staticmethod
     def get_service_from_backend(backend):
         """Initializes the service from the backend data"""
-        return ExperimentData.get_service_from_provider(backend.provider)
+        # qiskit-ibm-runtime style
+        try:
+            if hasattr(backend, "service"):
+                token = backend.service._account.token
+                return IBMExperimentService(token=token, url=backend.service._account.url)
+            return ExperimentData.get_service_from_provider(backend.provider)
+        except Exception:  # pylint: disable=broad-except
+            return None
 
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum.ibm.com/api"
         try:
-            # qiskit-ibmq-provider style
-            if hasattr(provider, "credentials"):
-                token = provider.credentials.token
             # qiskit-ibm-provider style
             if hasattr(provider, "_account"):
-                token = provider._account.token
-            service = IBMExperimentService(token=token, url=db_url)
-            return service
+                warnings.warn(
+                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
+                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                return IBMExperimentService(
+                    token=provider._account.token, url=provider._account.url
+                )
+            return None
         except Exception:  # pylint: disable=broad-except
             return None
 

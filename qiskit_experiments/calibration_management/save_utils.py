@@ -43,6 +43,8 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List, Dict, Any
 
+from qiskit import QuantumCircuit
+from qiskit.circuit import Instruction
 from qiskit.pulse import ScheduleBlock
 
 from .calibrations import Calibrations
@@ -118,6 +120,14 @@ class CalibrationModelV1:
     parameters: List[ParameterModelV1] = field(default_factory=list)
     """List of calibrated pulse parameters."""
 
+    schedule_free_parameters: QuantumCircuit = field(default_factory=lambda: QuantumCircuit(1))
+    """Placeholder circuit for parameters not associated with a schedule
+
+    The circuit contains placeholder instructions which have the Parameter
+    objects attached and operate on the qubits that the parameter is associated
+    with in the calibrations.
+    """
+
     schema_version: str = "1.0"
     """Version of this data model. This must be static."""
 
@@ -177,6 +187,18 @@ def calibrations_to_dict(
             sched_obj.metadata.update(qubit_metadata)
         sched_entries.append(sched_obj)
 
+    max_qubit = max(
+        (max(k.qubits or (0,)) for k in cals._parameter_map if k.schedule is None),
+        default=0,
+    )
+    schedule_free_parameters = QuantumCircuit(max_qubit + 1)
+    for sched_key, param in cals._parameter_map.items():
+        if sched_key.schedule is None:
+            schedule_free_parameters.append(
+                Instruction("parameter_container", len(sched_key.qubits), 0, [param]),
+                sched_key.qubits,
+            )
+
     model = CalibrationModelV1(
         backend_name=cals.backend_name,
         backend_version=cals.backend_version,
@@ -184,6 +206,7 @@ def calibrations_to_dict(
         control_channel_map=ControlChannelMap(getattr(cals, "_control_channel_map")),
         schedules=sched_entries,
         parameters=data_entries,
+        schedule_free_parameters=schedule_free_parameters,
     )
 
     return asdict(model)
@@ -257,6 +280,15 @@ def calibrations_from_dict(
             schedule=param.schedule,
             update_inst_map=False,
         )
+
+    for instruction in model.schedule_free_parameters.data:
+        # For some reason, pylint thinks the items in data are tuples instead
+        # of CircuitInstruction. Remove the following line if it ever stops
+        # thinking that:
+        # pylint: disable=no-member
+        for param in instruction.operation.params:
+            cals._register_parameter(param, instruction.qubits)
+
     cals.update_inst_map()
 
     return cals

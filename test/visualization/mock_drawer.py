@@ -75,6 +75,17 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
+    def hline(
+        self,
+        y_value: float,
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
+        **options,
+    ):
+        """Does nothing."""
+        pass
+
     def filled_y_area(
         self,
         x_data: Sequence[float],

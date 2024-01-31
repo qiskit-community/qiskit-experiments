@@ -9,11 +9,11 @@ jobs:
     if: github.repository_owner == 'Qiskit-Extensions'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.8'
     - name: Install dependencies
@@ -21,9 +21,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -U virtualenv setuptools wheel tox
         sudo apt-get install graphviz pandoc
-    - name: Build and publish
-      env:
-        encrypted_rclone_key: ${{ secrets.encrypted_rclone_key }}
-        encrypted_rclone_iv: ${{ secrets.encrypted_rclone_iv }}
-      run: |
-        tools/deploy_documentation_dev.sh
+    - name: Build docs dev
+      run: EXPERIMENTS_DEV_DOCS=1 PROD_BUILD=1 RELEASE_STRING=`git describe` tox -edocs
+    - name: Bypass Jekyll Processing # Necessary for setting the correct css path
+      run: touch docs/_build/html/.nojekyll
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: docs/_build/html/
+        target-folder: dev/
