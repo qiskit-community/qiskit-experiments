@@ -61,7 +61,7 @@ from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.framework.artifact_data import ArtifactData
+from qiskit_experiments.framework.containers.artifact_data import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -69,7 +69,7 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataSaveFailed,
 )
 
-from .containers.elements import FigureData, _FigureT
+from .containers.figure_data import FigureData, FigureType
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -1079,7 +1079,7 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[_FigureT, List[_FigureT]],
+        figures: Union[FigureType, List[FigureType]],
         figure_names: Optional[Union[str, List[str]]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,

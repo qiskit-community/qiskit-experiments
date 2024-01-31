@@ -365,7 +365,13 @@ def _check_experiment_data(
         data2.child_data(),
         **kwargs,
     )
-    return all([attributes_equiv, data_equiv, analysis_results_equiv, child_equiv])
+    artifact_equiv = is_equivalent(
+        data1.artifacts(),
+        data2.artifacts(),
+        **kwargs,
+    )
+
+    return all([attributes_equiv, data_equiv, analysis_results_equiv, child_equiv, artifact_equiv])
 
 
 def _check_all_attributes(

@@ -16,11 +16,12 @@ from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
 import ddt
+import numpy as np
 from qiskit.circuit import Instruction
 from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
 import qiskit.quantum_info as qi
 from qiskit_experiments.framework import ArtifactData
-from qiskit_experiments.curve_analysis import ScatterTable
+from qiskit_experiments.curve_analysis import CurveFitResult
 
 class CustomClass:
     """Custom class for serialization tests"""
@@ -129,9 +130,18 @@ class TestJSON(QiskitExperimentsTestCase):
         obj = ArtifactData(name="test", data="foo")
         self.assertRoundTripSerializable(obj)
 
-    def test_roundtrip_scattertable(self):
+    def test_roundtrip_curvefitresult(self):
         """Test roundtrip serialization of the ScatterTable class"""
-        obj = ScatterTable()
+        obj = CurveFitResult(
+            method="some_method",
+            model_repr={"s1": "par0 * x + par1"},
+            success=True,
+            params={"par0": 0.3, "par1": 0.4},
+            var_names=["par0", "par1"],
+            covar=np.array([[ 2.19188077e-03,  2.19906808e-01],
+                            [ 2.19906808e-01,  2.62351788e+01]]),
+            reduced_chisq=1.5,
+        )
         self.assertRoundTripSerializable(obj)
 
     def test_roundtrip_class_type(self):
