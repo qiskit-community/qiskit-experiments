@@ -14,7 +14,6 @@
 
 from test.base import QiskitExperimentsTestCase
 import os
-import unittest
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
@@ -1692,9 +1691,6 @@ class TestSavingAndLoading(CrossResonanceTest):
             BackendData(backend).drive_freqs[0],
         )
 
-    # Expected to fail because json calibration loading does not support
-    # restoring Parameter objects
-    @unittest.expectedFailure
     def test_save_load_library(self):
         """Test that we can load and save a library.
 
