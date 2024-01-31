@@ -14,10 +14,10 @@
 
 from .drag_analysis import DragCalAnalysis
 from .fine_amplitude_analysis import FineAmplitudeAnalysis
-from .ramsey_xy_analysis import RamseyXYAnalysis, StarkRamseyXYAmpScanAnalysis
+from .ramsey_xy_analysis import RamseyXYAnalysis
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .t2hahn_analysis import T2HahnAnalysis
-from .t1_analysis import T1Analysis, T1KerneledAnalysis, StarkP1SpectAnalysis
+from .t1_analysis import T1Analysis, T1KerneledAnalysis
 from .tphi_analysis import TphiAnalysis
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .readout_angle_analysis import ReadoutAngleAnalysis
