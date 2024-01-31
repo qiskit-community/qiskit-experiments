@@ -5,7 +5,7 @@ upgrade:
     ``qiskit``. This change follows the move in upstream Qiskit to rename
     ``qiskit-terra`` to ``qiskit``. The minimum required version was increased
     from 0.24 for ``qiskit-terra`` to 0.44 for ``qiskit`` (equivalent to
-    `qiskit-terra`` 0.25). The maximum ``qiskit`` version was set to ``<1.0``
+    ``qiskit-terra`` 0.25). The maximum ``qiskit`` version was set to ``<1.0``
     in anticipation of breaking changes in Qiskit 1.0. Closer to the Qiskit 1.0
     release, a patch release of ``qiskit-experiments`` will remove this
     constraint and address any compatibility issues. For more information see

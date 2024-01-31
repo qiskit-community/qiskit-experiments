@@ -18,7 +18,7 @@ other:
 upgrade:
   - |
     The representation of pulses in the :class:`.FixedFrequencyTransmon` library 
-    was changed from complex amplitude to (``amp``,``angle``) representation. All pulses
+    was changed from complex amplitude to (``amp``, ``angle``) representation. All pulses
     now include an ``angle`` parameter, and the default values of ``amp`` are set
     as type ``float`` instead of ``complex``.
   - |
