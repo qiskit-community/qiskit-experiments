@@ -319,6 +319,9 @@ class ScatterTable:
     def __len__(self):
         return len(self._data)
 
+    def __eq__(self, other):
+        return self.dataframe.equals(other.dataframe)
+
     def __json_encode__(self) -> dict[str, Any]:
         return {
             "class": "ScatterTable",
@@ -339,5 +342,6 @@ class ScatterTable:
                 dict(zip(cls.DEFAULT_COLUMNS, cls.DEFAULT_DTYPES)),
                 copy=False,
             )
+            .reset_index(drop=True)
         )
         return ScatterTable.from_dataframe(tmp_df)
