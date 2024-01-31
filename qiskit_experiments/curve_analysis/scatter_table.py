@@ -72,6 +72,7 @@ class ScatterTable:
             # Add data when table element is called.
             # Adding rows in loop is extremely slow in pandas.
             tmp_df = pd.DataFrame(self._lazy_add_rows, columns=self.DEFAULT_COLUMNS)
+            tmp_df = self._format_table(tmp_df)
             if len(self._dump) == 0:
                 self._dump = tmp_df
             else:
@@ -93,21 +94,18 @@ class ScatterTable:
             raise ValueError("Input dataframe columns don't match with the ScatterTable spec.")
         instance = object.__new__(ScatterTable)
         instance._lazy_add_rows = []
-        instance._dump = data
+        instance._dump = cls._format_table(data)
         return instance
 
     @property
     def dataframe(self):
         """Dataframe object of data points."""
-        return self._data.replace(np.nan, pd.NA).astype(
-            dict(zip(self.DEFAULT_COLUMNS, self.DEFAULT_DTYPES)),
-            copy=True,
-        )
+        return self._data
 
     @property
     def x(self) -> np.ndarray:
         """X values."""
-        return self._data.xval.to_numpy(dtype=float)
+        return self._data.xval.to_numpy(dtype=float, na_value=np.nan)
 
     @x.setter
     def x(self, new_values):
@@ -116,7 +114,7 @@ class ScatterTable:
     @property
     def y(self) -> np.ndarray:
         """Y values."""
-        return self._data.yval.to_numpy(dtype=float)
+        return self._data.yval.to_numpy(dtype=float, na_value=np.nan)
 
     @y.setter
     def y(self, new_values: np.ndarray):
@@ -125,7 +123,7 @@ class ScatterTable:
     @property
     def y_err(self) -> np.ndarray:
         """Standard deviation of y values."""
-        return self._data.yerr.to_numpy(dtype=float)
+        return self._data.yerr.to_numpy(dtype=float, na_value=np.nan)
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
@@ -134,7 +132,7 @@ class ScatterTable:
     @property
     def name(self) -> np.ndarray:
         """Corresponding data name."""
-        return self._data.name.to_numpy(dtype=str)
+        return self._data.name.to_numpy(dtype=object, na_value=None)
 
     @name.setter
     def name(self, new_values: np.ndarray):
@@ -143,7 +141,7 @@ class ScatterTable:
     @property
     def class_id(self) -> np.ndarray:
         """Corresponding data UID."""
-        return self._data.class_id.to_numpy(dtype=int)
+        return self._data.class_id.to_numpy(dtype=object, na_value=None)
 
     @class_id.setter
     def class_id(self, new_values: np.ndarray):
@@ -152,7 +150,7 @@ class ScatterTable:
     @property
     def category(self) -> np.ndarray:
         """Category of data points."""
-        return self._data.category.to_numpy(dtype=str)
+        return self._data.category.to_numpy(dtype=object, na_value=None)
 
     @category.setter
     def category(self, new_values: np.ndarray):
@@ -161,7 +159,7 @@ class ScatterTable:
     @property
     def shots(self) -> np.ndarray:
         """Shot number used to acquire data points."""
-        return self._data.shots.to_numpy(dtype=int)
+        return self._data.shots.to_numpy(dtype=object, na_value=None)
 
     @shots.setter
     def shots(self, new_values: np.ndarray):
@@ -170,7 +168,7 @@ class ScatterTable:
     @property
     def analysis(self) -> np.ndarray:
         """Corresponding analysis name."""
-        return self._data.analysis.to_numpy(dtype=str)
+        return self._data.analysis.to_numpy(dtype=object, na_value=None)
 
     @analysis.setter
     def analysis(self, new_values: np.ndarray):
@@ -248,14 +246,14 @@ class ScatterTable:
 
     def add_row(
         self,
-        name: str | pd.NA,
-        class_id: int | pd.NA,
-        category: str | pd.NA,
-        x: float | pd.NA,
-        y: float | pd.NA,
-        y_err: float | pd.NA,
-        shots: float | pd.NA,
-        analysis: str | pd.NA,
+        name: str | pd.NA = pd.NA,
+        class_id: int | pd.NA = pd.NA,
+        category: str | pd.NA = pd.NA,
+        x: float | pd.NA = pd.NA,
+        y: float | pd.NA = pd.NA,
+        y_err: float | pd.NA = pd.NA,
+        shots: float | pd.NA = pd.NA,
+        analysis: str | pd.NA = pd.NA,
     ):
         """Add new data group to the table.
 
@@ -272,6 +270,14 @@ class ScatterTable:
             analysis: Analysis name if available.
         """
         self._lazy_add_rows.append([x, y, y_err, name, class_id, category, shots, analysis])
+
+    @classmethod
+    def _format_table(cls, data: pd.DataFrame) -> pd.DataFrame:
+        return (
+            data.replace(np.nan, pd.NA)
+            .astype(dict(zip(cls.DEFAULT_COLUMNS, cls.DEFAULT_DTYPES)))
+            .reset_index(drop=True)
+        )
 
     @property
     @deprecate_func(
@@ -332,16 +338,5 @@ class ScatterTable:
     def __json_decode__(cls, value: dict[str, Any]) -> "ScatterTable":
         if not value.get("class", None) == "ScatterTable":
             raise ValueError("JSON decoded value for ScatterTable is not valid class type.")
-        tmp_df = (
-            pd.DataFrame.from_dict(
-                value.get("data", {}),
-                orient="index",
-            )
-            .replace(np.nan, pd.NA)
-            .astype(
-                dict(zip(cls.DEFAULT_COLUMNS, cls.DEFAULT_DTYPES)),
-                copy=False,
-            )
-            .reset_index(drop=True)
-        )
+        tmp_df = pd.DataFrame.from_dict(value.get("data", {}), orient="index")
         return ScatterTable.from_dataframe(tmp_df)
