@@ -96,7 +96,7 @@ class PulseBackend(BackendV2):
             None,
             name="PulseBackendV2",
             description="A PulseBackend simulator",
-            online_date=datetime.datetime.utcnow(),
+            online_date=datetime.datetime.now(datetime.timezone.utc),
             backend_version="0.0.1",
         )
 

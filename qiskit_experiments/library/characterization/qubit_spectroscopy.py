@@ -123,7 +123,7 @@ class QubitSpectroscopy(Spectroscopy):
             freq_shift = np.round(freq_shift, decimals=3)
 
             assigned_circ = circuit.assign_parameters({freq_param: freq_shift}, inplace=False)
-            self._add_metadata(assigned_circ, freq, sched)
+            self._add_metadata(assigned_circ, freq)
 
             circs.append(assigned_circ)
 

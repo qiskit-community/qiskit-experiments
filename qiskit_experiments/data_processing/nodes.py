@@ -85,7 +85,10 @@ class AverageData(DataAction):
 
         reduced_array = np.mean(data, axis=ax)
         nominals = unp.nominal_values(reduced_array)
-        errors = unp.std_devs(reduced_array)
+        with np.errstate(invalid="ignore"):
+            # Setting std_devs to NaN will trigger floating point exceptions
+            # which we can ignore. See https://stackoverflow.com/q/75656026
+            errors = unp.std_devs(reduced_array)
 
         if np.any(np.isnan(errors)):
             # replace empty elements with SEM
@@ -781,7 +784,10 @@ class Probability(CountsAction):
             p_mean = alpha_posterior[0] / alpha_sum
             p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
 
-            probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
+            with np.errstate(invalid="ignore"):
+                # Setting std_devs to NaN will trigger floating point exceptions
+                # which we can ignore. See https://stackoverflow.com/q/75656026
+                probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
 
         return probabilities
 

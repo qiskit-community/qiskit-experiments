@@ -14,6 +14,7 @@
 
 import numpy as np
 from matplotlib.figure import Figure as MatplotlibFigure
+from qiskit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options, AnalysisResultData
 
 
@@ -61,4 +62,4 @@ class FakeExperiment(BaseExperiment):
 
     def circuits(self):
         """Fake circuits."""
-        return []
+        return [QuantumCircuit(len(self.physical_qubits))]

@@ -24,7 +24,6 @@ Experiments
     :template: autosummary/experiment.rst
 
     T1
-    StarkP1Spectroscopy
     T2Ramsey
     T2Hahn
     Tphi
@@ -50,8 +49,6 @@ Experiments
     ResonatorSpectroscopy
     MultiStateDiscrimination
     ZZRamsey
-    StarkRamseyXY
-    StarkRamseyXYAmpScan
 
 
 Analysis
@@ -63,7 +60,6 @@ Analysis
 
     T1Analysis
     T1KerneledAnalysis
-    StarkP1SpectAnalysis
     T2RamseyAnalysis
     T2HahnAnalysis
     TphiAnalysis
@@ -71,7 +67,6 @@ Analysis
     DragCalAnalysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
-    StarkRamseyXYAmpScanAnalysis
     ReadoutAngleAnalysis
     ResonatorSpectroscopyAnalysis
     LocalReadoutErrorAnalysis
@@ -85,8 +80,6 @@ from .analysis import (
     DragCalAnalysis,
     FineAmplitudeAnalysis,
     RamseyXYAnalysis,
-    StarkRamseyXYAmpScanAnalysis,
-    StarkP1SpectAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
     T1KerneledAnalysis,
@@ -101,7 +94,7 @@ from .analysis import (
     MultiStateDiscriminationAnalysis,
 )
 
-from .t1 import T1, StarkP1Spectroscopy
+from .t1 import T1
 from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
@@ -111,7 +104,7 @@ from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamil
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude, FineZXAmplitude
-from .ramsey_xy import RamseyXY, StarkRamseyXY, StarkRamseyXYAmpScan
+from .ramsey_xy import RamseyXY
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle

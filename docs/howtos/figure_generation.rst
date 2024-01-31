@@ -42,4 +42,4 @@ overhead.
 See Also
 --------
 
-* The `Visualization tutorial <visualization.html>`_ discusses how to customize figures
+* The :doc:`Visualization tutorial </tutorials/visualization>` discusses how to customize figures

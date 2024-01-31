@@ -163,13 +163,7 @@ class Rabi(BaseExperiment, RestlessMixin):
             # which isn't serializable in the metadata.
             amp = float(np.round(amp, decimals=6))
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
-            assigned_circ.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": amp,
-                "unit": "arb. unit",
-                "amplitude": amp,
-            }
+            assigned_circ.metadata = {"xval": amp}
 
             circs.append(assigned_circ)
 
