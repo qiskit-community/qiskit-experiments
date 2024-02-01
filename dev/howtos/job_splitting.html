@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Rerun analysis for an existing experiment" href="rerun_analysis.html" /><link rel="prev" title="Control figure generation" href="figure_generation.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Control the splitting of experiment circuits into jobs - Qiskit Experiments 0.5.0-137-ga7a3112f</title>
+        <title>Control the splitting of experiment circuits into jobs - Qiskit Experiments 0.5.0-138-ge81cdebe</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-137-ga7a3112f</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-138-ge81cdebe</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-137-ga7a3112f</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-138-ge81cdebe</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -575,7 +575,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit.org/ecosystem/experiments/dev">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-extensions.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div></div>
@@ -657,9 +657,9 @@ experiment of parallel experiments.</p>
 <section id="discussion">
 <h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this heading">#</a></h2>
 <p>Qiskit Experiments will automatically split circuits across jobs for you for backends
-that have a maximum circuit number per circuit, which is given by the <code class="docutils literal notranslate"><span class="pre">max_experiments</span></code>
-property of <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.providers.BackendV1.html#qiskit.providers.BackendV1.configuration" title="(in Qiskit v0.45)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit.providers.BackendV1.configuration()</span></code></a> for V1 backends and
-<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.providers.BackendV2.html#qiskit.providers.BackendV2.max_circuits" title="(in Qiskit v0.45)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">qiskit.providers.BackendV2.max_circuits</span></code></a> for V2. This should
+that have a maximum circuit number per job, which is given by the <code class="docutils literal notranslate"><span class="pre">max_experiments</span></code>
+property of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV1#configuration" title="(in Qiskit v0.45)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configuration()</span></code></a> for V1 backends and
+the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV2#max_circuits" title="(in Qiskit v0.45)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_circuits</span></code></a> attribute for V2 backends. This should
 work automatically in most cases, but there may be some backends where other limits
 exist. When the <code class="docutils literal notranslate"><span class="pre">max_circuits</span></code> experiment option is provided, the experiment class
 will split the experiment circuits as dictated by the smaller of the backend property
@@ -752,7 +752,7 @@ and the experiment option.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=a50a7849"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8f0eb196"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
