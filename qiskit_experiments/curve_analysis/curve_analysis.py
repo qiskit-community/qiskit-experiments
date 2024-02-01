@@ -32,7 +32,7 @@ from qiskit_experiments.framework import (
 from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
-from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX, DATA_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
