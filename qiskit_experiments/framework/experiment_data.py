@@ -2619,8 +2619,6 @@ class ExperimentData:
         out = []
         for key in artifact_keys:
             artifact_data = self._artifacts[key]
-            if artifact_data is None:
-                continue
             out.append(artifact_data)
 
         if len(out) == 1:

@@ -21,7 +21,7 @@ import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
+from typing import Callable, Tuple, Dict, Any, Union, Type, Optional, List
 import json
 
 import dateutil.parser
@@ -75,15 +75,15 @@ def utc_to_local(utc_dt: datetime) -> datetime:
     return local_dt
 
 
-def objs_to_zip(filenames, contents) -> bytes:
+def objs_to_zip(filenames: List[str], contents: List[str]) -> bytes:
     """Write a list of files and contents to a zipped file.
 
     Args:
-        filenames: List of names for the JSON files to be zipped.
-        contents: List of file contents to be zipped.
+        filenames: List of names for the files to be zipped.
+        contents: List of file contents to be zipped in string form.
 
     Returns:
-        A bytes object containing the zipped files
+        A bytes object containing the zipped files.
     """
     zip_buffer = io.BytesIO()
 
@@ -95,14 +95,14 @@ def objs_to_zip(filenames, contents) -> bytes:
     return zip_buffer
 
 
-def zip_to_objs(zip_bytes) -> bytes:
+def zip_to_objs(zip_bytes: bytes) -> List[str]:
     """Extract files from a zipped buffer as strings.
 
     Args:
         zip_bytes: Bytes object representing the zipped file.
 
     Returns:
-        A list of strings extracted from the zip file.
+        A list of strings extracted from the zip file buffer.
     """
     output_strings = []
     zip_buffer = io.BytesIO(zip_bytes)
