@@ -15,20 +15,16 @@ Experiment Data class
 
 from __future__ import annotations
 import logging
-import dataclasses
 import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
-from threading import Event
 from functools import wraps, singledispatch
-from collections import deque
+from collections import deque, defaultdict
 import contextlib
 import copy
 import uuid
-import enum
 import time
-import io
 import sys
 import json
 import traceback
@@ -36,7 +32,6 @@ import numpy as np
 import pandas as pd
 from dateutil import tz
 from matplotlib import pyplot
-from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
@@ -68,6 +63,7 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentEntryNotFound,
     ExperimentDataSaveFailed,
 )
+from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
 
 from .containers.figure_data import FigureData, FigureType
 
@@ -166,7 +162,7 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
-    _artifact_filenames = ["curve_data.json", "fit_summary.json"]
+    _artifact_filenames = ["curve_data.zip", "fit_summary.zip"]
     _max_workers_cap = 10
 
     def __init__(
@@ -1737,11 +1733,21 @@ class ExperimentData:
         # save artifacts
         if save_artifacts:
             with self._artifacts.lock:
-                for _, artifact in self._artifacts.items():
+                artifact_list = defaultdict(list)
+                for artifact in self._artifacts.values():
+                    artifact_list[artifact.name].append(artifact.artifact_id)
+                for file_type in artifact_list:
+                    file_zipped = objs_to_zip(
+                        [f"{file}.json" for file in artifact_list[file_type]],
+                        [
+                            json.dumps(self._artifacts[artifact], cls=self._json_encoder)
+                            for artifact in artifact_list[file_type]
+                        ],
+                    )
                     self.service.file_upload(
                         experiment_id=self.experiment_id,
-                        file_name=artifact.name,
-                        file_data=json.dumps(artifact, cls=self._json_encoder),
+                        file_name=f"{file_type}.zip",
+                        file_data=file_zipped,
                     )
 
         if not self.service.local and self.verbose:
@@ -2237,10 +2243,10 @@ class ExperimentData:
         # Recreate artifacts
         for filename in cls._artifact_filenames:
             if service.experiment_has_file(experiment_id, filename):
-                artifact = service.file_download(
-                    experiment_id, filename, json_decoder=cls._json_decoder
-                )
-                expdata.add_artifacts(artifact)
+                artifact_file = service.file_download(experiment_id, filename)
+                for artifact_string in zip_to_objs(artifact_file):
+                    artifact = json.loads(artifact_string, cls=cls._json_decoder)
+                    expdata.add_artifacts(artifact)
 
         # mark it as existing in the DB
         expdata._created_in_db = True
@@ -2451,6 +2457,7 @@ class ExperimentData:
             "_created_in_db": self._created_in_db,
             "_figures": self._safe_serialize_figures(),  # Convert figures to SVG
             "_jobs": self._safe_serialize_jobs(),  # Handle non-serializable objects
+            "_artifacts": self._artifacts,
             "_experiment": self._experiment,
             "_child_data": self._child_data,
             "_running_time": self._running_time,
@@ -2550,6 +2557,7 @@ class ExperimentData:
         ret += f"\nData: {len(self._result_data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"
+        ret += f"\nArtifacts: {len(self._artifacts)}"
         return ret
 
     def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
