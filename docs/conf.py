@@ -236,6 +236,11 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "filter_kwargs",
         "fit_func",
         "signature",
+        "artifact_id",
+        "artifact_data",
+        "device_components",
+        "created_time",
+        "data",
     ]
     skip_members = [
         ParameterRepr.repr,
