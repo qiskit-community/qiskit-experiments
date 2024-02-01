@@ -1528,7 +1528,7 @@ class ExperimentData:
         """Save this experiments metadata to a database service.
 
         .. note::
-            This method does not save analysis results nor figures.
+            This method does not save analysis results, figures, or artifacts.
             Use :meth:`save` for general saving of all experiment data.
 
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
@@ -2310,10 +2310,10 @@ class ExperimentData:
         with self._figures.lock:
             new_instance._figures = ThreadSafeOrderedDict()
             new_instance.add_figures(self._figures.values())
-        
+
         with self._artifacts.lock:
             new_instance._figures = ThreadSafeOrderedDict()
-            new_instance.add_artifacts(self._artifacts.values())        
+            new_instance.add_artifacts(self._artifacts.values())
 
         # Recursively copy child data
         child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]

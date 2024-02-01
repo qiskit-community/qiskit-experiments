@@ -207,7 +207,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.check_attributes(childdata)
             self.assertEqual(childdata.parent_id, expdata.experiment_id)
 
-    def check_if_equal(self, expdata1, expdata2, is_a_copy):
+    def check_if_equal(self, expdata1, expdata2, is_a_copy, check_artifact=False):
         """
         Recursively traverse the tree and check equality of expdata1 and expdata2
         """
@@ -215,7 +215,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
-        self.assertEqual(expdata1.artifacts(), expdata2.artifacts())
 
         metadata1 = copy.copy(expdata1.metadata)
         metadata2 = copy.copy(expdata2.metadata)
@@ -227,6 +226,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         else:
             self.assertEqual(expdata1.experiment_id, expdata2.experiment_id)
+        
+        if check_artifact:
+            self.assertEqual(len(expdata1.artifacts()), len(expdata2.artifacts()))
+            for artifact1, artifact2 in zip(expdata1.artifacts(), expdata2.artifacts()):
+                self.assertEqual(artifact1, artifact2, msg="artifacts not equal")
 
         self.assertEqual(len(expdata1.child_data()), len(expdata2.child_data()))
         for childdata1, childdata2 in zip(expdata1.child_data(), expdata2.child_data()):
@@ -247,7 +251,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
-        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
+        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False, check_artifact=True)
 
     def test_composite_save_metadata(self):
         """
@@ -256,7 +260,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save_metadata()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
-
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_copy(self):
@@ -264,7 +267,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         Test composite ExperimentData.copy
         """
         new_instance = self.rootdata.copy()
-        self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
+        self.check_if_equal(new_instance, self.rootdata, is_a_copy=True, check_artifact=True)
         self.check_attributes(new_instance)
         self.assertEqual(new_instance.parent_id, None)
 
