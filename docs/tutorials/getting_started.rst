@@ -159,8 +159,7 @@ exponential decay model of the :math:`T_1` experiment:
 
     display(exp_data.figure(0))
 
-The fit results and associated parameters are accessed with
-:meth:`~.ExperimentData.analysis_results`:
+The analysis results resulting from the fit are accessed with :meth:`~.ExperimentData.analysis_results`:
 
 .. jupyter-execute::
 
@@ -184,6 +183,19 @@ value and standard deviation of each value can be accessed as follows:
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
+
+The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which is accessed
+in an analogous manner. Artifacts for a standard experiment include both the curve fit data
+stored in ``artifacts(curve_data)`` and information on the fit stored in ``artifacts(fit_summary)``.
+Use the ``data`` attribute to access artifact data:
+
+.. jupyter-execute::
+
+    print(exp_data.artifacts("fit_summary").data)
+
+.. note::
+    See the :doc:`Curve Analysis <curve_analysis>` tutorial for how to parse and
+    use the curve fit results as stored in :class:`.ScatterTable`.
 
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds

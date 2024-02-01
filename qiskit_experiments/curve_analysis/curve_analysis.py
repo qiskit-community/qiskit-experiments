@@ -481,7 +481,6 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         table = self._format_data(self._run_data_processing(experiment_data.data()))
         formatted_subset = table.filter(category=self.options.fit_category)
-        curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
         fit_data = self._run_curve_fit(formatted_subset)
 
         if fit_data.success:
@@ -524,6 +523,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                         y_err=yerr,
                         analysis=self.name,
                     )
+
             result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
@@ -545,7 +545,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         artifacts.append(
             ArtifactData(
                 name="curve_data",
-                data=curve_data,
+                data=table,
             )
         )
         artifacts.append(
@@ -565,7 +565,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                         if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))
                     ],
                 )
-            figures.extend(self._create_figures(curve_data=curve_data))
+            figures.extend(self._create_figures(curve_data=table))
 
         return result_data + artifacts, figures
 
