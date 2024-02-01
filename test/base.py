@@ -99,17 +99,33 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             super().setUpClass()
 
             warnings.filterwarnings("error", category=DeprecationWarning)
+            # Tests should not generate any warnings unless testing those
+            # warnings. In that case, the test should catch the warning
+            # assertWarns or warnings.catch_warnings.
+            warnings.filterwarnings("error", module="qiskit_experiments")
+            # Ideally, changes introducing pending deprecations should include
+            # alternative code paths and not need to generate warnings in the
+            # tests but until this exception is necessary until the use of the
+            # deprecated ScatterTable methods are removed.
+            warnings.filterwarnings(
+                "default",
+                module="qiskit_experiments",
+                message=".*Curve data uses dataframe representation.*",
+                category=PendingDeprecationWarning,
+            )
+            warnings.filterwarnings(
+                "default",
+                module="qiskit_experiments",
+                message=".*The curve data representation is replaced with dataframe format.*",
+                category=PendingDeprecationWarning,
+            )
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
             # ``QiskitTestCase`` sets all warnings to be treated as an error by
             # default.
             # pylint: disable=invalid-name
-            allow_deprecationwarning_message = [
-                # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
-                r".*Plotting and drawing functionality has been moved",
-                r".*Legacy drawers from `.curve_analysis.visualization are deprecated",
-            ]
+            allow_deprecationwarning_message = []
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 

@@ -294,8 +294,8 @@ def _check_result_table(
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
-    table1 = data1.copy().to_dict(orient="index")
-    table2 = data2.copy().to_dict(orient="index")
+    table1 = data1.dataframe.to_dict(orient="index")
+    table2 = data2.dataframe.to_dict(orient="index")
     for table in (table1, table2):
         for result in table.values():
             result.pop("created_time")

@@ -33,6 +33,7 @@ from qiskit.providers.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
+from qiskit.providers.backend import Backend
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData, AnalysisResult, BackendData, ArtifactData
 
@@ -55,6 +56,15 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def setUp(self):
         super().setUp()
         self.backend = FakeMelbourneV2()
+
+    def generate_mock_job(self):
+        """Helper method to generate a mock job."""
+        job = mock.create_autospec(Job, instance=True)
+        # mock a backend without provider
+        backend = mock.create_autospec(Backend, instance=True)
+        backend.provider = None
+        job.backend.return_value = backend
+        return job
 
     def test_db_experiment_data_attributes(self):
         """Test DB experiment data attributes."""
@@ -118,12 +128,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_data_job(self):
         """Test add job data."""
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(3)
         num_circs = 3
         jobs = []
         for _ in range(2):
-            job = mock.create_autospec(Job, instance=True)
+            job = self.generate_mock_job()
             job.result.return_value = self._get_job_result(2, label_from=num_circs)
             job.status.return_value = JobStatus.DONE
             jobs.append(job)
@@ -162,7 +172,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             nonlocal called_back
             called_back = True
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -216,7 +226,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             nonlocal called_back
             called_back = True
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
+        a_job.backend.return_value = mock.create_autospec(Backend, instance=True)
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -234,7 +245,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _callback(_exp_data, **kwargs):
             kwargs["event"].wait(timeout=3)
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -451,14 +462,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.backend)
         exp_data.save_metadata()
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         exp_data.add_jobs(a_job)
         self.assertIsNotNone(exp_data.backend)
 
     def test_different_backend(self):
         """Test setting a different backend."""
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         self.assertNotEqual(exp_data.backend, a_job.backend())
         with self.assertLogs("qiskit_experiments", "WARNING"):
             exp_data.add_jobs(a_job)
@@ -608,12 +619,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_job_pending(self):
         """Test experiment status when job is pending."""
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.result.return_value = self._get_job_result(3)
         job1.status.return_value = JobStatus.DONE
 
         event = threading.Event()
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.result = lambda *args, **kwargs: event.wait(timeout=15)
         job2.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
         self.addCleanup(event.set)
@@ -633,11 +644,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_job_error(self):
         """Test experiment status when job failed."""
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.result.return_value = self._get_job_result(3)
         job1.status.return_value = JobStatus.DONE
 
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.status.return_value = JobStatus.ERROR
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
@@ -648,7 +659,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_post_processing(self):
         """Test experiment status during post processing."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -663,7 +674,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_cancelled_analysis(self):
         """Test experiment status during post processing."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -685,7 +696,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _post_processing(*args, **kwargs):
             raise ValueError("Kaboom!")
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -700,7 +711,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_done(self):
         """Test experiment status when all jobs are done."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
         exp_data = ExperimentData(experiment_type="qiskit_test")
@@ -733,7 +744,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.cancel = _job_cancel
         job.result = _job_result
@@ -759,7 +770,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _analysis(*args):  # pylint: disable = unused-argument
             event.wait(timeout=15)
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
@@ -795,7 +806,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.wait(timeout=timeout)
             run_analysis.append(name)
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
@@ -847,7 +858,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 return JobStatus.CANCELLED
             return JobStatus.RUNNING
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.cancel = event.set
@@ -873,7 +884,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.wait(timeout=15)
             raise ValueError("Job was cancelled.")
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.cancel = event.set
@@ -905,11 +916,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _post_processing(*args, **kwargs):  # pylint: disable=unused-argument
             raise ValueError("Kaboom!")
 
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.job_id.return_value = "1234"
         job1.status.return_value = JobStatus.DONE
 
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.status.return_value = JobStatus.ERROR
         job2.job_id.return_value = "5678"
 
@@ -1030,7 +1041,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             return self._get_job_result(1)
 
         sleep_count = 0
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result = _sleeper
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
@@ -1068,12 +1079,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             return job_results2
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result = _job1_result
         exp_data.add_jobs(job)
 
         copied = exp_data.copy(copy_results=False)
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.result = _job2_result
         copied.add_jobs(job2)
         event.set()

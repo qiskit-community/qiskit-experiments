@@ -170,9 +170,9 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
         user_opt.p0.set_if_empty(b=1e-9)
 
-        x_data = curve_data.get_subset_of("x")
-        y_data = curve_data.get_subset_of("y")
-        z_data = curve_data.get_subset_of("z")
+        x_data = curve_data.filter(kind="x")
+        y_data = curve_data.filter(kind="y")
+        z_data = curve_data.filter(kind="z")
 
         omega_xyz = []
         for data in (x_data, y_data, z_data):

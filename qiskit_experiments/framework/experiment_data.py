@@ -19,7 +19,7 @@ import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
-from functools import wraps, singledispatch
+from functools import wraps
 from collections import deque, defaultdict
 import contextlib
 import copy
@@ -28,6 +28,7 @@ import time
 import sys
 import json
 import traceback
+import warnings
 import numpy as np
 import pandas as pd
 from dateutil import tz
@@ -585,16 +586,15 @@ class ExperimentData:
         provider = self._backend_data.provider
         if provider is not None:
             self._set_hgp_from_provider(provider)
+        # qiskit-ibm-runtime style
+        elif hasattr(self._backend, "_instance"):
+            self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
 
     def _set_hgp_from_provider(self, provider):
         try:
-            # qiskit-ibmq-provider style
-            if hasattr(provider, "credentials"):
-                creds = provider.credentials
-                self.hgp = f"{creds.hub}/{creds.group}/{creds.project}"
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
                 for hgp_string, hgp in provider._hgps.items():
@@ -619,7 +619,7 @@ class ExperimentData:
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
         # Schedule existing analysis results for deletion next save call
-        self._deleted_analysis_results.extend(list(self._analysis_results.result_ids()))
+        self._deleted_analysis_results.extend(list(self._analysis_results.result_ids))
         self._analysis_results.clear()
         # Schedule existing figures for deletion next save call
         for key in self._figures.keys():
@@ -1338,7 +1338,7 @@ class ExperimentData:
                 backend = extra_values.pop("backend", self.backend_name)
                 run_time = extra_values.pop("run_time", self.running_time)
                 created_time = extra_values.pop("created_time", None)
-                self._analysis_results.add_entry(
+                self._analysis_results.add_data(
                     name=result.name,
                     value=result.value,
                     quality=result.quality,
@@ -1360,7 +1360,7 @@ class ExperimentData:
             tags = tags or []
             backend = backend or self.backend_name
 
-            self._analysis_results.add_entry(
+            uid = self._analysis_results.add_data(
                 result_id=result_id,
                 name=name,
                 value=value,
@@ -1370,14 +1370,13 @@ class ExperimentData:
                 experiment_id=experiment_id,
                 tags=tags or [],
                 backend=backend,
-                run_time=run_time,  # TODO add job RUNNING time
+                run_time=run_time,
                 created_time=created_time,
                 **extra_values,
             )
             if self.auto_save:
-                last_index = self._analysis_results.result_ids()[-1][:8]
                 service_result = _series_to_service_result(
-                    series=self._analysis_results.get_entry(last_index),
+                    series=self._analysis_results.get_data(uid),
                     service=self._service,
                     auto_save=False,
                 )
@@ -1387,39 +1386,28 @@ class ExperimentData:
     def delete_analysis_result(
         self,
         result_key: Union[int, str],
-    ) -> str:
+    ) -> list[str]:
         """Delete the analysis result.
 
         Args:
             result_key: ID or index of the analysis result to be deleted.
 
         Returns:
-            Analysis result ID.
+            Deleted analysis result IDs.
 
         Raises:
             ExperimentEntryNotFound: If analysis result not found or multiple entries are found.
         """
-        # Retrieve from DB if needed.
-        to_delete = self.analysis_results(
-            index=result_key,
-            block=False,
-            columns="all",
-            dataframe=True,
-        )
-        if not isinstance(to_delete, pd.Series):
-            raise ExperimentEntryNotFound(
-                f"Multiple entries are found with result_key = {result_key}. "
-                "Try another key that can uniquely determine entry to delete."
-            )
+        uids = self._analysis_results.del_data(result_key)
 
-        self._analysis_results.drop_entry(str(to_delete.name))
         if self._service and self.auto_save:
             with service_exception_to_warning():
-                self.service.delete_analysis_result(result_id=to_delete.result_id)
+                for uid in uids:
+                    self.service.delete_analysis_result(result_id=uid)
         else:
-            self._deleted_analysis_results.append(to_delete.result_id)
+            self._deleted_analysis_results.extend(uids)
 
-        return to_delete.result_id
+        return uids
 
     def _retrieve_analysis_results(self, refresh: bool = False):
         """Retrieve service analysis results.
@@ -1441,7 +1429,7 @@ class ExperimentData:
                 extra = result.result_data["_extra"]
                 if result.chisq is not None:
                     extra["chisq"] = result.chisq
-                self._analysis_results.add_entry(
+                self._analysis_results.add_data(
                     name=result.result_type,
                     value=result.result_data["_value"],
                     quality=cano_quality,
@@ -1510,30 +1498,19 @@ class ExperimentData:
             )
         self._retrieve_analysis_results(refresh=refresh)
 
-        out = self._analysis_results.copy()
-
-        if index is not None:
-            out = _filter_analysis_results(index, out)
-            if out is None:
-                msg = [f"Analysis result {index} not found."]
-                errors = self.errors()
-                if errors:
-                    msg.append(f"Errors: {errors}")
-                raise ExperimentEntryNotFound("\n".join(msg))
-
         if dataframe:
-            valid_columns = self._analysis_results.filter_columns(columns)
-            out = out[valid_columns]
-            if len(out) == 1 and index is not None:
+            df = self._analysis_results.get_data(index, columns=columns)
+            if len(df) == 1 and index is not None:
                 # For backward compatibility.
                 # One can directly access attributes with Series. e.g. out.value
-                return out.iloc[0]
-            return out
+                return df.iloc[0]
+            return df
 
         # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
         # This will be removed in future version.
+        tmp_df = self._analysis_results.get_data(index, columns="all")
         service_results = []
-        for _, series in out.iterrows():
+        for _, series in tmp_df.iterrows():
             service_results.append(
                 _series_to_service_result(
                     series=series,
@@ -1676,7 +1653,7 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        for _, series in self._analysis_results.copy().iterrows():
+        for _, series in self._analysis_results.dataframe.iterrows():
             # TODO We should support saving entire dataframe
             #  Calling API per entry takes huge amount of time.
             legacy_result = _series_to_service_result(
@@ -2323,7 +2300,7 @@ class ExperimentData:
         # Copy results and figures.
         # This requires analysis callbacks to finish
         self._wait_for_futures(self._analysis_futures.values(), name="analysis")
-        new_instance._analysis_results = self._analysis_results.copy_object()
+        new_instance._analysis_results = self._analysis_results.copy()
         with self._figures.lock:
             new_instance._figures = ThreadSafeOrderedDict()
             new_instance.add_figures(self._figures.values())
@@ -2509,21 +2486,31 @@ class ExperimentData:
     @staticmethod
     def get_service_from_backend(backend):
         """Initializes the service from the backend data"""
-        return ExperimentData.get_service_from_provider(backend.provider)
+        # qiskit-ibm-runtime style
+        try:
+            if hasattr(backend, "service"):
+                token = backend.service._account.token
+                return IBMExperimentService(token=token, url=backend.service._account.url)
+            return ExperimentData.get_service_from_provider(backend.provider)
+        except Exception:  # pylint: disable=broad-except
+            return None
 
     @staticmethod
     def get_service_from_provider(provider):
         """Initializes the service from the provider data"""
-        db_url = "https://auth.quantum.ibm.com/api"
         try:
-            # qiskit-ibmq-provider style
-            if hasattr(provider, "credentials"):
-                token = provider.credentials.token
             # qiskit-ibm-provider style
             if hasattr(provider, "_account"):
-                token = provider._account.token
-            service = IBMExperimentService(token=token, url=db_url)
-            return service
+                warnings.warn(
+                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
+                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                return IBMExperimentService(
+                    token=provider._account.token, url=provider._account.url
+                )
+            return None
         except Exception:  # pylint: disable=broad-except
             return None
 
@@ -2728,68 +2715,3 @@ def _series_to_service_result(
         service_result.auto_save = auto_save
 
     return service_result
-
-
-def _filter_analysis_results(
-    search_key: Union[int, slice, str],
-    data: pd.DataFrame,
-) -> pd.DataFrame:
-    """Helper function to search result data for given key.
-
-    Args:
-        search_key: Key to search for.
-        data: Full result dataframe.
-
-    Returns:
-        Truncated dataframe.
-    """
-    out = _search_data(search_key, data)
-    if isinstance(out, pd.Series):
-        return pd.DataFrame([out])
-    return out
-
-
-@singledispatch
-def _search_data(search_key, data):
-    if search_key is None:
-        return data
-    raise TypeError(
-        f"Invalid search key {search_key}. " f"This must be either int, slice or str type."
-    )
-
-
-@_search_data.register
-def _search_with_int(
-    search_key: int,
-    data: pd.DataFrame,
-):
-    if search_key >= len(data):
-        return None
-    return data.iloc[search_key]
-
-
-@_search_data.register
-def _search_with_slice(
-    search_key: slice,
-    data: pd.DataFrame,
-):
-    out = data[search_key]
-    if len(out) == 0:
-        return None
-    return out
-
-
-@_search_data.register
-def _search_with_str(
-    search_key: str,
-    data: pd.DataFrame,
-):
-    if search_key in data.index:
-        # This key is table entry hash
-        return data.loc[search_key]
-
-    # This key is name of entry
-    out = data[data["name"] == search_key]
-    if len(out) == 0:
-        return None
-    return out
