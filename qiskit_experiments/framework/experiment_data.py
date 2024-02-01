@@ -163,7 +163,6 @@ class ExperimentData:
     _json_decoder = ExperimentDecoder
 
     _metadata_filename = "metadata.json"
-    _artifact_filenames = ["curve_data.zip", "fit_summary.zip"]
     _max_workers_cap = 10
 
     def __init__(
@@ -252,6 +251,8 @@ class ExperimentData:
                 setattr(self._db_data, key, value)
             else:
                 LOG.warning("Key '%s' not stored in the database", key)
+        if "artifact_files" not in self.metadata:
+            self.metadata['artifact_files'] = set()
 
         # general data related
         self._backend = None
@@ -2223,15 +2224,16 @@ class ExperimentData:
         expdata._retrieve_analysis_results()
 
         # Recreate artifacts
-        for filename in cls._artifact_filenames:
-            if service.experiment_has_file(experiment_id, filename):
-                try:
-                    artifact_file = service.file_download(experiment_id, filename)
-                    for artifact_string in zip_to_objs(artifact_file):
-                        artifact = json.loads(artifact_string, cls=cls._json_decoder)
-                        expdata.add_artifacts(artifact)
-                except Exception:  # pylint: disable=broad-except:
-                    LOG.error("Unable to load artifacts: %s", traceback.format_exc())
+        try:
+            if "artifact_files" in expdata.metadata:
+                for filename in expdata.metadata['artifact_files']:
+                    if service.experiment_has_file(experiment_id, filename):
+                            artifact_file = service.file_download(experiment_id, filename)
+                            for artifact_string in zip_to_objs(artifact_file):
+                                artifact = json.loads(artifact_string, cls=cls._json_decoder)
+                                expdata.add_artifacts(artifact)
+        except Exception:  # pylint: disable=broad-except:
+            LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 
         # mark it as existing in the DB
         expdata._created_in_db = True
@@ -2559,6 +2561,7 @@ class ExperimentData:
         ret += f"\nArtifacts: {len(self._artifacts)}"
         return ret
 
+    @do_auto_save
     def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
         """Add artifacts of experiment. The artifact ID must be unique.
 
@@ -2577,6 +2580,9 @@ class ExperimentData:
                     "artifact."
                 )
             self._artifacts[artifact.artifact_id] = artifact
+             # add the corresponding artifact filename to the metadata
+            self.metadata['artifact_files'].add(f"{artifact.name}.zip")
+
 
     def delete_artifact(
         self,
