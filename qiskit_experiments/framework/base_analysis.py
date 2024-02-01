@@ -202,6 +202,8 @@ class BaseAnalysis(ABC, StoreInitArgs):
                     elif isinstance(result, ArtifactData):
                         if not result.experiment_id:
                             result.experiment_id = experiment_data.experiment_id
+                            result.device_components = self._get_experiment_components(expdata)
+                            result.experiment = expdata.experiment_type
                         expdata.add_artifacts(result)
                     else:
                         raise TypeError(

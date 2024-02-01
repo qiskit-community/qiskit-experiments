@@ -2246,7 +2246,7 @@ class ExperimentData:
         """Make a copy of the experiment data with a new experiment ID.
 
         Args:
-            copy_results: If True copy the analysis results and figures
+            copy_results: If True copy the analysis results, figures, and artifacts
                           into the returned container, along with the
                           experiment data and metadata. If False only copy
                           the experiment data and metadata.
@@ -2310,6 +2310,10 @@ class ExperimentData:
         with self._figures.lock:
             new_instance._figures = ThreadSafeOrderedDict()
             new_instance.add_figures(self._figures.values())
+        
+        with self._artifacts.lock:
+            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance.add_artifacts(self._artifacts.values())        
 
         # Recursively copy child data
         child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]

@@ -15,7 +15,7 @@ Entry for artifact data.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, List
 from datetime import datetime
 import json
 import uuid
@@ -23,6 +23,7 @@ import uuid
 from dateutil import tz
 
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
+
 
 @dataclass
 class ArtifactData:
@@ -32,7 +33,7 @@ class ArtifactData:
 
     Types of objects that may be converted to artifacts include fitted and raw data,
     fit status, and any other JSON-based data needed to serialize experiments and experiment data.
-    
+
     Attributes:
         name: The name of the artifact.
         data: The artifact payload.
@@ -48,6 +49,8 @@ class ArtifactData:
     data: Any
     artifact_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
     experiment_id: Optional[str] = None
+    experiment: Optional[str] = None
+    device_components: List = field(default_factory=list)
     created_time: Optional[datetime] = field(default_factory=lambda: datetime.now(tz.tzlocal()))
 
     @property
@@ -60,13 +63,18 @@ class ArtifactData:
         return vars(self) == vars(value)
 
     def __repr__(self):
-        return f"ArtifactData(name={self.name}, dtype={self.dtype}, uid={self.artifact_id}, eid={self.experiment_id})"
+        return (
+            f"ArtifactData(name={self.name}, dtype={self.dtype}, uid={self.artifact_id},"
+            f"experiment={self.experiment}, device_components={self.device_components})"
+        )
 
     def __json_encode__(self):
         return {
             "name": self.name,
             "data": json.dumps(self.data, cls=self._json_encoder),
             "experiment_id": self.experiment_id,
+            "experiment": self.experiment,
+            "device_components": self.device_components,
             "artifact_id": self.artifact_id,
             "created_time": self.created_time.isoformat(),
         }
