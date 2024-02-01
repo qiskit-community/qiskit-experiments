@@ -25,7 +25,8 @@ from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.containers.artifact_data import ArtifactData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
-from qiskit_experiments.framework.experiment_data import ExperimentData, FigureData
+from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.containers import FigureData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData, as_table_element
 

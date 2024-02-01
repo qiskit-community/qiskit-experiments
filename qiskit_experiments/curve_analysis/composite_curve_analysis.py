@@ -26,7 +26,6 @@ from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import (
     AnalysisResultData,
-    ArtifactData,
     BaseAnalysis,
     ExperimentData,
     Options,
@@ -39,6 +38,7 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
+from qiskit_experiments.framework.containers import ArtifactData
 from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable

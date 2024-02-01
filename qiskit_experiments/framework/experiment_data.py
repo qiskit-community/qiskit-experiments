@@ -57,7 +57,7 @@ from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.framework.containers.artifact_data import ArtifactData
+from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -252,7 +252,7 @@ class ExperimentData:
             else:
                 LOG.warning("Key '%s' not stored in the database", key)
         if "artifact_files" not in self.metadata:
-            self.metadata['artifact_files'] = set()
+            self.metadata["artifact_files"] = set()
 
         # general data related
         self._backend = None
@@ -2226,12 +2226,12 @@ class ExperimentData:
         # Recreate artifacts
         try:
             if "artifact_files" in expdata.metadata:
-                for filename in expdata.metadata['artifact_files']:
+                for filename in expdata.metadata["artifact_files"]:
                     if service.experiment_has_file(experiment_id, filename):
-                            artifact_file = service.file_download(experiment_id, filename)
-                            for artifact_string in zip_to_objs(artifact_file):
-                                artifact = json.loads(artifact_string, cls=cls._json_decoder)
-                                expdata.add_artifacts(artifact)
+                        artifact_file = service.file_download(experiment_id, filename)
+                        for artifact_string in zip_to_objs(artifact_file):
+                            artifact = json.loads(artifact_string, cls=cls._json_decoder)
+                            expdata.add_artifacts(artifact)
         except Exception:  # pylint: disable=broad-except:
             LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 
@@ -2561,7 +2561,6 @@ class ExperimentData:
         ret += f"\nArtifacts: {len(self._artifacts)}"
         return ret
 
-    @do_auto_save
     def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
         """Add artifacts of experiment. The artifact ID must be unique.
 
@@ -2580,16 +2579,15 @@ class ExperimentData:
                     "artifact."
                 )
             self._artifacts[artifact.artifact_id] = artifact
-             # add the corresponding artifact filename to the metadata
-            self.metadata['artifact_files'].add(f"{artifact.name}.zip")
-
+            # add the corresponding artifact filename to the metadata if needed
+            self.metadata["artifact_files"].add(f"{artifact.name}.zip")
 
     def delete_artifact(
         self,
         artifact_key: int | str,
     ) -> str | list[str]:
         """Delete specified artifact data.
-
+        TODO: Properly implement this once artifacts can be deleted from the service.
         Args:
             artifact_key: UID, name or index of the figure.
 

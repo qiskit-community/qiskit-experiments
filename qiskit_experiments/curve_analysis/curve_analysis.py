@@ -28,9 +28,8 @@ from uncertainties import unumpy as unp
 from qiskit_experiments.framework import (
     ExperimentData,
     AnalysisResultData,
-    ArtifactData,
 )
-from qiskit_experiments.framework.containers.figure_data import FigureType
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX, DATA_ENTRY_PREFIX

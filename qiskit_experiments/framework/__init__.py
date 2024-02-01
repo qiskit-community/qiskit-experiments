@@ -87,11 +87,11 @@ Experiment Data Classes
     AnalysisResult
     AnalysisResultData
     AnalysisResultTable
-    ArtifactData
     ExperimentConfig
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    ArtifactData
     FigureData
 
 .. _composite-experiment:
@@ -135,14 +135,17 @@ from qiskit_experiments.framework.status import (
     AnalysisStatus,
     AnalysisCallback,
 )
+from qiskit_experiments.framework.containers import (
+    ArtifactData,
+    FigureData,
+    FigureType,
+)
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
 from .configs import ExperimentConfig, AnalysisConfig
-from .containers.figure_data import FigureData
 from .analysis_result_data import AnalysisResultData
 from .analysis_result_table import AnalysisResultTable
-from .containers.artifact_data import ArtifactData
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
