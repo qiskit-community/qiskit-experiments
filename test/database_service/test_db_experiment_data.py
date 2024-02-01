@@ -1220,7 +1220,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.delete_artifact("test")
         with self.assertRaises(ExperimentEntryNotFound):
             exp_data.artifacts(0)
-        
 
     def test_add_duplicated_artifact(self):
         """Tests behavior when adding an artifact with a duplicate ID."""

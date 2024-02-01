@@ -37,6 +37,7 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResult,
     AnalysisResultTable,
+    ArtifactData,
 )
 from qiskit_experiments.visualization import BaseDrawer
 
@@ -256,6 +257,27 @@ def _check_service_analysis_results(
             "tags",
             "auto_save",
             "source",
+        ],
+        data1=data1,
+        data2=data2,
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
+def _check_artifact_data(
+    data1: ArtifactData,
+    data2: ArtifactData,
+    **kwargs,
+):
+    """Check equality of the ArtifactData class."""
+    return _check_all_attributes(
+        attrs=[
+            "name",
+            "data",
+            "device_components",
+            "experiment_id",
+            "experiment",
         ],
         data1=data1,
         data2=data2,

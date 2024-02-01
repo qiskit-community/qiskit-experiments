@@ -622,9 +622,11 @@ class ExperimentData:
         self._deleted_analysis_results.extend(list(self._analysis_results.result_ids))
         self._analysis_results.clear()
         # Schedule existing figures for deletion next save call
+        # TODO: Delete artifacts from the service
         for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
+        self._artifacts = ThreadSafeOrderedDict()
 
     @property
     def service(self) -> Optional[IBMExperimentService]:

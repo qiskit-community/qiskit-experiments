@@ -192,6 +192,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(self.rootdata)
         self.assertEqual(len(self.rootdata.child_data()), 2)
+        self.assertEqual(len(self.rootdata.artifacts()), 0)
 
         self.rootdata.share_level = self.share_level
 
@@ -206,6 +207,17 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         for childdata in components:
             self.check_attributes(childdata)
             self.assertEqual(childdata.parent_id, expdata.experiment_id)
+            if not hasattr(childdata, "child_data"):
+                self.assertEqual(len(childdata.artifacts()), 2)
+                self.assertEqual(childdata.artifacts("curve_data").experiment, "FakeExperiment")
+                self.assertEqual(
+                    childdata.artifacts("curve_data").device_components, childdata.device_components
+                )
+                self.assertEqual(childdata.artifacts("fit_summary").experiment, "FakeExperiment")
+                self.assertEqual(
+                    childdata.artifacts("fit_summary").device_components,
+                    childdata.device_components,
+                )
 
     def check_if_equal(self, expdata1, expdata2, is_a_copy, check_artifact=False):
         """
@@ -226,7 +238,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         else:
             self.assertEqual(expdata1.experiment_id, expdata2.experiment_id)
-        
+
         if check_artifact:
             self.assertEqual(len(expdata1.artifacts()), len(expdata2.artifacts()))
             for artifact1, artifact2 in zip(expdata1.artifacts(), expdata2.artifacts()):
