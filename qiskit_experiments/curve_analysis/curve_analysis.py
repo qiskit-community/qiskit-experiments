@@ -14,6 +14,7 @@
 Analysis class for curve fitting.
 """
 import warnings
+
 # pylint: disable=invalid-name
 
 from typing import Dict, List, Tuple, Union, Optional
@@ -572,7 +573,11 @@ class CurveAnalysis(BaseCurveAnalysis):
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[r for r in result_data if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))],
+                    primary_results=[
+                        r
+                        for r in result_data
+                        if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))
+                    ],
                 )
             figures.extend(self._create_figures(curve_data=curve_data))
 

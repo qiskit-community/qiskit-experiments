@@ -23,6 +23,7 @@ import qiskit.quantum_info as qi
 from qiskit_experiments.framework import ArtifactData
 from qiskit_experiments.curve_analysis import CurveFitResult
 
+
 class CustomClass:
     """Custom class for serialization tests"""
 
@@ -138,8 +139,7 @@ class TestJSON(QiskitExperimentsTestCase):
             success=True,
             params={"par0": 0.3, "par1": 0.4},
             var_names=["par0", "par1"],
-            covar=np.array([[ 2.19188077e-03,  2.19906808e-01],
-                            [ 2.19906808e-01,  2.62351788e+01]]),
+            covar=np.array([[2.19188077e-03, 2.19906808e-01], [2.19906808e-01, 2.62351788e01]]),
             reduced_chisq=1.5,
         )
         self.assertRoundTripSerializable(obj)

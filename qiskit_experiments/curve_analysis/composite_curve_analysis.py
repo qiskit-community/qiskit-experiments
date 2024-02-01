@@ -44,6 +44,7 @@ from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
 
+
 class CompositeCurveAnalysis(BaseAnalysis):
     r"""Composite Curve Analysis.
 

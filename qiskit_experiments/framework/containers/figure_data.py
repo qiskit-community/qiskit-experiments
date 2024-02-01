@@ -20,6 +20,7 @@ from typing import Dict, Optional, Union, Any
 
 from matplotlib.figure import Figure as MatplotlibFigure
 
+
 class FigureData:
     """A plot data container.
 
@@ -92,5 +93,6 @@ class FigureData:
         if isinstance(self.figure, bytes):
             return self.figure.decode("utf-8")
         return None
+
 
 FigureType = Union[str, bytes, MatplotlibFigure, FigureData]

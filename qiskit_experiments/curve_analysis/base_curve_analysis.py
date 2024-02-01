@@ -247,7 +247,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             KeyError: When removed option ``curve_fitter`` is set.
         """
 
-
         if "return_fit_parameters" in fields:
             warnings.warn(
                 "@Parameters_* result entry has moved to the experiment data artifact "

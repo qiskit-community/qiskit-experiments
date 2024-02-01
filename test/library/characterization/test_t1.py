@@ -205,10 +205,7 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-
-        experiment_data = T1Analysis().run(
-            data, plot=False
-        )
+        experiment_data = T1Analysis().run(data, plot=False)
         result = experiment_data.analysis_results("T1")
 
         self.assertEqual(result.quality, "good")
@@ -245,9 +242,7 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        experiment_data = T1Analysis().run(
-            data, plot=False
-        )
+        experiment_data = T1Analysis().run(data, plot=False)
         result = experiment_data.analysis_results("T1")
         self.assertEqual(result.quality, "bad")
 

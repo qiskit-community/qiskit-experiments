@@ -77,11 +77,11 @@ def utc_to_local(utc_dt: datetime) -> datetime:
 
 def objs_to_zip(filenames, contents) -> bytes:
     """Write a list of files and contents to a zipped file.
-    
+
     Args:
         filenames: List of names for the JSON files to be zipped.
         contents: List of file contents to be zipped.
-    
+
     Returns:
         A bytes object containing the zipped files
     """
@@ -90,29 +90,31 @@ def objs_to_zip(filenames, contents) -> bytes:
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zip_file:
         for file_name, data in zip(filenames, contents):
             zip_file.writestr(file_name, data)
-    
+
     zip_buffer.seek(0)
     return zip_buffer
 
+
 def zip_to_objs(zip_bytes) -> bytes:
     """Extract files from a zipped buffer as strings.
-    
+
     Args:
         zip_bytes: Bytes object representing the zipped file.
-    
+
     Returns:
         A list of strings extracted from the zip file.
     """
     output_strings = []
     zip_buffer = io.BytesIO(zip_bytes)
 
-    with zipfile.ZipFile(zip_buffer, 'r') as zip_file:
+    with zipfile.ZipFile(zip_buffer, "r") as zip_file:
         for file_name in zip_file.namelist():
             with zip_file.open(file_name) as file:
-                data = file.read().decode('utf-8')
+                data = file.read().decode("utf-8")
                 output_strings.append(data)
 
     return output_strings
+
 
 def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
     """Convert a pyplot Figure to SVG in bytes.
