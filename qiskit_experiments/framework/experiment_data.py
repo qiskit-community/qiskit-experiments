@@ -1713,19 +1713,22 @@ class ExperimentData:
                 artifact_list = defaultdict(list)
                 for artifact in self._artifacts.values():
                     artifact_list[artifact.name].append(artifact.artifact_id)
-                for file_type in artifact_list:
-                    file_zipped = objs_to_zip(
-                        [f"{file}.json" for file in artifact_list[file_type]],
-                        [
-                            json.dumps(self._artifacts[artifact], cls=self._json_encoder)
-                            for artifact in artifact_list[file_type]
-                        ],
-                    )
-                    self.service.file_upload(
-                        experiment_id=self.experiment_id,
-                        file_name=f"{file_type}.zip",
-                        file_data=file_zipped,
-                    )
+                try:
+                    for file_type in artifact_list:
+                        file_zipped = objs_to_zip(
+                            [f"{file}.json" for file in artifact_list[file_type]],
+                            [
+                                json.dumps(self._artifacts[artifact], cls=self._json_encoder)
+                                for artifact in artifact_list[file_type]
+                            ],
+                        )
+                        self.service.file_upload(
+                            experiment_id=self.experiment_id,
+                            file_name=f"{file_type}.zip",
+                            file_data=file_zipped,
+                        )
+                except Exception:  # pylint: disable=broad-except:
+                    LOG.error("Unable to save artifacts: %s", traceback.format_exc())
 
         if not self.service.local and self.verbose:
             print(
@@ -2220,10 +2223,13 @@ class ExperimentData:
         # Recreate artifacts
         for filename in cls._artifact_filenames:
             if service.experiment_has_file(experiment_id, filename):
-                artifact_file = service.file_download(experiment_id, filename)
-                for artifact_string in zip_to_objs(artifact_file):
-                    artifact = json.loads(artifact_string, cls=cls._json_decoder)
-                    expdata.add_artifacts(artifact)
+                try:
+                    artifact_file = service.file_download(experiment_id, filename)
+                    for artifact_string in zip_to_objs(artifact_file):
+                        artifact = json.loads(artifact_string, cls=cls._json_decoder)
+                        expdata.add_artifacts(artifact)
+                except Exception:  # pylint: disable=broad-except:
+                    LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 
         # mark it as existing in the DB
         expdata._created_in_db = True
