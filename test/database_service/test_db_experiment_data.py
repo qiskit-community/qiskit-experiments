@@ -1208,10 +1208,19 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         new_artifact = ArtifactData(name="test", data="foo")
         exp_data.add_artifacts(new_artifact)
         self.assertEqual(exp_data.artifacts(0), new_artifact)
+
+        # delete by index
         exp_data.delete_artifact(0)
         self.assertEqual(exp_data.artifacts(), [])
         with self.assertRaises(ExperimentEntryNotFound):
             exp_data.artifacts(0)
+
+        exp_data.add_artifacts(new_artifact)
+        # delete by name
+        exp_data.delete_artifact("test")
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(0)
+        
 
     def test_add_duplicated_artifact(self):
         """Tests behavior when adding an artifact with a duplicate ID."""
@@ -1228,4 +1237,4 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # Overwrite the artifact with a new one of the same ID
         exp_data.add_artifacts(new_artifact2, overwrite=True)
-        self.assertEquals(exp_data.artifacts(0), new_artifact2)
+        self.assertEqual(exp_data.artifacts(0), new_artifact2)

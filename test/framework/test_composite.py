@@ -215,6 +215,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
+        self.assertEqual(expdata1.artifacts(), expdata2.artifacts())
 
         metadata1 = copy.copy(expdata1.metadata)
         metadata2 = copy.copy(expdata2.metadata)

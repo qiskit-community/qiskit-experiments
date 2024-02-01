@@ -318,7 +318,7 @@ def sample_average(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
