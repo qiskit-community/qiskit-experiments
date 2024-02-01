@@ -33,6 +33,7 @@ BaseDrawer
    .. automethod:: BaseDrawer.filled_x_area
    .. automethod:: BaseDrawer.filled_y_area
    .. automethod:: BaseDrawer.format_canvas
+   .. automethod:: BaseDrawer.hline
    .. automethod:: BaseDrawer.image
    .. automethod:: BaseDrawer.initialize_canvas
    .. automethod:: BaseDrawer.label_for

@@ -1,9 +1,9 @@
 ﻿
 
 StarkRamseyXYAmpScanAnalysis
-========================================================================
+==========================================================================
 
-.. currentmodule:: qiskit_experiments.library.characterization
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
 
 .. autoanalysis:: StarkRamseyXYAmpScanAnalysis
    :no-members:

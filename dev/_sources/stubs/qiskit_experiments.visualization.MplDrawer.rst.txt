@@ -35,6 +35,7 @@ MplDrawer
    .. automethod:: MplDrawer.filled_x_area
    .. automethod:: MplDrawer.filled_y_area
    .. automethod:: MplDrawer.format_canvas
+   .. automethod:: MplDrawer.hline
    .. automethod:: MplDrawer.image
    .. automethod:: MplDrawer.initialize_canvas
    .. automethod:: MplDrawer.label_for

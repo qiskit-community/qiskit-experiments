@@ -1,9 +1,9 @@
 ﻿
 
 StarkP1SpectAnalysis
-================================================================
+==================================================================
 
-.. currentmodule:: qiskit_experiments.library.characterization
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
 
 .. autoanalysis:: StarkP1SpectAnalysis
    :no-members:
@@ -18,7 +18,6 @@ StarkP1SpectAnalysis
    
    .. autoattribute:: StarkP1SpectAnalysis.options
    .. autoattribute:: StarkP1SpectAnalysis.plotter
-   .. autoattribute:: StarkP1SpectAnalysis.stark_coefficients_names
    
    
 
@@ -31,7 +30,6 @@ StarkP1SpectAnalysis
    .. automethod:: StarkP1SpectAnalysis.config
    .. automethod:: StarkP1SpectAnalysis.copy
    .. automethod:: StarkP1SpectAnalysis.from_config
-   .. automethod:: StarkP1SpectAnalysis.retrieve_coefficients_from_service
    .. automethod:: StarkP1SpectAnalysis.run
    .. automethod:: StarkP1SpectAnalysis.set_options
    

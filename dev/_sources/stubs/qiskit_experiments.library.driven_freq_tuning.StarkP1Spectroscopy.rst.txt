@@ -1,9 +1,9 @@
 ﻿
 
 StarkP1Spectroscopy
-===============================================================
+=================================================================
 
-.. currentmodule:: qiskit_experiments.library.characterization
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
 
 .. autoexperiment:: StarkP1Spectroscopy
    :no-members:
