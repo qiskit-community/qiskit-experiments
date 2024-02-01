@@ -17,7 +17,7 @@ Solution
     consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 Once you recreate the exact experiment you ran and all of its parameters and options,
-you can call the :meth:`.add_jobs` method with a list of :class:`Job
+you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job
 <qiskit.providers.JobV1>` objects to generate the new :class:`.ExperimentData` object.
 The following example retrieves jobs from a provider that has access to them via their
 job IDs:
@@ -47,7 +47,7 @@ job IDs:
 instead of overwriting the existing one.
 
 If you have the job data in the form of a :class:`~qiskit.result.Result` object, you can
-invoke the :meth:`.add_data` method instead of :meth:`.add_jobs`:
+invoke the :meth:`.ExperimentData.add_data` method instead of :meth:`.ExperimentData.add_jobs`:
 
 .. jupyter-input::
 

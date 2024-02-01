@@ -39,7 +39,7 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from .base_curve_analysis import BaseCurveAnalysis
+from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
@@ -333,7 +333,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         self,
         experiment_data: ExperimentData,
     ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
-        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set

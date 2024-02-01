@@ -9,7 +9,7 @@ features:
     when saved.
 upgrade:
   - |
-    Direct access to the fit summary in :class:`.ExperimentData` has moved from 
+    Direct access to the curve fit summary in :class:`.ExperimentData` has moved from 
     :meth:`.analysis_results` to :meth:`.artifacts`, where values are stored in
     :meth:`.artifacts.data`. For example, to access the chi-squared of the fit,
     ``expdata.analysis_results(0).chisq`` is now ``expdata.artifacts("fit_summary").data.chisq``.

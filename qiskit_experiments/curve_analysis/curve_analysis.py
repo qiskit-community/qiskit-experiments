@@ -25,7 +25,12 @@ import numpy as np
 import pandas as pd
 from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData, ArtifactData
+from qiskit_experiments.framework import (
+    ExperimentData,
+    AnalysisResultData,
+    ArtifactData,
+)
+from qiskit_experiments.framework.containers.figure_data import FigureType
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX, DATA_ENTRY_PREFIX
@@ -458,11 +463,10 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
-        analysis_results = []
-        figures = []
-
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+        figures: List[FigureType] = []
         result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -556,13 +560,13 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
             result_data.extend(self._create_curve_data(curve_data=formatted_subset))
 
-        result_data.append(
+        artifacts.append(
             ArtifactData(
                 name="curve_data",
                 data=curve_data,
             )
         )
-        result_data.append(
+        artifacts.append(
             ArtifactData(
                 name="fit_summary",
                 data=fit_data,
@@ -581,7 +585,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
             figures.extend(self._create_figures(curve_data=curve_data))
 
-        return result_data, figures
+        return result_data + artifacts, figures
 
     def __getstate__(self):
         state = self.__dict__.copy()

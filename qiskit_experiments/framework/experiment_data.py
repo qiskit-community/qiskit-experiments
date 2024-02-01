@@ -2638,10 +2638,10 @@ class ExperimentData:
             return [self._artifacts.keys()[artifact_key]]
 
         if artifact_key not in self._artifacts:
-            name_mathed = [k for k, d in self._artifacts.items() if d.name == artifact_key]
-            if len(name_mathed) == 0:
+            name_matched = [k for k, d in self._artifacts.items() if d.name == artifact_key]
+            if len(name_matched) == 0:
                 raise ExperimentEntryNotFound(f"Artifact key {artifact_key} not found.")
-            return name_mathed
+            return name_matched
         return [artifact_key]
 
 
