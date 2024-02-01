@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    'copy' method under ExperimentData class now copies the provider. 
+    The :meth:`.ExperimentData.copy` method under ExperimentData class now copies the provider. 
   
