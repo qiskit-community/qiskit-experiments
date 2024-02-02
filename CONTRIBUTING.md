@@ -1,7 +1,7 @@
 # Contributing Guide
 
 To contribute to Qiskit Experiments, first read the overall [Qiskit project contributing
-guidelines](https://qiskit.org/documentation/contributing_to_qiskit.html). In addition
+guidelines](https://github.com/Qiskit/qiskit/blob/main/CONTRIBUTING.md). In addition
 to the general guidelines, the specific guidelines for contributing to Qiskit
 Experiments are documented below.
 
@@ -318,7 +318,7 @@ https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/docs/release_n
 
 ### Documentation
 
-The [Qiskit Experiments documentation](https://qiskit.org/ecosystem/experiments/) is
+The [Qiskit Experiments documentation](https://qiskit-extensions.github.io/qiskit-experiments) is
 rendered from `.rst` files as well as experiment and analysis class docstrings into HTML
 files.
 
@@ -326,7 +326,7 @@ files.
 
 Any change that would affect existing documentation, or a new feature that requires a
 documentation, should be updated correspondingly. Before updating, review the [existing
-documentation](https://qiskit.org/ecosystem/experiments) for their style and
+documentation](https://qiskit-extensions.github.io/qiskit-experiments) for their style and
 content, and read the [documentation guidelines](docs/GUIDELINES.md) for further
 details.
 
