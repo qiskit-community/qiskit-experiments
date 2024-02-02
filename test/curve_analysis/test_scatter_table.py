@@ -13,7 +13,6 @@
 """Test scatter table."""
 
 from test.base import QiskitExperimentsTestCase
-
 import pandas as pd
 import numpy as np
 
@@ -152,15 +151,22 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test end-user shortcut for getting the subset of x, y, y_err data."""
         obj = ScatterTable.from_dataframe(self.reference)
 
+        np.testing.assert_array_equal(obj.get_x("model1", "raw", "Fit1"), np.array([0.100, 0.200]))
+        np.testing.assert_array_equal(obj.get_y("model1", "raw", "Fit1"), np.array([0.192, 0.854]))
         np.testing.assert_array_equal(
-            obj.get_x("model1", "raw"), np.array([0.100, 0.200, 0.100, 0.200])
+            obj.get_y_err("model1", "raw", "Fit1"), np.array([0.002, 0.090])
         )
-        np.testing.assert_array_equal(
-            obj.get_y("model1", "raw"), np.array([0.192, 0.854, 0.567, 0.488])
-        )
-        np.testing.assert_array_equal(
-            obj.get_y_err("model1", "raw"), np.array([0.002, 0.090, 0.033, 0.038])
-        )
+
+    def test_warn_composite_values(self):
+        """Test raise warning when returned x, y, y_err data contains multiple data series."""
+        obj = ScatterTable.from_dataframe(self.reference)
+
+        with self.assertWarns(UserWarning):
+            obj.get_x()
+        with self.assertWarns(UserWarning):
+            obj.get_y()
+        with self.assertWarns(UserWarning):
+            obj.get_y_err()
 
     def test_filter_data_by_class_id(self):
         """Test filter table data with data UID."""
