@@ -34,8 +34,9 @@ Generating and customizing a figure using a plotter
 First, we display the default figure from a :class:`.Rabi` experiment as a starting point:
 
 .. note::
-    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
-    You can install it with ``python -m pip install qiskit-dynamics``.
+    This tutorial requires the :mod:`qiskit_dynamics`, :mod:`qiskit_aer`, and
+    :mod:`qiskit_ibm_runtime` packages to run simulations.  You can install them
+    with ``python -m pip install qiskit-dynamics qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -191,8 +192,8 @@ until now in this tutorial:
 .. jupyter-execute::
 
    from qiskit_experiments.library import T1
-   from qiskit.providers.fake_provider import FakePerth
    from qiskit_aer import AerSimulator
+   from qiskit_ibm_runtime.fake_provider import FakePerth
 
    backend = AerSimulator.from_backend(FakePerth())
 

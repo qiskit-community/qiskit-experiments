@@ -49,7 +49,7 @@ Enabling restless measurements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Qiskit Experiments, the experiments that support restless measurements
-have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options 
+have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options
 and define the data processor that will process the measured data.
 If you are an experiment developer, you can add the :class:`.RestlessMixin`
 to your experiment class to add support for restless measurements.
@@ -58,7 +58,13 @@ a fake backend and a rough DRAG experiment. Note however, that you will not
 observe any meaningful outcomes with fake backends since the circuit simulator
 they use always starts with the qubits in the ground state.
 
+.. note::
+    This tutorial requires the :mod:`qiskit_ibm_runtime` package to model a
+    backend.  You can install it with ``python -m pip install qiskit-ibm-runtime``.
+
 .. jupyter-execute::
+
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     from qiskit_experiments.library import RoughDragCal
     from qiskit_experiments.calibration_management import (
@@ -66,7 +72,6 @@ they use always starts with the qubits in the ground state.
         FixedFrequencyTransmon,
     )
     from qiskit_experiments.data_processing.data_processor import DataProcessor
-    from qiskit.providers.fake_provider import FakePerth
 
     # replace this lines with an IBM Quantum backend to run the experiment.
     backend = FakePerth()
@@ -78,7 +83,7 @@ they use always starts with the qubits in the ground state.
 
     # Enable restless measurements by setting the run options and data processor
     cal_drag.enable_restless(rep_delay=1e-6)
-    
+
     print(cal_drag.analysis.options.data_processor)
     print(cal_drag.run_options)
 

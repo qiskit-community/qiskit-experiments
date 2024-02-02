@@ -21,8 +21,8 @@ import numpy as np
 from ddt import ddt, idata, named_data, unpack
 
 from qiskit import QuantumCircuit
-from qiskit.providers.fake_provider import FakeVigoV2
 from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
 from qiskit_experiments.library import ZZRamsey
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
