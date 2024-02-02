@@ -273,19 +273,19 @@ This table may look like:
 
 .. code-block::
 
-        xval      yval      yerr name  class_id category  shots
-    0    0.1  0.153659  0.011258    A         0      raw   1024
-    1    0.1  0.590732  0.015351    B         1      raw   1024
-    2    0.1  0.315610  0.014510    A         0      raw   1024
-    3    0.1  0.376098  0.015123    B         1      raw   1024
-    4    0.2  0.937073  0.007581    A         0      raw   1024
-    5    0.2  0.323415  0.014604    B         1      raw   1024
-    6    0.2  0.538049  0.015565    A         0      raw   1024
-    7    0.2  0.530244  0.015581    B         1      raw   1024
-    8    0.3  0.143902  0.010958    A         0      raw   1024
-    9    0.3  0.261951  0.013727    B         1      raw   1024
-    10   0.3  0.830732  0.011707    A         0      raw   1024
-    11   0.3  0.874634  0.010338    B         1      raw   1024
+        xval      yval      yerr name  class_id category  shots     analysis
+    0    0.1  0.153659  0.011258    A         0      raw   1024   MyAnalysis
+    1    0.1  0.590732  0.015351    B         1      raw   1024   MyAnalysis
+    2    0.1  0.315610  0.014510    A         0      raw   1024   MyAnalysis
+    3    0.1  0.376098  0.015123    B         1      raw   1024   MyAnalysis
+    4    0.2  0.937073  0.007581    A         0      raw   1024   MyAnalysis
+    5    0.2  0.323415  0.014604    B         1      raw   1024   MyAnalysis
+    6    0.2  0.538049  0.015565    A         0      raw   1024   MyAnalysis
+    7    0.2  0.530244  0.015581    B         1      raw   1024   MyAnalysis
+    8    0.3  0.143902  0.010958    A         0      raw   1024   MyAnalysis
+    9    0.3  0.261951  0.013727    B         1      raw   1024   MyAnalysis
+    10   0.3  0.830732  0.011707    A         0      raw   1024   MyAnalysis
+    11   0.3  0.874634  0.010338    B         1      raw   1024   MyAnalysis
 
 where the experiment consists of two subset series A and B, and the experiment parameter (xval)
 is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
@@ -298,6 +298,7 @@ for each condition. The role of each column is as follows:
 - ``class_id``: Numerical index corresponding to the result class. This number is automatically assigned.
 - ``category``: The attribute of data set. The "raw" category indicates an output from the data processing.
 - ``shots``: Number of measurement shots used to acquire this result.
+- ``analysis``: The name of curve analysis instance that generated this data. In :class:`.CompositeCurveAnalysis`, the table is a composite of tables from all component analyses.
 
 3. Formatting
 ^^^^^^^^^^^^^
@@ -319,12 +320,12 @@ This may return new scatter table object with the addition of rows like the foll
 
 .. code-block::
 
-    12   0.1  0.234634  0.009183    A         0  formatted   2048
-    13   0.2  0.737561  0.008656    A         0  formatted   2048
-    14   0.3  0.487317  0.008018    A         0  formatted   2048
-    15   0.1  0.483415  0.010774    B         1  formatted   2048
-    16   0.2  0.426829  0.010678    B         1  formatted   2048
-    17   0.3  0.568293  0.008592    B         1  formatted   2048
+    12   0.1  0.234634  0.009183    A         0  formatted   2048   MyAnalysis
+    13   0.2  0.737561  0.008656    A         0  formatted   2048   MyAnalysis
+    14   0.3  0.487317  0.008018    A         0  formatted   2048   MyAnalysis
+    15   0.1  0.483415  0.010774    B         1  formatted   2048   MyAnalysis
+    16   0.2  0.426829  0.010678    B         1  formatted   2048   MyAnalysis
+    17   0.3  0.568293  0.008592    B         1  formatted   2048   MyAnalysis
 
 The default :meth:`_format_data` method adds its output data with the category "formatted".
 This category name must be also specified in the analysis option ``fit_category``.
