@@ -17,12 +17,9 @@ Entry for artifact data.
 from dataclasses import dataclass, field
 from typing import Any, Optional, List
 from datetime import datetime
-import json
 import uuid
 
 from dateutil import tz
-
-from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
 @dataclass
@@ -35,7 +32,8 @@ class ArtifactData:
     fit status, and any other JSON-based data needed to serialize experiments and experiment data.
 
     Attributes:
-        name: The name of the artifact.
+        name: The name of the artifact. When saved to the cloud service, this will be the name
+            of the zipfile this artifact object is stored in.
         data: The artifact payload.
         artifact_id: Artifact ID. Must be unique inside an :class:`ExperimentData` object.
         experiment_id: Experiment ID that the artifact is associated with.
