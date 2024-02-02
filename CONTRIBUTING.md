@@ -13,6 +13,7 @@ Contents:
     - [Pull request checklist](#pull-request-checklist)
     - [Testing your code](#testing-your-code)
       - [STDOUT/STDERR and logging capture](#stdoutstderr-and-logging-capture)
+      - [Other testing related settings](#other-testing-related-settings)
     - [Code style](#code-style)
     - [Changelog generation](#changelog-generation)
     - [Release notes](#release-notes)
@@ -360,16 +361,26 @@ There are a few other build options available:
 
 ### Deprecation policy
 
-Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
-Policy](https://qiskit.org/documentation/deprecation_policy.html) fully applies here.
-Public-facing changes must come with a deprecation warning for at least three months or
-two version cycles before the old feature is removed. Deprecations can only happen on
-minor releases and not on patch releases.
+Qiskit Experiments's deprecation policy is based on Qiskit's [Deprecation
+Policy](https://github.com/Qiskit/qiskit/blob/45e42525224e9e1857300e7e5529273fe619c9e4/DEPRECATION.md)
+prior to its 1.0 release. Public-facing changes must come with a deprecation warning
+for at least three months or two version cycles before the old feature is removed.
+Deprecations can only happen on minor releases and not on patch releases.
+
+The timeline for deprecating an existing feature is as follows:
+
+* Minor release 1: An alternative path is provided. A `PendingDeprecationWarning` should be issued
+  when the old path is used, indicating to users how to switch to the new path and the release
+  in which the old path will no longer be available.
+* Minor release 2: The `PendingDeprecationWarning` becomes a `DeprecationWarning`. The release note
+  should indicate the feature has been deprecated and how to switch to the new path.
+* Minor release 3: The old feature is removed. The release note should indicate that the feature has
+  been removed and how to switch to the new path.
 
 #### Adding deprecation warnings
 
 We use the deprecation wrappers in [Qiskit
-Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
+Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
 
 ```python
 
@@ -386,6 +397,15 @@ Utilities](https://qiskit.org/documentation/apidoc/utils.html) to add warnings:
   
   def new_function(*args, **kwargs):
       pass
+```
+
+Note that these pre-deprecation and deprecation warnings will cause the CI to fail, but features up
+for deprecation should continue to be tested until their removal. All such expected warnings
+should be caught in tests:
+
+```python
+  with self.assertWarns(DeprecationWarning):
+      # Test something deprecated here
 ```
 
 ### Development cycle
