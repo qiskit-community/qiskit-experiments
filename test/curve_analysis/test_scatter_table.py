@@ -13,7 +13,6 @@
 """Test scatter table."""
 
 from test.base import QiskitExperimentsTestCase
-
 import pandas as pd
 import numpy as np
 
@@ -148,19 +147,26 @@ class TestScatterTable(QiskitExperimentsTestCase):
         np.testing.assert_array_equal(obj.class_id, np.array([0, 0, 0]))
         np.testing.assert_array_equal(obj.name, np.array(["model0", "model0", "model0"]))
 
-    def test_set_y(self):
-        """Test setting new values to y column."""
-        obj = ScatterTable()
-        obj.add_row(x=0.1, y=2.0, y_err=0.3)
-        obj.y = [0.5]
-        np.testing.assert_array_equal(obj.y, np.array([0.5]))
+    def test_get_subset_numbers(self):
+        """Test end-user shortcut for getting the subset of x, y, y_err data."""
+        obj = ScatterTable.from_dataframe(self.reference)
 
-    def test_set_y_err(self):
-        """Test setting new values to y_err column."""
-        obj = ScatterTable()
-        obj.add_row(x=0.1, y=2.0, y_err=0.3)
-        obj.y_err = [0.5]
-        np.testing.assert_array_equal(obj.y_err, np.array([0.5]))
+        np.testing.assert_array_equal(obj.get_x("model1", "raw", "Fit1"), np.array([0.100, 0.200]))
+        np.testing.assert_array_equal(obj.get_y("model1", "raw", "Fit1"), np.array([0.192, 0.854]))
+        np.testing.assert_array_equal(
+            obj.get_y_err("model1", "raw", "Fit1"), np.array([0.002, 0.090])
+        )
+
+    def test_warn_composite_values(self):
+        """Test raise warning when returned x, y, y_err data contains multiple data series."""
+        obj = ScatterTable.from_dataframe(self.reference)
+
+        with self.assertWarns(UserWarning):
+            obj.get_x()
+        with self.assertWarns(UserWarning):
+            obj.get_y()
+        with self.assertWarns(UserWarning):
+            obj.get_y_err()
 
     def test_filter_data_by_class_id(self):
         """Test filter table data with data UID."""

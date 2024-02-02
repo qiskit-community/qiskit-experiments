@@ -739,6 +739,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
                     "counts": {"0": 6, "1": 4},
                     "memory": ["0", "0", "1", "0", "0", "1", "1", "0", "0", "1"],
+                    "shots": 10,
+                    "meas_level": 2,
                 }
             ],
             [
@@ -746,6 +748,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
                     "counts": {"0": 5, "1": 5},
                     "memory": ["0", "1", "1", "0", "0", "0", "1", "0", "1", "1"],
+                    "shots": 10,
+                    "meas_level": 2,
                 }
             ],
         ]
@@ -795,6 +799,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     [[idx + 0.3, idx + 0.3]],
                     [[idx + 0.4, idx + 0.4]],
                 ],
+                "shots": 5,
+                "meas_level": 1,
             }
 
             self.assertEqual(expected, sub_data[0])
@@ -833,6 +839,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             expected = {
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
                 "memory": [[idx + 0.0, idx + 0.1]],
+                "shots": 5,
+                "meas_level": 1,
             }
 
             self.assertEqual(expected, sub_data[0])

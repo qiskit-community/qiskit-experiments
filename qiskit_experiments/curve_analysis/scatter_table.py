@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Iterator
 from typing import Any
 from itertools import groupby
@@ -111,6 +112,32 @@ class ScatterTable:
     def x(self, new_values):
         self._data.loc[:, "xval"] = new_values
 
+    def get_x(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+        check_unique: bool = True,
+    ) -> np.ndarray:
+        """Get subset of X values.
+
+        A convenient shortcut of getting X data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+            check_unique: Set True to check if multiple series are contained.
+                When multiple series are contained, it raises a user warning.
+
+        Returns:
+            Numpy array of X values.
+        """
+        sub_table = self.filter(kind, category, analysis)
+        if check_unique:
+            self._warn_composite_data(sub_table)
+        return sub_table.x
+
     @property
     def y(self) -> np.ndarray:
         """Y values."""
@@ -120,14 +147,66 @@ class ScatterTable:
     def y(self, new_values: np.ndarray):
         self._data.loc[:, "yval"] = new_values
 
+    def get_y(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+        check_unique: bool = True,
+    ) -> np.ndarray:
+        """Get subset of Y values.
+
+        A convenient shortcut of getting Y data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+            check_unique: Set True to check if multiple series are contained.
+                When multiple series are contained, it raises a user warning.
+
+        Returns:
+            Numpy array of Y values.
+        """
+        sub_table = self.filter(kind, category, analysis)
+        if check_unique:
+            self._warn_composite_data(sub_table)
+        return sub_table.y
+
     @property
     def y_err(self) -> np.ndarray:
-        """Standard deviation of y values."""
+        """Standard deviation of Y values."""
         return self._data.yerr.to_numpy(dtype=float, na_value=np.nan)
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
         self._data.loc[:, "yerr"] = new_values
+
+    def get_y_err(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+        check_unique: bool = True,
+    ) -> np.ndarray:
+        """Get subset of standard deviation of Y values.
+
+        A convenient shortcut of getting Y error data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+            check_unique: Set True to check if multiple series are contained.
+                When multiple series are contained, it raises a user warning.
+
+        Returns:
+            Numpy array of Y error values.
+        """
+        sub_table = self.filter(kind, category, analysis)
+        if check_unique:
+            self._warn_composite_data(sub_table)
+        return sub_table.y_err
 
     @property
     def name(self) -> np.ndarray:
@@ -278,6 +357,27 @@ class ScatterTable:
             .astype(dict(zip(cls.DEFAULT_COLUMNS, cls.DEFAULT_DTYPES)))
             .reset_index(drop=True)
         )
+
+    @staticmethod
+    def _warn_composite_data(table: ScatterTable):
+        if len(table._data.name.unique()) > 1:
+            warnings.warn(
+                "Returned data contains multiple series. "
+                "You may want to filter the data by a specific kind identifier.",
+                UserWarning,
+            )
+        if len(table._data.category.unique()) > 1:
+            warnings.warn(
+                "Returned data contains multiple categories. "
+                "You may want to filter the data by a specific category name.",
+                UserWarning,
+            )
+        if len(table._data.analysis.unique()) > 1:
+            warnings.warn(
+                "Returned data contains multiple datasets from different component analyses. "
+                "You may want to filter the data by a specific analysis name.",
+                UserWarning,
+            )
 
     @property
     @deprecate_func(

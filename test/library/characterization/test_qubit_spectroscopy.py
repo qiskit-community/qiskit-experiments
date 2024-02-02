@@ -16,7 +16,7 @@ import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.circuit.library import XGate
-from qiskit.providers.fake_provider import FakeWashingtonV2
+from qiskit_ibm_runtime.fake_provider import FakeWashingtonV2
 from qiskit_experiments.framework import ParallelExperiment
 
 from qiskit_experiments.framework import BackendData

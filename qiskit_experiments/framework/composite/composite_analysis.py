@@ -235,7 +235,10 @@ class CompositeAnalysis(BaseAnalysis):
                 if index not in marginalized_data:
                     # Initialize data list for marginalized
                     marginalized_data[index] = []
-                sub_data = {"metadata": metadata["composite_metadata"][i]}
+                sub_data = {
+                    k: v for k, v in datum.items() if k not in ("metadata", "counts", "memory")
+                }
+                sub_data["metadata"] = metadata["composite_metadata"][i]
                 if "counts" in datum:
                     if composite_clbits is not None:
                         sub_data["counts"] = marginal_distribution(

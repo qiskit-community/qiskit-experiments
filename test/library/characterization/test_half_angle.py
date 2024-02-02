@@ -16,8 +16,8 @@ from test.base import QiskitExperimentsTestCase
 import copy
 
 from qiskit import pulse, transpile
-from qiskit.providers.fake_provider import FakeAthens
 from qiskit.pulse import InstructionScheduleMap
+from qiskit_ibm_runtime.fake_provider import FakeAthens
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQHalfAngleHelper as HalfAngleHelper

@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeMelbourneV2
+from qiskit_ibm_runtime.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus

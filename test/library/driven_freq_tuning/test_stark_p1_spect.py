@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import pulse
 from qiskit.circuit import QuantumCircuit, Gate
 from qiskit.providers import QubitProperties
-from qiskit.providers.fake_provider import FakeHanoiV2
+from qiskit_ibm_runtime.fake_provider import FakeHanoiV2
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.library import StarkP1Spectroscopy

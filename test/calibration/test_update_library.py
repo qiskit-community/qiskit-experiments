@@ -14,8 +14,8 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeAthensV2
 from qiskit.qobj.utils import MeasLevel
+from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import QubitSpectroscopy
