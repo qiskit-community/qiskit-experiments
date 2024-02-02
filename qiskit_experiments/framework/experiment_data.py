@@ -1650,7 +1650,7 @@ class ExperimentData:
                 self._max_workers_cap,
             )
             max_workers = self._max_workers_cap
-        self._save_experiment_metadata(suppress_errors=suppress_errors)
+
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
@@ -1713,17 +1713,18 @@ class ExperimentData:
         # save artifacts
         if save_artifacts:
             with self._artifacts.lock:
+                # make dictionary {artifact name: [artifact ids]}
                 artifact_list = defaultdict(list)
                 for artifact in self._artifacts.values():
                     artifact_list[artifact.name].append(artifact.artifact_id)
+                    # populate the metadata entry for file names
+                    self.metadata["artifact_files"].add(f"{artifact.name}.zip")
                 try:
                     for file_type in artifact_list:
                         file_zipped = objs_to_zip(
-                            [f"{file}.json" for file in artifact_list[file_type]],
-                            [
-                                json.dumps(self._artifacts[artifact], cls=self._json_encoder)
-                                for artifact in artifact_list[file_type]
-                            ],
+                            artifact_list[file_type],
+                            [self._artifacts[artifact] for artifact in artifact_list[file_type]],
+                            json_encoder=self._json_encoder,
                         )
                         self.service.file_upload(
                             experiment_id=self.experiment_id,
@@ -1732,6 +1733,9 @@ class ExperimentData:
                         )
                 except Exception:  # pylint: disable=broad-except:
                     LOG.error("Unable to save artifacts: %s", traceback.format_exc())
+
+        # metadata save must come after artifacts
+        self._save_experiment_metadata(suppress_errors=suppress_errors)
 
         if not self.service.local and self.verbose:
             print(
@@ -2229,8 +2233,7 @@ class ExperimentData:
                 for filename in expdata.metadata["artifact_files"]:
                     if service.experiment_has_file(experiment_id, filename):
                         artifact_file = service.file_download(experiment_id, filename)
-                        for artifact_string in zip_to_objs(artifact_file):
-                            artifact = json.loads(artifact_string, cls=cls._json_decoder)
+                        for artifact in zip_to_objs(artifact_file, json_decoder=cls._json_decoder):
                             expdata.add_artifacts(artifact)
         except Exception:  # pylint: disable=broad-except:
             LOG.error("Unable to load artifacts: %s", traceback.format_exc())
@@ -2579,8 +2582,6 @@ class ExperimentData:
                     "artifact."
                 )
             self._artifacts[artifact.artifact_id] = artifact
-            # add the corresponding artifact filename to the metadata if needed
-            self.metadata["artifact_files"].add(f"{artifact.name}.zip")
 
     def delete_artifact(
         self,

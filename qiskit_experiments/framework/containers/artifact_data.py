@@ -44,9 +44,6 @@ class ArtifactData:
         created_time: Time when the artifact was created.
     """
 
-    _json_encoder = ExperimentEncoder
-    _json_decoder = ExperimentDecoder
-
     name: str
     data: Any
     artifact_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
@@ -66,24 +63,6 @@ class ArtifactData:
 
     def __repr__(self):
         return (
-            f"ArtifactData(name={self.name}, dtype={self.dtype}, uid={self.artifact_id},"
+            f"ArtifactData(name={self.name}, dtype={self.dtype}, uid={self.artifact_id}, "
             f"experiment={self.experiment}, device_components={self.device_components})"
         )
-
-    def __json_encode__(self):
-        return {
-            "name": self.name,
-            "data": json.dumps(self.data, cls=self._json_encoder),
-            "experiment_id": self.experiment_id,
-            "experiment": self.experiment,
-            "device_components": self.device_components,
-            "artifact_id": self.artifact_id,
-            "created_time": self.created_time.isoformat(),
-        }
-
-    @classmethod
-    def __json_decode__(cls, value):
-        value["data"] = json.loads(value["data"], cls=cls._json_decoder)
-        # Recast created_time from str to a datetime timestamp
-        value["created_time"] = datetime.fromisoformat(value["created_time"])
-        return cls(**value)
