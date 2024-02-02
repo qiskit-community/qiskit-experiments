@@ -1651,6 +1651,13 @@ class ExperimentData:
             )
             max_workers = self._max_workers_cap
 
+        if save_artifacts:
+            for artifact in self._artifacts.values():
+                # populate the metadata entry for artifact file names
+                self.metadata["artifact_files"].add(f"{artifact.name}.zip")
+
+        self._save_experiment_metadata(suppress_errors=suppress_errors)
+
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
@@ -1717,8 +1724,6 @@ class ExperimentData:
                 artifact_list = defaultdict(list)
                 for artifact in self._artifacts.values():
                     artifact_list[artifact.name].append(artifact.artifact_id)
-                    # populate the metadata entry for file names
-                    self.metadata["artifact_files"].add(f"{artifact.name}.zip")
                 try:
                     for file_type in artifact_list:
                         file_zipped = objs_to_zip(
@@ -1733,9 +1738,6 @@ class ExperimentData:
                         )
                 except Exception:  # pylint: disable=broad-except:
                     LOG.error("Unable to save artifacts: %s", traceback.format_exc())
-
-        # metadata save must come after artifacts
-        self._save_experiment_metadata(suppress_errors=suppress_errors)
 
         if not self.service.local and self.verbose:
             print(
