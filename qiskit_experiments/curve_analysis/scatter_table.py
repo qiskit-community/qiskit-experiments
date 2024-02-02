@@ -111,6 +111,26 @@ class ScatterTable:
     def x(self, new_values):
         self._data.loc[:, "xval"] = new_values
 
+    def get_x(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+    ) -> np.ndarray:
+        """Get subset of X values.
+
+        A convenient shortcut of getting X data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+
+        Returns:
+            Numpy array of X values.
+        """
+        return self.filter(kind, category, analysis).x
+
     @property
     def y(self) -> np.ndarray:
         """Y values."""
@@ -120,14 +140,54 @@ class ScatterTable:
     def y(self, new_values: np.ndarray):
         self._data.loc[:, "yval"] = new_values
 
+    def get_y(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+    ) -> np.ndarray:
+        """Get subset of Y values.
+
+        A convenient shortcut of getting Y data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+
+        Returns:
+            Numpy array of Y values.
+        """
+        return self.filter(kind, category, analysis).y
+
     @property
     def y_err(self) -> np.ndarray:
-        """Standard deviation of y values."""
+        """Standard deviation of Y values."""
         return self._data.yerr.to_numpy(dtype=float, na_value=np.nan)
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
         self._data.loc[:, "yerr"] = new_values
+
+    def get_y_err(
+        self,
+        kind: int | str | None = None,
+        category: str | None = None,
+        analysis: str | None = None,
+    ) -> np.ndarray:
+        """Get subset of standard deviation of Y values.
+
+        A convenient shortcut of getting Y error data with filtering.
+
+        Args:
+            kind: Identifier of the data, either data UID or name.
+            category: Name of data category.
+            analysis: Name of analysis.
+
+        Returns:
+            Numpy array of Y error values.
+        """
+        return self.filter(kind, category, analysis).y_err
 
     @property
     def name(self) -> np.ndarray:
