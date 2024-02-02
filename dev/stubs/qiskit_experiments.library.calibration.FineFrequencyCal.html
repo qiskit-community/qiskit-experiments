@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="RoughDragCal" href="qiskit_experiments.library.calibration.RoughDragCal.html" /><link rel="prev" title="FrequencyCal" href="qiskit_experiments.library.calibration.FrequencyCal.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>FineFrequencyCal - Qiskit Experiments 0.5.0-138-ge81cdebe</title>
+        <title>FineFrequencyCal - Qiskit Experiments 0.5.0-139-gf22bb7b6</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-138-ge81cdebe</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-139-gf22bb7b6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-138-ge81cdebe</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-139-gf22bb7b6</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -698,7 +698,7 @@ error attributed to a frequency offset in the qubit.</p>
 <li><p><strong>physical_qubits</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>) – Sequence containing the qubit for which to run the
 fine frequency calibration.</p></li>
 <li><p><strong>calibrations</strong> (<a class="reference internal" href="qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.calibrations.Calibrations"><em>Calibrations</em></a>) – The calibrations instance with the schedules.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.45)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
 <li><p><strong>cal_parameter_name</strong> (<em>str</em><em> | </em><em>None</em>) – The name of the parameter to update in the calibrations.
 This defaults to <cite>drive_freq</cite>.</p></li>
 <li><p><strong>delay_duration</strong> (<em>int</em><em> | </em><em>None</em>) – The duration of the delay at <span class="math notranslate nohighlight">\(n=1\)</span>. If this value is
@@ -778,7 +778,7 @@ calibration updater to update the parameters in the calibration table.</p>
 <dd><p>Return the list of quantum circuits to run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.45)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -823,7 +823,7 @@ calibration updater to update the parameters in the calibration table.</p>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.45)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -857,7 +857,7 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.45)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
 will override any currently set backends for the single
 execution.</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -989,7 +989,7 @@ of a sample. This is also the duration of the time unit <code class="docutils li
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/01</div>
+              Last updated on 2024/02/02</div>
           </div>
           <div class="right-details">
             
@@ -1046,7 +1046,7 @@ of a sample. This is also the duration of the time unit <code class="docutils li
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8f0eb196"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=50c6dd5d"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

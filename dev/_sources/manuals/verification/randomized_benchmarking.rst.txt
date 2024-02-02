@@ -11,6 +11,11 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__ for an
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
+.. note::
+    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
+
 .. jupyter-execute::
 
     import numpy as np
@@ -20,7 +25,7 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     
     backend = AerSimulator.from_backend(FakePerth())
 

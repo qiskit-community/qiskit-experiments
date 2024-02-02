@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.5.0-138-ge81cdebe</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.5.0-139-gf22bb7b6</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-138-ge81cdebe</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-139-gf22bb7b6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-138-ge81cdebe</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-139-gf22bb7b6</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -624,6 +624,12 @@ output different from the ground state) are counted, and from this data one can 
 error estimates for the quantum device, by calculating the Error Per Clifford. See the
 <a class="reference external" href="https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb">Qiskit Textbook</a> for an
 explanation on the RB method, which is based on Refs. <a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#id9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.org/ecosystem/aer/apidocs/aer_provider.html#module-qiskit_aer" title="(in Qiskit Aer v0.13.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_aer</span></code></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/runtime_service#module-qiskit_ibm_runtime" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_ibm_runtime</span></code></a>
+packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
+<span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
+</div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -633,7 +639,7 @@ explanation on the RB method, which is based on Refs. <a class="footnote-referen
 
 <span class="c1"># For simulation</span>
 <span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span> <span class="nn">qiskit_ibm_runtime.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
 
 <span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
 </pre></div>
@@ -731,65 +737,65 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 49
+ - number of function evals: 137
  - degree of freedom: 1
- - chi-square: 4.21357422714179
- - reduced chi-square: 4.21357422714179
- - Akaike info crit.: 6.208067645838922
- - Bayesian info crit.: 4.366950729198593
+ - chi-square: 0.00014145116566847407
+ - reduced chi-square: 0.00014145116566847407
+ - Akaike info crit.: -34.999401522075345
+ - Bayesian info crit.: -36.84051843871568
  - init params:
-  * a = 0.47505258401028844
-  * alpha = 0.9997352824798167
+  * a = 0.4751488099330618
+  * alpha = 0.9997381458470307
   * b = 0.5
  - fit params:
-  * a = 0.43933798659452455 ± 0.5537799148899296
-  * alpha = 0.9997014248440037 ± 0.00040661512695968727
-  * b = 0.5361406341394079 ± 0.5542623260645893
+  * a = 0.2148305728112405 ± 0.11780562572931882
+  * alpha = 0.9993530213126471 ± 0.0004222668354503548
+  * b = 0.7603364958652062 ± 0.11844929469471402
  - correlations:
-  * (a, b) = -0.9999974646702093
-  * (alpha, b) = -0.9996625262701282
-  * (a, alpha) = 0.9996209637352625
-- quality: bad
+  * (a, b) = -0.9999185800437173
+  * (alpha, b) = -0.9982913794968697
+  * (a, alpha) = 0.9976724227208492
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9997+/-0.0004
-- χ²: 4.21357422714179
-- quality: bad
+- value: 0.9994+/-0.0004
+- χ²: 0.00014145116566847407
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00015+/-0.00020
-- χ²: 4.21357422714179
-- quality: bad
+- value: 0.00032+/-0.00021
+- χ²: 0.00014145116566847407
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00016+/-0.00022
-- χ²: 4.21357422714179
-- quality: bad
+- value: 0.00035+/-0.00023
+- χ²: 0.00014145116566847407
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 4.21357422714179
-- quality: bad
+- χ²: 0.00014145116566847407
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00016+/-0.00022
-- χ²: 4.21357422714179
-- quality: bad
+- value: 0.00035+/-0.00023
+- χ²: 0.00014145116566847407
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
@@ -895,24 +901,24 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 20
+ - number of function evals: 16
  - degree of freedom: 4
- - chi-square: 1.8833101789673015
- - reduced chi-square: 0.47082754474182537
- - Akaike info crit.: -3.1901543089600644
- - Bayesian info crit.: -3.352423861794125
+ - chi-square: 3.0764258022488433
+ - reduced chi-square: 0.7691064505622108
+ - Akaike info crit.: 0.2450082418687698
+ - Bayesian info crit.: 0.08273868903470927
  - init params:
-  * a = 0.7126657785818512
-  * alpha = 0.9836650100400299
+  * a = 0.7169712197339174
+  * alpha = 0.98279279132427
   * b = 0.25
  - fit params:
-  * a = 0.7107847605494721 ± 0.006284551316763102
-  * alpha = 0.9825217716889368 ± 0.00047451957515350595
-  * b = 0.2534800929865523 ± 0.005755276637222602
+  * a = 0.7163084101010658 ± 0.00548625478312473
+  * alpha = 0.9824786485748758 ± 0.000465793488340529
+  * b = 0.25050977480838865 ± 0.004800840596757334
  - correlations:
-  * (alpha, b) = -0.8797317345931709
-  * (a, b) = -0.754700796602048
-  * (a, alpha) = 0.5325776670175191
+  * (alpha, b) = -0.8941660368432497
+  * (a, b) = -0.7618240896985362
+  * (a, alpha) = 0.592882260921272
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -920,31 +926,31 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 AnalysisResult
 - name: alpha
 - value: 0.9825+/-0.0005
-- χ²: 0.47082754474182537
+- χ²: 0.7691064505622108
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0131+/-0.0004
-- χ²: 0.47082754474182537
+- value: 0.01314+/-0.00035
+- χ²: 0.7691064505622108
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0122+/-0.0007
-- χ²: 0.47082754474182537
+- value: 0.0111+/-0.0007
+- χ²: 0.7691064505622108
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0078+/-0.0004
-- χ²: 0.47082754474182537
+- value: 0.0071+/-0.0005
+- χ²: 0.7691064505622108
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1062,53 +1068,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 30
+ - number of function evals: 25
  - degree of freedom: 10
- - chi-square: 13.00638877457272
- - reduced chi-square: 1.300638877457272
- - Akaike info crit.: 6.969366918550411
- - Bayesian info crit.: 9.525596237011445
+ - chi-square: 17.420235831391874
+ - reduced chi-square: 1.7420235831391875
+ - Akaike info crit.: 11.060052515587861
+ - Bayesian info crit.: 13.616281834048895
  - init params:
-  * a = 0.7108539640012184
-  * alpha = 0.983403874346945
+  * a = 0.7149975560851441
+  * alpha = 0.9819027809667501
   * b = 0.25
-  * alpha_c = 0.9965444832975119
+  * alpha_c = 0.9900968312257564
  - fit params:
-  * a = 0.7078221993603337 ± 0.003061096778850457
-  * alpha = 0.9820082598986908 ± 0.00031637392401662504
-  * b = 0.25659257614389414 ± 0.0023980263698490435
-  * alpha_c = 0.9888424477829085 ± 0.0004668647567939037
+  * a = 0.7146797600292011 ± 0.0035147564229015974
+  * alpha = 0.982224932416932 ± 0.0003168997677824998
+  * b = 0.2501473050401167 ± 0.002511450953505569
+  * alpha_c = 0.9895964958186069 ± 0.0004871136487984949
  - correlations:
-  * (a, b) = -0.6842186152945215
-  * (alpha, b) = -0.6530627454127864
-  * (b, alpha_c) = -0.3061488391367347
-  * (alpha, alpha_c) = -0.16283748987182822
-  * (a, alpha_c) = 0.1338013897320175
-  * (a, alpha) = 0.34308108010310767
+  * (alpha, b) = -0.6556553035443052
+  * (a, b) = -0.5986577421992899
+  * (b, alpha_c) = -0.364162118734303
+  * (alpha, alpha_c) = -0.10017594823205828
+  * (a, alpha_c) = 0.16588329494704943
+  * (a, alpha) = 0.24362636044982627
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98201+/-0.00032
-- χ²: 1.300638877457272
+- value: 0.98222+/-0.00032
+- χ²: 1.7420235831391875
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9888+/-0.0005
-- χ²: 1.300638877457272
+- value: 0.9896+/-0.0005
+- χ²: 1.7420235831391875
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00837+/-0.00035
-- χ²: 1.300638877457272
+- value: 0.0078+/-0.0004
+- χ²: 1.7420235831391875
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1207,7 +1213,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/01</div>
+              Last updated on 2024/02/02</div>
           </div>
           <div class="right-details">
             
@@ -1249,7 +1255,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8f0eb196"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=50c6dd5d"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
