@@ -21,7 +21,8 @@ from typing import Any, Set, List, Tuple
 from typing import Type, Optional
 
 import numpy as np
-from sphinx.ext.autodoc import Sphinx, Options as SphinxOptions
+from sphinx.application import Sphinx
+from sphinx.ext.autodoc import Options as SphinxOptions
 from sphinx.ext.napoleon import Config as NapoleonConfig
 from sphinx.ext.napoleon import GoogleDocstring
 
