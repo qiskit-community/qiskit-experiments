@@ -1435,7 +1435,7 @@ class ExperimentData:
             )
             if self.auto_save:
                 service_result = _series_to_service_result(
-                    series=self._analysis_results.get_data(uid),
+                    series=self._analysis_results.get_data(uid, columns="all").iloc[0],
                     service=self._service,
                     auto_save=False,
                 )
