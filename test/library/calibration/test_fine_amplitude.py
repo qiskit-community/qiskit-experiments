@@ -18,8 +18,8 @@ from ddt import ddt, data
 from qiskit import pulse
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.providers.fake_provider import FakeArmonkV2
 from qiskit.pulse import DriveChannel, Drag
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import (
     FineXAmplitude,

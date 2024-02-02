@@ -1,6 +1,6 @@
 numpy>=1.17
 scipy>=1.4
-qiskit>=0.45
+qiskit==0.45.3  # Temporary
 qiskit-ibm-experiment>=0.3.4
 matplotlib>=3.4
 uncertainties

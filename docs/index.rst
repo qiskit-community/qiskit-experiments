@@ -103,7 +103,7 @@ We've divided up the documentation into four sections with different purposes:
     apidocs/index
     release_notes
     GitHub <https://github.com/Qiskit-Extensions/qiskit-experiments>
-    Development Branch Docs <https://qiskit.org/ecosystem/experiments/dev>
+    Development Branch Docs <https://qiskit-extensions.github.io/qiskit-experiments/dev/>
 
 |
 

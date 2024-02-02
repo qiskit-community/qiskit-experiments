@@ -18,8 +18,8 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, named_data, unpack
 
-from qiskit.providers.fake_provider import FakeVigoV2
 from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn

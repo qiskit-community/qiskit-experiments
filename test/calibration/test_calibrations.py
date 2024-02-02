@@ -36,8 +36,8 @@ from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 from qiskit.providers import BackendV2, Options
-from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit.transpiler import Target
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2, FakeBelemV2
 
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
