@@ -17,12 +17,12 @@ class unifies data access for various data fields.
 """
 from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.providers import BackendV1, BackendV2
-from qiskit.providers.fake_provider import FakeBackendV2, FakeBackend
+from qiskit.providers.fake_provider import FakeBackend
+from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
 
-# One of the FakeBackendV2's was moved from qiskit to qiskit-ibm-runtime. Check
-# both packages until dropping support for qiskit<1
 try:
-    from qiskit.providers.fake_provider.fake_backend import FakeBackendV2 as QiskitFakeBackendV2
+    # Removed in Qiskit 1.0. Different from the other FakeBackendV2's
+    from qiskit.providers.fake_provider import FakeBackendV2
 except ImportError:
 
     class QiskitFakeBackendV2:
@@ -37,6 +37,8 @@ except ImportError:
 
 
 try:
+    # A copy of qiskit.providers.fake_provider.fake_backend.FakeBackendV2, at
+    # least as of qiskit-ibm-runtime 0.18.0 and Qiskit 1.0
     from qiskit_ibm_runtime.fake_provider.fake_backend import FakeBackendV2 as RuntimeFakeBackendV2
 except ImportError:
 
