@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Restless Measurements" href="restless_measurements.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.5.0-139-gf22bb7b6</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.5.0-140-ga87f68c4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-139-gf22bb7b6</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-140-ga87f68c4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-139-gf22bb7b6</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-140-ga87f68c4</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -651,7 +651,7 @@ packages to run simulations.  You can install them with <code class="docutils li
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.visualization</span> <span class="kn">import</span> <span class="n">plot_histogram</span>
+<span class="kn">from</span> <span class="nn">qiskit.visualization</span> <span class="kn">import</span> <span class="n">plot_distribution</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">LocalReadoutError</span><span class="p">,</span> <span class="n">CorrelatedReadoutError</span>
 
 <span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
@@ -757,17 +757,17 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.03092784 -0.02474227]
- [-0.03092784  1.02474227]]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.02666667 -0.02358974]
+ [-0.02666667  1.02358974]]
 
-[[ 1.01210898 -0.02119072]
- [-0.01210898  1.02119072]]
+[[ 1.01717172 -0.01717172]
+ [-0.01717172  1.01717172]]
 
-[[ 1.01503006 -0.01102204]
- [-0.01503006  1.01102204]]
+[[ 1.01305221 -0.01506024]
+ [-0.01305221  1.01506024]]
 
-[[ 1.01204819 -0.01606426]
- [-0.01204819  1.01606426]]
+[[ 1.01306533 -0.0160804 ]
+ [-0.01306533  1.0160804 ]]
 
 </pre></div>
 </div>
@@ -815,7 +815,7 @@ the identity.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legend</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mitigated Probabilities&#39;</span><span class="p">,</span> <span class="s1">&#39;Unmitigated Probabilities&#39;</span><span class="p">]</span>
-<span class="n">plot_histogram</span><span class="p">([</span><span class="n">mitigated_probs</span><span class="p">,</span> <span class="n">unmitigated_probs</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;value_desc&quot;</span><span class="p">,</span> <span class="n">bar_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plot_distribution</span><span class="p">([</span><span class="n">mitigated_probs</span><span class="p">,</span> <span class="n">unmitigated_probs</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;value_desc&quot;</span><span class="p">,</span> <span class="n">bar_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -858,7 +858,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fb7ac256790&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f6b877ece20&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_11_1.png" src="../../_images/readout_mitigation_11_1.png" />
@@ -974,7 +974,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/02</div>
+              Last updated on 2024/02/03</div>
           </div>
           <div class="right-details">
             
@@ -1018,7 +1018,7 @@ meas: 2/═════════╩══╩═
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=50c6dd5d"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=d767e491"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

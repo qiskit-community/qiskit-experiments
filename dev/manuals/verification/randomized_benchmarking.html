@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.5.0-139-gf22bb7b6</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.5.0-140-ga87f68c4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-139-gf22bb7b6</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-140-ga87f68c4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-139-gf22bb7b6</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-140-ga87f68c4</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -737,48 +737,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 137
+ - number of function evals: 116
  - degree of freedom: 1
- - chi-square: 0.00014145116566847407
- - reduced chi-square: 0.00014145116566847407
- - Akaike info crit.: -34.999401522075345
- - Bayesian info crit.: -36.84051843871568
+ - chi-square: 0.2901539453495442
+ - reduced chi-square: 0.2901539453495442
+ - Akaike info crit.: -4.494552047750034
+ - Bayesian info crit.: -6.335668964390362
  - init params:
-  * a = 0.4751488099330618
-  * alpha = 0.9997381458470307
+  * a = 0.47740165228663267
+  * alpha = 0.9997206553369328
   * b = 0.5
  - fit params:
-  * a = 0.2148305728112405 ± 0.11780562572931882
-  * alpha = 0.9993530213126471 ± 0.0004222668354503548
-  * b = 0.7603364958652062 ± 0.11844929469471402
+  * a = 0.2678485974067544 ± 0.2358963735879685
+  * alpha = 0.9994686482770724 ± 0.0005409344802633949
+  * b = 0.7094467648225918 ± 0.23644178794339396
  - correlations:
-  * (a, b) = -0.9999185800437173
-  * (alpha, b) = -0.9982913794968697
-  * (a, alpha) = 0.9976724227208492
+  * (a, b) = -0.9999761030299905
+  * (alpha, b) = -0.9990132167254994
+  * (a, alpha) = 0.9988063477924112
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9994+/-0.0004
-- χ²: 0.00014145116566847407
+- value: 0.9995+/-0.0005
+- χ²: 0.2901539453495442
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00032+/-0.00021
-- χ²: 0.00014145116566847407
+- value: 0.00027+/-0.00027
+- χ²: 0.2901539453495442
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00035+/-0.00023
-- χ²: 0.00014145116566847407
+- value: 0.00029+/-0.00029
+- χ²: 0.2901539453495442
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -786,15 +786,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 0.00014145116566847407
+- χ²: 0.2901539453495442
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00035+/-0.00023
-- χ²: 0.00014145116566847407
+- value: 0.00029+/-0.00029
+- χ²: 0.2901539453495442
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -901,56 +901,56 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 16
+ - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 3.0764258022488433
- - reduced chi-square: 0.7691064505622108
- - Akaike info crit.: 0.2450082418687698
- - Bayesian info crit.: 0.08273868903470927
+ - chi-square: 1.4161194015288034
+ - reduced chi-square: 0.35402985038220086
+ - Akaike info crit.: -5.185928839576523
+ - Bayesian info crit.: -5.348198392410583
  - init params:
-  * a = 0.7169712197339174
-  * alpha = 0.98279279132427
+  * a = 0.7183572852401626
+  * alpha = 0.982933667526662
   * b = 0.25
  - fit params:
-  * a = 0.7163084101010658 ± 0.00548625478312473
-  * alpha = 0.9824786485748758 ± 0.000465793488340529
-  * b = 0.25050977480838865 ± 0.004800840596757334
+  * a = 0.7136228675176466 ± 0.005854826885283773
+  * alpha = 0.9821821559758918 ± 0.0004921332942515278
+  * b = 0.2547746732513231 ± 0.004970115961174301
  - correlations:
-  * (alpha, b) = -0.8941660368432497
-  * (a, b) = -0.7618240896985362
-  * (a, alpha) = 0.592882260921272
+  * (alpha, b) = -0.881999932813699
+  * (a, b) = -0.7047589350109255
+  * (a, alpha) = 0.5054264677443492
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9825+/-0.0005
-- χ²: 0.7691064505622108
+- value: 0.9822+/-0.0005
+- χ²: 0.35402985038220086
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.01314+/-0.00035
-- χ²: 0.7691064505622108
+- value: 0.0134+/-0.0004
+- χ²: 0.35402985038220086
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0111+/-0.0007
-- χ²: 0.7691064505622108
+- value: 0.0106+/-0.0007
+- χ²: 0.35402985038220086
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0071+/-0.0005
-- χ²: 0.7691064505622108
+- value: 0.0068+/-0.0005
+- χ²: 0.35402985038220086
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1068,53 +1068,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 25
+ - number of function evals: 30
  - degree of freedom: 10
- - chi-square: 17.420235831391874
- - reduced chi-square: 1.7420235831391875
- - Akaike info crit.: 11.060052515587861
- - Bayesian info crit.: 13.616281834048895
+ - chi-square: 14.1474631759903
+ - reduced chi-square: 1.41474631759903
+ - Akaike info crit.: 8.14669196573519
+ - Bayesian info crit.: 10.702921284196224
  - init params:
-  * a = 0.7149975560851441
-  * alpha = 0.9819027809667501
+  * a = 0.7124134472777159
+  * alpha = 0.9835153426355455
   * b = 0.25
-  * alpha_c = 0.9900968312257564
+  * alpha_c = 0.9945854769711036
  - fit params:
-  * a = 0.7146797600292011 ± 0.0035147564229015974
-  * alpha = 0.982224932416932 ± 0.0003168997677824998
-  * b = 0.2501473050401167 ± 0.002511450953505569
-  * alpha_c = 0.9895964958186069 ± 0.0004871136487984949
+  * a = 0.7151304232118066 ± 0.0031975098599114245
+  * alpha = 0.9827224589197112 ± 0.0002939398159921283
+  * b = 0.2504245565768469 ± 0.0024420663915768986
+  * alpha_c = 0.9892740677823221 ± 0.0003818007950446504
  - correlations:
-  * (alpha, b) = -0.6556553035443052
-  * (a, b) = -0.5986577421992899
-  * (b, alpha_c) = -0.364162118734303
-  * (alpha, alpha_c) = -0.10017594823205828
-  * (a, alpha_c) = 0.16588329494704943
-  * (a, alpha) = 0.24362636044982627
+  * (alpha, b) = -0.7060017350385727
+  * (a, b) = -0.648101496212027
+  * (b, alpha_c) = -0.2075004410684055
+  * (alpha, alpha_c) = -0.20275753019742554
+  * (a, alpha_c) = 0.05864319991771108
+  * (a, alpha) = 0.3278135309192779
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98222+/-0.00032
-- χ²: 1.7420235831391875
+- value: 0.98272+/-0.00029
+- χ²: 1.41474631759903
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9896+/-0.0005
-- χ²: 1.7420235831391875
+- value: 0.9893+/-0.0004
+- χ²: 1.41474631759903
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0078+/-0.0004
-- χ²: 1.7420235831391875
+- value: 0.00804+/-0.00029
+- χ²: 1.41474631759903
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1213,7 +1213,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/02</div>
+              Last updated on 2024/02/03</div>
           </div>
           <div class="right-details">
             
@@ -1255,7 +1255,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=50c6dd5d"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=d767e491"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
