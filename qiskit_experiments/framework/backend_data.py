@@ -22,7 +22,7 @@ from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
 
 try:
     # Removed in Qiskit 1.0. Different from the other FakeBackendV2's
-    from qiskit.providers.fake_provider import FakeBackendV2
+    from qiskit.providers.fake_provider import QiskitFakeBackendV2
 except ImportError:
 
     class QiskitFakeBackendV2:
