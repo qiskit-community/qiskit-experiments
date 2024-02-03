@@ -13,14 +13,22 @@
 """Fake backend class for tests."""
 import uuid
 from qiskit.circuit.library import Measure
+from qiskit.providers import ProviderV1
 from qiskit.providers.backend import BackendV2
-from qiskit.providers.fake_provider import FakeProvider
 from qiskit.providers.options import Options
 from qiskit.transpiler import Target
 
 from qiskit.result import Result
 
 from qiskit_experiments.test.utils import FakeJob
+
+
+class FakeProvider(ProviderV1):
+    """Fake provider with no backends for testing"""
+
+    def backends(self, name=None, **kwargs):
+        """List of available backends. Empty in this case"""
+        return []
 
 
 class FakeBackend(BackendV2):
