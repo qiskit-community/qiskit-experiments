@@ -45,7 +45,7 @@ backend and not a simulator to be able to save the experiment data. This is done
 .. jupyter-output::
 
     You can view the experiment online at 
-    https://quantum.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
+    https://quantum.ibm.com/experiments/e4fbafb6-3131-49c1-be27-359c609f9af8
 
 Loading
 ~~~~~~~
@@ -56,9 +56,7 @@ experiment <https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e9
 
 .. jupyter-input::
 
-    from qiskit_experiments.framework.experiment_data import ExperimentData
-    service = ExperimentData.get_service_from_backend(backend)
-    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
+    load_expdata = ExperimentData.load("e4fbafb6-3131-49c1-be27-359c609f9af8", provider=service)
 
 Now we can display the figure from the loaded experiment data:
 
