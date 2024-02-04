@@ -92,7 +92,7 @@ class MplDrawer(BaseDrawer):
             # Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.
             # This draws inset axes with shared x and y axis.
             if (
-                self.figure_options.custom_style.get("style_name", None) == "residuals"
+                self.figure_options.get("custom_style", {}).get("style_name", None) == "residuals"
                 and n_subplots != 2
             ):
                 # raising an error for residual plotting that isn't on individual plot per figure.
@@ -357,6 +357,10 @@ class MplDrawer(BaseDrawer):
         Returns:
             Default color available in matplotlib.
         """
+        if self.figure_options.get("custom_style", {}).get("style_name", None) == "residuals":
+            if name[: -len("_residuals")] in self._series:
+                name = name[: -len("_residuals")]
+
         if name not in self._series:
             self._series.append(name)
 
