@@ -169,9 +169,11 @@ class CurvePlotter(BasePlotter):
 
             # Plot residuals
             if self.data_exists_for(ser, ["x_residuals", "y_residuals"]):
-                series_name = ser + "_residuals"
-                x, y = self.data_for(ser, ["x_residuals", "y_residuals"])
-                self.drawer.scatter(x, y, name=series_name, legend=True)
+                # check if we cancel residuals plotting
+                if self.options.get("style", {}).get("style_name", None) != "canceled_residuals":
+                    series_name = ser + "_residuals"
+                    x, y = self.data_for(ser, ["x_residuals", "y_residuals"])
+                    self.drawer.scatter(x, y, name=series_name, legend=True)
 
             # Fit report
             report = self._write_report()

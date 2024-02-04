@@ -164,8 +164,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
         """
-        super().set_options(**fields)
-        if fields.get("plot_residuals", None):
+        if fields.get("plot_residuals", None) and not self.options.get("plot_residuals", None):
             # checking there are no subplots for the figure to prevent collision in subplot indexes.
             if self.plotter.options.get("subplots") != (1, 1):
                 warnings.warn(
@@ -207,7 +206,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                         style=PlotStyle(
                             {
                                 "figsize": (8, 8),
-                                "legend_loc": "lower right",
                                 "textbox_rel_pos": (0.28, -0.10),
                                 "sub_plot_heights_list": [7 / 10, 3 / 10],
                                 "sub_plot_widths_list": [1],
@@ -215,6 +213,31 @@ class CurveAnalysis(BaseCurveAnalysis):
                             }
                         ),
                     )
+
+        if not fields.get("plot_residuals", True) and self.options.get("plot_residuals", None):
+            # set options for single plot and cancel residuals plotting.
+            if self.models:
+                self.plotter.set_figure_options(
+                    ylabel=[self.plotter.figure_options.get("ylabel", "")[0]],
+                )
+                model_names = self.model_names()
+                for model_name in model_names:
+                    self.plotter.figure_options["series_params"][model_name].pop("canvas", None)
+
+                # Here add the configuration for the residuals plot:
+                self.plotter.set_options(
+                    subplots=(1, 1),
+                    style=PlotStyle(
+                        {
+                            "figsize": (7, 5),
+                            "textbox_rel_pos": (0, 0),
+                            "sub_plot_heights_list": [1],
+                            "sub_plot_widths_list": [1],
+                            "style_name": "canceled_residuals",
+                        }
+                    ),
+                )
+        super().set_options(**fields)
 
     def _run_data_processing(
         self,

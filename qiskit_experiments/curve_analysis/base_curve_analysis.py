@@ -214,6 +214,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
+        options.plot_residuals = False
         options.return_fit_parameters = True
         options.return_data_points = False
         options.data_processor = None
