@@ -141,6 +141,27 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqualExtended(exp, loaded_exp)
 
+    def test_residual_plot(self):
+        freq_shift = 1e3
+        test_tol = 0.03
+        abs_tol = max(1e3, abs(freq_shift) * test_tol)
+
+        exp_helper = RamseyXYHelper()
+        ramsey = RamseyXY([0])
+        ramsey.backend = MockIQBackend(exp_helper)
+
+        exp_helper.freq_shift = freq_shift
+        ramsey.analysis.set_options(plot_residuals=True)
+        test_data = ramsey.run().block_for_results()
+        test_data_figure_bounds = test_data.figure(0).figure.figbbox.bounds
+
+        ramsey.analysis.set_options(plot_residuals=False)
+        test_data2 = ramsey.run().block_for_results()
+        test_data2_figure_bounds = test_data2.figure(0).figure.figbbox.bounds
+
+        self.assertNotEqual(test_data_figure_bounds[2], test_data2_figure_bounds[2])
+        self.assertNotEqual(test_data_figure_bounds[3], test_data2_figure_bounds[3])
+
     @unittest.skip("Cal experiments are not yet JSON serializable")
     def test_freqcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
