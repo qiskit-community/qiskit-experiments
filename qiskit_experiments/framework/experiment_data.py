@@ -1095,8 +1095,15 @@ class ExperimentData:
                 job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
             except AttributeError:  # TODO: remove this path
-                job = self.provider.retrieve_job(jid)
-                retrieved_jobs[jid] = job
+                try:
+                    job = self.provider.retrieve_job(jid)
+                    retrieved_jobs[jid] = job
+                except Exception:  # pylint: disable=broad-except
+                    LOG.warning(
+                        "Unable to retrieve data from job [Job ID: %s]: %s",
+                        jid,
+                        traceback.format_exc(),
+                    )
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
                     "Unable to retrieve data from job [Job ID: %s]: %s", jid, traceback.format_exc()
