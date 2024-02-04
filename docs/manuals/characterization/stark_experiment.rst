@@ -112,9 +112,13 @@ drive port of the qubit.
 In a typical IBM device using the cross-resonance drive architecture,
 such channel can be identified with your backend as follows:
 
+.. note::
+    This tutorial requires the :mod:`qiskit_ibm_runtime` package to model a
+    backend.  You can install it with ``python -m pip install qiskit-ibm-runtime``.
+
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakeHanoiV2
+    from qiskit_ibm_runtime.fake_provider import FakeHanoiV2
 
     backend = FakeHanoiV2()
     qubit = 0
@@ -143,7 +147,7 @@ by a variant of the Hahn-echo pulse sequence [5]_.
 
     from qiskit_experiments.library import StarkRamseyXY
     from qiskit import schedule, pulse
-    from qiskit.providers.fake_provider import FakeHanoi
+    from qiskit_ibm_runtime.fake_provider import FakeHanoi
     from qiskit.visualization.pulse_v2 import IQXSimple
 
     backend = FakeHanoi()
@@ -209,6 +213,110 @@ This technique allows you to estimate :math:`\delta f_S` at a particular :math:`
 
 In Qiskit Experiments, the experiment option ``stark_amp`` usually refers to
 the height of this GaussianSquare flat-top.
+
+
+Workflow
+--------
+
+In this example, you'll learn how to measure a spectrum of qubit relaxation versus
+frequency with fixed frequency transmons.
+As you already know, we give an offset to the qubit frequency with a Stark tone,
+and the workflow starts from characterizing the amount of the Stark shift against
+the Stark amplitude :math:`\bar{\Omega}` that you can experimentally control.
+
+.. jupyter-input::
+
+    from qiskit_experiments.library.driven_freq_tuning import StarkRamseyXYAmpScan
+
+    exp = StarkRamseyXYAmpScan((0,), backend=backend)
+    exp_data = exp.run().block_for_results()
+    coefficients = exp_data.analysis_results("stark_coefficients").value
+
+You first need to run the :class:`.StarkRamseyXYAmpScan` experiment that scans :math:`\bar{\Omega}`
+and estimates the amount of the resultant frequency shift.
+This experiment fits the frequency shift to a polynomial model which is a function of :math:`\bar{\Omega}`.
+You can obtain the :class:`.StarkCoefficients` object that contains
+all polynomial coefficients to map and reverse-map the :math:`\bar{\Omega}` to a corresponding frequency value.
+
+This object may be necessary for the following spectroscopy experiment.
+Since Stark coefficients are stable for a relatively long time,
+you may want to save the coefficient values and load them later when you run the experiment.
+If you have an access to the Experiment service, you can just save the experiment result.
+
+.. jupyter-input::
+
+    exp_data.save()
+
+.. jupyter-output::
+
+    You can view the experiment online at https://quantum.ibm.com/experiments/23095777-be28-4036-9c98-89d3a915b820
+
+
+Otherwise, you can dump the coefficient object into a file with JSON format.
+
+.. jupyter-input::
+
+    import json
+    from qiskit_experiments.framework import ExperimentEncoder
+
+    with open("coefficients.json", "w") as fp:
+        json.dump(ret_coeffs, fp, cls=ExperimentEncoder)
+
+The saved object can be retrieved either from the service or file, as follows.
+
+.. jupyter-input::
+
+    # When you have access to Experiment service
+    from qiskit_experiments.library.driven_freq_tuning import retrieve_coefficients_from_backend
+
+    coefficients = retrieve_coefficients_from_backend(backend, 0)
+
+    # Alternatively you can load from file
+    from qiskit_experiments.framework import ExperimentDecoder
+
+    with open("coefficients.json", "r") as fp:
+        coefficients = json.load(fp, cls=ExperimentDecoder)
+
+Now you can measure the qubit relaxation spectrum.
+The :class:`.StarkP1Spectroscopy` experiment also scans :math:`\bar{\Omega}`,
+but instead of measuring the frequency shift, it measures the excited state population P1
+after certain delay, :code:`t1_delay` in the experiment options, following the state population.
+You can scan the :math:`\bar{\Omega}` values either in the "frequency" or "amplitude" domain,
+but the :code:`stark_coefficients` option must be set to perform the frequency sweep.
+
+.. jupyter-input::
+
+    from qiskit_experiments.library.driven_freq_tuning import StarkP1Spectroscopy
+
+    exp = StarkP1Spectroscopy((0,), backend=backend)
+
+    exp.set_experiment_options(
+        t1_delay=20e-6,
+        min_xval=-20e6,
+        max_xval=20e6,
+        xval_type="frequency",
+        spacing="linear",
+        stark_coefficients=coefficients,
+    )
+
+    exp_data = exp.run().block_for_results()
+
+You may find notches in the P1 spectrum, which may indicate the existence of TLS's
+in the vicinity of your qubit drive frequency.
+
+.. jupyter-input::
+
+    exp_data.figure(0)
+
+.. image:: ./stark_experiment_example.png
+
+Note that this experiment doesn't yield any analysis result because the landscape of a P1 spectrum
+can not be predicted due to the random occurrences of the TLS and frequency collisions.
+If you have your own protocol to extract meaningful quantities from the data,
+you can write a custom analysis subclass and give it to the experiment instance before execution.
+See :class:`.StarkP1SpectAnalysis` for more details.
+
+This protocol can be parallelized among many qubits unless crosstalk matters.
 
 
 References

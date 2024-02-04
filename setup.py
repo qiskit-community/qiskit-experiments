@@ -40,7 +40,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Qiskit-Extensions/qiskit-experiments",
     author="Qiskit Development Team",
-    author_email="hello@qiskit.org",
+    author_email="qiskit@us.ibm.com",
     license="Apache 2.0",
     classifiers=[
         "Environment :: Console",
@@ -66,7 +66,7 @@ setup(
     python_requires=">=3.8",
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit-Extensions/qiskit-experiments/issues",
-        "Documentation": "https://qiskit.org/ecosystem/experiments",
+        "Documentation": "https://qiskit-extensions.github.io/qiskit-experiments",
         "Source Code": "https://github.com/Qiskit-Extensions/qiskit-experiments",
     },
     zip_safe=False,

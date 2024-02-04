@@ -20,10 +20,10 @@ from qiskit import pulse
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit.transpiler import InstructionProperties
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
+from qiskit_ibm_runtime.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit_experiments.library import randomized_benchmarking as rb
 
 

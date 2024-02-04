@@ -121,6 +121,37 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         self._curve_drawer.draw_fit_line(x_data, y_data, name, **options)
 
     # pylint: disable=unused-argument
+    def hline(
+        self,
+        y_value: float,
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
+        **options,
+    ):
+        """Draw a horizontal line.
+
+        .. note::
+
+            This method was added to fulfill the
+            :class:`~qiskit_experiments.visualization.BaseDrawer` interface,
+            but it is not supported for this class since there was no
+            equivalent in
+            :class:`~qiskit_experiments.curve_analysis.visualization.BaseCurveDrawer`.
+
+        Args:
+            y_value: Y value for line.
+            name: Name of this series.
+            label: Unsupported label option
+            legend: Unsupported legend option
+            options: Additional options
+        """
+        warnings.warn(
+            "hline is not supported by the LegacyCurveCompatDrawer",
+            UserWarning,
+        )
+
+    # pylint: disable=unused-argument
     def filled_y_area(
         self,
         x_data: Sequence[float],

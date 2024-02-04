@@ -18,10 +18,13 @@ import numpy as np
 from ddt import ddt, unpack, named_data
 
 from qiskit import pulse
-from qiskit.providers.fake_provider import FakeHanoiV2
+from qiskit_ibm_runtime.fake_provider import FakeHanoiV2
 
 from qiskit_experiments.library import StarkRamseyXY, StarkRamseyXYAmpScan
-from qiskit_experiments.library.characterization.analysis import StarkRamseyXYAmpScanAnalysis
+from qiskit_experiments.library.driven_freq_tuning.ramsey_amp_scan_analysis import (
+    StarkRamseyXYAmpScanAnalysis,
+)
+from qiskit_experiments.library.driven_freq_tuning.coefficients import StarkCoefficients
 from qiskit_experiments.framework import ExperimentData
 
 
@@ -242,24 +245,33 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         exp_data = ExperimentData()
         exp_data.metadata.update({"stark_length": 50e-9})
 
+        ref_coeffs = StarkCoefficients(
+            pos_coef_o1=c1p,
+            pos_coef_o2=c2p,
+            pos_coef_o3=c3p,
+            neg_coef_o1=c1n,
+            neg_coef_o2=c2n,
+            neg_coef_o3=c3n,
+            offset=ferr,
+        )
+        yvals = ref_coeffs.convert_amp_to_freq(xvals)
+
         # Generate fake data based on fit model.
-        for x in xvals:
+        for x, y in zip(xvals, yvals):
             if x >= 0.0:
-                fs = c1p * x + c2p * x**2 + c3p * x**3 + ferr
                 direction = "pos"
             else:
-                fs = c1n * x + c2n * x**2 + c3n * x**3 + ferr
                 direction = "neg"
 
             # Add some sampling error
-            ramx_count = rng.binomial(shots, amp * np.cos(const * fs) + off)
+            ramx_count = rng.binomial(shots, amp * np.cos(const * y) + off)
             exp_data.add_data(
                 {
                     "counts": {"0": shots - ramx_count, "1": ramx_count},
                     "metadata": {"xval": x, "series": "X", "direction": direction},
                 }
             )
-            ramy_count = rng.binomial(shots, amp * np.sin(const * fs) + off)
+            ramy_count = rng.binomial(shots, amp * np.sin(const * y) + off)
             exp_data.add_data(
                 {
                     "counts": {"0": shots - ramy_count, "1": ramy_count},
@@ -271,38 +283,18 @@ class TestStarkRamseyXYAmpScan(QiskitExperimentsTestCase):
         analysis.run(exp_data, replace_results=True)
         self.assertExperimentDone(exp_data)
 
-        # Check the fitted parameter can approximate the same polynominal
-        x_pos = np.linspace(0, 1, 51)
-        x_neg = np.linspace(-1, 0, 51)
-        ref_yvals_pos = c1p * x_pos + c2p * x_pos**2 + c3p * x_pos**3 + ferr
-        ref_yvals_neg = c1n * x_neg + c2n * x_neg**2 + c3n * x_neg**3 + ferr
+        # Check the fitted parameter can approximate the same polynominal.
+        # Note that coefficient values don't need to exactly match as long as
+        # frequency shift is predictable.
+        # Since the fit model is just an empirical polynomial,
+        # comparing coefficients don't physically sound.
+        # Curves must be agreed within the tolerance of 1.5 * 1 MHz.
+        fit_coeffs = exp_data.analysis_results("stark_coefficients").value
+        fit_yvals = fit_coeffs.convert_amp_to_freq(xvals)
 
-        # Note that these parameter values are not necessary the same with input values
-        # as long as they can approximate the original phase polynominal.
-        c1p_est = exp_data.analysis_results("stark_pos_coef_o1").value.n
-        c2p_est = exp_data.analysis_results("stark_pos_coef_o2").value.n
-        c3p_est = exp_data.analysis_results("stark_pos_coef_o3").value.n
-        c1n_est = exp_data.analysis_results("stark_neg_coef_o1").value.n
-        c2n_est = exp_data.analysis_results("stark_neg_coef_o2").value.n
-        c3n_est = exp_data.analysis_results("stark_neg_coef_o3").value.n
-        ferr_est = exp_data.analysis_results("stark_ferr").value.n
-
-        test_yvals_pos = c1p_est * x_pos + c2p_est * x_pos**2 + c3p_est * x_pos**3 + ferr_est
-        test_yvals_neg = c1n_est * x_neg + c2n_est * x_neg**2 + c3n_est * x_neg**3 + ferr_est
-
-        # Check similality of reconstructed polynominals
-        # Curves must be agree within the torelance of 1.5 * 1 MHz.
         np.testing.assert_array_almost_equal(
-            test_yvals_pos,
-            ref_yvals_pos,
+            yvals,
+            fit_yvals,
             decimal=-6,
-            err_msg="Reconstructed phase polynominal on positive frequency shift side "
-            "doesn't match with the original curve.",
-        )
-        np.testing.assert_array_almost_equal(
-            test_yvals_neg,
-            ref_yvals_neg,
-            decimal=-6,
-            err_msg="Reconstructed phase polynominal on negative frequency shift side "
-            "doesn't match with the original curve.",
+            err_msg="Reconstructed phase polynominal doesn't match with the actual phase shift.",
         )

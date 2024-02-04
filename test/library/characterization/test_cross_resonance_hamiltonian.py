@@ -19,8 +19,8 @@ import functools
 import io
 import numpy as np
 from ddt import ddt, data, unpack
+
 from qiskit import QuantumCircuit, pulse, qpy, quantum_info as qi
-from qiskit.providers.fake_provider import FakeBogotaV2
 
 # TODO: remove old path after we stop supporting the relevant version of Qiskit
 try:
@@ -29,6 +29,8 @@ except ModuleNotFoundError:
     from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 
 from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeBogotaV2
+
 from qiskit_experiments.library.characterization import cr_hamiltonian
 
 
