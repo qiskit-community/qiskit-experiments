@@ -142,9 +142,8 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         self.assertEqualExtended(exp, loaded_exp)
 
     def test_residual_plot(self):
-        """ Test if plot is changing due to residual plotting."""
+        """Test if plot is changing due to residual plotting."""
         freq_shift = 1e3
-        test_tol = 0.03
 
         exp_helper = RamseyXYHelper()
         ramsey = RamseyXY([0])
