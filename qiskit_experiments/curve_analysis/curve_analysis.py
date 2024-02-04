@@ -590,8 +590,8 @@ class CurveAnalysis(BaseCurveAnalysis):
                     y_interp_err=fit_stdev,
                 )
 
-            residuals_data = data[data.category == "residuals"]
-            if self.options.get("plot_residuals", None) and len(residuals_data):
+            if self.options.get("plot_residuals", False):
+                residuals_data = data[data.category == "residuals"]
                 self.plotter.set_series_data(
                     series_name=name,
                     x_residuals=residuals_data.xval.to_numpy(),
