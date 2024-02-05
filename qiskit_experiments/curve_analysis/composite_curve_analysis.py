@@ -232,7 +232,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         for analysis in self.analyses():
             group_data = curve_data.filter(analysis=analysis.name)
             model_names = analysis.model_names()
-            for uid, sub_data in group_data.iter_by_data():
+            for uid, sub_data in group_data.iter_by_data_uid():
                 full_name = f"{model_names[uid]}_{analysis.name}"
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
@@ -378,7 +378,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if fit_data.success:
                 # Add fit data to curve data table
                 model_names = analysis.model_names()
-                for data_id, sub_data in formatted_subset.iter_by_data():
+                for data_id, sub_data in formatted_subset.iter_by_data_uid():
                     xval = sub_data.x
                     if len(xval) == 0:
                         # If data is empty, skip drawing this model.

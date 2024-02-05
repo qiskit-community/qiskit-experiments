@@ -339,7 +339,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Create convenient function to compute residual of the models.
         partial_residuals = []
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
-        for i, sub_data in curve_data.iter_by_data():
+        for uid, sub_data in curve_data.iter_by_data_uid():
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.y_err, 0.0),
@@ -356,7 +356,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             else:
                 weights = None
             model_residual = partial(
-                self._models[i]._residual,
+                self._models[uid]._residual,
                 data=sub_data.y,
                 weights=weights,
                 x=sub_data.x,
@@ -417,7 +417,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for i, sub_data in curve_data.iter_by_data():
+        for i, sub_data in curve_data.iter_by_data_uid():
             name = self.model_names()[i]
             # Plot raw data scatters
             if self.options.plot_raw_data:
@@ -499,7 +499,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             model_names = self.model_names()
-            for data_id, sub_data in formatted_subset.iter_by_data():
+            for data_id, sub_data in formatted_subset.iter_by_data_uid():
                 xval = sub_data.x
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
