@@ -1209,17 +1209,49 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_artifacts(new_artifact)
         self.assertEqual(exp_data.artifacts(0), new_artifact)
 
-        # delete by index
-        exp_data.delete_artifact(0)
+        service = mock.create_autospec(IBMExperimentService, instance=True)
+        exp_data.service = service
+        exp_data.save()
+
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip"})
+
+        # delete by name
+        exp_data.delete_artifact("test")
         self.assertEqual(exp_data.artifacts(), [])
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
         with self.assertRaises(ExperimentEntryNotFound):
             exp_data.artifacts(0)
 
-        exp_data.add_artifacts(new_artifact)
-        # delete by name
-        exp_data.delete_artifact("test")
+        exp_data.save()
+        # after saving, artifact_files should be updated again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], set())
+
+        new_artifact2 = ArtifactData(name="test", data="foo2")
+        new_artifact3 = ArtifactData(name="test2", data="foo2")
+        exp_data.add_artifacts([new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts(), [new_artifact, new_artifact2, new_artifact3])
+
+        deleted_id = exp_data.artifacts(0).artifact_id
+        # delete by index
+        exp_data.delete_artifact(0)
+
+        self.assertEqual(exp_data.artifacts(), [new_artifact2, new_artifact3])
         with self.assertRaises(ExperimentEntryNotFound):
-            exp_data.artifacts(0)
+            exp_data.artifacts(deleted_id)
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
+
+        exp_data.save()
+        # after saving, deleted artifacts should be cleared again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip", "test2.zip"})
+
+        # finish deleting artifacts named test
+        exp_data.delete_artifact(exp_data.artifacts(0).artifact_id)
+        self.assertEqual(exp_data.artifacts(), [new_artifact3])
+        exp_data.save()
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test2.zip"})
 
     def test_add_duplicated_artifact(self):
         """Tests behavior when adding an artifact with a duplicate ID."""
@@ -1236,4 +1268,4 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # Overwrite the artifact with a new one of the same ID
         exp_data.add_artifacts(new_artifact2, overwrite=True)
-        self.assertEqual(exp_data.artifacts(0), new_artifact2)
+        self.assertEqual(exp_data.artifacts(), [new_artifact2])

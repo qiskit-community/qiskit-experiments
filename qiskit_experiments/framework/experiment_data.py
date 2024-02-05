@@ -251,8 +251,6 @@ class ExperimentData:
                 setattr(self._db_data, key, value)
             else:
                 LOG.warning("Key '%s' not stored in the database", key)
-        if "artifact_files" not in self.metadata:
-            self.metadata["artifact_files"] = set()
 
         # general data related
         self._backend = None
@@ -1656,9 +1654,10 @@ class ExperimentData:
             max_workers = self._max_workers_cap
 
         if save_artifacts:
-            for artifact in self._artifacts.values():
-                # populate the metadata entry for artifact file names
-                self.metadata["artifact_files"].add(f"{artifact.name}.zip")
+            # populate the metadata entry for artifact file names
+            self.metadata["artifact_files"] = {
+                f"{artifact.name}.zip" for artifact in self._artifacts.values()
+            }
 
         self._save_experiment_metadata(suppress_errors=suppress_errors)
 
@@ -1744,8 +1743,9 @@ class ExperimentData:
                     LOG.error("Unable to save artifacts: %s", traceback.format_exc())
 
             # Upload a blank file if the whole file should be deleted
+            # TODO: replace with direct artifact deletion when available
             for artifact_name in self._deleted_artifacts.copy():
-                try:  # don't upload if an artifact still has this name
+                try:  # Don't overwrite with a blank file if there's still artifacts with this name
                     self.artifacts(artifact_name)
                 except Exception:  # pylint: disable=broad-except:
                     with service_exception_to_warning():
@@ -1754,6 +1754,8 @@ class ExperimentData:
                             file_name=f"{artifact_name}.zip",
                             file_data=None,
                         )
+                # Even if we didn't overwrite an artifact file, we don't need to keep this because
+                # an existing artifact(s) needs to be deleted to delete the artifact file in the future
                 self._deleted_artifacts.remove(artifact_name)
 
         if not self.service.local and self.verbose:

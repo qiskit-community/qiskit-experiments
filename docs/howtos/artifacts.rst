@@ -53,13 +53,14 @@ One useful pattern is to load raw or fitted data from ``curve_data`` for further
 
     import matplotlib.pyplot as plt
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-
     exp_type = data.artifacts(curve_data_id).experiment
     component = data.artifacts(curve_data_id).device_components[0]
 
     raw_data = scatter_table.filter(category="raw").dataframe
     fitted_data = scatter_table.filter(category="fitted").dataframe
+
+    # visualize the data
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.errorbar(raw_data['xval'], raw_data['yval'], yerr=raw_data['yerr'], capsize=5)
     ax1.set_title(f"Raw data, {exp_type} experiment on {component}")
     ax2.errorbar(fitted_data['xval'], fitted_data['yval'], yerr=fitted_data['yerr'], capsize=5)
@@ -76,9 +77,13 @@ You can add arbitrary serializable data as an artifact.
 
     from qiskit_experiments.framework import ArtifactData
 
-    new_artifact = ArtifactData(name="experiment_notes", data="Testing some new ideas.")
+    new_artifact = ArtifactData(name="experiment_notes", data={"content": "Testing some new ideas."})
     data.add_artifacts(new_artifact)
     data.artifacts("experiment_notes")
+
+.. jupyter-execute::
+
+    print(data.artifacts("experiment_notes").data)
 
 Saving and loading artifacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
