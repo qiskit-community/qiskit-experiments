@@ -18,8 +18,8 @@ import numpy as np
 from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
-from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.qobj.utils import MeasLevel
+from qiskit_aer import AerSimulator
 
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi
@@ -223,7 +223,7 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
             qc.measure_all()
             circuits.append(qc)
 
-        sim = QasmSimulatorPy()
+        sim = AerSimulator()
         circuits = transpile(circuits, sim)
         job = sim.run(circuits, shots=shots, seed_simulator=10)
         result = job.result()
@@ -272,7 +272,10 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
         """Test the Rabi analysis."""
         experiment_data = ExperimentData()
 
-        thetas = np.linspace(0.0, np.pi / 4, 31)
+        # Change rotation angle with square root of amplitude so that
+        # population versus amplitude will not be sinusoidal and the fit will
+        # be bad.
+        thetas = np.sqrt(np.linspace(0.0, 4 * np.pi**2, 31))
         amplitudes = np.linspace(0.0, 0.95, 31)
 
         experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=200))

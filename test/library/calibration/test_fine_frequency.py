@@ -17,7 +17,7 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit import pulse
-from qiskit.providers.fake_provider import FakeArmonkV2
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import (
     FineFrequency,

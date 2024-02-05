@@ -21,8 +21,9 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
 :math:`T_\varphi.`
 
 .. note::
-    This manual requires the :mod:`qiskit_aer` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -31,9 +32,9 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
     from qiskit_experiments.library.characterization import Tphi
 
     # An Aer simulator
-    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(

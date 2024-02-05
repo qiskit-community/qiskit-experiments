@@ -19,9 +19,9 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
 from qiskit.providers.fake_provider import FakeOpenPulse2Q
-from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
-
 from qiskit.qobj.utils import MeasLevel
+from qiskit_ibm_runtime.fake_provider.fake_backend import FakeBackendV2
+
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob

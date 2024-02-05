@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit import pulse
 from qiskit.circuit import Gate
-from qiskit.providers.fake_provider import FakeArmonkV2
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
