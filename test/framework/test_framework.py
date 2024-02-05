@@ -13,17 +13,18 @@
 """Tests for base experiment framework."""
 
 import pickle
+from itertools import product
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
-from itertools import product
+
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit.providers.fake_provider import FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
+from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
@@ -33,7 +34,7 @@ from qiskit_experiments.framework import (
     AnalysisStatus,
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
-from qiskit_experiments.database_service import Qubit
+from qiskit_experiments.test.utils import FakeJob
 
 
 @ddt.ddt
@@ -287,7 +288,7 @@ class TestFramework(QiskitExperimentsTestCase):
             """A backend that works with `MyJob`"""
 
             def run(self, run_input, **options):
-                return MyJob(self, "jobid", None)
+                return MyJob(self)
 
         class MyJob(FakeJob):
             """A job with status ERROR, that errors when the result is queried"""
