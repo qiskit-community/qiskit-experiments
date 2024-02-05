@@ -295,10 +295,12 @@ for each condition. The role of each column is as follows:
 - ``yval``: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.
 - ``yerr``: Standard error of the outcome, which is mainly due to sampling error.
 - ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
-- ``data_uid``: Numerical index corresponding to the result class. This number is automatically assigned.
-- ``category``: The attribute of data set. The "raw" category indicates an output from the data processing.
+- ``data_uid``: Integer number corresponding to the data unique index. This number is automatically assigned.
+- ``category``: The tag of data group. The "raw" category indicates an output from the data processing.
 - ``shots``: Number of measurement shots used to acquire this result.
 - ``analysis``: The name of curve analysis instance that generated this data. In :class:`.CompositeCurveAnalysis`, the table is a composite of tables from all component analyses.
+
+To find data points that belong to a particular dataset, you can follow :ref:`filter_scatter_table`.
 
 3. Formatting
 ^^^^^^^^^^^^^

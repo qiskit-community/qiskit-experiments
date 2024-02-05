@@ -34,9 +34,69 @@ class ScatterTable:
 
     Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
     This table cannot be expanded with user-provided column names.
-    See attribute documentation for what columns represent.
 
     This dataset is not thread safe. Do not use the same instance in multiple threads.
+
+    .. _filter_scatter_table:
+
+    Filtering ScatterTable
+    ----------------------
+
+    ScatterTable is a single source of the truth as the data used in the curve fit analysis.
+    Each data point in a 1-D curve fit may consist of the x value, y value, and
+    standard error of the y value.
+    In addition, such analysis may internally create several data subsets,
+    and data points can also take metadata triplet (`data_uid`, `category`, `analysis`)
+    to distinguish the subset.
+
+    * The `data_uid` is an integer key representing the class of the data.
+      When an analysis consists of multiple fit models and performs the multi-objective fit,
+      the created table may contain multiple datasets for each fit model.
+      Usually the index of data matches with the index of the fit model in the analysis.
+      The table also provides `name` column which is a human-friendly text notation of the data_uid.
+      The name and corresponding data_uid must refer to the identical data class,
+      and the name typically matches with the name of the fit model.
+      You can find a particular data subset by either data_uid or name.
+
+    * The `category` is a string key representing a tag of data groups.
+      The measured outcomes input as-is to the curve analysis are tagged with "raw".
+      In a standard :class:`.CurveAnalysis` subclass, the input data is pre-processed for
+      the fitting and the formatted data is also stored in the table with "formatted" tag.
+      After the fit is successfully conducted and the model parameters are identified,
+      data points in the interpolated fit curves are also stored with "fitted" tag
+      for visualization. The management of data group depends on the design of
+      the curve analysis protocol, and the convention of category naming might
+      be different in a particular analysis.
+
+    * The `analysis` is a string key representing a name of
+      the analysis instance that generated the data point.
+      This allows a user to combine multiple tables from the different analyses
+      without collapsing the data points.
+      In the :class:`.CompositeCurveAnalysis`, the instance consists of statistically
+      independent fit models represented in a form of nested component analysis instances.
+      Such component has unique analysis name, and datasets generated from each instance
+      are merged into a single table stored in the outermost composite analysis.
+
+    User must be aware of this triplet to extract data points that belong to a
+    particular data subset. For example,
+
+    .. code-block:: python
+
+        mini_table = table.filter(kind="model1", category="raw", analysis="Analysis_A")
+        mini_x = mini_table.x
+        mini_y = mini_table.y
+
+    this operation is equivalent to
+
+    .. code-block:: python
+
+        mini_x = table.xvals(kind="model1", category="raw", analysis="Analysis_A")
+        mini_y = table.yvals(kind="model1", category="raw", analysis="Analysis_A")
+
+    When an analysis only has a single model and the table is created from a single
+    analysis instance, the data_uid and analysis are trivial, and you only need to
+    specify the category to get subset data of interest.
+
     """
 
     DEFAULT_COLUMNS = [
@@ -62,7 +122,6 @@ class ScatterTable:
     ]
 
     def __init__(self):
-        """Create new dataset."""
         super().__init__()
         self._lazy_add_rows = []
         self._dump = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
@@ -365,8 +424,8 @@ class ScatterTable:
     def _warn_composite_data(table: ScatterTable):
         if len(table._data.name.unique()) > 1:
             warnings.warn(
-                "Returned data contains multiple series. "
-                "You may want to filter the data by a specific kind identifier.",
+                "Returned data contains multiple data kinds. "
+                "You may want to filter the data by a specific data_uid or name.",
                 UserWarning,
             )
         if len(table._data.category.unique()) > 1:
@@ -426,6 +485,7 @@ class ScatterTable:
         return self.filter(kind=index)
 
     def __len__(self):
+        """Return the number of data points stored in the table."""
         return len(self._data)
 
     def __eq__(self, other):
