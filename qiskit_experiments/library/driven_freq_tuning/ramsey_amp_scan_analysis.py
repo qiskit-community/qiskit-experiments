@@ -258,7 +258,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         y_mean = ramsey_xy.y.mean()
 
         # Create phase data by arctan(Y/X)
-        for m_id, direction in enumerate(("pos", "neg")):
+        for data_id, direction in enumerate(("pos", "neg")):
             x_quadrature = ramsey_xy.filter(kind=f"X{direction}")
             y_quadrature = ramsey_xy.filter(kind=f"Y{direction}")
             if not np.array_equal(x_quadrature.x, y_quadrature.x):
@@ -294,7 +294,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                     y=new_y,
                     y_err=new_y_err,
                     name=f"FREQ{direction}",
-                    class_id=m_id,
+                    data_uid=data_id,
                     shots=shot,
                     category=category,
                     analysis=self.name,

@@ -214,16 +214,16 @@ class CurveAnalysis(BaseCurveAnalysis):
                 ) from ex
 
             # Assign entry name and class id
-            for uid, (name, spec) in enumerate(classifier.items()):
+            for data_id, (name, spec) in enumerate(classifier.items()):
                 if spec.items() <= metadata.items():
                     break
             else:
                 # This is unclassified data.
-                uid = pd.NA
+                data_id = pd.NA
                 name = pd.NA
             table.add_row(
                 name=name,
-                class_id=uid,
+                data_uid=data_id,
                 category=category,
                 x=xval,
                 y=yval,
@@ -262,12 +262,12 @@ class CurveAnalysis(BaseCurveAnalysis):
                 sub_data.shots,
             )
             try:
-                uid = model_names.index(name)
+                data_id = model_names.index(name)
             except ValueError:
-                uid = pd.NA
+                data_id = pd.NA
             curve_data.add_row(
                 name=name,
-                class_id=uid,
+                data_uid=data_id,
                 category=category,
                 x=xval,
                 y=avg_yval,
@@ -345,7 +345,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Create convenient function to compute residual of the models.
         partial_residuals = []
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
-        for i, sub_data in curve_data.iter_by_class():
+        for i, sub_data in curve_data.iter_by_data():
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.y_err, 0.0),
@@ -423,7 +423,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for i, sub_data in curve_data.iter_by_class():
+        for i, sub_data in curve_data.iter_by_data():
             name = self.model_names()[i]
             # Plot raw data scatters
             if self.options.plot_raw_data:
@@ -495,7 +495,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             model_names = self.model_names()
-            for i, sub_data in formatted_subset.iter_by_class():
+            for data_id, sub_data in formatted_subset.iter_by_data():
                 xval = sub_data.x
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
@@ -505,7 +505,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
                 uval_arr_fit = eval_with_uncertainties(
                     x=xval_arr_fit,
-                    model=self._models[i],
+                    model=self._models[data_id],
                     params=fit_data.ufloat_params,
                 )
                 yval_arr_fit = unp.nominal_values(uval_arr_fit)
@@ -515,8 +515,8 @@ class CurveAnalysis(BaseCurveAnalysis):
                     yerr_arr_fit = np.zeros_like(xval_arr_fit)
                 for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
                     table.add_row(
-                        name=model_names[i],
-                        class_id=i,
+                        name=model_names[data_id],
+                        data_uid=data_id,
                         category="fitted",
                         x=xval,
                         y=yval,
