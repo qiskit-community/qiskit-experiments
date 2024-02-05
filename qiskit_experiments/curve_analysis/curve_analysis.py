@@ -559,11 +559,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[
-                        r
-                        for r in result_data
-                        if (not r.name.startswith("@")) & (isinstance(r, AnalysisResultData))
-                    ],
+                    primary_results=[r for r in result_data if (not r.name.startswith("@"))],
                 )
             figures.extend(self._create_figures(curve_data=table))
 

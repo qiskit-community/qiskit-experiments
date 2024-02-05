@@ -38,7 +38,7 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from qiskit_experiments.framework.containers import ArtifactData
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
@@ -332,7 +332,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List["pyplot.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        figures: List[FigureType] = []
+        artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -342,9 +345,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             plot = "never"
         else:
             plot = getattr(self, "_generate_figures", "always")
-
-        analysis_results = []
-        figures = []
 
         fit_dataset = {}
         curve_data_set = []
@@ -364,17 +364,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 quality = analysis._evaluate_quality(fit_data)
             else:
                 quality = "bad"
-
-            if self.options.return_fit_parameters:
-                # Store fit status overview entry regardless of success.
-                # This is sometime useful when debugging the fitting code.
-                overview = AnalysisResultData(
-                    name=PARAMS_ENTRY_PREFIX + analysis.name,
-                    value=fit_data,
-                    quality=quality,
-                    extra=metadata,
-                )
-                analysis_results.append(overview)
 
             if fit_data.success:
                 # Add fit data to curve data table
@@ -407,7 +396,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                             y_err=yerr,
                             analysis=analysis.name,
                         )
-                analysis_results.extend(
+                result_data.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
                         quality=quality,
@@ -417,7 +406,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if self.options.return_data_points:
                 # Add raw data points
-                analysis_results.extend(
+                result_data.extend(
                     analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
@@ -437,9 +426,22 @@ class CompositeCurveAnalysis(BaseAnalysis):
             composite_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-            analysis_results.extend(composite_results)
+            result_data.extend(composite_results)
         else:
             composite_results = []
+
+        artifacts.append(
+            ArtifactData(
+                name="curve_data",
+                data=table,
+            )
+        )
+        artifacts.append(
+            ArtifactData(
+                name="fit_summary",
+                data=fit_dataset,
+            )
+        )
 
         if plot_bool:
             self.plotter.set_supplementary_data(
@@ -448,4 +450,4 @@ class CompositeCurveAnalysis(BaseAnalysis):
             )
             figures.extend(self._create_figures(curve_data=combined_curve_data))
 
-        return analysis_results, figures
+        return result_data + artifacts, figures
