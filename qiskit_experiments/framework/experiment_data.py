@@ -2608,7 +2608,7 @@ class ExperimentData:
         artifact_key: int | str,
     ) -> str | list[str]:
         """Delete specified artifact data.
-        TODO: Properly implement this once artifacts can be deleted from the service.
+
         Args:
             artifact_key: UID, name or index of the figure.
 

@@ -406,6 +406,12 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if self.options.return_data_points:
                 # Add raw data points
+                warnings.warn(
+                    f"{DATA_ENTRY_PREFIX + self.name} is moved to experiment data artifact. "
+                    "Saving this result with 'return_data_points'=True will be disabled in "
+                    "Qiskit Experiments 0.7.",
+                    DeprecationWarning,
+                )
                 result_data.extend(
                     analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
@@ -433,7 +439,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         artifacts.append(
             ArtifactData(
                 name="curve_data",
-                data=table,
+                data=combined_curve_data,
             )
         )
         artifacts.append(

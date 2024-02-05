@@ -12,10 +12,12 @@ Solution
 Viewing artifacts
 ~~~~~~~~~~~~~~~~~
 
-After an experiment that uses :class:`.CurveFit` is run, the :class:`ExperimentData` is
+After an experiment that uses :class:`.CurveAnalysis` is run, the :class:`ExperimentData` is
 automatically populated with ``fit_summary`` and ``curve_data`` artifacts.
 
-The ``fit_summary`` artifact contains a :class:`CurveFitResult``
+The ``fit_summary`` artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the
+fit. The ``curve_data`` artifact has a :class:`.ScatterTable` object that contain raw and fitted data in a
+Pandas DataFrame.
 
 .. jupyter-execute::
 
