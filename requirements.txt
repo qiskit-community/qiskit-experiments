@@ -1,7 +1,7 @@
 numpy>=1.17
 scipy>=1.4
-qiskit==0.45.3  # Temporary
-qiskit-ibm-experiment>=0.4.5
+qiskit>=0.45
+qiskit-ibm-experiment>=0.4.6
 matplotlib>=3.4
 uncertainties
 lmfit
