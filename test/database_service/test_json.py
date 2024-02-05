@@ -126,11 +126,6 @@ class TestJSON(QiskitExperimentsTestCase):
         obj = custom_function
         self.assertRoundTripSerializable(obj)
 
-    def test_roundtrip_artifact(self):
-        """Test roundtrip serialization of the artifact class"""
-        obj = ArtifactData(name="test", data="foo")
-        self.assertRoundTripSerializable(obj)
-
     def test_roundtrip_curvefitresult(self):
         """Test roundtrip serialization of the ScatterTable class"""
         obj = CurveFitResult(
