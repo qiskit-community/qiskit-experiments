@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Randomized Benchmarking" href="randomized_benchmarking.html" /><link rel="prev" title="Experiment Manuals" href="../index.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Quantum Volume - Qiskit Experiments 0.5.0-142-g00faf96d</title>
+        <title>Quantum Volume - Qiskit Experiments 0.5.0-143-g262a812f</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-142-g00faf96d</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.5.0-143-g262a812f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-142-g00faf96d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-143-g262a812f</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -648,7 +648,6 @@ packages to run simulations.  You can install them with <code class="docutils li
 <span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">QuantumVolume</span>
 
 <span class="c1"># For simulation</span>
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">Aer</span>
 <span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
 <span class="kn">from</span> <span class="nn">qiskit_ibm_runtime.fake_provider</span> <span class="kn">import</span> <span class="n">FakeSydneyV2</span>
 
@@ -753,8 +752,8 @@ AnalysisResult
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
 mean_HOP extra:
-- HOPs: [0.833984375, 0.7802734375, 0.7197265625, 0.6865234375, 0.83984375, 0.638671875, 0.7431640625, 0.8251953125, 0.7822265625, 0.7822265625, 0.689453125, 0.8193359375, 0.6884765625, 0.6767578125, 0.7158203125, 0.8203125, 0.7587890625, 0.6943359375, 0.6884765625, 0.642578125, 0.6923828125, 0.6943359375, 0.646484375, 0.7236328125, 0.7041015625, 0.7568359375, 0.869140625, 0.712890625, 0.673828125, 0.7392578125, 0.6484375, 0.75390625, 0.861328125, 0.796875, 0.646484375, 0.685546875, 0.7900390625, 0.732421875, 0.708984375, 0.7177734375, 0.822265625, 0.6904296875, 0.7080078125, 0.66015625, 0.8056640625, 0.68359375, 0.7880859375, 0.7529296875, 0.7431640625, 0.904296875, 0.67578125, 0.6865234375, 0.65234375, 0.69140625, 0.69140625, 0.73828125, 0.6884765625, 0.8134765625, 0.69140625, 0.8037109375, 0.703125, 0.7861328125, 0.8046875, 0.83203125, 0.71484375, 0.7314453125, 0.75390625, 0.7177734375, 0.7353515625, 0.7822265625, 0.71875, 0.7548828125, 0.794921875, 0.6884765625, 0.671875, 0.7314453125, 0.7119140625, 0.6318359375, 0.724609375, 0.7294921875, 0.7275390625, 0.712890625, 0.7666015625, 0.7060546875, 0.6875, 0.6943359375, 0.681640625, 0.671875, 0.701171875, 0.66015625, 0.787109375, 0.6962890625, 0.697265625, 0.822265625, 0.7236328125, 0.771484375, 0.7548828125, 0.693359375, 0.7548828125, 0.78515625]
-- two_sigma: 0.08849101769937137
+- HOPs: [0.8173828125, 0.80859375, 0.724609375, 0.7216796875, 0.8564453125, 0.59375, 0.7197265625, 0.8408203125, 0.755859375, 0.7548828125, 0.685546875, 0.849609375, 0.685546875, 0.6953125, 0.70703125, 0.798828125, 0.7705078125, 0.69921875, 0.6865234375, 0.6337890625, 0.70703125, 0.6884765625, 0.6435546875, 0.7138671875, 0.75390625, 0.7607421875, 0.896484375, 0.7177734375, 0.71484375, 0.7490234375, 0.671875, 0.7353515625, 0.8671875, 0.7890625, 0.673828125, 0.6884765625, 0.78125, 0.7255859375, 0.69921875, 0.7236328125, 0.8447265625, 0.7080078125, 0.7216796875, 0.6630859375, 0.8203125, 0.677734375, 0.779296875, 0.7490234375, 0.7275390625, 0.8994140625, 0.673828125, 0.705078125, 0.6552734375, 0.6826171875, 0.7021484375, 0.76953125, 0.7158203125, 0.822265625, 0.6904296875, 0.7861328125, 0.734375, 0.7548828125, 0.7978515625, 0.8330078125, 0.7275390625, 0.736328125, 0.7958984375, 0.7158203125, 0.73828125, 0.76171875, 0.732421875, 0.765625, 0.8046875, 0.6640625, 0.6396484375, 0.7412109375, 0.681640625, 0.5908203125, 0.7509765625, 0.73046875, 0.72265625, 0.712890625, 0.76953125, 0.67578125, 0.67578125, 0.716796875, 0.6669921875, 0.6513671875, 0.6806640625, 0.6982421875, 0.767578125, 0.7314453125, 0.6806640625, 0.8193359375, 0.7275390625, 0.783203125, 0.7373046875, 0.6943359375, 0.751953125, 0.79296875]
+- two_sigma: 0.08831442260809153
 - depth: 4
 - trials: 100
 - success: None
@@ -768,7 +767,7 @@ quantum_volume extra:
 - depth: 4
 - trials: 100
 - success: False
-- confidence: 0.9327406169192254
+- confidence: 0.9378934883197615
 - experiment: QuantumVolume
 - run_time: None
 </pre></div>
@@ -852,7 +851,7 @@ enhancements might be required (See Ref. <a class="footnote-reference brackets" 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Max quantum volume is: 16
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Max quantum volume is: 32
 </pre></div>
 </div>
 </div>
@@ -876,7 +875,7 @@ Component experiment 0
 <img alt="../../_images/quantum_volume_7_1.png" src="../../_images/quantum_volume_7_1.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: mean_HOP
-- value: 0.799+/-0.028
+- value: 0.791+/-0.029
 - quality: good
 - extra: &lt;8 items&gt;
 - device_components: [&#39;Q0&#39;, &#39;Q1&#39;, &#39;Q2&#39;]
@@ -895,7 +894,7 @@ Component experiment 1
 <img alt="../../_images/quantum_volume_7_3.png" src="../../_images/quantum_volume_7_3.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: mean_HOP
-- value: 0.731+/-0.031
+- value: 0.733+/-0.031
 - quality: good
 - extra: &lt;8 items&gt;
 - device_components: [&#39;Q0&#39;, &#39;Q1&#39;, &#39;Q2&#39;, &#39;Q3&#39;]
@@ -914,15 +913,15 @@ Component experiment 2
 <img alt="../../_images/quantum_volume_7_5.png" src="../../_images/quantum_volume_7_5.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: mean_HOP
-- value: 0.727+/-0.031
-- quality: bad
+- value: 0.731+/-0.031
+- quality: good
 - extra: &lt;8 items&gt;
 - device_components: [&#39;Q0&#39;, &#39;Q1&#39;, &#39;Q2&#39;, &#39;Q3&#39;, &#39;Q4&#39;]
 - verified: False
 AnalysisResult
 - name: quantum_volume
-- value: 1
-- quality: bad
+- value: 32
+- quality: good
 - extra: &lt;8 items&gt;
 - device_components: [&#39;Q0&#39;, &#39;Q1&#39;, &#39;Q2&#39;, &#39;Q3&#39;, &#39;Q4&#39;]
 - verified: False
@@ -1046,7 +1045,7 @@ a superconducting quantum computing system,
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=4c29be32"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=fefde244"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
