@@ -47,7 +47,9 @@ The artifacts in a large composite experiment with ``flatten_results=True`` can 
 each other using the :attr:`~.ArtifactData.experiment` and :attr:`~.ArtifactData.device_components`
 attributes.
 
-One useful pattern is to load raw or fitted data from ``curve_data`` for further data manipulation:
+One useful pattern is to load raw or fitted data from ``curve_data`` for further data manipulation. You
+can work with the dataframe using standard Pandas dataframe methods or the built-in
+:class:`.ScatterTable` methods:
 
 .. jupyter-execute::
 
@@ -56,14 +58,14 @@ One useful pattern is to load raw or fitted data from ``curve_data`` for further
     exp_type = data.artifacts(curve_data_id).experiment
     component = data.artifacts(curve_data_id).device_components[0]
 
-    raw_data = scatter_table.filter(category="raw").dataframe
-    fitted_data = scatter_table.filter(category="fitted").dataframe
+    raw_data = scatter_table.filter(category="raw")
+    fitted_data = scatter_table.filter(category="fitted")
 
     # visualize the data
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.errorbar(raw_data['xval'], raw_data['yval'], yerr=raw_data['yerr'], capsize=5)
+    ax1.errorbar(raw_data.x, raw_data.y, yerr=raw_data.y_err, capsize=5)
     ax1.set_title(f"Raw data, {exp_type} experiment on {component}")
-    ax2.errorbar(fitted_data['xval'], fitted_data['yval'], yerr=fitted_data['yerr'], capsize=5)
+    ax2.errorbar(fitted_data.x, fitted_data.y, yerr=fitted_data.y_err, capsize=5)
     ax2.set_title(f"Fitted data, {exp_type} experiment on {component}")
     plt.tight_layout()
     plt.show()

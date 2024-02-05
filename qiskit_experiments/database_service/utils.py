@@ -99,9 +99,7 @@ def objs_to_zip(
     return zip_buffer
 
 
-def zip_to_objs(
-    zip_bytes: bytes, json_decoder: Optional[json.JSONDecoder] = None
-) -> Union[Iterator[any], None]:
+def zip_to_objs(zip_bytes: bytes, json_decoder: Optional[json.JSONDecoder] = None) -> Iterator[any]:
     """Extract objects by deserializing JSON files in a zipped buffer.
 
     Args:
@@ -112,7 +110,7 @@ def zip_to_objs(
         A list of objects extracted from the zip file buffer.
     """
     if len(zip_bytes) == 0:  # artifact has been deleted
-        return None
+        yield iter(())
 
     zip_buffer = io.BytesIO(zip_bytes)
 

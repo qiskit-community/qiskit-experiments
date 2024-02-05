@@ -2255,8 +2255,7 @@ class ExperimentData:
                     if service.experiment_has_file(experiment_id, filename):
                         artifact_file = service.file_download(experiment_id, filename)
                         for artifact in zip_to_objs(artifact_file, json_decoder=cls._json_decoder):
-                            if artifact is not None:
-                                expdata.add_artifacts(artifact)
+                            expdata.add_artifacts(artifact)
         except Exception:  # pylint: disable=broad-except:
             LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 

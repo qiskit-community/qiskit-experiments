@@ -20,7 +20,6 @@ import numpy as np
 from qiskit.circuit import Instruction
 from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
 import qiskit.quantum_info as qi
-from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.curve_analysis import CurveFitResult
 
 
