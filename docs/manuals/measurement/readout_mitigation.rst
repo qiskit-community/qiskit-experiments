@@ -40,7 +40,7 @@ experiments to generate the corresponding mitigators.
     import numpy as np
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
-    from qiskit.visualization import plot_histogram
+    from qiskit.visualization import plot_distribution
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
 
     from qiskit_aer import AerSimulator
@@ -128,7 +128,7 @@ Probabilities
 .. jupyter-execute::
 
     legend = ['Mitigated Probabilities', 'Unmitigated Probabilities']
-    plot_histogram([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
+    plot_distribution([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
 
 
 Expectation value

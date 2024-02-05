@@ -1,4 +1,3 @@
-qiskit==0.45.3
 # Linters
 black~=22.0
 pylint~=3.0.2

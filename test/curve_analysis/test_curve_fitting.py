@@ -15,7 +15,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
-from qiskit.providers.basicaer import QasmSimulatorPy
+from qiskit_aer import AerSimulator
 from qiskit_experiments.curve_analysis import process_curve_data
 from qiskit_experiments.curve_analysis.utils import (
     level2_probability,
@@ -36,7 +36,7 @@ class TestCurveFitting(QiskitExperimentsTestCase):
             qc.measure_all()
             circuits.append(qc)
 
-        sim = QasmSimulatorPy()
+        sim = AerSimulator()
         circuits = transpile(circuits, sim)
         job = sim.run(circuits, shots=shots, seed_simulator=10)
         result = job.result()
