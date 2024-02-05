@@ -20,9 +20,9 @@ import numpy as np
 from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeWashingtonV2
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
+from qiskit_ibm_runtime.fake_provider import FakeWashingtonV2
 
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis

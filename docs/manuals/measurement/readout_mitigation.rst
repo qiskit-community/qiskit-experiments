@@ -31,19 +31,20 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. note::
-    This manual requires the :mod:`qiskit_aer` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
     import numpy as np
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
-    from qiskit.visualization import plot_histogram
+    from qiskit.visualization import plot_distribution
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
 
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     from qiskit.result.mitigation.utils import (
         expval_with_stddev,
@@ -127,7 +128,7 @@ Probabilities
 .. jupyter-execute::
 
     legend = ['Mitigated Probabilities', 'Unmitigated Probabilities']
-    plot_histogram([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
+    plot_distribution([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
 
 
 Expectation value
