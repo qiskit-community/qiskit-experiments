@@ -126,5 +126,5 @@ these artifacts.
 See Also
 --------
 
-* The :doc:`Curve Analysis </tutorials/curve_analysis>` tutorial shows how to parse and
-  use the curve fit results as stored in :class:`.ScatterTable`.
+* :doc:`Curve Analysis </tutorials/curve_analysis>` tutorial
+* :class:`.ScatterTable` API documentation

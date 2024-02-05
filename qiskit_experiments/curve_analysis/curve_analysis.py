@@ -535,7 +535,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.return_data_points:
             # Add raw data points
             warnings.warn(
-                f"{DATA_ENTRY_PREFIX + self.name} is moved to experiment data artifact. "
+                f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
                 "Saving this result with 'return_data_points'=True will be disabled in "
                 "Qiskit Experiments 0.7.",
                 DeprecationWarning,

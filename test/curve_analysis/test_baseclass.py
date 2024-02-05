@@ -43,7 +43,11 @@ class CurveAnalysisTestCase(QiskitExperimentsTestCase):
         counts = rng.binomial(shots, y)
 
         circuit_results = [
-            {"counts": {"0": shots - count, "1": count}, "metadata": {"xval": xi, **metadata}}
+            {
+                "counts": {"0": shots - count, "1": count},
+                "metadata": {"xval": xi, **metadata},
+                "shots": 1024,
+            }
             for xi, count in zip(x, counts)
         ]
         expdata = ExperimentData(experiment=FakeExperiment())
@@ -209,10 +213,11 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
     def test_end_to_end_single_function(self):
         """Integration test for single function."""
+        init_params = {"amp": 0.5, "tau": 0.3}
         analysis = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
-            p0={"amp": 0.5, "tau": 0.3},
+            p0=init_params,
             result_parameters=["amp", "tau"],
             plot=False,
         )
@@ -226,12 +231,43 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = analysis.run(test_data)
         self.assertExperimentDone(result)
 
+        curve_data = result.artifacts("curve_data").data
+        np.testing.assert_array_equal(curve_data.name, "test")
+        np.testing.assert_array_equal(curve_data.analysis, "CurveAnalysis")
+        np.testing.assert_array_equal(len(curve_data.filter(category="raw")), 100)
+        np.testing.assert_array_equal(len(curve_data.filter(category="formatted")), 100)
+        np.testing.assert_array_equal(len(curve_data.filter(category="fitted")), 100)
+        np.testing.assert_array_equal(curve_data.filter(category="raw").x, np.linspace(0, 1, 100))
+        np.testing.assert_array_equal(curve_data.filter(category="raw").shots, 1024)
+        np.testing.assert_array_equal(curve_data.filter(category="formatted").shots, 1024)
+        self.assertTrue(
+            np.isnan(np.array(curve_data.filter(category="fitted").shots, dtype=float)).all()
+        )
+        np.testing.assert_array_equal(
+            curve_data.filter(category="fitted").x, np.linspace(0, 1, 100)
+        )
+        np.testing.assert_array_equal(
+            curve_data.filter(category="formatted").x, np.linspace(0, 1, 100)
+        )
+
+        fit_data = result.artifacts("fit_summary").data
+        self.assertEqual(
+            fit_data.model_repr,
+            {"test": "amp * exp(-x/tau)"},
+        )
+        self.assertEqual(fit_data.dof, 98)
+        self.assertEqual(fit_data.init_params, init_params)
+        self.assertEqual(fit_data.success, True)
+        self.assertAlmostEqual(fit_data.params["amp"], 0.5, delta=0.1)
+        self.assertAlmostEqual(fit_data.params["tau"], 0.3, delta=0.1)
+
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
         self.assertEqual(len(result._figures), 0)
 
     def test_end_to_end_multi_objective(self):
         """Integration test for multi objective function."""
+        init_params = {"amp": 0.5, "freq": 2.1, "phi": 0.3, "base": 0.1}
         analysis = CurveAnalysis(
             models=[
                 ExpressionModel(
@@ -250,7 +286,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 "m1": {"series": "cos"},
                 "m2": {"series": "sin"},
             },
-            p0={"amp": 0.5, "freq": 2.1, "phi": 0.3, "base": 0.1},
+            p0=init_params,
             result_parameters=["amp", "freq", "phi", "base"],
             plot=False,
         )
@@ -273,6 +309,22 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         result = analysis.run(expdata)
         self.assertExperimentDone(result)
+
+        fit_data = result.artifacts("fit_summary").data
+        self.assertEqual(
+            fit_data.model_repr,
+            {
+                "m1": "amp * cos(2 * pi * freq * x + phi) + base",
+                "m2": "amp * sin(2 * pi * freq * x + phi) + base",
+            },
+        )
+        self.assertEqual(fit_data.dof, 196)
+        self.assertEqual(fit_data.init_params, init_params)
+        self.assertEqual(fit_data.success, True)
+        self.assertAlmostEqual(fit_data.params["amp"], amp, delta=0.1)
+        self.assertAlmostEqual(fit_data.params["freq"], freq, delta=0.1)
+        self.assertAlmostEqual(fit_data.params["phi"], phi, delta=0.1)
+        self.assertAlmostEqual(fit_data.params["base"], base, delta=0.1)
 
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("freq").value.nominal_value, freq, delta=0.1)
@@ -298,6 +350,11 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         test_data = self.single_sampler(x, y)
         result = analysis.run(test_data)
         self.assertExperimentDone(result)
+
+        fit_data = result.artifacts("fit_summary").data
+        self.assertEqual(fit_data.init_params, {"amp": 0.5, "tau": 0.3})
+        self.assertEqual(fit_data.success, True)
+        self.assertEqual(fit_data.params["amp"], 0.5)
 
         self.assertEqual(result.analysis_results("amp").value.nominal_value, 0.5)
         self.assertEqual(result.analysis_results("amp").value.std_dev, 0.0)
@@ -556,9 +613,14 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
         np.testing.assert_array_almost_equal(y_ref, y_reproduced)
 
-    @data((False, "never", 0), (True, "never", 1), (None, "never", 0), (None, "always", 1))
+    @data(
+        (False, "never", 0, "m1", "raw"),
+        (True, "never", 1, "m2", "raw"),
+        (None, "never", 0, 0, "fitted"),
+        (None, "always", 1, 1, "fitted"),
+    )
     @unpack
-    def test_multi_composite_curve_analysis(self, plot, gen_figures, n_figures):
+    def test_multi_composite_curve_analysis(self, plot, gen_figures, n_figures, kind, category):
         """Integration test for composite curve analysis.
 
         This analysis consists of two curve fittings for cos and sin series.
@@ -628,6 +690,26 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = group_analysis.run(expdata)
         self.assertExperimentDone(result)
         amps = result.analysis_results("amp")
+
+        table_subset = expdata.artifacts("curve_data").data.filter(data_uid=kind, category=category)
+        self.assertEqual(len(table_subset), 200)
+        if isinstance(kind, int):
+            np.testing.assert_array_equal(table_subset.data_uid, kind)
+        else:
+            np.testing.assert_array_equal(table_subset.name, kind)
+        if category == "raw":
+            np.testing.assert_array_equal(table_subset.shots, 1024)
+        else:
+            self.assertTrue(np.isnan(np.array(table_subset.shots, dtype=float)).all())
+        np.testing.assert_array_equal(table_subset.category, category)
+        np.testing.assert_array_equal(table_subset.analysis[:100], "group_A")
+        np.testing.assert_array_equal(table_subset.analysis[-100:], "group_B")
+        np.testing.assert_array_equal(
+            table_subset.filter(analysis="group_A").x, np.linspace(0, 1, 100)
+        )
+        np.testing.assert_array_equal(
+            table_subset.filter(analysis="group_B").x, np.linspace(0, 1, 100)
+        )
 
         # two entries are generated for group A and group B
         self.assertEqual(len(amps), 2)

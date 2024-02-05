@@ -39,7 +39,7 @@ from qiskit_experiments.visualization import (
 )
 
 from qiskit_experiments.framework.containers import FigureType, ArtifactData
-from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
+from .base_curve_analysis import DATA_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
@@ -407,7 +407,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.return_data_points:
                 # Add raw data points
                 warnings.warn(
-                    "Raw data has been moved to experiment data artifacts. "
+                    f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
                     "Saving this result with 'return_data_points'=True will be disabled in "
                     "Qiskit Experiments 0.7.",
                     DeprecationWarning,
