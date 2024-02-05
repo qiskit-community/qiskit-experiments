@@ -74,7 +74,7 @@ When submitting a pull request for review, please ensure that:
    etc.), you've added or updated a reno release note for that change and tagged the PR
    for the changelog.
 6. If your code requires a change to dependencies, you've updated the corresponding
-   requirements file: `requirements.txt` contain core dependencies,
+   requirements file: `requirements.txt` for core dependencies,
    `requirements-extras.txt` for dependencies for optional features, and `requirements-dev.txt`
    for dependencies required for running tests and building documentation.
 

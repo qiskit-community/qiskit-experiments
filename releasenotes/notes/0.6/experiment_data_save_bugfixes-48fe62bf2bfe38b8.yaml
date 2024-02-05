@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    The :attr:`ExperimentData.auto_save` setter no longer saves sub-experiments twice.
+    The :attr:`.ExperimentData.auto_save` setter no longer saves sub-experiments twice.
   - |
-    :meth:`ExperimentData.save` now handles correctly figures in sub-experiments when ``flatten_results=True``.
+    :meth:`.ExperimentData.save` now handles correctly figures in sub-experiments when ``flatten_results=True``.

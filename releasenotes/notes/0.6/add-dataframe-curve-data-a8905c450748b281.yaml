@@ -23,7 +23,7 @@ upgrade:
     such as formatting, fitting, and visualization.
 developer:
   - |
-    :meth:`.CurveAnalysis._create_figures` method is added to the curve analysis base class.
+    Added the :meth:`~.CurveAnalysis._create_figures` method to the :class:`.CurveAnalysis` base class.
     A curve analysis subclass can overwrite this method to customize the output figures.
     The method is called with the :class:`.ScatterTable` containing all intermediate data points 
     generated during the curve analysis.

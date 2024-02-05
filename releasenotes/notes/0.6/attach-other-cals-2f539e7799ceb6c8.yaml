@@ -1,8 +1,8 @@
 ---
 features:
   - |
-    A new method :meth:`.qiskit_experiments.calibration_management.Calibrations.has_template`
-    has been added to :class:`.qiskit_experiments.calibration_management.Calibrations`
+    A new method :meth:`~.Calibrations.has_template`
+    has been added to :class:`.Calibrations`
     to check if a template schedule exists for a particular set of qubits.
 fixes:
   - |
