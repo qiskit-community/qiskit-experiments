@@ -6,7 +6,7 @@ features:
     are now stored in artifacts in the :class:`.ExperimentData` class. :meth:`.add_artifacts`
     and :meth:`.delete_artifact` have been added to manipulate the artifacts. These will be uploaded
     to the cloud service in JSON form along with the rest of the :class:`.ExperimentData` object
-    when saved.
+    when saved. For more information, see the :doc:`artifacts how-to </howtos/artifacts>`.
 upgrade:
   - |
     Direct access to the curve fit summary in :class:`.ExperimentData` has moved from 

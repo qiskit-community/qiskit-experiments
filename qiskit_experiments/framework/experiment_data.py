@@ -292,6 +292,7 @@ class ExperimentData:
 
         self._deleted_figures = deque()
         self._deleted_analysis_results = deque()
+        self._deleted_artifacts = set()  # for holding unique artifact names to be deleted
 
         # Child related
         # Add component data and set parent ID to current container
@@ -623,7 +624,10 @@ class ExperimentData:
         self._deleted_analysis_results.extend(list(self._analysis_results.result_ids))
         self._analysis_results.clear()
         # Schedule existing figures for deletion next save call
-        # TODO: Delete artifacts from the service
+        # TODO: Fully delete artifacts from the service
+        # Current implementation uploads empty files instead
+        for artifact in self._artifacts.values():
+            self._deleted_artifacts.add(artifact.name)
         for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
@@ -1739,6 +1743,19 @@ class ExperimentData:
                 except Exception:  # pylint: disable=broad-except:
                     LOG.error("Unable to save artifacts: %s", traceback.format_exc())
 
+            # Upload a blank file if the whole file should be deleted
+            for artifact_name in self._deleted_artifacts.copy():
+                try:  # don't upload if an artifact still has this name
+                    self.artifacts(artifact_name)
+                except Exception:  # pylint: disable=broad-except:
+                    with service_exception_to_warning():
+                        self.service.file_upload(
+                            experiment_id=self.experiment_id,
+                            file_name=f"{artifact_name}.zip",
+                            file_data=None,
+                        )
+                self._deleted_artifacts.remove(artifact_name)
+
         if not self.service.local and self.verbose:
             print(
                 "You can view the experiment online at "
@@ -2236,7 +2253,8 @@ class ExperimentData:
                     if service.experiment_has_file(experiment_id, filename):
                         artifact_file = service.file_download(experiment_id, filename)
                         for artifact in zip_to_objs(artifact_file, json_decoder=cls._json_decoder):
-                            expdata.add_artifacts(artifact)
+                            if artifact is not None:
+                                expdata.add_artifacts(artifact)
         except Exception:  # pylint: disable=broad-except:
             LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 
@@ -2600,6 +2618,7 @@ class ExperimentData:
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         for key in artifact_keys:
+            self._deleted_artifacts.add(self._artifacts[key].name)
             del self._artifacts[key]
 
         if len(artifact_keys) == 1:
