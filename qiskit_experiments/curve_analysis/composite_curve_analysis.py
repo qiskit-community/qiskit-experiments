@@ -232,7 +232,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         for analysis in self.analyses():
             group_data = curve_data.filter(analysis=analysis.name)
             model_names = analysis.model_names()
-            for uid, sub_data in group_data.iter_by_class():
+            for uid, sub_data in group_data.iter_by_data():
                 full_name = f"{model_names[uid]}_{analysis.name}"
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
@@ -378,7 +378,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if fit_data.success:
                 # Add fit data to curve data table
                 model_names = analysis.model_names()
-                for i, sub_data in formatted_subset.iter_by_class():
+                for data_id, sub_data in formatted_subset.iter_by_data():
                     xval = sub_data.x
                     if len(xval) == 0:
                         # If data is empty, skip drawing this model.
@@ -388,7 +388,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
                     uval_arr_fit = eval_with_uncertainties(
                         x=xval_arr_fit,
-                        model=analysis.models[i],
+                        model=analysis.models[data_id],
                         params=fit_data.ufloat_params,
                     )
                     yval_arr_fit = unp.nominal_values(uval_arr_fit)
@@ -398,8 +398,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         yerr_arr_fit = np.zeros_like(xval_arr_fit)
                     for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
                         table.add_row(
-                            name=model_names[i],
-                            class_id=i,
+                            name=model_names[data_id],
+                            data_uid=data_id,
                             category="fitted",
                             x=xval,
                             y=yval,

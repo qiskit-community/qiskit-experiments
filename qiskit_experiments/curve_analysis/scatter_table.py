@@ -44,7 +44,7 @@ class ScatterTable:
         "yval",
         "yerr",
         "name",
-        "class_id",
+        "data_uid",
         "category",
         "shots",
         "analysis",
@@ -106,13 +106,14 @@ class ScatterTable:
     @property
     def x(self) -> np.ndarray:
         """X values."""
+        # For backward compatibility with CurveData.x
         return self._data.xval.to_numpy(dtype=float, na_value=np.nan)
 
     @x.setter
     def x(self, new_values):
         self._data.loc[:, "xval"] = new_values
 
-    def get_x(
+    def xvals(
         self,
         kind: int | str | None = None,
         category: str | None = None,
@@ -141,13 +142,14 @@ class ScatterTable:
     @property
     def y(self) -> np.ndarray:
         """Y values."""
+        # For backward compatibility with CurveData.y
         return self._data.yval.to_numpy(dtype=float, na_value=np.nan)
 
     @y.setter
     def y(self, new_values: np.ndarray):
         self._data.loc[:, "yval"] = new_values
 
-    def get_y(
+    def yvals(
         self,
         kind: int | str | None = None,
         category: str | None = None,
@@ -176,13 +178,14 @@ class ScatterTable:
     @property
     def y_err(self) -> np.ndarray:
         """Standard deviation of Y values."""
+        # For backward compatibility with CurveData.y_err
         return self._data.yerr.to_numpy(dtype=float, na_value=np.nan)
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
         self._data.loc[:, "yerr"] = new_values
 
-    def get_y_err(
+    def yerrs(
         self,
         kind: int | str | None = None,
         category: str | None = None,
@@ -218,13 +221,13 @@ class ScatterTable:
         self._data.loc[:, "name"] = new_values
 
     @property
-    def class_id(self) -> np.ndarray:
+    def data_uid(self) -> np.ndarray:
         """Corresponding data UID."""
-        return self._data.class_id.to_numpy(dtype=object, na_value=None)
+        return self._data.data_uid.to_numpy(dtype=object, na_value=None)
 
-    @class_id.setter
-    def class_id(self, new_values: np.ndarray):
-        self._data.loc[:, "class_id"] = new_values
+    @data_uid.setter
+    def data_uid(self, new_values: np.ndarray):
+        self._data.loc[:, "data_uid"] = new_values
 
     @property
     def category(self) -> np.ndarray:
@@ -273,7 +276,7 @@ class ScatterTable:
 
         if kind is not None:
             if isinstance(kind, int):
-                index = self._data.class_id == kind
+                index = self._data.data_uid == kind
             elif isinstance(kind, str):
                 index = self._data.name == kind
             else:
@@ -287,16 +290,16 @@ class ScatterTable:
             filt_data = filt_data.loc[index, :]
         return ScatterTable.from_dataframe(filt_data)
 
-    def iter_by_class(self) -> Iterator[tuple[int, "ScatterTable"]]:
+    def iter_by_data(self) -> Iterator[tuple[int, "ScatterTable"]]:
         """Iterate over subset of data sorted by the data UID.
 
         Yields:
             Tuple of data UID and subset of ScatterTable.
         """
-        ids = self._data.class_id.dropna().sort_values().unique()
-        for mid in ids:
-            index = self._data.class_id == mid
-            yield mid, ScatterTable.from_dataframe(self._data.loc[index, :])
+        data_ids = self._data.data_uid.dropna().sort_values().unique()
+        for did in data_ids:
+            index = self._data.data_uid == did
+            yield did, ScatterTable.from_dataframe(self._data.loc[index, :])
 
     def iter_groups(
         self,
@@ -326,7 +329,7 @@ class ScatterTable:
     def add_row(
         self,
         name: str | pd.NA = pd.NA,
-        class_id: int | pd.NA = pd.NA,
+        data_uid: int | pd.NA = pd.NA,
         category: str | pd.NA = pd.NA,
         x: float | pd.NA = pd.NA,
         y: float | pd.NA = pd.NA,
@@ -344,11 +347,11 @@ class ScatterTable:
             y_err: Standard deviation of y value.
             shots: Shot number used to acquire this data point.
             name: Name of this data if available.
-            class_id: Data UID of if available.
+            data_uid: Data UID of if available.
             category: Data category if available.
             analysis: Analysis name if available.
         """
-        self._lazy_add_rows.append([x, y, y_err, name, class_id, category, shots, analysis])
+        self._lazy_add_rows.append([x, y, y_err, name, data_uid, category, shots, analysis])
 
     @classmethod
     def _format_table(cls, data: pd.DataFrame) -> pd.DataFrame:
@@ -389,7 +392,7 @@ class ScatterTable:
     )
     def data_allocation(self) -> np.ndarray:
         """Index of corresponding fit model."""
-        return self.class_id
+        return self.data_uid
 
     @property
     @deprecate_func(
@@ -402,7 +405,7 @@ class ScatterTable:
     def labels(self) -> list[str]:
         """List of model names."""
         # Order sensitive
-        name_id_tups = self._data.groupby(["name", "class_id"]).groups.keys()
+        name_id_tups = self._data.groupby(["name", "data_uid"]).groups.keys()
         return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
 
     @deprecate_func(

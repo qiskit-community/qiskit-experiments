@@ -273,7 +273,7 @@ This table may look like:
 
 .. code-block::
 
-        xval      yval      yerr name  class_id category  shots     analysis
+        xval      yval      yerr name  data_uid category  shots     analysis
     0    0.1  0.153659  0.011258    A         0      raw   1024   MyAnalysis
     1    0.1  0.590732  0.015351    B         1      raw   1024   MyAnalysis
     2    0.1  0.315610  0.014510    A         0      raw   1024   MyAnalysis
@@ -295,7 +295,7 @@ for each condition. The role of each column is as follows:
 - ``yval``: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.
 - ``yerr``: Standard error of the outcome, which is mainly due to sampling error.
 - ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
-- ``class_id``: Numerical index corresponding to the result class. This number is automatically assigned.
+- ``data_uid``: Numerical index corresponding to the result class. This number is automatically assigned.
 - ``category``: The attribute of data set. The "raw" category indicates an output from the data processing.
 - ``shots``: Number of measurement shots used to acquire this result.
 - ``analysis``: The name of curve analysis instance that generated this data. In :class:`.CompositeCurveAnalysis`, the table is a composite of tables from all component analyses.
@@ -311,7 +311,7 @@ This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
-The new class_id is given here so that its value corresponds to the fit model object index
+The new data_uid is given here so that its value corresponds to the fit model object index
 in this analysis class. This index mapping is done based upon the correspondence of
 the data name and the fit model name.
 
