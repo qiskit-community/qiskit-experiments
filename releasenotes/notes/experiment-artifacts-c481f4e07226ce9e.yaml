@@ -13,3 +13,8 @@ upgrade:
     :meth:`.analysis_results` to :meth:`.artifacts`, where values are stored in
     :meth:`.artifacts.data`. For example, to access the chi-squared of the fit,
     ``expdata.analysis_results(0).chisq`` is now ``expdata.artifacts("fit_summary").data.chisq``.
+deprecations:
+  - |
+    Setting the option ``return_data_points`` to ``True`` in curve analysis has been deprecated.
+    Data points are now automatically provided in :class:`ExperimentData` objects via the ``curve_data``
+    artifact.

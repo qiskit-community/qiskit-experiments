@@ -98,13 +98,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     This method creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
 
-    .. rubric:: _create_curve_data
-
-    This method creates analysis results for the formatted dataset, i.e. data used for the fitting.
-    Entries are created when the analysis option ``return_data_points`` is ``True``.
-    If analysis consists of multiple series, analysis result is created for
-    each curve data in the series definitions.
-
     .. rubric:: _create_figures
 
     This method creates figures by consuming the scatter table data.

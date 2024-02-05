@@ -87,8 +87,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         The experimental circuits starting with different initial states must be
         distinguished by the circuit metadata ``{"init_state": 0}`` or ``{"init_state": 1}``,
         along with the "xval" in the same dictionary.
-        If you want to compute another quantity using two fitting outcomes, you can
-        override :meth:`CompositeCurveAnalysis._create_curve_data` in subclass.
 
     :class:`.CompositeCurveAnalysis` subclass may override following methods.
 
@@ -276,7 +274,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 This is ``True`` by default.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``False``.
-            return_data_points (bool): Set ``True`` to include in the analysis result
+            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.

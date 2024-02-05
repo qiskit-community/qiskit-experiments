@@ -461,10 +461,13 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         """Integration test for running two curve analyses in parallel, including
         selective figure generation."""
 
+        fit1_p0 = {"amp": 0.5, "tau": 0.3}
+        fit2_p0 = {"amp": 0.7, "tau": 0.5}
+
         analysis1 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis1.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
-            p0={"amp": 0.5, "tau": 0.3},
+            p0=fit1_p0,
             result_parameters=["amp", "tau"],
             plot=plot_flag,
         )
@@ -472,7 +475,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         analysis2 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis2.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
-            p0={"amp": 0.7, "tau": 0.5},
+            p0=fit2_p0,
             result_parameters=["amp", "tau"],
             plot=plot_flag,
         )
@@ -492,6 +495,36 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         test_data = self.parallel_sampler(x, y1, y2)
         result = composite.run(test_data)
         self.assertExperimentDone(result)
+
+        self.assertEqual(len(result.artifacts()), 4)
+        fit1 = result.artifacts("fit_summary")[0].data
+        self.assertEqual(fit1.model_repr, {"test": "amp * exp(-x/tau)"})
+        self.assertEqual(fit1.init_params, fit1_p0)
+        self.assertAlmostEqual(fit1.params["amp"], amp1, delta=0.1)
+        self.assertAlmostEqual(fit1.params["tau"], tau1, delta=0.1)
+
+        fit2 = result.artifacts("fit_summary")[1].data
+        self.assertEqual(fit2.model_repr, {"test": "amp * exp(-x/tau)"})
+        self.assertEqual(fit2.init_params, fit2_p0)
+        self.assertAlmostEqual(fit2.params["amp"], amp2, delta=0.1)
+        self.assertAlmostEqual(fit2.params["tau"], tau2, delta=0.1)
+
+        data1 = result.artifacts("curve_data")[0].data
+        data2 = result.artifacts("curve_data")[1].data
+
+        identical_cols = ["xval", "name", "data_uid", "category", "shots", "analysis"]
+        self.assertTrue(data1.dataframe[identical_cols].equals(data2.dataframe[identical_cols]))
+        self.assertEqual(len(data1), 300)
+
+        np.testing.assert_array_equal(data1.category[:100], "raw")
+        np.testing.assert_array_equal(data1.category[100:200], "formatted")
+        np.testing.assert_array_equal(data1.category[-100:], "fitted")
+        np.testing.assert_array_equal(data1.name, "test")
+        np.testing.assert_array_equal(data1.data_uid, 0)
+        np.testing.assert_array_equal(data1.analysis, "CurveAnalysis")
+        np.testing.assert_array_equal(data1.x[:100], np.linspace(0, 1, 100))
+        np.testing.assert_array_equal(data1.x[100:200], np.linspace(0, 1, 100))
+        np.testing.assert_array_equal(data1.x[-100:], np.linspace(0, 1, 100))
 
         amps = result.analysis_results("amp")
         taus = result.analysis_results("tau")
@@ -584,6 +617,15 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = analysis.run(expdata)
         self.assertExperimentDone(result)
 
+        for i in range(3):
+            self.assertEqual(
+                result.data(i),
+                {"counts": {"0": 10000, "1": 0}, "metadata": {"xval": i / 99}, "shots": 1024},
+            )
+            self.assertEqual(
+                result.artifacts("curve_data").data.y[i], 0.5 / 10001
+            )  # from Beta distribution estimate
+
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
 
     def test_get_init_params(self):
@@ -656,8 +698,10 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             analyses.append(analysis)
 
         group_analysis = CompositeCurveAnalysis(analyses)
-        group_analysis.analyses("group_A").set_options(p0={"amp": 0.3, "freq": 2.1, "b": 0.5})
-        group_analysis.analyses("group_B").set_options(p0={"amp": 0.5, "freq": 3.2, "b": 0.5})
+        group_A_p0 = {"amp": 0.3, "freq": 2.1, "b": 0.5}
+        group_B_p0 = {"amp": 0.5, "freq": 3.2, "b": 0.5}
+        group_analysis.analyses("group_A").set_options(p0=group_A_p0)
+        group_analysis.analyses("group_B").set_options(p0=group_B_p0)
         group_analysis.set_options(plot=plot)
         group_analysis._generate_figures = gen_figures
 
@@ -691,6 +735,26 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertExperimentDone(result)
         amps = result.analysis_results("amp")
 
+        fit_A = expdata.artifacts("fit_summary").data["group_A"]
+        self.assertEqual(
+            fit_A.model_repr,
+            {"m1": "amp * cos(2 * pi * freq * x) + b", "m2": "amp * sin(2 * pi * freq * x) + b"},
+        )
+        self.assertEqual(fit_A.init_params, group_A_p0)
+        self.assertAlmostEqual(fit_A.params["amp"], amp1, delta=0.1)
+        self.assertAlmostEqual(fit_A.params["freq"], freq1, delta=0.1)
+        self.assertAlmostEqual(fit_A.params["b"], b1, delta=0.1)
+
+        fit_B = expdata.artifacts("fit_summary").data["group_B"]
+        self.assertEqual(
+            fit_B.model_repr,
+            {"m1": "amp * cos(2 * pi * freq * x) + b", "m2": "amp * sin(2 * pi * freq * x) + b"},
+        )
+        self.assertEqual(fit_B.init_params, group_B_p0)
+        self.assertAlmostEqual(fit_B.params["amp"], amp2, delta=0.1)
+        self.assertAlmostEqual(fit_B.params["freq"], freq2, delta=0.1)
+        self.assertAlmostEqual(fit_B.params["b"], b2, delta=0.1)
+
         table_subset = expdata.artifacts("curve_data").data.filter(data_uid=kind, category=category)
         self.assertEqual(len(table_subset), 200)
         if isinstance(kind, int):
@@ -715,8 +779,8 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertEqual(len(amps), 2)
         self.assertEqual(amps[0].extra["group"], "group_A")
         self.assertEqual(amps[1].extra["group"], "group_B")
-        self.assertAlmostEqual(amps[0].value.n, 0.2, delta=0.1)
-        self.assertAlmostEqual(amps[1].value.n, 0.4, delta=0.1)
+        self.assertAlmostEqual(amps[0].value.n, amp1, delta=0.1)
+        self.assertAlmostEqual(amps[1].value.n, amp2, delta=0.1)
         self.assertEqual(len(result._figures), n_figures)
 
 
