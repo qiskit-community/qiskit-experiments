@@ -322,6 +322,7 @@ This may return new scatter table object with the addition of rows like the foll
 
 .. code-block::
 
+        xval      yval      yerr name  data_uid   category  shots     analysis
     12   0.1  0.234634  0.009183    A         0  formatted   2048   MyAnalysis
     13   0.2  0.737561  0.008656    A         0  formatted   2048   MyAnalysis
     14   0.3  0.487317  0.008018    A         0  formatted   2048   MyAnalysis

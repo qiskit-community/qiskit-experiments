@@ -118,7 +118,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         # Use the highest-frequency curve to estimate the oscillation frequency.
         max_rep_model_name = self.model_names()[-1]
         max_rep = self.options.data_subfit_map[max_rep_model_name]["nrep"]
-        curve_data = curve_data.filter(kind=max_rep_model_name)
+        curve_data = curve_data.filter(data_uid=max_rep_model_name)
 
         x_data = curve_data.x
         min_beta, max_beta = min(x_data), max(x_data)

@@ -82,7 +82,7 @@ class ScatterTable:
 
     .. code-block:: python
 
-        mini_table = table.filter(kind="model1", category="raw", analysis="Analysis_A")
+        mini_table = table.filter(data_uid="model1", category="raw", analysis="Analysis_A")
         mini_x = mini_table.x
         mini_y = mini_table.y
 
@@ -90,8 +90,8 @@ class ScatterTable:
 
     .. code-block:: python
 
-        mini_x = table.xvals(kind="model1", category="raw", analysis="Analysis_A")
-        mini_y = table.yvals(kind="model1", category="raw", analysis="Analysis_A")
+        mini_x = table.xvals(data_uid="model1", category="raw", analysis="Analysis_A")
+        mini_y = table.yvals(data_uid="model1", category="raw", analysis="Analysis_A")
 
     When an analysis only has a single model and the table is created from a single
     analysis instance, the data_uid and analysis are trivial, and you only need to
@@ -122,7 +122,6 @@ class ScatterTable:
     ]
 
     def __init__(self):
-        super().__init__()
         self._lazy_add_rows = []
         self._dump = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
 
@@ -174,7 +173,7 @@ class ScatterTable:
 
     def xvals(
         self,
-        kind: int | str | None = None,
+        data_uid: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -184,7 +183,7 @@ class ScatterTable:
         A convenient shortcut of getting X data with filtering.
 
         Args:
-            kind: Identifier of the data, either data UID or name.
+            data_uid: Identifier of the data, either data UID or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -193,7 +192,7 @@ class ScatterTable:
         Returns:
             Numpy array of X values.
         """
-        sub_table = self.filter(kind, category, analysis)
+        sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
             self._warn_composite_data(sub_table)
         return sub_table.x
@@ -210,7 +209,7 @@ class ScatterTable:
 
     def yvals(
         self,
-        kind: int | str | None = None,
+        data_uid: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -220,7 +219,7 @@ class ScatterTable:
         A convenient shortcut of getting Y data with filtering.
 
         Args:
-            kind: Identifier of the data, either data UID or name.
+            data_uid: Identifier of the data, either data UID or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -229,7 +228,7 @@ class ScatterTable:
         Returns:
             Numpy array of Y values.
         """
-        sub_table = self.filter(kind, category, analysis)
+        sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
             self._warn_composite_data(sub_table)
         return sub_table.y
@@ -246,7 +245,7 @@ class ScatterTable:
 
     def yerrs(
         self,
-        kind: int | str | None = None,
+        data_uid: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -256,7 +255,7 @@ class ScatterTable:
         A convenient shortcut of getting Y error data with filtering.
 
         Args:
-            kind: Identifier of the data, either data UID or name.
+            data_uid: Identifier of the data, either data UID or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -265,7 +264,7 @@ class ScatterTable:
         Returns:
             Numpy array of Y error values.
         """
-        sub_table = self.filter(kind, category, analysis)
+        sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
             self._warn_composite_data(sub_table)
         return sub_table.y_err
@@ -317,14 +316,14 @@ class ScatterTable:
 
     def filter(
         self,
-        kind: int | str | None = None,
+        data_uid: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
     ) -> ScatterTable:
         """Filter data by class, category, and/or analysis name.
 
         Args:
-            kind: Identifier of the data, either data UID or name.
+            data_uid: Identifier of the data, either data UID or name.
             category: Name of data category.
             analysis: Name of analysis.
 
@@ -333,13 +332,15 @@ class ScatterTable:
         """
         filt_data = self._data
 
-        if kind is not None:
-            if isinstance(kind, int):
-                index = self._data.data_uid == kind
-            elif isinstance(kind, str):
-                index = self._data.name == kind
+        if data_uid is not None:
+            if isinstance(data_uid, int):
+                index = self._data.data_uid == data_uid
+            elif isinstance(data_uid, str):
+                index = self._data.name == data_uid
             else:
-                raise ValueError(f"Invalid kind type {type(kind)}. This must be integer or string.")
+                raise ValueError(
+                    f"Invalid data_uid {type(data_uid)}. This must be integer or string."
+                )
             filt_data = filt_data.loc[index, :]
         if category is not None:
             index = self._data.category == category
@@ -349,7 +350,7 @@ class ScatterTable:
             filt_data = filt_data.loc[index, :]
         return ScatterTable.from_dataframe(filt_data)
 
-    def iter_by_data(self) -> Iterator[tuple[int, "ScatterTable"]]:
+    def iter_by_data_uid(self) -> Iterator[tuple[int, "ScatterTable"]]:
         """Iterate over subset of data sorted by the data UID.
 
         Yields:
@@ -424,8 +425,8 @@ class ScatterTable:
     def _warn_composite_data(table: ScatterTable):
         if len(table._data.name.unique()) > 1:
             warnings.warn(
-                "Returned data contains multiple data kinds. "
-                "You may want to filter the data by a specific data_uid or name.",
+                "Returned data contains multiple data UIDs. "
+                "You may want to filter the data by a specific data_uid integer or name string.",
                 UserWarning,
             )
         if len(table._data.category.unique()) > 1:
@@ -482,7 +483,7 @@ class ScatterTable:
         Returns:
             A subset of data corresponding to a particular series.
         """
-        return self.filter(kind=index)
+        return self.filter(data_uid=index)
 
     def __len__(self):
         """Return the number of data points stored in the table."""

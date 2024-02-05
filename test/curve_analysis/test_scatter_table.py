@@ -170,7 +170,7 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test filter table data with data UID."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(kind=0)
+        filtered = obj.filter(data_uid=0)
         self.assertEqual(len(filtered), 6)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2, 0.1, 0.2, 0.1, 0.2]))
         np.testing.assert_array_equal(filtered.data_uid, np.array([0, 0, 0, 0, 0, 0]))
@@ -179,7 +179,7 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test filter table data with data name."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(kind="model1")
+        filtered = obj.filter(data_uid="model1")
         self.assertEqual(len(filtered), 6)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2, 0.1, 0.2, 0.1, 0.2]))
         np.testing.assert_array_equal(
@@ -210,7 +210,7 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test filter table data with multiple attributes."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(kind=0, category="raw", analysis="Fit1")
+        filtered = obj.filter(data_uid=0, category="raw", analysis="Fit1")
         self.assertEqual(len(filtered), 2)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2]))
         np.testing.assert_array_equal(filtered.data_uid, np.array([0, 0]))
@@ -221,15 +221,15 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test iterating over mini tables associated with different data UID."""
         obj = ScatterTable.from_dataframe(self.reference).filter(category="raw")
 
-        class_iter = obj.iter_by_data()
+        class_iter = obj.iter_by_data_uid()
 
         index, table_cls0 = next(class_iter)
-        ref_table_cls0 = obj.filter(kind=0)
+        ref_table_cls0 = obj.filter(data_uid=0)
         self.assertEqual(index, 0)
         self.assertEqual(table_cls0, ref_table_cls0)
 
         index, table_cls1 = next(class_iter)
-        ref_table_cls1 = obj.filter(kind=1)
+        ref_table_cls1 = obj.filter(data_uid=1)
         self.assertEqual(index, 1)
         self.assertEqual(table_cls1, ref_table_cls1)
 
