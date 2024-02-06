@@ -20,8 +20,8 @@ developer:
     This function internally dispatches the logic for equality check.
   - |
     The default behavior of :meth:`QiskitExperimentsTestCase.assertRoundTripSerializable` and 
-    :meth:`QiskitExperimentsTestCase.assertRoundTripPickle` when `check_func` is not 
+    :meth:`QiskitExperimentsTestCase.assertRoundTripPickle` when ``check_func`` is not 
     provided was upgraded. These methods now compare the decoded instance with
     :func:`~test.extended_equality.is_equivalent`, rather than 
-    delegating to the native `assertEqual` unittest method.
+    delegating to the native ``assertEqual`` unittest method.
     One writing a unittest for serialization no longer need to explicitly set checker function.

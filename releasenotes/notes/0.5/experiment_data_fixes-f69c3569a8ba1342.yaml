@@ -25,6 +25,6 @@ features:
 
 fixes:
   - |
-    Fixed a bug in :meth:`.ExperimentData._add_job_data` that caused job-id 
+    Fixed a bug in :meth:`.ExperimentData._add_job_data` that caused job id 
     related test fails.
     

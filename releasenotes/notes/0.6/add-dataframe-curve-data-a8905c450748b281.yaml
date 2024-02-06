@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    :class:`.ScatterTable` is introduced as a drop-in replacement of :class:`.CurveData`.
+    :class:`.ScatterTable` has been introduced as a drop-in replacement of :class:`.CurveData`.
     
     This is a data format to store intermediate data in curve analysis, built on top of
     the pandas DataFrame. Each table row corresponds to a single data point, 

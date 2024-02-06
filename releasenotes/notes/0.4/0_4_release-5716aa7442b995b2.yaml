@@ -4,7 +4,7 @@ prelude: >
     class and other bug fixes and improvements. The database service has switched to the
     `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ provider.
     Several new data processing nodes have been added.
-developers:
+developer:
   - |
     The class :class:`.MockIQBackend` for testing has been updated to support
     multiple qubits. It now takes lists of IQ cluster centers and widths as input,

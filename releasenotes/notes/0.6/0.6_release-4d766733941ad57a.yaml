@@ -2,8 +2,8 @@
 prelude: >
     Qiskit Experiments 0.6 introduces numerous features and improvements. It is compatible with Qiskit 1.0.
     Notable changes include refactoring the analysis results to a Pandas dataframe, and refactoring
-    curve fit data into a new :class:`ScatterTable` container based on dataframes that is stored
-    by default as an artifact in :class:`ExperimentData` along with the summary of fit results.
-    New experiments include :class:`StarkP1Spectroscopy`, :class:`StarkRamseyXY`,
-    :class:`StarkRamseyXYScan`. The supported provider for running jobs on IBM backends has 
+    curve fit data into a new :class:`.ScatterTable` container based on dataframes that is stored
+    by default as an artifact in :class:`.ExperimentData` along with the summary of fit results.
+    New experiments include :class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`,
+    :class:`.StarkRamseyXYAmpScan`. The supported provider for running jobs on IBM backends has 
     switched from ``qiskit-ibm-provider`` to ``qiskit-ibm-experiment``.
