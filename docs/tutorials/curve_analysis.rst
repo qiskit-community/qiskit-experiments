@@ -240,6 +240,85 @@ generate initial guesses for parameters, from the ``AnalysisA`` class in the fir
 On the other hand, in the latter case, you need to manually copy and paste
 every logic defined in ``AnalysisA``.
 
+.. _data_management_with_scatter_table:
+
+Managing intermediate data
+--------------------------
+
+:class:`.ScatterTable` is the single source of truth for the data used in the curve fit analysis.
+Each data point in a 1-D curve fit may consist of the x value, y value, and
+standard error of the y value.
+In addition, such analysis may internally create several data subsets.
+Each data point is given a metadata triplet (`data_uid`, `category`, `analysis`)
+to distinguish the subset.
+
+* The `data_uid` is an integer key representing a label of the data which may be classified by fits models.
+  When an analysis consists of multiple fit models and performs a multi-objective fit,
+  the created table may contain multiple datasets for each fit model.
+  Usually the index of data matches with the index of the fit model in the analysis.
+  The table also provides a `name` column which is a human-friendly text notation of the `data_uid`.
+  The `name` and corresponding `data_uid` must refer to the identical group,
+  and the `name` typically matches with the name of the fit model.
+  You can find a particular data subset by either `data_uid` or `name`.
+
+* The `category` is a string tag categorizing a group of data points.
+  The measured outcomes input as-is to the curve analysis are categorized by "raw".
+  In a standard :class:`.CurveAnalysis` subclass, the input data is formatted for
+  the fitting and the formatted data is also stored in the table with the "formatted" category.
+  You can filter the formatted data to run curve fitting with your custom program.
+  After the fit is successfully conducted and the model parameters are identified,
+  data points in the interpolated fit curves are stored with the "fitted" category
+  for visualization. The management of the data groups depends on the design of
+  the curve analysis protocol, and the convention of category naming might
+  be different in a particular analysis.
+
+* The `analysis` is a string key representing a name of
+  the analysis instance that generated the data point.
+  This allows a user to combine multiple tables from different analyses without collapsing the data points.
+  For a simple analysis class, all rows will have the same value,
+  but a :class:`.CompositeCurveAnalysis` instance consists of
+  nested component analysis instances containing statistically independent fit models.
+  Each component is given a unique analysis name, and datasets generated from each instance
+  are merged into a single table stored in the outermost composite analysis.
+
+User must be aware of this triplet to extract data points that belong to a
+particular data subset. For example,
+
+.. code-block:: python
+
+    mini_table = table.filter(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_x = mini_table.x
+    mini_y = mini_table.y
+
+This operation is equivalent to
+
+.. code-block:: python
+
+    mini_x = table.xvals(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_y = table.yvals(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
+
+When an analysis only has a single model and the table is created from a single
+analysis instance, the data_uid and analysis are trivial, and you only need to
+specify the category to get subset data of interest.
+
+The full description of :class:`.ScatterTable` columns are following below:
+
+- `xval`: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
+- `yval`: Nominal part of the outcome. The outcome is something like expectation value,
+  which is computed from the experiment result with the data processor.
+- `yerr`: Standard error of the outcome, which is mainly due to sampling error.
+- `name`: Unique identifier of the data group. This is defined by the ``data_subfit_map`` option in the :class:`.CurveAnalysis`.
+- `data_uid`: Integer corresponding to a data unique index. This number is automatically assigned.
+- `category`: A tag for the data group. This is defined by a developer of the curve analysis.
+- `shots`: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.
+- `analysis`: The name of the curve analysis instance that generated a data point.
+
+This object helps an analysis developer with writing a custom analysis class
+without an overhead of complex data management, as well as end-users with
+retrieving and reusing the intermediate data for their custom fitting workflow
+outside our curve fitting framework.
+Note that a :class:`ScatterTable` instance may be saved in the :class:`.ExperimentData` as an artifact.
+
 .. _curve_analysis_workflow:
 
 Curve Analysis workflow
@@ -273,37 +352,24 @@ This table may look like:
 
 .. code-block::
 
-        xval      yval      yerr name  data_uid category  shots     analysis
-    0    0.1  0.153659  0.011258    A         0      raw   1024   MyAnalysis
-    1    0.1  0.590732  0.015351    B         1      raw   1024   MyAnalysis
-    2    0.1  0.315610  0.014510    A         0      raw   1024   MyAnalysis
-    3    0.1  0.376098  0.015123    B         1      raw   1024   MyAnalysis
-    4    0.2  0.937073  0.007581    A         0      raw   1024   MyAnalysis
-    5    0.2  0.323415  0.014604    B         1      raw   1024   MyAnalysis
-    6    0.2  0.538049  0.015565    A         0      raw   1024   MyAnalysis
-    7    0.2  0.530244  0.015581    B         1      raw   1024   MyAnalysis
-    8    0.3  0.143902  0.010958    A         0      raw   1024   MyAnalysis
-    9    0.3  0.261951  0.013727    B         1      raw   1024   MyAnalysis
-    10   0.3  0.830732  0.011707    A         0      raw   1024   MyAnalysis
-    11   0.3  0.874634  0.010338    B         1      raw   1024   MyAnalysis
+        xval      yval      yerr  name  data_uid category  shots     analysis
+    0    0.1  0.153659  0.011258     A         0      raw   1024   MyAnalysis
+    1    0.1  0.590732  0.015351     B         1      raw   1024   MyAnalysis
+    2    0.1  0.315610  0.014510     A         0      raw   1024   MyAnalysis
+    3    0.1  0.376098  0.015123     B         1      raw   1024   MyAnalysis
+    4    0.2  0.937073  0.007581     A         0      raw   1024   MyAnalysis
+    5    0.2  0.323415  0.014604     B         1      raw   1024   MyAnalysis
+    6    0.2  0.538049  0.015565     A         0      raw   1024   MyAnalysis
+    7    0.2  0.530244  0.015581     B         1      raw   1024   MyAnalysis
+    8    0.3  0.143902  0.010958     A         0      raw   1024   MyAnalysis
+    9    0.3  0.261951  0.013727     B         1      raw   1024   MyAnalysis
+    10   0.3  0.830732  0.011707     A         0      raw   1024   MyAnalysis
+    11   0.3  0.874634  0.010338     B         1      raw   1024   MyAnalysis
 
 where the experiment consists of two subset series A and B, and the experiment parameter (xval)
 is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
-for each condition. The role of each column is as follows:
-
-- ``xval``: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
-- ``yval``: Nominal part of the outcome. The outcome is something like expectation value,
-  which is computed from the experiment result with the data processor.
-- ``yerr``: Standard error of the outcome, which is mainly due to sampling error.
-- ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
-- ``data_uid``: Integer corresponding to a data unique index. This number is automatically assigned.
-- ``category``: A tag for the data group. The "raw" category indicates an output from the data processing.
-- ``shots``: Number of measurement shots used to acquire this result.
-- ``analysis``: The name of the curve analysis instance that generated this data.
-  For a simple analysis class, all rows will have the same value, but :class:`.CompositeCurveAnalysis`
-  combines the tables from all component analyses leading to more than one unique entry.
-
-To find data points that belong to a particular dataset, you can follow :ref:`filter_scatter_table`.
+for each condition.
+See :ref:`data_management_with_scatter_table` for the details of columns.
 
 3. Formatting
 ^^^^^^^^^^^^^
@@ -325,13 +391,13 @@ This may return new scatter table object with the addition of rows like the foll
 
 .. code-block::
 
-        xval      yval      yerr name  data_uid   category  shots     analysis
-    12   0.1  0.234634  0.009183    A         0  formatted   2048   MyAnalysis
-    13   0.2  0.737561  0.008656    A         0  formatted   2048   MyAnalysis
-    14   0.3  0.487317  0.008018    A         0  formatted   2048   MyAnalysis
-    15   0.1  0.483415  0.010774    B         1  formatted   2048   MyAnalysis
-    16   0.2  0.426829  0.010678    B         1  formatted   2048   MyAnalysis
-    17   0.3  0.568293  0.008592    B         1  formatted   2048   MyAnalysis
+        xval      yval      yerr  name  data_uid   category  shots     analysis
+    12   0.1  0.234634  0.009183     A         0  formatted   2048   MyAnalysis
+    13   0.2  0.737561  0.008656     A         0  formatted   2048   MyAnalysis
+    14   0.3  0.487317  0.008018     A         0  formatted   2048   MyAnalysis
+    15   0.1  0.483415  0.010774     B         1  formatted   2048   MyAnalysis
+    16   0.2  0.426829  0.010678     B         1  formatted   2048   MyAnalysis
+    17   0.3  0.568293  0.008592     B         1  formatted   2048   MyAnalysis
 
 The default :meth:`_format_data` method adds its output data with the category "formatted".
 This category name must be also specified in the analysis option ``fit_category``.

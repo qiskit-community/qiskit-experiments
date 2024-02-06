@@ -32,72 +32,22 @@ LOG = logging.getLogger(__name__)
 class ScatterTable:
     """A table-like dataset for the intermediate data used for curve fitting.
 
-    Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
+    Default table columns are defined in the class attribute :attr:`.COLUMNS`.
     This table cannot be expanded with user-provided column names.
+
+    In a standard :class:`.CurveAnalysis` subclass, a ScatterTable instance may be
+    stored in the :class:`.ExperimentData` as an artifact.
+    Users can retrieve the table data at a later time to rerun a fitting with a homemade program
+    or with different fit options, or to visualize the curves in a preferred format.
+    This table dataset is designed to seamlessly provide such information
+    that an experimentalist may want to reuse for a custom workflow.
 
     .. note::
 
         This dataset is not thread safe. Do not use the same instance in multiple threads.
 
-    .. _filter_scatter_table:
-
-    Filtering ScatterTable
-    ----------------------
-
-    ScatterTable is the single source of truth for the data used in the curve fit analysis.
-    Each data point in a 1-D curve fit may consist of the x value, y value, and
-    standard error of the y value.
-    In addition, such analysis may internally create several data subsets.
-    Each data point is given a metadata triplet (`data_uid`, `category`, `analysis`)
-    to distinguish the subset.
-
-    * The `data_uid` is an integer key representing the class of the data.
-      When an analysis consists of multiple fit models and performs a multi-objective fit,
-      the created table may contain multiple datasets for each fit model.
-      Usually the index of data matches with the index of the fit model in the analysis.
-      The table also provides a `name` column which is a human-friendly text notation of the data_uid.
-      The `name` and corresponding `data_uid` must refer to the identical data class,
-      and the `name` typically matches with the name of the fit model.
-      You can find a particular data subset by either `data_uid` or `name`.
-
-    * The `category` is a string tag categorizing a group of data points.
-      The measured outcomes input as-is to the curve analysis are categorized by "raw".
-      In a standard :class:`.CurveAnalysis` subclass, the input data is formatted for
-      the fitting and the formatted data is also stored in the table with the "formatted" category.
-      After the fit is successfully conducted and the model parameters are identified,
-      data points in the interpolated fit curves are stored with the "fitted" category
-      for visualization. The management of the data groups depends on the design of
-      the curve analysis protocol, and the convention of category naming might
-      be different in a particular analysis.
-
-    * The `analysis` is a string key representing a name of
-      the analysis instance that generated the data point.
-      This allows a user to combine multiple tables from different analyses
-      without collapsing the data points.
-      A :class:`.CompositeCurveAnalysis` instance consists of
-      nested component analysis instances containing statistically independent fit models.
-      Each component is given a unique analysis name, and datasets generated from each instance
-      are merged into a single table stored in the outermost composite analysis.
-
-    User must be aware of this triplet to extract data points that belong to a
-    particular data subset. For example,
-
-    .. code-block:: python
-
-        mini_table = table.filter(data_uid="model1", category="raw", analysis="Analysis_A")
-        mini_x = mini_table.x
-        mini_y = mini_table.y
-
-    This operation is equivalent to
-
-    .. code-block:: python
-
-        mini_x = table.xvals(data_uid="model1", category="raw", analysis="Analysis_A")
-        mini_y = table.yvals(data_uid="model1", category="raw", analysis="Analysis_A")
-
-    When an analysis only has a single model and the table is created from a single
-    analysis instance, the data_uid and analysis are trivial, and you only need to
-    specify the category to get subset data of interest.
+    See the tutorial of :ref:`data_management_with_scatter_table` for the
+    role of each table column and how values are typically provided.
 
     """
 
