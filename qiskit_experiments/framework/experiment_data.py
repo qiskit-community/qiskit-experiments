@@ -1094,7 +1094,7 @@ class ExperimentData:
             try:  # qiskit-ibm-runtime syntax
                 job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
-            except AttributeError:  # TODO: remove this path
+            except AttributeError:  # TODO: remove this path for qiskit-ibm-provider
                 try:
                     job = self.provider.retrieve_job(jid)
                     retrieved_jobs[jid] = job
@@ -2262,7 +2262,7 @@ class ExperimentData:
         if service is None:
             if provider is None:
                 raise ExperimentDataError(
-                    "Loading an experiment requires a valid IBM provider or experiment service."
+                    "Loading an experiment requires a valid Qiskit provider or experiment service."
                 )
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
