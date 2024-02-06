@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.library.driven_freq_tuning.ramsey_amp_scan_analysis - Qiskit Experiments 0.5.0-144-g336fe185</title>
+        <title>qiskit_experiments.library.driven_freq_tuning.ramsey_amp_scan_analysis - Qiskit Experiments 0.5.0-145-g36c06ea9</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-144-g336fe185</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-145-g36c06ea9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-144-g336fe185</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-145-g36c06ea9</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -380,6 +380,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
@@ -864,26 +865,21 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">:</span>
 
         <span class="n">curve_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">curve_data</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;ramsey_xy&quot;</span><span class="p">)</span>
-        <span class="n">ramsey_xy</span> <span class="o">=</span> <span class="n">curve_data</span><span class="p">[</span><span class="n">curve_data</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;ramsey_xy&quot;</span><span class="p">]</span>
+        <span class="n">ramsey_xy</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;ramsey_xy&quot;</span><span class="p">)</span>
+        <span class="n">y_mean</span> <span class="o">=</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
         <span class="c1"># Create phase data by arctan(Y/X)</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="n">phase_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)))</span>
-        <span class="n">y_mean</span> <span class="o">=</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-
-        <span class="n">grouped</span> <span class="o">=</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">m_id</span><span class="p">,</span> <span class="n">direction</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">)):</span>
-            <span class="n">x_quadrature</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">y_quadrature</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Y</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">x_quadrature</span><span class="o">.</span><span class="n">xval</span><span class="p">,</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">xval</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">data_id</span><span class="p">,</span> <span class="n">direction</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">)):</span>
+            <span class="n">x_quadrature</span> <span class="o">=</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;X</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">y_quadrature</span> <span class="o">=</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Y</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">x_quadrature</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Amplitude values of X and Y quadrature are different. &quot;</span>
                     <span class="s2">&quot;Same values must be used.&quot;</span>
                 <span class="p">)</span>
-            <span class="n">x_uarray</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">x_quadrature</span><span class="o">.</span><span class="n">yval</span><span class="p">,</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">yerr</span><span class="p">)</span>
-            <span class="n">y_uarray</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">y_quadrature</span><span class="o">.</span><span class="n">yval</span><span class="p">,</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">yerr</span><span class="p">)</span>
-
-            <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">x_uarray</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">x_quadrature</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">y_err</span><span class="p">)</span>
+            <span class="n">y_uarray</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">y_quadrature</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">y_err</span><span class="p">)</span>
+            <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">x</span>
 
             <span class="c1"># pylint: disable=no-member</span>
             <span class="n">phase</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y_uarray</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">x_uarray</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">)</span>
@@ -898,17 +894,24 @@
                 <span class="n">unwrapped_phase</span> <span class="o">=</span> <span class="n">unwrapped_phase</span> <span class="o">+</span> <span class="p">(</span><span class="n">phase_n</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">unwrapped_phase</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
             <span class="c1"># Store new data</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">amplitudes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;xval&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">amplitudes</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;yval&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">unwrapped_phase</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq_phase_coef</span><span class="p">()</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;yerr&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">phase_s</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq_phase_coef</span><span class="p">()</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;class_id&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">m_id</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">shots</span> <span class="o">+</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">shots</span>
-            <span class="n">tmp</span><span class="p">[:,</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">category</span>
-            <span class="n">phase_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">phase_data</span><span class="p">,</span> <span class="n">tmp</span><span class="p">]</span>
+            <span class="n">unwrapped_phase</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq_phase_coef</span><span class="p">()</span>
+            <span class="n">phase_s</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq_phase_coef</span><span class="p">()</span>
+            <span class="n">shot_sums</span> <span class="o">=</span> <span class="n">x_quadrature</span><span class="o">.</span><span class="n">shots</span> <span class="o">+</span> <span class="n">y_quadrature</span><span class="o">.</span><span class="n">shots</span>
+            <span class="k">for</span> <span class="n">new_x</span><span class="p">,</span> <span class="n">new_y</span><span class="p">,</span> <span class="n">new_y_err</span><span class="p">,</span> <span class="n">shot</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">amplitudes</span><span class="p">,</span> <span class="n">unwrapped_phase</span><span class="p">,</span> <span class="n">phase_s</span><span class="p">,</span> <span class="n">shot_sums</span>
+            <span class="p">):</span>
+                <span class="n">curve_data</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                    <span class="n">xval</span><span class="o">=</span><span class="n">new_x</span><span class="p">,</span>
+                    <span class="n">yval</span><span class="o">=</span><span class="n">new_y</span><span class="p">,</span>
+                    <span class="n">yerr</span><span class="o">=</span><span class="n">new_y_err</span><span class="p">,</span>
+                    <span class="n">series_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">series_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">,</span>
+                    <span class="n">shots</span><span class="o">=</span><span class="n">shot</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
+                    <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">append_list_values</span><span class="p">(</span><span class="n">other</span><span class="o">=</span><span class="n">phase_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">curve_data</span>
 
     <span class="k">def</span> <span class="nf">_generate_fit_guesses</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -965,39 +968,39 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
 
         <span class="c1"># plot unwrapped phase on first axis</span>
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">):</span>
-            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="p">[(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;freq&quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">):</span>
+            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;freq&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
-                <span class="n">series_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;F</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">x_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                <span class="n">y_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="n">series_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;F</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">x_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">y_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="c1"># plot raw RamseyXY plot on second axis</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Xpos&quot;</span><span class="p">,</span> <span class="s2">&quot;Ypos&quot;</span><span class="p">,</span> <span class="s2">&quot;Xneg&quot;</span><span class="p">,</span> <span class="s2">&quot;Yneg&quot;</span><span class="p">):</span>
-            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="p">[(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;ramsey_xy&quot;</span><span class="p">)]</span>
+            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;ramsey_xy&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
                 <span class="n">series_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">x_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                <span class="n">y_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="n">x_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">y_formatted</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="c1"># find base and amplitude guess</span>
-        <span class="n">ramsey_xy</span> <span class="o">=</span> <span class="n">curve_data</span><span class="p">[</span><span class="n">curve_data</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;ramsey_xy&quot;</span><span class="p">]</span>
-        <span class="n">offset_guess</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">ramsey_xy</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="n">ramsey_xy</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-        <span class="n">amp_guess</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">ramsey_xy</span><span class="o">.</span><span class="n">yval</span><span class="p">)</span>
+        <span class="n">ramsey_xy</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;ramsey_xy&quot;</span><span class="p">)</span>
+        <span class="n">offset_guess</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ramsey_xy</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ramsey_xy</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">amp_guess</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">ramsey_xy</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
         <span class="c1"># plot frequency and Ramsey fit lines</span>
-        <span class="n">line_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="p">[</span><span class="n">curve_data</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;fitted&quot;</span><span class="p">]</span>
+        <span class="n">line_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;neg&quot;</span><span class="p">):</span>
-            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">line_data</span><span class="p">[</span><span class="n">line_data</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">sub_data</span> <span class="o">=</span> <span class="n">line_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;FREQ</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">xval</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="n">yn</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="n">ys</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">xval</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">yn</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">y_err</span>
             <span class="n">yval</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">yn</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq_phase_coef</span><span class="p">()</span>
 
             <span class="c1"># Ramsey fit lines are predicted from the phase fit line.</span>
@@ -1095,7 +1098,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=25e14b0a"></script>
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=4ab48a45"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -16,12 +16,18 @@ AnalysisResultTable
    
          
          
+         
+         
+         
 
    
    .. rubric:: Attributes
       
+   .. autoattribute:: AnalysisResultTable.DEFAULT_COLUMNS
    .. autoattribute:: AnalysisResultTable.VALID_ID_REGEX
-   .. autoattribute:: AnalysisResultTable.lock
+   .. autoattribute:: AnalysisResultTable.columns
+   .. autoattribute:: AnalysisResultTable.dataframe
+   .. autoattribute:: AnalysisResultTable.result_ids
    
 
 
@@ -29,9 +35,6 @@ AnalysisResultTable
 
    
    
-         
-         
-         
          
          
          
@@ -43,15 +46,12 @@ AnalysisResultTable
    
    .. rubric:: Methods
    
-   .. automethod:: AnalysisResultTable.__getitem__
    .. automethod:: AnalysisResultTable.__len__
-   .. automethod:: AnalysisResultTable.add_entry
+   .. automethod:: AnalysisResultTable.add_data
    .. automethod:: AnalysisResultTable.clear
    .. automethod:: AnalysisResultTable.copy
-   .. automethod:: AnalysisResultTable.copy_object
-   .. automethod:: AnalysisResultTable.drop_entry
-   .. automethod:: AnalysisResultTable.filter_columns
-   .. automethod:: AnalysisResultTable.get_entry
-   .. automethod:: AnalysisResultTable.result_ids
+   .. automethod:: AnalysisResultTable.del_data
+   .. automethod:: AnalysisResultTable.from_dataframe
+   .. automethod:: AnalysisResultTable.get_data
 
    

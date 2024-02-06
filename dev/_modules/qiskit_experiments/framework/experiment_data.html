@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-144-g336fe185</title>
+        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-145-g36c06ea9</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-144-g336fe185</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-145-g36c06ea9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-144-g336fe185</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-145-g36c06ea9</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -380,6 +380,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
@@ -631,7 +632,7 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">concurrent</span> <span class="kn">import</span> <span class="n">futures</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Event</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">singledispatch</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
@@ -1296,7 +1297,7 @@
     <span class="k">def</span> <span class="nf">_clear_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all currently stored analysis results and figures&quot;&quot;&quot;</span>
         <span class="c1"># Schedule existing analysis results for deletion next save call</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">result_ids</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">result_ids</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="c1"># Schedule existing figures for deletion next save call</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -2007,7 +2008,7 @@
                 <span class="n">backend</span> <span class="o">=</span> <span class="n">extra_values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="p">)</span>
                 <span class="n">run_time</span> <span class="o">=</span> <span class="n">extra_values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;run_time&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">running_time</span><span class="p">)</span>
                 <span class="n">created_time</span> <span class="o">=</span> <span class="n">extra_values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;created_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
                     <span class="n">quality</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span>
@@ -2029,7 +2030,7 @@
             <span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span> <span class="ow">or</span> <span class="p">[]</span>
             <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span>
                 <span class="n">result_id</span><span class="o">=</span><span class="n">result_id</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
@@ -2039,14 +2040,13 @@
                 <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
                 <span class="n">tags</span><span class="o">=</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">[],</span>
                 <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
-                <span class="n">run_time</span><span class="o">=</span><span class="n">run_time</span><span class="p">,</span>  <span class="c1"># TODO add job RUNNING time</span>
+                <span class="n">run_time</span><span class="o">=</span><span class="n">run_time</span><span class="p">,</span>
                 <span class="n">created_time</span><span class="o">=</span><span class="n">created_time</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">extra_values</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
-                <span class="n">last_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">result_ids</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="mi">8</span><span class="p">]</span>
                 <span class="n">service_result</span> <span class="o">=</span> <span class="n">_series_to_service_result</span><span class="p">(</span>
-                    <span class="n">series</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_entry</span><span class="p">(</span><span class="n">last_index</span><span class="p">),</span>
+                    <span class="n">series</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">service</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">,</span>
                     <span class="n">auto_save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -2056,39 +2056,28 @@
     <span class="k">def</span> <span class="nf">delete_analysis_result</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">result_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the analysis result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            result_key: ID or index of the analysis result to be deleted.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Analysis result ID.</span>
+<span class="sd">            Deleted analysis result IDs.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ExperimentEntryNotFound: If analysis result not found or multiple entries are found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Retrieve from DB if needed.</span>
-        <span class="n">to_delete</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span>
-            <span class="n">index</span><span class="o">=</span><span class="n">result_key</span><span class="p">,</span>
-            <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
-            <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_delete</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Multiple entries are found with result_key = </span><span class="si">{</span><span class="n">result_key</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Try another key that can uniquely determine entry to delete.&quot;</span>
-            <span class="p">)</span>
+        <span class="n">uids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">del_data</span><span class="p">(</span><span class="n">result_key</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">drop_entry</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">to_delete</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">service_exception_to_warning</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">delete_analysis_result</span><span class="p">(</span><span class="n">result_id</span><span class="o">=</span><span class="n">to_delete</span><span class="o">.</span><span class="n">result_id</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">uids</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">delete_analysis_result</span><span class="p">(</span><span class="n">result_id</span><span class="o">=</span><span class="n">uid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_delete</span><span class="o">.</span><span class="n">result_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">uids</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">to_delete</span><span class="o">.</span><span class="n">result_id</span></div>
+        <span class="k">return</span> <span class="n">uids</span></div>
 
     <span class="k">def</span> <span class="nf">_retrieve_analysis_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve service analysis results.</span>
@@ -2110,7 +2099,7 @@
                 <span class="n">extra</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_extra&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">chisq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">extra</span><span class="p">[</span><span class="s2">&quot;chisq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">chisq</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">result_type</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">result_data</span><span class="p">[</span><span class="s2">&quot;_value&quot;</span><span class="p">],</span>
                     <span class="n">quality</span><span class="o">=</span><span class="n">cano_quality</span><span class="p">,</span>
@@ -2133,14 +2122,47 @@
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">columns</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">dataframe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisResult</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return analysis results associated with this experiment.</span>
+
+<span class="sd">        When this method is called with ``dataframe=True`` you will receive</span>
+<span class="sd">        matched result entries with the ``index`` condition in the dataframe format.</span>
+<span class="sd">        You can access a certain entry value by specifying its row index by either</span>
+<span class="sd">        row number or short index string. For example,</span>
+
+<span class="sd">        .. jupyter-input::</span>
+
+<span class="sd">            results = exp_data.analysis_results(&quot;res1&quot;, dataframe=True)</span>
+
+<span class="sd">            print(results)</span>
+
+<span class="sd">        .. jupyter-output::</span>
+
+<span class="sd">                      name  experiment  components  value  quality  backend          run_time</span>
+<span class="sd">            7dd286f4  res1       MyExp    [Q0, Q1]      1     good    test1  2024-02-06 13:46</span>
+<span class="sd">            f62042a7  res1       MyExp    [Q2, Q3]      2     good    test1  2024-02-06 13:46</span>
+
+<span class="sd">        Getting the first result value with a row number (``iloc``).</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            value = results.iloc[0].value</span>
+
+<span class="sd">        Getting the first result value with a short index (``loc``).</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            value = results.loc[&quot;7dd286f4&quot;]</span>
+
+<span class="sd">        See the pandas `DataFrame`_ documentation for the tips about data handling.</span>
+
+<span class="sd">        .. _DataFrame: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            index: Index of the analysis result to be returned.</span>
@@ -2179,30 +2201,14 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_analysis_results</span><span class="p">(</span><span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">)</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="n">_filter_analysis_results</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Analysis result </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">]</span>
-                <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
-                    <span class="n">msg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Errors: </span><span class="si">{</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
-
         <span class="k">if</span> <span class="n">dataframe</span><span class="p">:</span>
-            <span class="n">valid_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">filter_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">valid_columns</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># For backward compatibility.</span>
-                <span class="c1"># One can directly access attributes with Series. e.g. out.value</span>
-                <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">out</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
         <span class="c1"># Convert back into List[AnalysisResult] which is payload for IBM experiment service.</span>
         <span class="c1"># This will be removed in future version.</span>
+        <span class="n">tmp_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
         <span class="n">service_results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">tmp_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">service_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">_series_to_service_result</span><span class="p">(</span>
                     <span class="n">series</span><span class="o">=</span><span class="n">series</span><span class="p">,</span>
@@ -2341,7 +2347,7 @@
             <span class="k">return</span>
 
         <span class="n">analysis_results_to_create</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="c1"># TODO We should support saving entire dataframe</span>
             <span class="c1">#  Calling API per entry takes huge amount of time.</span>
             <span class="n">legacy_result</span> <span class="o">=</span> <span class="n">_series_to_service_result</span><span class="p">(</span>
@@ -2953,7 +2959,7 @@
         <span class="c1"># Copy results and figures.</span>
         <span class="c1"># This requires analysis callbacks to finish</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_futures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_futures</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;analysis&quot;</span><span class="p">)</span>
-        <span class="n">new_instance</span><span class="o">.</span><span class="n">_analysis_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">copy_object</span><span class="p">()</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">_analysis_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">new_instance</span><span class="o">.</span><span class="n">_figures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
             <span class="n">new_instance</span><span class="o">.</span><span class="n">add_figures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -3340,71 +3346,6 @@
         <span class="n">service_result</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="n">auto_save</span>
 
     <span class="k">return</span> <span class="n">service_result</span>
-
-
-<span class="k">def</span> <span class="nf">_filter_analysis_results</span><span class="p">(</span>
-    <span class="n">search_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to search result data for given key.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        search_key: Key to search for.</span>
-<span class="sd">        data: Full result dataframe.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Truncated dataframe.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">_search_data</span><span class="p">(</span><span class="n">search_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">out</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">out</span>
-
-
-<span class="nd">@singledispatch</span>
-<span class="k">def</span> <span class="nf">_search_data</span><span class="p">(</span><span class="n">search_key</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">search_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">data</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Invalid search key </span><span class="si">{</span><span class="n">search_key</span><span class="si">}</span><span class="s2">. &quot;</span> <span class="sa">f</span><span class="s2">&quot;This must be either int, slice or str type.&quot;</span>
-    <span class="p">)</span>
-
-
-<span class="nd">@_search_data</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_search_with_int</span><span class="p">(</span>
-    <span class="n">search_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="k">if</span> <span class="n">search_key</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">search_key</span><span class="p">]</span>
-
-
-<span class="nd">@_search_data</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_search_with_slice</span><span class="p">(</span>
-    <span class="n">search_key</span><span class="p">:</span> <span class="nb">slice</span><span class="p">,</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">search_key</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">out</span>
-
-
-<span class="nd">@_search_data</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_search_with_str</span><span class="p">(</span>
-    <span class="n">search_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="k">if</span> <span class="n">search_key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-        <span class="c1"># This key is table entry hash</span>
-        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">search_key</span><span class="p">]</span>
-
-    <span class="c1"># This key is name of entry</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">search_key</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">out</span>
 </pre></div>
         </article>
       </div>
@@ -3452,7 +3393,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=25e14b0a"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=4ab48a45"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>

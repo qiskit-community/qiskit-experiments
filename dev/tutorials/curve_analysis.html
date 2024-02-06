@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Visualization: Creating figures" href="visualization.html" /><link rel="prev" title="Data Processor: Wrangling data" href="data_processor.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Curve Analysis: Fitting your data - Qiskit Experiments 0.5.0-144-g336fe185</title>
+        <title>Curve Analysis: Fitting your data - Qiskit Experiments 0.5.0-145-g36c06ea9</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-144-g336fe185</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-145-g36c06ea9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-144-g336fe185</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-145-g36c06ea9</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -380,6 +380,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
@@ -852,11 +853,80 @@ generate initial guesses for parameters, from the <code class="docutils literal 
 On the other hand, in the latter case, you need to manually copy and paste
 every logic defined in <code class="docutils literal notranslate"><span class="pre">AnalysisA</span></code>.</p>
 </section>
+<section id="managing-intermediate-data">
+<span id="data-management-with-scatter-table"></span><h2>Managing intermediate data<a class="headerlink" href="#managing-intermediate-data" title="Permalink to this heading">#</a></h2>
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> is the single source of truth for the data used in the curve fit analysis.
+Each data point in a 1-D curve fit may consist of the x value, y value, and
+standard error of the y value.
+In addition, such analysis may internally create several data subsets.
+Each data point is given a metadata triplet (<cite>series_id</cite>, <cite>category</cite>, <cite>analysis</cite>)
+to distinguish the subset.</p>
+<ul class="simple">
+<li><p>The <cite>series_id</cite> is an integer key representing a label of the data which may be classified by fits models.
+When an analysis consists of multiple fit models and performs a multi-objective fit,
+the created table may contain multiple datasets for each fit model.
+Usually the index of series matches with the index of the fit model in the analysis.
+The table also provides a <cite>series_name</cite> column which is a human-friendly text notation of the <cite>series_id</cite>.
+The <cite>series_name</cite> and corresponding <cite>series_id</cite> must refer to the identical data subset,
+and the <cite>series_name</cite> typically matches with the name of the fit model.
+You can find a particular data subset by either <cite>series_id</cite> or <cite>series_name</cite>.</p></li>
+<li><p>The <cite>category</cite> is a string tag categorizing a group of data points.
+The measured outcomes input as-is to the curve analysis are categorized by “raw”.
+In a standard <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass, the input data is formatted for
+the fitting and the formatted data is also stored in the table with the “formatted” category.
+You can filter the formatted data to run curve fitting with your custom program.
+After the fit is successfully conducted and the model parameters are identified,
+data points in the interpolated fit curves are stored with the “fitted” category
+for visualization. The management of the data groups depends on the design of
+the curve analysis protocol, and the convention of category naming might
+be different in a particular analysis.</p></li>
+<li><p>The <cite>analysis</cite> is a string key representing a name of
+the analysis instance that generated the data point.
+This allows a user to combine multiple tables from different analyses without collapsing the data points.
+For a simple analysis class, all rows will have the same value,
+but a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a> instance consists of
+nested component analysis instances containing statistically independent fit models.
+Each component is given a unique analysis name, and datasets generated from each instance
+are merged into a single table stored in the outermost composite analysis.</p></li>
+</ul>
+<p>User must be aware of this triplet to extract data points that belong to a
+particular data subset. For example,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mini_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+<span class="n">mini_x</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">x</span>
+<span class="n">mini_y</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>This operation is equivalent to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mini_x</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">xvals</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+<span class="n">mini_y</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">yvals</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When an analysis only has a single model and the table is created from a single
+analysis instance, the <cite>series_id</cite> and <cite>analysis</cite> are trivial, and you only need to
+specify the <cite>category</cite> to get subset data of interest.</p>
+<p>The full description of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> columns are following below:</p>
+<ul class="simple">
+<li><p><cite>xval</cite>: Parameter scanned in the experiment. This value must be defined in the circuit metadata.</p></li>
+<li><p><cite>yval</cite>: Nominal part of the outcome. The outcome is something like expectation value,
+which is computed from the experiment result with the data processor.</p></li>
+<li><p><cite>yerr</cite>: Standard error of the outcome, which is mainly due to sampling error.</p></li>
+<li><p><cite>series_name</cite>: Human readable name of the data series. This is defined by the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>.</p></li>
+<li><p><cite>series_id</cite>: Integer corresponding to the name of data series. This number is automatically assigned.</p></li>
+<li><p><cite>category</cite>: A tag for the data group. This is defined by a developer of the curve analysis.</p></li>
+<li><p><cite>shots</cite>: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.</p></li>
+<li><p><cite>analysis</cite>: The name of the curve analysis instance that generated a data point.</p></li>
+</ul>
+<p>This object helps an analysis developer with writing a custom analysis class
+without an overhead of complex data management, as well as end-users with
+retrieving and reusing the intermediate data for their custom fitting workflow
+outside our curve fitting framework.
+Note that a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> instance may be saved in the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> as an artifact.</p>
+</section>
 <section id="curve-analysis-workflow">
 <span id="id2"></span><h2>Curve Analysis workflow<a class="headerlink" href="#curve-analysis-workflow" title="Permalink to this heading">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveData.html#qiskit_experiments.curve_analysis.CurveData" title="qiskit_experiments.curve_analysis.CurveData"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code></a> dataclass is replaced with <code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code> dataframe.
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveData.html#qiskit_experiments.curve_analysis.CurveData" title="qiskit_experiments.curve_analysis.CurveData"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code></a> dataclass is replaced with <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> dataframe.
 This class will be deprecated and removed in the future release.</p>
 </div>
 <p>Typically curve analysis performs fitting as follows.
@@ -874,65 +944,78 @@ A developer can override this method to perform initialization of analysis-speci
 <h3>2. Data processing<a class="headerlink" href="#data-processing" title="Permalink to this heading">#</a></h3>
 <p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_data_processing()</span></code> method, where
 the data processor in the analysis option is internally called.
-This consumes input experiment results and creates the <code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code> dataframe.
+This consumes input experiment results and creates the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> dataframe.
 This table may look like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">xval</span>      <span class="n">yval</span>      <span class="n">yerr</span> <span class="n">name</span>  <span class="n">class_id</span> <span class="n">category</span>  <span class="n">shots</span>
-<span class="mi">0</span>    <span class="mf">0.1</span>  <span class="mf">0.153659</span>  <span class="mf">0.011258</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">1</span>    <span class="mf">0.1</span>  <span class="mf">0.590732</span>  <span class="mf">0.015351</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">2</span>    <span class="mf">0.1</span>  <span class="mf">0.315610</span>  <span class="mf">0.014510</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">3</span>    <span class="mf">0.1</span>  <span class="mf">0.376098</span>  <span class="mf">0.015123</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">4</span>    <span class="mf">0.2</span>  <span class="mf">0.937073</span>  <span class="mf">0.007581</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">5</span>    <span class="mf">0.2</span>  <span class="mf">0.323415</span>  <span class="mf">0.014604</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">6</span>    <span class="mf">0.2</span>  <span class="mf">0.538049</span>  <span class="mf">0.015565</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">7</span>    <span class="mf">0.2</span>  <span class="mf">0.530244</span>  <span class="mf">0.015581</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">8</span>    <span class="mf">0.3</span>  <span class="mf">0.143902</span>  <span class="mf">0.010958</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">9</span>    <span class="mf">0.3</span>  <span class="mf">0.261951</span>  <span class="mf">0.013727</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">10</span>   <span class="mf">0.3</span>  <span class="mf">0.830732</span>  <span class="mf">0.011707</span>    <span class="n">A</span>         <span class="mi">0</span>      <span class="n">raw</span>   <span class="mi">1024</span>
-<span class="mi">11</span>   <span class="mf">0.3</span>  <span class="mf">0.874634</span>  <span class="mf">0.010338</span>    <span class="n">B</span>         <span class="mi">1</span>      <span class="n">raw</span>   <span class="mi">1024</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_run_data_processing</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>    xval      yval      yerr  series_name  series_id  category  shots     analysis
+0    0.1  0.153659  0.011258            A          0      raw    1024   MyAnalysis
+1    0.1  0.590732  0.015351            B          1      raw    1024   MyAnalysis
+2    0.1  0.315610  0.014510            A          0      raw    1024   MyAnalysis
+3    0.1  0.376098  0.015123            B          1      raw    1024   MyAnalysis
+4    0.2  0.937073  0.007581            A          0      raw    1024   MyAnalysis
+5    0.2  0.323415  0.014604            B          1      raw    1024   MyAnalysis
+6    0.2  0.538049  0.015565            A          0      raw    1024   MyAnalysis
+7    0.2  0.530244  0.015581            B          1      raw    1024   MyAnalysis
+8    0.3  0.143902  0.010958            A          0      raw    1024   MyAnalysis
+9    0.3  0.261951  0.013727            B          1      raw    1024   MyAnalysis
+10   0.3  0.830732  0.011707            A          0      raw    1024   MyAnalysis
+11   0.3  0.874634  0.010338            B          1      raw    1024   MyAnalysis
+</pre></div>
+</div>
+</div>
 </div>
 <p>where the experiment consists of two subset series A and B, and the experiment parameter (xval)
 is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
-for each condition. The role of each column is as follows:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">xval</span></code>: Parameter scanned in the experiment. This value must be defined in the circuit metadata.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">yval</span></code>: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">yerr</span></code>: Standard error of the outcome, which is mainly due to sampling error.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: Unique identifier of the result class. This is defined by the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">class_id</span></code>: Numerical index corresponding to the result class. This number is automatically assigned.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">category</span></code>: The attribute of data set. The “raw” category indicates an output from the data processing.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">shots</span></code>: Number of measurement shots used to acquire this result.</p></li>
-</ul>
+for each condition.
+See <a class="reference internal" href="#data-management-with-scatter-table"><span class="std std-ref">Managing intermediate data</span></a> for the details of columns.</p>
 </section>
 <section id="formatting">
 <h3>3. Formatting<a class="headerlink" href="#formatting" title="Permalink to this heading">#</a></h3>
-<p>Next, the processed dataset is converted into another format suited for the fitting and
-every valid result is assigned a class corresponding to a fit model.
+<p>Next, the processed dataset is converted into another format suited for the fitting.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
 This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
-The new class_id is given here so that its value corresponds to the fit model object index
-in this analysis class. This index mapping is done based upon the correspondence of
-the data name and the fit model name.</p>
+The new <cite>series_id</cite> is given here so that its value corresponds to the fit model index
+defined in this analysis class. This index mapping is done based upon the correspondence of
+the <cite>series_name</cite> and the fit model name.</p>
 <p>This is done by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">_format_data()</span></code> method.
 This may return new scatter table object with the addition of rows like the following below.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">12</span>   <span class="mf">0.1</span>  <span class="mf">0.234634</span>  <span class="mf">0.009183</span>    <span class="n">A</span>         <span class="mi">0</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
-<span class="mi">13</span>   <span class="mf">0.2</span>  <span class="mf">0.737561</span>  <span class="mf">0.008656</span>    <span class="n">A</span>         <span class="mi">0</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
-<span class="mi">14</span>   <span class="mf">0.3</span>  <span class="mf">0.487317</span>  <span class="mf">0.008018</span>    <span class="n">A</span>         <span class="mi">0</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
-<span class="mi">15</span>   <span class="mf">0.1</span>  <span class="mf">0.483415</span>  <span class="mf">0.010774</span>    <span class="n">B</span>         <span class="mi">1</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
-<span class="mi">16</span>   <span class="mf">0.2</span>  <span class="mf">0.426829</span>  <span class="mf">0.010678</span>    <span class="n">B</span>         <span class="mi">1</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
-<span class="mi">17</span>   <span class="mf">0.3</span>  <span class="mf">0.568293</span>  <span class="mf">0.008592</span>    <span class="n">B</span>         <span class="mi">1</span>  <span class="n">formatted</span>   <span class="mi">2048</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>    xval      yval      yerr  series_name  series_id   category  shots     analysis
+...
+12   0.1  0.234634  0.009183            A          0  formatted   2048   MyAnalysis
+13   0.2  0.737561  0.008656            A          0  formatted   2048   MyAnalysis
+14   0.3  0.487317  0.008018            A          0  formatted   2048   MyAnalysis
+15   0.1  0.483415  0.010774            B          1  formatted   2048   MyAnalysis
+16   0.2  0.426829  0.010678            B          1  formatted   2048   MyAnalysis
+17   0.3  0.568293  0.008592            B          1  formatted   2048   MyAnalysis
+</pre></div>
+</div>
+</div>
 </div>
 <p>The default <code class="xref py py-meth docutils literal notranslate"><span class="pre">_format_data()</span></code> method adds its output data with the category “formatted”.
 This category name must be also specified in the analysis option <code class="docutils literal notranslate"><span class="pre">fit_category</span></code>.
 If overriding this method to do additional processing after the default formatting,
 the <code class="docutils literal notranslate"><span class="pre">fit_category</span></code> analysis option can be set to choose a different category name to use to
 select the data to pass to the fitting routine.
-The (x, y) value in each row is passed to the corresponding fit model object
+The (xval, yval) value in each row is passed to the corresponding fit model object
 to compute residual values for the least square optimization.</p>
 </section>
 <section id="fitting">
@@ -1157,6 +1240,7 @@ you don’t have to manually recompute the error of the new value.</p>
 <li><a class="reference internal" href="#curve-analysis-overview">Curve Analysis overview</a></li>
 <li><a class="reference internal" href="#defining-new-models">Defining new models</a></li>
 <li><a class="reference internal" href="#fitting-with-fixed-parameters">Fitting with fixed parameters</a></li>
+<li><a class="reference internal" href="#managing-intermediate-data">Managing intermediate data</a></li>
 <li><a class="reference internal" href="#curve-analysis-workflow">Curve Analysis workflow</a><ul>
 <li><a class="reference internal" href="#initialization">1. Initialization</a></li>
 <li><a class="reference internal" href="#data-processing">2. Data processing</a></li>
@@ -1182,7 +1266,7 @@ you don’t have to manually recompute the error of the new value.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=25e14b0a"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4ab48a45"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

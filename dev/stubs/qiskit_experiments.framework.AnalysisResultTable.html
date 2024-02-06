@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentConfig" href="qiskit_experiments.framework.ExperimentConfig.html" /><link rel="prev" title="AnalysisResultData" href="qiskit_experiments.framework.AnalysisResultData.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>AnalysisResultTable - Qiskit Experiments 0.5.0-144-g336fe185</title>
+        <title>AnalysisResultTable - Qiskit Experiments 0.5.0-145-g36c06ea9</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-144-g336fe185</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-145-g36c06ea9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-144-g336fe185</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-145-g36c06ea9</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -380,6 +380,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
@@ -618,60 +619,70 @@ released.</p>
 <h1>AnalysisResultTable<a class="headerlink" href="#analysisresulttable" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnalysisResultTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable" title="Permalink to this definition">#</a></dt>
-<dd><p>A thread-safe table form container of analysis results.</p>
-<p>This table is a dataframe wrapper with the thread-safe mechanism with predefined columns.
-This object is attached to the <a class="reference internal" href="qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> container to store
-analysis results. Each table row contains series of metadata in addition to the
-result value itself.</p>
-<p>User can rely on the dataframe filtering mechanism to analyze large scale experiment
-results, e.g. massive parallel experiment and batch experiment outcomes, efficiently.
-See <a class="reference external" href="https://pandas.pydata.org/docs/index.html">pandas dataframe documentation</a>
-for more details.</p>
-<p>ThreadSafeContainer constructor.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnalysisResultTable</span></span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable" title="Permalink to this definition">#</a></dt>
+<dd><p>A table-like dataset for analysis results.</p>
+<p>Default table columns are defined in the class attribute <a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.DEFAULT_COLUMNS" title="qiskit_experiments.framework.AnalysisResultTable.DEFAULT_COLUMNS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DEFAULT_COLUMNS</span></code></a>.
+The table is automatically expanded when an extra key is included in the
+input dictionary data. Missing columns in the input data are filled with a null value.</p>
+<p>Table row index (i.e. entry ID) is created by truncating the result_id string which
+is basically a UUID-4 string. A random unique ID is generated when the result_id
+is missing in the input data.</p>
+<p>Any operation on the table value via the instance methods guarantees thread safety.</p>
+<p>Create new dataset.</p>
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.DEFAULT_COLUMNS">
+<span class="sig-name descname"><span class="pre">DEFAULT_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['name',</span> <span class="pre">'experiment',</span> <span class="pre">'components',</span> <span class="pre">'value',</span> <span class="pre">'quality',</span> <span class="pre">'experiment_id',</span> <span class="pre">'result_id',</span> <span class="pre">'tags',</span> <span class="pre">'backend',</span> <span class="pre">'run_time',</span> <span class="pre">'created_time']</span></em><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.DEFAULT_COLUMNS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.VALID_ID_REGEX">
 <span class="sig-name descname"><span class="pre">VALID_ID_REGEX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('\\A(?P&lt;short_id&gt;\\w{8})-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\Z')</span></em><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.VALID_ID_REGEX" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.lock">
-<span class="sig-name descname"><span class="pre">lock</span></span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.lock" title="Permalink to this definition">#</a></dt>
-<dd><p>Return lock used for this container.</p>
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.columns" title="Permalink to this definition">#</a></dt>
+<dd><p>All columns in current dataset.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.dataframe">
+<span class="sig-name descname"><span class="pre">dataframe</span></span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.dataframe" title="Permalink to this definition">#</a></dt>
+<dd><p>Dataframe object of analysis results.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.result_ids">
+<span class="sig-name descname"><span class="pre">result_ids</span></span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.result_ids" title="Permalink to this definition">#</a></dt>
+<dd><p>Result IDs in current dataset.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.__getitem__" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.__len__">
-<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.__len__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.__len__" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.add_entry">
-<span class="sig-name descname"><span class="pre">add_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.add_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.add_entry" title="Permalink to this definition">#</a></dt>
-<dd><p>Add new entry to the table.</p>
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.add_data">
+<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.add_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Add new data to this dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – Result ID. Automatically generated when not provided.
-This must be valid hexadecimal UUID string.</p></li>
-<li><p><strong>kwargs</strong> – Description of new entry to register.</p></li>
+<li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – A unique UUID-4 string for this data entry.
+The full string is used to identify the data in the experiment service database,
+and a short ID is created by truncating this string as a dataframe index.</p></li>
+<li><p><strong>data</strong> – Arbitrary key-value pairs representing a single data entry.
+Missing values for default columns are filled with <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pandas Series of added entry. This doesn’t mutate the table.</p>
+<dd class="field-even"><p>Assigned analysis result ID.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – When the truncated result id causes a collision in the table.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Series</em></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -679,89 +690,70 @@ This must be valid hexadecimal UUID string.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.clear">
 <span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.clear" title="Permalink to this definition">#</a></dt>
-<dd><p>Remove all elements from this container.</p>
+<dd><p>Clear all table entries.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.copy" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns a copy of the container.</p>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Create new thread-safe instance with the same data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This returns a new object with shallow copied data frame.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.copy_object">
-<span class="sig-name descname"><span class="pre">copy_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.copy_object" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns a copy of this object.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.drop_entry">
-<span class="sig-name descname"><span class="pre">drop_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.drop_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.drop_entry" title="Permalink to this definition">#</a></dt>
-<dd><p>Drop specified labels from rows.</p>
-<p>This directly calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">drop()</span></code> of the DataFrame container object.</p>
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.del_data">
+<span class="sig-name descname"><span class="pre">del_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.del_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.del_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete matched entries from this dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>index</strong> (<em>str</em>) – Name of entry to drop.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When index is not in this table.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.filter_columns">
-<span class="sig-name descname"><span class="pre">filter_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.filter_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.filter_columns" title="Permalink to this definition">#</a></dt>
-<dd><p>Filter columns names available in this table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>columns</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – <p>Specifying a set of columns to return. You can pass a list of each
-column name to return, otherwise builtin column groups are available:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">all</span></code>: Return all columns, including metadata to communicate
-with experiment service, such as entry IDs.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">default</span></code>: Return columns including analysis result with supplementary
-information about experiment.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">minimal</span></code>: Return only analysis subroutine returns.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When column is given in string which doesn’t match with any builtin group.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.get_entry">
-<span class="sig-name descname"><span class="pre">get_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.get_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.get_entry" title="Permalink to this definition">#</a></dt>
-<dd><p>Get entry from the dataframe.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>index</strong> (<em>str</em>) – Name of entry to acquire.</p>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em><em> | </em><em>int</em>) – Identifier of the entry of interest.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pandas Series of acquired entry. This doesn’t mutate the table.</p>
+<dd class="field-even"><p>Deleted analysis result IDs.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – When index is not in this table.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Series</em></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.result_ids">
-<span class="sig-name descname"><span class="pre">result_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.result_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.result_ids" title="Permalink to this definition">#</a></dt>
-<dd><p>Return all result IDs in this table.</p>
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.from_dataframe">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.from_dataframe" title="Permalink to this definition">#</a></dt>
+<dd><p>Create new dataset with existing dataframe.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>DataFrame</em>) – Bare dataframe object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new AnalysisResults instance.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[str]</p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable" title="qiskit_experiments.framework.AnalysisResultTable">AnalysisResultTable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResultTable.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/analysis_result_table.html#AnalysisResultTable.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResultTable.get_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Get matched entries from this dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em><em> | </em><em>int</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – Identifier of the entry of interest.</p></li>
+<li><p><strong>columns</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) – List of names or a policy (default, minimal, all)
+of data columns included in the returned data frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matched entries in a single data frame or series.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -840,18 +832,18 @@ information about experiment.</p></li>
             <ul>
 <li><a class="reference internal" href="#">AnalysisResultTable</a><ul>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable</span></code></a><ul>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.DEFAULT_COLUMNS"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.DEFAULT_COLUMNS</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.VALID_ID_REGEX"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.VALID_ID_REGEX</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.lock"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.lock</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.__getitem__"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.__getitem__()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.columns"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.columns</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.dataframe"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.dataframe</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.result_ids"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.result_ids</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.__len__"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.__len__()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.add_entry"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.add_entry()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.add_data"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.add_data()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.clear"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.clear()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.copy"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.copy()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.copy_object"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.copy_object()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.drop_entry"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.drop_entry()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.filter_columns"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.filter_columns()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.get_entry"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.get_entry()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.result_ids"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.result_ids()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.del_data"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.del_data()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.from_dataframe"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.from_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResultTable.get_data"><code class="docutils literal notranslate"><span class="pre">AnalysisResultTable.get_data()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -867,7 +859,7 @@ information about experiment.</p></li>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=25e14b0a"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4ab48a45"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
