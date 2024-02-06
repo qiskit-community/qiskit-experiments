@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-145-g36c06ea9</title>
+        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-145-g36c06ea9</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-145-g36c06ea9</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -1701,14 +1701,23 @@
                     <span class="n">jobs_to_retrieve</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">jid</span> <span class="ow">in</span> <span class="n">jobs_to_retrieve</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Retrieving job [Job ID: </span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">jid</span><span class="p">)</span>
-                <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">retrieve_job</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Retrieving job [Job ID: </span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">jid</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>  <span class="c1"># qiskit-ibm-runtime syntax</span>
+                <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">job</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
                 <span class="n">retrieved_jobs</span><span class="p">[</span><span class="n">jid</span><span class="p">]</span> <span class="o">=</span> <span class="n">job</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># TODO: remove this path for qiskit-ibm-provider</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">retrieve_job</span><span class="p">(</span><span class="n">jid</span><span class="p">)</span>
+                    <span class="n">retrieved_jobs</span><span class="p">[</span><span class="n">jid</span><span class="p">]</span> <span class="o">=</span> <span class="n">job</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+                    <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Unable to retrieve data from job [Job ID: </span><span class="si">%s</span><span class="s2">]: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">jid</span><span class="p">,</span>
+                        <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span>
+                    <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
                 <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Unable to retrieve data from job [Job ID: </span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span>
-                    <span class="n">jid</span><span class="p">,</span>
+                    <span class="s2">&quot;Unable to retrieve data from job [Job ID: </span><span class="si">%s</span><span class="s2">]: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
                 <span class="p">)</span>
         <span class="c1"># Add retrieved job objects to stored jobs and extract data</span>
         <span class="k">for</span> <span class="n">jid</span><span class="p">,</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">retrieved_jobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -2857,7 +2866,9 @@
 <span class="sd">            experiment_id: Experiment ID.</span>
 <span class="sd">            service: the database service.</span>
 <span class="sd">            provider: an IBMProvider required for loading job data and</span>
-<span class="sd">            can be used to initialize the service.</span>
+<span class="sd">                can be used to initialize the service. In ``qiskit-ibm-runtime``,</span>
+<span class="sd">                this is the ``QiskitRuntimeService`` and should not be confused with</span>
+<span class="sd">                the experiment database service.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The loaded experiment data.</span>
@@ -2867,7 +2878,7 @@
         <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">provider</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ExperimentDataError</span><span class="p">(</span>
-                    <span class="s2">&quot;Loading an experiment requires a valid ibm provider or experiment service&quot;</span>
+                    <span class="s2">&quot;Loading an experiment requires a valid Qiskit provider or experiment service.&quot;</span>
                 <span class="p">)</span>
             <span class="n">service</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_service_from_provider</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">json_decoder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_json_decoder</span><span class="p">)</span>
@@ -3161,7 +3172,7 @@
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="s2">&quot;_account&quot;</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support&quot;</span>
-                    <span class="s2">&quot;for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.7.&quot;</span><span class="p">,</span>
                     <span class="ne">DeprecationWarning</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -3393,7 +3404,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=4ab48a45"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=4553e729"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
