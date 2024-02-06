@@ -113,8 +113,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        ramx_data = curve_data.get_subset_of("X")
-        ramy_data = curve_data.get_subset_of("Y")
+        ramx_data = curve_data.filter(series="X")
+        ramy_data = curve_data.filter(series="Y")
 
         # At very low frequency, y value of X (Y) curve stay at P=1.0 (0.5) for all x values.
         # Computing y peak-to-peak with combined data gives fake amplitude of 0.25.

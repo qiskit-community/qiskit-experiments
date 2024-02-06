@@ -39,6 +39,7 @@ Data Classes
 .. autosummary::
     :toctree: ../stubs/
 
+    ScatterTable
     SeriesDef
     CurveData
     CurveFitResult
