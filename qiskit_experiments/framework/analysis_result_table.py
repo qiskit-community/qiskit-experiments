@@ -29,11 +29,11 @@ class AnalysisResultTable:
     """A table-like dataset for analysis results.
 
     Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
-    The table is automatically expanded when extra key is included in the
-    input dictionary data. Missing columns in the input data are filled with null value.
+    The table is automatically expanded when an extra key is included in the
+    input dictionary data. Missing columns in the input data are filled with a null value.
 
     Table row index (i.e. entry ID) is created by truncating the result_id string which
-    is basically UUID-4 string. A random unique ID is generated when the result_id
+    is basically a UUID-4 string. A random unique ID is generated when the result_id
     is missing in the input data.
 
     Any operation on the table value via the instance methods guarantees thread safety.
@@ -57,7 +57,6 @@ class AnalysisResultTable:
 
     def __init__(self):
         """Create new dataset."""
-        super().__init__()
         self._data = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
         self._lock = threading.RLock()
 
@@ -95,40 +94,35 @@ class AnalysisResultTable:
 
     def add_data(
         self,
-        key: str | int | None = None,
+        *,
+        result_id: str | None = None,
         **data,
     ) -> str:
         """Add new data to this dataset.
 
         Args:
-            key: Identifier of this entry. This must be UUID-4 format.
-                The result_id string in the input data is used if nothing provided.
-                Random unique ID is prepared if result_id is also missing.
+            result_id: A unique UUID-4 string for this data entry.
+                The full string is used to identify the data in the experiment service database,
+                and a short ID is created by truncating this string as a dataframe index.
             data: Arbitrary key-value pairs representing a single data entry.
-                Missing values for default columns are filled with None.
+                Missing values for default columns are filled with ``None``.
 
         Returns:
             Assigned analysis result ID.
         """
-        if not key:
-            if result_id := data.get("result_id"):
-                key = result_id
-            else:
-                key = self._create_unique_hash()
-        if data.get("result_id", None) is None:
-            data["result_id"] = key
+        result_id = result_id or self._create_unique_hash()
 
-        if matched := re.match(self.VALID_ID_REGEX, key):
+        if matched := re.match(self.VALID_ID_REGEX, result_id):
             # Short unique index is generated from result id.
             # Showing full result id unnecessary occupies horizontal space of the html table.
             # This mechanism is inspired by the github commit hash.
             index = matched.group("short_id")
         else:
             warnings.warn(
-                f"Data key {key} is not valid result ID string. ",
+                f"Result ID of {result_id} is not a valid UUID-4 string. ",
                 UserWarning,
             )
-            index = key[:8]
+            index = result_id[:8]
 
         with self._lock:
             if index in self._data.index:
@@ -154,6 +148,7 @@ class AnalysisResultTable:
             # Also see test.framework.test_data_table.TestBaseTable.test_type_*
             self._data.loc[index, :] = [None] * len(self._data.columns)
             template = dict.fromkeys(self.columns, None)
+            template["result_id"] = result_id
             template.update(data)
             self._data.loc[index, :] = pd.array(list(template.values()), dtype=object)
 

@@ -205,17 +205,17 @@ class CurveAnalysis(BaseCurveAnalysis):
                     f"X value key {opt.x_key} is not defined in the circuit metadata."
                 ) from ex
 
-            # Assign entry name and class id
-            for data_id, (name, spec) in enumerate(classifier.items()):
+            # Assign series name and series id
+            for series_id, (series_name, spec) in enumerate(classifier.items()):
                 if spec.items() <= metadata.items():
                     break
             else:
                 # This is unclassified data.
-                data_id = pd.NA
-                name = pd.NA
+                series_name = pd.NA
+                series_id = pd.NA
             table.add_row(
-                name=name,
-                data_uid=data_id,
+                series_name=series_name,
+                series_id=series_id,
                 category=category,
                 x=xval,
                 y=yval,
@@ -247,19 +247,19 @@ class CurveAnalysis(BaseCurveAnalysis):
         average = averaging_methods[self.options.average_method]
         model_names = self.model_names()
 
-        for (name, xval), sub_data in curve_data.iter_groups("name", "xval"):
+        for (series_name, xval), sub_data in curve_data.iter_groups("series_name", "xval"):
             avg_yval, avg_yerr, shots = average(
                 sub_data.y,
                 sub_data.y_err,
                 sub_data.shots,
             )
             try:
-                data_id = model_names.index(name)
+                series_id = model_names.index(series_name)
             except ValueError:
-                data_id = pd.NA
+                series_id = pd.NA
             curve_data.add_row(
-                name=name,
-                data_uid=data_id,
+                series_name=series_name,
+                series_id=series_id,
                 category=category,
                 x=xval,
                 y=avg_yval,
@@ -337,7 +337,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Create convenient function to compute residual of the models.
         partial_residuals = []
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
-        for uid, sub_data in curve_data.iter_by_data_uid():
+        for idx, sub_data in curve_data.iter_by_series_id():
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.y_err, 0.0),
@@ -354,7 +354,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             else:
                 weights = None
             model_residual = partial(
-                self._models[uid]._residual,
+                self._models[idx]._residual,
                 data=sub_data.y,
                 weights=weights,
                 x=sub_data.x,
@@ -415,20 +415,20 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for i, sub_data in curve_data.iter_by_data_uid():
-            name = self.model_names()[i]
+        for series_id, sub_data in curve_data.iter_by_series_id():
+            model_name = self.model_names()[series_id]
             # Plot raw data scatters
             if self.options.plot_raw_data:
                 raw_data = sub_data.filter(category="raw")
                 self.plotter.set_series_data(
-                    series_name=name,
+                    series_name=model_name,
                     x=raw_data.x,
                     y=raw_data.y,
                 )
             # Plot formatted data scatters
             formatted_data = sub_data.filter(category=self.options.fit_category)
             self.plotter.set_series_data(
-                series_name=name,
+                series_name=model_name,
                 x_formatted=formatted_data.x,
                 y_formatted=formatted_data.y,
                 y_formatted_err=formatted_data.y_err,
@@ -438,14 +438,14 @@ class CurveAnalysis(BaseCurveAnalysis):
             if len(line_data) == 0:
                 continue
             self.plotter.set_series_data(
-                series_name=name,
+                series_name=model_name,
                 x_interp=line_data.x,
                 y_interp=line_data.y,
             )
             fit_stdev = line_data.y_err
             if np.isfinite(fit_stdev).all():
                 self.plotter.set_series_data(
-                    series_name=name,
+                    series_name=model_name,
                     y_interp_err=fit_stdev,
                 )
 
@@ -487,7 +487,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         if fit_data.success:
             # Add fit data to curve data table
             model_names = self.model_names()
-            for data_id, sub_data in formatted_subset.iter_by_data_uid():
+            for series_id, sub_data in formatted_subset.iter_by_series_id():
                 xval = sub_data.x
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
@@ -497,7 +497,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
                 uval_arr_fit = eval_with_uncertainties(
                     x=xval_arr_fit,
-                    model=self._models[data_id],
+                    model=self._models[series_id],
                     params=fit_data.ufloat_params,
                 )
                 yval_arr_fit = unp.nominal_values(uval_arr_fit)
@@ -507,8 +507,8 @@ class CurveAnalysis(BaseCurveAnalysis):
                     yerr_arr_fit = np.zeros_like(xval_arr_fit)
                 for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
                     table.add_row(
-                        name=model_names[data_id],
-                        data_uid=data_id,
+                        series_name=model_names[series_id],
+                        series_id=series_id,
                         category="fitted",
                         x=xval,
                         y=yval,
