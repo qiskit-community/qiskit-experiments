@@ -75,6 +75,23 @@ class TestAnalysisTable(QiskitExperimentsTestCase):
         all_columns = table.get_data(0, "all")
         self.assertTrue("extra" in all_columns.columns)
 
+    def test_get_custom_columns(self):
+        """Test getting entry with user-specified columns."""
+        table = AnalysisResultTable()
+        table.add_data(name="test", value=0)
+
+        cols = ["name", "value"]
+        custom_columns = table.get_data(0, cols)
+        self.assertListEqual(list(custom_columns.columns), cols)
+
+    def test_warning_non_existing_columns(self):
+        """Test raise user warning when attempt to get non-existing column."""
+        table = AnalysisResultTable()
+        table.add_data(name="test", value=0)
+
+        with self.assertWarns(UserWarning):
+            table.get_data(0, ["not_existing_column"])
+
     def test_listing_result_id(self):
         """Test returning result IDs of all stored entries."""
         table = AnalysisResultTable()
