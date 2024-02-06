@@ -17,7 +17,7 @@ automatically populated with ``fit_summary`` and ``curve_data`` artifacts.
 
 The ``fit_summary`` artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the
 fit. The ``curve_data`` artifact has a :class:`.ScatterTable` object that contain raw and fitted data in a
-Pandas DataFrame.
+pandas :class:`~pandas:pandas.DataFrame`.
 
 .. jupyter-execute::
 
@@ -41,14 +41,15 @@ will return all artifacts with the same name:
     print("Number of curve_data artifacts:", len(data.artifacts("curve_data")))
     curve_data_id = data.artifacts("curve_data")[0].artifact_id
     scatter_table = data.artifacts(curve_data_id).data
-    print("The first curve_data artifact:\n", scatter_table.dataframe)
+    print("The first curve_data artifact:\n")
+    scatter_table.dataframe
     
 The artifacts in a large composite experiment with ``flatten_results=True`` can be distinguished from
 each other using the :attr:`~.ArtifactData.experiment` and :attr:`~.ArtifactData.device_components`
 attributes.
 
 One useful pattern is to load raw or fitted data from ``curve_data`` for further data manipulation. You
-can work with the dataframe using standard Pandas dataframe methods or the built-in
+can work with the dataframe using standard pandas dataframe methods or the built-in
 :class:`.ScatterTable` methods:
 
 .. jupyter-execute::

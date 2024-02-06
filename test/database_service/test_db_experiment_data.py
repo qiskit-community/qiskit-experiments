@@ -1247,6 +1247,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip", "test2.zip"})
 
         # finish deleting artifacts named test
+        # delete by id
         exp_data.delete_artifact(exp_data.artifacts(0).artifact_id)
         self.assertEqual(exp_data.artifacts(), [new_artifact3])
         exp_data.save()

@@ -173,7 +173,12 @@ The analysis results resulting from the fit are accessed with :meth:`~.Experimen
     for result in exp_data.analysis_results():
         print(result)
 
-Results can be indexed numerically (starting from 0) or using their name.
+Results can be indexed numerically (starting from 0) or using their name. Analysis results can also be
+retrieved in the pandas :class:`~pandas:pandas.DataFrame` format by passing ``dataframe=True``:
+
+.. jupyter-execute::
+
+    exp_data.analysis_results(dataframe=True)
 
 .. note::
     See the :meth:`~.ExperimentData.analysis_results` API documentation for more 
@@ -432,8 +437,7 @@ into one level:
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    for result in parallel_data.analysis_results():
-        print(result)
+    parallel_data.analysis_results(dataframe=True)
 
 Broadcasting analysis options to child experiments
 --------------------------------------------------
