@@ -361,21 +361,48 @@ There are a few other build options available:
 
 ### Deprecation policy
 
-Qiskit Experiments's deprecation policy is based on Qiskit's [Deprecation
-Policy](https://github.com/Qiskit/qiskit/blob/45e42525224e9e1857300e7e5529273fe619c9e4/DEPRECATION.md)
-prior to its 1.0 release. Public-facing changes must come with a deprecation warning
-for at least three months or two version cycles before the old feature is removed.
-Deprecations can only happen on minor releases and not on patch releases.
+Any change to the existing package code that affects how the user interacts with the package
+should give the user clear instructions and advanced warning if the change is nontrivial.
+Qiskit Experiments's deprecation policy is based on [Qiskit's
+policy](https://github.com/Qiskit/qiskit/blob/1.0.0rc1/DEPRECATION.md) prior to its 1.0 release, but
+we impose less stringent requirements such that developers can iterate more quickly.
+Deprecations and feature removals can only happen on minor releases and not on patch releases.
 
-The timeline for deprecating an existing feature is as follows:
+The deprecation policy depends on the significance of the user-facing change, which we have divided into
+three categories:
 
-* Minor release 1: An alternative path is provided. A `PendingDeprecationWarning` should be issued
-  when the old path is used, indicating to users how to switch to the new path and the release
-  in which the old path will no longer be available.
-* Minor release 2: The `PendingDeprecationWarning` becomes a `DeprecationWarning`. The release note
-  should indicate the feature has been deprecated and how to switch to the new path.
+A **core feature change** is one that affects how the framework functions, for example a
+change to `BaseExperiment`. The timeline for deprecating an existing core feature is as follows:
+
+* Minor release 1: An alternative path is provided. A `PendingDeprecationWarning` 
+  should be issued when the old path is used, indicating to users how to switch to
+  the new path and the release in which the old path will no longer be available. The
+  developer may choose to directly deprecate the feature and issue a `DeprecationWarning` instead,
+  in which case the release note should indicate the feature has been deprecated and how to switch
+  to the new path.
+* Minor release 2: The `PendingDeprecationWarning` becomes a `DeprecationWarning`, or the
+  `DeprecationWarning` remains in place. The release note should indicate the feature has
+  been deprecated and how to switch to the new path.
 * Minor release 3: The old feature is removed. The release note should indicate that the feature has
   been removed and how to switch to the new path.
+
+If the three-release cycle takes fewer than three months, the feature removal must wait for more
+releases until three months has elapsed since the first issuing of the `PendingDeprecationWarning`
+or `DeprecationWarning`.
+
+A **non-core feature change** may be a change to a specific experiment class or modules such as the
+plotter. The timeline is shortened for such a change:
+
+* Minor release 1: An alternative path is provided. A `DeprecationWarning` should be issued
+  when the old path is used, indicating to users how to switch to the new path and the release
+  in which the old path will no longer be available.
+* Minor release 2: The old feature is removed. The release note should indicate that the feature has
+  been removed and how to switch to the new path.
+
+Lastly, a **minor, non-core change** would include cosmetic changes such as output file names and
+changes to helper functions that isn't directly used in the package code base. These can be made in
+one release without a deprecation process as long as the change is clearly described in the
+release notes.
 
 #### Adding deprecation warnings
 
