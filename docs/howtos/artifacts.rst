@@ -12,7 +12,10 @@ Solution
 Viewing artifacts
 ~~~~~~~~~~~~~~~~~
 
-After an experiment that uses :class:`.CurveAnalysis` is run, the :class:`ExperimentData` is
+Artifacts are used to store auxiliary data for an experiment that don't fit neatly in the
+:class:`.AnalysisResult` model. Any data that can be serialized, such as fit data, can be added
+as artifacts. After an experiment that uses
+:class:`.CurveAnalysis` is run, the :class:`ExperimentData` is
 automatically populated with ``fit_summary`` and ``curve_data`` artifacts.
 
 The ``fit_summary`` artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the
