@@ -1202,12 +1202,15 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual("default", exp_data.project)
 
     def test_add_delete_artifact(self):
-        """Tests adding and deleting an artifact."""
+        """Tests adding an artifact and a list of artifacts. Tests deleting an artifact
+        by name, ID, and index and ID. Test the metadata is correctly tracking additions
+        and deletions."""
         exp_data = ExperimentData()
         self.assertEqual(exp_data.artifacts(), [])
         new_artifact = ArtifactData(name="test", data="foo")
         exp_data.add_artifacts(new_artifact)
         self.assertEqual(exp_data.artifacts(0), new_artifact)
+        self.assertEqual(exp_data.artifacts("test"), new_artifact)
 
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.service = service
@@ -1231,6 +1234,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         new_artifact3 = ArtifactData(name="test2", data="foo2")
         exp_data.add_artifacts([new_artifact, new_artifact2, new_artifact3])
         self.assertEqual(exp_data.artifacts(), [new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts("test"), [new_artifact, new_artifact2])
 
         deleted_id = exp_data.artifacts(0).artifact_id
         # delete by index
@@ -1270,3 +1274,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         # Overwrite the artifact with a new one of the same ID
         exp_data.add_artifacts(new_artifact2, overwrite=True)
         self.assertEqual(exp_data.artifacts(), [new_artifact2])
+
+    def test_delete_nonexistent_artifact(self):
+        """Tests behavior when deleting a nonexistent artifact."""
+        exp_data = ExperimentData()
+
+        new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
+        exp_data.add_artifacts(new_artifact1)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact(2)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact("123")
