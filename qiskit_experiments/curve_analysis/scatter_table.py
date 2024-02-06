@@ -17,8 +17,8 @@ import logging
 import warnings
 from collections.abc import Iterator
 from typing import Any
-from itertools import groupby
-from operator import itemgetter
+from functools import reduce
+from itertools import product
 
 import numpy as np
 import pandas as pd
@@ -78,7 +78,10 @@ class ScatterTable:
         self._dump = pd.DataFrame(columns=self.COLUMNS)
 
     @classmethod
-    def from_dataframe(cls, data: pd.DataFrame) -> "ScatterTable":
+    def from_dataframe(
+        cls,
+        data: pd.DataFrame,
+    ) -> "ScatterTable":
         """Create new dataset with existing dataframe.
 
         Args:
@@ -89,9 +92,20 @@ class ScatterTable:
         """
         if list(data.columns) != cls.COLUMNS:
             raise ValueError("Input dataframe columns don't match with the ScatterTable spec.")
-        instance = object.__new__(ScatterTable)
+        format_data = cls._format_table(data)
+        return cls._create_new_instance(format_data)
+
+    @classmethod
+    def _create_new_instance(
+        cls,
+        data: pd.DataFrame,
+    ) -> "ScatterTable":
+        # A shortcut for creating instance.
+        # This bypasses data formatting and column compatibility check.
+        # User who calls this method must guarantee the quality of the input data.
+        instance = object.__new__(cls)
         instance._lazy_add_rows = []
-        instance._dump = cls._format_table(data)
+        instance._dump = data
         return instance
 
     @property
@@ -296,7 +310,7 @@ class ScatterTable:
         if analysis is not None:
             index = filt_data.analysis == analysis
             filt_data = filt_data.loc[index, :]
-        return ScatterTable.from_dataframe(filt_data)
+        return ScatterTable._create_new_instance(filt_data)
 
     def iter_by_data_uid(self) -> Iterator[tuple[int, "ScatterTable"]]:
         """Iterate over subset of data sorted by the data UID.
@@ -307,7 +321,7 @@ class ScatterTable:
         data_ids = self.dataframe.data_uid.dropna().sort_values().unique()
         id_cols = self.dataframe.data_uid
         for did in data_ids:
-            yield did, ScatterTable.from_dataframe(self.dataframe.loc[id_cols == did, :])
+            yield did, ScatterTable._create_new_instance(self.dataframe.loc[id_cols == did, :])
 
     def iter_groups(
         self,
@@ -321,18 +335,20 @@ class ScatterTable:
         Yields:
             Tuple of values for the grouped columns and the corresponding subset of the scatter table.
         """
+        out = self.dataframe
         try:
-            sort_by = itemgetter(*[self.COLUMNS.index(c) for c in group_by])
-        except ValueError as ex:
+            values_iter = product(*[out.get(col).unique() for col in group_by])
+        except AttributeError as ex:
             raise ValueError(
                 f"Specified columns don't exist: {group_by} is not a subset of {self.COLUMNS}."
             ) from ex
 
-        # Use python native groupby method on dataframe ndarray when sorting by multiple columns.
-        # This is more performant than pandas groupby implementation.
-        for vals, sub_data in groupby(sorted(self.dataframe.values, key=sort_by), key=sort_by):
-            tmp_df = pd.DataFrame(list(sub_data), columns=self.COLUMNS)
-            yield vals, ScatterTable.from_dataframe(tmp_df)
+        for values in sorted(values_iter):
+            each_matched = [out.get(c) == v for c, v in zip(group_by, values)]
+            all_matched = reduce(lambda x, y: x & y, each_matched)
+            if not any(all_matched):
+                continue
+            yield values, ScatterTable._create_new_instance(out.loc[all_matched, :])
 
     def add_row(
         self,
