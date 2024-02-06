@@ -382,7 +382,7 @@ This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
-The new ``data_uid`` is given here so that its value corresponds to the fit model object index
+The new `data_uid` is given here so that its value corresponds to the fit model object index
 in this analysis class. This index mapping is done based upon the correspondence of
 the data name and the fit model name.
 
