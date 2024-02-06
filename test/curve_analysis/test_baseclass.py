@@ -234,9 +234,9 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         curve_data = result.artifacts("curve_data").data
         np.testing.assert_array_equal(curve_data.series_name, "test")
         np.testing.assert_array_equal(curve_data.analysis, "CurveAnalysis")
-        np.testing.assert_array_equal(len(curve_data.filter(category="raw")), 100)
-        np.testing.assert_array_equal(len(curve_data.filter(category="formatted")), 100)
-        np.testing.assert_array_equal(len(curve_data.filter(category="fitted")), 100)
+        self.assertEqual(len(curve_data.filter(category="raw")), 100)
+        self.assertEqual(len(curve_data.filter(category="formatted")), 100)
+        self.assertEqual(len(curve_data.filter(category="fitted")), 100)
         np.testing.assert_array_equal(curve_data.filter(category="raw").x, np.linspace(0, 1, 100))
         np.testing.assert_array_equal(curve_data.filter(category="raw").shots, 1024)
         np.testing.assert_array_equal(curve_data.filter(category="formatted").shots, 1024)

@@ -394,7 +394,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                             category="fitted",
                             analysis=analysis.name,
                         )
-                analysis_results.extend(
+                result_data.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
                         quality=quality,

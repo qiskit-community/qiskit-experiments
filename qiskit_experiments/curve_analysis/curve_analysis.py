@@ -515,7 +515,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                         category="fitted",
                         analysis=self.name,
                     )
-            analysis_results.extend(
+            result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,
