@@ -214,12 +214,12 @@ class CurveAnalysis(BaseCurveAnalysis):
                 series_name = pd.NA
                 series_id = pd.NA
             table.add_row(
+                xval=xval,
+                yval=yval,
+                yerr=yerr,
                 series_name=series_name,
                 series_id=series_id,
                 category=category,
-                x=xval,
-                y=yval,
-                y_err=yerr,
                 shots=datum.get("shots", pd.NA),
                 analysis=self.name,
             )
@@ -258,12 +258,12 @@ class CurveAnalysis(BaseCurveAnalysis):
             except ValueError:
                 series_id = pd.NA
             curve_data.add_row(
+                xval=xval,
+                yval=avg_yval,
+                yerr=avg_yerr,
                 series_name=series_name,
                 series_id=series_id,
                 category=category,
-                x=xval,
-                y=avg_yval,
-                y_err=avg_yerr,
                 shots=shots,
                 analysis=self.name,
             )
@@ -507,16 +507,15 @@ class CurveAnalysis(BaseCurveAnalysis):
                     yerr_arr_fit = np.zeros_like(xval_arr_fit)
                 for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
                     table.add_row(
+                        xval=xval,
+                        yval=yval,
+                        yerr=yerr,
                         series_name=model_names[series_id],
                         series_id=series_id,
                         category="fitted",
-                        x=xval,
-                        y=yval,
-                        y_err=yerr,
                         analysis=self.name,
                     )
-
-            result_data.extend(
+            analysis_results.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,

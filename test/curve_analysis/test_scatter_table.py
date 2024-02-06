@@ -90,23 +90,38 @@ class TestScatterTable(QiskitExperimentsTestCase):
         obj = ScatterTable.from_dataframe(formatted_ref)
         self.assertTrue(obj.dataframe.equals(formatted_ref))
 
+    def test_factory_method_check_all_members(self):
+        """Test to check the factory method populates all instance members."""
+        to_test = ScatterTable.from_dataframe(pd.DataFrame(columns=ScatterTable.COLUMNS))
+        ref = ScatterTable()
+        self.assertEqual(to_test.__dict__.keys(), ref.__dict__.keys())
+
+    def test_two_construction_method_identical(self):
+        """Check if two tables constructed differently from the same source are identical."""
+        new_table = ScatterTable()
+        for _, row_data in self.reference.iterrows():
+            new_table.add_row(**row_data)
+
+        ref_table = ScatterTable.from_dataframe(self.reference)
+        self.assertEqual(new_table, ref_table)
+
     def test_add_row(self):
         """Test adding single row to the table without and with missing data."""
         obj = ScatterTable()
         obj.add_row(
+            xval=0.1,
+            yval=2.3,
+            yerr=0.4,
             series_name="model1",
             series_id=0,
             category="raw",
-            x=0.1,
-            y=2.3,
-            y_err=0.4,
             shots=1000,
             analysis="Test",
         )
         obj.add_row(
             category="raw",
-            x=0.2,
-            y=3.4,
+            xval=0.2,
+            yval=3.4,
         )
         self.assertEqual(len(obj), 2)
         np.testing.assert_array_equal(obj.x, np.array([0.1, 0.2]))

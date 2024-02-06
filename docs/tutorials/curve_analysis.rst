@@ -320,6 +320,7 @@ outside our curve fitting framework.
 Note that a :class:`ScatterTable` instance may be saved in the :class:`.ExperimentData` as an artifact.
 See the :doc:`Artifacts how-to </howtos/artifacts>` for more information.
 
+
 .. _curve_analysis_workflow:
 
 Curve Analysis workflow
