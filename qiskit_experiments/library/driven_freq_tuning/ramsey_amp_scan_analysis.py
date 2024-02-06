@@ -290,9 +290,9 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                 amplitudes, unwrapped_phase, phase_s, shot_sums
             ):
                 curve_data.add_row(
-                    x=new_x,
-                    y=new_y,
-                    y_err=new_y_err,
+                    xval=new_x,
+                    yval=new_y,
+                    yerr=new_y_err,
                     series_name=f"FREQ{direction}",
                     series_id=data_id,
                     shots=shot,
