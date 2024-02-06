@@ -142,8 +142,8 @@ class ZZRamseyAnalysis(CurveAnalysis):
         y_ptp = y_max - y_min
         x_max = np.max(curve_data.x)
 
-        data_0 = curve_data.filter(data_uid="0")
-        data_1 = curve_data.filter(data_uid="1")
+        data_0 = curve_data.filter(series="0")
+        data_1 = curve_data.filter(series="1")
 
         def typical_step(arr):
             """Find the typical step size of an array"""

@@ -249,17 +249,17 @@ Managing intermediate data
 Each data point in a 1-D curve fit may consist of the x value, y value, and
 standard error of the y value.
 In addition, such analysis may internally create several data subsets.
-Each data point is given a metadata triplet (`data_uid`, `category`, `analysis`)
+Each data point is given a metadata triplet (`series_id`, `category`, `analysis`)
 to distinguish the subset.
 
-* The `data_uid` is an integer key representing a label of the data which may be classified by fits models.
+* The `series_id` is an integer key representing a label of the data which may be classified by fits models.
   When an analysis consists of multiple fit models and performs a multi-objective fit,
   the created table may contain multiple datasets for each fit model.
-  Usually the index of data matches with the index of the fit model in the analysis.
-  The table also provides a `name` column which is a human-friendly text notation of the `data_uid`.
-  The `name` and corresponding `data_uid` must refer to the identical group,
-  and the `name` typically matches with the name of the fit model.
-  You can find a particular data subset by either `data_uid` or `name`.
+  Usually the index of series matches with the index of the fit model in the analysis.
+  The table also provides a `series_name` column which is a human-friendly text notation of the `series_id`.
+  The `series_name` and corresponding `series_id` must refer to the identical data subset,
+  and the `series_name` typically matches with the name of the fit model.
+  You can find a particular data subset by either `series_id` or `series_name`.
 
 * The `category` is a string tag categorizing a group of data points.
   The measured outcomes input as-is to the curve analysis are categorized by "raw".
@@ -286,7 +286,7 @@ particular data subset. For example,
 
 .. code-block:: python
 
-    mini_table = table.filter(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_table = table.filter(series="my_experiment1", category="raw", analysis="AnalysisA")
     mini_x = mini_table.x
     mini_y = mini_table.y
 
@@ -294,12 +294,12 @@ This operation is equivalent to
 
 .. code-block:: python
 
-    mini_x = table.xvals(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
-    mini_y = table.yvals(data_uid="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_x = table.xvals(series="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_y = table.yvals(series="my_experiment1", category="raw", analysis="AnalysisA")
 
 When an analysis only has a single model and the table is created from a single
-analysis instance, the data_uid and analysis are trivial, and you only need to
-specify the category to get subset data of interest.
+analysis instance, the `series_id` and `analysis` are trivial, and you only need to
+specify the `category` to get subset data of interest.
 
 The full description of :class:`.ScatterTable` columns are following below:
 
@@ -307,8 +307,8 @@ The full description of :class:`.ScatterTable` columns are following below:
 - `yval`: Nominal part of the outcome. The outcome is something like expectation value,
   which is computed from the experiment result with the data processor.
 - `yerr`: Standard error of the outcome, which is mainly due to sampling error.
-- `name`: Unique identifier of the data group. This is defined by the ``data_subfit_map`` option in the :class:`.CurveAnalysis`.
-- `data_uid`: Integer corresponding to a data unique index. This number is automatically assigned.
+- `series_name`: Human readable name of the data series. This is defined by the ``data_subfit_map`` option in the :class:`.CurveAnalysis`.
+- `series_id`: Integer corresponding to the name of data series. This number is automatically assigned.
 - `category`: A tag for the data group. This is defined by a developer of the curve analysis.
 - `shots`: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.
 - `analysis`: The name of the curve analysis instance that generated a data point.
@@ -350,21 +350,26 @@ the data processor in the analysis option is internally called.
 This consumes input experiment results and creates the :class:`.ScatterTable` dataframe.
 This table may look like:
 
-.. code-block::
+.. jupyter-input::
 
-        xval      yval      yerr  name  data_uid category  shots     analysis
-    0    0.1  0.153659  0.011258     A         0      raw   1024   MyAnalysis
-    1    0.1  0.590732  0.015351     B         1      raw   1024   MyAnalysis
-    2    0.1  0.315610  0.014510     A         0      raw   1024   MyAnalysis
-    3    0.1  0.376098  0.015123     B         1      raw   1024   MyAnalysis
-    4    0.2  0.937073  0.007581     A         0      raw   1024   MyAnalysis
-    5    0.2  0.323415  0.014604     B         1      raw   1024   MyAnalysis
-    6    0.2  0.538049  0.015565     A         0      raw   1024   MyAnalysis
-    7    0.2  0.530244  0.015581     B         1      raw   1024   MyAnalysis
-    8    0.3  0.143902  0.010958     A         0      raw   1024   MyAnalysis
-    9    0.3  0.261951  0.013727     B         1      raw   1024   MyAnalysis
-    10   0.3  0.830732  0.011707     A         0      raw   1024   MyAnalysis
-    11   0.3  0.874634  0.010338     B         1      raw   1024   MyAnalysis
+    table = analysis._run_data_processing(experiment_data.data())
+    print(table)
+
+.. jupyter-output::
+
+        xval      yval      yerr  series_name  series_id  category  shots     analysis
+    0    0.1  0.153659  0.011258            A          0      raw    1024   MyAnalysis
+    1    0.1  0.590732  0.015351            B          1      raw    1024   MyAnalysis
+    2    0.1  0.315610  0.014510            A          0      raw    1024   MyAnalysis
+    3    0.1  0.376098  0.015123            B          1      raw    1024   MyAnalysis
+    4    0.2  0.937073  0.007581            A          0      raw    1024   MyAnalysis
+    5    0.2  0.323415  0.014604            B          1      raw    1024   MyAnalysis
+    6    0.2  0.538049  0.015565            A          0      raw    1024   MyAnalysis
+    7    0.2  0.530244  0.015581            B          1      raw    1024   MyAnalysis
+    8    0.3  0.143902  0.010958            A          0      raw    1024   MyAnalysis
+    9    0.3  0.261951  0.013727            B          1      raw    1024   MyAnalysis
+    10   0.3  0.830732  0.011707            A          0      raw    1024   MyAnalysis
+    11   0.3  0.874634  0.010338            B          1      raw    1024   MyAnalysis
 
 where the experiment consists of two subset series A and B, and the experiment parameter (xval)
 is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
@@ -374,37 +379,42 @@ See :ref:`data_management_with_scatter_table` for the details of columns.
 3. Formatting
 ^^^^^^^^^^^^^
 
-Next, the processed dataset is converted into another format suited for the fitting and
-every valid result is assigned a class corresponding to a fit model.
+Next, the processed dataset is converted into another format suited for the fitting.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
 This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
-The new `data_uid` is given here so that its value corresponds to the fit model object index
-in this analysis class. This index mapping is done based upon the correspondence of
-the data name and the fit model name.
+The new `series_id` is given here so that its value corresponds to the fit model index
+defined in this analysis class. This index mapping is done based upon the correspondence of
+the `series_name` and the fit model name.
 
 This is done by calling :meth:`_format_data` method.
 This may return new scatter table object with the addition of rows like the following below.
 
-.. code-block::
+.. jupyter-input::
 
-        xval      yval      yerr  name  data_uid   category  shots     analysis
-    12   0.1  0.234634  0.009183     A         0  formatted   2048   MyAnalysis
-    13   0.2  0.737561  0.008656     A         0  formatted   2048   MyAnalysis
-    14   0.3  0.487317  0.008018     A         0  formatted   2048   MyAnalysis
-    15   0.1  0.483415  0.010774     B         1  formatted   2048   MyAnalysis
-    16   0.2  0.426829  0.010678     B         1  formatted   2048   MyAnalysis
-    17   0.3  0.568293  0.008592     B         1  formatted   2048   MyAnalysis
+    table = analysis._format_data(table)
+    print(table)
+
+.. jupyter-output::
+
+        xval      yval      yerr  series_name  series_id   category  shots     analysis
+    ...
+    12   0.1  0.234634  0.009183            A          0  formatted   2048   MyAnalysis
+    13   0.2  0.737561  0.008656            A          0  formatted   2048   MyAnalysis
+    14   0.3  0.487317  0.008018            A          0  formatted   2048   MyAnalysis
+    15   0.1  0.483415  0.010774            B          1  formatted   2048   MyAnalysis
+    16   0.2  0.426829  0.010678            B          1  formatted   2048   MyAnalysis
+    17   0.3  0.568293  0.008592            B          1  formatted   2048   MyAnalysis
 
 The default :meth:`_format_data` method adds its output data with the category "formatted".
 This category name must be also specified in the analysis option ``fit_category``.
 If overriding this method to do additional processing after the default formatting,
 the ``fit_category`` analysis option can be set to choose a different category name to use to
 select the data to pass to the fitting routine.
-The (x, y) value in each row is passed to the corresponding fit model object
+The (xval, yval) value in each row is passed to the corresponding fit model object
 to compute residual values for the least square optimization.
 
 3. Fitting

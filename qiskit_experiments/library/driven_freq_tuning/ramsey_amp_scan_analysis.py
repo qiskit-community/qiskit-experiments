@@ -259,8 +259,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # Create phase data by arctan(Y/X)
         for data_id, direction in enumerate(("pos", "neg")):
-            x_quadrature = ramsey_xy.filter(data_uid=f"X{direction}")
-            y_quadrature = ramsey_xy.filter(data_uid=f"Y{direction}")
+            x_quadrature = ramsey_xy.filter(series=f"X{direction}")
+            y_quadrature = ramsey_xy.filter(series=f"Y{direction}")
             if not np.array_equal(x_quadrature.x, y_quadrature.x):
                 raise ValueError(
                     "Amplitude values of X and Y quadrature are different. "
@@ -293,8 +293,8 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
                     x=new_x,
                     y=new_y,
                     y_err=new_y_err,
-                    name=f"FREQ{direction}",
-                    data_uid=data_id,
+                    series_name=f"FREQ{direction}",
+                    series_id=data_id,
                     shots=shot,
                     category=category,
                     analysis=self.name,
@@ -358,7 +358,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # plot unwrapped phase on first axis
         for direction in ("pos", "neg"):
-            sub_data = curve_data.filter(data_uid=f"FREQ{direction}", category="freq")
+            sub_data = curve_data.filter(series=f"FREQ{direction}", category="freq")
             self.plotter.set_series_data(
                 series_name=f"F{direction}",
                 x_formatted=sub_data.x,
@@ -368,7 +368,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
         # plot raw RamseyXY plot on second axis
         for name in ("Xpos", "Ypos", "Xneg", "Yneg"):
-            sub_data = curve_data.filter(data_uid=name, category="ramsey_xy")
+            sub_data = curve_data.filter(series=name, category="ramsey_xy")
             self.plotter.set_series_data(
                 series_name=name,
                 x_formatted=sub_data.x,
@@ -384,7 +384,7 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
         # plot frequency and Ramsey fit lines
         line_data = curve_data.filter(category="fitted")
         for direction in ("pos", "neg"):
-            sub_data = line_data.filter(data_uid=f"FREQ{direction}")
+            sub_data = line_data.filter(series=f"FREQ{direction}")
             if len(sub_data) == 0:
                 continue
             xval = sub_data.x

@@ -55,8 +55,8 @@ class ScatterTable:
         "xval",
         "yval",
         "yerr",
-        "name",
-        "data_uid",
+        "series_name",
+        "series_id",
         "category",
         "shots",
         "analysis",
@@ -135,7 +135,7 @@ class ScatterTable:
 
     def xvals(
         self,
-        data_uid: int | str | None = None,
+        series: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -145,7 +145,7 @@ class ScatterTable:
         A convenient shortcut for getting X data with filtering.
 
         Args:
-            data_uid: Identifier of the data, either data UID or name.
+            series: Identifier of the data series, either integer series index or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -154,7 +154,7 @@ class ScatterTable:
         Returns:
             Numpy array of X values.
         """
-        sub_table = self.filter(data_uid, category, analysis)
+        sub_table = self.filter(series, category, analysis)
         if check_unique:
             sub_table._warn_composite_data()
         return sub_table.x
@@ -171,7 +171,7 @@ class ScatterTable:
 
     def yvals(
         self,
-        data_uid: int | str | None = None,
+        series: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -181,7 +181,7 @@ class ScatterTable:
         A convenient shortcut for getting Y data with filtering.
 
         Args:
-            data_uid: Identifier of the data, either data UID or name.
+            series: Identifier of the data series, either integer series index or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -190,7 +190,7 @@ class ScatterTable:
         Returns:
             Numpy array of Y values.
         """
-        sub_table = self.filter(data_uid, category, analysis)
+        sub_table = self.filter(series, category, analysis)
         if check_unique:
             sub_table._warn_composite_data()
         return sub_table.y
@@ -207,7 +207,7 @@ class ScatterTable:
 
     def yerrs(
         self,
-        data_uid: int | str | None = None,
+        series: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
         check_unique: bool = True,
@@ -217,7 +217,7 @@ class ScatterTable:
         A convenient shortcut for getting Y error data with filtering.
 
         Args:
-            data_uid: Identifier of the data, either data UID or name.
+            series: Identifier of the data series, either integer series index or name.
             category: Name of data category.
             analysis: Name of analysis.
             check_unique: Set True to check if multiple series are contained.
@@ -226,28 +226,28 @@ class ScatterTable:
         Returns:
             Numpy array of Y error values.
         """
-        sub_table = self.filter(data_uid, category, analysis)
+        sub_table = self.filter(series, category, analysis)
         if check_unique:
             sub_table._warn_composite_data()
         return sub_table.y_err
 
     @property
-    def name(self) -> np.ndarray:
+    def series_name(self) -> np.ndarray:
         """Corresponding data name for each data point."""
-        return self.dataframe.name.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.series_name.to_numpy(dtype=object, na_value=None)
 
-    @name.setter
-    def name(self, new_values: np.ndarray):
-        self.dataframe.loc[:, "name"] = new_values
+    @series_name.setter
+    def series_name(self, new_values: np.ndarray):
+        self.dataframe.loc[:, "series_name"] = new_values
 
     @property
-    def data_uid(self) -> np.ndarray:
+    def series_id(self) -> np.ndarray:
         """Corresponding data UID for each data point."""
-        return self.dataframe.data_uid.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.series_id.to_numpy(dtype=object, na_value=None)
 
-    @data_uid.setter
-    def data_uid(self, new_values: np.ndarray):
-        self.dataframe.loc[:, "data_uid"] = new_values
+    @series_id.setter
+    def series_id(self, new_values: np.ndarray):
+        self.dataframe.loc[:, "series_id"] = new_values
 
     @property
     def category(self) -> np.ndarray:
@@ -278,14 +278,14 @@ class ScatterTable:
 
     def filter(
         self,
-        data_uid: int | str | None = None,
+        series: int | str | None = None,
         category: str | None = None,
         analysis: str | None = None,
     ) -> ScatterTable:
-        """Filter data by class, category, and/or analysis name.
+        """Filter data by series, category, and/or analysis name.
 
         Args:
-            data_uid: Identifier of the data, either data UID or name.
+            series: Identifier of the data series, either integer series index or name.
             category: Name of data category.
             analysis: Name of analysis.
 
@@ -294,14 +294,14 @@ class ScatterTable:
         """
         filt_data = self.dataframe
 
-        if data_uid is not None:
-            if isinstance(data_uid, int):
-                index = filt_data.data_uid == data_uid
-            elif isinstance(data_uid, str):
-                index = filt_data.name == data_uid
+        if series is not None:
+            if isinstance(series, int):
+                index = filt_data.series_id == series
+            elif isinstance(series, str):
+                index = filt_data.series_name == series
             else:
                 raise ValueError(
-                    f"Invalid data_uid {type(data_uid)}. This must be integer or string."
+                    f"Invalid series identifier {series}. This must be integer or string."
                 )
             filt_data = filt_data.loc[index, :]
         if category is not None:
@@ -312,16 +312,15 @@ class ScatterTable:
             filt_data = filt_data.loc[index, :]
         return ScatterTable._create_new_instance(filt_data)
 
-    def iter_by_data_uid(self) -> Iterator[tuple[int, "ScatterTable"]]:
-        """Iterate over subset of data sorted by the data UID.
+    def iter_by_series_id(self) -> Iterator[tuple[int, "ScatterTable"]]:
+        """Iterate over subset of data sorted by the data series index.
 
         Yields:
-            Tuple of data UID and subset of ScatterTable.
+            Tuple of data series index and subset of ScatterTable.
         """
-        data_ids = self.dataframe.data_uid.dropna().sort_values().unique()
-        id_cols = self.dataframe.data_uid
-        for did in data_ids:
-            yield did, ScatterTable._create_new_instance(self.dataframe.loc[id_cols == did, :])
+        id_values = self.dataframe.series_id
+        for did in id_values.dropna().sort_values().unique():
+            yield did, ScatterTable._create_new_instance(self.dataframe.loc[id_values == did, :])
 
     def iter_groups(
         self,
@@ -352,8 +351,8 @@ class ScatterTable:
 
     def add_row(
         self,
-        name: str | pd.NA = pd.NA,
-        data_uid: int | pd.NA = pd.NA,
+        series_name: str | pd.NA = pd.NA,
+        series_id: int | pd.NA = pd.NA,
         category: str | pd.NA = pd.NA,
         x: float | pd.NA = pd.NA,
         y: float | pd.NA = pd.NA,
@@ -370,12 +369,12 @@ class ScatterTable:
             y: Y value.
             y_err: Standard deviation of y value.
             shots: Shot number used to acquire this data point.
-            name: Name of this data if available.
-            data_uid: Data UID of if available.
+            series_name: Name of this data series if available.
+            series_id: Index of this data series if available.
             category: Data category if available.
             analysis: Analysis name if available.
         """
-        self._lazy_add_rows.append([x, y, y_err, name, data_uid, category, shots, analysis])
+        self._lazy_add_rows.append([x, y, y_err, series_name, series_id, category, shots, analysis])
 
     @classmethod
     def _format_table(cls, data: pd.DataFrame) -> pd.DataFrame:
@@ -386,10 +385,10 @@ class ScatterTable:
         )
 
     def _warn_composite_data(self):
-        if len(self.dataframe.name.unique()) > 1:
+        if len(self.dataframe.series_name.unique()) > 1:
             warnings.warn(
-                "Table data contains multiple data UIDs. "
-                "You may want to filter the data by a specific data_uid integer or name string.",
+                "Table data contains multiple data series. "
+                "You may want to filter the data by a specific series_id or series_name.",
                 UserWarning,
             )
         if len(self.dataframe.category.unique()) > 1:
@@ -408,19 +407,19 @@ class ScatterTable:
     @property
     @deprecate_func(
         since="0.6",
-        additional_msg="Curve data uses dataframe representation. Call .data_uid instead.",
+        additional_msg="Curve data uses dataframe representation. Call .series_id instead.",
         pending=True,
         package_name="qiskit-experiments",
         is_property=True,
     )
     def data_allocation(self) -> np.ndarray:
         """Index of corresponding fit model."""
-        return self.data_uid
+        return self.series_id
 
     @property
     @deprecate_func(
         since="0.6",
-        additional_msg="No alternative is provided. Use .name with set operation.",
+        additional_msg="No alternative is provided. Use .series_name with set operation.",
         pending=True,
         package_name="qiskit-experiments",
         is_property=True,
@@ -428,7 +427,7 @@ class ScatterTable:
     def labels(self) -> list[str]:
         """List of model names."""
         # Order sensitive
-        name_id_tups = self.dataframe.groupby(["name", "data_uid"]).groups.keys()
+        name_id_tups = self.dataframe.groupby(["series_name", "series_id"]).groups.keys()
         return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
 
     @deprecate_func(
@@ -446,7 +445,7 @@ class ScatterTable:
         Returns:
             A subset of data corresponding to a particular series.
         """
-        return self.filter(data_uid=index)
+        return self.filter(series=index)
 
     def __len__(self):
         """Return the number of data points stored in the table."""

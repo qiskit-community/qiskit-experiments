@@ -29,7 +29,7 @@ class TestScatterTable(QiskitExperimentsTestCase):
             "xval": [0.100, 0.100, 0.200, 0.200, 0.100, 0.200, 0.100, 0.200, 0.100, 0.200],
             "yval": [0.192, 0.784, 0.854, 0.672, 0.567, 0.488, 0.379, 0.671, 0.784, 0.672],
             "yerr": [0.002, 0.091, 0.090, 0.027, 0.033, 0.038, 0.016, 0.048, 0.091, 0.027],
-            "name": [
+            "series_name": [
                 "model1",
                 "model2",
                 "model1",
@@ -41,7 +41,7 @@ class TestScatterTable(QiskitExperimentsTestCase):
                 "model2",
                 "model2",
             ],
-            "data_uid": [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
+            "series_id": [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
             "category": [
                 "raw",
                 "raw",
@@ -94,8 +94,8 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test adding single row to the table without and with missing data."""
         obj = ScatterTable()
         obj.add_row(
-            name="model1",
-            data_uid=0,
+            series_name="model1",
+            series_id=0,
             category="raw",
             x=0.1,
             y=2.3,
@@ -112,8 +112,8 @@ class TestScatterTable(QiskitExperimentsTestCase):
         np.testing.assert_array_equal(obj.x, np.array([0.1, 0.2]))
         np.testing.assert_array_equal(obj.y, np.array([2.3, 3.4]))
         np.testing.assert_array_equal(obj.y_err, np.array([0.4, np.nan]))
-        np.testing.assert_array_equal(obj.name, np.array(["model1", None]))
-        np.testing.assert_array_equal(obj.data_uid, np.array([0, None]))
+        np.testing.assert_array_equal(obj.series_name, np.array(["model1", None]))
+        np.testing.assert_array_equal(obj.series_id, np.array([0, None]))
         np.testing.assert_array_equal(obj.category, np.array(["raw", "raw"]))
         np.testing.assert_array_equal(
             # Numpy tries to handle nan strictly, but isnan only works for float dtype.
@@ -138,14 +138,14 @@ class TestScatterTable(QiskitExperimentsTestCase):
         obj.y_err = [0.3, 0.5, 0.7]
 
         # Broadcast single value
-        obj.data_uid = 0
-        obj.name = "model0"
+        obj.series_id = 0
+        obj.series_name = "model0"
 
         np.testing.assert_array_equal(obj.x, np.array([0.1, 0.2, 0.3]))
         np.testing.assert_array_equal(obj.y, np.array([1.3, 1.4, 1.5]))
         np.testing.assert_array_equal(obj.y_err, np.array([0.3, 0.5, 0.7]))
-        np.testing.assert_array_equal(obj.data_uid, np.array([0, 0, 0]))
-        np.testing.assert_array_equal(obj.name, np.array(["model0", "model0", "model0"]))
+        np.testing.assert_array_equal(obj.series_id, np.array([0, 0, 0]))
+        np.testing.assert_array_equal(obj.series_name, np.array(["model0", "model0", "model0"]))
 
     def test_get_subset_numbers(self):
         """Test end-user shortcut for getting the subset of x, y, y_err data."""
@@ -166,24 +166,25 @@ class TestScatterTable(QiskitExperimentsTestCase):
         with self.assertWarns(UserWarning):
             obj.yerrs()
 
-    def test_filter_data_by_data_uid(self):
-        """Test filter table data with data UID."""
+    def test_filter_data_by_series_id(self):
+        """Test filter table data with series index."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(data_uid=0)
+        filtered = obj.filter(series=0)
         self.assertEqual(len(filtered), 6)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2, 0.1, 0.2, 0.1, 0.2]))
-        np.testing.assert_array_equal(filtered.data_uid, np.array([0, 0, 0, 0, 0, 0]))
+        np.testing.assert_array_equal(filtered.series_id, np.array([0, 0, 0, 0, 0, 0]))
 
-    def test_filter_data_by_model_name(self):
-        """Test filter table data with data name."""
+    def test_filter_data_by_series_name(self):
+        """Test filter table data with series name."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(data_uid="model1")
+        filtered = obj.filter(series="model1")
         self.assertEqual(len(filtered), 6)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2, 0.1, 0.2, 0.1, 0.2]))
         np.testing.assert_array_equal(
-            filtered.name, np.array(["model1", "model1", "model1", "model1", "model1", "model1"])
+            filtered.series_name,
+            np.array(["model1", "model1", "model1", "model1", "model1", "model1"]),
         )
 
     def test_filter_data_by_category(self):
@@ -210,55 +211,55 @@ class TestScatterTable(QiskitExperimentsTestCase):
         """Test filter table data with multiple attributes."""
         obj = ScatterTable.from_dataframe(self.reference)
 
-        filtered = obj.filter(data_uid=0, category="raw", analysis="Fit1")
+        filtered = obj.filter(series=0, category="raw", analysis="Fit1")
         self.assertEqual(len(filtered), 2)
         np.testing.assert_array_equal(filtered.x, np.array([0.1, 0.2]))
-        np.testing.assert_array_equal(filtered.data_uid, np.array([0, 0]))
+        np.testing.assert_array_equal(filtered.series_id, np.array([0, 0]))
         np.testing.assert_array_equal(filtered.category, np.array(["raw", "raw"]))
         np.testing.assert_array_equal(filtered.analysis, np.array(["Fit1", "Fit1"]))
 
     def test_iter_class(self):
-        """Test iterating over mini tables associated with different data UID."""
+        """Test iterating over mini tables associated with different series indices."""
         obj = ScatterTable.from_dataframe(self.reference).filter(category="raw")
 
-        class_iter = obj.iter_by_data_uid()
+        class_iter = obj.iter_by_series_id()
 
-        index, table_cls0 = next(class_iter)
-        ref_table_cls0 = obj.filter(data_uid=0)
-        self.assertEqual(index, 0)
-        self.assertEqual(table_cls0, ref_table_cls0)
+        series_id, table0 = next(class_iter)
+        ref_table_cls0 = obj.filter(series=0)
+        self.assertEqual(series_id, 0)
+        self.assertEqual(table0, ref_table_cls0)
 
-        index, table_cls1 = next(class_iter)
-        ref_table_cls1 = obj.filter(data_uid=1)
-        self.assertEqual(index, 1)
-        self.assertEqual(table_cls1, ref_table_cls1)
+        series_id, table1 = next(class_iter)
+        ref_table_cls1 = obj.filter(series=1)
+        self.assertEqual(series_id, 1)
+        self.assertEqual(table1, ref_table_cls1)
 
     def test_iter_groups(self):
         """Test iterating over mini tables associated with multiple attributes."""
         obj = ScatterTable.from_dataframe(self.reference).filter(category="raw")
 
-        class_iter = obj.iter_groups("data_uid", "xval")
+        class_iter = obj.iter_groups("series_id", "xval")
 
-        (index, xval), table0 = next(class_iter)
-        self.assertEqual(index, 0)
+        (series_id, xval), table0 = next(class_iter)
+        self.assertEqual(series_id, 0)
         self.assertEqual(xval, 0.1)
         self.assertEqual(len(table0), 2)
         np.testing.assert_array_equal(table0.y, [0.192, 0.567])
 
-        (index, xval), table1 = next(class_iter)
-        self.assertEqual(index, 0)
+        (series_id, xval), table1 = next(class_iter)
+        self.assertEqual(series_id, 0)
         self.assertEqual(xval, 0.2)
         self.assertEqual(len(table1), 2)
         np.testing.assert_array_equal(table1.y, [0.854, 0.488])
 
-        (index, xval), table2 = next(class_iter)
-        self.assertEqual(index, 1)
+        (series_id, xval), table2 = next(class_iter)
+        self.assertEqual(series_id, 1)
         self.assertEqual(xval, 0.1)
         self.assertEqual(len(table2), 1)
         np.testing.assert_array_equal(table2.y, [0.784])
 
-        (index, xval), table3 = next(class_iter)
-        self.assertEqual(index, 1)
+        (series_id, xval), table3 = next(class_iter)
+        self.assertEqual(series_id, 1)
         self.assertEqual(xval, 0.2)
         self.assertEqual(len(table3), 1)
         np.testing.assert_array_equal(table3.y, [0.672])
