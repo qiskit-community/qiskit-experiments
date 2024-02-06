@@ -1511,14 +1511,47 @@ class ExperimentData:
     )
     def analysis_results(
         self,
-        index: Optional[Union[int, slice, str]] = None,
+        index: int | slice | str | None = None,
         refresh: bool = False,
         block: bool = True,
-        timeout: Optional[float] = None,
-        columns: Union[str, List[str]] = "default",
+        timeout: float | None = None,
+        columns: str | list[str] = "default",
         dataframe: bool = False,
-    ) -> Union[AnalysisResult, List[AnalysisResult], pd.DataFrame, pd.Series]:
+    ) -> AnalysisResult | list[AnalysisResult] | pd.DataFrame:
         """Return analysis results associated with this experiment.
+
+        When this method is called with ``dataframe=True`` you will receive
+        matched result entries with the ``index`` condition in the dataframe format.
+        You can access a certain entry value by specifying its row index by either
+        row number or short index string. For example,
+
+        .. jupyter-input::
+
+            results = exp_data.analysis_results("res1", dataframe=True)
+
+            print(results)
+
+        .. jupyter-output::
+
+                      name  experiment  components  value  quality  backend          run_time
+            7dd286f4  res1       MyExp    [Q0, Q1]      1     good    test1  2024-02-06 13:46
+            f62042a7  res1       MyExp    [Q2, Q3]      2     good    test1  2024-02-06 13:46
+
+        Getting the first result value with a row number (``iloc``).
+
+        .. code-block:: python
+
+            value = results.iloc[0].value
+
+        Getting the first result value with a short index (``loc``).
+
+        .. code-block:: python
+
+            value = results.loc["7dd286f4"]
+
+        See the pandas `DataFrame`_ documentation for the tips about data handling.
+
+        .. _DataFrame: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
 
         Args:
             index: Index of the analysis result to be returned.
@@ -1558,12 +1591,7 @@ class ExperimentData:
         self._retrieve_analysis_results(refresh=refresh)
 
         if dataframe:
-            df = self._analysis_results.get_data(index, columns=columns)
-            if len(df) == 1 and index is not None:
-                # For backward compatibility.
-                # One can directly access attributes with Series. e.g. out.value
-                return df.iloc[0]
-            return df
+            return self._analysis_results.get_data(index, columns=columns)
 
         # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
         # This will be removed in future version.
