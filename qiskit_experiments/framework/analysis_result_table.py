@@ -29,11 +29,11 @@ class AnalysisResultTable:
     """A table-like dataset for analysis results.
 
     Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
-    The table is automatically expanded when extra key is included in the
-    input dictionary data. Missing columns in the input data are filled with null value.
+    The table is automatically expanded when an extra key is included in the
+    input dictionary data. Missing columns in the input data are filled with a null value.
 
     Table row index (i.e. entry ID) is created by truncating the result_id string which
-    is basically UUID-4 string. A random unique ID is generated when the result_id
+    is basically a UUID-4 string. A random unique ID is generated when the result_id
     is missing in the input data.
 
     Any operation on the table value via the instance methods guarantees thread safety.
@@ -57,7 +57,6 @@ class AnalysisResultTable:
 
     def __init__(self):
         """Create new dataset."""
-        super().__init__()
         self._data = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
         self._lock = threading.RLock()
 
@@ -102,10 +101,10 @@ class AnalysisResultTable:
 
         Args:
             key: Identifier of this entry. This must be UUID-4 format.
-                The result_id string in the input data is used if nothing provided.
-                Random unique ID is prepared if result_id is also missing.
+                The ``result_id`` string in the input data is used if nothing is provided.
+                A random unique ID is prepared if ``result_id`` is also missing.
             data: Arbitrary key-value pairs representing a single data entry.
-                Missing values for default columns are filled with None.
+                Missing values for default columns are filled with ``None``.
 
         Returns:
             Assigned analysis result ID.

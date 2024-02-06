@@ -292,13 +292,16 @@ is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is ru
 for each condition. The role of each column is as follows:
 
 - ``xval``: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
-- ``yval``: Nominal part of the outcome. The outcome is something like expectation value, which is computed from the experiment result with the data processor.
+- ``yval``: Nominal part of the outcome. The outcome is something like expectation value,
+  which is computed from the experiment result with the data processor.
 - ``yerr``: Standard error of the outcome, which is mainly due to sampling error.
 - ``name``: Unique identifier of the result class. This is defined by the ``data_subfit_map`` option.
-- ``data_uid``: Integer number corresponding to the data unique index. This number is automatically assigned.
-- ``category``: The tag of data group. The "raw" category indicates an output from the data processing.
+- ``data_uid``: Integer corresponding to a data unique index. This number is automatically assigned.
+- ``category``: A tag for the data group. The "raw" category indicates an output from the data processing.
 - ``shots``: Number of measurement shots used to acquire this result.
-- ``analysis``: The name of curve analysis instance that generated this data. In :class:`.CompositeCurveAnalysis`, the table is a composite of tables from all component analyses.
+- ``analysis``: The name of the curve analysis instance that generated this data.
+  For a simple analysis class, all rows will have the same value, but :class:`.CompositeCurveAnalysis`
+  combines the tables from all component analyses leading to more than one unique entry.
 
 To find data points that belong to a particular dataset, you can follow :ref:`filter_scatter_table`.
 
@@ -313,7 +316,7 @@ This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
-The new data_uid is given here so that its value corresponds to the fit model object index
+The new ``data_uid`` is given here so that its value corresponds to the fit model object index
 in this analysis class. This index mapping is done based upon the correspondence of
 the data name and the fit model name.
 

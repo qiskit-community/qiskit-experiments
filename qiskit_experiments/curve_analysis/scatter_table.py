@@ -30,51 +30,53 @@ LOG = logging.getLogger(__name__)
 
 
 class ScatterTable:
-    """A table-like dataset for curve fitting intermediate data.
+    """A table-like dataset for the intermediate data used for curve fitting.
 
     Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
     This table cannot be expanded with user-provided column names.
 
-    This dataset is not thread safe. Do not use the same instance in multiple threads.
+    .. note::
+
+        This dataset is not thread safe. Do not use the same instance in multiple threads.
 
     .. _filter_scatter_table:
 
     Filtering ScatterTable
     ----------------------
 
-    ScatterTable is a single source of the truth as the data used in the curve fit analysis.
+    ScatterTable is the single source of truth for the data used in the curve fit analysis.
     Each data point in a 1-D curve fit may consist of the x value, y value, and
     standard error of the y value.
-    In addition, such analysis may internally create several data subsets,
-    and data points can also take metadata triplet (`data_uid`, `category`, `analysis`)
+    In addition, such analysis may internally create several data subsets.
+    Each data point is given a metadata triplet (`data_uid`, `category`, `analysis`)
     to distinguish the subset.
 
     * The `data_uid` is an integer key representing the class of the data.
-      When an analysis consists of multiple fit models and performs the multi-objective fit,
+      When an analysis consists of multiple fit models and performs a multi-objective fit,
       the created table may contain multiple datasets for each fit model.
       Usually the index of data matches with the index of the fit model in the analysis.
-      The table also provides `name` column which is a human-friendly text notation of the data_uid.
-      The name and corresponding data_uid must refer to the identical data class,
-      and the name typically matches with the name of the fit model.
-      You can find a particular data subset by either data_uid or name.
+      The table also provides a `name` column which is a human-friendly text notation of the data_uid.
+      The `name` and corresponding `data_uid` must refer to the identical data class,
+      and the `name` typically matches with the name of the fit model.
+      You can find a particular data subset by either `data_uid` or `name`.
 
-    * The `category` is a string key representing a tag of data groups.
-      The measured outcomes input as-is to the curve analysis are tagged with "raw".
-      In a standard :class:`.CurveAnalysis` subclass, the input data is pre-processed for
-      the fitting and the formatted data is also stored in the table with "formatted" tag.
+    * The `category` is a string tag categorizing a group of data points.
+      The measured outcomes input as-is to the curve analysis are categorized by "raw".
+      In a standard :class:`.CurveAnalysis` subclass, the input data is formatted for
+      the fitting and the formatted data is also stored in the table with the "formatted" category.
       After the fit is successfully conducted and the model parameters are identified,
-      data points in the interpolated fit curves are also stored with "fitted" tag
-      for visualization. The management of data group depends on the design of
+      data points in the interpolated fit curves are stored with the "fitted" category
+      for visualization. The management of the data groups depends on the design of
       the curve analysis protocol, and the convention of category naming might
       be different in a particular analysis.
 
     * The `analysis` is a string key representing a name of
       the analysis instance that generated the data point.
-      This allows a user to combine multiple tables from the different analyses
+      This allows a user to combine multiple tables from different analyses
       without collapsing the data points.
-      In the :class:`.CompositeCurveAnalysis`, the instance consists of statistically
-      independent fit models represented in a form of nested component analysis instances.
-      Such component has unique analysis name, and datasets generated from each instance
+      A :class:`.CompositeCurveAnalysis` instance consists of
+      nested component analysis instances containing statistically independent fit models.
+      Each component is given a unique analysis name, and datasets generated from each instance
       are merged into a single table stored in the outermost composite analysis.
 
     User must be aware of this triplet to extract data points that belong to a
@@ -86,7 +88,7 @@ class ScatterTable:
         mini_x = mini_table.x
         mini_y = mini_table.y
 
-    this operation is equivalent to
+    This operation is equivalent to
 
     .. code-block:: python
 
@@ -180,7 +182,7 @@ class ScatterTable:
     ) -> np.ndarray:
         """Get subset of X values.
 
-        A convenient shortcut of getting X data with filtering.
+        A convenient shortcut for getting X data with filtering.
 
         Args:
             data_uid: Identifier of the data, either data UID or name.
@@ -216,7 +218,7 @@ class ScatterTable:
     ) -> np.ndarray:
         """Get subset of Y values.
 
-        A convenient shortcut of getting Y data with filtering.
+        A convenient shortcut for getting Y data with filtering.
 
         Args:
             data_uid: Identifier of the data, either data UID or name.
@@ -252,7 +254,7 @@ class ScatterTable:
     ) -> np.ndarray:
         """Get subset of standard deviation of Y values.
 
-        A convenient shortcut of getting Y error data with filtering.
+        A convenient shortcut for getting Y error data with filtering.
 
         Args:
             data_uid: Identifier of the data, either data UID or name.
@@ -271,7 +273,7 @@ class ScatterTable:
 
     @property
     def name(self) -> np.ndarray:
-        """Corresponding data name."""
+        """Corresponding data name for each data point."""
         return self._data.name.to_numpy(dtype=object, na_value=None)
 
     @name.setter
@@ -280,7 +282,7 @@ class ScatterTable:
 
     @property
     def data_uid(self) -> np.ndarray:
-        """Corresponding data UID."""
+        """Corresponding data UID for each data point."""
         return self._data.data_uid.to_numpy(dtype=object, na_value=None)
 
     @data_uid.setter
@@ -289,7 +291,7 @@ class ScatterTable:
 
     @property
     def category(self) -> np.ndarray:
-        """Category of data points."""
+        """Array of categories of the data points."""
         return self._data.category.to_numpy(dtype=object, na_value=None)
 
     @category.setter
@@ -298,7 +300,7 @@ class ScatterTable:
 
     @property
     def shots(self) -> np.ndarray:
-        """Shot number used to acquire data points."""
+        """Shot number used to acquire each data point."""
         return self._data.shots.to_numpy(dtype=object, na_value=np.nan)
 
     @shots.setter
@@ -307,7 +309,7 @@ class ScatterTable:
 
     @property
     def analysis(self) -> np.ndarray:
-        """Corresponding analysis name."""
+        """Corresponding analysis name for each data point."""
         return self._data.analysis.to_numpy(dtype=object, na_value=None)
 
     @analysis.setter
@@ -368,16 +370,16 @@ class ScatterTable:
         """Iterate over the subset sorted by multiple column values.
 
         Args:
-            group_by: Name of column to group by.
+            group_by: Names of columns to group by.
 
         Yields:
-            Tuple of keys and subset of ScatterTable.
+            Tuple of values for the grouped columns and the corresponding subset of the scatter table.
         """
         try:
             sort_by = itemgetter(*[self.DEFAULT_COLUMNS.index(c) for c in group_by])
         except ValueError as ex:
             raise ValueError(
-                f"Specified columns don't exist: {group_by} are not subset of {self.DEFAULT_COLUMNS}."
+                f"Specified columns don't exist: {group_by} is not a subset of {self.DEFAULT_COLUMNS}."
             ) from ex
 
         # Use python native groupby method on dataframe ndarray when sorting by multiple columns.
@@ -397,7 +399,7 @@ class ScatterTable:
         shots: float | pd.NA = pd.NA,
         analysis: str | pd.NA = pd.NA,
     ):
-        """Add new data group to the table.
+        """Add new data point to the table.
 
         Data must be the same length.
 
@@ -445,7 +447,7 @@ class ScatterTable:
     @property
     @deprecate_func(
         since="0.6",
-        additional_msg="Curve data uses dataframe representation. Call .model_id instead.",
+        additional_msg="Curve data uses dataframe representation. Call .data_uid instead.",
         pending=True,
         package_name="qiskit-experiments",
         is_property=True,
