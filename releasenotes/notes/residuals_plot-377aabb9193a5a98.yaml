@@ -5,4 +5,3 @@ features:
     Introducing sub_plot_heights_list and sub_plot_widths_list attributes in PlotStyle for customizable 
     subplot sizes,  each list needs to be sum to 1. This feature currently work only for experiments with
     no subplots.
-    
