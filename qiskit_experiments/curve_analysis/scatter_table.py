@@ -101,7 +101,7 @@ class ScatterTable:
 
     """
 
-    DEFAULT_COLUMNS = [
+    COLUMNS = [
         "xval",
         "yval",
         "yerr",
@@ -112,7 +112,7 @@ class ScatterTable:
         "analysis",
     ]
 
-    DEFAULT_DTYPES = [
+    DTYPES = [
         "Float64",
         "Float64",
         "Float64",
@@ -125,14 +125,14 @@ class ScatterTable:
 
     def __init__(self):
         self._lazy_add_rows = []
-        self._dump = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
+        self._dump = pd.DataFrame(columns=self.COLUMNS)
 
     @property
     def _data(self) -> pd.DataFrame:
         if self._lazy_add_rows:
             # Add data when table element is called.
             # Adding rows in loop is extremely slow in pandas.
-            tmp_df = pd.DataFrame(self._lazy_add_rows, columns=self.DEFAULT_COLUMNS)
+            tmp_df = pd.DataFrame(self._lazy_add_rows, columns=self.COLUMNS)
             tmp_df = self._format_table(tmp_df)
             if len(self._dump) == 0:
                 self._dump = tmp_df
@@ -151,7 +151,7 @@ class ScatterTable:
         Returns:
             A new ScatterTable instance.
         """
-        if list(data.columns) != cls.DEFAULT_COLUMNS:
+        if list(data.columns) != cls.COLUMNS:
             raise ValueError("Input dataframe columns don't match with the ScatterTable spec.")
         instance = object.__new__(ScatterTable)
         instance._lazy_add_rows = []
@@ -376,16 +376,16 @@ class ScatterTable:
             Tuple of values for the grouped columns and the corresponding subset of the scatter table.
         """
         try:
-            sort_by = itemgetter(*[self.DEFAULT_COLUMNS.index(c) for c in group_by])
+            sort_by = itemgetter(*[self.COLUMNS.index(c) for c in group_by])
         except ValueError as ex:
             raise ValueError(
-                f"Specified columns don't exist: {group_by} is not a subset of {self.DEFAULT_COLUMNS}."
+                f"Specified columns don't exist: {group_by} is not a subset of {self.COLUMNS}."
             ) from ex
 
         # Use python native groupby method on dataframe ndarray when sorting by multiple columns.
         # This is more performant than pandas groupby implementation.
         for vals, sub_data in groupby(sorted(self._data.values, key=sort_by), key=sort_by):
-            tmp_df = pd.DataFrame(list(sub_data), columns=self.DEFAULT_COLUMNS)
+            tmp_df = pd.DataFrame(list(sub_data), columns=self.COLUMNS)
             yield vals, ScatterTable.from_dataframe(tmp_df)
 
     def add_row(
@@ -419,7 +419,7 @@ class ScatterTable:
     def _format_table(cls, data: pd.DataFrame) -> pd.DataFrame:
         return (
             data.replace(np.nan, pd.NA)
-            .astype(dict(zip(cls.DEFAULT_COLUMNS, cls.DEFAULT_DTYPES)))
+            .astype(dict(zip(cls.COLUMNS, cls.DTYPES)))
             .reset_index(drop=True)
         )
 
