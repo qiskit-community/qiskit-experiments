@@ -10,96 +10,227 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Table representation of analysis results."""
+"""A table-like dataset for analysis results."""
+from __future__ import annotations
 
-import logging
-import threading
 import re
+import threading
 import uuid
 import warnings
-from typing import List, Dict, Union, Optional, Any
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from qiskit_experiments.database_service.utils import ThreadSafeContainer
-
-from .table_mixin import DefaultColumnsMixIn
-
-LOG = logging.getLogger(__name__)
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
-class AnalysisResultContainer(pd.DataFrame, DefaultColumnsMixIn):
-    """Data container of the thread-safe analysis result table."""
+class AnalysisResultTable:
+    """A table-like dataset for analysis results.
 
-    @classmethod
-    def _default_columns(cls) -> List[str]:
-        return [
-            "name",
-            "experiment",
-            "components",
-            "value",
-            "quality",
-            "experiment_id",
-            "result_id",
-            "tags",
-            "backend",
-            "run_time",
-            "created_time",
-        ]
+    Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.
+    The table is automatically expanded when an extra key is included in the
+    input dictionary data. Missing columns in the input data are filled with a null value.
 
-    @property
-    def _constructor(self):
-        # https://pandas.pydata.org/pandas-docs/stable/development/extending.html
-        return AnalysisResultContainer
+    Table row index (i.e. entry ID) is created by truncating the result_id string which
+    is basically a UUID-4 string. A random unique ID is generated when the result_id
+    is missing in the input data.
 
-
-class AnalysisResultTable(ThreadSafeContainer):
-    """A thread-safe table form container of analysis results.
-
-    This table is a dataframe wrapper with the thread-safe mechanism with predefined columns.
-    This object is attached to the :class:`.ExperimentData` container to store
-    analysis results. Each table row contains series of metadata in addition to the
-    result value itself.
-
-    User can rely on the dataframe filtering mechanism to analyze large scale experiment
-    results, e.g. massive parallel experiment and batch experiment outcomes, efficiently.
-    See `pandas dataframe documentation <https://pandas.pydata.org/docs/index.html>`_
-    for more details.
+    Any operation on the table value via the instance methods guarantees thread safety.
     """
 
     VALID_ID_REGEX = re.compile(r"\A(?P<short_id>\w{8})-\w{4}-\w{4}-\w{4}-\w{12}\Z")
 
-    def _init_container(self, init_values: Any):
-        if init_values is None:
-            return AnalysisResultContainer()
-        return init_values
+    DEFAULT_COLUMNS = [
+        "name",
+        "experiment",
+        "components",
+        "value",
+        "quality",
+        "experiment_id",
+        "result_id",
+        "tags",
+        "backend",
+        "run_time",
+        "created_time",
+    ]
 
-    def result_ids(self) -> List[str]:
-        """Return all result IDs in this table."""
-        with self._lock:
-            return self._container["result_id"].to_list()
+    def __init__(self):
+        """Create new dataset."""
+        self._data = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
+        self._lock = threading.RLock()
 
-    def filter_columns(self, columns: Union[str, List[str]]) -> List[str]:
-        """Filter columns names available in this table.
+    @classmethod
+    def from_dataframe(cls, data: pd.DataFrame) -> "AnalysisResultTable":
+        """Create new dataset with existing dataframe.
 
         Args:
-            columns: Specifying a set of columns to return. You can pass a list of each
-                column name to return, otherwise builtin column groups are available:
+            data: Bare dataframe object.
 
-                * ``all``: Return all columns, including metadata to communicate
-                  with experiment service, such as entry IDs.
-                * ``default``: Return columns including analysis result with supplementary
-                  information about experiment.
-                * ``minimal``: Return only analysis subroutine returns.
+        Returns:
+            A new AnalysisResults instance.
+        """
+        instance = AnalysisResultTable()
+        instance._data = pd.concat([instance._data, data])
+        return instance
 
+    @property
+    def dataframe(self) -> pd.DataFrame:
+        """Dataframe object of analysis results."""
+        with self._lock:
+            return self._data.copy(deep=False)
 
-        Raises:
-            ValueError: When column is given in string which doesn't match with any builtin group.
+    @property
+    def result_ids(self) -> list[str]:
+        """Result IDs in current dataset."""
+        with self._lock:
+            return list(self._data.result_id)
+
+    @property
+    def columns(self) -> list[str]:
+        """All columns in current dataset."""
+        with self._lock:
+            return list(self._data.columns)
+
+    def add_data(
+        self,
+        *,
+        result_id: str | None = None,
+        **data,
+    ) -> str:
+        """Add new data to this dataset.
+
+        Args:
+            result_id: A unique UUID-4 string for this data entry.
+                The full string is used to identify the data in the experiment service database,
+                and a short ID is created by truncating this string as a dataframe index.
+            data: Arbitrary key-value pairs representing a single data entry.
+                Missing values for default columns are filled with ``None``.
+
+        Returns:
+            Assigned analysis result ID.
+        """
+        result_id = result_id or self._create_unique_hash()
+
+        if matched := re.match(self.VALID_ID_REGEX, result_id):
+            # Short unique index is generated from result id.
+            # Showing full result id unnecessary occupies horizontal space of the html table.
+            # This mechanism is inspired by the github commit hash.
+            index = matched.group("short_id")
+        else:
+            warnings.warn(
+                f"Result ID of {result_id} is not a valid UUID-4 string. ",
+                UserWarning,
+            )
+            index = result_id[:8]
+
+        with self._lock:
+            if index in self._data.index:
+                raise ValueError(
+                    f"Table entry index {index} already exists. "
+                    "Please use another ID to avoid index collision."
+                )
+
+            # Add missing columns to the table
+            if missing := data.keys() - set(self._data.columns):
+                for k in data:
+                    # Order sensitive
+                    if k in missing:
+                        loc = len(self._data.columns)
+                        self._data.insert(loc, k, value=None)
+
+            # A hack to avoid unwanted dtype update. Appending new row with .loc indexer
+            # performs enlargement and implicitly changes dtype. This often induces a confusion of
+            # NaN (numeric container) and None (object container) for missing values.
+            # Filling a row with None values before assigning actual values can keep column dtype,
+            # but this behavior might change in future pandas version.
+            # https://github.com/pandas-dev/pandas/issues/6485
+            # Also see test.framework.test_data_table.TestBaseTable.test_type_*
+            self._data.loc[index, :] = [None] * len(self._data.columns)
+            template = dict.fromkeys(self.columns, None)
+            template["result_id"] = result_id
+            template.update(data)
+            self._data.loc[index, :] = pd.array(list(template.values()), dtype=object)
+
+        return index
+
+    def get_data(
+        self,
+        key: str | int | slice | None = None,
+        columns: str | list[str] = "default",
+    ) -> pd.DataFrame:
+        """Get matched entries from this dataset.
+
+        Args:
+            key: Identifier of the entry of interest.
+            columns: List of names or a policy (default, minimal, all)
+                of data columns included in the returned data frame.
+
+        Returns:
+            Matched entries in a single data frame or series.
+        """
+        if key is None:
+            with self._lock:
+                out = self._data.copy()
+        else:
+            uids = self._resolve_key(key)
+            with self._lock:
+                out = self._data.filter(items=uids, axis=0)
+        if columns != "all":
+            valid_columns = self._resolve_columns(columns)
+            out = out[valid_columns]
+        return out
+
+    def del_data(
+        self,
+        key: str | int,
+    ) -> list[str]:
+        """Delete matched entries from this dataset.
+
+        Args:
+            key: Identifier of the entry of interest.
+
+        Returns:
+            Deleted analysis result IDs.
+        """
+        uids = self._resolve_key(key)
+        with self._lock:
+            self._data.drop(uids, inplace=True)
+
+        return uids
+
+    def clear(self):
+        """Clear all table entries."""
+        with self._lock:
+            self._data = pd.DataFrame(columns=self.DEFAULT_COLUMNS)
+
+    def copy(self):
+        """Create new thread-safe instance with the same data.
+
+        .. note::
+            This returns a new object with shallow copied data frame.
         """
         with self._lock:
-            if columns == "all":
-                return self._container.columns
+            # Hold the lock so that no data can be added
+            new_instance = self.__class__()
+            new_instance._data = self._data.copy(deep=False)
+        return new_instance
+
+    def _create_unique_hash(self) -> str:
+        with self._lock:
+            n = 0
+            while n < 1000:
+                tmp_id = str(uuid.uuid4())
+                if tmp_id[:8] not in self._data.index:
+                    return tmp_id
+        raise RuntimeError(
+            "Unique result_id string cannot be prepared for this table within 1000 trials. "
+            "Reduce number of entries, or manually provide a unique result_id."
+        )
+
+    def _resolve_columns(self, columns: str | list[str]):
+        with self._lock:
+            extra_columns = [c for c in self._data.columns if c not in self.DEFAULT_COLUMNS]
             if columns == "default":
                 return [
                     "name",
@@ -109,22 +240,22 @@ class AnalysisResultTable(ThreadSafeContainer):
                     "quality",
                     "backend",
                     "run_time",
-                ] + self._container.extra_columns()
+                ] + extra_columns
             if columns == "minimal":
                 return [
                     "name",
                     "components",
                     "value",
                     "quality",
-                ] + self._container.extra_columns()
+                ] + extra_columns
             if not isinstance(columns, str):
                 out = []
                 for column in columns:
-                    if column in self._container.columns:
+                    if column in self._data.columns:
                         out.append(column)
                     else:
                         warnings.warn(
-                            f"Specified column name {column} does not exist in this table.",
+                            f"Specified column {column} does not exist in this table.",
                             UserWarning,
                         )
                 return out
@@ -132,134 +263,59 @@ class AnalysisResultTable(ThreadSafeContainer):
             f"Column group {columns} is not valid name. Use either 'all', 'default', 'minimal'."
         )
 
-    def get_entry(
-        self,
-        index: str,
-    ) -> pd.Series:
-        """Get entry from the dataframe.
-
-        Args:
-            index: Name of entry to acquire.
-
-        Returns:
-            Pandas Series of acquired entry. This doesn't mutate the table.
-
-        Raises:
-            ValueError: When index is not in this table.
-        """
+    def _resolve_key(self, key: int | slice | str) -> list[str]:
         with self._lock:
-            if index not in self._container.index:
-                raise ValueError(f"Table index {index} doesn't exist in this table.")
+            if isinstance(key, int):
+                if key >= len(self):
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
+                return [self._data.index[key]]
+            if isinstance(key, slice):
+                keys = list(self._data.index)[key]
+                if len(keys) == 0:
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
+                return keys
+            if isinstance(key, str):
+                if key in self._data.index:
+                    return [key]
+                # This key is name of entry
+                loc = self._data["name"] == key
+                if not any(loc):
+                    raise ExperimentEntryNotFound(f"Analysis result {key} not found.")
+                return list(self._data.index[loc])
 
-            return self._container.loc[index]
+        raise TypeError(f"Invalid key type {type(key)}. The key must be either int, slice, or str.")
 
-    # pylint: disable=arguments-renamed
-    def add_entry(
-        self,
-        result_id: Optional[str] = None,
-        **kwargs,
-    ) -> pd.Series:
-        """Add new entry to the table.
+    def __len__(self):
+        return len(self._data)
 
-        Args:
-            result_id: Result ID. Automatically generated when not provided.
-                This must be valid hexadecimal UUID string.
-            kwargs: Description of new entry to register.
+    def __contains__(self, item):
+        return item in self._data.index
 
-        Returns:
-            Pandas Series of added entry. This doesn't mutate the table.
-
-        Raises:
-            ValueError: When the truncated result id causes a collision in the table.
-        """
-        if not result_id:
-            result_id = self._unique_table_index()
-
-        matched = self.VALID_ID_REGEX.match(result_id)
-        if matched is None:
-            warnings.warn(
-                f"The result ID {result_id} is not a valid result ID string. "
-                "This entry might fail in saving with the experiment service.",
-                UserWarning,
-            )
-            short_id = result_id[:8]
-        else:
-            # Short unique index is generated from result id.
-            # Showing full result id unnecessary occupies horizontal space of the html table.
-            # This mechanism is similar with the github commit hash.
-            short_id = matched.group("short_id")
-
-        with self._lock:
-            if short_id in self._container.index:
-                raise ValueError(
-                    f"The short ID of the result_id '{short_id}' already exists in the "
-                    "experiment data. Please use another ID to avoid index collision."
-                )
-
-            return self._container.add_entry(
-                index=short_id,
-                result_id=result_id,
-                **kwargs,
-            )
-
-    def drop_entry(
-        self,
-        index: str,
-    ):
-        """Drop specified labels from rows.
-
-        This directly calls :meth:`.drop` of the DataFrame container object.
-
-        Args:
-            index: Name of entry to drop.
-
-        Raises:
-            ValueError: When index is not in this table.
-        """
-        with self._lock:
-            if index not in self._container.index:
-                raise ValueError(f"Table index {index} doesn't exist in this table.")
-            self._container.drop(index, inplace=True)
-
-    def clear(self):
-        """Remove all elements from this container."""
-        with self._lock:
-            self._container = AnalysisResultContainer()
-
-    def _unique_table_index(self):
-        """Generate unique UUID which is unique in the table with first 8 characters."""
-        with self._lock:
-            n = 0
-            while n < 1000:
-                tmp_id = str(uuid.uuid4())
-                if tmp_id[:8] not in self._container.index:
-                    return tmp_id
-        raise RuntimeError(
-            "Unique result_id string cannot be prepared for this table within 1000 trials. "
-            "Reduce number of entries, or manually provide a unique result_id."
-        )
-
-    def _repr_html_(self) -> Union[str, None]:
-        """Return HTML representation of this dataframe."""
-        with self._lock:
-            return self._container._repr_html_()
-
-    def __json_encode__(self) -> Dict[str, Any]:
+    def __json_encode__(self) -> dict[str, Any]:
         with self._lock:
             return {
                 "class": "AnalysisResultTable",
-                "data": self._container.to_dict(orient="index"),
+                "data": self._data.to_dict(orient="index"),
             }
 
     @classmethod
-    def __json_decode__(cls, value: Dict[str, Any]) -> "AnalysisResultTable":
+    def __json_decode__(cls, value: dict[str, Any]) -> "AnalysisResultTable":
         if not value.get("class", None) == "AnalysisResultTable":
             raise ValueError("JSON decoded value for AnalysisResultTable is not valid class type.")
 
         instance = object.__new__(cls)
         instance._lock = threading.RLock()
-        instance._container = AnalysisResultContainer.from_dict(
+        instance._data = pd.DataFrame.from_dict(
             data=value.get("data", {}),
             orient="index",
         ).replace({np.nan: None})
         return instance
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["_lock"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._lock = threading.RLock()
