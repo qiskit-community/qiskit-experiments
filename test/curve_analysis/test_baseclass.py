@@ -232,7 +232,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertExperimentDone(result)
 
         curve_data = result.artifacts("curve_data").data
-        np.testing.assert_array_equal(curve_data.name, "test")
+        np.testing.assert_array_equal(curve_data.series_name, "test")
         np.testing.assert_array_equal(curve_data.analysis, "CurveAnalysis")
         np.testing.assert_array_equal(len(curve_data.filter(category="raw")), 100)
         np.testing.assert_array_equal(len(curve_data.filter(category="formatted")), 100)
@@ -512,15 +512,15 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         data1 = result.artifacts("curve_data")[0].data
         data2 = result.artifacts("curve_data")[1].data
 
-        identical_cols = ["xval", "name", "data_uid", "category", "shots", "analysis"]
+        identical_cols = ["xval", "series_name", "series_id", "category", "shots", "analysis"]
         self.assertTrue(data1.dataframe[identical_cols].equals(data2.dataframe[identical_cols]))
         self.assertEqual(len(data1), 300)
 
         np.testing.assert_array_equal(data1.category[:100], "raw")
         np.testing.assert_array_equal(data1.category[100:200], "formatted")
         np.testing.assert_array_equal(data1.category[-100:], "fitted")
-        np.testing.assert_array_equal(data1.name, "test")
-        np.testing.assert_array_equal(data1.data_uid, 0)
+        np.testing.assert_array_equal(data1.series_name, "test")
+        np.testing.assert_array_equal(data1.series_id, 0)
         np.testing.assert_array_equal(data1.analysis, "CurveAnalysis")
         np.testing.assert_array_equal(data1.x[:100], np.linspace(0, 1, 100))
         np.testing.assert_array_equal(data1.x[100:200], np.linspace(0, 1, 100))
@@ -662,7 +662,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         (None, "always", 1, 1, "fitted"),
     )
     @unpack
-    def test_multi_composite_curve_analysis(self, plot, gen_figures, n_figures, kind, category):
+    def test_multi_composite_curve_analysis(self, plot, gen_figures, n_figures, series, category):
         """Integration test for composite curve analysis.
 
         This analysis consists of two curve fittings for cos and sin series.
@@ -755,12 +755,12 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(fit_B.params["freq"], freq2, delta=0.1)
         self.assertAlmostEqual(fit_B.params["b"], b2, delta=0.1)
 
-        table_subset = expdata.artifacts("curve_data").data.filter(data_uid=kind, category=category)
+        table_subset = expdata.artifacts("curve_data").data.filter(series=series, category=category)
         self.assertEqual(len(table_subset), 200)
-        if isinstance(kind, int):
-            np.testing.assert_array_equal(table_subset.data_uid, kind)
+        if isinstance(series, int):
+            np.testing.assert_array_equal(table_subset.series_id, series)
         else:
-            np.testing.assert_array_equal(table_subset.name, kind)
+            np.testing.assert_array_equal(table_subset.series_name, series)
         if category == "raw":
             np.testing.assert_array_equal(table_subset.shots, 1024)
         else:
