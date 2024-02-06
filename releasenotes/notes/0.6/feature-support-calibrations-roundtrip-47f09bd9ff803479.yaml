@@ -1,11 +1,11 @@
 ---
 features:
   - |
-   A  JSON data format has been added for saving a :class:`.Calibrations` instance.
+    A JSON data format has been added for saving a :class:`.Calibrations` instance.
     This leverages a custom JSON encoder and decoder to serialize 
     the entire calibration data including user provided schedule templates.
     Output JSON data is formatted into the standard data model which is intentionally
-    agnostic to the calibration data structure, which this allows community
+    agnostic to the calibration data structure, and this allows community
     developer to reuse the calibration data in their platform.
     See :mod:`qiskit_experiments.calibration_management.save_utils` for data models.
 deprecations:

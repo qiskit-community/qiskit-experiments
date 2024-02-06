@@ -399,9 +399,9 @@ Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
       pass
 ```
 
-Note that these pre-deprecation and deprecation warnings will cause the CI to fail, but features up
-for deprecation should continue to be tested until their removal. All such expected warnings
-should be caught in tests:
+Note that all warnings emitted by Qiskit Experiments, including pre-deprecation and deprecation
+warnings, will cause the CI to fail, but features up for deprecation should continue to be tested
+until their removal. All such expected warnings should be caught in tests:
 
 ```python
   with self.assertWarns(DeprecationWarning):

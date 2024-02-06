@@ -2,7 +2,7 @@
 features:
   - |
     Experiments run via the ``qiskit-ibm-runtime`` provider can now be saved
-    to the cloud service.
+    to and loaded from the cloud service.
 upgrade:
   - |
     With the impending deprecation of the ``qiskit-ibm-provider`` package, support for
