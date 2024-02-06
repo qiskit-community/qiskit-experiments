@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    JSON data format is now supported for saving a :class:`.Calibrations` instance.
+   A  JSON data format has been added for saving a :class:`.Calibrations` instance.
     This leverages a custom JSON encoder and decoder to serialize 
     the entire calibration data including user provided schedule templates.
     Output JSON data is formatted into the standard data model which is intentionally

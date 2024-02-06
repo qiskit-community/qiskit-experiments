@@ -4,6 +4,6 @@ prelude: >
     Notable changes include refactoring the analysis results to a Pandas dataframe, and refactoring
     curve fit data into a new :class:`.ScatterTable` container based on dataframes that is stored
     by default as an artifact in :class:`.ExperimentData` along with the summary of fit results.
-    New experiments include :class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`,
-    :class:`.StarkRamseyXYAmpScan`. The supported provider for running jobs on IBM backends has 
-    switched from ``qiskit-ibm-provider`` to ``qiskit-ibm-experiment``.
+    New experiments include :class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`, and
+    :class:`.StarkRamseyXYAmpScan`. The supported provider for running jobs on IBM backends is 
+    now ``qiskit-ibm-runtime``. Using ``qiskit-ibm-provider`` is still supported but its use is deprecated.
