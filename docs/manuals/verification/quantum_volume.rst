@@ -35,7 +35,6 @@ z_value = 2), and at least 100 trials have been ran.
     from qiskit_experiments.library import QuantumVolume
     
     # For simulation
-    from qiskit import Aer
     from qiskit_aer import AerSimulator
     from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
     

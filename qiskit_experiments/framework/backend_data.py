@@ -19,6 +19,7 @@ from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.providers import BackendV1, BackendV2
 from qiskit.providers.fake_provider import FakeBackend
 from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
+from qiskit.utils.deprecation import deprecate_func
 
 try:
     # Removed in Qiskit 1.0. Different from the other FakeBackendV2's
@@ -274,6 +275,16 @@ class BackendData:
         return None
 
     @property
+    @deprecate_func(
+        is_property=True,
+        since="0.6",
+        additional_msg=(
+            "is_simulator is deprecated because BackendV2 does not provide a "
+            "standard way for checking this property. Calling code must "
+            "determine if a backend uses a simulator from context."
+        ),
+        package_name="qiskit-experiments",
+    )  # Note: remove all FakeBackend imports when removing this code
     def is_simulator(self):
         """Returns True given an indication the backend is a simulator
 
