@@ -56,9 +56,8 @@ experiment <https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e9
 
 .. jupyter-input::
 
-    from qiskit_experiments.framework.experiment_data import ExperimentData
-    service = ExperimentData.get_service_from_backend(backend)
-    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
+    from qiskit_experiments.framework import ExperimentData
+    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", provider=service)
 
 Now we can display the figure from the loaded experiment data:
 
