@@ -318,6 +318,7 @@ without an overhead of complex data management, as well as end-users with
 retrieving and reusing the intermediate data for their custom fitting workflow
 outside our curve fitting framework.
 Note that a :class:`ScatterTable` instance may be saved in the :class:`.ExperimentData` as an artifact.
+See the :doc:`Artifacts how-to </howtos/artifacts>` for more information.
 
 .. _curve_analysis_workflow:
 

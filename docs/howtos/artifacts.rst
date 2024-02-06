@@ -127,5 +127,5 @@ these artifacts.
 See Also
 --------
 
-* :doc:`Curve Analysis </tutorials/curve_analysis>` tutorial
+* :ref:`Curve Analysis: Data management with scatter table <data_management_with_scatter_table>` tutorial
 * :class:`.ScatterTable` API documentation
