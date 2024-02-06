@@ -398,12 +398,12 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         yerr_arr_fit = np.zeros_like(xval_arr_fit)
                     for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
                         table.add_row(
+                            xval=xval,
+                            yval=yval,
+                            yerr=yerr,
                             series_name=model_names[series_id],
                             series_id=series_id,
                             category="fitted",
-                            x=xval,
-                            y=yval,
-                            y_err=yerr,
                             analysis=analysis.name,
                         )
                 analysis_results.extend(

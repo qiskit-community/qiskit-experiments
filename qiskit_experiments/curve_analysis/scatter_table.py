@@ -351,12 +351,12 @@ class ScatterTable:
 
     def add_row(
         self,
+        xval: float | pd.NA = pd.NA,
+        yval: float | pd.NA = pd.NA,
+        yerr: float | pd.NA = pd.NA,
         series_name: str | pd.NA = pd.NA,
         series_id: int | pd.NA = pd.NA,
         category: str | pd.NA = pd.NA,
-        x: float | pd.NA = pd.NA,
-        y: float | pd.NA = pd.NA,
-        y_err: float | pd.NA = pd.NA,
         shots: float | pd.NA = pd.NA,
         analysis: str | pd.NA = pd.NA,
     ):
@@ -365,16 +365,18 @@ class ScatterTable:
         Data must be the same length.
 
         Args:
-            x: X value.
-            y: Y value.
-            y_err: Standard deviation of y value.
-            shots: Shot number used to acquire this data point.
+            xval: X value.
+            yval: Y value.
+            yerr: Standard deviation of y value.
             series_name: Name of this data series if available.
             series_id: Index of this data series if available.
             category: Data category if available.
+            shots: Shot number used to acquire this data point.
             analysis: Analysis name if available.
         """
-        self._lazy_add_rows.append([x, y, y_err, series_name, series_id, category, shots, analysis])
+        self._lazy_add_rows.append(
+            [xval, yval, yerr, series_name, series_id, category, shots, analysis]
+        )
 
     @classmethod
     def _format_table(cls, data: pd.DataFrame) -> pd.DataFrame:
