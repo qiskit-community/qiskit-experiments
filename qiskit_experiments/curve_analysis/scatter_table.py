@@ -77,20 +77,6 @@ class ScatterTable:
         self._lazy_add_rows = []
         self._dump = pd.DataFrame(columns=self.COLUMNS)
 
-    @property
-    def _data(self) -> pd.DataFrame:
-        if self._lazy_add_rows:
-            # Add data when table element is called.
-            # Adding rows in loop is extremely slow in pandas.
-            tmp_df = pd.DataFrame(self._lazy_add_rows, columns=self.COLUMNS)
-            tmp_df = self._format_table(tmp_df)
-            if len(self._dump) == 0:
-                self._dump = tmp_df
-            else:
-                self._dump = pd.concat([self._dump, tmp_df], ignore_index=True)
-            self._lazy_add_rows.clear()
-        return self._dump
-
     @classmethod
     def from_dataframe(cls, data: pd.DataFrame) -> "ScatterTable":
         """Create new dataset with existing dataframe.
@@ -111,17 +97,27 @@ class ScatterTable:
     @property
     def dataframe(self):
         """Dataframe object of data points."""
-        return self._data
+        if self._lazy_add_rows:
+            # Add data when table element is called.
+            # Adding rows in loop is extremely slow in pandas.
+            tmp_df = pd.DataFrame(self._lazy_add_rows, columns=self.COLUMNS)
+            tmp_df = self._format_table(tmp_df)
+            if len(self._dump) == 0:
+                self._dump = tmp_df
+            else:
+                self._dump = pd.concat([self._dump, tmp_df], ignore_index=True)
+            self._lazy_add_rows.clear()
+        return self._dump
 
     @property
     def x(self) -> np.ndarray:
         """X values."""
         # For backward compatibility with CurveData.x
-        return self._data.xval.to_numpy(dtype=float, na_value=np.nan)
+        return self.dataframe.xval.to_numpy(dtype=float, na_value=np.nan)
 
     @x.setter
     def x(self, new_values):
-        self._data.loc[:, "xval"] = new_values
+        self.dataframe.loc[:, "xval"] = new_values
 
     def xvals(
         self,
@@ -146,18 +142,18 @@ class ScatterTable:
         """
         sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
-            self._warn_composite_data(sub_table)
+            sub_table._warn_composite_data()
         return sub_table.x
 
     @property
     def y(self) -> np.ndarray:
         """Y values."""
         # For backward compatibility with CurveData.y
-        return self._data.yval.to_numpy(dtype=float, na_value=np.nan)
+        return self.dataframe.yval.to_numpy(dtype=float, na_value=np.nan)
 
     @y.setter
     def y(self, new_values: np.ndarray):
-        self._data.loc[:, "yval"] = new_values
+        self.dataframe.loc[:, "yval"] = new_values
 
     def yvals(
         self,
@@ -182,18 +178,18 @@ class ScatterTable:
         """
         sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
-            self._warn_composite_data(sub_table)
+            sub_table._warn_composite_data()
         return sub_table.y
 
     @property
     def y_err(self) -> np.ndarray:
         """Standard deviation of Y values."""
         # For backward compatibility with CurveData.y_err
-        return self._data.yerr.to_numpy(dtype=float, na_value=np.nan)
+        return self.dataframe.yerr.to_numpy(dtype=float, na_value=np.nan)
 
     @y_err.setter
     def y_err(self, new_values: np.ndarray):
-        self._data.loc[:, "yerr"] = new_values
+        self.dataframe.loc[:, "yerr"] = new_values
 
     def yerrs(
         self,
@@ -218,53 +214,53 @@ class ScatterTable:
         """
         sub_table = self.filter(data_uid, category, analysis)
         if check_unique:
-            self._warn_composite_data(sub_table)
+            sub_table._warn_composite_data()
         return sub_table.y_err
 
     @property
     def name(self) -> np.ndarray:
         """Corresponding data name for each data point."""
-        return self._data.name.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.name.to_numpy(dtype=object, na_value=None)
 
     @name.setter
     def name(self, new_values: np.ndarray):
-        self._data.loc[:, "name"] = new_values
+        self.dataframe.loc[:, "name"] = new_values
 
     @property
     def data_uid(self) -> np.ndarray:
         """Corresponding data UID for each data point."""
-        return self._data.data_uid.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.data_uid.to_numpy(dtype=object, na_value=None)
 
     @data_uid.setter
     def data_uid(self, new_values: np.ndarray):
-        self._data.loc[:, "data_uid"] = new_values
+        self.dataframe.loc[:, "data_uid"] = new_values
 
     @property
     def category(self) -> np.ndarray:
         """Array of categories of the data points."""
-        return self._data.category.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.category.to_numpy(dtype=object, na_value=None)
 
     @category.setter
     def category(self, new_values: np.ndarray):
-        self._data.loc[:, "category"] = new_values
+        self.dataframe.loc[:, "category"] = new_values
 
     @property
     def shots(self) -> np.ndarray:
         """Shot number used to acquire each data point."""
-        return self._data.shots.to_numpy(dtype=object, na_value=np.nan)
+        return self.dataframe.shots.to_numpy(dtype=object, na_value=np.nan)
 
     @shots.setter
     def shots(self, new_values: np.ndarray):
-        self._data.loc[:, "shots"] = new_values
+        self.dataframe.loc[:, "shots"] = new_values
 
     @property
     def analysis(self) -> np.ndarray:
         """Corresponding analysis name for each data point."""
-        return self._data.analysis.to_numpy(dtype=object, na_value=None)
+        return self.dataframe.analysis.to_numpy(dtype=object, na_value=None)
 
     @analysis.setter
     def analysis(self, new_values: np.ndarray):
-        self._data.loc[:, "analysis"] = new_values
+        self.dataframe.loc[:, "analysis"] = new_values
 
     def filter(
         self,
@@ -282,23 +278,23 @@ class ScatterTable:
         Returns:
             New ScatterTable object with filtered data.
         """
-        filt_data = self._data
+        filt_data = self.dataframe
 
         if data_uid is not None:
             if isinstance(data_uid, int):
-                index = self._data.data_uid == data_uid
+                index = filt_data.data_uid == data_uid
             elif isinstance(data_uid, str):
-                index = self._data.name == data_uid
+                index = filt_data.name == data_uid
             else:
                 raise ValueError(
                     f"Invalid data_uid {type(data_uid)}. This must be integer or string."
                 )
             filt_data = filt_data.loc[index, :]
         if category is not None:
-            index = self._data.category == category
+            index = filt_data.category == category
             filt_data = filt_data.loc[index, :]
         if analysis is not None:
-            index = self._data.analysis == analysis
+            index = filt_data.analysis == analysis
             filt_data = filt_data.loc[index, :]
         return ScatterTable.from_dataframe(filt_data)
 
@@ -308,10 +304,10 @@ class ScatterTable:
         Yields:
             Tuple of data UID and subset of ScatterTable.
         """
-        data_ids = self._data.data_uid.dropna().sort_values().unique()
+        data_ids = self.dataframe.data_uid.dropna().sort_values().unique()
+        id_cols = self.dataframe.data_uid
         for did in data_ids:
-            index = self._data.data_uid == did
-            yield did, ScatterTable.from_dataframe(self._data.loc[index, :])
+            yield did, ScatterTable.from_dataframe(self.dataframe.loc[id_cols == did, :])
 
     def iter_groups(
         self,
@@ -334,7 +330,7 @@ class ScatterTable:
 
         # Use python native groupby method on dataframe ndarray when sorting by multiple columns.
         # This is more performant than pandas groupby implementation.
-        for vals, sub_data in groupby(sorted(self._data.values, key=sort_by), key=sort_by):
+        for vals, sub_data in groupby(sorted(self.dataframe.values, key=sort_by), key=sort_by):
             tmp_df = pd.DataFrame(list(sub_data), columns=self.COLUMNS)
             yield vals, ScatterTable.from_dataframe(tmp_df)
 
@@ -373,23 +369,22 @@ class ScatterTable:
             .reset_index(drop=True)
         )
 
-    @staticmethod
-    def _warn_composite_data(table: ScatterTable):
-        if len(table._data.name.unique()) > 1:
+    def _warn_composite_data(self):
+        if len(self.dataframe.name.unique()) > 1:
             warnings.warn(
-                "Returned data contains multiple data UIDs. "
+                "Table data contains multiple data UIDs. "
                 "You may want to filter the data by a specific data_uid integer or name string.",
                 UserWarning,
             )
-        if len(table._data.category.unique()) > 1:
+        if len(self.dataframe.category.unique()) > 1:
             warnings.warn(
-                "Returned data contains multiple categories. "
+                "Table data contains multiple categories. "
                 "You may want to filter the data by a specific category name.",
                 UserWarning,
             )
-        if len(table._data.analysis.unique()) > 1:
+        if len(self.dataframe.analysis.unique()) > 1:
             warnings.warn(
-                "Returned data contains multiple datasets from different component analyses. "
+                "Table data contains multiple datasets from different component analyses. "
                 "You may want to filter the data by a specific analysis name.",
                 UserWarning,
             )
@@ -417,7 +412,7 @@ class ScatterTable:
     def labels(self) -> list[str]:
         """List of model names."""
         # Order sensitive
-        name_id_tups = self._data.groupby(["name", "data_uid"]).groups.keys()
+        name_id_tups = self.dataframe.groupby(["name", "data_uid"]).groups.keys()
         return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
 
     @deprecate_func(
@@ -439,7 +434,7 @@ class ScatterTable:
 
     def __len__(self):
         """Return the number of data points stored in the table."""
-        return len(self._data)
+        return len(self.dataframe)
 
     def __eq__(self, other):
         return self.dataframe.equals(other.dataframe)
@@ -447,7 +442,7 @@ class ScatterTable:
     def __json_encode__(self) -> dict[str, Any]:
         return {
             "class": "ScatterTable",
-            "data": self._data.to_dict(orient="index"),
+            "data": self.dataframe.to_dict(orient="index"),
         }
 
     @classmethod
