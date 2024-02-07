@@ -5,8 +5,7 @@ features:
     This leverages a custom JSON encoder and decoder to serialize 
     the entire calibration data including user provided schedule templates.
     Output JSON data is formatted into the standard data model which is intentionally
-    agnostic to the calibration data structure, and this allows community
-    developer to reuse the calibration data in their platform.
+    agnostic to the calibration data structure.
 deprecations:
   - |
     Saving :class:`.Calibrations` instance into CSV file was deprecated.
