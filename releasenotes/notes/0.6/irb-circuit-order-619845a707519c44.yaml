@@ -1,5 +1,5 @@
 ---
-features:
+features_expupdate:
   - |
     A new experiment option ``circuit_order`` was added to :class:`~.InterleavedRB`.
     It allows to change the order of the reference and the interleaved circuits

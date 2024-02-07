@@ -1,5 +1,5 @@
 ---
-features:
+features_visualization:
   - |
     The :class:`.MplDrawer` visualization backend has been upgraded so that
     it can take list of options for ``xlim``, ``ylim``, ``xval_unit``, ``yval_unit``,

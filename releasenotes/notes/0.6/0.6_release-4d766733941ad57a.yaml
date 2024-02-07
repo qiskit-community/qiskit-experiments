@@ -7,7 +7,9 @@ prelude: >
     a new :class:`~pandas:pandas.DataFrame`-based :class:`.ScatterTable` container that is
     stored by default as an artifact in :class:`.ExperimentData` along with the summary of fit
     results. New experiments include :class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`, and
-    :class:`.StarkRamseyXYAmpScan`, and :class:`.StandardRB` and :class:`.InterleavedRB` were
-    significantly updated. The supported provider for running jobs on IBM backends is now
+    :class:`.StarkRamseyXYAmpScan`. :class:`.StandardRB` and :class:`.InterleavedRB` were
+    significantly improved. The supported provider for running jobs on IBM backends is now
     :mod:`qiskit_ibm_runtime`. Using :mod:`qiskit_ibm_provider` is still supported but its use is
     deprecated.
+features:
+    New features are listed below in subsections by functional area.

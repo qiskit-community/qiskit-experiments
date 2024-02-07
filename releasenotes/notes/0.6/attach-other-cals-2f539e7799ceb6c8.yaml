@@ -1,5 +1,5 @@
 ---
-features:
+features_calibration:
   - |
     A new method :meth:`~.Calibrations.has_template`
     has been added to :class:`.Calibrations`

@@ -1,5 +1,5 @@
 ---
-features:
+features_expdata:
   - |
     :class:`.ExperimentData` has been upgraded to store analysis result data in 
     a table format with the new inline container :class:`.AnalysisResultTable`. 

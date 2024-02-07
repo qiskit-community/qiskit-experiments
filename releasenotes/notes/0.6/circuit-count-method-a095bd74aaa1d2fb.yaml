@@ -1,5 +1,5 @@
 ---
-features:
+features_expclass:
   - |
     A new method :meth:`.BaseExperiment.job_info` has been added that will
     output the number of jobs the experiment is expected to be split into

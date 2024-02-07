@@ -1,5 +1,5 @@
 ---
-features:
+features_expupdate:
   - |
     Added a new experiment option ``clifford_synthesis_method`` to RB experiments,
     e.g. :class:`~.StandardRB` and :class:`~.InterleavedRB` so that users can

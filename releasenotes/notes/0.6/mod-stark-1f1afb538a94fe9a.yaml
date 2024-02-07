@@ -1,5 +1,5 @@
 ---
-features:
+features_expnew:
   - |
     New experiment :class:`.StarkRamseyXY` has been added.
     This is a variant of the :class:`.RamseyXY` experiment that characterizes 

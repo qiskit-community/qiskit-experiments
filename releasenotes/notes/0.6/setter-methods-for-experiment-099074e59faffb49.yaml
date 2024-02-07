@@ -1,5 +1,5 @@
 ---
-features:
+features_expclass:
   - |
     Added ``experiment_type`` as optional ``__init__`` kwarg in :class:`.BatchExperiment`
     and :class:`.ParallelExperiment`.

@@ -1,5 +1,5 @@
 ---
-features:
+features_curvefit:
   - |
     :class:`.ScatterTable` has been introduced as a drop-in replacement of :class:`.CurveData`.
     

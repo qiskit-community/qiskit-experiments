@@ -1,5 +1,5 @@
 ---
-features:
+features_visualization:
   - |
     An :meth:`~.BaseDrawer.hline` method was added to :class:`.BaseDrawer` for
     generating horizontal lines. See `#1348

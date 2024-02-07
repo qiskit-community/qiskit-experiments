@@ -1,5 +1,5 @@
 ---
-features:
+features_expdata:
   - |
     Experiments run via the :mod:`qiskit_ibm_runtime` provider can now be saved
     to and loaded from the cloud service.

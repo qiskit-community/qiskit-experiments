@@ -1,5 +1,5 @@
 ---
-features:
+features_calibration:
   - |
     A JSON data format has been added for saving a :class:`.Calibrations` instance.
     This leverages a custom JSON encoder and decoder to serialize 

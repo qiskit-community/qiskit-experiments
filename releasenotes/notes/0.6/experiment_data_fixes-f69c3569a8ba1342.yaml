@@ -1,5 +1,5 @@
 ---
-features:
+features_expdata:
   - |
     :meth:`.ExperimentData.save` now uses the multithreading capability
     of the experiment service to enable faster saving times.

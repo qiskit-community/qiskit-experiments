@@ -2,7 +2,15 @@
 encoding: utf8
 default_branch: main
 sections:
-  - [features, New Features]
+  - [features, New Features, 1]
+  - [features_expnew, New Experiments, 2]
+  - [features_expupdate, Experiment Updates, 2]
+  - [features_expclass, Experiment Class Features, 2]
+  - [features_analysis, Analysis Class Features, 2]
+  - [features_expdata, Experiment Data Features, 2]
+  - [features_curvefit, Curve Fit Features, 2]
+  - [features_calibration, Calibration Features, 2]
+  - [features_visualization, Visualization Features, 2]
   - [issues, Known Issues]
   - [upgrade, Upgrade Notes]
   - [deprecations, Deprecation Notes]
