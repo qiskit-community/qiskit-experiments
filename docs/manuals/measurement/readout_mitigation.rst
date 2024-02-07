@@ -31,7 +31,7 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
     packages to run simulations.  You can install them with ``python -m pip
     install qiskit-aer qiskit-ibm-runtime``.
 

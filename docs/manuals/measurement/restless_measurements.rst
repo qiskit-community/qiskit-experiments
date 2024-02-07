@@ -59,7 +59,7 @@ observe any meaningful outcomes with fake backends since the circuit simulator
 they use always starts with the qubits in the ground state.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_ibm_runtime` package to model a
+    This tutorial requires the :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` package to model a
     backend.  You can install it with ``python -m pip install qiskit-ibm-runtime``.
 
 .. jupyter-execute::

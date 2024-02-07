@@ -11,11 +11,11 @@ Solution
 --------
 
 .. note::
-    This guide requires :mod:`qiskit_ibm_runtime` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
-    For how to migrate from the older :mod:`qiskit_ibm_provider` to :mod:`qiskit_ibm_runtime`,
+    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
     consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
-Use the :class:`~qiskit_ibm_runtime.IBMBackend` object in :mod:`qiskit_ibm_runtime`, which supports sessions.
+Use the :class:`~qiskit_ibm_runtime.IBMBackend` object in :external+qiskit_ibm_runtime:doc:`index`, which supports sessions.
 
 In this example, we will set the ``max_circuits`` property to an artificially low value so that the experiment will be
 split into multiple jobs that run sequentially in a single session. When running real experiments with a

@@ -9,7 +9,8 @@ prelude: >
     results. New experiments include :class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`, and
     :class:`.StarkRamseyXYAmpScan`. :class:`.StandardRB` and :class:`.InterleavedRB` were
     significantly improved. The supported provider for running jobs on IBM backends is now
-    :mod:`qiskit_ibm_runtime`. Using :mod:`qiskit_ibm_provider` is still supported but its use is
-    deprecated.
+    :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`. Using 
+    :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` is still supported
+    but its use is deprecated.
 features:
     New features are listed below in subsections by functional area.

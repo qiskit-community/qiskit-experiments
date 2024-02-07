@@ -58,7 +58,7 @@ Experiments must be run on a backend. We're going to use a simulator,
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
     packages to run simulations.  You can install them with ``python -m pip
     install qiskit-aer qiskit-ibm-runtime``.
 
@@ -184,7 +184,7 @@ value and standard deviation of each value can be accessed as follows:
     print(exp_data.analysis_results("T1").value.std_dev)
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
-:external+uncertainties:doc:`user_guide`.
+:external+uncertainties:doc:`index`. :external+qiskit_ibm_runtime:doc:`index`
 
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds
