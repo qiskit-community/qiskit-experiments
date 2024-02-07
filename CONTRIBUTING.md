@@ -416,6 +416,7 @@ Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
   @deprecate_func(
       since="0.5",
       additional_msg="Use ``new_function`` instead.",
+      pending=True,
       removal_timeline="after 0.7",
       package_name="qiskit-experiments",
   )
@@ -428,12 +429,9 @@ Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
 
 Note that all warnings emitted by Qiskit Experiments, including pre-deprecation and deprecation
 warnings, will cause the CI to fail, but features up for deprecation should continue to be tested
-until their removal. All such expected warnings should be caught in tests:
-
-```python
-  with self.assertWarns(DeprecationWarning):
-      # Test something deprecated here
-```
+until their removal. For more information on how to use wrappers and test deprecated functionality,
+consult [Qiskit's
+policy](https://github.com/Qiskit/qiskit/blob/1.0.0rc1/DEPRECATION.md#issuing-deprecation-warnings).
 
 ### Development cycle
 
