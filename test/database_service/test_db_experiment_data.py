@@ -493,14 +493,15 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             [res.result_id for res in exp_data.analysis_results()],
             result_ids,
         )
-        self.assertEqual(
-            exp_data.analysis_results(1).result_id,
-            result_ids[1],
-        )
-        self.assertEqual(
-            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
-            result_ids[2:4],
-        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                exp_data.analysis_results(1).result_id,
+                result_ids[1],
+            )
+            self.assertEqual(
+                [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+                result_ids[2:4],
+            )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""

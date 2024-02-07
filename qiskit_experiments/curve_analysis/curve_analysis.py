@@ -32,7 +32,7 @@ from qiskit_experiments.framework import (
 from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
-from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX, PARAMS_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
@@ -483,6 +483,17 @@ class CurveAnalysis(BaseCurveAnalysis):
         # After the quality is determined, plot can become a boolean flag for whether
         # to generate the figure
         plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
+
+        if self.options.return_fit_parameters:
+            # Store fit status overview entry regardless of success.
+            # This is sometime useful when debugging the fitting code.
+            overview = AnalysisResultData(
+                name=PARAMS_ENTRY_PREFIX + self.name,
+                value=fit_data,
+                quality=quality,
+                extra=self.options.extra,
+            )
+            result_data.append(overview)
 
         if fit_data.success:
             # Add fit data to curve data table

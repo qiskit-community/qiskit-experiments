@@ -210,7 +210,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         exp_data = expr.run()
         self.assertExperimentDone(exp_data, timeout=1000)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("omega_ix").quality, "good")
 
         # These values are computed from other analysis results in post hook.
         # Thus at least one of these values should be round-trip tested.
@@ -265,7 +265,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         exp_data = expr.run()
         self.assertExperimentDone(exp_data, timeout=1000)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("omega_ix").quality, "good")
 
         self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=delta)
         self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=delta)

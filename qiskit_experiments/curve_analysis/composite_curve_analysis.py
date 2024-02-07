@@ -39,7 +39,7 @@ from qiskit_experiments.visualization import (
 )
 
 from qiskit_experiments.framework.containers import FigureType, ArtifactData
-from .base_curve_analysis import DATA_ENTRY_PREFIX, BaseCurveAnalysis
+from .base_curve_analysis import DATA_ENTRY_PREFIX, BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
@@ -362,6 +362,17 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 quality = analysis._evaluate_quality(fit_data)
             else:
                 quality = "bad"
+
+            if self.options.return_fit_parameters:
+                # Store fit status overview entry regardless of success.
+                # This is sometime useful when debugging the fitting code.
+                overview = AnalysisResultData(
+                    name=PARAMS_ENTRY_PREFIX + analysis.name,
+                    value=fit_data,
+                    quality=quality,
+                    extra=metadata,
+                )
+                result_data.append(overview)
 
             if fit_data.success:
                 # Add fit data to curve data table

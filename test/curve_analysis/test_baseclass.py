@@ -571,7 +571,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         for res in result.child_data():
             # only generate a figure if the quality is bad
-            if res.analysis_results(0).quality == "bad":
+            if res.analysis_results("amp").quality == "bad":
                 self.assertEqual(len(res._figures), 1)
             else:
                 self.assertEqual(len(res._figures), 0)

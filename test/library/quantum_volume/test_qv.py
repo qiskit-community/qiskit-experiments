@@ -113,12 +113,13 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             qv_exp.set_experiment_options(trials=2)
             expdata1 = qv_exp.run(backend)
             self.assertExperimentDone(expdata1)
-            result_data1 = expdata1.analysis_results(0)
+
+            result_data1 = expdata1.analysis_results("mean_HOP")
             expdata2 = qv_exp.run(backend, analysis=None)
             self.assertExperimentDone(expdata2)
             expdata2.add_data(expdata1.data())
             qv_exp.analysis.run(expdata2)
-            result_data2 = expdata2.analysis_results(0)
+            result_data2 = expdata2.analysis_results("mean_HOP")
 
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(

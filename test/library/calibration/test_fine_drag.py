@@ -57,14 +57,14 @@ class TestFineDrag(QiskitExperimentsTestCase):
         exp_data = drag.run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("d_theta").quality, "good")
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
         exp_data = FineXDrag([0]).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("d_theta").quality, "good")
 
     def test_circuits_roundtrip_serializable(self):
         """Test circuits serialization of the experiment."""

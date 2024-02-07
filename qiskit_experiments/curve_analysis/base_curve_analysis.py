@@ -207,7 +207,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
-        options.return_fit_parameters = False
+        options.return_fit_parameters = True
         options.return_data_points = False
         options.data_processor = None
         options.normalization = False
@@ -229,26 +229,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
-
-    def set_options(self, **fields):
-        """Set the analysis options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-
-        Raises:
-            KeyError: When removed option ``curve_fitter`` is set.
-        """
-
-        if "return_fit_parameters" in fields:
-            warnings.warn(
-                "@Parameters_* result entry has moved to the experiment data artifact "
-                "regardless of option value. Setting this value doesn't affect result data.",
-                DeprecationWarning,
-            )
-            del fields["return_fit_parameters"]
-
-        super().set_options(**fields)
 
     @abstractmethod
     def _run_data_processing(
