@@ -2255,9 +2255,10 @@ class ExperimentData:
             experiment_id: Experiment ID.
             service: the database service.
             provider: an IBMProvider required for loading job data and
-                can be used to initialize the service. In ``qiskit-ibm-runtime``,
-                this is the ``QiskitRuntimeService`` and should not be confused with
-                the experiment database service.
+                can be used to initialize the service. When using :mod:`qiskit_ibm_runtime`,
+                this is the :class:`~qiskit_ibm_runtime.QiskitRuntimeService` and should
+                not be confused with the experiment database service
+                :meth:`qiskit_ibm_experiment.IBMExperimentService`.
 
         Returns:
             The loaded experiment data.
