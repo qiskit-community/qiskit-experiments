@@ -4,23 +4,26 @@ Work with experiment artifacts
 Problem
 -------
 
-You want to view, add, remove, and save artifacts associated with your :class:`ExperimentData` instance.
+You want to view, add, remove, and save artifacts associated with your :class:`.ExperimentData` instance.
 
 Solution
 --------
 
+Artifacts are used to store auxiliary data for an experiment that don't fit neatly in the
+:class:`.AnalysisResult` model. Any data that can be serialized, such as fit data, can be added as
+:class:`.ArtifactData` artifacts to :class:`.ExperimentData`.
+
+For example, after an experiment that uses :class:`.CurveAnalysis` is run, its :class:`.ExperimentData`
+object is automatically populated with ``fit_summary`` and ``curve_data`` artifacts. The ``fit_summary``
+artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the fit. The
+``curve_data`` artifact has a :class:`.ScatterTable` object that contain raw and fitted data in a pandas
+:class:`~pandas:pandas.DataFrame`.
+
 Viewing artifacts
 ~~~~~~~~~~~~~~~~~
 
-Artifacts are used to store auxiliary data for an experiment that don't fit neatly in the
-:class:`.AnalysisResult` model. Any data that can be serialized, such as fit data, can be added
-as artifacts. After an experiment that uses
-:class:`.CurveAnalysis` is run, the :class:`ExperimentData` is
-automatically populated with ``fit_summary`` and ``curve_data`` artifacts.
-
-The ``fit_summary`` artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the
-fit. The ``curve_data`` artifact has a :class:`.ScatterTable` object that contain raw and fitted data in a
-pandas :class:`~pandas:pandas.DataFrame`.
+Here we run a parallel experiment consisting of two :class:`.T1` experiments in parallel and then view the output
+artifacts as a list of :class:`.ArtifactData` objects accessed by :meth:`.ExperimentData.artifacts`:
 
 .. jupyter-execute::
 
@@ -36,8 +39,9 @@ pandas :class:`~pandas:pandas.DataFrame`.
     data = ParallelExperiment([exp1, exp2], flatten_results=True).run(backend).block_for_results()
     data.artifacts()
 
-Artifacts can be accessed using either the artifact ID or the name, which does not have to be unique and
-will return all artifacts with the same name:
+Artifacts can be accessed using either the artifact ID, which has to be unique in each
+:class:`.ExperimentData` object, or the artifact name, which does not have to be unique and will return
+all artifacts with the same name:
 
 .. jupyter-execute::
 
