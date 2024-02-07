@@ -1765,15 +1765,15 @@ class ExperimentData:
                 for artifact in self._artifacts.values():
                     artifact_list[artifact.name].append(artifact.artifact_id)
                 try:
-                    for file_type in artifact_list:
+                    for artifact_name, artifact_ids in artifact_list:
                         file_zipped = objs_to_zip(
-                            artifact_list[file_type],
-                            [self._artifacts[artifact] for artifact in artifact_list[file_type]],
+                           artifact_ids,
+                            [self._artifacts[artifact_id] for artifact_id in artifact_ids],
                             json_encoder=self._json_encoder,
                         )
                         self.service.file_upload(
                             experiment_id=self.experiment_id,
-                            file_name=f"{file_type}.zip",
+                            file_name=f"{artifact_name}.zip",
                             file_data=file_zipped,
                         )
                 except Exception:  # pylint: disable=broad-except:
@@ -2627,7 +2627,7 @@ class ExperimentData:
         return ret
 
     def add_artifacts(self, artifacts: ArtifactData | list[ArtifactData], overwrite: bool = False):
-        """Add artifacts of experiment. The artifact ID must be unique.
+        """Add artifacts to experiment. The artifact ID must be unique.
 
         Args:
             artifacts: Artifact or list of artifacts to be added.

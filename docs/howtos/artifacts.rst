@@ -16,7 +16,7 @@ Artifacts are used to store auxiliary data for an experiment that don't fit neat
 For example, after an experiment that uses :class:`.CurveAnalysis` is run, its :class:`.ExperimentData`
 object is automatically populated with ``fit_summary`` and ``curve_data`` artifacts. The ``fit_summary``
 artifact has one or more :class:`.CurveFitResult` objects that contain parameters from the fit. The
-``curve_data`` artifact has a :class:`.ScatterTable` object that contain raw and fitted data in a pandas
+``curve_data`` artifact has a :class:`.ScatterTable` object that contains raw and fitted data in a pandas
 :class:`~pandas:pandas.DataFrame`.
 
 Viewing artifacts

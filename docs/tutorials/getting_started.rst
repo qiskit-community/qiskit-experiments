@@ -199,7 +199,7 @@ For further documentation on how to work with UFloats, consult the ``uncertainti
 Artifacts
 ---------
 
-The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which is accessed
+The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which are accessed
 in an analogous manner. Artifacts for a standard experiment include both the curve fit data
 stored in ``artifacts("curve_data")`` and information on the fit stored in ``artifacts("fit_summary")``.
 Use the ``data`` attribute to access artifact data:
