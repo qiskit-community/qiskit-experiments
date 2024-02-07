@@ -30,7 +30,7 @@ upgrade:
     angle parameter) - the experiment will fail. Most reasonable cases will raise
     a detailed ``CalibrationError`` explaining the change and the way to adjust
     to it. Some edge cases - like a custom built pulse with an ``angle`` parameter
-    which doesn't conform to the naming convention of Qiskit Terra's 
+    which doesn't conform to the naming convention of Qiskit's 
     ``ScalableSymbolicPulse`` class, or using a loaded calibration with ``complex`` 
     ``amp`` - will result in updating the wrong parameter. 
     

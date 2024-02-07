@@ -1,8 +1,7 @@
 ---
 features:
   - |
-    An :meth:`~qiskit_experiments.visualization.BasePlotter.hline` method was
-    added to :class:`~qiskit_experiments.visualization.BasePlotter` for
+    An :meth:`~.BaseDrawer.hline` method was added to :class:`.BaseDrawer` for
     generating horizontal lines. See `#1348
     <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1348>`__.
   - |

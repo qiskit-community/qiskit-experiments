@@ -171,6 +171,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
+    "pandas": ("http://pandas.pydata.org/docs/", None),
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
     "qiskit_dynamics": ("https://qiskit.org/ecosystem/dynamics/", None),
     "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
