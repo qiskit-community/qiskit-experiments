@@ -46,6 +46,10 @@ class FigureData:
         self._name = name
         self.metadata = metadata or {}
 
+    def __eq__(self, value):
+        """Test equality between two instances of FigureData."""
+        return vars(self) == vars(value)
+
     # name is read only
     @property
     def name(self) -> str:

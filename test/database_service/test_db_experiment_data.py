@@ -1063,6 +1063,19 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertFalse(copied.analysis_results())
         self.assertEqual(exp_data.provider, copied.provider)
 
+    def test_copy_figure_artifacts(self):
+        """Test copy expdata figures and artifacts."""
+        exp_data = FakeExperiment(experiment_type="qiskit_test").run(backend=FakeBackend())
+        exp_data.add_figures(str.encode("hello world"))
+        exp_data.add_artifacts(ArtifactData(name="test", data="foo"))
+        copied = exp_data.copy(copy_results=True)
+        self.assertEqual(len(exp_data._figures), len(copied._figures))
+        self.assertEqual(len(exp_data._artifacts), len(copied._artifacts))
+        for i in exp_data._figures.keys():
+            self.assertEqual(exp_data._figures[i], copied._figures[i])
+        for i in exp_data._artifacts.keys():
+            self.assertEqual(exp_data._artifacts[i], copied._artifacts[i])
+
     def test_copy_metadata_pending_job(self):
         """Test copy metadata with a pending job."""
         event = threading.Event()

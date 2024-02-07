@@ -135,4 +135,6 @@ See Also
 --------
 
 * :ref:`Curve Analysis: Data management with scatter table <data_management_with_scatter_table>` tutorial
+* :class:`.ArtifactData` API documentation
 * :class:`.ScatterTable` API documentation
+* :class:`.CurveFitResult` API documentation

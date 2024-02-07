@@ -2379,7 +2379,7 @@ class ExperimentData:
             new_instance.add_figures(self._figures.values())
 
         with self._artifacts.lock:
-            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance._artifacts = ThreadSafeOrderedDict()
             new_instance.add_artifacts(self._artifacts.values())
 
         # Recursively copy child data
