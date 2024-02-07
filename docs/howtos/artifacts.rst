@@ -52,7 +52,7 @@ all artifacts with the same name:
     scatter_table.dataframe
     
 In composite experiments, artifacts behave like analysis results and figures in that if
-``flatten_results`` isn't ``True``, they are accessible in the :meth:`.artifact` method of each
+``flatten_results`` isn't ``True``, they are accessible in the :meth:`.artifacts` method of each
 :meth:`.child_data`. The artifacts in a large composite experiment with ``flatten_results=True`` can be
 distinguished from each other using the :attr:`~.ArtifactData.experiment` and
 :attr:`~.ArtifactData.device_components`

@@ -1765,9 +1765,9 @@ class ExperimentData:
                 for artifact in self._artifacts.values():
                     artifact_list[artifact.name].append(artifact.artifact_id)
                 try:
-                    for artifact_name, artifact_ids in artifact_list:
+                    for artifact_name, artifact_ids in artifact_list.items():
                         file_zipped = objs_to_zip(
-                           artifact_ids,
+                            artifact_ids,
                             [self._artifacts[artifact_id] for artifact_id in artifact_ids],
                             json_encoder=self._json_encoder,
                         )
