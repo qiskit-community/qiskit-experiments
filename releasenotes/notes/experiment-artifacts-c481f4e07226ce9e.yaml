@@ -13,7 +13,8 @@ upgrade:
     :meth:`.analysis_results` to :meth:`.artifacts`, where values are stored in the
     :attr:`~.ArtifactData.data` attribute of :class:`.ArtifactData` objects. For example, to access the
     chi-squared of the fit, ``expdata.analysis_results(0).chisq`` is now
-    ``expdata.artifacts("fit_summary").data.chisq``. For more information, see the :doc:`artifacts how-to
+    ``expdata.artifacts("fit_summary").data.chisq``. Note that this may also shift the indices of
+    analysis results that are not curve fit results. For more information, see the :doc:`artifacts how-to
     </howtos/artifacts>`.
 deprecations:
   - |

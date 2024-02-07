@@ -51,8 +51,11 @@ all artifacts with the same name:
     print("The first curve_data artifact:\n")
     scatter_table.dataframe
     
-The artifacts in a large composite experiment with ``flatten_results=True`` can be distinguished from
-each other using the :attr:`~.ArtifactData.experiment` and :attr:`~.ArtifactData.device_components`
+In composite experiments, artifacts behave like analysis results and figures in that if
+``flatten_results`` isn't ``True``, they are accessible in the :meth:`.artifact` method of each
+:meth:`.child_data`. The artifacts in a large composite experiment with ``flatten_results=True`` can be
+distinguished from each other using the :attr:`~.ArtifactData.experiment` and
+:attr:`~.ArtifactData.device_components`
 attributes.
 
 One useful pattern is to load raw or fitted data from ``curve_data`` for further data manipulation. You
@@ -81,7 +84,9 @@ can work with the dataframe using standard pandas dataframe methods or the built
 Adding artifacts
 ~~~~~~~~~~~~~~~~
 
-You can add arbitrary serializable data as an artifact.
+You can add arbitrary data as an artifact as long as it's serializable with :class:`.ExperimentEncoder`,
+which extends Python's default JSON serialization with support for other data types commonly used with
+Qiskit Experiments.
 
 .. jupyter-execute::
 
