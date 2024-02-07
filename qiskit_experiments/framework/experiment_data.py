@@ -1028,14 +1028,23 @@ class ExperimentData:
                     jobs_to_retrieve.append(jid)
 
         for jid in jobs_to_retrieve:
-            try:
-                LOG.debug("Retrieving job [Job ID: %s]", jid)
-                job = self.provider.retrieve_job(jid)
+            LOG.debug("Retrieving job [Job ID: %s]", jid)
+            try:  # qiskit-ibm-runtime syntax
+                job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
+            except AttributeError:  # TODO: remove this path for qiskit-ibm-provider
+                try:
+                    job = self.provider.retrieve_job(jid)
+                    retrieved_jobs[jid] = job
+                except Exception:  # pylint: disable=broad-except
+                    LOG.warning(
+                        "Unable to retrieve data from job [Job ID: %s]: %s",
+                        jid,
+                        traceback.format_exc(),
+                    )
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
-                    "Unable to retrieve data from job [Job ID: %s]",
-                    jid,
+                    "Unable to retrieve data from job [Job ID: %s]: %s", jid, traceback.format_exc()
                 )
         # Add retrieved job objects to stored jobs and extract data
         for jid, job in retrieved_jobs.items():
@@ -2248,7 +2257,9 @@ class ExperimentData:
             experiment_id: Experiment ID.
             service: the database service.
             provider: an IBMProvider required for loading job data and
-            can be used to initialize the service.
+                can be used to initialize the service. In ``qiskit-ibm-runtime``,
+                this is the ``QiskitRuntimeService`` and should not be confused with
+                the experiment database service.
 
         Returns:
             The loaded experiment data.
@@ -2258,7 +2269,7 @@ class ExperimentData:
         if service is None:
             if provider is None:
                 raise ExperimentDataError(
-                    "Loading an experiment requires a valid ibm provider or experiment service"
+                    "Loading an experiment requires a valid Qiskit provider or experiment service."
                 )
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
@@ -2569,7 +2580,7 @@ class ExperimentData:
             if hasattr(provider, "_account"):
                 warnings.warn(
                     "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
-                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.6.",
+                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.7.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
