@@ -248,14 +248,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             )
             del fields["return_fit_parameters"]
 
-        if "return_data_points" in fields:
-            warnings.warn(
-                "@Data_* result entry has moved to the experiment data artifact "
-                "regardless of option value. Setting this value doesn't affect result data.",
-                DeprecationWarning,
-            )
-            del fields["return_data_points"]
-
         super().set_options(**fields)
 
     @abstractmethod

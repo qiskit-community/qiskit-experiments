@@ -55,10 +55,6 @@ class ArtifactData:
         """Data type of the payload."""
         return self.data.__class__.__name__
 
-    def __eq__(self, value):
-        """Test equality between two instances of ArtifactData."""
-        return vars(self) == vars(value)
-
     def __repr__(self):
         return (
             f"ArtifactData(name={self.name}, dtype={self.dtype}, uid={self.artifact_id}, "

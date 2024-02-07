@@ -2339,6 +2339,8 @@ class ExperimentData:
             verbose=self.verbose,
         )
         new_instance._db_data = self._db_data.copy()
+        # Figure names shouldn't be copied over
+        new_instance._db_data.figure_names = []
         new_instance._db_data.experiment_id = str(
             uuid.uuid4()
         )  # different id for copied experiment
