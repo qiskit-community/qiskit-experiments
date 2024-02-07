@@ -399,8 +399,8 @@ plotter. The timeline is shortened for such a change:
 * Minor release 2: The old feature is removed. The release note should indicate that the feature has
   been removed and how to switch to the new path.
 
-Lastly, a **minor, non-core change** would include cosmetic changes such as output file names and
-changes to helper functions that isn't directly used in the package code base. These can be made in
+Lastly, a **minor, non-core change** could be a cosmetic change such as output file names or a
+change to helper functions that isn't directly used in the package codebase. These can be made in
 one release without a deprecation process as long as the change is clearly described in the
 release notes.
 

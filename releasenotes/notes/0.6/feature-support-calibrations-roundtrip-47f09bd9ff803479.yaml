@@ -7,7 +7,6 @@ features:
     Output JSON data is formatted into the standard data model which is intentionally
     agnostic to the calibration data structure, and this allows community
     developer to reuse the calibration data in their platform.
-    See :mod:`qiskit_experiments.calibration_management.save_utils` for data models.
 deprecations:
   - |
     Saving :class:`.Calibrations` instance into CSV file was deprecated.
