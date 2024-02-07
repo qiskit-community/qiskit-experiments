@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_explib:
   - |
     The :class:`.HalfAngle` experiment's circuits were changed so that they use
     combinations of ``rz`` and ``x`` instead of the less standard ``y`` gate.

@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_calibration:
   - |
     Fixed error generating circuits for :class:`.BaseCalibrationExperiment`
     subclasses when the backend instance had no coupling map. Fixed `#1116

@@ -12,7 +12,7 @@ features_curvefit:
     New analysis option ``fit_category`` is added to :class:`.CurveAnalysis` subclasses.
     This option controls which data subset within the :class:`.ScatterTable` 
     is used for the curve fitting.
-upgrade:
+upgrade_curvefit:
   - |
     The behavior of :class:`.CurveAnalysis` data processing was changed. 
     It used to raise ``DataProcessorError`` error when it encounters an experiment result

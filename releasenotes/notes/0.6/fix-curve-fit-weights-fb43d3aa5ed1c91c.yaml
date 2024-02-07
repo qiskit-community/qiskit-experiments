@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_curvefit:
   - |
     Fix calculation of weight for curve fitting. Previously the weights of data points to obtain
     the residual of fit curve were computed by the inverse of the error bars of y data. 

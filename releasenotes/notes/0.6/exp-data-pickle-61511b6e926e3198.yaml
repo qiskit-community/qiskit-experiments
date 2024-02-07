@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_expdata:
   - |
     Fixed :mod:`pickle` deserialization of :class:`.ExperimentData` objects.
     Previously, :class:`.ExperimentData` objects could be serialized and

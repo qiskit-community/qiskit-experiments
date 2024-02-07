@@ -1,16 +1,15 @@
 ---
-features_expupdate:
+features_explib:
   - |
     Added a new experiment option ``clifford_synthesis_method`` to RB experiments,
     e.g. :class:`~.StandardRB` and :class:`~.InterleavedRB` so that users can
     plug in a custom Clifford synthesis algorithm used for generating RB circuits.
     Such a plugin should be implemented as a :class:`~.qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin`
     (see :class:`~.RBDefaultCliffordSynthesis` for example).
-upgrade:
   - |
     Updated :class:`~.InterleavedRB` so that it only accepts ``interleaved_element``
     consisting only of instructions supported by the backend of interest.
-fixes:
+fixes_explib:
   - |
     Fixed a bug in circuit generation for three or more qubit Randomized Benchmarking where
     sampled Cliffords may be changed during their circuits synthesis

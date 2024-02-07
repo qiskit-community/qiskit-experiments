@@ -1,5 +1,5 @@
 ---
-upgrade:
+upgrade_calibration:
   - |
     The variables ``__drive_freq_parameter__`` and ``__readout_freq_parameter__``
     have been removed from :class:`.Calibrations`. These variables were given special

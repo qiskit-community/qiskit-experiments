@@ -4,7 +4,7 @@ features_calibration:
     A new method :meth:`~.Calibrations.has_template`
     has been added to :class:`.Calibrations`
     to check if a template schedule exists for a particular set of qubits.
-fixes:
+fixes_explib:
   - |
     :class:`.FineXDragCal` and :class:`.EFRoughXSXAmplitudeCal` were updated to
     attach ``"sx"`` and ``"x"`` calibrations to their circuits, respectively.

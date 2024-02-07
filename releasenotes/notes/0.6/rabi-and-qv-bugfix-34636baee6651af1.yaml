@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_explib:
   - |
     Resolved a serialization issue that affected Rabi experiments when running it through 
     the backend provider using custom amplitudes provided as a numpy array.

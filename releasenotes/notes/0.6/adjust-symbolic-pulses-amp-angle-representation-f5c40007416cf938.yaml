@@ -15,12 +15,13 @@ other:
     Eventually, support for complex parameters will be dropped altogether, and it is
     thus pending deprecation - including for saving and loading calibration data with
     complex values.
-upgrade:
+upgrade_calibration:
   - |
     The representation of pulses in the :class:`.FixedFrequencyTransmon` library 
     was changed from complex amplitude to (``amp``, ``angle``) representation. All pulses
     now include an ``angle`` parameter, and the default values of ``amp`` are set
     as type ``float`` instead of ``complex``.
+upgrade_explib:
   - |
     :class:`.HalfAngleCal` was changed from updating the complex amplitude of 
     the pulse, to updating the angle in the (``amp``, ``angle``) representation. When used with

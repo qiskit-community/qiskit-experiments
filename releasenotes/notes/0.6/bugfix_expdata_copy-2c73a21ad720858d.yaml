@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_expdata:
   - |
     The :meth:`.ExperimentData.copy` method now copies the provider. 
   

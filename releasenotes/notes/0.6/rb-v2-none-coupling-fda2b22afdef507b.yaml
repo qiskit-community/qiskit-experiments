@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_explib:
   - |
     Changed :class:`.StandardRB` to treat two qubit operations in the
     :class:`qiskit.transpiler.Target` as having all-to-all connectivity if

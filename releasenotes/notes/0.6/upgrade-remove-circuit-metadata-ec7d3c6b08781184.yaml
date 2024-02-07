@@ -1,5 +1,5 @@
 ---
-upgrade:
+upgrade_expclass:
   - |
     Removed unnecessary circuit metadata from the builtin experiment classes.
     Circuit metadata such as the associated qubit indices and experiment type 

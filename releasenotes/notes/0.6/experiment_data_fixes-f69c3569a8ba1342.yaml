@@ -23,7 +23,7 @@ features_expdata:
     fails, unless the ``suppress_errors`` flag is set (on by default).
   
 
-fixes:
+fixes_expdata:
   - |
     Fixed a bug in :meth:`.ExperimentData._add_job_data` that caused job id 
     related test fails.

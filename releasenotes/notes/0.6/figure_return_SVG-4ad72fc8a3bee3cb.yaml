@@ -1,4 +1,4 @@
 ---
-fixes:
+fixes_visualization:
   - |
     Figures loaded from the experiment service are now rendered correctly in Jupyter Notebook.

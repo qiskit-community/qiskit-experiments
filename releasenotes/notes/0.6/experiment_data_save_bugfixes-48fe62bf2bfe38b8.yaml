@@ -1,5 +1,5 @@
 ---
-fixes:
+fixes_expdata:
   - |
     The :attr:`.ExperimentData.auto_save` setter no longer saves sub-experiments twice.
   - |

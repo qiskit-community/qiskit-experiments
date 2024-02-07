@@ -1,5 +1,5 @@
 ---
-upgrade:
+upgrade_package:
   - |
     Several deprecated methods and options have been removed and will no longer work:
 

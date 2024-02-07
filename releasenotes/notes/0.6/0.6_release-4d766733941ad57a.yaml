@@ -13,4 +13,17 @@ prelude: >
     :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` is still supported
     but its use is deprecated.
 features:
+  - |
     New features are listed below in subsections by functional area.
+upgrade:
+  - |
+    Changes in behavior that users should be aware of when upgrading Qiskit Experiments
+    to this version are listed below in subsections by functional area.
+fixes:
+  - |
+    Bug fixes are listed below in subsections by functional area.
+issues:
+  - |
+    Copied :class:`.ExperimentData` objects don't save their analysis results to the cloud service.
+    See `#1396
+    <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1396>`_.

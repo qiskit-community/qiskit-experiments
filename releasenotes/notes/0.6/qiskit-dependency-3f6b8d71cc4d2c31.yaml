@@ -1,5 +1,5 @@
 ---
-upgrade:
+upgrade_package:
   - |
     The dependency on ``qiskit-terra`` was replaced with a dependency on
     ``qiskit``. This change follows the move in upstream Qiskit to rename
