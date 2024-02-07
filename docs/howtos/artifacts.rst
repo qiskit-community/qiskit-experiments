@@ -46,7 +46,9 @@ all artifacts with the same name:
 .. jupyter-execute::
 
     print("Number of curve_data artifacts:", len(data.artifacts("curve_data")))
+    # retrieve by name and index
     curve_data_id = data.artifacts("curve_data")[0].artifact_id
+    # retrieve by ID
     scatter_table = data.artifacts(curve_data_id).data
     print("The first curve_data artifact:\n")
     scatter_table.dataframe
@@ -73,12 +75,13 @@ can work with the dataframe using standard pandas dataframe methods or the built
     fitted_data = scatter_table.filter(category="fitted")
 
     # visualize the data
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.errorbar(raw_data.x, raw_data.y, yerr=raw_data.y_err, capsize=5)
-    ax1.set_title(f"Raw data, {exp_type} experiment on {component}")
-    ax2.errorbar(fitted_data.x, fitted_data.y, yerr=fitted_data.y_err, capsize=5)
-    ax2.set_title(f"Fitted data, {exp_type} experiment on {component}")
-    plt.tight_layout()
+    plt.figure()
+    plt.errorbar(raw_data.x, raw_data.y, yerr=raw_data.y_err, capsize=5, label="raw data")
+    plt.errorbar(fitted_data.x, fitted_data.y, yerr=fitted_data.y_err, capsize=5, label="fitted data")
+    plt.title(f"{exp_type} experiment on {component}")
+    plt.xlabel('x')
+    plt.ylabel('y')    
+    plt.legend()
     plt.show()
 
 Adding artifacts
