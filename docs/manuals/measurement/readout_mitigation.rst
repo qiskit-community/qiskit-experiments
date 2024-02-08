@@ -78,7 +78,7 @@ circuits, one for all “0” and one for all “1” results.
 
     exp.analysis.set_options(plot=True)
     result = exp.run(backend)
-    mitigator = result.analysis_results(0).value
+    mitigator = result.analysis_results("Local Readout Mitigator").value
 
 The resulting measurement matrix can be illustrated by comparing it to
 the identity.

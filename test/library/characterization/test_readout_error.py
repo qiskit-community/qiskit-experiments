@@ -39,7 +39,8 @@ class TestReadoutError(QiskitExperimentsTestCase):
         exp = LocalReadoutError(backend=backend)
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
-        mitigator = expdata.analysis_results(0).value
+
+        mitigator = expdata.analysis_results("Local Readout Mitigator").value
 
         qubits = list(range(num_qubits))
         self.assertEqual(mitigator._num_qubits, num_qubits)
@@ -56,7 +57,7 @@ class TestReadoutError(QiskitExperimentsTestCase):
         exp = CorrelatedReadoutError(backend=backend)
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
-        mitigator = expdata.analysis_results(0).value
+        mitigator = expdata.analysis_results("Correlated Readout Mitigator").value
 
         qubits = list(range(num_qubits))
         self.assertEqual(mitigator._num_qubits, num_qubits)
@@ -89,7 +90,7 @@ class TestReadoutError(QiskitExperimentsTestCase):
         expdata.metadata.update(run_meta)
         exp = LocalReadoutError(qubits)
         result = exp.analysis.run(expdata)
-        mitigator = result.analysis_results(0).value
+        mitigator = result.analysis_results("Local Readout Mitigator").value
 
         self.assertEqual(len(qubits), mitigator._num_qubits)
         self.assertEqual(qubits, mitigator._qubits)
@@ -159,7 +160,7 @@ class TestReadoutError(QiskitExperimentsTestCase):
         expdata.metadata.update(run_meta)
         exp = CorrelatedReadoutError(qubits)
         result = exp.analysis.run(expdata)
-        mitigator = result.analysis_results(0).value
+        mitigator = result.analysis_results("Correlated Readout Mitigator").value
 
         self.assertEqual(len(qubits), mitigator._num_qubits)
         self.assertEqual(qubits, mitigator._qubits)
@@ -182,8 +183,8 @@ class TestReadoutError(QiskitExperimentsTestCase):
         exp = ParallelExperiment([exp1, exp2], flatten_results=False)
         expdata = exp.run(backend=backend)
         self.assertExperimentDone(expdata)
-        mit1 = expdata.child_data(0).analysis_results(0).value
-        mit2 = expdata.child_data(1).analysis_results(0).value
+        mit1 = expdata.child_data(0).analysis_results("Correlated Readout Mitigator").value
+        mit2 = expdata.child_data(1).analysis_results("Correlated Readout Mitigator").value
         assignment_matrix1 = mit1.assignment_matrix()
         assignment_matrix2 = mit2.assignment_matrix()
         self.assertFalse(matrix_equal(assignment_matrix1, assignment_matrix2))
@@ -211,7 +212,7 @@ class TestReadoutError(QiskitExperimentsTestCase):
         exp = LocalReadoutError(qubits)
         exp_data = exp.run(backend)
         self.assertExperimentDone(exp_data)
-        mitigator = exp_data.analysis_results(0).value
+        mitigator = exp_data.analysis_results("Local Readout Mitigator").value
         serialized = json.dumps(mitigator, cls=ExperimentEncoder)
         loaded = json.loads(serialized, cls=ExperimentDecoder)
         self.assertTrue(matrix_equal(mitigator.assignment_matrix(), loaded.assignment_matrix()))

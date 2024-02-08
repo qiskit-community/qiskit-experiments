@@ -38,7 +38,8 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
+from .base_curve_analysis import DATA_ENTRY_PREFIX, BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
@@ -86,8 +87,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         The experimental circuits starting with different initial states must be
         distinguished by the circuit metadata ``{"init_state": 0}`` or ``{"init_state": 1}``,
         along with the "xval" in the same dictionary.
-        If you want to compute another quantity using two fitting outcomes, you can
-        override :meth:`CompositeCurveAnalysis._create_curve_data` in subclass.
 
     :class:`.CompositeCurveAnalysis` subclass may override following methods.
 
@@ -273,9 +272,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``True``.
-            return_data_points (bool): Set ``True`` to include in the analysis result
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``False``.
+            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
@@ -284,7 +283,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         options.update_options(
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
-            return_fit_parameters=True,
+            return_fit_parameters=False,
             return_data_points=False,
             extra={},
         )
@@ -331,7 +330,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        figures: List[FigureType] = []
+        artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -341,9 +343,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             plot = "never"
         else:
             plot = getattr(self, "_generate_figures", "always")
-
-        analysis_results = []
-        figures = []
 
         fit_dataset = {}
         curve_data_set = []
@@ -373,7 +372,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     quality=quality,
                     extra=metadata,
                 )
-                analysis_results.append(overview)
+                result_data.append(overview)
 
             if fit_data.success:
                 # Add fit data to curve data table
@@ -406,7 +405,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                             category="fitted",
                             analysis=analysis.name,
                         )
-                analysis_results.extend(
+                result_data.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
                         quality=quality,
@@ -416,7 +415,13 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if self.options.return_data_points:
                 # Add raw data points
-                analysis_results.extend(
+                warnings.warn(
+                    f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
+                    "Saving this result with 'return_data_points'=True will be disabled in "
+                    "Qiskit Experiments 0.7.",
+                    DeprecationWarning,
+                )
+                result_data.extend(
                     analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
@@ -436,9 +441,22 @@ class CompositeCurveAnalysis(BaseAnalysis):
             composite_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-            analysis_results.extend(composite_results)
+            result_data.extend(composite_results)
         else:
             composite_results = []
+
+        artifacts.append(
+            ArtifactData(
+                name="curve_data",
+                data=combined_curve_data,
+            )
+        )
+        artifacts.append(
+            ArtifactData(
+                name="fit_summary",
+                data=fit_dataset,
+            )
+        )
 
         if plot_bool:
             self.plotter.set_supplementary_data(
@@ -447,4 +465,4 @@ class CompositeCurveAnalysis(BaseAnalysis):
             )
             figures.extend(self._create_figures(curve_data=combined_curve_data))
 
-        return analysis_results, figures
+        return result_data + artifacts, figures

@@ -80,9 +80,7 @@ html_static_path = ["_static"]
 templates_path = ["_templates"]
 # Manually add the gallery CSS file for now
 # TODO: Figure out why the styling is not working by default
-html_css_files = [
-    "nbsphinx-gallery.css",
-]
+html_css_files = ["nbsphinx-gallery.css", "dataframe.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -238,6 +236,11 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "filter_kwargs",
         "fit_func",
         "signature",
+        "artifact_id",
+        "artifact_data",
+        "device_components",
+        "created_time",
+        "data",
     ]
     skip_members = [
         ParameterRepr.repr,

@@ -125,7 +125,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("res_freq0")
         self.assertRoundTripSerializable(result.value)
 
         self.assertAlmostEqual(result.value.n, res_freq + freq_shift, delta=0.1e6)
@@ -189,7 +189,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1))
+        self.assertRoundTripSerializable(expdata.analysis_results("res_freq0"))
 
     def test_parallel_experiment(self):
         """Test for parallel experiment"""
