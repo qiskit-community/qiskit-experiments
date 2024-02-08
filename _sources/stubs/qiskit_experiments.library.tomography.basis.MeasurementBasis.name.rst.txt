@@ -1,8 +1,0 @@
-
-
-MeasurementBasis.name
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.basis
-
-.. autoproperty:: MeasurementBasis.name

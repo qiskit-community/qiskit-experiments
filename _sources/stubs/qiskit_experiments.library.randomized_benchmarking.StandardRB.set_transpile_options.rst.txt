@@ -1,8 +1,0 @@
-
-
-StandardRB.set_transpile_options
-===================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: StandardRB.set_transpile_options

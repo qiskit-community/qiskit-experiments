@@ -1,8 +1,0 @@
-
-
-MplDrawer.scatter
-==================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: MplDrawer.scatter

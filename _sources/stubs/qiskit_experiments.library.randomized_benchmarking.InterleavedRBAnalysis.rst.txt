@@ -15,15 +15,13 @@ InterleavedRBAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      InterleavedRBAnalysis.drawer
-      InterleavedRBAnalysis.models
-      InterleavedRBAnalysis.name
-      InterleavedRBAnalysis.options
-      InterleavedRBAnalysis.parameters
-      InterleavedRBAnalysis.plotter
+   .. autoattribute:: InterleavedRBAnalysis.drawer
+   .. autoattribute:: InterleavedRBAnalysis.models
+   .. autoattribute:: InterleavedRBAnalysis.name
+   .. autoattribute:: InterleavedRBAnalysis.options
+   .. autoattribute:: InterleavedRBAnalysis.parameters
+   .. autoattribute:: InterleavedRBAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ InterleavedRBAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      InterleavedRBAnalysis.config
-      InterleavedRBAnalysis.copy
-      InterleavedRBAnalysis.from_config
-      InterleavedRBAnalysis.run
-      InterleavedRBAnalysis.set_options
+   .. automethod:: InterleavedRBAnalysis.config
+   .. automethod:: InterleavedRBAnalysis.copy
+   .. automethod:: InterleavedRBAnalysis.from_config
+   .. automethod:: InterleavedRBAnalysis.model_names
+   .. automethod:: InterleavedRBAnalysis.run
+   .. automethod:: InterleavedRBAnalysis.set_options
    
 
    

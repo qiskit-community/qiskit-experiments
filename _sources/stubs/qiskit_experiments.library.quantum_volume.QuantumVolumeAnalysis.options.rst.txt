@@ -1,8 +1,0 @@
-
-
-QuantumVolumeAnalysis.options
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.quantum_volume
-
-.. autoproperty:: QuantumVolumeAnalysis.options

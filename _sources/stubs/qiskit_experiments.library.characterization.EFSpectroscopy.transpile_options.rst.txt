@@ -1,8 +1,0 @@
-
-
-EFSpectroscopy.transpile_options
-============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: EFSpectroscopy.transpile_options

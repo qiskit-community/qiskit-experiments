@@ -15,15 +15,13 @@ DragCalAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      DragCalAnalysis.drawer
-      DragCalAnalysis.models
-      DragCalAnalysis.name
-      DragCalAnalysis.options
-      DragCalAnalysis.parameters
-      DragCalAnalysis.plotter
+   .. autoattribute:: DragCalAnalysis.drawer
+   .. autoattribute:: DragCalAnalysis.models
+   .. autoattribute:: DragCalAnalysis.name
+   .. autoattribute:: DragCalAnalysis.options
+   .. autoattribute:: DragCalAnalysis.parameters
+   .. autoattribute:: DragCalAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ DragCalAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      DragCalAnalysis.config
-      DragCalAnalysis.copy
-      DragCalAnalysis.from_config
-      DragCalAnalysis.run
-      DragCalAnalysis.set_options
+   .. automethod:: DragCalAnalysis.config
+   .. automethod:: DragCalAnalysis.copy
+   .. automethod:: DragCalAnalysis.from_config
+   .. automethod:: DragCalAnalysis.model_names
+   .. automethod:: DragCalAnalysis.run
+   .. automethod:: DragCalAnalysis.set_options
    
 
    

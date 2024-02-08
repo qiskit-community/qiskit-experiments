@@ -1,8 +1,0 @@
-
-
-NoisyDelayAerBackend.clear_options
-==========================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: NoisyDelayAerBackend.clear_options

@@ -1,8 +1,0 @@
-
-
-CurveFitResult.fitval
-=======================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: CurveFitResult.fitval

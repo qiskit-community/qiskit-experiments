@@ -1,8 +1,0 @@
-
-
-DecayAnalysis.models
-======================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: DecayAnalysis.models

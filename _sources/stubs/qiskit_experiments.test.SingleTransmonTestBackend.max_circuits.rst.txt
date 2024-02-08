@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.max_circuits
-==============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: SingleTransmonTestBackend.max_circuits

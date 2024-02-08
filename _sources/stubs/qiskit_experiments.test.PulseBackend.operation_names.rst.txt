@@ -1,8 +1,0 @@
-
-
-PulseBackend.operation_names
-====================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: PulseBackend.operation_names

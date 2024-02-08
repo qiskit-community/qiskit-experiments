@@ -15,17 +15,15 @@ RoughDrag
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughDrag.analysis
-      RoughDrag.backend
-      RoughDrag.experiment_options
-      RoughDrag.experiment_type
-      RoughDrag.num_qubits
-      RoughDrag.physical_qubits
-      RoughDrag.run_options
-      RoughDrag.transpile_options
+   .. autoattribute:: RoughDrag.analysis
+   .. autoattribute:: RoughDrag.backend
+   .. autoattribute:: RoughDrag.experiment_options
+   .. autoattribute:: RoughDrag.experiment_type
+   .. autoattribute:: RoughDrag.num_qubits
+   .. autoattribute:: RoughDrag.physical_qubits
+   .. autoattribute:: RoughDrag.run_options
+   .. autoattribute:: RoughDrag.transpile_options
    
    
 
@@ -34,18 +32,17 @@ RoughDrag
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughDrag.circuits
-      RoughDrag.config
-      RoughDrag.copy
-      RoughDrag.enable_restless
-      RoughDrag.from_config
-      RoughDrag.run
-      RoughDrag.set_experiment_options
-      RoughDrag.set_run_options
-      RoughDrag.set_transpile_options
+   .. automethod:: RoughDrag.circuits
+   .. automethod:: RoughDrag.config
+   .. automethod:: RoughDrag.copy
+   .. automethod:: RoughDrag.enable_restless
+   .. automethod:: RoughDrag.from_config
+   .. automethod:: RoughDrag.job_info
+   .. automethod:: RoughDrag.run
+   .. automethod:: RoughDrag.set_experiment_options
+   .. automethod:: RoughDrag.set_run_options
+   .. automethod:: RoughDrag.set_transpile_options
    
 
    

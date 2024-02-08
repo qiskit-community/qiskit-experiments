@@ -1,8 +1,0 @@
-
-
-StateTomography.set_transpile_options
-===========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: StateTomography.set_transpile_options

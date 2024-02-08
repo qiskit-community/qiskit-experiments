@@ -1,8 +1,0 @@
-
-
-BackendData.pulse_alignment
-========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.pulse_alignment

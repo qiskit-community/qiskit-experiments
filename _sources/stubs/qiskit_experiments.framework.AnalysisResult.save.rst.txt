@@ -1,8 +1,0 @@
-
-
-AnalysisResult.save
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: AnalysisResult.save

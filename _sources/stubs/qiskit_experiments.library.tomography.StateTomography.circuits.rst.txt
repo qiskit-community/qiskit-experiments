@@ -1,8 +1,0 @@
-
-
-StateTomography.circuits
-==============================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: StateTomography.circuits

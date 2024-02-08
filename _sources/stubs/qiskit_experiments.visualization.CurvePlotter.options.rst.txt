@@ -1,8 +1,0 @@
-
-
-CurvePlotter.options
-=====================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: CurvePlotter.options

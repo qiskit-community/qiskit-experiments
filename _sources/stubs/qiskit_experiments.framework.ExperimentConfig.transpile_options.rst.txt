@@ -1,8 +1,0 @@
-
-
-ExperimentConfig.transpile_options
-===============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentConfig.transpile_options

@@ -1,8 +1,0 @@
-
-
-MplCurveDrawer.draw_fit_report
-================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: MplCurveDrawer.draw_fit_report

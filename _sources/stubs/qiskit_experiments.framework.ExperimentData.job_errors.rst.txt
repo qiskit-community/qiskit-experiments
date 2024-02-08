@@ -1,8 +1,0 @@
-
-
-ExperimentData.job_errors
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.job_errors

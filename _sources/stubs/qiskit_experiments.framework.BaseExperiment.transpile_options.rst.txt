@@ -1,8 +1,0 @@
-
-
-BaseExperiment.transpile_options
-=============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BaseExperiment.transpile_options

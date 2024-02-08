@@ -10,46 +10,27 @@ ExperimentDecoder
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
 
    
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
+
 
    
    
+         
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: ExperimentDecoder.decode
+   .. automethod:: ExperimentDecoder.object_hook
+   .. automethod:: ExperimentDecoder.raw_decode
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      ExperimentDecoder.decode
-   
-   
-      ExperimentDecoder.object_hook
-   
-   
-      ExperimentDecoder.raw_decode
-   
-
-   
    

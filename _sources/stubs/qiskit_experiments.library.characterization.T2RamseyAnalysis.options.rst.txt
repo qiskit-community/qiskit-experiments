@@ -1,8 +1,0 @@
-
-
-T2RamseyAnalysis.options
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T2RamseyAnalysis.options

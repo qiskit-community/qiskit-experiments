@@ -1,8 +1,0 @@
-
-
-CompositeAnalysis.set_options
-==========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: CompositeAnalysis.set_options

@@ -1,8 +1,0 @@
-
-
-ExperimentEncoder.item_separator
-=============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentEncoder.item_separator

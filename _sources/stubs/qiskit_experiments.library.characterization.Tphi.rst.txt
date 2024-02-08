@@ -15,18 +15,16 @@ Tphi
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      Tphi.analysis
-      Tphi.backend
-      Tphi.experiment_options
-      Tphi.experiment_type
-      Tphi.num_experiments
-      Tphi.num_qubits
-      Tphi.physical_qubits
-      Tphi.run_options
-      Tphi.transpile_options
+   .. autoattribute:: Tphi.analysis
+   .. autoattribute:: Tphi.backend
+   .. autoattribute:: Tphi.experiment_options
+   .. autoattribute:: Tphi.experiment_type
+   .. autoattribute:: Tphi.num_experiments
+   .. autoattribute:: Tphi.num_qubits
+   .. autoattribute:: Tphi.physical_qubits
+   .. autoattribute:: Tphi.run_options
+   .. autoattribute:: Tphi.transpile_options
    
    
 
@@ -35,18 +33,17 @@ Tphi
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      Tphi.circuits
-      Tphi.component_experiment
-      Tphi.config
-      Tphi.copy
-      Tphi.from_config
-      Tphi.run
-      Tphi.set_experiment_options
-      Tphi.set_run_options
-      Tphi.set_transpile_options
+   .. automethod:: Tphi.circuits
+   .. automethod:: Tphi.component_experiment
+   .. automethod:: Tphi.config
+   .. automethod:: Tphi.copy
+   .. automethod:: Tphi.from_config
+   .. automethod:: Tphi.job_info
+   .. automethod:: Tphi.run
+   .. automethod:: Tphi.set_experiment_options
+   .. automethod:: Tphi.set_run_options
+   .. automethod:: Tphi.set_transpile_options
    
 
    

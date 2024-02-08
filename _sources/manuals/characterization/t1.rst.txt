@@ -30,8 +30,9 @@ The following code demonstrates a basic run of a :math:`T_1` experiment
 for qubit 0.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -42,9 +43,9 @@ for qubit 0.
     from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     # A kerneled data simulator
     from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -98,11 +99,10 @@ that is close to a logical value '0'.
     mu = 1e-6
 
     # qubit properties
-    t1 = [45 * mu, 45 * mu]
-    t2 = [value/2 for value in t1]
+    t1 = 45 * mu
 
     # we will guess that our guess is 10% off the exact value of t1 for qubit 0.
-    t1_estimated_shift = t1[0]/10
+    t1_estimated_shift = t1/10
 
     # We use log space for the delays because of the noise properties
     delays = np.logspace(1, 11, num=23, base=np.exp(1))
@@ -111,25 +111,28 @@ that is close to a logical value '0'.
     # Adding circuits with delay=0 and long delays so the centers in the IQ plane won't be misplaced.
     # Without this, the fitting can provide wrong results.
     delays = np.insert(delays, 0, 0)
-    delays = np.append(delays, [t1[0]*3])
+    delays = np.append(delays, [t1*3])
 
     num_qubits = 2
     num_shots = 2048
 
     backend = MockIQBackend(
-        MockIQT1Helper(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))]
-                           , iq_cluster_width=[1.0, 2.0])
+        MockIQT1Helper(
+            t1=t1,
+            iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))],
+            iq_cluster_width=[1.0, 2.0],
+        )
     )
 
     # Creating a T1 experiment
     expT1_kerneled = T1((0,), delays)
     expT1_kerneled.analysis = T1KerneledAnalysis()
-    expT1_kerneled.analysis.set_options(p0={"amp": 1, "tau": t1[0] + t1_estimated_shift, "base": 0})
+    expT1_kerneled.analysis.set_options(p0={"amp": 1, "tau": t1 + t1_estimated_shift, "base": 0})
 
     # Running the experiment
-    expdataT1_kerneled = expT1_kerneled.run(backend=backend, meas_return="avg",
-                                            meas_level=MeasLevel.KERNELED,
-                                            shots=num_shots).block_for_results()
+    expdataT1_kerneled = expT1_kerneled.run(
+        backend=backend, meas_return="avg", meas_level=MeasLevel.KERNELED, shots=num_shots
+    ).block_for_results()
 
     # Displaying results
     display(expdataT1_kerneled.figure(0))

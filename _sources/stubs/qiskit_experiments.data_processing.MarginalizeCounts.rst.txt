@@ -10,47 +10,23 @@ MarginalizeCounts
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
 
    
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
+
 
    
    
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: MarginalizeCounts.__call__
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      MarginalizeCounts.__call__
-   
-   
-   
-      MarginalizeCounts.__call__
-
-   
    

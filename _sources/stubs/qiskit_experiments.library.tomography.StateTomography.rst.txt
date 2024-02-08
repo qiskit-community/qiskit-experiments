@@ -15,17 +15,15 @@ StateTomography
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      StateTomography.analysis
-      StateTomography.backend
-      StateTomography.experiment_options
-      StateTomography.experiment_type
-      StateTomography.num_qubits
-      StateTomography.physical_qubits
-      StateTomography.run_options
-      StateTomography.transpile_options
+   .. autoattribute:: StateTomography.analysis
+   .. autoattribute:: StateTomography.backend
+   .. autoattribute:: StateTomography.experiment_options
+   .. autoattribute:: StateTomography.experiment_type
+   .. autoattribute:: StateTomography.num_qubits
+   .. autoattribute:: StateTomography.physical_qubits
+   .. autoattribute:: StateTomography.run_options
+   .. autoattribute:: StateTomography.transpile_options
    
    
 
@@ -34,17 +32,16 @@ StateTomography
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      StateTomography.circuits
-      StateTomography.config
-      StateTomography.copy
-      StateTomography.from_config
-      StateTomography.run
-      StateTomography.set_experiment_options
-      StateTomography.set_run_options
-      StateTomography.set_transpile_options
+   .. automethod:: StateTomography.circuits
+   .. automethod:: StateTomography.config
+   .. automethod:: StateTomography.copy
+   .. automethod:: StateTomography.from_config
+   .. automethod:: StateTomography.job_info
+   .. automethod:: StateTomography.run
+   .. automethod:: StateTomography.set_experiment_options
+   .. automethod:: StateTomography.set_run_options
+   .. automethod:: StateTomography.set_transpile_options
    
 
    

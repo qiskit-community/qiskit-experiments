@@ -1,8 +1,0 @@
-
-
-BackendData.granularity
-====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.granularity

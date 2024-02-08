@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.num_qubits
-==========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.num_qubits

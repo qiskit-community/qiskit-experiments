@@ -1,8 +1,0 @@
-
-
-SkQDA.is_trained
-===================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: SkQDA.is_trained

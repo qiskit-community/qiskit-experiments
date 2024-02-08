@@ -1,8 +1,0 @@
-
-
-RBAnalysis.config
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: RBAnalysis.config

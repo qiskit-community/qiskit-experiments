@@ -10,146 +10,80 @@ Calibrations
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: Calibrations.backend_name
+   .. autoattribute:: Calibrations.backend_version
+   .. autoattribute:: Calibrations.default_inst_map
+   .. autoattribute:: Calibrations.drive_freq
+   .. autoattribute:: Calibrations.libraries
+   .. autoattribute:: Calibrations.meas_freq
+   .. autoattribute:: Calibrations.parameters
+   .. autoattribute:: Calibrations.schedule_dependency
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      Calibrations.backend_name
-      
-   
-      
-      
-         
-      
-      Calibrations.backend_version
-      
-   
-      
-      
-         
-      
-      Calibrations.default_inst_map
-      
-   
-      
-      
-         
-      
-      Calibrations.libraries
-      
-   
-      
-      
-         
-      
-      Calibrations.parameters
-      
-   
-      
-      
-         
-      
-      Calibrations.schedule_dependency
-      
-   
-   
-   
+
+
 
    
    
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: Calibrations.add_parameter_value
+   .. automethod:: Calibrations.add_schedule
+   .. automethod:: Calibrations.calibration_parameter
+   .. automethod:: Calibrations.config
+   .. automethod:: Calibrations.from_backend
+   .. automethod:: Calibrations.from_config
+   .. automethod:: Calibrations.get_inst_map
+   .. automethod:: Calibrations.get_parameter_value
+   .. automethod:: Calibrations.get_schedule
+   .. automethod:: Calibrations.get_template
+   .. automethod:: Calibrations.has_template
+   .. automethod:: Calibrations.inst_map_add
+   .. automethod:: Calibrations.load
+   .. automethod:: Calibrations.load_parameter_values
+   .. automethod:: Calibrations.parameters_table
+   .. automethod:: Calibrations.remove_schedule
+   .. automethod:: Calibrations.save
+   .. automethod:: Calibrations.schedule_information
+   .. automethod:: Calibrations.schedules
+   .. automethod:: Calibrations.update_inst_map
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      Calibrations.add_parameter_value
-   
-   
-      Calibrations.add_schedule
-   
-   
-      Calibrations.calibration_parameter
-   
-   
-      Calibrations.config
-   
-   
-      Calibrations.from_backend
-   
-   
-      Calibrations.from_config
-   
-   
-      Calibrations.get_inst_map
-   
-   
-      Calibrations.get_parameter_value
-   
-   
-      Calibrations.get_schedule
-   
-   
-      Calibrations.get_template
-   
-   
-      Calibrations.has_template
-   
-   
-      Calibrations.inst_map_add
-   
-   
-      Calibrations.load
-   
-   
-      Calibrations.load_parameter_values
-   
-   
-      Calibrations.parameters_table
-   
-   
-      Calibrations.remove_schedule
-   
-   
-      Calibrations.save
-   
-   
-      Calibrations.schedule_information
-   
-   
-      Calibrations.schedules
-   
-   
-      Calibrations.update_inst_map
-   
-
-   
    

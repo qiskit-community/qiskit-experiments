@@ -10,62 +10,32 @@ AnalysisResultData
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisResultData.value
+   .. autoattribute:: AnalysisResultData.tags
+   .. autoattribute:: AnalysisResultData.extra
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      AnalysisResultData.value
-      
-   
-      
-      
-         
-      
-      AnalysisResultData.extra
-      
-   
-      
-      
-         
-      
-      AnalysisResultData.device_components
-      
-   
-   
-   
 
    
+   .. rubric:: Methods
    
+   .. automethod:: AnalysisResultData.from_table_element
 
-   
-   
-   
-
-   
    

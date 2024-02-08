@@ -1,8 +1,0 @@
-
-
-Rabi.circuits
-=========================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: Rabi.circuits

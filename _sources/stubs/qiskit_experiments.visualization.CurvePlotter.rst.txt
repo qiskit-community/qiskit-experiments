@@ -15,14 +15,12 @@ CurvePlotter
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      CurvePlotter.figure_options
-      CurvePlotter.options
-      CurvePlotter.series
-      CurvePlotter.series_data
-      CurvePlotter.supplementary_data
+   .. autoattribute:: CurvePlotter.figure_options
+   .. autoattribute:: CurvePlotter.options
+   .. autoattribute:: CurvePlotter.series
+   .. autoattribute:: CurvePlotter.series_data
+   .. autoattribute:: CurvePlotter.supplementary_data
    
    
 
@@ -31,23 +29,20 @@ CurvePlotter
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
-
    
-      CurvePlotter.clear_series_data
-      CurvePlotter.clear_supplementary_data
-      CurvePlotter.config
-      CurvePlotter.data_exists_for
-      CurvePlotter.data_for
-      CurvePlotter.data_keys_for
-      CurvePlotter.expected_series_data_keys
-      CurvePlotter.expected_supplementary_data_keys
-      CurvePlotter.figure
-      CurvePlotter.set_figure_options
-      CurvePlotter.set_options
-      CurvePlotter.set_series_data
-      CurvePlotter.set_supplementary_data
+   .. automethod:: CurvePlotter.clear_series_data
+   .. automethod:: CurvePlotter.clear_supplementary_data
+   .. automethod:: CurvePlotter.config
+   .. automethod:: CurvePlotter.data_exists_for
+   .. automethod:: CurvePlotter.data_for
+   .. automethod:: CurvePlotter.data_keys_for
+   .. automethod:: CurvePlotter.expected_series_data_keys
+   .. automethod:: CurvePlotter.expected_supplementary_data_keys
+   .. automethod:: CurvePlotter.figure
+   .. automethod:: CurvePlotter.set_figure_options
+   .. automethod:: CurvePlotter.set_options
+   .. automethod:: CurvePlotter.set_series_data
+   .. automethod:: CurvePlotter.set_supplementary_data
    
 
    

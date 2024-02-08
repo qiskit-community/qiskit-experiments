@@ -1,8 +1,0 @@
-
-
-BackendData.measure_channel
-========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BackendData.measure_channel

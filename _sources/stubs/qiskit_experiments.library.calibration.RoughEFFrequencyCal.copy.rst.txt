@@ -1,8 +1,0 @@
-
-
-RoughEFFrequencyCal.copy
-===============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: RoughEFFrequencyCal.copy

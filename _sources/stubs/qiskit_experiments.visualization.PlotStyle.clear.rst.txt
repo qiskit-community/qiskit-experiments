@@ -1,8 +1,0 @@
-
-
-PlotStyle.clear
-================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: PlotStyle.clear

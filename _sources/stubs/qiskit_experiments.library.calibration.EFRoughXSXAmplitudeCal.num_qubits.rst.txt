@@ -1,8 +1,0 @@
-
-
-EFRoughXSXAmplitudeCal.num_qubits
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: EFRoughXSXAmplitudeCal.num_qubits

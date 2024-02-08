@@ -1,8 +1,0 @@
-
-
-MultiStateDiscrimination.backend
-============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: MultiStateDiscrimination.backend

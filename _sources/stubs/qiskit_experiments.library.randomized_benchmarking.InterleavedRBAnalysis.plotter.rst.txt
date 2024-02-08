@@ -1,8 +1,0 @@
-
-
-InterleavedRBAnalysis.plotter
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: InterleavedRBAnalysis.plotter

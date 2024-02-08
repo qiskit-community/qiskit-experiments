@@ -21,8 +21,9 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
 :math:`T_\varphi.`
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -31,9 +32,9 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
     from qiskit_experiments.library.characterization import Tphi
 
     # An Aer simulator
-    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
@@ -54,11 +55,11 @@ relaxation time estimate. We can see that the component experiments of the batch
 .. jupyter-execute::
 
     exp = Tphi(physical_qubits=(0,), delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1)
-    exp.component_experiment(0).circuits()[-1].draw("mpl")
+    exp.component_experiment(0).circuits()[-1].draw(output="mpl", style="iqp")
 
 .. jupyter-execute::
 
-    exp.component_experiment(1).circuits()[-1].draw("mpl")
+    exp.component_experiment(1).circuits()[-1].draw(output="mpl", style="iqp")
 
 Run the experiment and print results:
 
@@ -94,7 +95,7 @@ experiment:
                t2type="ramsey", 
                osc_freq=1e5)
 
-    exp.component_experiment(1).circuits()[-1].draw("mpl")
+    exp.component_experiment(1).circuits()[-1].draw(output="mpl", style="iqp")
 
 Run and display results:
 

@@ -1,8 +1,0 @@
-
-
-MitigatedStateTomography.experiment_type
-==============================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedStateTomography.experiment_type

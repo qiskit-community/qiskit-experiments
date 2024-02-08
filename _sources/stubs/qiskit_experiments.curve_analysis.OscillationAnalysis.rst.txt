@@ -15,15 +15,13 @@ OscillationAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      OscillationAnalysis.drawer
-      OscillationAnalysis.models
-      OscillationAnalysis.name
-      OscillationAnalysis.options
-      OscillationAnalysis.parameters
-      OscillationAnalysis.plotter
+   .. autoattribute:: OscillationAnalysis.drawer
+   .. autoattribute:: OscillationAnalysis.models
+   .. autoattribute:: OscillationAnalysis.name
+   .. autoattribute:: OscillationAnalysis.options
+   .. autoattribute:: OscillationAnalysis.parameters
+   .. autoattribute:: OscillationAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ OscillationAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      OscillationAnalysis.config
-      OscillationAnalysis.copy
-      OscillationAnalysis.from_config
-      OscillationAnalysis.run
-      OscillationAnalysis.set_options
+   .. automethod:: OscillationAnalysis.config
+   .. automethod:: OscillationAnalysis.copy
+   .. automethod:: OscillationAnalysis.from_config
+   .. automethod:: OscillationAnalysis.model_names
+   .. automethod:: OscillationAnalysis.run
+   .. automethod:: OscillationAnalysis.set_options
    
 
    

@@ -8,15 +8,16 @@ of a quantum state by preparing the state many times and measuring them in a tom
 complete basis of measurement operators.
 
 .. note::
-    This tutorial requires the ``qiskit-aer`` package for simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 We first initialize a simulator to run the experiments on.
 
 .. jupyter-execute::
 
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     
     backend = AerSimulator.from_backend(FakePerth())
 
@@ -168,7 +169,7 @@ For example if we want to perform 1-qubit QST on several qubits at once:
              for i in range(num_qubits)]
     
     subexps = [
-        StateTomography(gate, physical_qubits=[i])
+        StateTomography(gate, physical_qubits=(i,))
         for i, gate in enumerate(gates)
     ]
     parexp = ParallelExperiment(subexps)

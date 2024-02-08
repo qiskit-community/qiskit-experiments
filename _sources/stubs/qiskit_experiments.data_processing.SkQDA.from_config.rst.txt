@@ -1,8 +1,0 @@
-
-
-SkQDA.from_config
-====================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: SkQDA.from_config

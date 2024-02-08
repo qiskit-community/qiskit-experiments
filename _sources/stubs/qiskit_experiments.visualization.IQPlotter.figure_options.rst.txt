@@ -1,8 +1,0 @@
-
-
-IQPlotter.figure_options
-=========================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: IQPlotter.figure_options

@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.backend
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedProcessTomography.backend

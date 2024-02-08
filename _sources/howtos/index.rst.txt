@@ -15,7 +15,7 @@ familiarize with :ref:`the basics <basics>` of the package before using these gu
 |
 
 If there are guides on solving specific problems that you'd like to see added, please 
-`file an issue on GitHub <https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=FEATURE_REQUEST.md&title=>`_.
+`file an issue on GitHub <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=FEATURE_REQUEST.md&title=>`_.
 
 |
 

@@ -1,8 +1,0 @@
-
-
-ZZRamsey.set_transpile_options
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: ZZRamsey.set_transpile_options

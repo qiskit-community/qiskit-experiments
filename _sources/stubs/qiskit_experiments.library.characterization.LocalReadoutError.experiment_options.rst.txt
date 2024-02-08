@@ -1,8 +1,0 @@
-
-
-LocalReadoutError.experiment_options
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: LocalReadoutError.experiment_options

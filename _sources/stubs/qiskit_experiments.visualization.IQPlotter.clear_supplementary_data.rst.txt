@@ -1,8 +1,0 @@
-
-
-IQPlotter.clear_supplementary_data
-===================================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: IQPlotter.clear_supplementary_data

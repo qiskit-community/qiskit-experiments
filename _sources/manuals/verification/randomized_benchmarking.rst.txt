@@ -8,8 +8,13 @@ identity. After running the circuits, the number of shots resulting in an error 
 output different from the ground state) are counted, and from this data one can infer
 error estimates for the quantum device, by calculating the Error Per Clifford. See the
 `Qiskit Textbook
-<https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__ for an
+<https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__ for an
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
+
+.. note::
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -20,7 +25,7 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     
     backend = AerSimulator.from_backend(FakePerth())
 
@@ -161,7 +166,7 @@ for the single qubit channel :math:`n=1`. Accordingly,
 
 as a composition of depolarization from every primitive gates per qubit.
 This correction will give you two EPC values as a result of the two-qubit RB experiment.
-The corrected EPC must be closer to the outcome of of interleaved RB.
+The corrected EPC must be closer to the outcome of interleaved RB.
 The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
@@ -175,7 +180,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     # Run a 1-qubit RB experiment on qubits 1, 2 to determine the error-per-gate of 1-qubit gates
     single_exps = BatchExperiment(
         [
-            StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
+            StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
         ],
         flatten_results=True,
@@ -215,20 +220,20 @@ The default RB circuit output shows Clifford blocks:
     # Run an RB experiment on qubit 0
     exp = StandardRB(physical_qubits=(0,), lengths=[2], num_samples=1, seed=seed)
     c = exp.circuits()[0]
-    c.draw("mpl")
+    c.draw(output="mpl", style="iqp")
 
 You can decompose the circuit into underlying gates:
 
 .. jupyter-execute::
 
-    c.decompose().draw("mpl")
+    c.decompose().draw(output="mpl", style="iqp")
 
 And see the transpiled circuit using the basis gate set of the backend:
 
 .. jupyter-execute::
 
     from qiskit import transpile
-    transpile(c, backend, **vars(exp.transpile_options)).draw("mpl", idle_wires=False)
+    transpile(c, backend, **vars(exp.transpile_options)).draw(output="mpl", style="iqp", idle_wires=False)
 
 .. note::
     In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
@@ -309,4 +314,4 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
-* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* Qiskit Textbook: `Randomized Benchmarking <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`__

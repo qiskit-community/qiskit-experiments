@@ -1,8 +1,0 @@
-
-
-PreparationBasis.index_shape
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.basis
-
-.. automethod:: PreparationBasis.index_shape

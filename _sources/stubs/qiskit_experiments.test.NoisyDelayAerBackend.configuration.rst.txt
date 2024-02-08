@@ -1,8 +1,0 @@
-
-
-NoisyDelayAerBackend.configuration
-==========================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: NoisyDelayAerBackend.configuration

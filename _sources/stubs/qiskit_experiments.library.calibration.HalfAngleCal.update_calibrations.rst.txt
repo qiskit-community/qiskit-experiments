@@ -1,8 +1,0 @@
-
-
-HalfAngleCal.update_calibrations
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: HalfAngleCal.update_calibrations

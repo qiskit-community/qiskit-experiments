@@ -1,8 +1,0 @@
-
-
-BaseCalibrationExperiment.transpile_options
-=====================================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. autoproperty:: BaseCalibrationExperiment.transpile_options

@@ -1,8 +1,0 @@
-
-
-CorrelatedReadoutErrorAnalysis.copy
-===============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: CorrelatedReadoutErrorAnalysis.copy

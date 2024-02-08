@@ -1,8 +1,0 @@
-
-
-BasePlotter.expected_series_data_keys
-======================================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BasePlotter.expected_series_data_keys

@@ -1,8 +1,0 @@
-
-
-FineAmplitude.analysis
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineAmplitude.analysis

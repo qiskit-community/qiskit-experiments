@@ -1,8 +1,0 @@
-
-
-CorrelatedReadoutErrorAnalysis.options
-==================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: CorrelatedReadoutErrorAnalysis.options

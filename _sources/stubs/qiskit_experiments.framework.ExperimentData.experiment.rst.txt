@@ -1,8 +1,0 @@
-
-
-ExperimentData.experiment
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.experiment

@@ -1,8 +1,0 @@
-
-
-RBUtils.coherence_limit
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: RBUtils.coherence_limit

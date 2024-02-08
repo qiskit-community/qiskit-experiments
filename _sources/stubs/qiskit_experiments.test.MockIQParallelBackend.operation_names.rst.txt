@@ -1,8 +1,0 @@
-
-
-MockIQParallelBackend.operation_names
-=============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: MockIQParallelBackend.operation_names

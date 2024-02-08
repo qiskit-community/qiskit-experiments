@@ -1,8 +1,0 @@
-
-
-ExperimentConfig.args
-==================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentConfig.args

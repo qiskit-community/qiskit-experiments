@@ -1,8 +1,0 @@
-
-
-MultiStateDiscriminationAnalysis.copy
-=================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: MultiStateDiscriminationAnalysis.copy

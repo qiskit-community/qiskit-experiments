@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.coupling_map
-==============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: SingleTransmonTestBackend.coupling_map

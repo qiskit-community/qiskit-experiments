@@ -1,8 +1,0 @@
-
-
-ExperimentStatus.CANCELLED
-=======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentStatus.CANCELLED

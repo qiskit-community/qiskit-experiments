@@ -15,10 +15,8 @@ ProcessTomographyAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ProcessTomographyAnalysis.options
+   .. autoattribute:: ProcessTomographyAnalysis.options
    
    
 
@@ -27,14 +25,12 @@ ProcessTomographyAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ProcessTomographyAnalysis.config
-      ProcessTomographyAnalysis.copy
-      ProcessTomographyAnalysis.from_config
-      ProcessTomographyAnalysis.run
-      ProcessTomographyAnalysis.set_options
+   .. automethod:: ProcessTomographyAnalysis.config
+   .. automethod:: ProcessTomographyAnalysis.copy
+   .. automethod:: ProcessTomographyAnalysis.from_config
+   .. automethod:: ProcessTomographyAnalysis.run
+   .. automethod:: ProcessTomographyAnalysis.set_options
    
 
    

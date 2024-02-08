@@ -1,8 +1,0 @@
-
-
-BaseExperiment.set_run_options
-===========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BaseExperiment.set_run_options

@@ -10,47 +10,23 @@ AverageData
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
 
    
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
+
 
    
    
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: AverageData.__call__
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      AverageData.__call__
-   
-   
-   
-      AverageData.__call__
-
-   
    

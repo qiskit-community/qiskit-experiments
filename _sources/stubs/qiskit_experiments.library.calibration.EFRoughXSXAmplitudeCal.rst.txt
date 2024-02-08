@@ -15,18 +15,16 @@ EFRoughXSXAmplitudeCal
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFRoughXSXAmplitudeCal.analysis
-      EFRoughXSXAmplitudeCal.backend
-      EFRoughXSXAmplitudeCal.calibrations
-      EFRoughXSXAmplitudeCal.experiment_options
-      EFRoughXSXAmplitudeCal.experiment_type
-      EFRoughXSXAmplitudeCal.num_qubits
-      EFRoughXSXAmplitudeCal.physical_qubits
-      EFRoughXSXAmplitudeCal.run_options
-      EFRoughXSXAmplitudeCal.transpile_options
+   .. autoattribute:: EFRoughXSXAmplitudeCal.analysis
+   .. autoattribute:: EFRoughXSXAmplitudeCal.backend
+   .. autoattribute:: EFRoughXSXAmplitudeCal.calibrations
+   .. autoattribute:: EFRoughXSXAmplitudeCal.experiment_options
+   .. autoattribute:: EFRoughXSXAmplitudeCal.experiment_type
+   .. autoattribute:: EFRoughXSXAmplitudeCal.num_qubits
+   .. autoattribute:: EFRoughXSXAmplitudeCal.physical_qubits
+   .. autoattribute:: EFRoughXSXAmplitudeCal.run_options
+   .. autoattribute:: EFRoughXSXAmplitudeCal.transpile_options
    
    
 
@@ -35,19 +33,18 @@ EFRoughXSXAmplitudeCal
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFRoughXSXAmplitudeCal.circuits
-      EFRoughXSXAmplitudeCal.config
-      EFRoughXSXAmplitudeCal.copy
-      EFRoughXSXAmplitudeCal.enable_restless
-      EFRoughXSXAmplitudeCal.from_config
-      EFRoughXSXAmplitudeCal.run
-      EFRoughXSXAmplitudeCal.set_experiment_options
-      EFRoughXSXAmplitudeCal.set_run_options
-      EFRoughXSXAmplitudeCal.set_transpile_options
-      EFRoughXSXAmplitudeCal.update_calibrations
+   .. automethod:: EFRoughXSXAmplitudeCal.circuits
+   .. automethod:: EFRoughXSXAmplitudeCal.config
+   .. automethod:: EFRoughXSXAmplitudeCal.copy
+   .. automethod:: EFRoughXSXAmplitudeCal.enable_restless
+   .. automethod:: EFRoughXSXAmplitudeCal.from_config
+   .. automethod:: EFRoughXSXAmplitudeCal.job_info
+   .. automethod:: EFRoughXSXAmplitudeCal.run
+   .. automethod:: EFRoughXSXAmplitudeCal.set_experiment_options
+   .. automethod:: EFRoughXSXAmplitudeCal.set_run_options
+   .. automethod:: EFRoughXSXAmplitudeCal.set_transpile_options
+   .. automethod:: EFRoughXSXAmplitudeCal.update_calibrations
    
 
    

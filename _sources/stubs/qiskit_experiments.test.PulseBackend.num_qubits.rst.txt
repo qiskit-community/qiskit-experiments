@@ -1,8 +1,0 @@
-
-
-PulseBackend.num_qubits
-===============================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: PulseBackend.num_qubits

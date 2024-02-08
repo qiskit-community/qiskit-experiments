@@ -1,8 +1,0 @@
-
-
-T2Hahn.experiment_type
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T2Hahn.experiment_type

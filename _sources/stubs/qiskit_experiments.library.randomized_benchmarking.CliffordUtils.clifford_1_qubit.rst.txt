@@ -1,8 +1,0 @@
-
-
-CliffordUtils.clifford_1_qubit
-=================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: CliffordUtils.clifford_1_qubit

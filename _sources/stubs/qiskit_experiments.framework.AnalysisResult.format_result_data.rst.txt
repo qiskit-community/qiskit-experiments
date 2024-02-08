@@ -1,8 +1,0 @@
-
-
-AnalysisResult.format_result_data
-==============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: AnalysisResult.format_result_data

@@ -10,93 +10,46 @@ EchoedCrossResonance
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: EchoedCrossResonance.basis_gates
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      EchoedCrossResonance.basis_gates
-      
-   
-   
-   
+         
+         
+         
+         
+         
+         
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: EchoedCrossResonance.__getitem__
+   .. automethod:: EchoedCrossResonance.__len__
+   .. automethod:: EchoedCrossResonance.config
+   .. automethod:: EchoedCrossResonance.default_values
+   .. automethod:: EchoedCrossResonance.from_config
+   .. automethod:: EchoedCrossResonance.get
+   .. automethod:: EchoedCrossResonance.items
+   .. automethod:: EchoedCrossResonance.keys
+   .. automethod:: EchoedCrossResonance.num_qubits
+   .. automethod:: EchoedCrossResonance.values
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      EchoedCrossResonance.__getitem__
-   
-   
-      EchoedCrossResonance.__len__
-   
-   
-      EchoedCrossResonance.config
-   
-   
-      EchoedCrossResonance.default_values
-   
-   
-      EchoedCrossResonance.from_config
-   
-   
-      EchoedCrossResonance.get
-   
-   
-      EchoedCrossResonance.items
-   
-   
-      EchoedCrossResonance.keys
-   
-   
-      EchoedCrossResonance.num_qubits
-   
-   
-      EchoedCrossResonance.values
-   
-   
-   
-      EchoedCrossResonance.__getitem__
-   
-   
-      EchoedCrossResonance.__len__
-
-   
    

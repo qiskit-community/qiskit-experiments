@@ -10,41 +10,24 @@ ShotOrder
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-      
          
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: ShotOrder.circuit_first
+   .. autoattribute:: ShotOrder.shot_first
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      ShotOrder.circuit_first
-      
-   
-      
-      
-         
-      
-      ShotOrder.shot_first
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
 
    
    
+
    

@@ -1,8 +1,0 @@
-
-
-ProcessTomography.from_config
-===================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: ProcessTomography.from_config

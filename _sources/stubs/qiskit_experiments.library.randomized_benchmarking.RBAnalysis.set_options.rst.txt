@@ -1,8 +1,0 @@
-
-
-RBAnalysis.set_options
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: RBAnalysis.set_options

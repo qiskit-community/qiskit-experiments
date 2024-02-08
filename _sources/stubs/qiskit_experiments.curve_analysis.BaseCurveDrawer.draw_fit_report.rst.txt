@@ -1,8 +1,0 @@
-
-
-BaseCurveDrawer.draw_fit_report
-=================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: BaseCurveDrawer.draw_fit_report

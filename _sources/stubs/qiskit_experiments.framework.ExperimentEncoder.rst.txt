@@ -10,63 +10,34 @@ ExperimentEncoder
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: ExperimentEncoder.item_separator
+   .. autoattribute:: ExperimentEncoder.key_separator
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      ExperimentEncoder.item_separator
-      
-   
-      
-      
          
-      
-      ExperimentEncoder.key_separator
-      
-   
-   
-   
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: ExperimentEncoder.default
+   .. automethod:: ExperimentEncoder.encode
+   .. automethod:: ExperimentEncoder.iterencode
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      ExperimentEncoder.default
-   
-   
-      ExperimentEncoder.encode
-   
-   
-      ExperimentEncoder.iterencode
-   
-
-   
    

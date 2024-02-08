@@ -1,8 +1,0 @@
-
-
-T2HahnAnalysis.run
-==============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: T2HahnAnalysis.run

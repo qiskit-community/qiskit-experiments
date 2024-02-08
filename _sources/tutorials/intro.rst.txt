@@ -6,7 +6,7 @@ What is Qiskit Experiments?
 ===========================
 
 Qiskit Experiments is a package for running device characterization and calibration 
-experiments on top of the core functionality of Qiskit Terra.
+experiments on top of the core functionality of Qiskit.
 
 An **experiment** comprises a series of circuits and associated metadata. 
 Once the experiment circuits are executed on a quantum backend, either 
@@ -21,7 +21,7 @@ What Qiskit Experiments can do
 
 * Run characterization and calibration experiments such as quantum
   volume and randomized benchmarking
-* Run built-in or customized experiments with all the options available in Qiskit Terra
+* Run built-in or customized experiments with all the options available in Qiskit
 * Specify fit series and parameters in the analysis
 * Transform the data through the data processor
 * Visualize data with support for custom drawing backends

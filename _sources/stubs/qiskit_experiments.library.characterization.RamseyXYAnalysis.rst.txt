@@ -15,15 +15,13 @@ RamseyXYAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RamseyXYAnalysis.drawer
-      RamseyXYAnalysis.models
-      RamseyXYAnalysis.name
-      RamseyXYAnalysis.options
-      RamseyXYAnalysis.parameters
-      RamseyXYAnalysis.plotter
+   .. autoattribute:: RamseyXYAnalysis.drawer
+   .. autoattribute:: RamseyXYAnalysis.models
+   .. autoattribute:: RamseyXYAnalysis.name
+   .. autoattribute:: RamseyXYAnalysis.options
+   .. autoattribute:: RamseyXYAnalysis.parameters
+   .. autoattribute:: RamseyXYAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ RamseyXYAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RamseyXYAnalysis.config
-      RamseyXYAnalysis.copy
-      RamseyXYAnalysis.from_config
-      RamseyXYAnalysis.run
-      RamseyXYAnalysis.set_options
+   .. automethod:: RamseyXYAnalysis.config
+   .. automethod:: RamseyXYAnalysis.copy
+   .. automethod:: RamseyXYAnalysis.from_config
+   .. automethod:: RamseyXYAnalysis.model_names
+   .. automethod:: RamseyXYAnalysis.run
+   .. automethod:: RamseyXYAnalysis.set_options
    
 
    

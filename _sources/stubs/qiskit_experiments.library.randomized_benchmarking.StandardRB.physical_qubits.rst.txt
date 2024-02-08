@@ -1,8 +1,0 @@
-
-
-StandardRB.physical_qubits
-=============================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: StandardRB.physical_qubits

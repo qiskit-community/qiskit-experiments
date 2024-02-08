@@ -10,72 +10,34 @@ SVD
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: SVD.is_trained
+   .. autoattribute:: SVD.parameters
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      SVD.is_trained
-      
-   
-      
-      
          
-      
-      SVD.parameters
-      
-   
-   
-   
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: SVD.__call__
+   .. automethod:: SVD.set_parameters
+   .. automethod:: SVD.train
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      SVD.__call__
-   
-   
-      SVD.set_parameters
-   
-   
-      SVD.train
-   
-   
-   
-      SVD.__call__
-
-   
    

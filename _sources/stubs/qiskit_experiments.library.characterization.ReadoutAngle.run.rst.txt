@@ -1,8 +1,0 @@
-
-
-ReadoutAngle.run
-============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: ReadoutAngle.run

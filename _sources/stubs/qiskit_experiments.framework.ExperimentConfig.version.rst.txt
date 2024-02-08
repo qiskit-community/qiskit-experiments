@@ -1,8 +1,0 @@
-
-
-ExperimentConfig.version
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentConfig.version

@@ -1,8 +1,0 @@
-
-
-BaseDrawer.config
-==================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BaseDrawer.config

@@ -1,8 +1,0 @@
-
-
-BasePlotter.clear_series_data
-==============================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BasePlotter.clear_series_data

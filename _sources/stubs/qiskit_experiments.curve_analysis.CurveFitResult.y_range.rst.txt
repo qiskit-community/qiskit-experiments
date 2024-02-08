@@ -1,8 +1,0 @@
-
-
-CurveFitResult.y_range
-========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: CurveFitResult.y_range

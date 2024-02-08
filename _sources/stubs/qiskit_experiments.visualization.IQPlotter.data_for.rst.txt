@@ -1,8 +1,0 @@
-
-
-IQPlotter.data_for
-===================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: IQPlotter.data_for

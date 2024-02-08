@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.analysis
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedProcessTomography.analysis

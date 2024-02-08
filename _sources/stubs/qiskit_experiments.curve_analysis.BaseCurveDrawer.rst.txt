@@ -10,87 +10,46 @@ BaseCurveDrawer
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: BaseCurveDrawer.figure
+   .. autoattribute:: BaseCurveDrawer.options
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      BaseCurveDrawer.figure
-      
-   
-      
-      
          
-      
-      BaseCurveDrawer.options
-      
-   
-   
-   
+         
+         
+         
+         
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: BaseCurveDrawer.config
+   .. automethod:: BaseCurveDrawer.draw_confidence_interval
+   .. automethod:: BaseCurveDrawer.draw_fit_line
+   .. automethod:: BaseCurveDrawer.draw_fit_report
+   .. automethod:: BaseCurveDrawer.draw_formatted_data
+   .. automethod:: BaseCurveDrawer.draw_raw_data
+   .. automethod:: BaseCurveDrawer.format_canvas
+   .. automethod:: BaseCurveDrawer.initialize_canvas
+   .. automethod:: BaseCurveDrawer.set_options
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      BaseCurveDrawer.config
-   
-   
-      BaseCurveDrawer.draw_confidence_interval
-   
-   
-      BaseCurveDrawer.draw_fit_line
-   
-   
-      BaseCurveDrawer.draw_fit_report
-   
-   
-      BaseCurveDrawer.draw_formatted_data
-   
-   
-      BaseCurveDrawer.draw_raw_data
-   
-   
-      BaseCurveDrawer.format_canvas
-   
-   
-      BaseCurveDrawer.initialize_canvas
-   
-   
-      BaseCurveDrawer.set_options
-   
-
-   
    

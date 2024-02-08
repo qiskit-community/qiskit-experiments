@@ -10,86 +10,44 @@ CliffordUtils
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-      
          
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: CliffordUtils.CLIFFORD_1_QUBIT_SIG
+   .. autoattribute:: CliffordUtils.CLIFFORD_2_QUBIT_SIGS
+   .. autoattribute:: CliffordUtils.NUM_CLIFFORD_1_QUBIT
+   .. autoattribute:: CliffordUtils.NUM_CLIFFORD_2_QUBIT
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      CliffordUtils.CLIFFORD_1_QUBIT_SIG
-      
-   
-      
-      
-         
-      
-      CliffordUtils.CLIFFORD_2_QUBIT_SIGS
-      
-   
-      
-      
-         
-      
-      CliffordUtils.NUM_CLIFFORD_1_QUBIT
-      
-   
-      
-      
-         
-      
-      CliffordUtils.NUM_CLIFFORD_2_QUBIT
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
 
    
    
+         
+         
+         
+         
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: CliffordUtils.clifford_1_qubit
+   .. automethod:: CliffordUtils.clifford_1_qubit_circuit
+   .. automethod:: CliffordUtils.clifford_2_qubit
+   .. automethod:: CliffordUtils.clifford_2_qubit_circuit
+   .. automethod:: CliffordUtils.random_clifford_circuits
+   .. automethod:: CliffordUtils.random_cliffords
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      CliffordUtils.clifford_1_qubit
-   
-   
-      CliffordUtils.clifford_1_qubit_circuit
-   
-   
-      CliffordUtils.clifford_2_qubit
-   
-   
-      CliffordUtils.clifford_2_qubit_circuit
-   
-   
-      CliffordUtils.random_clifford_circuits
-   
-   
-      CliffordUtils.random_cliffords
-   
-
-   
    

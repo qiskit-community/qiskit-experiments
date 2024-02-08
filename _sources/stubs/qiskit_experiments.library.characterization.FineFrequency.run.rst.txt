@@ -1,8 +1,0 @@
-
-
-FineFrequency.run
-=============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineFrequency.run

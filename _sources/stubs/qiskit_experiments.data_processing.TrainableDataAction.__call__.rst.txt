@@ -1,8 +1,0 @@
-
-
-TrainableDataAction.__call__
-===============================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: TrainableDataAction.__call__

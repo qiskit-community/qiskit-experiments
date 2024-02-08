@@ -1,8 +1,0 @@
-
-
-MitigatedStateTomography.num_qubits
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedStateTomography.num_qubits

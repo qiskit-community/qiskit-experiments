@@ -1,8 +1,0 @@
-
-
-ExperimentData.add_analysis_results
-================================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.add_analysis_results

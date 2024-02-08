@@ -1,8 +1,0 @@
-
-
-ExperimentData.metadata
-====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.metadata

@@ -1,8 +1,0 @@
-
-
-BackendTiming.dt
-=============================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: BackendTiming.dt

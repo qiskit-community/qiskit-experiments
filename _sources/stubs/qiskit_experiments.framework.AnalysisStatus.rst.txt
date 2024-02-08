@@ -10,68 +10,30 @@ AnalysisStatus
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-      
          
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisStatus.QUEUED
+   .. autoattribute:: AnalysisStatus.RUNNING
+   .. autoattribute:: AnalysisStatus.CANCELLED
+   .. autoattribute:: AnalysisStatus.DONE
+   .. autoattribute:: AnalysisStatus.ERROR
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      AnalysisStatus.QUEUED
-      
-   
-      
-      
-         
-      
-      AnalysisStatus.RUNNING
-      
-   
-      
-      
-         
-      
-      AnalysisStatus.CANCELLED
-      
-   
-      
-      
-         
-      
-      AnalysisStatus.DONE
-      
-   
-      
-      
-         
-      
-      AnalysisStatus.ERROR
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
 
    
    
 
-   
-   
-   
-
-   
    

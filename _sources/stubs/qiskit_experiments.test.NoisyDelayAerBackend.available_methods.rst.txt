@@ -1,8 +1,0 @@
-
-
-NoisyDelayAerBackend.available_methods
-==============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: NoisyDelayAerBackend.available_methods

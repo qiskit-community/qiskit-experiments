@@ -1,8 +1,0 @@
-
-
-RBAnalysis.models
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: RBAnalysis.models

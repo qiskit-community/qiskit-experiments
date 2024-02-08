@@ -1,8 +1,0 @@
-
-
-ResonatorSpectroscopyAnalysis.plotter
-=================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: ResonatorSpectroscopyAnalysis.plotter

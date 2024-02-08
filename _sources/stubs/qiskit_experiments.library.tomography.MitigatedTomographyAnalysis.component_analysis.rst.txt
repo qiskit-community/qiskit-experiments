@@ -1,8 +1,0 @@
-
-
-MitigatedTomographyAnalysis.component_analysis
-====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: MitigatedTomographyAnalysis.component_analysis

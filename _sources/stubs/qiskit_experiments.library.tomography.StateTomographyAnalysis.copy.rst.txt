@@ -1,8 +1,0 @@
-
-
-StateTomographyAnalysis.copy
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: StateTomographyAnalysis.copy

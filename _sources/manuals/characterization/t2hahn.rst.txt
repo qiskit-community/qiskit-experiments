@@ -50,8 +50,6 @@ following components:
 #. :math:`R_x \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
 #. Measurement gate
 
-|
-
 The user provides as input a series of delays in seconds. During the
 delay, we expect the qubit to precess about the z-axis. Because of the
 echo gate (:math:`R_x(\pi)`) for each echo, the angle after the delay
@@ -127,7 +125,7 @@ computed for other qubits.
 
 .. jupyter-execute::
 
-    exp_with_p0 = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=number_of_echoes)
+    exp_with_p0 = T2Hahn(physical_qubits=(qubit,), delays=delays, num_echoes=number_of_echoes)
     exp_with_p0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5})
     expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
     expdata_with_p0.block_for_results()
@@ -192,13 +190,13 @@ total delay time.
     estimated_t2hahn2 = 30 * conversion_factor
     
     # Create a T2Hahn experiment with 0 echoes
-    exp2_0echoes = T2Hahn([qubit2], delays2, num_echoes=0)
+    exp2_0echoes = T2Hahn((qubit2,), delays2, num_echoes=0)
     exp2_0echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
     print("The first circuit of hahn echo experiment with 0 echoes:")
     print(exp2_0echoes.circuits()[0])
     
     # Create a T2Hahn experiment with 1 echo. Print the first circuit as an example
-    exp2_1echoes = T2Hahn([qubit2], delays3, num_echoes=num_echoes)
+    exp2_1echoes = T2Hahn((qubit2,), delays3, num_echoes=num_echoes)
     exp2_1echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
     print("The first circuit of hahn echo experiment with 1 echo:")
     print(exp2_1echoes.circuits()[0])

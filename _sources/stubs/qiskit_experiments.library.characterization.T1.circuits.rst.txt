@@ -1,8 +1,0 @@
-
-
-T1.circuits
-=======================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: T1.circuits

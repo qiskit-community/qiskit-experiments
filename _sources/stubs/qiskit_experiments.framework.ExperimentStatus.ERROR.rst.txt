@@ -1,8 +1,0 @@
-
-
-ExperimentStatus.ERROR
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: ExperimentStatus.ERROR

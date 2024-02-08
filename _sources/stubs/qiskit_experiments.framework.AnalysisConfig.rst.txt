@@ -10,77 +10,34 @@ AnalysisConfig
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisConfig.version
+   .. autoattribute:: AnalysisConfig.args
+   .. autoattribute:: AnalysisConfig.kwargs
+   .. autoattribute:: AnalysisConfig.options
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      AnalysisConfig.version
-      
-   
-      
-      
-         
-      
-      AnalysisConfig.args
-      
-   
-      
-      
-         
-      
-      AnalysisConfig.kwargs
-      
-   
-      
-      
-         
-      
-      AnalysisConfig.options
-      
-   
-   
-   
+
+
 
    
    
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: AnalysisConfig.analysis
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      AnalysisConfig.analysis
-   
-
-   
    

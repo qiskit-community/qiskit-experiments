@@ -1,8 +1,0 @@
-
-
-BatchExperiment.config
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BatchExperiment.config

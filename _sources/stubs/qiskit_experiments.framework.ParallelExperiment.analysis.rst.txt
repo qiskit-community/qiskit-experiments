@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.analysis
-========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.analysis

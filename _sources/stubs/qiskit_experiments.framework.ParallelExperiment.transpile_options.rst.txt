@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.transpile_options
-=================================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.transpile_options

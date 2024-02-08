@@ -15,17 +15,15 @@ EFRabi
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFRabi.analysis
-      EFRabi.backend
-      EFRabi.experiment_options
-      EFRabi.experiment_type
-      EFRabi.num_qubits
-      EFRabi.physical_qubits
-      EFRabi.run_options
-      EFRabi.transpile_options
+   .. autoattribute:: EFRabi.analysis
+   .. autoattribute:: EFRabi.backend
+   .. autoattribute:: EFRabi.experiment_options
+   .. autoattribute:: EFRabi.experiment_type
+   .. autoattribute:: EFRabi.num_qubits
+   .. autoattribute:: EFRabi.physical_qubits
+   .. autoattribute:: EFRabi.run_options
+   .. autoattribute:: EFRabi.transpile_options
    
    
 
@@ -34,18 +32,17 @@ EFRabi
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFRabi.circuits
-      EFRabi.config
-      EFRabi.copy
-      EFRabi.enable_restless
-      EFRabi.from_config
-      EFRabi.run
-      EFRabi.set_experiment_options
-      EFRabi.set_run_options
-      EFRabi.set_transpile_options
+   .. automethod:: EFRabi.circuits
+   .. automethod:: EFRabi.config
+   .. automethod:: EFRabi.copy
+   .. automethod:: EFRabi.enable_restless
+   .. automethod:: EFRabi.from_config
+   .. automethod:: EFRabi.job_info
+   .. automethod:: EFRabi.run
+   .. automethod:: EFRabi.set_experiment_options
+   .. automethod:: EFRabi.set_run_options
+   .. automethod:: EFRabi.set_transpile_options
    
 
    

@@ -1,8 +1,0 @@
-
-
-FineSXAmplitude.from_config
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineSXAmplitude.from_config

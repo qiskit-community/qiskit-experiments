@@ -15,17 +15,15 @@ TomographyExperiment
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      TomographyExperiment.analysis
-      TomographyExperiment.backend
-      TomographyExperiment.experiment_options
-      TomographyExperiment.experiment_type
-      TomographyExperiment.num_qubits
-      TomographyExperiment.physical_qubits
-      TomographyExperiment.run_options
-      TomographyExperiment.transpile_options
+   .. autoattribute:: TomographyExperiment.analysis
+   .. autoattribute:: TomographyExperiment.backend
+   .. autoattribute:: TomographyExperiment.experiment_options
+   .. autoattribute:: TomographyExperiment.experiment_type
+   .. autoattribute:: TomographyExperiment.num_qubits
+   .. autoattribute:: TomographyExperiment.physical_qubits
+   .. autoattribute:: TomographyExperiment.run_options
+   .. autoattribute:: TomographyExperiment.transpile_options
    
    
 
@@ -34,17 +32,16 @@ TomographyExperiment
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      TomographyExperiment.circuits
-      TomographyExperiment.config
-      TomographyExperiment.copy
-      TomographyExperiment.from_config
-      TomographyExperiment.run
-      TomographyExperiment.set_experiment_options
-      TomographyExperiment.set_run_options
-      TomographyExperiment.set_transpile_options
+   .. automethod:: TomographyExperiment.circuits
+   .. automethod:: TomographyExperiment.config
+   .. automethod:: TomographyExperiment.copy
+   .. automethod:: TomographyExperiment.from_config
+   .. automethod:: TomographyExperiment.job_info
+   .. automethod:: TomographyExperiment.run
+   .. automethod:: TomographyExperiment.set_experiment_options
+   .. automethod:: TomographyExperiment.set_run_options
+   .. automethod:: TomographyExperiment.set_transpile_options
    
 
    

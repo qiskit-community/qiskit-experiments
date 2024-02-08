@@ -1,8 +1,0 @@
-
-
-RoughDrag.physical_qubits
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: RoughDrag.physical_qubits

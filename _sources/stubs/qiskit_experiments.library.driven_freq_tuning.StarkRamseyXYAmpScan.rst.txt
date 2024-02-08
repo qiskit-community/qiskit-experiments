@@ -1,0 +1,50 @@
+﻿
+
+StarkRamseyXYAmpScan
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
+
+.. autoexperiment:: StarkRamseyXYAmpScan
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StarkRamseyXYAmpScan.analysis
+   .. autoattribute:: StarkRamseyXYAmpScan.backend
+   .. autoattribute:: StarkRamseyXYAmpScan.experiment_options
+   .. autoattribute:: StarkRamseyXYAmpScan.experiment_type
+   .. autoattribute:: StarkRamseyXYAmpScan.num_qubits
+   .. autoattribute:: StarkRamseyXYAmpScan.physical_qubits
+   .. autoattribute:: StarkRamseyXYAmpScan.run_options
+   .. autoattribute:: StarkRamseyXYAmpScan.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StarkRamseyXYAmpScan.circuits
+   .. automethod:: StarkRamseyXYAmpScan.config
+   .. automethod:: StarkRamseyXYAmpScan.copy
+   .. automethod:: StarkRamseyXYAmpScan.from_config
+   .. automethod:: StarkRamseyXYAmpScan.job_info
+   .. automethod:: StarkRamseyXYAmpScan.parameterized_circuits
+   .. automethod:: StarkRamseyXYAmpScan.parameters
+   .. automethod:: StarkRamseyXYAmpScan.run
+   .. automethod:: StarkRamseyXYAmpScan.set_experiment_options
+   .. automethod:: StarkRamseyXYAmpScan.set_run_options
+   .. automethod:: StarkRamseyXYAmpScan.set_transpile_options
+   
+
+   
+   

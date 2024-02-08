@@ -1,8 +1,0 @@
-
-
-FineSXDrag.run_options
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineSXDrag.run_options

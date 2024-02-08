@@ -1,8 +1,0 @@
-
-
-BackendData.max_circuits
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.max_circuits

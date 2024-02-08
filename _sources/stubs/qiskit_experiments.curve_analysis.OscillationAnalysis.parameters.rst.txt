@@ -1,8 +1,0 @@
-
-
-OscillationAnalysis.parameters
-================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: OscillationAnalysis.parameters

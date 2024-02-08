@@ -1,8 +1,0 @@
-
-
-T1Analysis.copy
-===========================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: T1Analysis.copy

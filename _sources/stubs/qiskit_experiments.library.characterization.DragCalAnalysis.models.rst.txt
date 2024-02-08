@@ -1,8 +1,0 @@
-
-
-DragCalAnalysis.models
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: DragCalAnalysis.models

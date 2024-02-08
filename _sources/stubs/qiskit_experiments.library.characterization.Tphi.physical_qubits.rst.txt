@@ -1,8 +1,0 @@
-
-
-Tphi.physical_qubits
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: Tphi.physical_qubits

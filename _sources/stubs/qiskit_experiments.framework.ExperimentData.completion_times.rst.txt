@@ -1,8 +1,0 @@
-
-
-ExperimentData.completion_times
-============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.completion_times

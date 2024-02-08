@@ -1,8 +1,0 @@
-
-
-StandardRB.backend
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: StandardRB.backend

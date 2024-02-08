@@ -1,8 +1,0 @@
-
-
-MitigatedStateTomography.analysis
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedStateTomography.analysis

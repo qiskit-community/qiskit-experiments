@@ -1,8 +1,0 @@
-
-
-MockIQExperimentHelper.iq_phase
-=======================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: MockIQExperimentHelper.iq_phase

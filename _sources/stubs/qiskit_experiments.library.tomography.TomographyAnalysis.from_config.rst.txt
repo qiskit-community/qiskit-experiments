@@ -1,8 +1,0 @@
-
-
-TomographyAnalysis.from_config
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: TomographyAnalysis.from_config

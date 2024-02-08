@@ -1,8 +1,0 @@
-
-
-HalfAngleCal.run_options
-===============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: HalfAngleCal.run_options

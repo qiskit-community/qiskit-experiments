@@ -1,8 +1,0 @@
-
-
-FineXDrag.num_qubits
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineXDrag.num_qubits

@@ -1,8 +1,0 @@
-
-
-FineXAmplitude.run_options
-======================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineXAmplitude.run_options

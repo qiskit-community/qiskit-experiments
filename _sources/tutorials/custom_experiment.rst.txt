@@ -7,7 +7,10 @@ run an experiment that's similar to an existing experiment in the
 classes. You can also write your own experiment class from the ground up by subclassing
 the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
 
-In general, to subclass :class:`.BaseExperiment` class, you should:
+Experiment subclassing
+----------------------
+
+In general, to subclass the :class:`.BaseExperiment` class, you should:
 
 - Implement the abstract :meth:`.BaseExperiment.circuits` method.
   This should return a list of :class:`~qiskit.circuit.QuantumCircuit` objects defining
@@ -41,13 +44,31 @@ Optionally, to allow configuring experiment and execution options, you can overr
 - :meth:`.BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
+.. note::
+
+    Qiskit Experiments supports experiments on non-qubit components defined as subclasses of
+    :class:`.DeviceComponent`, such as the :class:`.Resonator` in the :class:`.ResonatorSpectroscopy`
+    experiment. If you would like to work on these components in your experiment, you should override
+    ``_metadata()`` to populate ``device_components`` with these components. Here is
+    an example for an experiment that takes in :class:`.Resonator` components:
+
+    .. jupyter-input::
+
+        from qiskit_experiments.database_service import Resonator
+
+        def _metadata(self):
+            """Add the custom resonator components to the metadata."""
+            metadata = super()._metadata()
+            metadata["device_components"] = list(map(Resonator, self.physical_qubits))
+            return metadata
+
 Furthermore, some characterization and calibration experiments can be run with restless
 measurements, i.e. measurements where the qubits are not reset and circuits are executed
 immediately after the previous measurement. Here, the :class:`.RestlessMixin` class
 can help to set the appropriate run options and data processing chain.
 
-Analysis Subclasses
--------------------
+Analysis subclassing
+--------------------
 
 To create an analysis subclass, one only needs to implement the abstract
 :meth:`.BaseAnalysis._run_analysis` method. This method takes an
@@ -161,6 +182,11 @@ The corresponding custom analysis class template:
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.
 
+
+
+
+
+
 Example custom experiment: randomized measurement
 -------------------------------------------------
 
@@ -223,7 +249,7 @@ to 10.
             self._circuit = circuit        
             self._measured_qubits = measured_qubits
             
-            # Set any init optinos
+            # Set any init options
             self.set_experiment_options(num_samples=num_samples, seed=seed)
 
 Now we consider default experiment options. We choose to only let the user change
@@ -338,6 +364,19 @@ loop over each circuit to process the output bitstring. Since we're using defaul
 signature to restore the output to what it should be without the random Pauli frame
 at the end. We make a new :class:`.AnalysisResultData` object since we're rewriting the 
 counts from the original experiment.
+
+.. note::
+
+    As you may find here, circuit metadata is mainly used to generate a structured data
+    in the analysis class for convenience of result handling.
+    A metadata supplied to a particular circuit should appear in the corresponding
+    experiment result data dictionary stored in the experiment data.
+    If you attach large amount of metadata which is not expected to be used in the analysis,
+    the metadata just unnecessarily increases the job payload memory footprint,
+    and it prevents your experiment class from scaling in qubit size through
+    the composite experiment tooling.
+    If you still want to store some experiment setting, which is common to all circuits
+    or irrelevant to the analysis, use the experiment metadata instead.
 
 .. jupyter-input::
 
@@ -519,17 +558,17 @@ output if the Pauli corresponding to that bit has a nonzero signature.
 To test our code, we first simulate a noisy backend with asymmetric readout error.
 
 .. note::
-    This tutorial requires the ``qiskit-aer`` package for simulations.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` package for simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 
 .. jupyter-execute::
 
-  from qiskit.providers.aer import AerSimulator, noise
+  from qiskit_aer import AerSimulator, noise
 
   backend_ideal = AerSimulator()
 
-  # Backend with asymetric readout error
+  # Backend with asymmetric readout error
   p0g1 = 0.3
   p1g0 = 0.05
   noise_model = noise.NoiseModel()
@@ -547,7 +586,7 @@ Let's use a GHZ circuit as the input:
     for i in range(1, nq):
         qc.cx(i-1, i)
     
-    qc.draw("mpl")
+    qc.draw(output="mpl", style="iqp")
 
 Check that the experiment is appending a random Pauli and measurements as expected:
 
@@ -560,9 +599,9 @@ Check that the experiment is appending a random Pauli and measurements as expect
 
     # Run ideal randomized meas experiment
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
-    exp.circuits()[0].draw("mpl")
+    exp.circuits()[0].draw(output="mpl", style="iqp")
 
-We now run the experiment with a GHZ circuit on an ideal backend, whic produces nearly
+We now run the experiment with a GHZ circuit on an ideal backend, which produces nearly
 perfect symmetrical results between :math:`|0000\rangle` and :math:`|1111\rangle`:
 
 .. jupyter-execute::
@@ -614,4 +653,4 @@ unaffected by the added randomized measurements, which use its own classical reg
         qc.cx(i-1, i)
 
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
-    exp.circuits()[0].draw("mpl")
+    exp.circuits()[0].draw(output="mpl", style="iqp")

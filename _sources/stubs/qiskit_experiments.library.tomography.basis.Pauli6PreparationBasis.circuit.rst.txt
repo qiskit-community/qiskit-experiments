@@ -1,8 +1,0 @@
-
-
-Pauli6PreparationBasis.circuit
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.basis
-
-.. automethod:: Pauli6PreparationBasis.circuit

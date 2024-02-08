@@ -1,8 +1,0 @@
-
-
-BackendData.min_length
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.min_length

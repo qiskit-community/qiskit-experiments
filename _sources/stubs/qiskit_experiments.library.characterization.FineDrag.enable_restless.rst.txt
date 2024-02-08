@@ -1,8 +1,0 @@
-
-
-FineDrag.enable_restless
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineDrag.enable_restless

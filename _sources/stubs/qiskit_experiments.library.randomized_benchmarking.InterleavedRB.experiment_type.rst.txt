@@ -1,8 +1,0 @@
-
-
-InterleavedRB.experiment_type
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: InterleavedRB.experiment_type

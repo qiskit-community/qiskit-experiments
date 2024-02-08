@@ -1,8 +1,0 @@
-
-
-PlotStyle.fromkeys
-===================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: PlotStyle.fromkeys

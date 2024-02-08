@@ -1,8 +1,0 @@
-
-
-CliffordUtils.CLIFFORD_1_QUBIT_SIG
-=====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoattribute:: CliffordUtils.CLIFFORD_1_QUBIT_SIG

@@ -15,15 +15,13 @@ T1Analysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T1Analysis.drawer
-      T1Analysis.models
-      T1Analysis.name
-      T1Analysis.options
-      T1Analysis.parameters
-      T1Analysis.plotter
+   .. autoattribute:: T1Analysis.drawer
+   .. autoattribute:: T1Analysis.models
+   .. autoattribute:: T1Analysis.name
+   .. autoattribute:: T1Analysis.options
+   .. autoattribute:: T1Analysis.parameters
+   .. autoattribute:: T1Analysis.plotter
    
    
 
@@ -32,14 +30,13 @@ T1Analysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T1Analysis.config
-      T1Analysis.copy
-      T1Analysis.from_config
-      T1Analysis.run
-      T1Analysis.set_options
+   .. automethod:: T1Analysis.config
+   .. automethod:: T1Analysis.copy
+   .. automethod:: T1Analysis.from_config
+   .. automethod:: T1Analysis.model_names
+   .. automethod:: T1Analysis.run
+   .. automethod:: T1Analysis.set_options
    
 
    

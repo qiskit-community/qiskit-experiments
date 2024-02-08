@@ -1,8 +1,0 @@
-
-
-MockIQParallelExperimentHelper.iq_cluster_centers
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: MockIQParallelExperimentHelper.iq_cluster_centers

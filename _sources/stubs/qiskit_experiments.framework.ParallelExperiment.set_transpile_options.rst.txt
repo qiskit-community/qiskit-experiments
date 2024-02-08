@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.set_transpile_options
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ParallelExperiment.set_transpile_options

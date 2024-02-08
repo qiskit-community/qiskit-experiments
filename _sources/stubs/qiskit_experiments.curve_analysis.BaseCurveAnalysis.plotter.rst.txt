@@ -1,8 +1,0 @@
-
-
-BaseCurveAnalysis.plotter
-===========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: BaseCurveAnalysis.plotter

@@ -1,8 +1,0 @@
-
-
-EchoedCrossResonance.basis_gates
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. autoproperty:: EchoedCrossResonance.basis_gates

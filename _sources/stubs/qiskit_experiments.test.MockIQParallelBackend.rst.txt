@@ -10,181 +10,76 @@ MockIQParallelBackend
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: MockIQParallelBackend.coupling_map
+   .. autoattribute:: MockIQParallelBackend.dt
+   .. autoattribute:: MockIQParallelBackend.dtm
+   .. autoattribute:: MockIQParallelBackend.experiment_helper
+   .. autoattribute:: MockIQParallelBackend.instruction_durations
+   .. autoattribute:: MockIQParallelBackend.instruction_schedule_map
+   .. autoattribute:: MockIQParallelBackend.instructions
+   .. autoattribute:: MockIQParallelBackend.max_circuits
+   .. autoattribute:: MockIQParallelBackend.meas_map
+   .. autoattribute:: MockIQParallelBackend.num_qubits
+   .. autoattribute:: MockIQParallelBackend.operation_names
+   .. autoattribute:: MockIQParallelBackend.operations
+   .. autoattribute:: MockIQParallelBackend.options
+   .. autoattribute:: MockIQParallelBackend.provider
+   .. autoattribute:: MockIQParallelBackend.target
+   .. autoattribute:: MockIQParallelBackend.version
+   .. autoattribute:: MockIQParallelBackend.description
+   .. autoattribute:: MockIQParallelBackend.online_date
+   .. autoattribute:: MockIQParallelBackend.backend_version
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      MockIQParallelBackend.coupling_map
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.dt
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.dtm
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.experiment_helper
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.instruction_durations
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.instruction_schedule_map
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.instructions
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.max_circuits
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.meas_map
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.num_qubits
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.operation_names
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.operations
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.options
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.provider
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.target
-      
-   
-      
-      
-         
-      
-      MockIQParallelBackend.version
-      
-   
-   
-   
+
+
 
    
    
+         
+         
+         
+         
+         
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: MockIQParallelBackend.acquire_channel
+   .. automethod:: MockIQParallelBackend.control_channel
+   .. automethod:: MockIQParallelBackend.drive_channel
+   .. automethod:: MockIQParallelBackend.measure_channel
+   .. automethod:: MockIQParallelBackend.qubit_properties
+   .. automethod:: MockIQParallelBackend.run
+   .. automethod:: MockIQParallelBackend.set_options
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      MockIQParallelBackend.acquire_channel
-   
-   
-      MockIQParallelBackend.control_channel
-   
-   
-      MockIQParallelBackend.drive_channel
-   
-   
-      MockIQParallelBackend.measure_channel
-   
-   
-      MockIQParallelBackend.qubit_properties
-   
-   
-      MockIQParallelBackend.run
-   
-   
-      MockIQParallelBackend.set_options
-   
-
-   
    

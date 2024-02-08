@@ -1,8 +1,0 @@
-
-
-CorrelatedReadoutError.set_transpile_options
-========================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: CorrelatedReadoutError.set_transpile_options

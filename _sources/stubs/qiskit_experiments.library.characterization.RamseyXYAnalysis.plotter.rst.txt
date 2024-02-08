@@ -1,8 +1,0 @@
-
-
-RamseyXYAnalysis.plotter
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: RamseyXYAnalysis.plotter

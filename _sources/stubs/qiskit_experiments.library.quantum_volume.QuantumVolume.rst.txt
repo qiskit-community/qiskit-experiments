@@ -15,17 +15,15 @@ QuantumVolume
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      QuantumVolume.analysis
-      QuantumVolume.backend
-      QuantumVolume.experiment_options
-      QuantumVolume.experiment_type
-      QuantumVolume.num_qubits
-      QuantumVolume.physical_qubits
-      QuantumVolume.run_options
-      QuantumVolume.transpile_options
+   .. autoattribute:: QuantumVolume.analysis
+   .. autoattribute:: QuantumVolume.backend
+   .. autoattribute:: QuantumVolume.experiment_options
+   .. autoattribute:: QuantumVolume.experiment_type
+   .. autoattribute:: QuantumVolume.num_qubits
+   .. autoattribute:: QuantumVolume.physical_qubits
+   .. autoattribute:: QuantumVolume.run_options
+   .. autoattribute:: QuantumVolume.transpile_options
    
    
 
@@ -34,17 +32,16 @@ QuantumVolume
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      QuantumVolume.circuits
-      QuantumVolume.config
-      QuantumVolume.copy
-      QuantumVolume.from_config
-      QuantumVolume.run
-      QuantumVolume.set_experiment_options
-      QuantumVolume.set_run_options
-      QuantumVolume.set_transpile_options
+   .. automethod:: QuantumVolume.circuits
+   .. automethod:: QuantumVolume.config
+   .. automethod:: QuantumVolume.copy
+   .. automethod:: QuantumVolume.from_config
+   .. automethod:: QuantumVolume.job_info
+   .. automethod:: QuantumVolume.run
+   .. automethod:: QuantumVolume.set_experiment_options
+   .. automethod:: QuantumVolume.set_run_options
+   .. automethod:: QuantumVolume.set_transpile_options
    
 
    

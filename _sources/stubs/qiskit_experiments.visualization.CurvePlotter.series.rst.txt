@@ -1,8 +1,0 @@
-
-
-CurvePlotter.series
-====================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: CurvePlotter.series

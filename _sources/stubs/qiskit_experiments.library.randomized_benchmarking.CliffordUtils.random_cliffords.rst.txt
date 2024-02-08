@@ -1,8 +1,0 @@
-
-
-CliffordUtils.random_cliffords
-=================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: CliffordUtils.random_cliffords

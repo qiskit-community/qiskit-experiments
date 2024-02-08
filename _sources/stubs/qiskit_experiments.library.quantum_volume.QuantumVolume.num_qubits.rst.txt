@@ -1,8 +1,0 @@
-
-
-QuantumVolume.num_qubits
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.quantum_volume
-
-.. autoproperty:: QuantumVolume.num_qubits

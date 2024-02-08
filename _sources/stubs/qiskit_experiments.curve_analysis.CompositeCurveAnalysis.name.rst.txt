@@ -1,8 +1,0 @@
-
-
-CompositeCurveAnalysis.name
-=============================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: CompositeCurveAnalysis.name

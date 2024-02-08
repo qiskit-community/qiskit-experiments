@@ -1,8 +1,0 @@
-
-
-BaseDrawer.image
-=================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BaseDrawer.image

@@ -1,8 +1,0 @@
-
-
-EFSpectroscopy.analysis
-===================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: EFSpectroscopy.analysis

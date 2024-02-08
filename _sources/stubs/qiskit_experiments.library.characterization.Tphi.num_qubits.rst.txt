@@ -1,8 +1,0 @@
-
-
-Tphi.num_qubits
-===========================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: Tphi.num_qubits

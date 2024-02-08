@@ -15,15 +15,13 @@ ZZRamseyAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ZZRamseyAnalysis.drawer
-      ZZRamseyAnalysis.models
-      ZZRamseyAnalysis.name
-      ZZRamseyAnalysis.options
-      ZZRamseyAnalysis.parameters
-      ZZRamseyAnalysis.plotter
+   .. autoattribute:: ZZRamseyAnalysis.drawer
+   .. autoattribute:: ZZRamseyAnalysis.models
+   .. autoattribute:: ZZRamseyAnalysis.name
+   .. autoattribute:: ZZRamseyAnalysis.options
+   .. autoattribute:: ZZRamseyAnalysis.parameters
+   .. autoattribute:: ZZRamseyAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ ZZRamseyAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ZZRamseyAnalysis.config
-      ZZRamseyAnalysis.copy
-      ZZRamseyAnalysis.from_config
-      ZZRamseyAnalysis.run
-      ZZRamseyAnalysis.set_options
+   .. automethod:: ZZRamseyAnalysis.config
+   .. automethod:: ZZRamseyAnalysis.copy
+   .. automethod:: ZZRamseyAnalysis.from_config
+   .. automethod:: ZZRamseyAnalysis.model_names
+   .. automethod:: ZZRamseyAnalysis.run
+   .. automethod:: ZZRamseyAnalysis.set_options
    
 
    

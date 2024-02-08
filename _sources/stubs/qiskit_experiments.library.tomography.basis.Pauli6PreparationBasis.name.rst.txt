@@ -1,8 +1,0 @@
-
-
-Pauli6PreparationBasis.name
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.basis
-
-.. autoproperty:: Pauli6PreparationBasis.name

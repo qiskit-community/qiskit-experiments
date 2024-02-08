@@ -1,8 +1,0 @@
-
-
-MockIQParallelBackend.version
-=====================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoattribute:: MockIQParallelBackend.version

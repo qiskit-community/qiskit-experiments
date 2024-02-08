@@ -10,91 +10,38 @@ ExperimentConfig
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: ExperimentConfig.version
+   .. autoattribute:: ExperimentConfig.args
+   .. autoattribute:: ExperimentConfig.kwargs
+   .. autoattribute:: ExperimentConfig.experiment_options
+   .. autoattribute:: ExperimentConfig.transpile_options
+   .. autoattribute:: ExperimentConfig.run_options
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      ExperimentConfig.version
-      
-   
-      
-      
-         
-      
-      ExperimentConfig.args
-      
-   
-      
-      
-         
-      
-      ExperimentConfig.kwargs
-      
-   
-      
-      
-         
-      
-      ExperimentConfig.experiment_options
-      
-   
-      
-      
-         
-      
-      ExperimentConfig.transpile_options
-      
-   
-      
-      
-         
-      
-      ExperimentConfig.run_options
-      
-   
-   
-   
+
+
 
    
    
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: ExperimentConfig.experiment
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      ExperimentConfig.experiment
-   
-
-   
    

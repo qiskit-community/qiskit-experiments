@@ -15,15 +15,13 @@ ResonatorSpectroscopyAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ResonatorSpectroscopyAnalysis.drawer
-      ResonatorSpectroscopyAnalysis.models
-      ResonatorSpectroscopyAnalysis.name
-      ResonatorSpectroscopyAnalysis.options
-      ResonatorSpectroscopyAnalysis.parameters
-      ResonatorSpectroscopyAnalysis.plotter
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.drawer
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.models
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.name
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.options
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.parameters
+   .. autoattribute:: ResonatorSpectroscopyAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ ResonatorSpectroscopyAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ResonatorSpectroscopyAnalysis.config
-      ResonatorSpectroscopyAnalysis.copy
-      ResonatorSpectroscopyAnalysis.from_config
-      ResonatorSpectroscopyAnalysis.run
-      ResonatorSpectroscopyAnalysis.set_options
+   .. automethod:: ResonatorSpectroscopyAnalysis.config
+   .. automethod:: ResonatorSpectroscopyAnalysis.copy
+   .. automethod:: ResonatorSpectroscopyAnalysis.from_config
+   .. automethod:: ResonatorSpectroscopyAnalysis.model_names
+   .. automethod:: ResonatorSpectroscopyAnalysis.run
+   .. automethod:: ResonatorSpectroscopyAnalysis.set_options
    
 
    

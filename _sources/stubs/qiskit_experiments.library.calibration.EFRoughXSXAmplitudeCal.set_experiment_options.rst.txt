@@ -1,8 +1,0 @@
-
-
-EFRoughXSXAmplitudeCal.set_experiment_options
-====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: EFRoughXSXAmplitudeCal.set_experiment_options

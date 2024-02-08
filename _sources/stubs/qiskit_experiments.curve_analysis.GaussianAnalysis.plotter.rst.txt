@@ -1,8 +1,0 @@
-
-
-GaussianAnalysis.plotter
-==========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: GaussianAnalysis.plotter

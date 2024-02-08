@@ -15,18 +15,16 @@ EchoedCrossResonanceHamiltonian
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EchoedCrossResonanceHamiltonian.analysis
-      EchoedCrossResonanceHamiltonian.backend
-      EchoedCrossResonanceHamiltonian.experiment_options
-      EchoedCrossResonanceHamiltonian.experiment_type
-      EchoedCrossResonanceHamiltonian.num_pulses
-      EchoedCrossResonanceHamiltonian.num_qubits
-      EchoedCrossResonanceHamiltonian.physical_qubits
-      EchoedCrossResonanceHamiltonian.run_options
-      EchoedCrossResonanceHamiltonian.transpile_options
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.analysis
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.backend
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.experiment_options
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.experiment_type
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.num_pulses
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.num_qubits
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.physical_qubits
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.run_options
+   .. autoattribute:: EchoedCrossResonanceHamiltonian.transpile_options
    
    
 
@@ -35,17 +33,16 @@ EchoedCrossResonanceHamiltonian
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EchoedCrossResonanceHamiltonian.circuits
-      EchoedCrossResonanceHamiltonian.config
-      EchoedCrossResonanceHamiltonian.copy
-      EchoedCrossResonanceHamiltonian.from_config
-      EchoedCrossResonanceHamiltonian.run
-      EchoedCrossResonanceHamiltonian.set_experiment_options
-      EchoedCrossResonanceHamiltonian.set_run_options
-      EchoedCrossResonanceHamiltonian.set_transpile_options
+   .. automethod:: EchoedCrossResonanceHamiltonian.circuits
+   .. automethod:: EchoedCrossResonanceHamiltonian.config
+   .. automethod:: EchoedCrossResonanceHamiltonian.copy
+   .. automethod:: EchoedCrossResonanceHamiltonian.from_config
+   .. automethod:: EchoedCrossResonanceHamiltonian.job_info
+   .. automethod:: EchoedCrossResonanceHamiltonian.run
+   .. automethod:: EchoedCrossResonanceHamiltonian.set_experiment_options
+   .. automethod:: EchoedCrossResonanceHamiltonian.set_run_options
+   .. automethod:: EchoedCrossResonanceHamiltonian.set_transpile_options
    
 
    

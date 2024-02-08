@@ -1,8 +1,0 @@
-
-
-AnalysisResult.device_components
-=============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: AnalysisResult.device_components

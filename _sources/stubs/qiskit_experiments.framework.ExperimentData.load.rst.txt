@@ -1,8 +1,0 @@
-
-
-ExperimentData.load
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.load

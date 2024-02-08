@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.copy
-====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ParallelExperiment.copy

@@ -1,8 +1,0 @@
-
-
-FixedFrequencyTransmon.keys
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: FixedFrequencyTransmon.keys

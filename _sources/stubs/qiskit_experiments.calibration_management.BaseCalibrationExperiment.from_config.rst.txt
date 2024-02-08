@@ -1,8 +1,0 @@
-
-
-BaseCalibrationExperiment.from_config
-===============================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: BaseCalibrationExperiment.from_config

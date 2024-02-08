@@ -4,7 +4,7 @@ Save and load experiment data with the cloud service
 .. note::
     This guide is only for those who have access to the cloud service. You can 
     check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
+    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
 
 Problem
 -------
@@ -18,8 +18,9 @@ Saving
 ~~~~~~
 
 .. note::
-    This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
-    consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
+    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 You must run the experiment on a real IBM
 backend and not a simulator to be able to save the experiment data. This is done by calling
@@ -27,12 +28,12 @@ backend and not a simulator to be able to save the experiment data. This is done
 
 .. jupyter-input::
 
-    from qiskit_ibm_provider import IBMProvider
+    from qiskit_ibm_runtime import QiskitRuntimeService
     from qiskit_experiments.library.characterization import T1
     import numpy as np
 
-    provider = IBMProvider()
-    backend = provider.get_backend("ibmq_lima")
+    service = QiskitRuntimeService(channel="ibm_quantum")
+    backend = service.backend("ibm_osaka")
     
     t1_delays = np.arange(1e-6, 600e-6, 50e-6)
 
@@ -44,28 +45,25 @@ backend and not a simulator to be able to save the experiment data. This is done
 .. jupyter-output::
 
     You can view the experiment online at 
-    https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
+    https://quantum.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
 
 Loading
 ~~~~~~~
 
 Let's load a `previous T1
-experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
+experiment <https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
 (requires login to view), which we've made public by editing the ``Share level`` field:
 
 .. jupyter-input::
 
-    from qiskit_experiments.framework.experiment_data import ExperimentData
-    service = ExperimentData.get_service_from_backend(backend)
-    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
+    from qiskit_experiments.framework import ExperimentData
+    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", provider=service)
 
-To display the figure, which is serialized into a string, we need the
-``SVG`` library:
+Now we can display the figure from the loaded experiment data:
 
 .. jupyter-input::
 
-    from IPython.display import SVG
-    SVG(load_expdata.figure(0).figure)
+    load_expdata.figure(0)
 
 .. image:: ./experiment_cloud_service/t1_loaded.png
 
@@ -123,6 +121,10 @@ instantiate an experiment entry in the database, but it will not have
 complete data. To fix this, you can call :meth:`~.ExperimentData.save` again once the
 experiment is done running.
 
+Sometimes the metadata of an experiment can be very large and cannot be stored directly in the database.
+In this case, a separate ``metadata.json`` file will be stored along with the experiment. Saving and loading
+this file is done automatically in :meth:`~.ExperimentData.save` and :meth:`~.ExperimentData.load`.
+
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -139,8 +141,13 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 
 .. jupyter-output::
 
-    You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
-    <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
+    You can view the experiment online at https://quantum.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
+    <ExperimentData[T1], backend: ibm_osaka, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
+
+Setting ``auto_save = True`` works by triggering :meth:`.ExperimentData.save`.
+
+When working with composite experiments, setting ``auto_save`` will propagate this
+setting to the child experiments.
 
 Deleting an experiment
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -179,12 +186,5 @@ Web interface
 ~~~~~~~~~~~~~
 
 You can also view experiment results as well as change the tags and share level at the `IBM Quantum Experiments
-pane <https://quantum-computing.ibm.com/experiments?date_interval=last-90-days&owner=me>`__
-on the cloud. The documentation below explains how to view, search, and share experiment
-data entries.
-
-See also
---------
-
-* `Experiments web interface documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`__ 
-
+pane <https://quantum.ibm.com/experiments?date_interval=last-90-days&owner=me>`__
+on the cloud.

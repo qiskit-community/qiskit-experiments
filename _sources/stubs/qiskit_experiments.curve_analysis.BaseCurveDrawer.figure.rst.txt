@@ -1,8 +1,0 @@
-
-
-BaseCurveDrawer.figure
-========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: BaseCurveDrawer.figure

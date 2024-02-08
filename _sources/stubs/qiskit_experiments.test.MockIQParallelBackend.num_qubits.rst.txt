@@ -1,8 +1,0 @@
-
-
-MockIQParallelBackend.num_qubits
-========================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: MockIQParallelBackend.num_qubits

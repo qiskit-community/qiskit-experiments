@@ -1,8 +1,0 @@
-
-
-FixedFrequencyTransmon.num_qubits
-===========================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: FixedFrequencyTransmon.num_qubits

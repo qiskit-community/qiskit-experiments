@@ -1,8 +1,0 @@
-
-
-FineFrequency.experiment_options
-============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineFrequency.experiment_options

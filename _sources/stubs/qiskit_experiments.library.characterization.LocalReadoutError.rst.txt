@@ -15,17 +15,15 @@ LocalReadoutError
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      LocalReadoutError.analysis
-      LocalReadoutError.backend
-      LocalReadoutError.experiment_options
-      LocalReadoutError.experiment_type
-      LocalReadoutError.num_qubits
-      LocalReadoutError.physical_qubits
-      LocalReadoutError.run_options
-      LocalReadoutError.transpile_options
+   .. autoattribute:: LocalReadoutError.analysis
+   .. autoattribute:: LocalReadoutError.backend
+   .. autoattribute:: LocalReadoutError.experiment_options
+   .. autoattribute:: LocalReadoutError.experiment_type
+   .. autoattribute:: LocalReadoutError.num_qubits
+   .. autoattribute:: LocalReadoutError.physical_qubits
+   .. autoattribute:: LocalReadoutError.run_options
+   .. autoattribute:: LocalReadoutError.transpile_options
    
    
 
@@ -34,17 +32,16 @@ LocalReadoutError
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      LocalReadoutError.circuits
-      LocalReadoutError.config
-      LocalReadoutError.copy
-      LocalReadoutError.from_config
-      LocalReadoutError.run
-      LocalReadoutError.set_experiment_options
-      LocalReadoutError.set_run_options
-      LocalReadoutError.set_transpile_options
+   .. automethod:: LocalReadoutError.circuits
+   .. automethod:: LocalReadoutError.config
+   .. automethod:: LocalReadoutError.copy
+   .. automethod:: LocalReadoutError.from_config
+   .. automethod:: LocalReadoutError.job_info
+   .. automethod:: LocalReadoutError.run
+   .. automethod:: LocalReadoutError.set_experiment_options
+   .. automethod:: LocalReadoutError.set_run_options
+   .. automethod:: LocalReadoutError.set_transpile_options
    
 
    

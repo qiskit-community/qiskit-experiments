@@ -1,8 +1,0 @@
-
-
-ZZRamseyAnalysis.parameters
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: ZZRamseyAnalysis.parameters

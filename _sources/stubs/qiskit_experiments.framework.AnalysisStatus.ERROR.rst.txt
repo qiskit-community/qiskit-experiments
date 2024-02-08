@@ -1,8 +1,0 @@
-
-
-AnalysisStatus.ERROR
-=================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: AnalysisStatus.ERROR

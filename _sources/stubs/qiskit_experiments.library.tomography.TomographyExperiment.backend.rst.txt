@@ -1,8 +1,0 @@
-
-
-TomographyExperiment.backend
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: TomographyExperiment.backend

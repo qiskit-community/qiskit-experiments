@@ -1,8 +1,0 @@
-
-
-FineXAmplitudeCal.copy
-=============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: FineXAmplitudeCal.copy

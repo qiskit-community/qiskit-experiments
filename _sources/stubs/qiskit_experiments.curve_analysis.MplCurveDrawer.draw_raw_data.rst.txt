@@ -1,8 +1,0 @@
-
-
-MplCurveDrawer.draw_raw_data
-==============================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: MplCurveDrawer.draw_raw_data

@@ -1,8 +1,0 @@
-
-
-BaseExperiment.copy
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BaseExperiment.copy

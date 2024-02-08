@@ -31,8 +31,6 @@ The circuits used for the experiment comprise the following steps:
 #. Hadamard gate
 #. Measurement
 
-|
-
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
 precess about the z-axis. If the p gate and the precession offset each
@@ -60,13 +58,14 @@ We run the experiment on a simulated backend using Qiskit Aer with a
 pure T1/T2 relaxation noise model.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     

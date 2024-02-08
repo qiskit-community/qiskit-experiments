@@ -15,10 +15,8 @@ CorrelatedReadoutErrorAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      CorrelatedReadoutErrorAnalysis.options
+   .. autoattribute:: CorrelatedReadoutErrorAnalysis.options
    
    
 
@@ -27,14 +25,12 @@ CorrelatedReadoutErrorAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      CorrelatedReadoutErrorAnalysis.config
-      CorrelatedReadoutErrorAnalysis.copy
-      CorrelatedReadoutErrorAnalysis.from_config
-      CorrelatedReadoutErrorAnalysis.run
-      CorrelatedReadoutErrorAnalysis.set_options
+   .. automethod:: CorrelatedReadoutErrorAnalysis.config
+   .. automethod:: CorrelatedReadoutErrorAnalysis.copy
+   .. automethod:: CorrelatedReadoutErrorAnalysis.from_config
+   .. automethod:: CorrelatedReadoutErrorAnalysis.run
+   .. automethod:: CorrelatedReadoutErrorAnalysis.set_options
    
 
    

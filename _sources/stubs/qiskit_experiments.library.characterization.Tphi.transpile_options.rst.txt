@@ -1,8 +1,0 @@
-
-
-Tphi.transpile_options
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: Tphi.transpile_options

@@ -15,18 +15,16 @@ RoughFrequencyCal
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughFrequencyCal.analysis
-      RoughFrequencyCal.backend
-      RoughFrequencyCal.calibrations
-      RoughFrequencyCal.experiment_options
-      RoughFrequencyCal.experiment_type
-      RoughFrequencyCal.num_qubits
-      RoughFrequencyCal.physical_qubits
-      RoughFrequencyCal.run_options
-      RoughFrequencyCal.transpile_options
+   .. autoattribute:: RoughFrequencyCal.analysis
+   .. autoattribute:: RoughFrequencyCal.backend
+   .. autoattribute:: RoughFrequencyCal.calibrations
+   .. autoattribute:: RoughFrequencyCal.experiment_options
+   .. autoattribute:: RoughFrequencyCal.experiment_type
+   .. autoattribute:: RoughFrequencyCal.num_qubits
+   .. autoattribute:: RoughFrequencyCal.physical_qubits
+   .. autoattribute:: RoughFrequencyCal.run_options
+   .. autoattribute:: RoughFrequencyCal.transpile_options
    
    
 
@@ -35,18 +33,17 @@ RoughFrequencyCal
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughFrequencyCal.circuits
-      RoughFrequencyCal.config
-      RoughFrequencyCal.copy
-      RoughFrequencyCal.from_config
-      RoughFrequencyCal.run
-      RoughFrequencyCal.set_experiment_options
-      RoughFrequencyCal.set_run_options
-      RoughFrequencyCal.set_transpile_options
-      RoughFrequencyCal.update_calibrations
+   .. automethod:: RoughFrequencyCal.circuits
+   .. automethod:: RoughFrequencyCal.config
+   .. automethod:: RoughFrequencyCal.copy
+   .. automethod:: RoughFrequencyCal.from_config
+   .. automethod:: RoughFrequencyCal.job_info
+   .. automethod:: RoughFrequencyCal.run
+   .. automethod:: RoughFrequencyCal.set_experiment_options
+   .. automethod:: RoughFrequencyCal.set_run_options
+   .. automethod:: RoughFrequencyCal.set_transpile_options
+   .. automethod:: RoughFrequencyCal.update_calibrations
    
 
    

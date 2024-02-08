@@ -1,8 +1,0 @@
-
-
-BaseCalibrationExperiment.update_calibrations
-=======================================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: BaseCalibrationExperiment.update_calibrations

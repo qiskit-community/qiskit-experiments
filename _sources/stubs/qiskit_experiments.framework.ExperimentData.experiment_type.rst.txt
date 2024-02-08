@@ -1,8 +1,0 @@
-
-
-ExperimentData.experiment_type
-===========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.experiment_type

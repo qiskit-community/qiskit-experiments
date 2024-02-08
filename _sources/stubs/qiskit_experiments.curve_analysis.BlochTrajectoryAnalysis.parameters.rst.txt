@@ -1,8 +1,0 @@
-
-
-BlochTrajectoryAnalysis.parameters
-====================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: BlochTrajectoryAnalysis.parameters

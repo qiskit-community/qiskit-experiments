@@ -1,8 +1,0 @@
-
-
-RoughDrag.experiment_options
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: RoughDrag.experiment_options

@@ -15,11 +15,9 @@ MultiStateDiscriminationAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      MultiStateDiscriminationAnalysis.options
-      MultiStateDiscriminationAnalysis.plotter
+   .. autoattribute:: MultiStateDiscriminationAnalysis.options
+   .. autoattribute:: MultiStateDiscriminationAnalysis.plotter
    
    
 
@@ -28,14 +26,12 @@ MultiStateDiscriminationAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      MultiStateDiscriminationAnalysis.config
-      MultiStateDiscriminationAnalysis.copy
-      MultiStateDiscriminationAnalysis.from_config
-      MultiStateDiscriminationAnalysis.run
-      MultiStateDiscriminationAnalysis.set_options
+   .. automethod:: MultiStateDiscriminationAnalysis.config
+   .. automethod:: MultiStateDiscriminationAnalysis.copy
+   .. automethod:: MultiStateDiscriminationAnalysis.from_config
+   .. automethod:: MultiStateDiscriminationAnalysis.run
+   .. automethod:: MultiStateDiscriminationAnalysis.set_options
    
 
    

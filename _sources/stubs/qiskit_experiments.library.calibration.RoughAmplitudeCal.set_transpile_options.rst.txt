@@ -1,8 +1,0 @@
-
-
-RoughAmplitudeCal.set_transpile_options
-==============================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: RoughAmplitudeCal.set_transpile_options

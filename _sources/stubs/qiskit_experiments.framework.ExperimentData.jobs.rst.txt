@@ -1,8 +1,0 @@
-
-
-ExperimentData.jobs
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.jobs

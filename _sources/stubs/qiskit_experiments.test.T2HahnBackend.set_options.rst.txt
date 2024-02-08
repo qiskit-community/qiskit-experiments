@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.set_options
-=================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: T2HahnBackend.set_options

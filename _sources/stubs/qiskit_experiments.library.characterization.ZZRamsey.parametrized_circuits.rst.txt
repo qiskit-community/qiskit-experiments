@@ -1,8 +1,0 @@
-
-
-ZZRamsey.parametrized_circuits
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: ZZRamsey.parametrized_circuits

@@ -1,8 +1,0 @@
-
-
-FineXAmplitudeCal.config
-===============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: FineXAmplitudeCal.config

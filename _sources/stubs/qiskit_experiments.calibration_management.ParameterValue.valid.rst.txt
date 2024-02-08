@@ -1,8 +1,0 @@
-
-
-ParameterValue.valid
-==============================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. autoattribute:: ParameterValue.valid

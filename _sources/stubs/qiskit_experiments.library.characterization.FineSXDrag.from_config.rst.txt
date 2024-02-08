@@ -1,8 +1,0 @@
-
-
-FineSXDrag.from_config
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineSXDrag.from_config

@@ -1,8 +1,0 @@
-
-
-MplDrawer.label_for
-====================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: MplDrawer.label_for

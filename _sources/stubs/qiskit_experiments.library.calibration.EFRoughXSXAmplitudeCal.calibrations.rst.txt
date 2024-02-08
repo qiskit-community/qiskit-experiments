@@ -1,8 +1,0 @@
-
-
-EFRoughXSXAmplitudeCal.calibrations
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: EFRoughXSXAmplitudeCal.calibrations

@@ -1,8 +1,0 @@
-
-
-HalfAngle.run_options
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: HalfAngle.run_options
