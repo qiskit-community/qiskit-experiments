@@ -631,13 +631,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="randomized-benchmarking">
+          <section id="randomized-benchmarking">
 <h1>Randomized Benchmarking<a class="headerlink" href="#randomized-benchmarking" title="Permalink to this heading">#</a></h1>
 <p>Randomized benchmarking (RB) is a popular protocol for characterizing the error rate of
 quantum processors. An RB experiment consists of the generation of random Clifford
@@ -760,48 +754,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 156
+ - number of function evals: 107
  - degree of freedom: 1
- - chi-square: 0.4976680457794913
- - reduced chi-square: 0.4976680457794913
- - Akaike info crit.: -2.336465440308272
- - Bayesian info crit.: -4.177582356948601
+ - chi-square: 0.6732541126892415
+ - reduced chi-square: 0.6732541126892415
+ - Akaike info crit.: -1.1277071988745195
+ - Bayesian info crit.: -2.968824115514848
  - init params:
-  * a = 0.4739890317413226
-  * alpha = 0.9997143959128337
+  * a = 0.4794450183405667
+  * alpha = 0.9997331390150265
   * b = 0.5
  - fit params:
-  * a = 0.9745698388304033 ± 3.747957351200653
-  * alpha = 0.9998699609879048 ± 0.000517298003641098
-  * b = 1.406925366903147e-13 ± 3.7489960428189115
+  * a = 0.1304814202044406 ± 0.034590750559021416
+  * alpha = 0.9986610513065152 ± 0.000488285389120221
+  * b = 0.8490818700651421 ± 0.0348353901781435
  - correlations:
-  * (a, b) = -0.9999998762824215
-  * (alpha, b) = -0.999926741340901
-  * (a, alpha) = 0.9999218121666029
+  * (a, b) = -0.9994467289833059
+  * (alpha, b) = -0.9919177885597297
+  * (a, alpha) = 0.9895276297077992
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9999+/-0.0005
-- χ²: 0.4976680457794913
+- value: 0.9987+/-0.0005
+- χ²: 0.6732541126892415
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00007+/-0.00026
-- χ²: 0.4976680457794913
+- value: 0.00067+/-0.00024
+- χ²: 0.6732541126892415
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00007+/-0.00028
-- χ²: 0.4976680457794913
+- value: 0.00072+/-0.00026
+- χ²: 0.6732541126892415
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -809,15 +803,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 0.4976680457794913
+- χ²: 0.6732541126892415
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00007+/-0.00028
-- χ²: 0.4976680457794913
+- value: 0.00072+/-0.00026
+- χ²: 0.6732541126892415
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -926,54 +920,54 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - success: True
  - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 5.234974490612558
- - reduced chi-square: 1.3087436226531395
- - Akaike info crit.: 3.966162756813544
- - Bayesian info crit.: 3.8038932039794835
+ - chi-square: 6.006593628296638
+ - reduced chi-square: 1.5016484070741596
+ - Akaike info crit.: 4.928633583822473
+ - Bayesian info crit.: 4.766364030988412
  - init params:
-  * a = 0.7151684503497282
-  * alpha = 0.9826782591726574
+  * a = 0.7153908397301181
+  * alpha = 0.9833274003054449
   * b = 0.25
  - fit params:
-  * a = 0.723009577329317 ± 0.006489899580452136
-  * alpha = 0.9829077705542635 ± 0.0004947964963288239
-  * b = 0.24195340503535903 ± 0.006088803064406153
+  * a = 0.707043378785094 ± 0.0063324720698308455
+  * alpha = 0.9819329102435933 ± 0.0004746239823969715
+  * b = 0.257910082963762 ± 0.005488783307144004
  - correlations:
-  * (alpha, b) = -0.8845184232880823
-  * (a, b) = -0.8242375037942367
-  * (a, alpha) = 0.6389441934155903
+  * (alpha, b) = -0.8728042448820191
+  * (a, b) = -0.7268000485928281
+  * (a, alpha) = 0.4971536723482676
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9829+/-0.0005
-- χ²: 1.3087436226531395
+- value: 0.9819+/-0.0005
+- χ²: 1.5016484070741596
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0128+/-0.0004
-- χ²: 1.3087436226531395
+- value: 0.0136+/-0.0004
+- χ²: 1.5016484070741596
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0116+/-0.0007
-- χ²: 1.3087436226531395
+- value: 0.0127+/-0.0006
+- χ²: 1.5016484070741596
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0075+/-0.0004
-- χ²: 1.3087436226531395
+- value: 0.0082+/-0.0004
+- χ²: 1.5016484070741596
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1091,37 +1085,37 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 30
+ - number of function evals: 25
  - degree of freedom: 10
- - chi-square: 2.839488405418985
- - reduced chi-square: 0.2839488405418985
- - Akaike info crit.: -14.336068056485235
- - Bayesian info crit.: -11.779838738024202
+ - chi-square: 14.40516969771666
+ - reduced chi-square: 1.440516969771666
+ - Akaike info crit.: 8.399417470550825
+ - Bayesian info crit.: 10.955646789011858
  - init params:
-  * a = 0.7158748481546089
-  * alpha = 0.9823103676279247
+  * a = 0.7126638264435229
+  * alpha = 0.9830081638014985
   * b = 0.25
-  * alpha_c = 0.9843253467358213
+  * alpha_c = 0.9914508877056706
  - fit params:
-  * a = 0.714534019648606 ± 0.003693187540445722
-  * alpha = 0.9825313031828217 ± 0.00034584474882367694
-  * b = 0.24885980524343787 ± 0.0028418543617591487
-  * alpha_c = 0.9894062861205358 ± 0.0004897237025024394
+  * a = 0.7093102639396548 ± 0.003538777314875402
+  * alpha = 0.981992916968858 ± 0.0003166647093338
+  * b = 0.25437062605886857 ± 0.0024675587091633573
+  * alpha_c = 0.9894392400350617 ± 0.0005294971979923898
  - correlations:
-  * (alpha, b) = -0.683276636872814
-  * (a, b) = -0.6641061240958664
-  * (b, alpha_c) = -0.2576162216233096
-  * (alpha, alpha_c) = -0.1688152111603978
-  * (a, alpha_c) = 0.08445617763357845
-  * (a, alpha) = 0.3395556511105105
+  * (alpha, b) = -0.6633639946741174
+  * (a, b) = -0.5670094565078011
+  * (b, alpha_c) = -0.4061889246497461
+  * (alpha, alpha_c) = -0.03188888169635885
+  * (a, alpha_c) = 0.17930564123616816
+  * (a, alpha) = 0.2125169994262081
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98253+/-0.00035
-- χ²: 0.2839488405418985
+- value: 0.98199+/-0.00032
+- χ²: 1.440516969771666
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1129,7 +1123,7 @@ AnalysisResult
 AnalysisResult
 - name: alpha_c
 - value: 0.9894+/-0.0005
-- χ²: 0.2839488405418985
+- χ²: 1.440516969771666
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1137,7 +1131,7 @@ AnalysisResult
 AnalysisResult
 - name: EPC
 - value: 0.0079+/-0.0004
-- χ²: 0.2839488405418985
+- χ²: 1.440516969771666
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]

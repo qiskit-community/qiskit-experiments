@@ -631,13 +631,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="getting-started">
+          <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
@@ -869,32 +863,32 @@ exponential decay model of the <span class="math notranslate nohighlight">\(T_1\
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 19
  - degree of freedom: 18
- - chi-square: 24.61803027975085
- - reduced chi-square: 1.3676683488750472
- - Akaike info crit.: 9.338090173910459
- - Bayesian info crit.: 12.471657487080728
+ - chi-square: 10.579032568582004
+ - reduced chi-square: 0.5877240315878891
+ - Akaike info crit.: -8.398617557449889
+ - Bayesian info crit.: -5.265050244279619
  - init params:
-  * amp = 0.9053658536585365
-  * tau = 0.00023325923629695424
-  * base = 0.06780487804878049
+  * amp = 0.8995121951219512
+  * tau = 0.00022462043086061897
+  * base = 0.07073170731707316
  - fit params:
-  * amp = 0.9417788181317354 ± 0.008821420488383061
-  * tau = 0.0001986689929476992 ± 5.7944603769887945e-06
-  * base = 0.03124184244873536 ± 0.007843197439623986
+  * amp = 0.9602236198007772 ± 0.008727214563240257
+  * tau = 0.00020750081064342866 ± 5.93285262725319e-06
+  * base = 0.014997988315132257 ± 0.008079922810965121
  - correlations:
-  * (tau, base) = -0.8964241867256312
-  * (amp, base) = -0.5933445525066895
-  * (amp, tau) = 0.34052379988246156
+  * (tau, base) = -0.9066092020138476
+  * (amp, base) = -0.6475205784683865
+  * (amp, tau) = 0.41872481875527673
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000199+/-0.000006
-- χ²: 1.3676683488750472
+- value: 0.000208+/-0.000006
+- χ²: 0.5877240315878891
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -943,7 +937,7 @@ retrieved in the pandas <a class="reference external" href="http://pandas.pydata
   </thead>
   <tbody>
     <tr>
-      <th>56fa9b0b</th>
+      <th>b4480966</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -955,15 +949,15 @@ retrieved in the pandas <a class="reference external" href="http://pandas.pydata
       <td>None</td>
     </tr>
     <tr>
-      <th>4db60fe4</th>
+      <th>6116f74f</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000199+/-0.000006</td>
+      <td>0.000208+/-0.000006</td>
       <td>good</td>
       <td>'aer_simulator(fake_perth)</td>
       <td>None</td>
-      <td>1.367668</td>
+      <td>0.587724</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -986,8 +980,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.0001986689929476992
-5.7944603769887945e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00020750081064342866
+5.93285262725319e-06
 </pre></div>
 </div>
 </div>
@@ -1013,24 +1007,24 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 19
  - degree of freedom: 18
- - chi-square: 24.61803027975085
- - reduced chi-square: 1.3676683488750472
- - Akaike info crit.: 9.338090173910459
- - Bayesian info crit.: 12.471657487080728
+ - chi-square: 10.579032568582004
+ - reduced chi-square: 0.5877240315878891
+ - Akaike info crit.: -8.398617557449889
+ - Bayesian info crit.: -5.265050244279619
  - init params:
-  * amp = 0.9053658536585365
-  * tau = 0.00023325923629695424
-  * base = 0.06780487804878049
+  * amp = 0.8995121951219512
+  * tau = 0.00022462043086061897
+  * base = 0.07073170731707316
  - fit params:
-  * amp = 0.9417788181317354 ± 0.008821420488383061
-  * tau = 0.0001986689929476992 ± 5.7944603769887945e-06
-  * base = 0.03124184244873536 ± 0.007843197439623986
+  * amp = 0.9602236198007772 ± 0.008727214563240257
+  * tau = 0.00020750081064342866 ± 5.93285262725319e-06
+  * base = 0.014997988315132257 ± 0.008079922810965121
  - correlations:
-  * (tau, base) = -0.8964241867256312
-  * (amp, base) = -0.5933445525066895
-  * (amp, tau) = 0.34052379988246156
+  * (tau, base) = -0.9066092020138476
+  * (amp, base) = -0.6475205784683865
+  * (amp, tau) = 0.41872481875527673
 </pre></div>
 </div>
 </div>
@@ -1061,7 +1055,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 27, &#39;1&#39;: 997}, &#39;job_id&#39;: &#39;5ceaf1b2-bd1f-419f-ae1f-291826cba695&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 30, &#39;1&#39;: 994}, &#39;job_id&#39;: &#39;b0c80709-4c05-46b2-823f-5e1c86edaec0&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1335,22 +1329,22 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
  - success: True
  - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 14.641377767005281
- - reduced chi-square: 0.8134098759447378
- - Akaike info crit.: -1.5740873008538552
- - Bayesian info crit.: 1.5594800123164143
+ - chi-square: 18.893110831525185
+ - reduced chi-square: 1.0496172684180658
+ - Akaike info crit.: 3.779773144127252
+ - Bayesian info crit.: 6.9133404572975214
  - init params:
-  * amp = 0.8614634146341463
-  * tau = 0.000272768220969715
-  * base = 0.11463414634146342
+  * amp = 0.8634146341463415
+  * tau = 0.00027316347250253215
+  * base = 0.1126829268292683
  - fit params:
-  * amp = 0.9919031636915918 ± 0.013623246238779294
-  * tau = 0.0002772244310930958 ± 1.1010679110029036e-05
-  * base = -0.005936034260841443 ± 0.015290888394445102
+  * amp = 0.9910636462796567 ± 0.013591615334814403
+  * tau = 0.0002766269048870237 ± 1.0974739724685454e-05
+  * base = -0.005049172640517881 ± 0.015247026283795912
  - correlations:
-  * (tau, base) = -0.9515305757128457
-  * (amp, base) = -0.8635670459413728
-  * (amp, tau) = 0.7272533530191715
+  * (tau, base) = -0.9511481414359119
+  * (amp, base) = -0.8617883636385093
+  * (amp, tau) = 0.7241475560617688
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1358,7 +1352,7 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
 AnalysisResult
 - name: T1
 - value: 0.000277+/-0.000011
-- χ²: 0.8134098759447378
+- χ²: 1.0496172684180658
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1374,49 +1368,45 @@ Component experiment 1
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 24
+ - number of function evals: 16
  - degree of freedom: 7
- - chi-square: 14.359860980836407
- - reduced chi-square: 2.051408711548058
- - Akaike info crit.: 9.61851789578921
- - Bayesian info crit.: 10.526273174771347
+ - chi-square: 4070.6631098713883
+ - reduced chi-square: 581.5233014101983
+ - Akaike info crit.: 66.0897609842988
+ - Bayesian info crit.: 66.99751626328094
  - init params:
-  * a = 0.6933285342594752
-  * alpha = 0.9825349434416594
+  * a = 0.7060150667868479
+  * alpha = 0.9821527425783526
   * b = 0.25
  - fit params:
-  * a = 0.6804026633922463 ± 0.016225693203523076
-  * alpha = 0.9806809092175878 ± 0.0009781942403531503
-  * b = 0.2613709607457784 ± 0.01775177404803138
- - correlations:
-  * (a, b) = -0.9838244532761311
-  * (alpha, b) = -0.965580422668156
-  * (a, alpha) = 0.9217024815673069
-- quality: good
+  * a = 0.7058426381362493
+  * alpha = 0.9819128733743484
+  * b = 0.24993894299898442
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9807+/-0.0010
-- χ²: 2.051408711548058
-- quality: good
+- value: 0.9819128733743484+/-nan
+- χ²: 581.5233014101983
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0145+/-0.0007
-- χ²: 2.051408711548058
-- quality: good
+- value: 0.013565344969238696+/-nan
+- χ²: 581.5233014101983
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0072+/-0.0004
-- χ²: 2.051408711548058
-- quality: good
+- value: 0.0076738906247602575+/-nan
+- χ²: 581.5233014101983
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
@@ -1470,7 +1460,7 @@ into one level:</p>
   </thead>
   <tbody>
     <tr>
-      <th>b20fbda1</th>
+      <th>aecee647</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1482,7 +1472,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>a49ea254</th>
+      <th>f6ce42d2</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1494,7 +1484,7 @@ into one level:</p>
       <td>0.932191</td>
     </tr>
     <tr>
-      <th>b1badc04</th>
+      <th>ab9e9c17</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1506,7 +1496,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>4c97da55</th>
+      <th>35823e35</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q1]</td>

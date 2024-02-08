@@ -631,13 +631,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="work-with-experiment-artifacts">
+          <section id="work-with-experiment-artifacts">
 <h1>Work with experiment artifacts<a class="headerlink" href="#work-with-experiment-artifacts" title="Permalink to this heading">#</a></h1>
 <section id="problem">
 <h2>Problem<a class="headerlink" href="#problem" title="Permalink to this heading">#</a></h2>
@@ -674,10 +668,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=de13e44b-f1e5-4211-ba34-da8544d61835, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=cf7d7927-a24b-4ac9-9f00-91fa343ac75c, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=eaad8977-8fa0-4d13-a603-13dccf580932, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=a3f6b8b5-93d6-4adc-a130-6716802a0753, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=1d728322-caa6-42d6-a5bb-1a2c375866d6, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=50a86eb5-70fc-4b48-bcc6-7d663b7bd9bd, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=d5ca6c20-efc7-48f7-93d5-3028c3afd97b, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=af36059a-e101-4c47-bc57-e7410b28ee79, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -735,8 +729,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.963415</td>
-      <td>0.005861</td>
+      <td>0.974146</td>
+      <td>0.004954</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -746,8 +740,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.759512</td>
-      <td>0.013343</td>
+      <td>0.752683</td>
+      <td>0.01347</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -757,8 +751,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.58878</td>
-      <td>0.015362</td>
+      <td>0.607317</td>
+      <td>0.015246</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -768,8 +762,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.487317</td>
-      <td>0.015605</td>
+      <td>0.465854</td>
+      <td>0.015573</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -779,8 +773,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.368293</td>
-      <td>0.015058</td>
+      <td>0.372195</td>
+      <td>0.015091</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -801,8 +795,8 @@ The first curve_data artifact:
     <tr>
       <th>119</th>
       <td>0.000529</td>
-      <td>0.100006</td>
-      <td>0.005536</td>
+      <td>0.095573</td>
+      <td>0.005483</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -812,8 +806,8 @@ The first curve_data artifact:
     <tr>
       <th>120</th>
       <td>0.000534</td>
-      <td>0.098183</td>
-      <td>0.005629</td>
+      <td>0.093774</td>
+      <td>0.005573</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -823,8 +817,8 @@ The first curve_data artifact:
     <tr>
       <th>121</th>
       <td>0.00054</td>
-      <td>0.09641</td>
-      <td>0.005722</td>
+      <td>0.092025</td>
+      <td>0.005665</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -834,8 +828,8 @@ The first curve_data artifact:
     <tr>
       <th>122</th>
       <td>0.000545</td>
-      <td>0.094686</td>
-      <td>0.005815</td>
+      <td>0.090325</td>
+      <td>0.005756</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -845,8 +839,8 @@ The first curve_data artifact:
     <tr>
       <th>123</th>
       <td>0.000551</td>
-      <td>0.093008</td>
-      <td>0.005908</td>
+      <td>0.088671</td>
+      <td>0.005848</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -910,7 +904,7 @@ Qiskit Experiments.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=61355bbd-52a0-4469-ad2c-64a4ec3e7768, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=90a7e7c2-8711-4606-bfa6-f38b51dc3f66, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
@@ -944,13 +938,13 @@ by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- cf7d7927-a24b-4ac9-9f00-91fa343ac75c.json
-|- a3f6b8b5-93d6-4adc-a130-6716802a0753.json
+|- 50a86eb5-70fc-4b48-bcc6-7d663b7bd9bd.json
+|- af36059a-e101-4c47-bc57-e7410b28ee79.json
 curve_data.zip
-|- de13e44b-f1e5-4211-ba34-da8544d61835.json
-|- eaad8977-8fa0-4d13-a603-13dccf580932.json
+|- 1d728322-caa6-42d6-a5bb-1a2c375866d6.json
+|- d5ca6c20-efc7-48f7-93d5-3028c3afd97b.json
 experiment_notes.zip
-|- 61355bbd-52a0-4469-ad2c-64a4ec3e7768.json
+|- 90a7e7c2-8711-4606-bfa6-f38b51dc3f66.json
 </pre></div>
 </div>
 </div>
