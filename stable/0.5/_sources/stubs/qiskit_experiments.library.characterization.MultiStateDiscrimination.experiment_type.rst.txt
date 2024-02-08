@@ -1,0 +1,8 @@
+
+
+MultiStateDiscrimination.experiment_type
+====================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: MultiStateDiscrimination.experiment_type

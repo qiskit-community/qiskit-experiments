@@ -1,0 +1,8 @@
+
+
+GaussianAnalysis.options
+==========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: GaussianAnalysis.options

@@ -1,0 +1,8 @@
+
+
+Tphi.run
+====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: Tphi.run

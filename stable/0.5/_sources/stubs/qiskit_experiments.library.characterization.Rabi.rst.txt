@@ -15,15 +15,17 @@ Rabi
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: Rabi.analysis
-   .. autoattribute:: Rabi.backend
-   .. autoattribute:: Rabi.experiment_options
-   .. autoattribute:: Rabi.experiment_type
-   .. autoattribute:: Rabi.num_qubits
-   .. autoattribute:: Rabi.physical_qubits
-   .. autoattribute:: Rabi.run_options
-   .. autoattribute:: Rabi.transpile_options
+      Rabi.analysis
+      Rabi.backend
+      Rabi.experiment_options
+      Rabi.experiment_type
+      Rabi.num_qubits
+      Rabi.physical_qubits
+      Rabi.run_options
+      Rabi.transpile_options
    
    
 
@@ -32,17 +34,18 @@ Rabi
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: Rabi.circuits
-   .. automethod:: Rabi.config
-   .. automethod:: Rabi.copy
-   .. automethod:: Rabi.enable_restless
-   .. automethod:: Rabi.from_config
-   .. automethod:: Rabi.job_info
-   .. automethod:: Rabi.run
-   .. automethod:: Rabi.set_experiment_options
-   .. automethod:: Rabi.set_run_options
-   .. automethod:: Rabi.set_transpile_options
+      Rabi.circuits
+      Rabi.config
+      Rabi.copy
+      Rabi.enable_restless
+      Rabi.from_config
+      Rabi.run
+      Rabi.set_experiment_options
+      Rabi.set_run_options
+      Rabi.set_transpile_options
    
 
    

@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.instruction_durations
+===================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQParallelBackend.instruction_durations

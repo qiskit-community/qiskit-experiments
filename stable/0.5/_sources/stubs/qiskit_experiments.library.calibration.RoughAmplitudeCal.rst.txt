@@ -15,16 +15,18 @@ RoughAmplitudeCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: RoughAmplitudeCal.analysis
-   .. autoattribute:: RoughAmplitudeCal.backend
-   .. autoattribute:: RoughAmplitudeCal.calibrations
-   .. autoattribute:: RoughAmplitudeCal.experiment_options
-   .. autoattribute:: RoughAmplitudeCal.experiment_type
-   .. autoattribute:: RoughAmplitudeCal.num_qubits
-   .. autoattribute:: RoughAmplitudeCal.physical_qubits
-   .. autoattribute:: RoughAmplitudeCal.run_options
-   .. autoattribute:: RoughAmplitudeCal.transpile_options
+      RoughAmplitudeCal.analysis
+      RoughAmplitudeCal.backend
+      RoughAmplitudeCal.calibrations
+      RoughAmplitudeCal.experiment_options
+      RoughAmplitudeCal.experiment_type
+      RoughAmplitudeCal.num_qubits
+      RoughAmplitudeCal.physical_qubits
+      RoughAmplitudeCal.run_options
+      RoughAmplitudeCal.transpile_options
    
    
 
@@ -33,18 +35,19 @@ RoughAmplitudeCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: RoughAmplitudeCal.circuits
-   .. automethod:: RoughAmplitudeCal.config
-   .. automethod:: RoughAmplitudeCal.copy
-   .. automethod:: RoughAmplitudeCal.enable_restless
-   .. automethod:: RoughAmplitudeCal.from_config
-   .. automethod:: RoughAmplitudeCal.job_info
-   .. automethod:: RoughAmplitudeCal.run
-   .. automethod:: RoughAmplitudeCal.set_experiment_options
-   .. automethod:: RoughAmplitudeCal.set_run_options
-   .. automethod:: RoughAmplitudeCal.set_transpile_options
-   .. automethod:: RoughAmplitudeCal.update_calibrations
+      RoughAmplitudeCal.circuits
+      RoughAmplitudeCal.config
+      RoughAmplitudeCal.copy
+      RoughAmplitudeCal.enable_restless
+      RoughAmplitudeCal.from_config
+      RoughAmplitudeCal.run
+      RoughAmplitudeCal.set_experiment_options
+      RoughAmplitudeCal.set_run_options
+      RoughAmplitudeCal.set_transpile_options
+      RoughAmplitudeCal.update_calibrations
    
 
    

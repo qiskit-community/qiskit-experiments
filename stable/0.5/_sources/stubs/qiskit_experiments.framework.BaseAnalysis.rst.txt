@@ -10,36 +10,68 @@ BaseAnalysis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: BaseAnalysis.options
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseAnalysis.options
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: BaseAnalysis.config
-   .. automethod:: BaseAnalysis.copy
-   .. automethod:: BaseAnalysis.from_config
-   .. automethod:: BaseAnalysis.run
-   .. automethod:: BaseAnalysis.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseAnalysis.config
+   
+   
+      BaseAnalysis.copy
+   
+   
+      BaseAnalysis.from_config
+   
+   
+      BaseAnalysis.run
+   
+   
+      BaseAnalysis.set_options
+   
+
+   
    

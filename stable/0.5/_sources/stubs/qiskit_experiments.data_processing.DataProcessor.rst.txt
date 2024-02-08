@@ -10,34 +10,59 @@ DataProcessor
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: DataProcessor.is_trained
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      DataProcessor.is_trained
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: DataProcessor.__call__
-   .. automethod:: DataProcessor.append
-   .. automethod:: DataProcessor.call_with_history
-   .. automethod:: DataProcessor.train
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      DataProcessor.__call__
+   
+   
+      DataProcessor.append
+   
+   
+      DataProcessor.call_with_history
+   
+   
+      DataProcessor.train
+   
+
+   
    

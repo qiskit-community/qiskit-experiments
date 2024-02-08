@@ -15,8 +15,10 @@ LocalReadoutErrorAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: LocalReadoutErrorAnalysis.options
+      LocalReadoutErrorAnalysis.options
    
    
 
@@ -25,12 +27,14 @@ LocalReadoutErrorAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: LocalReadoutErrorAnalysis.config
-   .. automethod:: LocalReadoutErrorAnalysis.copy
-   .. automethod:: LocalReadoutErrorAnalysis.from_config
-   .. automethod:: LocalReadoutErrorAnalysis.run
-   .. automethod:: LocalReadoutErrorAnalysis.set_options
+      LocalReadoutErrorAnalysis.config
+      LocalReadoutErrorAnalysis.copy
+      LocalReadoutErrorAnalysis.from_config
+      LocalReadoutErrorAnalysis.run
+      LocalReadoutErrorAnalysis.set_options
    
 
    

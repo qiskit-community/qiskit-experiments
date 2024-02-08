@@ -1,0 +1,8 @@
+
+
+FigureData.name
+============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: FigureData.name

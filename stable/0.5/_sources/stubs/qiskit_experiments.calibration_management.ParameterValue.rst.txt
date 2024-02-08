@@ -10,26 +10,62 @@ ParameterValue
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: ParameterValue.date_time
-   .. autoattribute:: ParameterValue.group
-   .. autoattribute:: ParameterValue.valid
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      ParameterValue.date_time
+      
+   
+      
+      
+         
+      
+      ParameterValue.group
+      
+   
+      
+      
+         
+      
+      ParameterValue.valid
+      
+   
+   
    
 
-
-
-
    
    
 
+   
+   
+   
+
+   
    

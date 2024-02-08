@@ -1,0 +1,8 @@
+
+
+T2HahnAnalysis.copy
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T2HahnAnalysis.copy

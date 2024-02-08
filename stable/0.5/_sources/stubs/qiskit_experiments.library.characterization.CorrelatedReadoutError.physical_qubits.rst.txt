@@ -1,0 +1,8 @@
+
+
+CorrelatedReadoutError.physical_qubits
+==================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CorrelatedReadoutError.physical_qubits

@@ -1,0 +1,8 @@
+
+
+CrossResonanceHamiltonian.backend
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CrossResonanceHamiltonian.backend

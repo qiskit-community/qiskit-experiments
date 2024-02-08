@@ -10,36 +10,68 @@ PauliMeasurementBasis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: PauliMeasurementBasis.name
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      PauliMeasurementBasis.name
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: PauliMeasurementBasis.circuit
-   .. automethod:: PauliMeasurementBasis.index_shape
-   .. automethod:: PauliMeasurementBasis.matrix
-   .. automethod:: PauliMeasurementBasis.matrix_shape
-   .. automethod:: PauliMeasurementBasis.outcome_shape
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PauliMeasurementBasis.circuit
+   
+   
+      PauliMeasurementBasis.index_shape
+   
+   
+      PauliMeasurementBasis.matrix
+   
+   
+      PauliMeasurementBasis.matrix_shape
+   
+   
+      PauliMeasurementBasis.outcome_shape
+   
+
+   
    

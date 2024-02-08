@@ -1,0 +1,8 @@
+
+
+CompositeAnalysis.run
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: CompositeAnalysis.run

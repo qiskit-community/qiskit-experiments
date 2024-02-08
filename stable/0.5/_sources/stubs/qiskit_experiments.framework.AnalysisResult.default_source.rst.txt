@@ -1,0 +1,8 @@
+
+
+AnalysisResult.default_source
+==========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: AnalysisResult.default_source

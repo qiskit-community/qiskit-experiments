@@ -1,0 +1,8 @@
+
+
+FixedFrequencyTransmon.__getitem__
+============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: FixedFrequencyTransmon.__getitem__

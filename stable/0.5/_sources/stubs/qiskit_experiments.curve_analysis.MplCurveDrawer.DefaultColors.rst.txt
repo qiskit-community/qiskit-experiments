@@ -1,0 +1,8 @@
+
+
+MplCurveDrawer.DefaultColors
+==============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoattribute:: MplCurveDrawer.DefaultColors

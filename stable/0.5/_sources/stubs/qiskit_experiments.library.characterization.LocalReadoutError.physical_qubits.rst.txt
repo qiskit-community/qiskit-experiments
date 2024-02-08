@@ -1,0 +1,8 @@
+
+
+LocalReadoutError.physical_qubits
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: LocalReadoutError.physical_qubits

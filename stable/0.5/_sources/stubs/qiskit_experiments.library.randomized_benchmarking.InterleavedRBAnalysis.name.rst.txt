@@ -1,0 +1,8 @@
+
+
+InterleavedRBAnalysis.name
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: InterleavedRBAnalysis.name

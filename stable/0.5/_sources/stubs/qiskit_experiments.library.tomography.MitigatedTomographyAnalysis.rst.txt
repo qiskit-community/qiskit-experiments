@@ -15,8 +15,10 @@ MitigatedTomographyAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: MitigatedTomographyAnalysis.options
+      MitigatedTomographyAnalysis.options
    
    
 
@@ -25,13 +27,15 @@ MitigatedTomographyAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: MitigatedTomographyAnalysis.component_analysis
-   .. automethod:: MitigatedTomographyAnalysis.config
-   .. automethod:: MitigatedTomographyAnalysis.copy
-   .. automethod:: MitigatedTomographyAnalysis.from_config
-   .. automethod:: MitigatedTomographyAnalysis.run
-   .. automethod:: MitigatedTomographyAnalysis.set_options
+      MitigatedTomographyAnalysis.component_analysis
+      MitigatedTomographyAnalysis.config
+      MitigatedTomographyAnalysis.copy
+      MitigatedTomographyAnalysis.from_config
+      MitigatedTomographyAnalysis.run
+      MitigatedTomographyAnalysis.set_options
    
 
    

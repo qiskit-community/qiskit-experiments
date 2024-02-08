@@ -1,0 +1,8 @@
+
+
+CorrelatedReadoutError.backend
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CorrelatedReadoutError.backend

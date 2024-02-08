@@ -1,0 +1,8 @@
+
+
+MockIQBackend.coupling_map
+==================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.coupling_map

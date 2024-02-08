@@ -15,8 +15,10 @@ QuantumVolumeAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: QuantumVolumeAnalysis.options
+      QuantumVolumeAnalysis.options
    
    
 
@@ -25,12 +27,14 @@ QuantumVolumeAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: QuantumVolumeAnalysis.config
-   .. automethod:: QuantumVolumeAnalysis.copy
-   .. automethod:: QuantumVolumeAnalysis.from_config
-   .. automethod:: QuantumVolumeAnalysis.run
-   .. automethod:: QuantumVolumeAnalysis.set_options
+      QuantumVolumeAnalysis.config
+      QuantumVolumeAnalysis.copy
+      QuantumVolumeAnalysis.from_config
+      QuantumVolumeAnalysis.run
+      QuantumVolumeAnalysis.set_options
    
 
    

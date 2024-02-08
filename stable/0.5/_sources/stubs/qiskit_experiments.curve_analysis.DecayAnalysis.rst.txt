@@ -15,13 +15,15 @@ DecayAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: DecayAnalysis.drawer
-   .. autoattribute:: DecayAnalysis.models
-   .. autoattribute:: DecayAnalysis.name
-   .. autoattribute:: DecayAnalysis.options
-   .. autoattribute:: DecayAnalysis.parameters
-   .. autoattribute:: DecayAnalysis.plotter
+      DecayAnalysis.drawer
+      DecayAnalysis.models
+      DecayAnalysis.name
+      DecayAnalysis.options
+      DecayAnalysis.parameters
+      DecayAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ DecayAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: DecayAnalysis.config
-   .. automethod:: DecayAnalysis.copy
-   .. automethod:: DecayAnalysis.from_config
-   .. automethod:: DecayAnalysis.model_names
-   .. automethod:: DecayAnalysis.run
-   .. automethod:: DecayAnalysis.set_options
+      DecayAnalysis.config
+      DecayAnalysis.copy
+      DecayAnalysis.from_config
+      DecayAnalysis.run
+      DecayAnalysis.set_options
    
 
    

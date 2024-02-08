@@ -1,0 +1,8 @@
+
+
+MockIQBackend.options
+=============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.options

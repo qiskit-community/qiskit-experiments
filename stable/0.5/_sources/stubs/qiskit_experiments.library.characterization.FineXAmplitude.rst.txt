@@ -15,15 +15,17 @@ FineXAmplitude
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineXAmplitude.analysis
-   .. autoattribute:: FineXAmplitude.backend
-   .. autoattribute:: FineXAmplitude.experiment_options
-   .. autoattribute:: FineXAmplitude.experiment_type
-   .. autoattribute:: FineXAmplitude.num_qubits
-   .. autoattribute:: FineXAmplitude.physical_qubits
-   .. autoattribute:: FineXAmplitude.run_options
-   .. autoattribute:: FineXAmplitude.transpile_options
+      FineXAmplitude.analysis
+      FineXAmplitude.backend
+      FineXAmplitude.experiment_options
+      FineXAmplitude.experiment_type
+      FineXAmplitude.num_qubits
+      FineXAmplitude.physical_qubits
+      FineXAmplitude.run_options
+      FineXAmplitude.transpile_options
    
    
 
@@ -32,17 +34,18 @@ FineXAmplitude
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineXAmplitude.circuits
-   .. automethod:: FineXAmplitude.config
-   .. automethod:: FineXAmplitude.copy
-   .. automethod:: FineXAmplitude.enable_restless
-   .. automethod:: FineXAmplitude.from_config
-   .. automethod:: FineXAmplitude.job_info
-   .. automethod:: FineXAmplitude.run
-   .. automethod:: FineXAmplitude.set_experiment_options
-   .. automethod:: FineXAmplitude.set_run_options
-   .. automethod:: FineXAmplitude.set_transpile_options
+      FineXAmplitude.circuits
+      FineXAmplitude.config
+      FineXAmplitude.copy
+      FineXAmplitude.enable_restless
+      FineXAmplitude.from_config
+      FineXAmplitude.run
+      FineXAmplitude.set_experiment_options
+      FineXAmplitude.set_run_options
+      FineXAmplitude.set_transpile_options
    
 
    

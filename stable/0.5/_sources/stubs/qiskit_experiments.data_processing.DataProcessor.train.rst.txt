@@ -1,0 +1,8 @@
+
+
+DataProcessor.train
+======================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. automethod:: DataProcessor.train

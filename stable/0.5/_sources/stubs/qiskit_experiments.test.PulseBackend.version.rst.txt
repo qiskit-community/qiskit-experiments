@@ -1,0 +1,8 @@
+
+
+PulseBackend.version
+============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoattribute:: PulseBackend.version

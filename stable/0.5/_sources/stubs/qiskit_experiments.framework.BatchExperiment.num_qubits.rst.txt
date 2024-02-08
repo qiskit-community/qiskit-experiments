@@ -1,0 +1,8 @@
+
+
+BatchExperiment.num_qubits
+=======================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BatchExperiment.num_qubits

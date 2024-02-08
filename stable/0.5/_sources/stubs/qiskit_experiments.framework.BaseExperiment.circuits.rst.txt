@@ -1,0 +1,8 @@
+
+
+BaseExperiment.circuits
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BaseExperiment.circuits

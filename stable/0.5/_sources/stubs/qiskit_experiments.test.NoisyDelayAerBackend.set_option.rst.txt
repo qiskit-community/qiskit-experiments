@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.set_option
+=======================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: NoisyDelayAerBackend.set_option

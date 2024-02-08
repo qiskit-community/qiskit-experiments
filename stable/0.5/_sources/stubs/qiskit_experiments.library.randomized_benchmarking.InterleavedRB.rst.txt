@@ -15,15 +15,17 @@ InterleavedRB
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: InterleavedRB.analysis
-   .. autoattribute:: InterleavedRB.backend
-   .. autoattribute:: InterleavedRB.experiment_options
-   .. autoattribute:: InterleavedRB.experiment_type
-   .. autoattribute:: InterleavedRB.num_qubits
-   .. autoattribute:: InterleavedRB.physical_qubits
-   .. autoattribute:: InterleavedRB.run_options
-   .. autoattribute:: InterleavedRB.transpile_options
+      InterleavedRB.analysis
+      InterleavedRB.backend
+      InterleavedRB.experiment_options
+      InterleavedRB.experiment_type
+      InterleavedRB.num_qubits
+      InterleavedRB.physical_qubits
+      InterleavedRB.run_options
+      InterleavedRB.transpile_options
    
    
 
@@ -32,17 +34,18 @@ InterleavedRB
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: InterleavedRB.circuits
-   .. automethod:: InterleavedRB.config
-   .. automethod:: InterleavedRB.copy
-   .. automethod:: InterleavedRB.enable_restless
-   .. automethod:: InterleavedRB.from_config
-   .. automethod:: InterleavedRB.job_info
-   .. automethod:: InterleavedRB.run
-   .. automethod:: InterleavedRB.set_experiment_options
-   .. automethod:: InterleavedRB.set_run_options
-   .. automethod:: InterleavedRB.set_transpile_options
+      InterleavedRB.circuits
+      InterleavedRB.config
+      InterleavedRB.copy
+      InterleavedRB.enable_restless
+      InterleavedRB.from_config
+      InterleavedRB.run
+      InterleavedRB.set_experiment_options
+      InterleavedRB.set_run_options
+      InterleavedRB.set_transpile_options
    
 
    

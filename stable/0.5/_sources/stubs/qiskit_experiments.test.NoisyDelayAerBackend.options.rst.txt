@@ -1,0 +1,8 @@
+
+
+NoisyDelayAerBackend.options
+====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: NoisyDelayAerBackend.options

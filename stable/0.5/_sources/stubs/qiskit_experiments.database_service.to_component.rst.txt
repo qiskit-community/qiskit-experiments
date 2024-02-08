@@ -1,8 +1,0 @@
-﻿
-
-to_component
-================================================
-
-.. currentmodule:: qiskit_experiments.database_service
-
-.. autofunction:: to_component

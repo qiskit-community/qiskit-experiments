@@ -1,0 +1,8 @@
+
+
+PauliMeasurementBasis.matrix
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: PauliMeasurementBasis.matrix

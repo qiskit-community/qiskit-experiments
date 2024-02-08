@@ -1,0 +1,8 @@
+
+
+RBAnalysis.drawer
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: RBAnalysis.drawer

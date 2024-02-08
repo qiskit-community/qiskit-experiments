@@ -1,0 +1,8 @@
+
+
+CurveFitResult.correl
+=======================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: CurveFitResult.correl

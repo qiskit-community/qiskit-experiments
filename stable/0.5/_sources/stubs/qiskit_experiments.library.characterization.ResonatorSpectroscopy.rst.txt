@@ -15,15 +15,17 @@ ResonatorSpectroscopy
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: ResonatorSpectroscopy.analysis
-   .. autoattribute:: ResonatorSpectroscopy.backend
-   .. autoattribute:: ResonatorSpectroscopy.experiment_options
-   .. autoattribute:: ResonatorSpectroscopy.experiment_type
-   .. autoattribute:: ResonatorSpectroscopy.num_qubits
-   .. autoattribute:: ResonatorSpectroscopy.physical_qubits
-   .. autoattribute:: ResonatorSpectroscopy.run_options
-   .. autoattribute:: ResonatorSpectroscopy.transpile_options
+      ResonatorSpectroscopy.analysis
+      ResonatorSpectroscopy.backend
+      ResonatorSpectroscopy.experiment_options
+      ResonatorSpectroscopy.experiment_type
+      ResonatorSpectroscopy.num_qubits
+      ResonatorSpectroscopy.physical_qubits
+      ResonatorSpectroscopy.run_options
+      ResonatorSpectroscopy.transpile_options
    
    
 
@@ -32,16 +34,17 @@ ResonatorSpectroscopy
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: ResonatorSpectroscopy.circuits
-   .. automethod:: ResonatorSpectroscopy.config
-   .. automethod:: ResonatorSpectroscopy.copy
-   .. automethod:: ResonatorSpectroscopy.from_config
-   .. automethod:: ResonatorSpectroscopy.job_info
-   .. automethod:: ResonatorSpectroscopy.run
-   .. automethod:: ResonatorSpectroscopy.set_experiment_options
-   .. automethod:: ResonatorSpectroscopy.set_run_options
-   .. automethod:: ResonatorSpectroscopy.set_transpile_options
+      ResonatorSpectroscopy.circuits
+      ResonatorSpectroscopy.config
+      ResonatorSpectroscopy.copy
+      ResonatorSpectroscopy.from_config
+      ResonatorSpectroscopy.run
+      ResonatorSpectroscopy.set_experiment_options
+      ResonatorSpectroscopy.set_run_options
+      ResonatorSpectroscopy.set_transpile_options
    
 
    

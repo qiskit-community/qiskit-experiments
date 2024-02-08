@@ -15,15 +15,17 @@ FineZXAmplitude
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineZXAmplitude.analysis
-   .. autoattribute:: FineZXAmplitude.backend
-   .. autoattribute:: FineZXAmplitude.experiment_options
-   .. autoattribute:: FineZXAmplitude.experiment_type
-   .. autoattribute:: FineZXAmplitude.num_qubits
-   .. autoattribute:: FineZXAmplitude.physical_qubits
-   .. autoattribute:: FineZXAmplitude.run_options
-   .. autoattribute:: FineZXAmplitude.transpile_options
+      FineZXAmplitude.analysis
+      FineZXAmplitude.backend
+      FineZXAmplitude.experiment_options
+      FineZXAmplitude.experiment_type
+      FineZXAmplitude.num_qubits
+      FineZXAmplitude.physical_qubits
+      FineZXAmplitude.run_options
+      FineZXAmplitude.transpile_options
    
    
 
@@ -32,17 +34,18 @@ FineZXAmplitude
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineZXAmplitude.circuits
-   .. automethod:: FineZXAmplitude.config
-   .. automethod:: FineZXAmplitude.copy
-   .. automethod:: FineZXAmplitude.enable_restless
-   .. automethod:: FineZXAmplitude.from_config
-   .. automethod:: FineZXAmplitude.job_info
-   .. automethod:: FineZXAmplitude.run
-   .. automethod:: FineZXAmplitude.set_experiment_options
-   .. automethod:: FineZXAmplitude.set_run_options
-   .. automethod:: FineZXAmplitude.set_transpile_options
+      FineZXAmplitude.circuits
+      FineZXAmplitude.config
+      FineZXAmplitude.copy
+      FineZXAmplitude.enable_restless
+      FineZXAmplitude.from_config
+      FineZXAmplitude.run
+      FineZXAmplitude.set_experiment_options
+      FineZXAmplitude.set_run_options
+      FineZXAmplitude.set_transpile_options
    
 
    

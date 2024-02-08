@@ -15,13 +15,15 @@ MplDrawer
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: MplDrawer.DefaultColors
-   .. autoattribute:: MplDrawer.DefaultMarkers
-   .. autoattribute:: MplDrawer.figure
-   .. autoattribute:: MplDrawer.figure_options
-   .. autoattribute:: MplDrawer.options
-   .. autoattribute:: MplDrawer.style
+      MplDrawer.DefaultColors
+      MplDrawer.DefaultMarkers
+      MplDrawer.figure
+      MplDrawer.figure_options
+      MplDrawer.options
+      MplDrawer.style
    
    
 
@@ -30,20 +32,21 @@ MplDrawer
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: MplDrawer.config
-   .. automethod:: MplDrawer.filled_x_area
-   .. automethod:: MplDrawer.filled_y_area
-   .. automethod:: MplDrawer.format_canvas
-   .. automethod:: MplDrawer.hline
-   .. automethod:: MplDrawer.image
-   .. automethod:: MplDrawer.initialize_canvas
-   .. automethod:: MplDrawer.label_for
-   .. automethod:: MplDrawer.line
-   .. automethod:: MplDrawer.scatter
-   .. automethod:: MplDrawer.set_figure_options
-   .. automethod:: MplDrawer.set_options
-   .. automethod:: MplDrawer.textbox
+      MplDrawer.config
+      MplDrawer.filled_x_area
+      MplDrawer.filled_y_area
+      MplDrawer.format_canvas
+      MplDrawer.image
+      MplDrawer.initialize_canvas
+      MplDrawer.label_for
+      MplDrawer.line
+      MplDrawer.scatter
+      MplDrawer.set_figure_options
+      MplDrawer.set_options
+      MplDrawer.textbox
    
 
    

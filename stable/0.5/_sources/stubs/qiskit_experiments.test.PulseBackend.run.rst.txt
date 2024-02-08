@@ -1,0 +1,8 @@
+
+
+PulseBackend.run
+========================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: PulseBackend.run

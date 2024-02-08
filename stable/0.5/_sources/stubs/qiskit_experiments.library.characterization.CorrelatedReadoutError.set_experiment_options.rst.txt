@@ -1,0 +1,8 @@
+
+
+CorrelatedReadoutError.set_experiment_options
+=========================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: CorrelatedReadoutError.set_experiment_options

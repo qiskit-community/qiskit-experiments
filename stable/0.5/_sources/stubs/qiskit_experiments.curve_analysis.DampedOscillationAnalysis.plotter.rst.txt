@@ -1,0 +1,8 @@
+
+
+DampedOscillationAnalysis.plotter
+===================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: DampedOscillationAnalysis.plotter

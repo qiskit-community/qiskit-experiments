@@ -1,0 +1,8 @@
+
+
+MitigatedStateTomography.transpile_options
+================================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: MitigatedStateTomography.transpile_options

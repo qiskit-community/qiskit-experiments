@@ -15,15 +15,17 @@ MultiStateDiscrimination
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: MultiStateDiscrimination.analysis
-   .. autoattribute:: MultiStateDiscrimination.backend
-   .. autoattribute:: MultiStateDiscrimination.experiment_options
-   .. autoattribute:: MultiStateDiscrimination.experiment_type
-   .. autoattribute:: MultiStateDiscrimination.num_qubits
-   .. autoattribute:: MultiStateDiscrimination.physical_qubits
-   .. autoattribute:: MultiStateDiscrimination.run_options
-   .. autoattribute:: MultiStateDiscrimination.transpile_options
+      MultiStateDiscrimination.analysis
+      MultiStateDiscrimination.backend
+      MultiStateDiscrimination.experiment_options
+      MultiStateDiscrimination.experiment_type
+      MultiStateDiscrimination.num_qubits
+      MultiStateDiscrimination.physical_qubits
+      MultiStateDiscrimination.run_options
+      MultiStateDiscrimination.transpile_options
    
    
 
@@ -32,16 +34,17 @@ MultiStateDiscrimination
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: MultiStateDiscrimination.circuits
-   .. automethod:: MultiStateDiscrimination.config
-   .. automethod:: MultiStateDiscrimination.copy
-   .. automethod:: MultiStateDiscrimination.from_config
-   .. automethod:: MultiStateDiscrimination.job_info
-   .. automethod:: MultiStateDiscrimination.run
-   .. automethod:: MultiStateDiscrimination.set_experiment_options
-   .. automethod:: MultiStateDiscrimination.set_run_options
-   .. automethod:: MultiStateDiscrimination.set_transpile_options
+      MultiStateDiscrimination.circuits
+      MultiStateDiscrimination.config
+      MultiStateDiscrimination.copy
+      MultiStateDiscrimination.from_config
+      MultiStateDiscrimination.run
+      MultiStateDiscrimination.set_experiment_options
+      MultiStateDiscrimination.set_run_options
+      MultiStateDiscrimination.set_transpile_options
    
 
    

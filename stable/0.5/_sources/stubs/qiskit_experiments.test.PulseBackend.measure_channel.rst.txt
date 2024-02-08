@@ -1,0 +1,8 @@
+
+
+PulseBackend.measure_channel
+====================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: PulseBackend.measure_channel

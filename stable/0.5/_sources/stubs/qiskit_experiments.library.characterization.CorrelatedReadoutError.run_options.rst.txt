@@ -1,0 +1,8 @@
+
+
+CorrelatedReadoutError.run_options
+==============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: CorrelatedReadoutError.run_options

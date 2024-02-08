@@ -15,13 +15,15 @@ GaussianAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: GaussianAnalysis.drawer
-   .. autoattribute:: GaussianAnalysis.models
-   .. autoattribute:: GaussianAnalysis.name
-   .. autoattribute:: GaussianAnalysis.options
-   .. autoattribute:: GaussianAnalysis.parameters
-   .. autoattribute:: GaussianAnalysis.plotter
+      GaussianAnalysis.drawer
+      GaussianAnalysis.models
+      GaussianAnalysis.name
+      GaussianAnalysis.options
+      GaussianAnalysis.parameters
+      GaussianAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ GaussianAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: GaussianAnalysis.config
-   .. automethod:: GaussianAnalysis.copy
-   .. automethod:: GaussianAnalysis.from_config
-   .. automethod:: GaussianAnalysis.model_names
-   .. automethod:: GaussianAnalysis.run
-   .. automethod:: GaussianAnalysis.set_options
+      GaussianAnalysis.config
+      GaussianAnalysis.copy
+      GaussianAnalysis.from_config
+      GaussianAnalysis.run
+      GaussianAnalysis.set_options
    
 
    

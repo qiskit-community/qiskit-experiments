@@ -10,36 +10,68 @@ MeasurementBasis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: MeasurementBasis.name
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MeasurementBasis.name
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: MeasurementBasis.circuit
-   .. automethod:: MeasurementBasis.index_shape
-   .. automethod:: MeasurementBasis.matrix
-   .. automethod:: MeasurementBasis.matrix_shape
-   .. automethod:: MeasurementBasis.outcome_shape
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MeasurementBasis.circuit
+   
+   
+      MeasurementBasis.index_shape
+   
+   
+      MeasurementBasis.matrix
+   
+   
+      MeasurementBasis.matrix_shape
+   
+   
+      MeasurementBasis.outcome_shape
+   
+
+   
    

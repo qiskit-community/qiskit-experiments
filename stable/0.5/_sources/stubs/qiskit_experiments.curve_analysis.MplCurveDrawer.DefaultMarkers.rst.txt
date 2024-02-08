@@ -1,0 +1,8 @@
+
+
+MplCurveDrawer.DefaultMarkers
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoattribute:: MplCurveDrawer.DefaultMarkers

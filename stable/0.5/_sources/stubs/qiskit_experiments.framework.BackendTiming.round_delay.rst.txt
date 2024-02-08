@@ -1,0 +1,8 @@
+
+
+BackendTiming.round_delay
+======================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BackendTiming.round_delay

@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.qubit_properties
+==================================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. automethod:: SingleTransmonTestBackend.qubit_properties

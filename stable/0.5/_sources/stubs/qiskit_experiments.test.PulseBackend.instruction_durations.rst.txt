@@ -1,0 +1,8 @@
+
+
+PulseBackend.instruction_durations
+==========================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.instruction_durations

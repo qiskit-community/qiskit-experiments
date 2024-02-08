@@ -1,0 +1,8 @@
+
+
+BasePlotter.set_supplementary_data
+===================================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BasePlotter.set_supplementary_data

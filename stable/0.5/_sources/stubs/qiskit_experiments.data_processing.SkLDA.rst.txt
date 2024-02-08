@@ -10,36 +10,62 @@ SkLDA
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: SkLDA.discriminator
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      SkLDA.discriminator
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: SkLDA.config
-   .. automethod:: SkLDA.fit
-   .. automethod:: SkLDA.from_config
-   .. automethod:: SkLDA.is_trained
-   .. automethod:: SkLDA.predict
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      SkLDA.config
+   
+   
+      SkLDA.fit
+   
+   
+      SkLDA.from_config
+   
+   
+      SkLDA.is_trained
+   
+   
+      SkLDA.predict
+   
+
+   
    

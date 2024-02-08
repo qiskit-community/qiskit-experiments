@@ -1,0 +1,8 @@
+
+
+BaseCurveDrawer.draw_fit_line
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: BaseCurveDrawer.draw_fit_line

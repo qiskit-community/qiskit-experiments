@@ -7,7 +7,8 @@ Installation
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
 Qiskit following its `installation guide <https://docs.quantum.ibm.com/start/install>`__. Qiskit
-Experiments supports the same platforms as Qiskit itself and Python versions 3.8 through 3.12.
+Experiments supports the same platforms and Python versions (currently **3.7+**) as
+Qiskit itself.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``
 in your shell environment:
@@ -16,54 +17,23 @@ in your shell environment:
 
     python -m pip install qiskit-experiments
 
-There are a number of optional packages that enable some experiments and features. If you 
-would like to install these optional dependencies, run:
-
-.. code-block::
-
-    python -m pip install "qiskit-experiments[extras]"
-
 If you want to run the most up-to-date version instead (may not be stable), you can
 install the latest main branch:
 
 .. code-block::
 
-    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. code-block::
 
-    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
-    python -m pip install -e "qiskit-experiments[extras]"
+    git clone https://github.com/Qiskit/qiskit-experiments.git
+    python -m pip install -e qiskit-experiments
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
 changes.
-
-Upgrading Qiskit Experiments
-----------------------------
-
-Qiskit Experiments version numbers are in the form ``0.X.Y``, where ``X`` is the minor version and
-``Y`` is the patch version. There are two kinds of releases: minor releases, which increment the
-minor version, and patch releases, which increment the patch version. New features and API
-changes can only be introduced in a minor release. Patch releases contain only bug fixes and changes that do
-not affect how you use the package, such as performance optimization and documentation updates.
-
-Therefore, when you encounter a bug or unexpected behavior, it is recommended that you first check if there's a
-patch release you can upgrade to under the same minor version to avoid any breaking changes. When
-running ``pip``, you can specify the exact version to install:
-
-.. code-block::
-
-    python -m pip install qiskit-experiments==0.X.Y
-
-Before a nontrivial breaking API change is introduced in a minor release, the old feature will
-undergo a deprecation process lasting two releases for a core framework change and one release
-otherwise. During this process, deprecation warnings will be issued if you use the old feature that
-will instruct you on how to transition to the replacement feature, if applicable. The :doc:`release
-notes </release_notes>` contain full details on which features are deprecated or removed in each
-release.
 
 Running your first experiment
 =============================
@@ -78,17 +48,16 @@ the experiment from the Qiskit Experiments library:
     from qiskit_experiments.library import T1
 
 Experiments must be run on a backend. We're going to use a simulator,
-:class:`~qiskit_ibm_runtime.fake_provider.FakePerth`, for this example, but you can use any
+:class:`~qiskit.providers.fake_provider.FakePerth`, for this example, but you can use any
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
-    packages to run simulations.  You can install them with ``python -m pip
-    install qiskit-aer qiskit-ibm-runtime``.
+    This tutorial requires the ``qiskit-aer`` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
 
-    from qiskit_ibm_runtime.fake_provider import FakePerth
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
 
     backend = AerSimulator.from_backend(FakePerth())
@@ -96,6 +65,11 @@ backend, real or simulated, that you can access through Qiskit.
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
 Python sequence (usually a tuple or a list).
+
+.. note::
+    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an
+    integer qubit index instead of a one-element sequence for a single-qubit experiment
+    is deprecated.
 
 In addition, the :math:`T_1` experiment has
 a second required parameter, ``delays``, which is a list of times in seconds at which to
@@ -120,11 +94,11 @@ first and last circuits for our :math:`T_1` experiment:
 .. jupyter-execute::
 
     print(delays)
-    exp.circuits()[0].draw(output="mpl", style="iqp")
+    exp.circuits()[0].draw(output='mpl')
 
 .. jupyter-execute::
 
-    exp.circuits()[-1].draw(output="mpl", style="iqp")
+    exp.circuits()[-1].draw(output='mpl')
 
 As expected, the delay block spans the full range of time values that we specified.
 
@@ -169,9 +143,6 @@ analysis, respectively:
     print(exp_data.job_status())
     print(exp_data.analysis_status())
 
-Figures
--------
-
 Once the analysis is complete, figures are retrieved using the
 :meth:`~.ExperimentData.figure` method. See the :doc:`visualization module
 <visualization>` tutorial on how to customize figures for an experiment. For our
@@ -182,22 +153,15 @@ exponential decay model of the :math:`T_1` experiment:
 
     display(exp_data.figure(0))
 
-Analysis Results
-----------------
-
-The analysis results resulting from the fit are accessed with :meth:`~.ExperimentData.analysis_results`:
+The fit results and associated parameters are accessed with
+:meth:`~.ExperimentData.analysis_results`:
 
 .. jupyter-execute::
 
     for result in exp_data.analysis_results():
         print(result)
 
-Results can be indexed numerically (starting from 0) or using their name. Analysis results can also be
-retrieved in the pandas :class:`~pandas:pandas.DataFrame` format by passing ``dataframe=True``:
-
-.. jupyter-execute::
-
-    exp_data.analysis_results(dataframe=True)
+Results can be indexed numerically (starting from 0) or using their name.
 
 .. note::
     See the :meth:`~.ExperimentData.analysis_results` API documentation for more 
@@ -214,24 +178,6 @@ value and standard deviation of each value can be accessed as follows:
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
-
-Artifacts
----------
-
-The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which are accessed
-in an analogous manner. Artifacts for a standard experiment include both the curve fit data
-stored in ``artifacts("curve_data")`` and information on the fit stored in ``artifacts("fit_summary")``.
-Use the ``data`` attribute to access artifact data:
-
-.. jupyter-execute::
-
-    print(exp_data.artifacts("fit_summary").data)
-
-.. note::
-    See the :doc:`artifacts </howtos/artifacts>` how-to for more information on using artifacts.
-
-Circuit data and metadata
--------------------------
 
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds
@@ -256,9 +202,6 @@ Experiments also have global associated metadata accessed by the
 .. jupyter-execute::
 
     print(exp_data.metadata)
-
-Job information
----------------
 
 The actual backend jobs that were executed for the experiment can be accessed with the
 :meth:`~.ExperimentData.jobs` method.
@@ -288,8 +231,6 @@ supports can be set:
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)
-  print(f"Shots set to {exp.run_options.get('shots')}, " 
-        "measurement level set to {exp.run_options.get('meas_level')}")
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
@@ -297,7 +238,7 @@ For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
-These options are passed to the Qiskit :mod:`~qiskit.transpiler` to transpile the experiment circuits
+These options are passed to the Terra transpiler to transpile the experiment circuits
 before execution:
 
 .. jupyter-execute::
@@ -305,7 +246,6 @@ before execution:
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
                             basis_gates=["x", "sx", "rz"])
-  print(f"Transpile options are {exp.transpile_options}")
 
 Consult the documentation of :func:`qiskit.compiler.transpile` for valid options.
 
@@ -320,7 +260,6 @@ upon experiment instantiation, but can also be explicitly set via
     exp = T1(physical_qubits=(0,), delays=delays)
     new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
-    print(f"Experiment options are {exp.experiment_options}")
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment
 class.
@@ -328,7 +267,7 @@ class.
 Analysis options
 ----------------
 
-These options are unique to each analysis class. Unlike the other options, analysis
+These options are unique to each analysis class. Unlike the other options, analyis
 options are not directly set via the experiment object but use instead a method of the
 associated ``analysis``:
 
@@ -349,7 +288,7 @@ Running experiments on multiple qubits
 ======================================
 
 To run experiments across many qubits of the same device, we use **composite
-experiments**. A :class:`.CompositeExperiment` is a parent object that contains one or more child
+experiments**. A composite experiment is a parent object that contains one or more child
 experiments, which may themselves be composite. There are two core types of composite
 experiments:
 
@@ -371,49 +310,39 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine
 how the parallel experiment is constructed by visualizing child and parent circuits. The
 child experiments can be accessed via the
-:meth:`~.CompositeExperiment.component_experiment` method, which indexes from zero:
+:meth:`~.ParallelExperiment.component_experiment` method, which indexes from zero:
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(0).circuits()[0].draw(output="mpl", style="iqp")
+    parallel_exp.component_experiment(0).circuits()[0].draw(output='mpl')
 
 .. jupyter-execute::
 
-    parallel_exp.component_experiment(1).circuits()[0].draw(output="mpl", style="iqp")
-
-Similarly, the child analyses can be accessed via :meth:`.CompositeAnalysis.component_analysis` or via
-the analysis of the child experiment class:
-
-.. jupyter-execute::
-
-    parallel_exp.component_experiment(0).analysis.set_options(plot = True)
-
-    # This should print out what we set because it's the same option
-    print(parallel_exp.analysis.component_analysis(0).options.get("plot"))
+    parallel_exp.component_experiment(1).circuits()[0].draw(output='mpl')
 
 The circuits of all experiments assume they're acting on virtual qubits starting from
-index 0. In the case of a parallel experiment, the child experiment
+index 0. In the case of a parallel experiment, the child experiment 
 circuits are composed together and then reassigned virtual qubit indices:
 
 .. jupyter-execute::
 
-    parallel_exp.circuits()[0].draw(output="mpl", style="iqp")
+    parallel_exp.circuits()[0].draw(output='mpl')
 
 During experiment transpilation, a mapping is performed to place these circuits on the
 physical layout. We can see its effects by looking at the transpiled
 circuit, which is accessed via the internal method ``_transpiled_circuits()``. After
-transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2
+transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2 
 and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
 
-    parallel_exp._transpiled_circuits()[0].draw(output="mpl", style="iqp")
+    parallel_exp._transpiled_circuits()[0].draw(output='mpl')
 
 :class:`.ParallelExperiment` and :class:`.BatchExperiment` classes can also be nested
 arbitrarily to make complex composite experiments.
@@ -428,12 +357,6 @@ The experiment data returned from a composite experiment contains individual ana
 results for each child experiment that can be accessed using
 :meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
 analysis results.
-
-.. note::
-
-    This behavior will be updated in Qiskit Experiments 0.7.
-    By default, all analysis results will be stored in the parent data object,
-    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
 
 .. jupyter-execute::
 
@@ -456,17 +379,5 @@ into one level:
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    parallel_data.analysis_results(dataframe=True)
-
-Broadcasting analysis options to child experiments
---------------------------------------------------
-
-Use the `broadcast` parameter to set analysis options to each of the child experiments.
-
-.. jupyter-execute::
-
-    parallel_exp.analysis.set_options(plot=False, broadcast=True)
-
-If the child experiment inherits from :class:`.CompositeExperiment` (such as :class:`.ParallelExperiment`
-and :class:`.BatchExperiment` classes), this process will continue to work recursively.
-In this instance, the analysis will not generate a figure for the child experiment after the analysis.
+    for result in parallel_data.analysis_results():
+        print(result)

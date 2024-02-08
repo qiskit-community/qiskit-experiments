@@ -10,23 +10,44 @@ CurveData
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: CurveData.get_subset_of
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CurveData.get_subset_of
+   
+
+   
    

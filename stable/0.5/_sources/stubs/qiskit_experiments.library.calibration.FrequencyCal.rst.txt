@@ -15,16 +15,18 @@ FrequencyCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FrequencyCal.analysis
-   .. autoattribute:: FrequencyCal.backend
-   .. autoattribute:: FrequencyCal.calibrations
-   .. autoattribute:: FrequencyCal.experiment_options
-   .. autoattribute:: FrequencyCal.experiment_type
-   .. autoattribute:: FrequencyCal.num_qubits
-   .. autoattribute:: FrequencyCal.physical_qubits
-   .. autoattribute:: FrequencyCal.run_options
-   .. autoattribute:: FrequencyCal.transpile_options
+      FrequencyCal.analysis
+      FrequencyCal.backend
+      FrequencyCal.calibrations
+      FrequencyCal.experiment_options
+      FrequencyCal.experiment_type
+      FrequencyCal.num_qubits
+      FrequencyCal.physical_qubits
+      FrequencyCal.run_options
+      FrequencyCal.transpile_options
    
    
 
@@ -33,18 +35,19 @@ FrequencyCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FrequencyCal.circuits
-   .. automethod:: FrequencyCal.config
-   .. automethod:: FrequencyCal.copy
-   .. automethod:: FrequencyCal.enable_restless
-   .. automethod:: FrequencyCal.from_config
-   .. automethod:: FrequencyCal.job_info
-   .. automethod:: FrequencyCal.run
-   .. automethod:: FrequencyCal.set_experiment_options
-   .. automethod:: FrequencyCal.set_run_options
-   .. automethod:: FrequencyCal.set_transpile_options
-   .. automethod:: FrequencyCal.update_calibrations
+      FrequencyCal.circuits
+      FrequencyCal.config
+      FrequencyCal.copy
+      FrequencyCal.enable_restless
+      FrequencyCal.from_config
+      FrequencyCal.run
+      FrequencyCal.set_experiment_options
+      FrequencyCal.set_run_options
+      FrequencyCal.set_transpile_options
+      FrequencyCal.update_calibrations
    
 
    

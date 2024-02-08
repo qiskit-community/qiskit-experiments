@@ -1,0 +1,8 @@
+
+
+ExperimentData.job_ids
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.job_ids

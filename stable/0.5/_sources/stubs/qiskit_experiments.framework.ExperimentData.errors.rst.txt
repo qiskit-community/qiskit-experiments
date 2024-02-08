@@ -1,0 +1,8 @@
+
+
+ExperimentData.errors
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.errors

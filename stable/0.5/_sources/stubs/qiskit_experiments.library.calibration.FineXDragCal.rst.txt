@@ -15,16 +15,18 @@ FineXDragCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineXDragCal.analysis
-   .. autoattribute:: FineXDragCal.backend
-   .. autoattribute:: FineXDragCal.calibrations
-   .. autoattribute:: FineXDragCal.experiment_options
-   .. autoattribute:: FineXDragCal.experiment_type
-   .. autoattribute:: FineXDragCal.num_qubits
-   .. autoattribute:: FineXDragCal.physical_qubits
-   .. autoattribute:: FineXDragCal.run_options
-   .. autoattribute:: FineXDragCal.transpile_options
+      FineXDragCal.analysis
+      FineXDragCal.backend
+      FineXDragCal.calibrations
+      FineXDragCal.experiment_options
+      FineXDragCal.experiment_type
+      FineXDragCal.num_qubits
+      FineXDragCal.physical_qubits
+      FineXDragCal.run_options
+      FineXDragCal.transpile_options
    
    
 
@@ -33,18 +35,19 @@ FineXDragCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineXDragCal.circuits
-   .. automethod:: FineXDragCal.config
-   .. automethod:: FineXDragCal.copy
-   .. automethod:: FineXDragCal.enable_restless
-   .. automethod:: FineXDragCal.from_config
-   .. automethod:: FineXDragCal.job_info
-   .. automethod:: FineXDragCal.run
-   .. automethod:: FineXDragCal.set_experiment_options
-   .. automethod:: FineXDragCal.set_run_options
-   .. automethod:: FineXDragCal.set_transpile_options
-   .. automethod:: FineXDragCal.update_calibrations
+      FineXDragCal.circuits
+      FineXDragCal.config
+      FineXDragCal.copy
+      FineXDragCal.enable_restless
+      FineXDragCal.from_config
+      FineXDragCal.run
+      FineXDragCal.set_experiment_options
+      FineXDragCal.set_run_options
+      FineXDragCal.set_transpile_options
+      FineXDragCal.update_calibrations
    
 
    

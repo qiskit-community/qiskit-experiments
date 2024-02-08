@@ -1,0 +1,8 @@
+
+
+FineFrequencyCal.update_calibrations
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FineFrequencyCal.update_calibrations

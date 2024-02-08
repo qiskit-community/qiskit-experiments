@@ -1,0 +1,8 @@
+
+
+Tphi.analysis
+=========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: Tphi.analysis

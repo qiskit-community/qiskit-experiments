@@ -10,23 +10,47 @@ RestlessNode
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: RestlessNode.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RestlessNode.__call__
+   
+   
+   
+      RestlessNode.__call__
+
+   
    

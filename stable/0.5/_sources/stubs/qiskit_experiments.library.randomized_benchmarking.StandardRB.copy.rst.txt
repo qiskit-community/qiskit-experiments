@@ -1,0 +1,8 @@
+
+
+StandardRB.copy
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. automethod:: StandardRB.copy

@@ -1,0 +1,8 @@
+
+
+ResonanceAnalysis.models
+==========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: ResonanceAnalysis.models

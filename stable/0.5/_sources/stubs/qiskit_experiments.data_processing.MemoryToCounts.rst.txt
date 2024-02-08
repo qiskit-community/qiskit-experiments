@@ -10,23 +10,47 @@ MemoryToCounts
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: MemoryToCounts.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MemoryToCounts.__call__
+   
+   
+   
+      MemoryToCounts.__call__
+
+   
    

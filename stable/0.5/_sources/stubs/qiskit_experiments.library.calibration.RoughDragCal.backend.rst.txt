@@ -1,0 +1,8 @@
+
+
+RoughDragCal.backend
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughDragCal.backend

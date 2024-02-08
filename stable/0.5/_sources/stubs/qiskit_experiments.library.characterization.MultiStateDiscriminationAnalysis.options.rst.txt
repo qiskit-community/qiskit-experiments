@@ -1,0 +1,8 @@
+
+
+MultiStateDiscriminationAnalysis.options
+====================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: MultiStateDiscriminationAnalysis.options

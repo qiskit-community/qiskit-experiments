@@ -10,36 +10,66 @@ BackendTiming
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: BackendTiming.delay_unit
-   .. autoattribute:: BackendTiming.dt
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BackendTiming.delay_unit
+      
+   
+      
+      
+         
+      
+      BackendTiming.dt
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: BackendTiming.delay_time
-   .. automethod:: BackendTiming.pulse_time
-   .. automethod:: BackendTiming.round_delay
-   .. automethod:: BackendTiming.round_pulse
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BackendTiming.delay_time
+   
+   
+      BackendTiming.pulse_time
+   
+   
+      BackendTiming.round_delay
+   
+   
+      BackendTiming.round_pulse
+   
+
+   
    

@@ -10,66 +10,167 @@ AnalysisResult
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: AnalysisResult.RESULT_QUALITY_TO_TEXT
-   .. autoattribute:: AnalysisResult.auto_save
-   .. autoattribute:: AnalysisResult.chisq
-   .. autoattribute:: AnalysisResult.device_components
-   .. autoattribute:: AnalysisResult.experiment_id
-   .. autoattribute:: AnalysisResult.extra
-   .. autoattribute:: AnalysisResult.name
-   .. autoattribute:: AnalysisResult.quality
-   .. autoattribute:: AnalysisResult.result_id
-   .. autoattribute:: AnalysisResult.service
-   .. autoattribute:: AnalysisResult.source
-   .. autoattribute:: AnalysisResult.tags
-   .. autoattribute:: AnalysisResult.value
-   .. autoattribute:: AnalysisResult.verified
-   .. autoattribute:: AnalysisResult.version
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      AnalysisResult.RESULT_QUALITY_TO_TEXT
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+      
+      AnalysisResult.auto_save
+      
+   
+      
+      
+         
+      
+      AnalysisResult.chisq
+      
+   
+      
+      
+         
+      
+      AnalysisResult.device_components
+      
+   
+      
+      
+         
+      
+      AnalysisResult.experiment_id
+      
+   
+      
+      
+         
+      
+      AnalysisResult.extra
+      
+   
+      
+      
+         
+      
+      AnalysisResult.name
+      
+   
+      
+      
+         
+      
+      AnalysisResult.quality
+      
+   
+      
+      
+         
+      
+      AnalysisResult.result_id
+      
+   
+      
+      
+         
+      
+      AnalysisResult.service
+      
+   
+      
+      
+         
+      
+      AnalysisResult.source
+      
+   
+      
+      
+         
+      
+      AnalysisResult.tags
+      
+   
+      
+      
+         
+      
+      AnalysisResult.value
+      
+   
+      
+      
+         
+      
+      AnalysisResult.verified
+      
+   
+      
+      
+         
+      
+      AnalysisResult.version
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: AnalysisResult.copy
-   .. automethod:: AnalysisResult.default_source
-   .. automethod:: AnalysisResult.format_result_data
-   .. automethod:: AnalysisResult.load
-   .. automethod:: AnalysisResult.save
-   .. automethod:: AnalysisResult.set_data
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      AnalysisResult.copy
+   
+   
+      AnalysisResult.default_source
+   
+   
+      AnalysisResult.format_result_data
+   
+   
+      AnalysisResult.load
+   
+   
+      AnalysisResult.save
+   
+   
+      AnalysisResult.set_data
+   
+
+   
    

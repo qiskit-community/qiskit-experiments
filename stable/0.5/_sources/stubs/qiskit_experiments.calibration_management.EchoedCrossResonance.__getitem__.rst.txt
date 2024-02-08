@@ -1,0 +1,8 @@
+
+
+EchoedCrossResonance.__getitem__
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: EchoedCrossResonance.__getitem__

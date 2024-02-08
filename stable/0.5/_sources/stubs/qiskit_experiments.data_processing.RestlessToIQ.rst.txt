@@ -10,23 +10,47 @@ RestlessToIQ
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: RestlessToIQ.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RestlessToIQ.__call__
+   
+   
+   
+      RestlessToIQ.__call__
+
+   
    

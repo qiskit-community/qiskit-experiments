@@ -15,13 +15,15 @@ BlochTrajectoryAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: BlochTrajectoryAnalysis.drawer
-   .. autoattribute:: BlochTrajectoryAnalysis.models
-   .. autoattribute:: BlochTrajectoryAnalysis.name
-   .. autoattribute:: BlochTrajectoryAnalysis.options
-   .. autoattribute:: BlochTrajectoryAnalysis.parameters
-   .. autoattribute:: BlochTrajectoryAnalysis.plotter
+      BlochTrajectoryAnalysis.drawer
+      BlochTrajectoryAnalysis.models
+      BlochTrajectoryAnalysis.name
+      BlochTrajectoryAnalysis.options
+      BlochTrajectoryAnalysis.parameters
+      BlochTrajectoryAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ BlochTrajectoryAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: BlochTrajectoryAnalysis.config
-   .. automethod:: BlochTrajectoryAnalysis.copy
-   .. automethod:: BlochTrajectoryAnalysis.from_config
-   .. automethod:: BlochTrajectoryAnalysis.model_names
-   .. automethod:: BlochTrajectoryAnalysis.run
-   .. automethod:: BlochTrajectoryAnalysis.set_options
+      BlochTrajectoryAnalysis.config
+      BlochTrajectoryAnalysis.copy
+      BlochTrajectoryAnalysis.from_config
+      BlochTrajectoryAnalysis.run
+      BlochTrajectoryAnalysis.set_options
    
 
    

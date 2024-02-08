@@ -1,0 +1,8 @@
+
+
+BaseExperiment.run
+===============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BaseExperiment.run

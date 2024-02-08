@@ -15,12 +15,14 @@ BasePlotter
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: BasePlotter.figure_options
-   .. autoattribute:: BasePlotter.options
-   .. autoattribute:: BasePlotter.series
-   .. autoattribute:: BasePlotter.series_data
-   .. autoattribute:: BasePlotter.supplementary_data
+      BasePlotter.figure_options
+      BasePlotter.options
+      BasePlotter.series
+      BasePlotter.series_data
+      BasePlotter.supplementary_data
    
    
 
@@ -29,20 +31,23 @@ BasePlotter
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
+
    
-   .. automethod:: BasePlotter.clear_series_data
-   .. automethod:: BasePlotter.clear_supplementary_data
-   .. automethod:: BasePlotter.config
-   .. automethod:: BasePlotter.data_exists_for
-   .. automethod:: BasePlotter.data_for
-   .. automethod:: BasePlotter.data_keys_for
-   .. automethod:: BasePlotter.expected_series_data_keys
-   .. automethod:: BasePlotter.expected_supplementary_data_keys
-   .. automethod:: BasePlotter.figure
-   .. automethod:: BasePlotter.set_figure_options
-   .. automethod:: BasePlotter.set_options
-   .. automethod:: BasePlotter.set_series_data
-   .. automethod:: BasePlotter.set_supplementary_data
+      BasePlotter.clear_series_data
+      BasePlotter.clear_supplementary_data
+      BasePlotter.config
+      BasePlotter.data_exists_for
+      BasePlotter.data_for
+      BasePlotter.data_keys_for
+      BasePlotter.expected_series_data_keys
+      BasePlotter.expected_supplementary_data_keys
+      BasePlotter.figure
+      BasePlotter.set_figure_options
+      BasePlotter.set_options
+      BasePlotter.set_series_data
+      BasePlotter.set_supplementary_data
    
 
    

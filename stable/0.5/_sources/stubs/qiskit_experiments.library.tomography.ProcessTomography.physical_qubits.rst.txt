@@ -1,0 +1,8 @@
+
+
+ProcessTomography.physical_qubits
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: ProcessTomography.physical_qubits

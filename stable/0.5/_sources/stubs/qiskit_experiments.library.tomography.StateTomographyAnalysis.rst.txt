@@ -15,8 +15,10 @@ StateTomographyAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: StateTomographyAnalysis.options
+      StateTomographyAnalysis.options
    
    
 
@@ -25,12 +27,14 @@ StateTomographyAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: StateTomographyAnalysis.config
-   .. automethod:: StateTomographyAnalysis.copy
-   .. automethod:: StateTomographyAnalysis.from_config
-   .. automethod:: StateTomographyAnalysis.run
-   .. automethod:: StateTomographyAnalysis.set_options
+      StateTomographyAnalysis.config
+      StateTomographyAnalysis.copy
+      StateTomographyAnalysis.from_config
+      StateTomographyAnalysis.run
+      StateTomographyAnalysis.set_options
    
 
    

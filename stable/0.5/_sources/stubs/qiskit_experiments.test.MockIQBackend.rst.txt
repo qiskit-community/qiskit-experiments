@@ -10,76 +10,181 @@ MockIQBackend
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: MockIQBackend.coupling_map
-   .. autoattribute:: MockIQBackend.dt
-   .. autoattribute:: MockIQBackend.dtm
-   .. autoattribute:: MockIQBackend.experiment_helper
-   .. autoattribute:: MockIQBackend.instruction_durations
-   .. autoattribute:: MockIQBackend.instruction_schedule_map
-   .. autoattribute:: MockIQBackend.instructions
-   .. autoattribute:: MockIQBackend.max_circuits
-   .. autoattribute:: MockIQBackend.meas_map
-   .. autoattribute:: MockIQBackend.num_qubits
-   .. autoattribute:: MockIQBackend.operation_names
-   .. autoattribute:: MockIQBackend.operations
-   .. autoattribute:: MockIQBackend.options
-   .. autoattribute:: MockIQBackend.provider
-   .. autoattribute:: MockIQBackend.target
-   .. autoattribute:: MockIQBackend.version
-   .. autoattribute:: MockIQBackend.description
-   .. autoattribute:: MockIQBackend.online_date
-   .. autoattribute:: MockIQBackend.backend_version
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MockIQBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.dt
+      
+   
+      
+      
+         
+      
+      MockIQBackend.dtm
+      
+   
+      
+      
+         
+      
+      MockIQBackend.experiment_helper
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.instructions
+      
+   
+      
+      
+         
+      
+      MockIQBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      MockIQBackend.meas_map
+      
+   
+      
+      
+         
+      
+      MockIQBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      MockIQBackend.operation_names
+      
+   
+      
+      
+         
+      
+      MockIQBackend.operations
+      
+   
+      
+      
+         
+      
+      MockIQBackend.options
+      
+   
+      
+      
+         
+      
+      MockIQBackend.provider
+      
+   
+      
+      
+         
+      
+      MockIQBackend.target
+      
+   
+      
+      
+         
+      
+      MockIQBackend.version
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: MockIQBackend.acquire_channel
-   .. automethod:: MockIQBackend.control_channel
-   .. automethod:: MockIQBackend.drive_channel
-   .. automethod:: MockIQBackend.measure_channel
-   .. automethod:: MockIQBackend.qubit_properties
-   .. automethod:: MockIQBackend.run
-   .. automethod:: MockIQBackend.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MockIQBackend.acquire_channel
+   
+   
+      MockIQBackend.control_channel
+   
+   
+      MockIQBackend.drive_channel
+   
+   
+      MockIQBackend.measure_channel
+   
+   
+      MockIQBackend.qubit_properties
+   
+   
+      MockIQBackend.run
+   
+   
+      MockIQBackend.set_options
+   
+
+   
    

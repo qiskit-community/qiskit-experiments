@@ -1,0 +1,8 @@
+
+
+ReadoutAngle.num_qubits
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: ReadoutAngle.num_qubits

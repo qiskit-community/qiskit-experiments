@@ -1,0 +1,8 @@
+
+
+FrequencyCal.enable_restless
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FrequencyCal.enable_restless

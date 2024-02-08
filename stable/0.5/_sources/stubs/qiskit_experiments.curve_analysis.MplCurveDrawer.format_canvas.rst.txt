@@ -1,0 +1,8 @@
+
+
+MplCurveDrawer.format_canvas
+==============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: MplCurveDrawer.format_canvas

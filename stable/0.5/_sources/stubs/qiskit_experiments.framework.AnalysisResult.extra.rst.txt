@@ -1,0 +1,8 @@
+
+
+AnalysisResult.extra
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: AnalysisResult.extra

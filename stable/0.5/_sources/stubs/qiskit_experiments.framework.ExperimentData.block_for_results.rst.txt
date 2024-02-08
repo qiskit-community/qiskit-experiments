@@ -1,0 +1,8 @@
+
+
+ExperimentData.block_for_results
+=============================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.block_for_results

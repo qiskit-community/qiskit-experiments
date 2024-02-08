@@ -1,0 +1,8 @@
+
+
+ProcessTomography.copy
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: ProcessTomography.copy

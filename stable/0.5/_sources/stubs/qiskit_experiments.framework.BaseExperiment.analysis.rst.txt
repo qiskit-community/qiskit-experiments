@@ -1,0 +1,8 @@
+
+
+BaseExperiment.analysis
+====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BaseExperiment.analysis

@@ -10,28 +10,71 @@ CurveFitResult
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: CurveFitResult.correl
-   .. autoattribute:: CurveFitResult.ufloat_params
-   .. autoattribute:: CurveFitResult.x_range
-   .. autoattribute:: CurveFitResult.y_range
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      CurveFitResult.correl
+      
+   
+      
+      
+         
+      
+      CurveFitResult.ufloat_params
+      
+   
+      
+      
+         
+      
+      CurveFitResult.x_range
+      
+   
+      
+      
+         
+      
+      CurveFitResult.y_range
+      
+   
+   
    
 
-
-
-
    
    
 
+   
+   
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CurveFitResult.fitval
+   
+
+   
    

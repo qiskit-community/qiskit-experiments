@@ -1,0 +1,8 @@
+
+
+SingleTransmonTestBackend.version
+=========================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoattribute:: SingleTransmonTestBackend.version

@@ -10,50 +10,101 @@ MplCurveDrawer
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: MplCurveDrawer.DefaultColors
-   .. autoattribute:: MplCurveDrawer.DefaultMarkers
-   .. autoattribute:: MplCurveDrawer.figure
-   .. autoattribute:: MplCurveDrawer.options
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MplCurveDrawer.DefaultColors
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.DefaultMarkers
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.figure
+      
+   
+      
+      
+         
+      
+      MplCurveDrawer.options
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: MplCurveDrawer.config
-   .. automethod:: MplCurveDrawer.draw_confidence_interval
-   .. automethod:: MplCurveDrawer.draw_fit_line
-   .. automethod:: MplCurveDrawer.draw_fit_report
-   .. automethod:: MplCurveDrawer.draw_formatted_data
-   .. automethod:: MplCurveDrawer.draw_raw_data
-   .. automethod:: MplCurveDrawer.format_canvas
-   .. automethod:: MplCurveDrawer.initialize_canvas
-   .. automethod:: MplCurveDrawer.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MplCurveDrawer.config
+   
+   
+      MplCurveDrawer.draw_confidence_interval
+   
+   
+      MplCurveDrawer.draw_fit_line
+   
+   
+      MplCurveDrawer.draw_fit_report
+   
+   
+      MplCurveDrawer.draw_formatted_data
+   
+   
+      MplCurveDrawer.draw_raw_data
+   
+   
+      MplCurveDrawer.format_canvas
+   
+   
+      MplCurveDrawer.initialize_canvas
+   
+   
+      MplCurveDrawer.set_options
+   
+
+   
    

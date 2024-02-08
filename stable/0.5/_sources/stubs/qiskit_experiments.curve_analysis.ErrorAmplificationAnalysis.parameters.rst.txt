@@ -1,0 +1,8 @@
+
+
+ErrorAmplificationAnalysis.parameters
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: ErrorAmplificationAnalysis.parameters

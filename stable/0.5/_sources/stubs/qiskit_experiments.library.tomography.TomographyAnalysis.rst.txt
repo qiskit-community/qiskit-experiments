@@ -15,8 +15,10 @@ TomographyAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: TomographyAnalysis.options
+      TomographyAnalysis.options
    
    
 
@@ -25,12 +27,14 @@ TomographyAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: TomographyAnalysis.config
-   .. automethod:: TomographyAnalysis.copy
-   .. automethod:: TomographyAnalysis.from_config
-   .. automethod:: TomographyAnalysis.run
-   .. automethod:: TomographyAnalysis.set_options
+      TomographyAnalysis.config
+      TomographyAnalysis.copy
+      TomographyAnalysis.from_config
+      TomographyAnalysis.run
+      TomographyAnalysis.set_options
    
 
    

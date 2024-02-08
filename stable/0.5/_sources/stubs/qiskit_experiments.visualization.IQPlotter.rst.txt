@@ -15,12 +15,14 @@ IQPlotter
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: IQPlotter.figure_options
-   .. autoattribute:: IQPlotter.options
-   .. autoattribute:: IQPlotter.series
-   .. autoattribute:: IQPlotter.series_data
-   .. autoattribute:: IQPlotter.supplementary_data
+      IQPlotter.figure_options
+      IQPlotter.options
+      IQPlotter.series
+      IQPlotter.series_data
+      IQPlotter.supplementary_data
    
    
 
@@ -29,20 +31,23 @@ IQPlotter
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
+
    
-   .. automethod:: IQPlotter.clear_series_data
-   .. automethod:: IQPlotter.clear_supplementary_data
-   .. automethod:: IQPlotter.config
-   .. automethod:: IQPlotter.data_exists_for
-   .. automethod:: IQPlotter.data_for
-   .. automethod:: IQPlotter.data_keys_for
-   .. automethod:: IQPlotter.expected_series_data_keys
-   .. automethod:: IQPlotter.expected_supplementary_data_keys
-   .. automethod:: IQPlotter.figure
-   .. automethod:: IQPlotter.set_figure_options
-   .. automethod:: IQPlotter.set_options
-   .. automethod:: IQPlotter.set_series_data
-   .. automethod:: IQPlotter.set_supplementary_data
+      IQPlotter.clear_series_data
+      IQPlotter.clear_supplementary_data
+      IQPlotter.config
+      IQPlotter.data_exists_for
+      IQPlotter.data_for
+      IQPlotter.data_keys_for
+      IQPlotter.expected_series_data_keys
+      IQPlotter.expected_supplementary_data_keys
+      IQPlotter.figure
+      IQPlotter.set_figure_options
+      IQPlotter.set_options
+      IQPlotter.set_series_data
+      IQPlotter.set_supplementary_data
    
 
    

@@ -1,0 +1,8 @@
+
+
+GaussianAnalysis.models
+=========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: GaussianAnalysis.models

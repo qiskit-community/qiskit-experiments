@@ -1,0 +1,8 @@
+
+
+AnalysisResult.load
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: AnalysisResult.load

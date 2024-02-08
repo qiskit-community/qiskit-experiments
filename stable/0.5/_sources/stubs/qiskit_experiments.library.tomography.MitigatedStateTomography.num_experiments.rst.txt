@@ -1,0 +1,8 @@
+
+
+MitigatedStateTomography.num_experiments
+==============================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: MitigatedStateTomography.num_experiments

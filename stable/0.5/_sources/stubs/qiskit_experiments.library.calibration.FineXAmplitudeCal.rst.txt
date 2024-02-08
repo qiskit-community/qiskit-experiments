@@ -15,16 +15,18 @@ FineXAmplitudeCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineXAmplitudeCal.analysis
-   .. autoattribute:: FineXAmplitudeCal.backend
-   .. autoattribute:: FineXAmplitudeCal.calibrations
-   .. autoattribute:: FineXAmplitudeCal.experiment_options
-   .. autoattribute:: FineXAmplitudeCal.experiment_type
-   .. autoattribute:: FineXAmplitudeCal.num_qubits
-   .. autoattribute:: FineXAmplitudeCal.physical_qubits
-   .. autoattribute:: FineXAmplitudeCal.run_options
-   .. autoattribute:: FineXAmplitudeCal.transpile_options
+      FineXAmplitudeCal.analysis
+      FineXAmplitudeCal.backend
+      FineXAmplitudeCal.calibrations
+      FineXAmplitudeCal.experiment_options
+      FineXAmplitudeCal.experiment_type
+      FineXAmplitudeCal.num_qubits
+      FineXAmplitudeCal.physical_qubits
+      FineXAmplitudeCal.run_options
+      FineXAmplitudeCal.transpile_options
    
    
 
@@ -33,18 +35,19 @@ FineXAmplitudeCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineXAmplitudeCal.circuits
-   .. automethod:: FineXAmplitudeCal.config
-   .. automethod:: FineXAmplitudeCal.copy
-   .. automethod:: FineXAmplitudeCal.enable_restless
-   .. automethod:: FineXAmplitudeCal.from_config
-   .. automethod:: FineXAmplitudeCal.job_info
-   .. automethod:: FineXAmplitudeCal.run
-   .. automethod:: FineXAmplitudeCal.set_experiment_options
-   .. automethod:: FineXAmplitudeCal.set_run_options
-   .. automethod:: FineXAmplitudeCal.set_transpile_options
-   .. automethod:: FineXAmplitudeCal.update_calibrations
+      FineXAmplitudeCal.circuits
+      FineXAmplitudeCal.config
+      FineXAmplitudeCal.copy
+      FineXAmplitudeCal.enable_restless
+      FineXAmplitudeCal.from_config
+      FineXAmplitudeCal.run
+      FineXAmplitudeCal.set_experiment_options
+      FineXAmplitudeCal.set_run_options
+      FineXAmplitudeCal.set_transpile_options
+      FineXAmplitudeCal.update_calibrations
    
 
    

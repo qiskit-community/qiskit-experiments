@@ -1,0 +1,8 @@
+
+
+FitOptions.fitter_opts
+========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: FitOptions.fitter_opts

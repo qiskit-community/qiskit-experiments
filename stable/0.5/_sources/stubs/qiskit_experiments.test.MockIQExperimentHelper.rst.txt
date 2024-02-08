@@ -10,34 +10,63 @@ MockIQExperimentHelper
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: MockIQExperimentHelper.iq_cluster_centers
-   .. autoattribute:: MockIQExperimentHelper.iq_cluster_width
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      MockIQExperimentHelper.iq_cluster_centers
+      
+   
+      
+      
+         
+      
+      MockIQExperimentHelper.iq_cluster_width
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: MockIQExperimentHelper.compute_probabilities
-   .. automethod:: MockIQExperimentHelper.iq_clusters
-   .. automethod:: MockIQExperimentHelper.iq_phase
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MockIQExperimentHelper.compute_probabilities
+   
+   
+      MockIQExperimentHelper.iq_clusters
+   
+   
+      MockIQExperimentHelper.iq_phase
+   
+
+   
    

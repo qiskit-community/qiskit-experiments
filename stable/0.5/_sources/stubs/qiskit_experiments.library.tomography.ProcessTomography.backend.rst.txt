@@ -1,0 +1,8 @@
+
+
+ProcessTomography.backend
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: ProcessTomography.backend

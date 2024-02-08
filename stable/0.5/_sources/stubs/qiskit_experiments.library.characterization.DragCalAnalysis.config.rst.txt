@@ -1,0 +1,8 @@
+
+
+DragCalAnalysis.config
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: DragCalAnalysis.config

@@ -1,0 +1,8 @@
+
+
+MitigatedStateTomography.component_experiment
+===================================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: MitigatedStateTomography.component_experiment

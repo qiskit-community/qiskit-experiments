@@ -1,0 +1,8 @@
+
+
+MockIQParallelBackend.max_circuits
+==========================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQParallelBackend.max_circuits

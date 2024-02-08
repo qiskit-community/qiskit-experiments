@@ -1,0 +1,8 @@
+
+
+HalfAngleCal.num_qubits
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: HalfAngleCal.num_qubits

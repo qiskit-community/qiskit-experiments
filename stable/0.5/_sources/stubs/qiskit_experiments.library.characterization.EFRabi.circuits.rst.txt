@@ -1,0 +1,8 @@
+
+
+EFRabi.circuits
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: EFRabi.circuits

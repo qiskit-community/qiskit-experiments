@@ -1,0 +1,8 @@
+
+
+ZZRamseyAnalysis.plotter
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: ZZRamseyAnalysis.plotter

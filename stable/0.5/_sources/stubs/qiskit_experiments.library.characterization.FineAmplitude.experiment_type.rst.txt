@@ -1,0 +1,8 @@
+
+
+FineAmplitude.experiment_type
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineAmplitude.experiment_type

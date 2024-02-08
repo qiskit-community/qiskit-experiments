@@ -1,0 +1,8 @@
+
+
+QuantumVolume.from_config
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.quantum_volume
+
+.. automethod:: QuantumVolume.from_config

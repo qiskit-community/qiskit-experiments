@@ -1,0 +1,8 @@
+
+
+T2Ramsey.physical_qubits
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: T2Ramsey.physical_qubits

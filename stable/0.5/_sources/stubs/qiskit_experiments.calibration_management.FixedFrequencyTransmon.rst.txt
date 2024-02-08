@@ -10,46 +10,93 @@ FixedFrequencyTransmon
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: FixedFrequencyTransmon.basis_gates
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      FixedFrequencyTransmon.basis_gates
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: FixedFrequencyTransmon.__getitem__
-   .. automethod:: FixedFrequencyTransmon.__len__
-   .. automethod:: FixedFrequencyTransmon.config
-   .. automethod:: FixedFrequencyTransmon.default_values
-   .. automethod:: FixedFrequencyTransmon.from_config
-   .. automethod:: FixedFrequencyTransmon.get
-   .. automethod:: FixedFrequencyTransmon.items
-   .. automethod:: FixedFrequencyTransmon.keys
-   .. automethod:: FixedFrequencyTransmon.num_qubits
-   .. automethod:: FixedFrequencyTransmon.values
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      FixedFrequencyTransmon.__getitem__
+   
+   
+      FixedFrequencyTransmon.__len__
+   
+   
+      FixedFrequencyTransmon.config
+   
+   
+      FixedFrequencyTransmon.default_values
+   
+   
+      FixedFrequencyTransmon.from_config
+   
+   
+      FixedFrequencyTransmon.get
+   
+   
+      FixedFrequencyTransmon.items
+   
+   
+      FixedFrequencyTransmon.keys
+   
+   
+      FixedFrequencyTransmon.num_qubits
+   
+   
+      FixedFrequencyTransmon.values
+   
+   
+   
+      FixedFrequencyTransmon.__len__
+   
+   
+      FixedFrequencyTransmon.__getitem__
+
+   
    

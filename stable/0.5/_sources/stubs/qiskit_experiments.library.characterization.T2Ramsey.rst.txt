@@ -15,15 +15,17 @@ T2Ramsey
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: T2Ramsey.analysis
-   .. autoattribute:: T2Ramsey.backend
-   .. autoattribute:: T2Ramsey.experiment_options
-   .. autoattribute:: T2Ramsey.experiment_type
-   .. autoattribute:: T2Ramsey.num_qubits
-   .. autoattribute:: T2Ramsey.physical_qubits
-   .. autoattribute:: T2Ramsey.run_options
-   .. autoattribute:: T2Ramsey.transpile_options
+      T2Ramsey.analysis
+      T2Ramsey.backend
+      T2Ramsey.experiment_options
+      T2Ramsey.experiment_type
+      T2Ramsey.num_qubits
+      T2Ramsey.physical_qubits
+      T2Ramsey.run_options
+      T2Ramsey.transpile_options
    
    
 
@@ -32,16 +34,17 @@ T2Ramsey
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: T2Ramsey.circuits
-   .. automethod:: T2Ramsey.config
-   .. automethod:: T2Ramsey.copy
-   .. automethod:: T2Ramsey.from_config
-   .. automethod:: T2Ramsey.job_info
-   .. automethod:: T2Ramsey.run
-   .. automethod:: T2Ramsey.set_experiment_options
-   .. automethod:: T2Ramsey.set_run_options
-   .. automethod:: T2Ramsey.set_transpile_options
+      T2Ramsey.circuits
+      T2Ramsey.config
+      T2Ramsey.copy
+      T2Ramsey.from_config
+      T2Ramsey.run
+      T2Ramsey.set_experiment_options
+      T2Ramsey.set_run_options
+      T2Ramsey.set_transpile_options
    
 
    

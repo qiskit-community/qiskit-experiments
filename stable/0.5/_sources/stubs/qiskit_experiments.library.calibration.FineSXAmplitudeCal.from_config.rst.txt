@@ -1,0 +1,8 @@
+
+
+FineSXAmplitudeCal.from_config
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FineSXAmplitudeCal.from_config

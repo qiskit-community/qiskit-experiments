@@ -1,0 +1,8 @@
+
+
+ExperimentData.share_level
+=======================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: ExperimentData.share_level

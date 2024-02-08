@@ -1,0 +1,8 @@
+
+
+EchoedCrossResonanceHamiltonian.copy
+================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: EchoedCrossResonanceHamiltonian.copy

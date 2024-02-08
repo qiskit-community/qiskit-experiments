@@ -10,46 +10,87 @@ BasisGateLibrary
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: BasisGateLibrary.basis_gates
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BasisGateLibrary.basis_gates
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: BasisGateLibrary.__getitem__
-   .. automethod:: BasisGateLibrary.__len__
-   .. automethod:: BasisGateLibrary.config
-   .. automethod:: BasisGateLibrary.default_values
-   .. automethod:: BasisGateLibrary.from_config
-   .. automethod:: BasisGateLibrary.get
-   .. automethod:: BasisGateLibrary.items
-   .. automethod:: BasisGateLibrary.keys
-   .. automethod:: BasisGateLibrary.num_qubits
-   .. automethod:: BasisGateLibrary.values
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BasisGateLibrary.__getitem__
+   
+   
+      BasisGateLibrary.__len__
+   
+   
+      BasisGateLibrary.config
+   
+   
+      BasisGateLibrary.default_values
+   
+   
+      BasisGateLibrary.from_config
+   
+   
+      BasisGateLibrary.get
+   
+   
+      BasisGateLibrary.items
+   
+   
+      BasisGateLibrary.keys
+   
+   
+      BasisGateLibrary.num_qubits
+   
+   
+      BasisGateLibrary.values
+   
+
+   
    

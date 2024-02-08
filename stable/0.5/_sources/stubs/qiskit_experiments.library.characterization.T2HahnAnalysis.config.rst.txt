@@ -1,0 +1,8 @@
+
+
+T2HahnAnalysis.config
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T2HahnAnalysis.config

@@ -1,0 +1,8 @@
+
+
+TomographyExperiment.circuits
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. automethod:: TomographyExperiment.circuits

@@ -10,23 +10,47 @@ BasisExpectationValue
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: BasisExpectationValue.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BasisExpectationValue.__call__
+   
+   
+   
+      BasisExpectationValue.__call__
+
+   
    

@@ -15,15 +15,17 @@ RamseyXY
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: RamseyXY.analysis
-   .. autoattribute:: RamseyXY.backend
-   .. autoattribute:: RamseyXY.experiment_options
-   .. autoattribute:: RamseyXY.experiment_type
-   .. autoattribute:: RamseyXY.num_qubits
-   .. autoattribute:: RamseyXY.physical_qubits
-   .. autoattribute:: RamseyXY.run_options
-   .. autoattribute:: RamseyXY.transpile_options
+      RamseyXY.analysis
+      RamseyXY.backend
+      RamseyXY.experiment_options
+      RamseyXY.experiment_type
+      RamseyXY.num_qubits
+      RamseyXY.physical_qubits
+      RamseyXY.run_options
+      RamseyXY.transpile_options
    
    
 
@@ -32,17 +34,18 @@ RamseyXY
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: RamseyXY.circuits
-   .. automethod:: RamseyXY.config
-   .. automethod:: RamseyXY.copy
-   .. automethod:: RamseyXY.enable_restless
-   .. automethod:: RamseyXY.from_config
-   .. automethod:: RamseyXY.job_info
-   .. automethod:: RamseyXY.run
-   .. automethod:: RamseyXY.set_experiment_options
-   .. automethod:: RamseyXY.set_run_options
-   .. automethod:: RamseyXY.set_transpile_options
+      RamseyXY.circuits
+      RamseyXY.config
+      RamseyXY.copy
+      RamseyXY.enable_restless
+      RamseyXY.from_config
+      RamseyXY.run
+      RamseyXY.set_experiment_options
+      RamseyXY.set_run_options
+      RamseyXY.set_transpile_options
    
 
    

@@ -10,51 +10,86 @@ PlotStyle
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: PlotStyle.__getitem__
-   .. automethod:: PlotStyle.__len__
-   .. automethod:: PlotStyle.clear
-   .. automethod:: PlotStyle.copy
-   .. automethod:: PlotStyle.default_style
-   .. automethod:: PlotStyle.fromkeys
-   .. automethod:: PlotStyle.get
-   .. automethod:: PlotStyle.items
-   .. automethod:: PlotStyle.keys
-   .. automethod:: PlotStyle.merge
-   .. automethod:: PlotStyle.pop
-   .. automethod:: PlotStyle.popitem
-   .. automethod:: PlotStyle.setdefault
-   .. automethod:: PlotStyle.update
-   .. automethod:: PlotStyle.values
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PlotStyle.__getitem__
+   
+   
+      PlotStyle.__len__
+   
+   
+      PlotStyle.clear
+   
+   
+      PlotStyle.copy
+   
+   
+      PlotStyle.default_style
+   
+   
+      PlotStyle.fromkeys
+   
+   
+      PlotStyle.get
+   
+   
+      PlotStyle.items
+   
+   
+      PlotStyle.keys
+   
+   
+      PlotStyle.merge
+   
+   
+      PlotStyle.pop
+   
+   
+      PlotStyle.popitem
+   
+   
+      PlotStyle.setdefault
+   
+   
+      PlotStyle.update
+   
+   
+      PlotStyle.values
+   
+   
+   
+      PlotStyle.__len__
+   
+   
+      PlotStyle.__getitem__
+
+   
    

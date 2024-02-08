@@ -1,0 +1,8 @@
+
+
+RoughDragCal.copy
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughDragCal.copy

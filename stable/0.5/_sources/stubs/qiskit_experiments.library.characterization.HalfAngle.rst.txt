@@ -15,15 +15,17 @@ HalfAngle
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: HalfAngle.analysis
-   .. autoattribute:: HalfAngle.backend
-   .. autoattribute:: HalfAngle.experiment_options
-   .. autoattribute:: HalfAngle.experiment_type
-   .. autoattribute:: HalfAngle.num_qubits
-   .. autoattribute:: HalfAngle.physical_qubits
-   .. autoattribute:: HalfAngle.run_options
-   .. autoattribute:: HalfAngle.transpile_options
+      HalfAngle.analysis
+      HalfAngle.backend
+      HalfAngle.experiment_options
+      HalfAngle.experiment_type
+      HalfAngle.num_qubits
+      HalfAngle.physical_qubits
+      HalfAngle.run_options
+      HalfAngle.transpile_options
    
    
 
@@ -32,16 +34,17 @@ HalfAngle
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: HalfAngle.circuits
-   .. automethod:: HalfAngle.config
-   .. automethod:: HalfAngle.copy
-   .. automethod:: HalfAngle.from_config
-   .. automethod:: HalfAngle.job_info
-   .. automethod:: HalfAngle.run
-   .. automethod:: HalfAngle.set_experiment_options
-   .. automethod:: HalfAngle.set_run_options
-   .. automethod:: HalfAngle.set_transpile_options
+      HalfAngle.circuits
+      HalfAngle.config
+      HalfAngle.copy
+      HalfAngle.from_config
+      HalfAngle.run
+      HalfAngle.set_experiment_options
+      HalfAngle.set_run_options
+      HalfAngle.set_transpile_options
    
 
    

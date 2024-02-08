@@ -1,0 +1,8 @@
+
+
+FineDrag.from_config
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineDrag.from_config

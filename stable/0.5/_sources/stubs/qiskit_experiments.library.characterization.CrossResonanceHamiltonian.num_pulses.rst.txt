@@ -1,0 +1,8 @@
+
+
+CrossResonanceHamiltonian.num_pulses
+================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoattribute:: CrossResonanceHamiltonian.num_pulses

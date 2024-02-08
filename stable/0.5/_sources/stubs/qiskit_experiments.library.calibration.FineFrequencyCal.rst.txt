@@ -15,16 +15,18 @@ FineFrequencyCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineFrequencyCal.analysis
-   .. autoattribute:: FineFrequencyCal.backend
-   .. autoattribute:: FineFrequencyCal.calibrations
-   .. autoattribute:: FineFrequencyCal.experiment_options
-   .. autoattribute:: FineFrequencyCal.experiment_type
-   .. autoattribute:: FineFrequencyCal.num_qubits
-   .. autoattribute:: FineFrequencyCal.physical_qubits
-   .. autoattribute:: FineFrequencyCal.run_options
-   .. autoattribute:: FineFrequencyCal.transpile_options
+      FineFrequencyCal.analysis
+      FineFrequencyCal.backend
+      FineFrequencyCal.calibrations
+      FineFrequencyCal.experiment_options
+      FineFrequencyCal.experiment_type
+      FineFrequencyCal.num_qubits
+      FineFrequencyCal.physical_qubits
+      FineFrequencyCal.run_options
+      FineFrequencyCal.transpile_options
    
    
 
@@ -33,17 +35,18 @@ FineFrequencyCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineFrequencyCal.circuits
-   .. automethod:: FineFrequencyCal.config
-   .. automethod:: FineFrequencyCal.copy
-   .. automethod:: FineFrequencyCal.from_config
-   .. automethod:: FineFrequencyCal.job_info
-   .. automethod:: FineFrequencyCal.run
-   .. automethod:: FineFrequencyCal.set_experiment_options
-   .. automethod:: FineFrequencyCal.set_run_options
-   .. automethod:: FineFrequencyCal.set_transpile_options
-   .. automethod:: FineFrequencyCal.update_calibrations
+      FineFrequencyCal.circuits
+      FineFrequencyCal.config
+      FineFrequencyCal.copy
+      FineFrequencyCal.from_config
+      FineFrequencyCal.run
+      FineFrequencyCal.set_experiment_options
+      FineFrequencyCal.set_run_options
+      FineFrequencyCal.set_transpile_options
+      FineFrequencyCal.update_calibrations
    
 
    

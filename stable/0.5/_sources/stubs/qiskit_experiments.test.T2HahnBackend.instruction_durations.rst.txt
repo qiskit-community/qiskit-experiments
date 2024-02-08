@@ -1,0 +1,8 @@
+
+
+T2HahnBackend.instruction_durations
+===========================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: T2HahnBackend.instruction_durations

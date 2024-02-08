@@ -1,0 +1,8 @@
+
+
+RBAnalysis.plotter
+=====================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoproperty:: RBAnalysis.plotter

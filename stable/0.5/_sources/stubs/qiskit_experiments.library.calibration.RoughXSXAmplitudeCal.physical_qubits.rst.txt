@@ -1,0 +1,8 @@
+
+
+RoughXSXAmplitudeCal.physical_qubits
+===========================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: RoughXSXAmplitudeCal.physical_qubits

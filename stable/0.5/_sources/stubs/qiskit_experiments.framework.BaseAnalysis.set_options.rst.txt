@@ -1,0 +1,8 @@
+
+
+BaseAnalysis.set_options
+=====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: BaseAnalysis.set_options

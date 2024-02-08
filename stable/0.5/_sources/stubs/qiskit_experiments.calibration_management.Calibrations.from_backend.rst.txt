@@ -1,0 +1,8 @@
+
+
+Calibrations.from_backend
+===================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. automethod:: Calibrations.from_backend

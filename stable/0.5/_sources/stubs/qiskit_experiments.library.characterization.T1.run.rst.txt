@@ -1,0 +1,8 @@
+
+
+T1.run
+==================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: T1.run

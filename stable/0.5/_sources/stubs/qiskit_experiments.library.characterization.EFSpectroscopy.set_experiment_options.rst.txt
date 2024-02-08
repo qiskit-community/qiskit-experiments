@@ -1,0 +1,8 @@
+
+
+EFSpectroscopy.set_experiment_options
+=================================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: EFSpectroscopy.set_experiment_options

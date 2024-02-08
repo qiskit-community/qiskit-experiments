@@ -10,38 +10,71 @@ CompositeAnalysis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: CompositeAnalysis.options
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      CompositeAnalysis.options
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: CompositeAnalysis.component_analysis
-   .. automethod:: CompositeAnalysis.config
-   .. automethod:: CompositeAnalysis.copy
-   .. automethod:: CompositeAnalysis.from_config
-   .. automethod:: CompositeAnalysis.run
-   .. automethod:: CompositeAnalysis.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CompositeAnalysis.component_analysis
+   
+   
+      CompositeAnalysis.config
+   
+   
+      CompositeAnalysis.copy
+   
+   
+      CompositeAnalysis.from_config
+   
+   
+      CompositeAnalysis.run
+   
+   
+      CompositeAnalysis.set_options
+   
+
+   
    

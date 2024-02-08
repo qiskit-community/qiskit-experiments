@@ -1,0 +1,8 @@
+
+
+MockIQBackend.dt
+========================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: MockIQBackend.dt

@@ -15,15 +15,17 @@ FineDrag
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineDrag.analysis
-   .. autoattribute:: FineDrag.backend
-   .. autoattribute:: FineDrag.experiment_options
-   .. autoattribute:: FineDrag.experiment_type
-   .. autoattribute:: FineDrag.num_qubits
-   .. autoattribute:: FineDrag.physical_qubits
-   .. autoattribute:: FineDrag.run_options
-   .. autoattribute:: FineDrag.transpile_options
+      FineDrag.analysis
+      FineDrag.backend
+      FineDrag.experiment_options
+      FineDrag.experiment_type
+      FineDrag.num_qubits
+      FineDrag.physical_qubits
+      FineDrag.run_options
+      FineDrag.transpile_options
    
    
 
@@ -32,17 +34,18 @@ FineDrag
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineDrag.circuits
-   .. automethod:: FineDrag.config
-   .. automethod:: FineDrag.copy
-   .. automethod:: FineDrag.enable_restless
-   .. automethod:: FineDrag.from_config
-   .. automethod:: FineDrag.job_info
-   .. automethod:: FineDrag.run
-   .. automethod:: FineDrag.set_experiment_options
-   .. automethod:: FineDrag.set_run_options
-   .. automethod:: FineDrag.set_transpile_options
+      FineDrag.circuits
+      FineDrag.config
+      FineDrag.copy
+      FineDrag.enable_restless
+      FineDrag.from_config
+      FineDrag.run
+      FineDrag.set_experiment_options
+      FineDrag.set_run_options
+      FineDrag.set_transpile_options
    
 
    

@@ -15,15 +15,17 @@ CorrelatedReadoutError
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: CorrelatedReadoutError.analysis
-   .. autoattribute:: CorrelatedReadoutError.backend
-   .. autoattribute:: CorrelatedReadoutError.experiment_options
-   .. autoattribute:: CorrelatedReadoutError.experiment_type
-   .. autoattribute:: CorrelatedReadoutError.num_qubits
-   .. autoattribute:: CorrelatedReadoutError.physical_qubits
-   .. autoattribute:: CorrelatedReadoutError.run_options
-   .. autoattribute:: CorrelatedReadoutError.transpile_options
+      CorrelatedReadoutError.analysis
+      CorrelatedReadoutError.backend
+      CorrelatedReadoutError.experiment_options
+      CorrelatedReadoutError.experiment_type
+      CorrelatedReadoutError.num_qubits
+      CorrelatedReadoutError.physical_qubits
+      CorrelatedReadoutError.run_options
+      CorrelatedReadoutError.transpile_options
    
    
 
@@ -32,16 +34,17 @@ CorrelatedReadoutError
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: CorrelatedReadoutError.circuits
-   .. automethod:: CorrelatedReadoutError.config
-   .. automethod:: CorrelatedReadoutError.copy
-   .. automethod:: CorrelatedReadoutError.from_config
-   .. automethod:: CorrelatedReadoutError.job_info
-   .. automethod:: CorrelatedReadoutError.run
-   .. automethod:: CorrelatedReadoutError.set_experiment_options
-   .. automethod:: CorrelatedReadoutError.set_run_options
-   .. automethod:: CorrelatedReadoutError.set_transpile_options
+      CorrelatedReadoutError.circuits
+      CorrelatedReadoutError.config
+      CorrelatedReadoutError.copy
+      CorrelatedReadoutError.from_config
+      CorrelatedReadoutError.run
+      CorrelatedReadoutError.set_experiment_options
+      CorrelatedReadoutError.set_run_options
+      CorrelatedReadoutError.set_transpile_options
    
 
    

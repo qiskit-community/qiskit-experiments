@@ -1,0 +1,8 @@
+
+
+PauliMeasurementBasis.name
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoproperty:: PauliMeasurementBasis.name

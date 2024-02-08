@@ -10,23 +10,47 @@ MinMaxNormalize
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: MinMaxNormalize.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      MinMaxNormalize.__call__
+   
+   
+   
+      MinMaxNormalize.__call__
+
+   
    

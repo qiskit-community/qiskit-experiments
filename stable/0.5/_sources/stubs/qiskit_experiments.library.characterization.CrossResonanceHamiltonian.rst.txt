@@ -15,16 +15,18 @@ CrossResonanceHamiltonian
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: CrossResonanceHamiltonian.analysis
-   .. autoattribute:: CrossResonanceHamiltonian.backend
-   .. autoattribute:: CrossResonanceHamiltonian.experiment_options
-   .. autoattribute:: CrossResonanceHamiltonian.experiment_type
-   .. autoattribute:: CrossResonanceHamiltonian.num_pulses
-   .. autoattribute:: CrossResonanceHamiltonian.num_qubits
-   .. autoattribute:: CrossResonanceHamiltonian.physical_qubits
-   .. autoattribute:: CrossResonanceHamiltonian.run_options
-   .. autoattribute:: CrossResonanceHamiltonian.transpile_options
+      CrossResonanceHamiltonian.analysis
+      CrossResonanceHamiltonian.backend
+      CrossResonanceHamiltonian.experiment_options
+      CrossResonanceHamiltonian.experiment_type
+      CrossResonanceHamiltonian.num_pulses
+      CrossResonanceHamiltonian.num_qubits
+      CrossResonanceHamiltonian.physical_qubits
+      CrossResonanceHamiltonian.run_options
+      CrossResonanceHamiltonian.transpile_options
    
    
 
@@ -33,16 +35,17 @@ CrossResonanceHamiltonian
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: CrossResonanceHamiltonian.circuits
-   .. automethod:: CrossResonanceHamiltonian.config
-   .. automethod:: CrossResonanceHamiltonian.copy
-   .. automethod:: CrossResonanceHamiltonian.from_config
-   .. automethod:: CrossResonanceHamiltonian.job_info
-   .. automethod:: CrossResonanceHamiltonian.run
-   .. automethod:: CrossResonanceHamiltonian.set_experiment_options
-   .. automethod:: CrossResonanceHamiltonian.set_run_options
-   .. automethod:: CrossResonanceHamiltonian.set_transpile_options
+      CrossResonanceHamiltonian.circuits
+      CrossResonanceHamiltonian.config
+      CrossResonanceHamiltonian.copy
+      CrossResonanceHamiltonian.from_config
+      CrossResonanceHamiltonian.run
+      CrossResonanceHamiltonian.set_experiment_options
+      CrossResonanceHamiltonian.set_run_options
+      CrossResonanceHamiltonian.set_transpile_options
    
 
    

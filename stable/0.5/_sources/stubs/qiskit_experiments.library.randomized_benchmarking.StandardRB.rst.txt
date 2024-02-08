@@ -15,15 +15,17 @@ StandardRB
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: StandardRB.analysis
-   .. autoattribute:: StandardRB.backend
-   .. autoattribute:: StandardRB.experiment_options
-   .. autoattribute:: StandardRB.experiment_type
-   .. autoattribute:: StandardRB.num_qubits
-   .. autoattribute:: StandardRB.physical_qubits
-   .. autoattribute:: StandardRB.run_options
-   .. autoattribute:: StandardRB.transpile_options
+      StandardRB.analysis
+      StandardRB.backend
+      StandardRB.experiment_options
+      StandardRB.experiment_type
+      StandardRB.num_qubits
+      StandardRB.physical_qubits
+      StandardRB.run_options
+      StandardRB.transpile_options
    
    
 
@@ -32,17 +34,18 @@ StandardRB
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: StandardRB.circuits
-   .. automethod:: StandardRB.config
-   .. automethod:: StandardRB.copy
-   .. automethod:: StandardRB.enable_restless
-   .. automethod:: StandardRB.from_config
-   .. automethod:: StandardRB.job_info
-   .. automethod:: StandardRB.run
-   .. automethod:: StandardRB.set_experiment_options
-   .. automethod:: StandardRB.set_run_options
-   .. automethod:: StandardRB.set_transpile_options
+      StandardRB.circuits
+      StandardRB.config
+      StandardRB.copy
+      StandardRB.enable_restless
+      StandardRB.from_config
+      StandardRB.run
+      StandardRB.set_experiment_options
+      StandardRB.set_run_options
+      StandardRB.set_transpile_options
    
 
    

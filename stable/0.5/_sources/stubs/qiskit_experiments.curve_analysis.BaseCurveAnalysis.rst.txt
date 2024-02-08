@@ -10,46 +10,103 @@ BaseCurveAnalysis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: BaseCurveAnalysis.drawer
-   .. autoattribute:: BaseCurveAnalysis.models
-   .. autoattribute:: BaseCurveAnalysis.name
-   .. autoattribute:: BaseCurveAnalysis.options
-   .. autoattribute:: BaseCurveAnalysis.parameters
-   .. autoattribute:: BaseCurveAnalysis.plotter
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BaseCurveAnalysis.drawer
+      
+   
+      
+      
+         
+      
+      BaseCurveAnalysis.models
+      
+   
+      
+      
+         
+      
+      BaseCurveAnalysis.name
+      
+   
+      
+      
+         
+      
+      BaseCurveAnalysis.options
+      
+   
+      
+      
+         
+      
+      BaseCurveAnalysis.parameters
+      
+   
+      
+      
+         
+      
+      BaseCurveAnalysis.plotter
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: BaseCurveAnalysis.config
-   .. automethod:: BaseCurveAnalysis.copy
-   .. automethod:: BaseCurveAnalysis.from_config
-   .. automethod:: BaseCurveAnalysis.run
-   .. automethod:: BaseCurveAnalysis.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BaseCurveAnalysis.config
+   
+   
+      BaseCurveAnalysis.copy
+   
+   
+      BaseCurveAnalysis.from_config
+   
+   
+      BaseCurveAnalysis.run
+   
+   
+      BaseCurveAnalysis.set_options
+   
+
+   
    

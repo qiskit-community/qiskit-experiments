@@ -1,8 +1,0 @@
-﻿
-
-retrieve_coefficients_from_service
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
-
-.. autofunction:: retrieve_coefficients_from_service

@@ -1,0 +1,8 @@
+
+
+PlotStyle.default_style
+========================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: PlotStyle.default_style

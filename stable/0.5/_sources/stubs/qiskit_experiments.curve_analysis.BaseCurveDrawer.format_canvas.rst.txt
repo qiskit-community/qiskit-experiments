@@ -1,0 +1,8 @@
+
+
+BaseCurveDrawer.format_canvas
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: BaseCurveDrawer.format_canvas

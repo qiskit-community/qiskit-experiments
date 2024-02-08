@@ -1,0 +1,8 @@
+
+
+Calibrations.default_inst_map
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: Calibrations.default_inst_map

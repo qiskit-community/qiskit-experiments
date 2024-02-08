@@ -1,0 +1,8 @@
+
+
+BaseCurveAnalysis.options
+===========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: BaseCurveAnalysis.options

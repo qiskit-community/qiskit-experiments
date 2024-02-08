@@ -1,0 +1,8 @@
+
+
+MitigatedTomographyAnalysis.options
+=========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoproperty:: MitigatedTomographyAnalysis.options

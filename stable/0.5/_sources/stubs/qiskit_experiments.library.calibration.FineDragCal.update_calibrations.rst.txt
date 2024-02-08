@@ -1,0 +1,8 @@
+
+
+FineDragCal.update_calibrations
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: FineDragCal.update_calibrations

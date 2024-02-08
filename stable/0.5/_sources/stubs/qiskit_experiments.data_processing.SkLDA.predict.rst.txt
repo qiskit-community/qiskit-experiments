@@ -1,0 +1,8 @@
+
+
+SkLDA.predict
+================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. automethod:: SkLDA.predict

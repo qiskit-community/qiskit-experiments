@@ -1,0 +1,8 @@
+
+
+ExperimentData.add_analysis_callback
+=================================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentData.add_analysis_callback

@@ -1,0 +1,8 @@
+
+
+RoughEFFrequencyCal.from_config
+======================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. automethod:: RoughEFFrequencyCal.from_config

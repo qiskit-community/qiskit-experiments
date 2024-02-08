@@ -1,0 +1,8 @@
+
+
+BaseDrawer.textbox
+===================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BaseDrawer.textbox

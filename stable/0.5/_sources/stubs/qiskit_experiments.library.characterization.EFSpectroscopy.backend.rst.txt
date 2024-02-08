@@ -1,0 +1,8 @@
+
+
+EFSpectroscopy.backend
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: EFSpectroscopy.backend

@@ -15,13 +15,15 @@ FineAmplitudeAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: FineAmplitudeAnalysis.drawer
-   .. autoattribute:: FineAmplitudeAnalysis.models
-   .. autoattribute:: FineAmplitudeAnalysis.name
-   .. autoattribute:: FineAmplitudeAnalysis.options
-   .. autoattribute:: FineAmplitudeAnalysis.parameters
-   .. autoattribute:: FineAmplitudeAnalysis.plotter
+      FineAmplitudeAnalysis.drawer
+      FineAmplitudeAnalysis.models
+      FineAmplitudeAnalysis.name
+      FineAmplitudeAnalysis.options
+      FineAmplitudeAnalysis.parameters
+      FineAmplitudeAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ FineAmplitudeAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: FineAmplitudeAnalysis.config
-   .. automethod:: FineAmplitudeAnalysis.copy
-   .. automethod:: FineAmplitudeAnalysis.from_config
-   .. automethod:: FineAmplitudeAnalysis.model_names
-   .. automethod:: FineAmplitudeAnalysis.run
-   .. automethod:: FineAmplitudeAnalysis.set_options
+      FineAmplitudeAnalysis.config
+      FineAmplitudeAnalysis.copy
+      FineAmplitudeAnalysis.from_config
+      FineAmplitudeAnalysis.run
+      FineAmplitudeAnalysis.set_options
    
 
    

@@ -1,0 +1,8 @@
+
+
+FigureData.copy
+============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: FigureData.copy

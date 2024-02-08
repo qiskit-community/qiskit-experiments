@@ -1,0 +1,8 @@
+
+
+FineXAmplitude.transpile_options
+============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: FineXAmplitude.transpile_options

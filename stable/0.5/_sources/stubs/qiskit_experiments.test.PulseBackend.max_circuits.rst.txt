@@ -1,0 +1,8 @@
+
+
+PulseBackend.max_circuits
+=================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoproperty:: PulseBackend.max_circuits

@@ -1,0 +1,8 @@
+
+
+FineDragCal.experiment_type
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoproperty:: FineDragCal.experiment_type

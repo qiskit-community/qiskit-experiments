@@ -15,11 +15,13 @@ BaseDrawer
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: BaseDrawer.figure
-   .. autoattribute:: BaseDrawer.figure_options
-   .. autoattribute:: BaseDrawer.options
-   .. autoattribute:: BaseDrawer.style
+      BaseDrawer.figure
+      BaseDrawer.figure_options
+      BaseDrawer.options
+      BaseDrawer.style
    
    
 
@@ -28,20 +30,21 @@ BaseDrawer
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: BaseDrawer.config
-   .. automethod:: BaseDrawer.filled_x_area
-   .. automethod:: BaseDrawer.filled_y_area
-   .. automethod:: BaseDrawer.format_canvas
-   .. automethod:: BaseDrawer.hline
-   .. automethod:: BaseDrawer.image
-   .. automethod:: BaseDrawer.initialize_canvas
-   .. automethod:: BaseDrawer.label_for
-   .. automethod:: BaseDrawer.line
-   .. automethod:: BaseDrawer.scatter
-   .. automethod:: BaseDrawer.set_figure_options
-   .. automethod:: BaseDrawer.set_options
-   .. automethod:: BaseDrawer.textbox
+      BaseDrawer.config
+      BaseDrawer.filled_x_area
+      BaseDrawer.filled_y_area
+      BaseDrawer.format_canvas
+      BaseDrawer.image
+      BaseDrawer.initialize_canvas
+      BaseDrawer.label_for
+      BaseDrawer.line
+      BaseDrawer.scatter
+      BaseDrawer.set_figure_options
+      BaseDrawer.set_options
+      BaseDrawer.textbox
    
 
    

@@ -10,23 +10,48 @@ RestlessMixin
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: RestlessMixin.enable_restless
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RestlessMixin.enable_restless
+   
+
+   
    

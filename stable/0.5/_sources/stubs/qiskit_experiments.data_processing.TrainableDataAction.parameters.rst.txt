@@ -1,0 +1,8 @@
+
+
+TrainableDataAction.parameters
+=================================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoproperty:: TrainableDataAction.parameters

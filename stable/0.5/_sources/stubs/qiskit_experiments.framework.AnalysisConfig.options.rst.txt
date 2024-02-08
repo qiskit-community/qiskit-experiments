@@ -1,0 +1,8 @@
+
+
+AnalysisConfig.options
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: AnalysisConfig.options

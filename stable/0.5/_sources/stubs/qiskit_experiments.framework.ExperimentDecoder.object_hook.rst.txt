@@ -1,0 +1,8 @@
+
+
+ExperimentDecoder.object_hook
+==========================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. automethod:: ExperimentDecoder.object_hook

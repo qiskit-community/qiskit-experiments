@@ -1,0 +1,8 @@
+
+
+BaseDiscriminator.is_trained
+===============================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. automethod:: BaseDiscriminator.is_trained

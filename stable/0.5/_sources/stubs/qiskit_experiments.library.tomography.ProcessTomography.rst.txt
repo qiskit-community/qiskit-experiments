@@ -15,15 +15,17 @@ ProcessTomography
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: ProcessTomography.analysis
-   .. autoattribute:: ProcessTomography.backend
-   .. autoattribute:: ProcessTomography.experiment_options
-   .. autoattribute:: ProcessTomography.experiment_type
-   .. autoattribute:: ProcessTomography.num_qubits
-   .. autoattribute:: ProcessTomography.physical_qubits
-   .. autoattribute:: ProcessTomography.run_options
-   .. autoattribute:: ProcessTomography.transpile_options
+      ProcessTomography.analysis
+      ProcessTomography.backend
+      ProcessTomography.experiment_options
+      ProcessTomography.experiment_type
+      ProcessTomography.num_qubits
+      ProcessTomography.physical_qubits
+      ProcessTomography.run_options
+      ProcessTomography.transpile_options
    
    
 
@@ -32,16 +34,17 @@ ProcessTomography
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: ProcessTomography.circuits
-   .. automethod:: ProcessTomography.config
-   .. automethod:: ProcessTomography.copy
-   .. automethod:: ProcessTomography.from_config
-   .. automethod:: ProcessTomography.job_info
-   .. automethod:: ProcessTomography.run
-   .. automethod:: ProcessTomography.set_experiment_options
-   .. automethod:: ProcessTomography.set_run_options
-   .. automethod:: ProcessTomography.set_transpile_options
+      ProcessTomography.circuits
+      ProcessTomography.config
+      ProcessTomography.copy
+      ProcessTomography.from_config
+      ProcessTomography.run
+      ProcessTomography.set_experiment_options
+      ProcessTomography.set_run_options
+      ProcessTomography.set_transpile_options
    
 
    

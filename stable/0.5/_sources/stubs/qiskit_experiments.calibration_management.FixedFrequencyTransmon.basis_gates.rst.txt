@@ -1,0 +1,8 @@
+
+
+FixedFrequencyTransmon.basis_gates
+============================================================================
+
+.. currentmodule:: qiskit_experiments.calibration_management
+
+.. autoproperty:: FixedFrequencyTransmon.basis_gates

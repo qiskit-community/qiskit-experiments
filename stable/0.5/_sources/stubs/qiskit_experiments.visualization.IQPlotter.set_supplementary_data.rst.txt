@@ -1,0 +1,8 @@
+
+
+IQPlotter.set_supplementary_data
+=================================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: IQPlotter.set_supplementary_data

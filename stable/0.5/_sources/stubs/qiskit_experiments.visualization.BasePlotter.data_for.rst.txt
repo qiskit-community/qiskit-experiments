@@ -1,0 +1,8 @@
+
+
+BasePlotter.data_for
+=====================================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. automethod:: BasePlotter.data_for

@@ -1,0 +1,8 @@
+
+
+LocalMeasurementBasis.matrix
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. automethod:: LocalMeasurementBasis.matrix

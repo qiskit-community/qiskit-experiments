@@ -10,62 +10,136 @@ BatchExperiment
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: BatchExperiment.analysis
-   .. autoattribute:: BatchExperiment.backend
-   .. autoattribute:: BatchExperiment.experiment_options
-   .. autoattribute:: BatchExperiment.experiment_type
-   .. autoattribute:: BatchExperiment.num_experiments
-   .. autoattribute:: BatchExperiment.num_qubits
-   .. autoattribute:: BatchExperiment.physical_qubits
-   .. autoattribute:: BatchExperiment.run_options
-   .. autoattribute:: BatchExperiment.transpile_options
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      BatchExperiment.analysis
+      
+   
+      
+      
+         
+      
+      BatchExperiment.backend
+      
+   
+      
+      
+         
+      
+      BatchExperiment.experiment_options
+      
+   
+      
+      
+         
+      
+      BatchExperiment.experiment_type
+      
+   
+      
+      
+         
+      
+      BatchExperiment.num_experiments
+      
+   
+      
+      
+         
+      
+      BatchExperiment.num_qubits
+      
+   
+      
+      
+         
+      
+      BatchExperiment.physical_qubits
+      
+   
+      
+      
+         
+      
+      BatchExperiment.run_options
+      
+   
+      
+      
+         
+      
+      BatchExperiment.transpile_options
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: BatchExperiment.circuits
-   .. automethod:: BatchExperiment.component_experiment
-   .. automethod:: BatchExperiment.config
-   .. automethod:: BatchExperiment.copy
-   .. automethod:: BatchExperiment.from_config
-   .. automethod:: BatchExperiment.job_info
-   .. automethod:: BatchExperiment.run
-   .. automethod:: BatchExperiment.set_experiment_options
-   .. automethod:: BatchExperiment.set_run_options
-   .. automethod:: BatchExperiment.set_transpile_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      BatchExperiment.circuits
+   
+   
+      BatchExperiment.component_experiment
+   
+   
+      BatchExperiment.config
+   
+   
+      BatchExperiment.copy
+   
+   
+      BatchExperiment.from_config
+   
+   
+      BatchExperiment.run
+   
+   
+      BatchExperiment.set_experiment_options
+   
+   
+      BatchExperiment.set_run_options
+   
+   
+      BatchExperiment.set_transpile_options
+   
+
+   
    

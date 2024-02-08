@@ -10,34 +10,72 @@ TrainableDataAction
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: TrainableDataAction.is_trained
-   .. autoattribute:: TrainableDataAction.parameters
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      TrainableDataAction.is_trained
+      
+   
+      
+      
+         
+      
+      TrainableDataAction.parameters
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: TrainableDataAction.__call__
-   .. automethod:: TrainableDataAction.set_parameters
-   .. automethod:: TrainableDataAction.train
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      TrainableDataAction.__call__
+   
+   
+      TrainableDataAction.set_parameters
+   
+   
+      TrainableDataAction.train
+   
+   
+   
+      TrainableDataAction.__call__
+
+   
    

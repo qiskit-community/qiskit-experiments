@@ -1,0 +1,8 @@
+
+
+T2RamseyAnalysis.drawer
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoproperty:: T2RamseyAnalysis.drawer

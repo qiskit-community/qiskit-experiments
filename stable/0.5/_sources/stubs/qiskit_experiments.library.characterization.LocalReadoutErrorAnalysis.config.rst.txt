@@ -1,0 +1,8 @@
+
+
+LocalReadoutErrorAnalysis.config
+============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: LocalReadoutErrorAnalysis.config

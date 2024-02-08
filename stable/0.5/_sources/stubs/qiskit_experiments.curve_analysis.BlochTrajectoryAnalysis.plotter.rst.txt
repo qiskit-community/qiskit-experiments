@@ -1,0 +1,8 @@
+
+
+BlochTrajectoryAnalysis.plotter
+=================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoproperty:: BlochTrajectoryAnalysis.plotter

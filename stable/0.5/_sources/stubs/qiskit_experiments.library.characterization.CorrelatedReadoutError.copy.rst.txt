@@ -1,0 +1,8 @@
+
+
+CorrelatedReadoutError.copy
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: CorrelatedReadoutError.copy

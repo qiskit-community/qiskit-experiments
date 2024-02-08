@@ -10,48 +10,106 @@ CompositeCurveAnalysis
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: CompositeCurveAnalysis.drawer
-   .. autoattribute:: CompositeCurveAnalysis.models
-   .. autoattribute:: CompositeCurveAnalysis.name
-   .. autoattribute:: CompositeCurveAnalysis.options
-   .. autoattribute:: CompositeCurveAnalysis.parameters
-   .. autoattribute:: CompositeCurveAnalysis.plotter
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      CompositeCurveAnalysis.drawer
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.models
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.name
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.options
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.parameters
+      
+   
+      
+      
+         
+      
+      CompositeCurveAnalysis.plotter
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: CompositeCurveAnalysis.analyses
-   .. automethod:: CompositeCurveAnalysis.config
-   .. automethod:: CompositeCurveAnalysis.copy
-   .. automethod:: CompositeCurveAnalysis.from_config
-   .. automethod:: CompositeCurveAnalysis.run
-   .. automethod:: CompositeCurveAnalysis.set_options
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      CompositeCurveAnalysis.analyses
+   
+   
+      CompositeCurveAnalysis.config
+   
+   
+      CompositeCurveAnalysis.copy
+   
+   
+      CompositeCurveAnalysis.from_config
+   
+   
+      CompositeCurveAnalysis.run
+   
+   
+      CompositeCurveAnalysis.set_options
+   
+
+   
    

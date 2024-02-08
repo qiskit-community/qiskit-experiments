@@ -1,0 +1,8 @@
+
+
+AnalysisStatus.CANCELLED
+=====================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: AnalysisStatus.CANCELLED

@@ -1,0 +1,8 @@
+
+
+AnalysisConfig.version
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: AnalysisConfig.version

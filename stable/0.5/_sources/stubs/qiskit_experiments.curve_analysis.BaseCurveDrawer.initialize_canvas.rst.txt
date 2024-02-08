@@ -1,0 +1,8 @@
+
+
+BaseCurveDrawer.initialize_canvas
+===================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. automethod:: BaseCurveDrawer.initialize_canvas

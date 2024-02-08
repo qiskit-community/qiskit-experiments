@@ -1,0 +1,8 @@
+
+
+ExperimentStatus.EMPTY
+===================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoattribute:: ExperimentStatus.EMPTY

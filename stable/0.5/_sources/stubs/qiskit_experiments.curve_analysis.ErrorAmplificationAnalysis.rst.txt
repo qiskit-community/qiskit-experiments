@@ -15,13 +15,15 @@ ErrorAmplificationAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: ErrorAmplificationAnalysis.drawer
-   .. autoattribute:: ErrorAmplificationAnalysis.models
-   .. autoattribute:: ErrorAmplificationAnalysis.name
-   .. autoattribute:: ErrorAmplificationAnalysis.options
-   .. autoattribute:: ErrorAmplificationAnalysis.parameters
-   .. autoattribute:: ErrorAmplificationAnalysis.plotter
+      ErrorAmplificationAnalysis.drawer
+      ErrorAmplificationAnalysis.models
+      ErrorAmplificationAnalysis.name
+      ErrorAmplificationAnalysis.options
+      ErrorAmplificationAnalysis.parameters
+      ErrorAmplificationAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ ErrorAmplificationAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: ErrorAmplificationAnalysis.config
-   .. automethod:: ErrorAmplificationAnalysis.copy
-   .. automethod:: ErrorAmplificationAnalysis.from_config
-   .. automethod:: ErrorAmplificationAnalysis.model_names
-   .. automethod:: ErrorAmplificationAnalysis.run
-   .. automethod:: ErrorAmplificationAnalysis.set_options
+      ErrorAmplificationAnalysis.config
+      ErrorAmplificationAnalysis.copy
+      ErrorAmplificationAnalysis.from_config
+      ErrorAmplificationAnalysis.run
+      ErrorAmplificationAnalysis.set_options
    
 
    

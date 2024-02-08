@@ -1,0 +1,8 @@
+
+
+BackendData.version
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoproperty:: BackendData.version

@@ -15,16 +15,18 @@ HalfAngleCal
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: HalfAngleCal.analysis
-   .. autoattribute:: HalfAngleCal.backend
-   .. autoattribute:: HalfAngleCal.calibrations
-   .. autoattribute:: HalfAngleCal.experiment_options
-   .. autoattribute:: HalfAngleCal.experiment_type
-   .. autoattribute:: HalfAngleCal.num_qubits
-   .. autoattribute:: HalfAngleCal.physical_qubits
-   .. autoattribute:: HalfAngleCal.run_options
-   .. autoattribute:: HalfAngleCal.transpile_options
+      HalfAngleCal.analysis
+      HalfAngleCal.backend
+      HalfAngleCal.calibrations
+      HalfAngleCal.experiment_options
+      HalfAngleCal.experiment_type
+      HalfAngleCal.num_qubits
+      HalfAngleCal.physical_qubits
+      HalfAngleCal.run_options
+      HalfAngleCal.transpile_options
    
    
 
@@ -33,17 +35,18 @@ HalfAngleCal
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: HalfAngleCal.circuits
-   .. automethod:: HalfAngleCal.config
-   .. automethod:: HalfAngleCal.copy
-   .. automethod:: HalfAngleCal.from_config
-   .. automethod:: HalfAngleCal.job_info
-   .. automethod:: HalfAngleCal.run
-   .. automethod:: HalfAngleCal.set_experiment_options
-   .. automethod:: HalfAngleCal.set_run_options
-   .. automethod:: HalfAngleCal.set_transpile_options
-   .. automethod:: HalfAngleCal.update_calibrations
+      HalfAngleCal.circuits
+      HalfAngleCal.config
+      HalfAngleCal.copy
+      HalfAngleCal.from_config
+      HalfAngleCal.run
+      HalfAngleCal.set_experiment_options
+      HalfAngleCal.set_run_options
+      HalfAngleCal.set_transpile_options
+      HalfAngleCal.update_calibrations
    
 
    

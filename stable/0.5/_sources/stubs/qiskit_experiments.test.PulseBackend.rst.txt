@@ -10,82 +10,192 @@ PulseBackend
    :no-inherited-members:
    :no-special-members:
 
-
-
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
 
    
-   .. rubric:: Attributes
+   
+
+   
       
-   .. autoattribute:: PulseBackend.coupling_map
-   .. autoattribute:: PulseBackend.default_pulse_unitaries
-   .. autoattribute:: PulseBackend.discriminator
-   .. autoattribute:: PulseBackend.dt
-   .. autoattribute:: PulseBackend.dtm
-   .. autoattribute:: PulseBackend.instruction_durations
-   .. autoattribute:: PulseBackend.instruction_schedule_map
-   .. autoattribute:: PulseBackend.instructions
-   .. autoattribute:: PulseBackend.max_circuits
-   .. autoattribute:: PulseBackend.meas_map
-   .. autoattribute:: PulseBackend.num_qubits
-   .. autoattribute:: PulseBackend.operation_names
-   .. autoattribute:: PulseBackend.operations
-   .. autoattribute:: PulseBackend.options
-   .. autoattribute:: PulseBackend.provider
-   .. autoattribute:: PulseBackend.target
-   .. autoattribute:: PulseBackend.version
-   .. autoattribute:: PulseBackend.description
-   .. autoattribute:: PulseBackend.online_date
-   .. autoattribute:: PulseBackend.backend_version
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+      
+         
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: ../stubs/
+         
+      
+      PulseBackend.coupling_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.default_pulse_unitaries
+      
+   
+      
+      
+         
+      
+      PulseBackend.discriminator
+      
+   
+      
+      
+         
+      
+      PulseBackend.dt
+      
+   
+      
+      
+         
+      
+      PulseBackend.dtm
+      
+   
+      
+      
+         
+      
+      PulseBackend.instruction_durations
+      
+   
+      
+      
+         
+      
+      PulseBackend.instruction_schedule_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.instructions
+      
+   
+      
+      
+         
+      
+      PulseBackend.max_circuits
+      
+   
+      
+      
+         
+      
+      PulseBackend.meas_map
+      
+   
+      
+      
+         
+      
+      PulseBackend.num_qubits
+      
+   
+      
+      
+         
+      
+      PulseBackend.operation_names
+      
+   
+      
+      
+         
+      
+      PulseBackend.operations
+      
+   
+      
+      
+         
+      
+      PulseBackend.options
+      
+   
+      
+      
+         
+      
+      PulseBackend.provider
+      
+   
+      
+      
+         
+      
+      PulseBackend.target
+      
+   
+      
+      
+         
+      
+      PulseBackend.version
+      
+   
+   
    
 
-
-
+   
+   
 
    
    
-         
-         
-         
-         
-         
-         
-         
-         
-         
-
+   
    
    .. rubric:: Methods
-   
-   .. automethod:: PulseBackend.acquire_channel
-   .. automethod:: PulseBackend.control_channel
-   .. automethod:: PulseBackend.defaults
-   .. automethod:: PulseBackend.drive_channel
-   .. automethod:: PulseBackend.measure_channel
-   .. automethod:: PulseBackend.qubit_properties
-   .. automethod:: PulseBackend.run
-   .. automethod:: PulseBackend.set_options
-   .. automethod:: PulseBackend.solve
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      PulseBackend.acquire_channel
+   
+   
+      PulseBackend.control_channel
+   
+   
+      PulseBackend.defaults
+   
+   
+      PulseBackend.drive_channel
+   
+   
+      PulseBackend.measure_channel
+   
+   
+      PulseBackend.qubit_properties
+   
+   
+      PulseBackend.run
+   
+   
+      PulseBackend.set_options
+   
+   
+      PulseBackend.solve
+   
+
+   
    

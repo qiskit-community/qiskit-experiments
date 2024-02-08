@@ -10,23 +10,47 @@ RestlessToCounts
    :no-inherited-members:
    :no-special-members:
 
+   
+   
 
+   
+   
+
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+      
+   
+   
+   
 
    
    
 
    
-
-
-
-
    
    
-         
-
    
    .. rubric:: Methods
-   
-   .. automethod:: RestlessToCounts.__call__
 
+   .. autosummary::
+      :toctree: ../stubs/
+   
+      RestlessToCounts.__call__
+   
+   
+   
+      RestlessToCounts.__call__
+
+   
    

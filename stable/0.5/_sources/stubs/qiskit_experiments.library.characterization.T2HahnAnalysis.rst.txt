@@ -15,13 +15,15 @@ T2HahnAnalysis
 
    .. rubric:: Attributes
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. autoattribute:: T2HahnAnalysis.drawer
-   .. autoattribute:: T2HahnAnalysis.models
-   .. autoattribute:: T2HahnAnalysis.name
-   .. autoattribute:: T2HahnAnalysis.options
-   .. autoattribute:: T2HahnAnalysis.parameters
-   .. autoattribute:: T2HahnAnalysis.plotter
+      T2HahnAnalysis.drawer
+      T2HahnAnalysis.models
+      T2HahnAnalysis.name
+      T2HahnAnalysis.options
+      T2HahnAnalysis.parameters
+      T2HahnAnalysis.plotter
    
    
 
@@ -30,13 +32,14 @@ T2HahnAnalysis
 
    .. rubric:: Methods
 
+   .. autosummary::
+      :toctree: ../stubs/
    
-   .. automethod:: T2HahnAnalysis.config
-   .. automethod:: T2HahnAnalysis.copy
-   .. automethod:: T2HahnAnalysis.from_config
-   .. automethod:: T2HahnAnalysis.model_names
-   .. automethod:: T2HahnAnalysis.run
-   .. automethod:: T2HahnAnalysis.set_options
+      T2HahnAnalysis.config
+      T2HahnAnalysis.copy
+      T2HahnAnalysis.from_config
+      T2HahnAnalysis.run
+      T2HahnAnalysis.set_options
    
 
    

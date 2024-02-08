@@ -1,0 +1,8 @@
+
+
+FineAmplitudeAnalysis.set_options
+=============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. automethod:: FineAmplitudeAnalysis.set_options
