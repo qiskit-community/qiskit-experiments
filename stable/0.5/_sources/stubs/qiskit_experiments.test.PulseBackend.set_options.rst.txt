@@ -1,8 +1,0 @@
-
-
-PulseBackend.set_options
-================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: PulseBackend.set_options

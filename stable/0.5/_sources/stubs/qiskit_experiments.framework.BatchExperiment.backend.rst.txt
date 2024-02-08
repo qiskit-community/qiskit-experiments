@@ -1,8 +1,0 @@
-
-
-BatchExperiment.backend
-====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BatchExperiment.backend

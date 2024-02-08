@@ -10,57 +10,30 @@ FigureData
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: FigureData.metadata
+   .. autoattribute:: FigureData.name
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      FigureData.metadata
-      
-   
-      
-      
-         
-      
-      FigureData.name
-      
-   
-   
-   
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: FigureData.copy
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      FigureData.copy
-   
-
-   
    

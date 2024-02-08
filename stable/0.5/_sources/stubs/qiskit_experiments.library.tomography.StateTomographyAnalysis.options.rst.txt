@@ -1,8 +1,0 @@
-
-
-StateTomographyAnalysis.options
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: StateTomographyAnalysis.options

@@ -1,8 +1,0 @@
-
-
-Calibrations.has_template
-===================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: Calibrations.has_template

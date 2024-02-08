@@ -1,8 +1,0 @@
-
-
-PulseBackend.drive_channel
-==================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: PulseBackend.drive_channel

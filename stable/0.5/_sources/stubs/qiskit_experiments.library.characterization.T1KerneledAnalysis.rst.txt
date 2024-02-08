@@ -15,15 +15,13 @@ T1KerneledAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T1KerneledAnalysis.drawer
-      T1KerneledAnalysis.models
-      T1KerneledAnalysis.name
-      T1KerneledAnalysis.options
-      T1KerneledAnalysis.parameters
-      T1KerneledAnalysis.plotter
+   .. autoattribute:: T1KerneledAnalysis.drawer
+   .. autoattribute:: T1KerneledAnalysis.models
+   .. autoattribute:: T1KerneledAnalysis.name
+   .. autoattribute:: T1KerneledAnalysis.options
+   .. autoattribute:: T1KerneledAnalysis.parameters
+   .. autoattribute:: T1KerneledAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ T1KerneledAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T1KerneledAnalysis.config
-      T1KerneledAnalysis.copy
-      T1KerneledAnalysis.from_config
-      T1KerneledAnalysis.run
-      T1KerneledAnalysis.set_options
+   .. automethod:: T1KerneledAnalysis.config
+   .. automethod:: T1KerneledAnalysis.copy
+   .. automethod:: T1KerneledAnalysis.from_config
+   .. automethod:: T1KerneledAnalysis.model_names
+   .. automethod:: T1KerneledAnalysis.run
+   .. automethod:: T1KerneledAnalysis.set_options
    
 
    

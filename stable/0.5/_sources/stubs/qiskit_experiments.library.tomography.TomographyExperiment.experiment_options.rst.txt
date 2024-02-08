@@ -1,8 +1,0 @@
-
-
-TomographyExperiment.experiment_options
-=============================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: TomographyExperiment.experiment_options

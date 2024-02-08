@@ -23,33 +23,12 @@ different sets of experiment results. A single experiment can define sub-experim
 consisting of multiple circuits which are tagged with common metadata,
 and curve analysis sorts the experiment results based on the circuit metadata.
 
-This is an example of showing the abstract data structure of a typical curve analysis experiment:
+This is an example showing the abstract data flow of a typical curve analysis experiment:
 
-.. jupyter-input::
-    :emphasize-lines: 1,10,19
-
-    "experiment"
-        - circuits[0] (x=x1_A, "series_A")
-        - circuits[1] (x=x1_B, "series_B")
-        - circuits[2] (x=x2_A, "series_A")
-        - circuits[3] (x=x2_B, "series_B")
-        - circuits[4] (x=x3_A, "series_A")
-        - circuits[5] (x=x3_B, "series_B")
-        - ...
-
-    "experiment data"
-        - data[0] (y1_A, "series_A")
-        - data[1] (y1_B, "series_B")
-        - data[2] (y2_A, "series_A")
-        - data[3] (y2_B, "series_B")
-        - data[4] (y3_A, "series_A")
-        - data[5] (y3_B, "series_B")
-        - ...
-
-    "analysis"
-        - "series_A": y_A = f_A(x_A; p0, p1, p2)
-        - "series_B": y_B = f_B(x_B; p0, p1, p2)
-        - fixed parameters {p1: v}
+.. figure:: images/curve_analysis_structure.png
+    :width: 600
+    :align: center
+    :class: no-scaled-link
 
 Here the experiment runs two subsets of experiments, namely, series A and series B.
 The analysis defines corresponding fit models :math:`f_A(x_A)` and :math:`f_B(x_B)`.
@@ -261,10 +240,96 @@ generate initial guesses for parameters, from the ``AnalysisA`` class in the fir
 On the other hand, in the latter case, you need to manually copy and paste
 every logic defined in ``AnalysisA``.
 
+.. _data_management_with_scatter_table:
+
+Managing intermediate data
+--------------------------
+
+:class:`.ScatterTable` is the single source of truth for the data used in the curve fit analysis.
+Each data point in a 1-D curve fit may consist of the x value, y value, and
+standard error of the y value.
+In addition, such analysis may internally create several data subsets.
+Each data point is given a metadata triplet (`series_id`, `category`, `analysis`)
+to distinguish the subset.
+
+* The `series_id` is an integer key representing a label of the data which may be classified by fits models.
+  When an analysis consists of multiple fit models and performs a multi-objective fit,
+  the created table may contain multiple datasets for each fit model.
+  Usually the index of series matches with the index of the fit model in the analysis.
+  The table also provides a `series_name` column which is a human-friendly text notation of the `series_id`.
+  The `series_name` and corresponding `series_id` must refer to the identical data subset,
+  and the `series_name` typically matches with the name of the fit model.
+  You can find a particular data subset by either `series_id` or `series_name`.
+
+* The `category` is a string tag categorizing a group of data points.
+  The measured outcomes input as-is to the curve analysis are categorized by "raw".
+  In a standard :class:`.CurveAnalysis` subclass, the input data is formatted for
+  the fitting and the formatted data is also stored in the table with the "formatted" category.
+  You can filter the formatted data to run curve fitting with your custom program.
+  After the fit is successfully conducted and the model parameters are identified,
+  data points in the interpolated fit curves are stored with the "fitted" category
+  for visualization. The management of the data groups depends on the design of
+  the curve analysis protocol, and the convention of category naming might
+  be different in a particular analysis.
+
+* The `analysis` is a string key representing a name of
+  the analysis instance that generated the data point.
+  This allows a user to combine multiple tables from different analyses without collapsing the data points.
+  For a simple analysis class, all rows will have the same value,
+  but a :class:`.CompositeCurveAnalysis` instance consists of
+  nested component analysis instances containing statistically independent fit models.
+  Each component is given a unique analysis name, and datasets generated from each instance
+  are merged into a single table stored in the outermost composite analysis.
+
+User must be aware of this triplet to extract data points that belong to a
+particular data subset. For example,
+
+.. code-block:: python
+
+    mini_table = table.filter(series="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_x = mini_table.x
+    mini_y = mini_table.y
+
+This operation is equivalent to
+
+.. code-block:: python
+
+    mini_x = table.xvals(series="my_experiment1", category="raw", analysis="AnalysisA")
+    mini_y = table.yvals(series="my_experiment1", category="raw", analysis="AnalysisA")
+
+When an analysis only has a single model and the table is created from a single
+analysis instance, the `series_id` and `analysis` are trivial, and you only need to
+specify the `category` to get subset data of interest.
+
+The full description of :class:`.ScatterTable` columns are following below:
+
+- `xval`: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
+- `yval`: Nominal part of the outcome. The outcome is something like expectation value,
+  which is computed from the experiment result with the data processor.
+- `yerr`: Standard error of the outcome, which is mainly due to sampling error.
+- `series_name`: Human readable name of the data series. This is defined by the ``data_subfit_map`` option in the :class:`.CurveAnalysis`.
+- `series_id`: Integer corresponding to the name of data series. This number is automatically assigned.
+- `category`: A tag for the data group. This is defined by a developer of the curve analysis.
+- `shots`: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.
+- `analysis`: The name of the curve analysis instance that generated a data point.
+
+This object helps an analysis developer with writing a custom analysis class
+without an overhead of complex data management, as well as end-users with
+retrieving and reusing the intermediate data for their custom fitting workflow
+outside our curve fitting framework.
+Note that a :class:`ScatterTable` instance may be saved in the :class:`.ExperimentData` as an artifact.
+See the :doc:`Artifacts how-to </howtos/artifacts>` for more information.
+
+
 .. _curve_analysis_workflow:
 
 Curve Analysis workflow
 -----------------------
+
+.. warning::
+
+    :class:`CurveData` dataclass is replaced with :class:`.ScatterTable` dataframe.
+    This class will be deprecated and removed in the future release.
 
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
@@ -284,21 +349,82 @@ A developer can override this method to perform initialization of analysis-speci
 
 Curve analysis calls the :meth:`_run_data_processing` method, where
 the data processor in the analysis option is internally called.
-This consumes input experiment results and creates the :class:`.CurveData` dataclass.
-Then the :meth:`_format_data` method is called with the processed dataset to format it.
+This consumes input experiment results and creates the :class:`.ScatterTable` dataframe.
+This table may look like:
+
+.. jupyter-input::
+
+    table = analysis._run_data_processing(experiment_data.data())
+    print(table)
+
+.. jupyter-output::
+
+        xval      yval      yerr  series_name  series_id  category  shots     analysis
+    0    0.1  0.153659  0.011258            A          0      raw    1024   MyAnalysis
+    1    0.1  0.590732  0.015351            B          1      raw    1024   MyAnalysis
+    2    0.1  0.315610  0.014510            A          0      raw    1024   MyAnalysis
+    3    0.1  0.376098  0.015123            B          1      raw    1024   MyAnalysis
+    4    0.2  0.937073  0.007581            A          0      raw    1024   MyAnalysis
+    5    0.2  0.323415  0.014604            B          1      raw    1024   MyAnalysis
+    6    0.2  0.538049  0.015565            A          0      raw    1024   MyAnalysis
+    7    0.2  0.530244  0.015581            B          1      raw    1024   MyAnalysis
+    8    0.3  0.143902  0.010958            A          0      raw    1024   MyAnalysis
+    9    0.3  0.261951  0.013727            B          1      raw    1024   MyAnalysis
+    10   0.3  0.830732  0.011707            A          0      raw    1024   MyAnalysis
+    11   0.3  0.874634  0.010338            B          1      raw    1024   MyAnalysis
+
+where the experiment consists of two subset series A and B, and the experiment parameter (xval)
+is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
+for each condition.
+See :ref:`data_management_with_scatter_table` for the details of columns.
+
+3. Formatting
+^^^^^^^^^^^^^
+
+Next, the processed dataset is converted into another format suited for the fitting.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
 This allows the analysis to easily estimate the slope of the curves to
 create algorithmic initial guess of fit parameters.
 A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
+The new `series_id` is given here so that its value corresponds to the fit model index
+defined in this analysis class. This index mapping is done based upon the correspondence of
+the `series_name` and the fit model name.
+
+This is done by calling :meth:`_format_data` method.
+This may return new scatter table object with the addition of rows like the following below.
+
+.. jupyter-input::
+
+    table = analysis._format_data(table)
+    print(table)
+
+.. jupyter-output::
+
+        xval      yval      yerr  series_name  series_id   category  shots     analysis
+    ...
+    12   0.1  0.234634  0.009183            A          0  formatted   2048   MyAnalysis
+    13   0.2  0.737561  0.008656            A          0  formatted   2048   MyAnalysis
+    14   0.3  0.487317  0.008018            A          0  formatted   2048   MyAnalysis
+    15   0.1  0.483415  0.010774            B          1  formatted   2048   MyAnalysis
+    16   0.2  0.426829  0.010678            B          1  formatted   2048   MyAnalysis
+    17   0.3  0.568293  0.008592            B          1  formatted   2048   MyAnalysis
+
+The default :meth:`_format_data` method adds its output data with the category "formatted".
+This category name must be also specified in the analysis option ``fit_category``.
+If overriding this method to do additional processing after the default formatting,
+the ``fit_category`` analysis option can be set to choose a different category name to use to
+select the data to pass to the fitting routine.
+The (xval, yval) value in each row is passed to the corresponding fit model object
+to compute residual values for the least square optimization.
 
 3. Fitting
 ^^^^^^^^^^
 
-Curve analysis calls the :meth:`_run_curve_fit` method, which is the core functionality of the fitting.
-Another method :meth:`_generate_fit_guesses` is internally called to
-prepare the initial guess and parameter boundary with respect to the formatted data.
+Curve analysis calls the :meth:`_run_curve_fit` method with the formatted subset of the scatter table.
+This internally calls :meth:`_generate_fit_guesses` to prepare
+the initial guess and parameter boundary with respect to the formatted dataset.
 Developers usually override this method to provide better initial guesses
 tailored to the defined fit model or type of the associated experiment.
 See :ref:`curve_analysis_init_guess` for more details.
@@ -309,13 +435,18 @@ custom fitting algorithms. This method must return a :class:`.CurveFitResult` da
 ^^^^^^^^^^^^^^^^^^
 
 Curve analysis runs several postprocessing against the fit outcome.
-It calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResultData` class
+When the fit is successful, it calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResultData` objects
 for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
-Afterwards, figure plotting is handed over to the :doc:`Visualization </tutorials/visualization>` module via
-the :attr:`~.CurveAnalysis.plotter` attribute, and a list of created analysis results and the figure are returned.
+Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
+updated with the computed (x, y) values. This dataset is stored under the "fitted" category.
 
+Finally, the :meth:`._create_figures` method is called with the entire scatter table data
+to initialize the curve plotter instance accessible via the :attr:`~.CurveAnalysis.plotter` attribute.
+The visualization is handed over to the :doc:`Visualization </tutorials/visualization>` module,
+which provides a standardized image format for curve fit results.
+A developer can overwrite this method to draw custom images.
 
 .. _curve_analysis_init_guess:
 

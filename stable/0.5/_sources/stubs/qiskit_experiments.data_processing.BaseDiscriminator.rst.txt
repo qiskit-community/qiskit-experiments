@@ -10,59 +10,34 @@ BaseDiscriminator
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: BaseDiscriminator.discriminator
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      BaseDiscriminator.discriminator
-      
-   
-   
-   
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: BaseDiscriminator.config
+   .. automethod:: BaseDiscriminator.from_config
+   .. automethod:: BaseDiscriminator.is_trained
+   .. automethod:: BaseDiscriminator.predict
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      BaseDiscriminator.config
-   
-   
-      BaseDiscriminator.from_config
-   
-   
-      BaseDiscriminator.is_trained
-   
-   
-      BaseDiscriminator.predict
-   
-
-   
    

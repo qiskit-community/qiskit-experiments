@@ -1,8 +1,0 @@
-
-
-FineSXAmplitude.copy
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineSXAmplitude.copy

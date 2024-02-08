@@ -15,15 +15,13 @@ CrossResonanceHamiltonianAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      CrossResonanceHamiltonianAnalysis.drawer
-      CrossResonanceHamiltonianAnalysis.models
-      CrossResonanceHamiltonianAnalysis.name
-      CrossResonanceHamiltonianAnalysis.options
-      CrossResonanceHamiltonianAnalysis.parameters
-      CrossResonanceHamiltonianAnalysis.plotter
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.drawer
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.models
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.name
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.options
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.parameters
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.plotter
    
    
 
@@ -32,15 +30,13 @@ CrossResonanceHamiltonianAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      CrossResonanceHamiltonianAnalysis.analyses
-      CrossResonanceHamiltonianAnalysis.config
-      CrossResonanceHamiltonianAnalysis.copy
-      CrossResonanceHamiltonianAnalysis.from_config
-      CrossResonanceHamiltonianAnalysis.run
-      CrossResonanceHamiltonianAnalysis.set_options
+   .. automethod:: CrossResonanceHamiltonianAnalysis.analyses
+   .. automethod:: CrossResonanceHamiltonianAnalysis.config
+   .. automethod:: CrossResonanceHamiltonianAnalysis.copy
+   .. automethod:: CrossResonanceHamiltonianAnalysis.from_config
+   .. automethod:: CrossResonanceHamiltonianAnalysis.run
+   .. automethod:: CrossResonanceHamiltonianAnalysis.set_options
    
 
    

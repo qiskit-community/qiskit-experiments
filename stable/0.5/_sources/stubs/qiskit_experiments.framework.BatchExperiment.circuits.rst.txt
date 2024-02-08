@@ -1,8 +1,0 @@
-
-
-BatchExperiment.circuits
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BatchExperiment.circuits

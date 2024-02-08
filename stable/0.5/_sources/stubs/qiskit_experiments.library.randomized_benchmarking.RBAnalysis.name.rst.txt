@@ -1,8 +1,0 @@
-
-
-RBAnalysis.name
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: RBAnalysis.name

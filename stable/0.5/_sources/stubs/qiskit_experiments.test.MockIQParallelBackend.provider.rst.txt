@@ -1,8 +1,0 @@
-
-
-MockIQParallelBackend.provider
-======================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: MockIQParallelBackend.provider

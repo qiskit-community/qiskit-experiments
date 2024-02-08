@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.config
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ParallelExperiment.config

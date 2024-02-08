@@ -1,8 +1,0 @@
-
-
-CorrelatedReadoutError.config
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: CorrelatedReadoutError.config

@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.solve
-=======================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: SingleTransmonTestBackend.solve

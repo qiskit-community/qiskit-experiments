@@ -1,8 +1,0 @@
-
-
-StateTomography.num_qubits
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: StateTomography.num_qubits

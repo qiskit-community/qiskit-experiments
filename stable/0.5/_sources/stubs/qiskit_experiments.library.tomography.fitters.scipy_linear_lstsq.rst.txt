@@ -1,8 +1,0 @@
-﻿
-
-scipy_linear_lstsq
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.fitters
-
-.. autofunction:: scipy_linear_lstsq

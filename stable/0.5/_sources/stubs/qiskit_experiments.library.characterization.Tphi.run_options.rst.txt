@@ -1,8 +1,0 @@
-
-
-Tphi.run_options
-============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: Tphi.run_options

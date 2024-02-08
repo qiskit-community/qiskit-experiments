@@ -1,8 +1,0 @@
-
-
-ResonatorSpectroscopyAnalysis.config
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: ResonatorSpectroscopyAnalysis.config

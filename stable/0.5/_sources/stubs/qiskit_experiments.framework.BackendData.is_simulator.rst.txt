@@ -1,8 +1,0 @@
-
-
-BackendData.is_simulator
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.is_simulator

@@ -1,8 +1,0 @@
-
-
-Calibrations.load_parameter_values
-============================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: Calibrations.load_parameter_values

@@ -1,8 +1,0 @@
-
-
-InterleavedRB.enable_restless
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: InterleavedRB.enable_restless

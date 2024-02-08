@@ -1,8 +1,0 @@
-
-
-CliffordUtils.NUM_CLIFFORD_2_QUBIT
-=====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoattribute:: CliffordUtils.NUM_CLIFFORD_2_QUBIT

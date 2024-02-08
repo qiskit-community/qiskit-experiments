@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.drive_channel
-===================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: T2HahnBackend.drive_channel

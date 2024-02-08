@@ -1,8 +1,0 @@
-
-
-MockIQParallelBackend.control_channel
-=============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: MockIQParallelBackend.control_channel

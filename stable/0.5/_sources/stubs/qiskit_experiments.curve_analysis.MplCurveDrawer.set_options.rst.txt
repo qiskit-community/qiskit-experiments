@@ -1,8 +1,0 @@
-
-
-MplCurveDrawer.set_options
-============================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: MplCurveDrawer.set_options

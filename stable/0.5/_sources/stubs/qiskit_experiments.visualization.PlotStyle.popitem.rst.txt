@@ -1,8 +1,0 @@
-
-
-PlotStyle.popitem
-==================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: PlotStyle.popitem

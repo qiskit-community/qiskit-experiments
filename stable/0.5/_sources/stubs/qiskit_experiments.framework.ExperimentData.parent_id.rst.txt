@@ -1,8 +1,0 @@
-
-
-ExperimentData.parent_id
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.parent_id

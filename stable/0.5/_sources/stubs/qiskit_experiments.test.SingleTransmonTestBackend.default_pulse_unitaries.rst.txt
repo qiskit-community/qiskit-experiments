@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.default_pulse_unitaries
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: SingleTransmonTestBackend.default_pulse_unitaries

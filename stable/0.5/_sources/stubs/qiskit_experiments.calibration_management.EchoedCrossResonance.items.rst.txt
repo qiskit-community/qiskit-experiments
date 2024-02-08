@@ -1,8 +1,0 @@
-
-
-EchoedCrossResonance.items
-====================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: EchoedCrossResonance.items

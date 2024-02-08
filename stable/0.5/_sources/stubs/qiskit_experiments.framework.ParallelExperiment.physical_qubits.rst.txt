@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.physical_qubits
-===============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.physical_qubits

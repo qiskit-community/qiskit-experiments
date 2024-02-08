@@ -15,15 +15,13 @@ RBAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RBAnalysis.drawer
-      RBAnalysis.models
-      RBAnalysis.name
-      RBAnalysis.options
-      RBAnalysis.parameters
-      RBAnalysis.plotter
+   .. autoattribute:: RBAnalysis.drawer
+   .. autoattribute:: RBAnalysis.models
+   .. autoattribute:: RBAnalysis.name
+   .. autoattribute:: RBAnalysis.options
+   .. autoattribute:: RBAnalysis.parameters
+   .. autoattribute:: RBAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ RBAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RBAnalysis.config
-      RBAnalysis.copy
-      RBAnalysis.from_config
-      RBAnalysis.run
-      RBAnalysis.set_options
+   .. automethod:: RBAnalysis.config
+   .. automethod:: RBAnalysis.copy
+   .. automethod:: RBAnalysis.from_config
+   .. automethod:: RBAnalysis.model_names
+   .. automethod:: RBAnalysis.run
+   .. automethod:: RBAnalysis.set_options
    
 
    

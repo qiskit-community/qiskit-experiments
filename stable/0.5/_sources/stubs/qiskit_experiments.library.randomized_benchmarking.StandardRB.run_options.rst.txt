@@ -1,8 +1,0 @@
-
-
-StandardRB.run_options
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: StandardRB.run_options

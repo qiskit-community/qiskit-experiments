@@ -1,8 +1,0 @@
-
-
-CurvePlotter.supplementary_data
-================================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: CurvePlotter.supplementary_data

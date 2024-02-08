@@ -1,8 +1,0 @@
-
-
-ExperimentData.tags
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ExperimentData.tags

@@ -10,38 +10,23 @@ RBUtils
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
 
    
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
+
 
    
    
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: RBUtils.coherence_limit
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      RBUtils.coherence_limit
-   
-
-   
    

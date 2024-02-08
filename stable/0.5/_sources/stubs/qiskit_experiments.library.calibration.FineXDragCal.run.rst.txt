@@ -1,8 +1,0 @@
-
-
-FineXDragCal.run
-=======================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: FineXDragCal.run

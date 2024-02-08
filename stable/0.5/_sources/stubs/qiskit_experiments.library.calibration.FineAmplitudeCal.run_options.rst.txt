@@ -1,8 +1,0 @@
-
-
-FineAmplitudeCal.run_options
-===================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: FineAmplitudeCal.run_options

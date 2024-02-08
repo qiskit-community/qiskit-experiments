@@ -1,8 +1,0 @@
-
-
-BackendData.meas_freqs
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.meas_freqs

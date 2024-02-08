@@ -1,8 +1,0 @@
-
-
-MultiStateDiscrimination.physical_qubits
-====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: MultiStateDiscrimination.physical_qubits

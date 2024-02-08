@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.num_qubits
-================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: T2HahnBackend.num_qubits

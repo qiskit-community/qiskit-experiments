@@ -1,8 +1,0 @@
-
-
-TomographyExperiment.num_qubits
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: TomographyExperiment.num_qubits

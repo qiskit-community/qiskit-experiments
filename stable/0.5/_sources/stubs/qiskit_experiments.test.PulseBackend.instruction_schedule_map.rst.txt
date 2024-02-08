@@ -1,8 +1,0 @@
-
-
-PulseBackend.instruction_schedule_map
-=============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: PulseBackend.instruction_schedule_map

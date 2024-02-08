@@ -1,8 +1,0 @@
-
-
-InterleavedRB.set_run_options
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: InterleavedRB.set_run_options

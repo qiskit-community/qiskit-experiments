@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.circuits
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: MitigatedProcessTomography.circuits

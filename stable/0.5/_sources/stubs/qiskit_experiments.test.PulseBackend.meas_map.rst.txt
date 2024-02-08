@@ -1,8 +1,0 @@
-
-
-PulseBackend.meas_map
-=============================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: PulseBackend.meas_map

@@ -1,8 +1,0 @@
-
-
-ResonanceAnalysis.config
-==========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: ResonanceAnalysis.config

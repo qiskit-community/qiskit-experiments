@@ -1,8 +1,0 @@
-
-
-TrainableDataAction.is_trained
-=================================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. autoproperty:: TrainableDataAction.is_trained

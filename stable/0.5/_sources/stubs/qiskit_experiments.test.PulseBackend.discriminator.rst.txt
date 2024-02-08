@@ -1,8 +1,0 @@
-
-
-PulseBackend.discriminator
-==================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: PulseBackend.discriminator

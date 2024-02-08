@@ -1,8 +1,0 @@
-
-
-NoisyDelayAerBackend.available_devices
-==============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: NoisyDelayAerBackend.available_devices

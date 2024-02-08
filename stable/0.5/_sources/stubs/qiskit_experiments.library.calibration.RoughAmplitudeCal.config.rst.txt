@@ -1,8 +1,0 @@
-
-
-RoughAmplitudeCal.config
-===============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: RoughAmplitudeCal.config

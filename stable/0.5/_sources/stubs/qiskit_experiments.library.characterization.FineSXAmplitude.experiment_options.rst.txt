@@ -1,8 +1,0 @@
-
-
-FineSXAmplitude.experiment_options
-==============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineSXAmplitude.experiment_options

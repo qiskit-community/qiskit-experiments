@@ -1,8 +1,0 @@
-
-
-FineXAmplitude.backend
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineXAmplitude.backend

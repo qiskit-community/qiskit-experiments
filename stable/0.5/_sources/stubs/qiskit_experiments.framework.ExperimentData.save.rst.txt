@@ -1,8 +1,0 @@
-
-
-ExperimentData.save
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.save

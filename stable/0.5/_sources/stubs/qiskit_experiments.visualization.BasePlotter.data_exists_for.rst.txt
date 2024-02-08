@@ -1,8 +1,0 @@
-
-
-BasePlotter.data_exists_for
-============================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BasePlotter.data_exists_for

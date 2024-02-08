@@ -1,8 +1,0 @@
-
-
-TomographyAnalysis.set_options
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: TomographyAnalysis.set_options

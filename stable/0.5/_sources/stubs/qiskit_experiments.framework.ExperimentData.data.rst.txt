@@ -1,8 +1,0 @@
-
-
-ExperimentData.data
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.data

@@ -1,8 +1,0 @@
-
-
-BatchExperiment.num_experiments
-============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BatchExperiment.num_experiments

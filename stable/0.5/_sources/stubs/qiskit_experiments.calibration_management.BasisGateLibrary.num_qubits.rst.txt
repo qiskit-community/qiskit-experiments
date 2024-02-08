@@ -1,8 +1,0 @@
-
-
-BasisGateLibrary.num_qubits
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: BasisGateLibrary.num_qubits

@@ -15,10 +15,8 @@ TphiAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      TphiAnalysis.options
+   .. autoattribute:: TphiAnalysis.options
    
    
 
@@ -27,15 +25,13 @@ TphiAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      TphiAnalysis.component_analysis
-      TphiAnalysis.config
-      TphiAnalysis.copy
-      TphiAnalysis.from_config
-      TphiAnalysis.run
-      TphiAnalysis.set_options
+   .. automethod:: TphiAnalysis.component_analysis
+   .. automethod:: TphiAnalysis.config
+   .. automethod:: TphiAnalysis.copy
+   .. automethod:: TphiAnalysis.from_config
+   .. automethod:: TphiAnalysis.run
+   .. automethod:: TphiAnalysis.set_options
    
 
    

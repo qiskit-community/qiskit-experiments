@@ -1,8 +1,0 @@
-
-
-EFSpectroscopy.circuits
-===================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: EFSpectroscopy.circuits

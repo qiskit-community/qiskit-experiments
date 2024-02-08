@@ -1,8 +1,0 @@
-
-
-DecayAnalysis.name
-====================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: DecayAnalysis.name

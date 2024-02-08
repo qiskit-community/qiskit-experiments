@@ -1,8 +1,0 @@
-
-
-DecayAnalysis.from_config
-===========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: DecayAnalysis.from_config

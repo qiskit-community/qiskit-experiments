@@ -15,10 +15,8 @@ ReadoutAngleAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ReadoutAngleAnalysis.options
+   .. autoattribute:: ReadoutAngleAnalysis.options
    
    
 
@@ -27,14 +25,12 @@ ReadoutAngleAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ReadoutAngleAnalysis.config
-      ReadoutAngleAnalysis.copy
-      ReadoutAngleAnalysis.from_config
-      ReadoutAngleAnalysis.run
-      ReadoutAngleAnalysis.set_options
+   .. automethod:: ReadoutAngleAnalysis.config
+   .. automethod:: ReadoutAngleAnalysis.copy
+   .. automethod:: ReadoutAngleAnalysis.from_config
+   .. automethod:: ReadoutAngleAnalysis.run
+   .. automethod:: ReadoutAngleAnalysis.set_options
    
 
    

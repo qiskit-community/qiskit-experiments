@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.run
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ParallelExperiment.run

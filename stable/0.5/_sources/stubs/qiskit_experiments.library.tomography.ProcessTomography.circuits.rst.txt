@@ -1,8 +1,0 @@
-
-
-ProcessTomography.circuits
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: ProcessTomography.circuits

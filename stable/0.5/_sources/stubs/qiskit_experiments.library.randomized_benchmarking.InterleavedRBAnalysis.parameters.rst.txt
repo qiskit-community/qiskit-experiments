@@ -1,8 +1,0 @@
-
-
-InterleavedRBAnalysis.parameters
-===================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: InterleavedRBAnalysis.parameters

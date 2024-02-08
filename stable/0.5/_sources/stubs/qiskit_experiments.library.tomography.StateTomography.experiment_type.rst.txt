@@ -1,8 +1,0 @@
-
-
-StateTomography.experiment_type
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: StateTomography.experiment_type

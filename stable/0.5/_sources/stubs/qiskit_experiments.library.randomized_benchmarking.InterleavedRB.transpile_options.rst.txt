@@ -1,8 +1,0 @@
-
-
-InterleavedRB.transpile_options
-==================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. autoproperty:: InterleavedRB.transpile_options

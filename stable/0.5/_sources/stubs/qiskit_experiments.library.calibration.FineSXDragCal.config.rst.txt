@@ -1,8 +1,0 @@
-
-
-FineSXDragCal.config
-===========================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: FineSXDragCal.config

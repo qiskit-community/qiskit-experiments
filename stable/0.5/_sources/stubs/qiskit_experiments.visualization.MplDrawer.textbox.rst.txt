@@ -1,8 +1,0 @@
-
-
-MplDrawer.textbox
-==================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: MplDrawer.textbox

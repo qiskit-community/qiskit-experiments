@@ -1,8 +1,0 @@
-
-
-QuantumVolume.transpile_options
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.quantum_volume
-
-.. autoproperty:: QuantumVolume.transpile_options

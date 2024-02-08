@@ -1,8 +1,0 @@
-
-
-Calibrations.libraries
-================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. autoproperty:: Calibrations.libraries

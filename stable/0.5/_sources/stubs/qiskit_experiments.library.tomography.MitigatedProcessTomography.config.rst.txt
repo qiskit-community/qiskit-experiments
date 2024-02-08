@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.config
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: MitigatedProcessTomography.config

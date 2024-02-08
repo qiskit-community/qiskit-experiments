@@ -1,8 +1,0 @@
-
-
-CurveAnalysis.copy
-====================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: CurveAnalysis.copy

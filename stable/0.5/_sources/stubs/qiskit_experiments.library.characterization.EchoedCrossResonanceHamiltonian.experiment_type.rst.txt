@@ -1,8 +1,0 @@
-
-
-EchoedCrossResonanceHamiltonian.experiment_type
-===========================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: EchoedCrossResonanceHamiltonian.experiment_type

@@ -8,36 +8,35 @@ that the computer successfully implements. Quantum computing systems
 with high-fidelity operations, high connectivity, large calibrated gate
 sets, and circuit rewriting toolchains are expected to have higher
 quantum volumes. See the `Qiskit
-Textbook <https://learn.qiskit.org/course/quantum-hardware/measuring-quantum-volume>`__
+Textbook <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`__
 for an explanation on the QV method, which is described in Refs. [1]_ [2]_.
 
 The Quantum Volume is determined by the largest successful circuit depth
-:math:`d_{max}`, and equals to :math:`2^{d_{max}}`. In the QV experiment
-we generate `QV
-circuits <https://qiskit.org/documentation/stubs/qiskit.circuit.library.QuantumVolume.html>`__
+:math:`d_{max}`, and equals to :math:`2^{d_{max}}`. In this experiment,
+we generate QV circuits using the :class:`qiskit.circuit.library.QuantumVolume` class
 on :math:`d` qubits, which contain :math:`d` layers, where each layer
 consists of random 2-qubit unitary gates from :math:`SU(4)`, followed by
 a random permutation on the :math:`d` qubit. Then these circuits run on
 the quantum backend and on an ideal simulator (either :class:`qiskit_aer.AerSimulator`
 or :class:`qiskit.quantum_info.Statevector`).
 
-A depth :math:`d` QV circuit is successful if it has ‘mean heavy-output
-probability’ > 2/3 with confidence level > 0.977 (corresponding to
+A depth :math:`d` QV circuit is successful if it has `mean heavy-output
+probability` > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
     from qiskit_experiments.framework import BatchExperiment
     from qiskit_experiments.library import QuantumVolume
-    from qiskit import Aer
-    from qiskit_aer import AerSimulator
     
     # For simulation
-    from qiskit.providers.fake_provider import FakeSydneyV2
+    from qiskit_aer import AerSimulator
+    from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
     
     backend = AerSimulator.from_backend(FakeSydneyV2())
 
@@ -69,7 +68,7 @@ more trials may reduce the error bars to allow passing the threshold.
 
 The analysis results of the QV Experiment are:
 
--  The mean heavy output probabilities (HOP) and standard deviation
+-  The mean heavy-output probabilities (HOP) and standard deviation
 
 -  The calculated quantum volume, which will be None if the experiment
    does not pass the threshold
@@ -191,5 +190,5 @@ See also
 --------
 
 * API documentation: :mod:`~qiskit_experiments.library.quantum_volume`
-* Qiskit Textbook: `Measuring Quantum Volume <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`__
+* Qiskit Textbook: `Measuring Quantum Volume <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb>`__
 

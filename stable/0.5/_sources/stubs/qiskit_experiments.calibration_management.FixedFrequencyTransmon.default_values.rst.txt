@@ -1,8 +1,0 @@
-
-
-FixedFrequencyTransmon.default_values
-===============================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: FixedFrequencyTransmon.default_values

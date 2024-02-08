@@ -1,8 +1,0 @@
-
-
-FineSXDrag.transpile_options
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineSXDrag.transpile_options

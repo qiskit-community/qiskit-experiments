@@ -1,8 +1,0 @@
-
-
-PauliMeasurementBasis.outcome_shape
-===============================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.basis
-
-.. automethod:: PauliMeasurementBasis.outcome_shape

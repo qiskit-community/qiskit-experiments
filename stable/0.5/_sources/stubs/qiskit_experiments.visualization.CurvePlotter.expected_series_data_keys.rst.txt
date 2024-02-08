@@ -1,8 +1,0 @@
-
-
-CurvePlotter.expected_series_data_keys
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: CurvePlotter.expected_series_data_keys

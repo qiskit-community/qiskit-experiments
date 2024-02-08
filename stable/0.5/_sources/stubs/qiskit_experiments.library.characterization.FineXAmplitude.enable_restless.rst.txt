@@ -1,8 +1,0 @@
-
-
-FineXAmplitude.enable_restless
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: FineXAmplitude.enable_restless

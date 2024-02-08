@@ -1,8 +1,0 @@
-
-
-FineFrequencyCal.transpile_options
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: FineFrequencyCal.transpile_options

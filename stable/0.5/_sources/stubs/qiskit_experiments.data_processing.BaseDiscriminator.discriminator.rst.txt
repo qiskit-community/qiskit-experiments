@@ -1,8 +1,0 @@
-
-
-BaseDiscriminator.discriminator
-==================================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. autoproperty:: BaseDiscriminator.discriminator

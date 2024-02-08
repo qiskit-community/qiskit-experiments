@@ -1,8 +1,0 @@
-
-
-T1Analysis.parameters
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T1Analysis.parameters

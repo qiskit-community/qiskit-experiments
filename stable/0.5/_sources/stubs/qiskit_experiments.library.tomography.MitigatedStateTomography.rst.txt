@@ -15,18 +15,16 @@ MitigatedStateTomography
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      MitigatedStateTomography.analysis
-      MitigatedStateTomography.backend
-      MitigatedStateTomography.experiment_options
-      MitigatedStateTomography.experiment_type
-      MitigatedStateTomography.num_experiments
-      MitigatedStateTomography.num_qubits
-      MitigatedStateTomography.physical_qubits
-      MitigatedStateTomography.run_options
-      MitigatedStateTomography.transpile_options
+   .. autoattribute:: MitigatedStateTomography.analysis
+   .. autoattribute:: MitigatedStateTomography.backend
+   .. autoattribute:: MitigatedStateTomography.experiment_options
+   .. autoattribute:: MitigatedStateTomography.experiment_type
+   .. autoattribute:: MitigatedStateTomography.num_experiments
+   .. autoattribute:: MitigatedStateTomography.num_qubits
+   .. autoattribute:: MitigatedStateTomography.physical_qubits
+   .. autoattribute:: MitigatedStateTomography.run_options
+   .. autoattribute:: MitigatedStateTomography.transpile_options
    
    
 
@@ -35,18 +33,17 @@ MitigatedStateTomography
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      MitigatedStateTomography.circuits
-      MitigatedStateTomography.component_experiment
-      MitigatedStateTomography.config
-      MitigatedStateTomography.copy
-      MitigatedStateTomography.from_config
-      MitigatedStateTomography.run
-      MitigatedStateTomography.set_experiment_options
-      MitigatedStateTomography.set_run_options
-      MitigatedStateTomography.set_transpile_options
+   .. automethod:: MitigatedStateTomography.circuits
+   .. automethod:: MitigatedStateTomography.component_experiment
+   .. automethod:: MitigatedStateTomography.config
+   .. automethod:: MitigatedStateTomography.copy
+   .. automethod:: MitigatedStateTomography.from_config
+   .. automethod:: MitigatedStateTomography.job_info
+   .. automethod:: MitigatedStateTomography.run
+   .. automethod:: MitigatedStateTomography.set_experiment_options
+   .. automethod:: MitigatedStateTomography.set_run_options
+   .. automethod:: MitigatedStateTomography.set_transpile_options
    
 
    

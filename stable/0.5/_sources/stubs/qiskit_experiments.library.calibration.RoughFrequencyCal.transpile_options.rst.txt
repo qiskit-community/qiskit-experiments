@@ -1,8 +1,0 @@
-
-
-RoughFrequencyCal.transpile_options
-==========================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: RoughFrequencyCal.transpile_options

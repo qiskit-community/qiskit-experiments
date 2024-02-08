@@ -15,18 +15,16 @@ RoughDragCal
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughDragCal.analysis
-      RoughDragCal.backend
-      RoughDragCal.calibrations
-      RoughDragCal.experiment_options
-      RoughDragCal.experiment_type
-      RoughDragCal.num_qubits
-      RoughDragCal.physical_qubits
-      RoughDragCal.run_options
-      RoughDragCal.transpile_options
+   .. autoattribute:: RoughDragCal.analysis
+   .. autoattribute:: RoughDragCal.backend
+   .. autoattribute:: RoughDragCal.calibrations
+   .. autoattribute:: RoughDragCal.experiment_options
+   .. autoattribute:: RoughDragCal.experiment_type
+   .. autoattribute:: RoughDragCal.num_qubits
+   .. autoattribute:: RoughDragCal.physical_qubits
+   .. autoattribute:: RoughDragCal.run_options
+   .. autoattribute:: RoughDragCal.transpile_options
    
    
 
@@ -35,19 +33,18 @@ RoughDragCal
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      RoughDragCal.circuits
-      RoughDragCal.config
-      RoughDragCal.copy
-      RoughDragCal.enable_restless
-      RoughDragCal.from_config
-      RoughDragCal.run
-      RoughDragCal.set_experiment_options
-      RoughDragCal.set_run_options
-      RoughDragCal.set_transpile_options
-      RoughDragCal.update_calibrations
+   .. automethod:: RoughDragCal.circuits
+   .. automethod:: RoughDragCal.config
+   .. automethod:: RoughDragCal.copy
+   .. automethod:: RoughDragCal.enable_restless
+   .. automethod:: RoughDragCal.from_config
+   .. automethod:: RoughDragCal.job_info
+   .. automethod:: RoughDragCal.run
+   .. automethod:: RoughDragCal.set_experiment_options
+   .. automethod:: RoughDragCal.set_run_options
+   .. automethod:: RoughDragCal.set_transpile_options
+   .. automethod:: RoughDragCal.update_calibrations
    
 
    

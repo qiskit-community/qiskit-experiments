@@ -1,8 +1,0 @@
-
-
-BatchExperiment.experiment_type
-============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BatchExperiment.experiment_type

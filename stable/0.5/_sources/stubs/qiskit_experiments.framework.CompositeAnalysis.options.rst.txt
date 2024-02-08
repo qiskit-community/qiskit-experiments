@@ -1,8 +1,0 @@
-
-
-CompositeAnalysis.options
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: CompositeAnalysis.options

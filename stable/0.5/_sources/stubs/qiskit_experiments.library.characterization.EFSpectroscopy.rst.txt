@@ -15,17 +15,15 @@ EFSpectroscopy
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFSpectroscopy.analysis
-      EFSpectroscopy.backend
-      EFSpectroscopy.experiment_options
-      EFSpectroscopy.experiment_type
-      EFSpectroscopy.num_qubits
-      EFSpectroscopy.physical_qubits
-      EFSpectroscopy.run_options
-      EFSpectroscopy.transpile_options
+   .. autoattribute:: EFSpectroscopy.analysis
+   .. autoattribute:: EFSpectroscopy.backend
+   .. autoattribute:: EFSpectroscopy.experiment_options
+   .. autoattribute:: EFSpectroscopy.experiment_type
+   .. autoattribute:: EFSpectroscopy.num_qubits
+   .. autoattribute:: EFSpectroscopy.physical_qubits
+   .. autoattribute:: EFSpectroscopy.run_options
+   .. autoattribute:: EFSpectroscopy.transpile_options
    
    
 
@@ -34,17 +32,16 @@ EFSpectroscopy
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      EFSpectroscopy.circuits
-      EFSpectroscopy.config
-      EFSpectroscopy.copy
-      EFSpectroscopy.from_config
-      EFSpectroscopy.run
-      EFSpectroscopy.set_experiment_options
-      EFSpectroscopy.set_run_options
-      EFSpectroscopy.set_transpile_options
+   .. automethod:: EFSpectroscopy.circuits
+   .. automethod:: EFSpectroscopy.config
+   .. automethod:: EFSpectroscopy.copy
+   .. automethod:: EFSpectroscopy.from_config
+   .. automethod:: EFSpectroscopy.job_info
+   .. automethod:: EFSpectroscopy.run
+   .. automethod:: EFSpectroscopy.set_experiment_options
+   .. automethod:: EFSpectroscopy.set_run_options
+   .. automethod:: EFSpectroscopy.set_transpile_options
    
 
    

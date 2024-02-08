@@ -10,136 +10,62 @@ BaseCalibrationExperiment
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: BaseCalibrationExperiment.analysis
+   .. autoattribute:: BaseCalibrationExperiment.backend
+   .. autoattribute:: BaseCalibrationExperiment.calibrations
+   .. autoattribute:: BaseCalibrationExperiment.experiment_options
+   .. autoattribute:: BaseCalibrationExperiment.experiment_type
+   .. autoattribute:: BaseCalibrationExperiment.num_qubits
+   .. autoattribute:: BaseCalibrationExperiment.physical_qubits
+   .. autoattribute:: BaseCalibrationExperiment.run_options
+   .. autoattribute:: BaseCalibrationExperiment.transpile_options
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      BaseCalibrationExperiment.analysis
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.backend
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.calibrations
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.experiment_options
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.experiment_type
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.num_qubits
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.physical_qubits
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.run_options
-      
-   
-      
-      
-         
-      
-      BaseCalibrationExperiment.transpile_options
-      
-   
-   
-   
+
+
 
    
    
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: BaseCalibrationExperiment.circuits
+   .. automethod:: BaseCalibrationExperiment.config
+   .. automethod:: BaseCalibrationExperiment.copy
+   .. automethod:: BaseCalibrationExperiment.from_config
+   .. automethod:: BaseCalibrationExperiment.job_info
+   .. automethod:: BaseCalibrationExperiment.run
+   .. automethod:: BaseCalibrationExperiment.set_experiment_options
+   .. automethod:: BaseCalibrationExperiment.set_run_options
+   .. automethod:: BaseCalibrationExperiment.set_transpile_options
+   .. automethod:: BaseCalibrationExperiment.update_calibrations
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      BaseCalibrationExperiment.circuits
-   
-   
-      BaseCalibrationExperiment.config
-   
-   
-      BaseCalibrationExperiment.copy
-   
-   
-      BaseCalibrationExperiment.from_config
-   
-   
-      BaseCalibrationExperiment.run
-   
-   
-      BaseCalibrationExperiment.set_experiment_options
-   
-   
-      BaseCalibrationExperiment.set_run_options
-   
-   
-      BaseCalibrationExperiment.set_transpile_options
-   
-   
-      BaseCalibrationExperiment.update_calibrations
-   
-
-   
    

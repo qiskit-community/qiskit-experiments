@@ -1,8 +1,0 @@
-
-
-Calibrations.schedule_information
-===========================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: Calibrations.schedule_information

@@ -15,15 +15,13 @@ T2RamseyAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T2RamseyAnalysis.drawer
-      T2RamseyAnalysis.models
-      T2RamseyAnalysis.name
-      T2RamseyAnalysis.options
-      T2RamseyAnalysis.parameters
-      T2RamseyAnalysis.plotter
+   .. autoattribute:: T2RamseyAnalysis.drawer
+   .. autoattribute:: T2RamseyAnalysis.models
+   .. autoattribute:: T2RamseyAnalysis.name
+   .. autoattribute:: T2RamseyAnalysis.options
+   .. autoattribute:: T2RamseyAnalysis.parameters
+   .. autoattribute:: T2RamseyAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ T2RamseyAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      T2RamseyAnalysis.config
-      T2RamseyAnalysis.copy
-      T2RamseyAnalysis.from_config
-      T2RamseyAnalysis.run
-      T2RamseyAnalysis.set_options
+   .. automethod:: T2RamseyAnalysis.config
+   .. automethod:: T2RamseyAnalysis.copy
+   .. automethod:: T2RamseyAnalysis.from_config
+   .. automethod:: T2RamseyAnalysis.model_names
+   .. automethod:: T2RamseyAnalysis.run
+   .. automethod:: T2RamseyAnalysis.set_options
    
 
    

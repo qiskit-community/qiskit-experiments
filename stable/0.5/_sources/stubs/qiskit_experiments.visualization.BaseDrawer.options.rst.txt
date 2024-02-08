@@ -1,8 +1,0 @@
-
-
-BaseDrawer.options
-===================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: BaseDrawer.options

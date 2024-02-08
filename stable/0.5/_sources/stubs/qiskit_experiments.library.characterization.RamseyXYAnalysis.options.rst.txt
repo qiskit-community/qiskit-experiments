@@ -1,8 +1,0 @@
-
-
-RamseyXYAnalysis.options
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: RamseyXYAnalysis.options

@@ -10,12 +10,14 @@ They're suitable for beginners who want to get started with the package.
 The Basics
 ----------
 
+.. This toctree is hardcoded since Getting Started is already included in the sidebar for more visibility.
+
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     intro
     getting_started
-    
+
 Exploring Modules
 -----------------
 

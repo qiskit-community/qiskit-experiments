@@ -1,8 +1,0 @@
-
-
-ExperimentData.cancel_analysis
-===========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.cancel_analysis

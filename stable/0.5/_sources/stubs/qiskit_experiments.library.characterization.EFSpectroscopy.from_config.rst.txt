@@ -1,8 +1,0 @@
-
-
-EFSpectroscopy.from_config
-======================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: EFSpectroscopy.from_config

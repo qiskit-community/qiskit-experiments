@@ -1,8 +1,0 @@
-
-
-AnalysisStatus.DONE
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoattribute:: AnalysisStatus.DONE

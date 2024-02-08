@@ -1,8 +1,0 @@
-
-
-ZZRamsey.run_options
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: ZZRamsey.run_options

@@ -1,8 +1,0 @@
-
-
-MockIQBackend.qubit_properties
-======================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: MockIQBackend.qubit_properties

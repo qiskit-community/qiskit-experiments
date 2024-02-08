@@ -1,8 +1,0 @@
-
-
-MultiStateDiscrimination.run
-========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: MultiStateDiscrimination.run

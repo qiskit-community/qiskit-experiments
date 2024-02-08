@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.measure_channel
-=====================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: T2HahnBackend.measure_channel

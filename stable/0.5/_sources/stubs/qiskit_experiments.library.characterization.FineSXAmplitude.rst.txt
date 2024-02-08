@@ -15,17 +15,15 @@ FineSXAmplitude
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXAmplitude.analysis
-      FineSXAmplitude.backend
-      FineSXAmplitude.experiment_options
-      FineSXAmplitude.experiment_type
-      FineSXAmplitude.num_qubits
-      FineSXAmplitude.physical_qubits
-      FineSXAmplitude.run_options
-      FineSXAmplitude.transpile_options
+   .. autoattribute:: FineSXAmplitude.analysis
+   .. autoattribute:: FineSXAmplitude.backend
+   .. autoattribute:: FineSXAmplitude.experiment_options
+   .. autoattribute:: FineSXAmplitude.experiment_type
+   .. autoattribute:: FineSXAmplitude.num_qubits
+   .. autoattribute:: FineSXAmplitude.physical_qubits
+   .. autoattribute:: FineSXAmplitude.run_options
+   .. autoattribute:: FineSXAmplitude.transpile_options
    
    
 
@@ -34,18 +32,17 @@ FineSXAmplitude
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXAmplitude.circuits
-      FineSXAmplitude.config
-      FineSXAmplitude.copy
-      FineSXAmplitude.enable_restless
-      FineSXAmplitude.from_config
-      FineSXAmplitude.run
-      FineSXAmplitude.set_experiment_options
-      FineSXAmplitude.set_run_options
-      FineSXAmplitude.set_transpile_options
+   .. automethod:: FineSXAmplitude.circuits
+   .. automethod:: FineSXAmplitude.config
+   .. automethod:: FineSXAmplitude.copy
+   .. automethod:: FineSXAmplitude.enable_restless
+   .. automethod:: FineSXAmplitude.from_config
+   .. automethod:: FineSXAmplitude.job_info
+   .. automethod:: FineSXAmplitude.run
+   .. automethod:: FineSXAmplitude.set_experiment_options
+   .. automethod:: FineSXAmplitude.set_run_options
+   .. automethod:: FineSXAmplitude.set_transpile_options
    
 
    

@@ -1,8 +1,0 @@
-
-
-ParameterValue.group
-==============================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. autoattribute:: ParameterValue.group

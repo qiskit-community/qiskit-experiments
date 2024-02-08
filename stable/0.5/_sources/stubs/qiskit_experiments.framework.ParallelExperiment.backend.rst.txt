@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.backend
-=======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.backend

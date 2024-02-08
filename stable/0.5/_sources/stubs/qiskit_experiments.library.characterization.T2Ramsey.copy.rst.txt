@@ -1,8 +1,0 @@
-
-
-T2Ramsey.copy
-=========================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: T2Ramsey.copy

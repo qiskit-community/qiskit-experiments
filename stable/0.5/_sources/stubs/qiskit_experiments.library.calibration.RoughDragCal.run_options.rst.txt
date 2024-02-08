@@ -1,8 +1,0 @@
-
-
-RoughDragCal.run_options
-===============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: RoughDragCal.run_options

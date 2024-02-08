@@ -10,65 +10,34 @@ PreparationBasis
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: PreparationBasis.name
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      PreparationBasis.name
-      
-   
-   
-   
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: PreparationBasis.circuit
+   .. automethod:: PreparationBasis.index_shape
+   .. automethod:: PreparationBasis.matrix
+   .. automethod:: PreparationBasis.matrix_shape
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      PreparationBasis.circuit
-   
-   
-      PreparationBasis.index_shape
-   
-   
-      PreparationBasis.matrix
-   
-   
-      PreparationBasis.matrix_shape
-   
-
-   
    

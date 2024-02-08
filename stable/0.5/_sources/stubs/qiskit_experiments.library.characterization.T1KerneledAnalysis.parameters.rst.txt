@@ -1,8 +1,0 @@
-
-
-T1KerneledAnalysis.parameters
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T1KerneledAnalysis.parameters

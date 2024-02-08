@@ -1,8 +1,0 @@
-
-
-Rabi.run_options
-============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: Rabi.run_options

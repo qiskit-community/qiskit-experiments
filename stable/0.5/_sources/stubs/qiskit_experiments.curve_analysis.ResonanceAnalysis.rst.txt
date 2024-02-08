@@ -15,15 +15,13 @@ ResonanceAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ResonanceAnalysis.drawer
-      ResonanceAnalysis.models
-      ResonanceAnalysis.name
-      ResonanceAnalysis.options
-      ResonanceAnalysis.parameters
-      ResonanceAnalysis.plotter
+   .. autoattribute:: ResonanceAnalysis.drawer
+   .. autoattribute:: ResonanceAnalysis.models
+   .. autoattribute:: ResonanceAnalysis.name
+   .. autoattribute:: ResonanceAnalysis.options
+   .. autoattribute:: ResonanceAnalysis.parameters
+   .. autoattribute:: ResonanceAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ ResonanceAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ResonanceAnalysis.config
-      ResonanceAnalysis.copy
-      ResonanceAnalysis.from_config
-      ResonanceAnalysis.run
-      ResonanceAnalysis.set_options
+   .. automethod:: ResonanceAnalysis.config
+   .. automethod:: ResonanceAnalysis.copy
+   .. automethod:: ResonanceAnalysis.from_config
+   .. automethod:: ResonanceAnalysis.model_names
+   .. automethod:: ResonanceAnalysis.run
+   .. automethod:: ResonanceAnalysis.set_options
    
 
    

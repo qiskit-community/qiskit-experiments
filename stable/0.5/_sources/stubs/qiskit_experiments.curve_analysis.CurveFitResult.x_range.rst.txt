@@ -1,8 +1,0 @@
-
-
-CurveFitResult.x_range
-========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: CurveFitResult.x_range

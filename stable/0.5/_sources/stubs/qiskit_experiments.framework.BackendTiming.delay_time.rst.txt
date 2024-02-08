@@ -1,8 +1,0 @@
-
-
-BackendTiming.delay_time
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BackendTiming.delay_time

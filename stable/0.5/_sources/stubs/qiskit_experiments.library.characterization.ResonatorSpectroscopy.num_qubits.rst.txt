@@ -1,8 +1,0 @@
-
-
-ResonatorSpectroscopy.num_qubits
-============================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: ResonatorSpectroscopy.num_qubits

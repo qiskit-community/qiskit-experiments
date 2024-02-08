@@ -1,8 +1,0 @@
-
-
-ParallelExperiment.experiment_type
-===============================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: ParallelExperiment.experiment_type

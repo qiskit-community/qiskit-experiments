@@ -1,8 +1,0 @@
-
-
-FigureData.metadata
-================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: FigureData.metadata

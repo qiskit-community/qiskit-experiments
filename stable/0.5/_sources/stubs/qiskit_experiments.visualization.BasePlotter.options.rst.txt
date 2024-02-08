@@ -1,8 +1,0 @@
-
-
-BasePlotter.options
-====================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: BasePlotter.options

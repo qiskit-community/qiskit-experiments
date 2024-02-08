@@ -1,8 +1,0 @@
-
-
-BaseExperiment.num_qubits
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BaseExperiment.num_qubits

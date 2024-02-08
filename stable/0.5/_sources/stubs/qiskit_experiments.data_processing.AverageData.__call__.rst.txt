@@ -1,8 +1,0 @@
-
-
-AverageData.__call__
-=======================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: AverageData.__call__

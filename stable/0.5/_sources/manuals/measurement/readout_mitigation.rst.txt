@@ -31,19 +31,20 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
     import numpy as np
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
-    from qiskit.visualization import plot_histogram
+    from qiskit.visualization import plot_distribution
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
 
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     from qiskit.result.mitigation.utils import (
         expval_with_stddev,
@@ -60,7 +61,7 @@ experiments to generate the corresponding mitigators.
     num_qubits = len(qubits)
 
 Standard mitigation experiment
-==============================
+------------------------------
 
 The default mitigation experiment is *local*, meaning error probability
 is measured individually for each qubit. The experiment generates two
@@ -77,7 +78,7 @@ circuits, one for all “0” and one for all “1” results.
 
     exp.analysis.set_options(plot=True)
     result = exp.run(backend)
-    mitigator = result.analysis_results(0).value
+    mitigator = result.analysis_results("Local Readout Mitigator").value
 
 The resulting measurement matrix can be illustrated by comparing it to
 the identity.
@@ -99,7 +100,7 @@ The individual mitigation matrices can be read off the mitigator.
         print()
 
 
-Mitigation Example
+Mitigation example
 ------------------
 
 .. jupyter-execute::
@@ -127,7 +128,7 @@ Probabilities
 .. jupyter-execute::
 
     legend = ['Mitigated Probabilities', 'Unmitigated Probabilities']
-    plot_histogram([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
+    plot_distribution([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
 
 
 Expectation value
@@ -180,4 +181,4 @@ See also
 
 * API documentation: :mod:`~qiskit_experiments.library.characterization.LocalReadoutError`, 
   :mod:`~qiskit_experiments.library.characterization.CorrelatedReadoutError`
-* Qiskit Textbook: `Measurement Error Mitigation <https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html>`__
+* Qiskit Textbook: `Measurement Error Mitigation <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measurement-error-mitigation.ipynb>`__

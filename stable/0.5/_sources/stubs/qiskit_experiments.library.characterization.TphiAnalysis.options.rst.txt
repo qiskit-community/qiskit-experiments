@@ -1,8 +1,0 @@
-
-
-TphiAnalysis.options
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: TphiAnalysis.options

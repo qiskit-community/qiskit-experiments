@@ -1,8 +1,0 @@
-﻿
-
-scipy_gaussian_lstsq
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography.fitters
-
-.. autofunction:: scipy_gaussian_lstsq

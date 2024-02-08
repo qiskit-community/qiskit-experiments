@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.drive_channel
-===============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: SingleTransmonTestBackend.drive_channel

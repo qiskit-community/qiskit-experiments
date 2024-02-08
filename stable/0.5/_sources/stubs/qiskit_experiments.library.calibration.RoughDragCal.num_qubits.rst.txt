@@ -1,8 +1,0 @@
-
-
-RoughDragCal.num_qubits
-==============================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: RoughDragCal.num_qubits

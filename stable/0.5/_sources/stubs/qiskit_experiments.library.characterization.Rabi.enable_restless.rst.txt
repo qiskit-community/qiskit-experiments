@@ -1,8 +1,0 @@
-
-
-Rabi.enable_restless
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: Rabi.enable_restless

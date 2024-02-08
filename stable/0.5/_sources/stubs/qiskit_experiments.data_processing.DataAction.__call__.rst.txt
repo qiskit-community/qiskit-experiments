@@ -1,8 +1,0 @@
-
-
-DataAction.__call__
-======================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: DataAction.__call__

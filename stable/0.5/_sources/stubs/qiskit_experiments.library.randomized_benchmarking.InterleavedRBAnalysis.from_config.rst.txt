@@ -1,8 +1,0 @@
-
-
-InterleavedRBAnalysis.from_config
-====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: InterleavedRBAnalysis.from_config

@@ -1,8 +1,0 @@
-
-
-Rabi.run
-====================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: Rabi.run

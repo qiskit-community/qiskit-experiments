@@ -1,8 +1,0 @@
-
-
-BasePlotter.set_series_data
-============================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: BasePlotter.set_series_data

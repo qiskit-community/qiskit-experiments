@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.coupling_map
-==================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: T2HahnBackend.coupling_map

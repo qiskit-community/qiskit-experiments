@@ -1,8 +1,0 @@
-
-
-ProcessTomography.num_qubits
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: ProcessTomography.num_qubits

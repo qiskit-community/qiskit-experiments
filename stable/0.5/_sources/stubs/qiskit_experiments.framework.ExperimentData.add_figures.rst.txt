@@ -1,8 +1,0 @@
-
-
-ExperimentData.add_figures
-=======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentData.add_figures

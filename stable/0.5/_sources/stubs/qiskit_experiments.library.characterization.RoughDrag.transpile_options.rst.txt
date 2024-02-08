@@ -1,8 +1,0 @@
-
-
-RoughDrag.transpile_options
-=======================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: RoughDrag.transpile_options

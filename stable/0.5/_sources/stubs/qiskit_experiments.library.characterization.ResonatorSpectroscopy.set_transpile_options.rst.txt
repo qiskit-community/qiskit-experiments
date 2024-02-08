@@ -1,8 +1,0 @@
-
-
-ResonatorSpectroscopy.set_transpile_options
-=======================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: ResonatorSpectroscopy.set_transpile_options

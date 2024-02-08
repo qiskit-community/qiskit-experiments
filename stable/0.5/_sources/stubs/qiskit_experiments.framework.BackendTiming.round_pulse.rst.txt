@@ -1,8 +1,0 @@
-
-
-BackendTiming.round_pulse
-======================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BackendTiming.round_pulse

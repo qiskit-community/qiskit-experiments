@@ -1,8 +1,0 @@
-
-
-ShotOrder.circuit_first
-==========================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. autoattribute:: ShotOrder.circuit_first

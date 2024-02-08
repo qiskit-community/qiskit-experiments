@@ -1,8 +1,0 @@
-
-
-FixedFrequencyTransmon.get
-====================================================================
-
-.. currentmodule:: qiskit_experiments.calibration_management
-
-.. automethod:: FixedFrequencyTransmon.get

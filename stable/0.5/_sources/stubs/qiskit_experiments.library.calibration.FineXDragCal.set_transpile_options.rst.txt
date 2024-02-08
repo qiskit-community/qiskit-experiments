@@ -1,8 +1,0 @@
-
-
-FineXDragCal.set_transpile_options
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: FineXDragCal.set_transpile_options

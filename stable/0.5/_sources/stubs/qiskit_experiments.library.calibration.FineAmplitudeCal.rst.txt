@@ -15,18 +15,16 @@ FineAmplitudeCal
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineAmplitudeCal.analysis
-      FineAmplitudeCal.backend
-      FineAmplitudeCal.calibrations
-      FineAmplitudeCal.experiment_options
-      FineAmplitudeCal.experiment_type
-      FineAmplitudeCal.num_qubits
-      FineAmplitudeCal.physical_qubits
-      FineAmplitudeCal.run_options
-      FineAmplitudeCal.transpile_options
+   .. autoattribute:: FineAmplitudeCal.analysis
+   .. autoattribute:: FineAmplitudeCal.backend
+   .. autoattribute:: FineAmplitudeCal.calibrations
+   .. autoattribute:: FineAmplitudeCal.experiment_options
+   .. autoattribute:: FineAmplitudeCal.experiment_type
+   .. autoattribute:: FineAmplitudeCal.num_qubits
+   .. autoattribute:: FineAmplitudeCal.physical_qubits
+   .. autoattribute:: FineAmplitudeCal.run_options
+   .. autoattribute:: FineAmplitudeCal.transpile_options
    
    
 
@@ -35,19 +33,18 @@ FineAmplitudeCal
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineAmplitudeCal.circuits
-      FineAmplitudeCal.config
-      FineAmplitudeCal.copy
-      FineAmplitudeCal.enable_restless
-      FineAmplitudeCal.from_config
-      FineAmplitudeCal.run
-      FineAmplitudeCal.set_experiment_options
-      FineAmplitudeCal.set_run_options
-      FineAmplitudeCal.set_transpile_options
-      FineAmplitudeCal.update_calibrations
+   .. automethod:: FineAmplitudeCal.circuits
+   .. automethod:: FineAmplitudeCal.config
+   .. automethod:: FineAmplitudeCal.copy
+   .. automethod:: FineAmplitudeCal.enable_restless
+   .. automethod:: FineAmplitudeCal.from_config
+   .. automethod:: FineAmplitudeCal.job_info
+   .. automethod:: FineAmplitudeCal.run
+   .. automethod:: FineAmplitudeCal.set_experiment_options
+   .. automethod:: FineAmplitudeCal.set_run_options
+   .. automethod:: FineAmplitudeCal.set_transpile_options
+   .. automethod:: FineAmplitudeCal.update_calibrations
    
 
    

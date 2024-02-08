@@ -1,8 +1,0 @@
-
-
-ResonanceAnalysis.drawer
-==========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: ResonanceAnalysis.drawer

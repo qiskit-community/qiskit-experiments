@@ -1,8 +1,0 @@
-
-
-BackendData.control_channel
-========================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BackendData.control_channel

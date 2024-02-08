@@ -1,8 +1,0 @@
-
-
-AnalysisResult.set_data
-====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: AnalysisResult.set_data

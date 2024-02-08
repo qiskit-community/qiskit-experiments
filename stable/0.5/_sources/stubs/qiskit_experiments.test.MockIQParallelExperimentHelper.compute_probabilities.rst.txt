@@ -1,8 +1,0 @@
-
-
-MockIQParallelExperimentHelper.compute_probabilities
-============================================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: MockIQParallelExperimentHelper.compute_probabilities

@@ -10,96 +10,38 @@ ExperimentStatus
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-      
          
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: ExperimentStatus.EMPTY
+   .. autoattribute:: ExperimentStatus.INITIALIZING
+   .. autoattribute:: ExperimentStatus.VALIDATING
+   .. autoattribute:: ExperimentStatus.QUEUED
+   .. autoattribute:: ExperimentStatus.RUNNING
+   .. autoattribute:: ExperimentStatus.CANCELLED
+   .. autoattribute:: ExperimentStatus.POST_PROCESSING
+   .. autoattribute:: ExperimentStatus.DONE
+   .. autoattribute:: ExperimentStatus.ERROR
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      ExperimentStatus.EMPTY
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.INITIALIZING
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.VALIDATING
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.QUEUED
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.RUNNING
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.CANCELLED
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.POST_PROCESSING
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.DONE
-      
-   
-      
-      
-         
-      
-      ExperimentStatus.ERROR
-      
-   
-      
-   
-      
-   
-      
-   
-   
-   
+
+
 
    
    
 
-   
-   
-   
-
-   
    

@@ -1,8 +1,0 @@
-
-
-BackendTiming.delay_unit
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendTiming.delay_unit

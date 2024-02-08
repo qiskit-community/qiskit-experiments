@@ -1,8 +1,0 @@
-
-
-CompositeCurveAnalysis.set_options
-====================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: CompositeCurveAnalysis.set_options

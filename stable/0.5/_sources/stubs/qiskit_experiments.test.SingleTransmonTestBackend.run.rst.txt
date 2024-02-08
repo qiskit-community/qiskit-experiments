@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.run
-=====================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: SingleTransmonTestBackend.run

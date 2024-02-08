@@ -1,8 +1,0 @@
-
-
-QubitSpectroscopy.copy
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: QubitSpectroscopy.copy

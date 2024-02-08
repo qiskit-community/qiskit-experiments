@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.defaults
-==========================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: SingleTransmonTestBackend.defaults

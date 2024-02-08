@@ -1,8 +1,0 @@
-
-
-ErrorAmplificationAnalysis.from_config
-========================================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: ErrorAmplificationAnalysis.from_config

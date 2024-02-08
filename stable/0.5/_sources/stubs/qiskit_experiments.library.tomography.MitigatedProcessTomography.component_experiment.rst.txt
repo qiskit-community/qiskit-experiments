@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.component_experiment
-=====================================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: MitigatedProcessTomography.component_experiment

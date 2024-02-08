@@ -1,8 +1,0 @@
-
-
-SingleTransmonTestBackend.operations
-============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: SingleTransmonTestBackend.operations

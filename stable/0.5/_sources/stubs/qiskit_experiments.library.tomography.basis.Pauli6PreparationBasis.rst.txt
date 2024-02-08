@@ -10,65 +10,34 @@ Pauli6PreparationBasis
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: Pauli6PreparationBasis.name
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      Pauli6PreparationBasis.name
-      
-   
-   
-   
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: Pauli6PreparationBasis.circuit
+   .. automethod:: Pauli6PreparationBasis.index_shape
+   .. automethod:: Pauli6PreparationBasis.matrix
+   .. automethod:: Pauli6PreparationBasis.matrix_shape
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      Pauli6PreparationBasis.circuit
-   
-   
-      Pauli6PreparationBasis.index_shape
-   
-   
-      Pauli6PreparationBasis.matrix
-   
-   
-      Pauli6PreparationBasis.matrix_shape
-   
-
-   
    

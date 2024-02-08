@@ -1,8 +1,0 @@
-
-
-RestlessNode.__call__
-========================================================
-
-.. currentmodule:: qiskit_experiments.data_processing
-
-.. automethod:: RestlessNode.__call__

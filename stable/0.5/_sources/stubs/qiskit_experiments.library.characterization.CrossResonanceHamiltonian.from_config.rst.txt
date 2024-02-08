@@ -1,8 +1,0 @@
-
-
-CrossResonanceHamiltonian.from_config
-=================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: CrossResonanceHamiltonian.from_config

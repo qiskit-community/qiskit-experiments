@@ -1,8 +1,0 @@
-
-
-HalfAngle.physical_qubits
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: HalfAngle.physical_qubits

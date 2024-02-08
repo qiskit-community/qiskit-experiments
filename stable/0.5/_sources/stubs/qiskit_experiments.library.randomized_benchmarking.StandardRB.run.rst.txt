@@ -1,8 +1,0 @@
-
-
-StandardRB.run
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: StandardRB.run

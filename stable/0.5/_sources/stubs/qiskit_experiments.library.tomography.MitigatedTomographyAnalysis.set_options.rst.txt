@@ -1,8 +1,0 @@
-
-
-MitigatedTomographyAnalysis.set_options
-=============================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: MitigatedTomographyAnalysis.set_options

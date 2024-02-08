@@ -15,17 +15,15 @@ FineSXDrag
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXDrag.analysis
-      FineSXDrag.backend
-      FineSXDrag.experiment_options
-      FineSXDrag.experiment_type
-      FineSXDrag.num_qubits
-      FineSXDrag.physical_qubits
-      FineSXDrag.run_options
-      FineSXDrag.transpile_options
+   .. autoattribute:: FineSXDrag.analysis
+   .. autoattribute:: FineSXDrag.backend
+   .. autoattribute:: FineSXDrag.experiment_options
+   .. autoattribute:: FineSXDrag.experiment_type
+   .. autoattribute:: FineSXDrag.num_qubits
+   .. autoattribute:: FineSXDrag.physical_qubits
+   .. autoattribute:: FineSXDrag.run_options
+   .. autoattribute:: FineSXDrag.transpile_options
    
    
 
@@ -34,18 +32,17 @@ FineSXDrag
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXDrag.circuits
-      FineSXDrag.config
-      FineSXDrag.copy
-      FineSXDrag.enable_restless
-      FineSXDrag.from_config
-      FineSXDrag.run
-      FineSXDrag.set_experiment_options
-      FineSXDrag.set_run_options
-      FineSXDrag.set_transpile_options
+   .. automethod:: FineSXDrag.circuits
+   .. automethod:: FineSXDrag.config
+   .. automethod:: FineSXDrag.copy
+   .. automethod:: FineSXDrag.enable_restless
+   .. automethod:: FineSXDrag.from_config
+   .. automethod:: FineSXDrag.job_info
+   .. automethod:: FineSXDrag.run
+   .. automethod:: FineSXDrag.set_experiment_options
+   .. automethod:: FineSXDrag.set_run_options
+   .. automethod:: FineSXDrag.set_transpile_options
    
 
    

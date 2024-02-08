@@ -1,8 +1,0 @@
-
-
-DecayAnalysis.plotter
-=======================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: DecayAnalysis.plotter

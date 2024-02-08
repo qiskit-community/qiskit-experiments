@@ -1,8 +1,0 @@
-
-
-CompositeCurveAnalysis.drawer
-===============================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: CompositeCurveAnalysis.drawer

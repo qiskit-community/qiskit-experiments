@@ -1,8 +1,0 @@
-
-
-BaseAnalysis.from_config
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BaseAnalysis.from_config

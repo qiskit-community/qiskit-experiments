@@ -1,8 +1,0 @@
-
-
-AnalysisResult.result_id
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: AnalysisResult.result_id

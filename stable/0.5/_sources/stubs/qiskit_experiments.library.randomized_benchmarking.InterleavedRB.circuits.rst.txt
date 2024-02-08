@@ -1,8 +1,0 @@
-
-
-InterleavedRB.circuits
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: InterleavedRB.circuits

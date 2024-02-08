@@ -15,15 +15,13 @@ DampedOscillationAnalysis
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      DampedOscillationAnalysis.drawer
-      DampedOscillationAnalysis.models
-      DampedOscillationAnalysis.name
-      DampedOscillationAnalysis.options
-      DampedOscillationAnalysis.parameters
-      DampedOscillationAnalysis.plotter
+   .. autoattribute:: DampedOscillationAnalysis.drawer
+   .. autoattribute:: DampedOscillationAnalysis.models
+   .. autoattribute:: DampedOscillationAnalysis.name
+   .. autoattribute:: DampedOscillationAnalysis.options
+   .. autoattribute:: DampedOscillationAnalysis.parameters
+   .. autoattribute:: DampedOscillationAnalysis.plotter
    
    
 
@@ -32,14 +30,13 @@ DampedOscillationAnalysis
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      DampedOscillationAnalysis.config
-      DampedOscillationAnalysis.copy
-      DampedOscillationAnalysis.from_config
-      DampedOscillationAnalysis.run
-      DampedOscillationAnalysis.set_options
+   .. automethod:: DampedOscillationAnalysis.config
+   .. automethod:: DampedOscillationAnalysis.copy
+   .. automethod:: DampedOscillationAnalysis.from_config
+   .. automethod:: DampedOscillationAnalysis.model_names
+   .. automethod:: DampedOscillationAnalysis.run
+   .. automethod:: DampedOscillationAnalysis.set_options
    
 
    

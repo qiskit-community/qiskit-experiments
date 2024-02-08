@@ -1,8 +1,0 @@
-
-
-BackendData.coupling_map
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: BackendData.coupling_map

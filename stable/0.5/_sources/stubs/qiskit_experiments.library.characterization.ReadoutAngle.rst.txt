@@ -15,17 +15,15 @@ ReadoutAngle
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ReadoutAngle.analysis
-      ReadoutAngle.backend
-      ReadoutAngle.experiment_options
-      ReadoutAngle.experiment_type
-      ReadoutAngle.num_qubits
-      ReadoutAngle.physical_qubits
-      ReadoutAngle.run_options
-      ReadoutAngle.transpile_options
+   .. autoattribute:: ReadoutAngle.analysis
+   .. autoattribute:: ReadoutAngle.backend
+   .. autoattribute:: ReadoutAngle.experiment_options
+   .. autoattribute:: ReadoutAngle.experiment_type
+   .. autoattribute:: ReadoutAngle.num_qubits
+   .. autoattribute:: ReadoutAngle.physical_qubits
+   .. autoattribute:: ReadoutAngle.run_options
+   .. autoattribute:: ReadoutAngle.transpile_options
    
    
 
@@ -34,17 +32,16 @@ ReadoutAngle
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      ReadoutAngle.circuits
-      ReadoutAngle.config
-      ReadoutAngle.copy
-      ReadoutAngle.from_config
-      ReadoutAngle.run
-      ReadoutAngle.set_experiment_options
-      ReadoutAngle.set_run_options
-      ReadoutAngle.set_transpile_options
+   .. automethod:: ReadoutAngle.circuits
+   .. automethod:: ReadoutAngle.config
+   .. automethod:: ReadoutAngle.copy
+   .. automethod:: ReadoutAngle.from_config
+   .. automethod:: ReadoutAngle.job_info
+   .. automethod:: ReadoutAngle.run
+   .. automethod:: ReadoutAngle.set_experiment_options
+   .. automethod:: ReadoutAngle.set_run_options
+   .. automethod:: ReadoutAngle.set_transpile_options
    
 
    

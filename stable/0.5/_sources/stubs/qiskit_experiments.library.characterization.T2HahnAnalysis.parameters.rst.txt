@@ -1,8 +1,0 @@
-
-
-T2HahnAnalysis.parameters
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T2HahnAnalysis.parameters

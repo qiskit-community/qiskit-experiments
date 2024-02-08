@@ -1,8 +1,0 @@
-
-
-MplDrawer.config
-=================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: MplDrawer.config

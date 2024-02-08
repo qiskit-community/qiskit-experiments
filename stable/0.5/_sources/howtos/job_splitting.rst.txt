@@ -38,9 +38,9 @@ Discussion
 ----------
 
 Qiskit Experiments will automatically split circuits across jobs for you for backends
-that have a maximum circuit number per circuit, which is given by the ``max_experiments`` 
-property of :meth:`qiskit.providers.BackendV1.configuration` for V1 backends and 
-:attr:`qiskit.providers.BackendV2.max_circuits` for V2. This should
+that have a maximum circuit number per job, which is given by the ``max_experiments`` 
+property of :meth:`~qiskit.providers.BackendV1.configuration` for V1 backends and 
+the :attr:`~qiskit.providers.BackendV2.max_circuits` attribute for V2 backends. This should
 work automatically in most cases, but there may be some backends where other limits
 exist. When the ``max_circuits`` experiment option is provided, the experiment class
 will split the experiment circuits as dictated by the smaller of the backend property

@@ -1,8 +1,0 @@
-
-
-NoisyDelayAerBackend.defaults
-=====================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: NoisyDelayAerBackend.defaults

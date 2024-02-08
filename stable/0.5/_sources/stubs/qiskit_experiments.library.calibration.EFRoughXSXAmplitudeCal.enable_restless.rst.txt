@@ -1,8 +1,0 @@
-
-
-EFRoughXSXAmplitudeCal.enable_restless
-=============================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. automethod:: EFRoughXSXAmplitudeCal.enable_restless

@@ -1,8 +1,0 @@
-
-
-BatchExperiment.component_experiment
-=================================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BatchExperiment.component_experiment

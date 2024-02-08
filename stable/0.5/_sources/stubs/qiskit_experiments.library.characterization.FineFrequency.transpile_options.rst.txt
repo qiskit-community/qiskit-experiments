@@ -1,8 +1,0 @@
-
-
-FineFrequency.transpile_options
-===========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineFrequency.transpile_options

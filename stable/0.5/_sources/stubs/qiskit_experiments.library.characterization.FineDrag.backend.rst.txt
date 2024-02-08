@@ -1,8 +1,0 @@
-
-
-FineDrag.backend
-============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: FineDrag.backend

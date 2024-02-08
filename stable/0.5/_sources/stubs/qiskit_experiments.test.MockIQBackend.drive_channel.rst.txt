@@ -1,8 +1,0 @@
-
-
-MockIQBackend.drive_channel
-===================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. automethod:: MockIQBackend.drive_channel

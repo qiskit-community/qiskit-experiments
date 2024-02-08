@@ -1,8 +1,0 @@
-
-
-BackendData.qubit_t1
-=================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: BackendData.qubit_t1

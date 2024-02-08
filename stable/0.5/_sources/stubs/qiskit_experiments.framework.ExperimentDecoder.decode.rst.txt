@@ -1,8 +1,0 @@
-
-
-ExperimentDecoder.decode
-=====================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. automethod:: ExperimentDecoder.decode

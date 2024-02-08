@@ -1,8 +1,0 @@
-
-
-CurveData.get_subset_of
-=========================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. automethod:: CurveData.get_subset_of

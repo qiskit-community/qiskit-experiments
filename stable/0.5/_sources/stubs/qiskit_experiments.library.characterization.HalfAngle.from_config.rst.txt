@@ -1,8 +1,0 @@
-
-
-HalfAngle.from_config
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: HalfAngle.from_config

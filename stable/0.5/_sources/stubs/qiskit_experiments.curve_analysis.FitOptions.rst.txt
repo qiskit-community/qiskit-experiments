@@ -10,74 +10,36 @@ FitOptions
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+         
+         
+         
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: FitOptions.bounds
+   .. autoattribute:: FitOptions.fitter_opts
+   .. autoattribute:: FitOptions.options
+   .. autoattribute:: FitOptions.p0
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
-         
-      
-      FitOptions.bounds
-      
-   
-      
-      
-         
-      
-      FitOptions.fitter_opts
-      
-   
-      
-      
-         
-      
-      FitOptions.options
-      
-   
-      
-      
-         
-      
-      FitOptions.p0
-      
-   
-   
-   
+
+
 
    
    
+         
+         
 
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: FitOptions.add_extra_options
+   .. automethod:: FitOptions.copy
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      FitOptions.add_extra_options
-   
-   
-      FitOptions.copy
-   
-
-   
    

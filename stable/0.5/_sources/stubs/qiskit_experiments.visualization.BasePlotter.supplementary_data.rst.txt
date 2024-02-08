@@ -1,8 +1,0 @@
-
-
-BasePlotter.supplementary_data
-===============================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: BasePlotter.supplementary_data

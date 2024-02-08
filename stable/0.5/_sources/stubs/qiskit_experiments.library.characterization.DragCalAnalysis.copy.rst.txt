@@ -1,8 +1,0 @@
-
-
-DragCalAnalysis.copy
-================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. automethod:: DragCalAnalysis.copy

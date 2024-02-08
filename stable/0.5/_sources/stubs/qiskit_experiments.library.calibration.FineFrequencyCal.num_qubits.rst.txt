@@ -1,8 +1,0 @@
-
-
-FineFrequencyCal.num_qubits
-==================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration
-
-.. autoproperty:: FineFrequencyCal.num_qubits

@@ -1,0 +1,8 @@
+﻿
+
+retrieve_coefficients_from_backend
+================================================================================
+
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
+
+.. autofunction:: retrieve_coefficients_from_backend

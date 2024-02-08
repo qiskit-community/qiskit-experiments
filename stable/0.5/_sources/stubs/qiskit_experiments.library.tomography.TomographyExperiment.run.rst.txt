@@ -1,8 +1,0 @@
-
-
-TomographyExperiment.run
-==============================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: TomographyExperiment.run

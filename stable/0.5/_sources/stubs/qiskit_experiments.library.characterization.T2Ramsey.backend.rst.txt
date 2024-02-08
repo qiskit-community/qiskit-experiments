@@ -1,8 +1,0 @@
-
-
-T2Ramsey.backend
-============================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: T2Ramsey.backend

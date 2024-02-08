@@ -1,8 +1,0 @@
-
-
-EchoedCrossResonanceHamiltonian.transpile_options
-=============================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: EchoedCrossResonanceHamiltonian.transpile_options

@@ -15,18 +15,16 @@ FineSXAmplitudeCal
 
    .. rubric:: Attributes
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXAmplitudeCal.analysis
-      FineSXAmplitudeCal.backend
-      FineSXAmplitudeCal.calibrations
-      FineSXAmplitudeCal.experiment_options
-      FineSXAmplitudeCal.experiment_type
-      FineSXAmplitudeCal.num_qubits
-      FineSXAmplitudeCal.physical_qubits
-      FineSXAmplitudeCal.run_options
-      FineSXAmplitudeCal.transpile_options
+   .. autoattribute:: FineSXAmplitudeCal.analysis
+   .. autoattribute:: FineSXAmplitudeCal.backend
+   .. autoattribute:: FineSXAmplitudeCal.calibrations
+   .. autoattribute:: FineSXAmplitudeCal.experiment_options
+   .. autoattribute:: FineSXAmplitudeCal.experiment_type
+   .. autoattribute:: FineSXAmplitudeCal.num_qubits
+   .. autoattribute:: FineSXAmplitudeCal.physical_qubits
+   .. autoattribute:: FineSXAmplitudeCal.run_options
+   .. autoattribute:: FineSXAmplitudeCal.transpile_options
    
    
 
@@ -35,19 +33,18 @@ FineSXAmplitudeCal
 
    .. rubric:: Methods
 
-   .. autosummary::
-      :toctree: ../stubs/
    
-      FineSXAmplitudeCal.circuits
-      FineSXAmplitudeCal.config
-      FineSXAmplitudeCal.copy
-      FineSXAmplitudeCal.enable_restless
-      FineSXAmplitudeCal.from_config
-      FineSXAmplitudeCal.run
-      FineSXAmplitudeCal.set_experiment_options
-      FineSXAmplitudeCal.set_run_options
-      FineSXAmplitudeCal.set_transpile_options
-      FineSXAmplitudeCal.update_calibrations
+   .. automethod:: FineSXAmplitudeCal.circuits
+   .. automethod:: FineSXAmplitudeCal.config
+   .. automethod:: FineSXAmplitudeCal.copy
+   .. automethod:: FineSXAmplitudeCal.enable_restless
+   .. automethod:: FineSXAmplitudeCal.from_config
+   .. automethod:: FineSXAmplitudeCal.job_info
+   .. automethod:: FineSXAmplitudeCal.run
+   .. automethod:: FineSXAmplitudeCal.set_experiment_options
+   .. automethod:: FineSXAmplitudeCal.set_run_options
+   .. automethod:: FineSXAmplitudeCal.set_transpile_options
+   .. automethod:: FineSXAmplitudeCal.update_calibrations
    
 
    

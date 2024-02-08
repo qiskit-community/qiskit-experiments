@@ -1,8 +1,0 @@
-
-
-AnalysisResult.quality
-===================================================
-
-.. currentmodule:: qiskit_experiments.framework
-
-.. autoproperty:: AnalysisResult.quality

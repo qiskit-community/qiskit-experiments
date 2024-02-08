@@ -1,8 +1,0 @@
-
-
-StandardRB.config
-====================================================================
-
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
-
-.. automethod:: StandardRB.config

@@ -1,8 +1,0 @@
-
-
-T2HahnBackend.instruction_schedule_map
-==============================================================
-
-.. currentmodule:: qiskit_experiments.test
-
-.. autoproperty:: T2HahnBackend.instruction_schedule_map

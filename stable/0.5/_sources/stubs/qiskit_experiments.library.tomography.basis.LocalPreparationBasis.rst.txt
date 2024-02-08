@@ -10,65 +10,34 @@ LocalPreparationBasis
    :no-inherited-members:
    :no-special-members:
 
-   
-   
+
 
    
    
-
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-   
-      
-      
          
+
+   
    .. rubric:: Attributes
+      
+   .. autoattribute:: LocalPreparationBasis.name
+   
 
-   .. autosummary::
-      :toctree: ../stubs/
+
+
+
+   
+   
          
-      
-      LocalPreparationBasis.name
-      
-   
-   
-   
+         
+         
+         
 
-   
-   
-
-   
-   
-   
    
    .. rubric:: Methods
+   
+   .. automethod:: LocalPreparationBasis.circuit
+   .. automethod:: LocalPreparationBasis.index_shape
+   .. automethod:: LocalPreparationBasis.matrix
+   .. automethod:: LocalPreparationBasis.matrix_shape
 
-   .. autosummary::
-      :toctree: ../stubs/
-   
-      LocalPreparationBasis.circuit
-   
-   
-      LocalPreparationBasis.index_shape
-   
-   
-      LocalPreparationBasis.matrix
-   
-   
-      LocalPreparationBasis.matrix_shape
-   
-
-   
    

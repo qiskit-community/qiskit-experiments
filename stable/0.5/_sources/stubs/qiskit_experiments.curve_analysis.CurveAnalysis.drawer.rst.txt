@@ -1,8 +1,0 @@
-
-
-CurveAnalysis.drawer
-======================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis
-
-.. autoproperty:: CurveAnalysis.drawer

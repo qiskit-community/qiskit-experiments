@@ -1,8 +1,0 @@
-
-
-HalfAngle.experiment_type
-=====================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: HalfAngle.experiment_type

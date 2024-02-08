@@ -1,8 +1,0 @@
-
-
-MplDrawer.figure_options
-=========================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. autoproperty:: MplDrawer.figure_options

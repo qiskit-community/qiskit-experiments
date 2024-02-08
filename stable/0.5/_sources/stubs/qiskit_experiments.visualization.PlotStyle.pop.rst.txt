@@ -1,8 +1,0 @@
-
-
-PlotStyle.pop
-==============================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: PlotStyle.pop

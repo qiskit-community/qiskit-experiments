@@ -1,8 +1,0 @@
-
-
-IQPlotter.expected_supplementary_data_keys
-===========================================================================
-
-.. currentmodule:: qiskit_experiments.visualization
-
-.. automethod:: IQPlotter.expected_supplementary_data_keys

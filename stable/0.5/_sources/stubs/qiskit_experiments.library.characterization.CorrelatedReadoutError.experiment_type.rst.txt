@@ -1,8 +1,0 @@
-
-
-CorrelatedReadoutError.experiment_type
-==================================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: CorrelatedReadoutError.experiment_type

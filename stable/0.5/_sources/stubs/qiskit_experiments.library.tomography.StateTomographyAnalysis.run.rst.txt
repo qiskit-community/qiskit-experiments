@@ -1,8 +1,0 @@
-
-
-StateTomographyAnalysis.run
-=================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. automethod:: StateTomographyAnalysis.run

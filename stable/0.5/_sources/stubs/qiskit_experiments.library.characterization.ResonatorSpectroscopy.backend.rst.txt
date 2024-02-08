@@ -1,8 +1,0 @@
-
-
-ResonatorSpectroscopy.backend
-=========================================================================
-
-.. currentmodule:: qiskit_experiments.library.characterization
-
-.. autoproperty:: ResonatorSpectroscopy.backend

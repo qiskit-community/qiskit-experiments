@@ -1,8 +1,0 @@
-
-
-MitigatedProcessTomography.experiment_type
-================================================================================
-
-.. currentmodule:: qiskit_experiments.library.tomography
-
-.. autoproperty:: MitigatedProcessTomography.experiment_type
