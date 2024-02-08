@@ -108,12 +108,16 @@ ExperimentData
          
          
          
+         
+         
+         
 
    
    .. rubric:: Methods
    
    .. automethod:: ExperimentData.add_analysis_callback
    .. automethod:: ExperimentData.add_analysis_results
+   .. automethod:: ExperimentData.add_artifacts
    .. automethod:: ExperimentData.add_child_data
    .. automethod:: ExperimentData.add_data
    .. automethod:: ExperimentData.add_figures
@@ -122,6 +126,7 @@ ExperimentData
    .. automethod:: ExperimentData.analysis_errors
    .. automethod:: ExperimentData.analysis_results
    .. automethod:: ExperimentData.analysis_status
+   .. automethod:: ExperimentData.artifacts
    .. automethod:: ExperimentData.block_for_results
    .. automethod:: ExperimentData.cancel
    .. automethod:: ExperimentData.cancel_analysis
@@ -130,6 +135,7 @@ ExperimentData
    .. automethod:: ExperimentData.copy
    .. automethod:: ExperimentData.data
    .. automethod:: ExperimentData.delete_analysis_result
+   .. automethod:: ExperimentData.delete_artifact
    .. automethod:: ExperimentData.delete_figure
    .. automethod:: ExperimentData.errors
    .. automethod:: ExperimentData.figure

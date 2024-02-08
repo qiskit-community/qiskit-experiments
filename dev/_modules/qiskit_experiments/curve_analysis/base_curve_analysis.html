@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
+        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.5.0-147-ga7d260ac</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-gallery.css?v=26227f6e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/dataframe.css?v=96dbfbde" />
     
     
 
@@ -203,7 +204,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-147-ga7d260ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +231,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-147-ga7d260ac</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -251,6 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/artifacts.html">Work with experiment artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/figure_generation.html">Control figure generation</a></li>
@@ -285,6 +287,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
@@ -709,13 +712,6 @@
 <span class="sd">    This method creates analysis results for important fit parameters</span>
 <span class="sd">    that might be defined by analysis options ``result_parameters``.</span>
 
-<span class="sd">    .. rubric:: _create_curve_data</span>
-
-<span class="sd">    This method creates analysis results for the formatted dataset, i.e. data used for the fitting.</span>
-<span class="sd">    Entries are created when the analysis option ``return_data_points`` is ``True``.</span>
-<span class="sd">    If analysis consists of multiple series, analysis result is created for</span>
-<span class="sd">    each curve data in the series definitions.</span>
-
 <span class="sd">    .. rubric:: _create_figures</span>
 
 <span class="sd">    This method creates figures by consuming the scatter table data.</span>
@@ -773,9 +769,9 @@
 <span class="sd">                dataset without formatting, on canvas. This is ``False`` by default.</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result or ``False`` to</span>
 <span class="sd">                not create a figure. This overrides the behavior of ``generate_figures``.</span>
-<span class="sd">            return_fit_parameters (bool): Set ``True`` to return all fit model parameters</span>
-<span class="sd">                with details of the fit outcome. Default to ``True``.</span>
-<span class="sd">            return_data_points (bool): Set ``True`` to include in the analysis result</span>
+<span class="sd">            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters</span>
+<span class="sd">                with details of the fit outcome. Default to ``False``.</span>
+<span class="sd">            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result</span>
 <span class="sd">                the formatted data points given to the fitter. Default to ``False``.</span>
 <span class="sd">            data_processor (Callable): A callback function to format experiment data.</span>
 <span class="sd">                This can be a :class:`.DataProcessor`</span>
@@ -847,49 +843,6 @@
         <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;plotter&quot;</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">BasePlotter</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span>
-
-<div class="viewcode-block" id="BaseCurveAnalysis.set_options"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html#qiskit_experiments.curve_analysis.BaseCurveAnalysis.set_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis options for :meth:`run` method.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            fields: The fields to update the options</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            KeyError: When removed option ``curve_fitter`` is set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO remove this in Qiskit Experiments v0.5</span>
-
-        <span class="k">if</span> <span class="s2">&quot;curve_fitter_options&quot;</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The option &#39;curve_fitter_options&#39; is replaced with &#39;lmfit_options.&#39; &quot;</span>
-                <span class="s2">&quot;This option will be removed in Qiskit Experiments 0.5.&quot;</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;lmfit_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;curve_fitter_options&quot;</span><span class="p">)</span>
-
-        <span class="c1"># TODO remove this in Qiskit Experiments 0.6</span>
-        <span class="k">if</span> <span class="s2">&quot;curve_drawer&quot;</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The option &#39;curve_drawer&#39; is replaced with &#39;plotter&#39;. &quot;</span>
-                <span class="s2">&quot;This option will be removed in Qiskit Experiments 0.6.&quot;</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="c1"># Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it</span>
-            <span class="c1"># directly. If not, wrap it in a compatibility drawer.</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;curve_drawer&quot;</span><span class="p">],</span> <span class="n">BaseDrawer</span><span class="p">):</span>
-                <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span>
-                <span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;curve_drawer&quot;</span><span class="p">)</span>
-                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">drawer</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;curve_drawer&quot;</span><span class="p">]</span>
-                <span class="n">compat_drawer</span> <span class="o">=</span> <span class="n">LegacyCurveCompatDrawer</span><span class="p">(</span><span class="n">drawer</span><span class="p">)</span>
-                <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span>
-                <span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span> <span class="o">=</span> <span class="n">compat_drawer</span>
-                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_run_data_processing</span><span class="p">(</span>
@@ -1110,7 +1063,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/06</div>
+              Last updated on 2024/02/08</div>
           </div>
           <div class="right-details">
             
@@ -1127,7 +1080,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=4553e729"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=cc59e42b"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>

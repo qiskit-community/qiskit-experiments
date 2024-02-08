@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Release Notes - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
+        <title>Release Notes - Qiskit Experiments 0.5.0-147-ga7d260ac</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="_static/nbsphinx-gallery.css?v=da7c71e1" />
+    <link rel="stylesheet" type="text/css" href="_static/dataframe.css?v=96dbfbde" />
     
     
 
@@ -203,7 +204,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.5.0-147-ga7d260ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +231,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-147-ga7d260ac</span>
 </div><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -251,6 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="howtos/artifacts.html">Work with experiment artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howtos/figure_generation.html">Control figure generation</a></li>
@@ -285,6 +287,7 @@
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
@@ -617,10 +620,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this heading">#</a></h1>
-<section id="release-notes-0-5-0-146">
-<span id="id1"></span><h2>0.5.0-146<a class="headerlink" href="#release-notes-0-5-0-146" title="Permalink to this heading">#</a></h2>
+<section id="release-notes-0-5-0-147">
+<span id="id1"></span><h2>0.5.0-147<a class="headerlink" href="#release-notes-0-5-0-147" title="Permalink to this heading">#</a></h2>
 <section id="new-features">
-<span id="release-notes-0-5-0-146-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The class <a class="reference internal" href="stubs/qiskit_experiments.test.MockIQBackend.html#qiskit_experiments.test.MockIQBackend" title="qiskit_experiments.test.MockIQBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">MockIQBackend</span></code></a> for testing has been updated to support
 multiple qubits. It now takes lists of IQ cluster centers and widths as input,
@@ -729,6 +732,14 @@ based on the provided backend.</p></li>
 for more details.</p></li>
 </ul>
 <ul class="simple">
+<li><p>An artifact class has been introduced to store long-form data generated by experiments.
+The <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> generated by experiments 
+are now stored in artifacts in the <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class. <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_artifacts" title="qiskit_experiments.framework.ExperimentData.add_artifacts"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_artifacts()</span></code></a>
+and <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_artifact" title="qiskit_experiments.framework.ExperimentData.delete_artifact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">delete_artifact()</span></code></a> have been added to manipulate the artifacts. These will be uploaded
+to the cloud service in JSON form along with the rest of the <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object
+when saved. For more information, see the <a class="reference internal" href="howtos/artifacts.html"><span class="doc">artifacts how-to</span></a>.</p></li>
+</ul>
+<ul class="simple">
 <li><p>JSON data format is supoorted for saving <a class="reference internal" href="stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrations</span></code></a> instance.
 This leverages a custom JSON encoder and decoder to serialize 
 the entire calibration data including user provided schedule templates.
@@ -814,7 +825,7 @@ object post-construction using the <code class="docutils literal notranslate"><s
 </ul>
 </section>
 <section id="upgrade-notes">
-<span id="release-notes-0-5-0-146-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Several deprecated methods and options have been removed and will no longer work:</p>
 <ul>
@@ -918,7 +929,7 @@ thus is expected to benefit scalability.</p></li>
 </ul>
 </section>
 <section id="deprecation-notes">
-<span id="release-notes-0-5-0-146-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Executing composite experiment and composite analysis with <code class="docutils literal notranslate"><span class="pre">flatten_results=False</span></code>
 by default was deprecated. To create child experiment data, please explicitly 
@@ -932,6 +943,24 @@ for determining if a backend uses a simulator. Calling code must determine
 if a backend uses a simulator through some other means. Qiskit Experiments
 does not treat simulator-backed backends differently from hardware backed
 ones.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Setting the option <code class="docutils literal notranslate"><span class="pre">return_data_points</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> in curve analysis has been deprecated.
+Data points are now automatically provided in <code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code> objects via the <code class="docutils literal notranslate"><span class="pre">curve_data</span></code>
+artifact.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Direct access to the curve fit summary in <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> has moved from
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_results()</span></code></a> to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.artifacts" title="qiskit_experiments.framework.ExperimentData.artifacts"><code class="xref py py-meth docutils literal notranslate"><span class="pre">artifacts()</span></code></a>, where values are stored in the
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData.data" title="qiskit_experiments.framework.ArtifactData.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code></a> attribute of <a class="reference internal" href="stubs/qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArtifactData</span></code></a> objects. For example, to access the
+chi-squared of the fit, <code class="docutils literal notranslate"><span class="pre">expdata.analysis_results(0).chisq</span></code> is deprecated in favor of
+<code class="docutils literal notranslate"><span class="pre">expdata.artifacts(&quot;fit_summary&quot;).data.chisq</span></code>. In a future release, the curve fit summary
+will be removed from <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_results()</span></code></a> and the option <code class="docutils literal notranslate"><span class="pre">return_fit_parameters</span></code> will be
+removed. For more information on artifacts, see the <a class="reference internal" href="howtos/artifacts.html"><span class="doc">artifacts how-to</span></a>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Using numerical indices with <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a>, including both integers and
+slices, is now deprecated. Access analysis results by analysis result name or ID instead.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Saving <a class="reference internal" href="stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrations</span></code></a> instance into CSV file was deprecated.
@@ -960,7 +989,7 @@ and the legacy configuration dictionary is no longer used for JSON encoding.</p>
 </ul>
 </section>
 <section id="bug-fixes">
-<span id="release-notes-0-5-0-146-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixes a bug where instantiating the
 <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian" title="qiskit_experiments.library.characterization.CrossResonanceHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrossResonanceHamiltonian</span></code></a> experiment without specifying the
@@ -1086,7 +1115,7 @@ See <a class="reference external" href="https://github.com/Qiskit-Extensions/qis
 </ul>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="release-notes-0-5-0-146-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">CurveAnalysis._create_figures()</span></code> method is added to the curve analysis base class.
 A curve analysis subclass can overwrite this method to customize the output figures.
@@ -1131,7 +1160,7 @@ default value of all qubit components. See the <a class="reference internal" hre
 </ul>
 </section>
 <section id="other-notes">
-<span id="release-notes-0-5-0-146-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Permalink to this heading">#</a></h3>
+<span id="release-notes-0-5-0-147-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Display a warning when running an analysis on <cite>ExperimentData</cite> objects which do not contain data.</p></li>
 </ul>
@@ -3193,7 +3222,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/06</div>
+              Last updated on 2024/02/08</div>
           </div>
           <div class="right-details">
             
@@ -3215,7 +3244,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#release-notes-0-5-0-146">0.5.0-146</a><ul>
+<li><a class="reference internal" href="#release-notes-0-5-0-147">0.5.0-147</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
 <li><a class="reference internal" href="#deprecation-notes">Deprecation Notes</a></li>
@@ -3276,7 +3305,7 @@ stored in the experiments analysis result extra field.</p></li>
   </div>
 </div><script src="_static/jquery.js?v=5d32c60e"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4553e729"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=cc59e42b"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>

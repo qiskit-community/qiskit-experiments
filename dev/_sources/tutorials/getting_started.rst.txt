@@ -150,6 +150,9 @@ analysis, respectively:
     print(exp_data.job_status())
     print(exp_data.analysis_status())
 
+Figures
+-------
+
 Once the analysis is complete, figures are retrieved using the
 :meth:`~.ExperimentData.figure` method. See the :doc:`visualization module
 <visualization>` tutorial on how to customize figures for an experiment. For our
@@ -160,15 +163,22 @@ exponential decay model of the :math:`T_1` experiment:
 
     display(exp_data.figure(0))
 
-The fit results and associated parameters are accessed with
-:meth:`~.ExperimentData.analysis_results`:
+Analysis Results
+----------------
+
+The analysis results resulting from the fit are accessed with :meth:`~.ExperimentData.analysis_results`:
 
 .. jupyter-execute::
 
     for result in exp_data.analysis_results():
         print(result)
 
-Results can be indexed numerically (starting from 0) or using their name.
+Results can be indexed numerically (starting from 0) or using their name. Analysis results can also be
+retrieved in the pandas :class:`~pandas:pandas.DataFrame` format by passing ``dataframe=True``:
+
+.. jupyter-execute::
+
+    exp_data.analysis_results(dataframe=True)
 
 .. note::
     See the :meth:`~.ExperimentData.analysis_results` API documentation for more 
@@ -185,6 +195,24 @@ value and standard deviation of each value can be accessed as follows:
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
+
+Artifacts
+---------
+
+The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which are accessed
+in an analogous manner. Artifacts for a standard experiment include both the curve fit data
+stored in ``artifacts("curve_data")`` and information on the fit stored in ``artifacts("fit_summary")``.
+Use the ``data`` attribute to access artifact data:
+
+.. jupyter-execute::
+
+    print(exp_data.artifacts("fit_summary").data)
+
+.. note::
+    See the :doc:`artifacts </howtos/artifacts>` how-to for more information on using artifacts.
+
+Circuit data and metadata
+-------------------------
 
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds
@@ -209,6 +237,9 @@ Experiments also have global associated metadata accessed by the
 .. jupyter-execute::
 
     print(exp_data.metadata)
+
+Job information
+---------------
 
 The actual backend jobs that were executed for the experiment can be accessed with the
 :meth:`~.ExperimentData.jobs` method.
@@ -406,8 +437,7 @@ into one level:
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    for result in parallel_data.analysis_results():
-        print(result)
+    parallel_data.analysis_results(dataframe=True)
 
 Broadcasting analysis options to child experiments
 --------------------------------------------------

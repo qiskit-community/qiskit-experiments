@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentStatus" href="qiskit_experiments.framework.ExperimentStatus.html" /><link rel="prev" title="Experiment Framework (qiskit_experiments.framework)" href="../apidocs/framework.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>ExperimentData - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
+        <title>ExperimentData - Qiskit Experiments 0.5.0-147-ga7d260ac</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
+    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
     
     
 
@@ -203,7 +204,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-147-ga7d260ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +231,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-147-ga7d260ac</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -251,6 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
@@ -285,6 +287,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
@@ -994,6 +997,20 @@ New dataframe columns are created in the analysis result table with added keys.<
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_artifacts">
+<span class="sig-name descname"><span class="pre">add_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_artifacts" title="Permalink to this definition">#</a></dt>
+<dd><p>Add artifacts to experiment. The artifact ID must be unique.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>artifacts</strong> (<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData"><em>ArtifactData</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData"><em>ArtifactData</em></a><em>]</em>) – Artifact or list of artifacts to be added.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – Whether to overwrite the existing artifact.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_child_data">
 <span class="sig-name descname"><span class="pre">add_child_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_child_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_child_data" title="Permalink to this definition">#</a></dt>
 <dd><p>Add child experiment data to the current experiment data</p>
@@ -1029,7 +1046,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.experiment_data.FigureData"><em>FigureData</em></a><em> | </em><em>List</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.experiment_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
+<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em> | </em><em>List</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
 <li><p><strong>figure_names</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Names of the figures. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the figure file
 names, if given, or a generated name of the format <code class="docutils literal notranslate"><span class="pre">experiment_type</span></code>, figure
 index, first 5 elements of <code class="docutils literal notranslate"><span class="pre">device_components</span></code>, and first 8 digits of the
@@ -1198,7 +1215,24 @@ mutate the original dataset.</p>
 <dd class="field-odd"><p>Then analysis status.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus" title="qiskit_experiments.framework.experiment_data.AnalysisStatus"><em>AnalysisStatus</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus" title="qiskit_experiments.framework.status.AnalysisStatus"><em>AnalysisStatus</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.artifacts">
+<span class="sig-name descname"><span class="pre">artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.artifacts" title="Permalink to this definition">#</a></dt>
+<dd><p>Return specified artifact data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>artifact_key</strong> (<em>int</em><em> | </em><em>str</em>) – UID, name or index of the figure.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of specified artifact data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData">ArtifactData</a> | list[<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData">ArtifactData</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1248,7 +1282,7 @@ mutate the original dataset.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ids</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Analysis callback(s) to cancel. If None all non-finished
+<dd class="field-odd"><p><strong>ids</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Analysis callback(s) to cancel. If None all non-finished
 analysis will be cancelled.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1267,7 +1301,7 @@ cancelled otherwise false.</p>
 <dd><p>Cancel any running jobs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ids</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Job(s) to cancel. If None all non-finished jobs will be cancelled.</p>
+<dd class="field-odd"><p><strong>ids</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Job(s) to cancel. If None all non-finished jobs will be cancelled.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if the specified jobs were successfully cancelled
@@ -1316,7 +1350,7 @@ Several types are accepted for convenience:</p>
 <dd><p>Make a copy of the experiment data with a new experiment ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>copy_results</strong> (<em>bool</em>) – If True copy the analysis results and figures
+<dd class="field-odd"><p><strong>copy_results</strong> (<em>bool</em>) – If True copy the analysis results, figures, and artifacts
 into the returned container, along with the
 experiment data and metadata. If False only copy
 the experiment data and metadata.</p>
@@ -1382,6 +1416,23 @@ Several types are accepted for convenience:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_artifact">
+<span class="sig-name descname"><span class="pre">delete_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_artifact" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete specified artifact data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>artifact_key</strong> (<em>int</em><em> | </em><em>str</em>) – UID, name or index of the figure.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deleted artifact ids.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_figure">
 <span class="sig-name descname"><span class="pre">delete_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_figure" title="Permalink to this definition">#</a></dt>
 <dd><p>Add the experiment figure.</p>
@@ -1440,7 +1491,7 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 <dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html#qiskit_experiments.database_service.ExperimentEntryNotFound" title="qiskit_experiments.database_service.ExperimentEntryNotFound"><strong>ExperimentEntryNotFound</strong></a> – If the figure cannot be found.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>int | <a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.experiment_data.FigureData"><em>FigureData</em></a></p>
+<dd class="field-even"><p>int | <a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1549,15 +1600,16 @@ the experiment database service.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suppress_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suppress_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_artifacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save" title="Permalink to this definition">#</a></dt>
 <dd><p>Save the experiment data to a database service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>suppress_errors</strong> (<em>bool</em>) – should the method catch exceptions (true) or
 pass them on, potentially aborting the experiment (false)</p></li>
-<li><p><strong>max_workers</strong> (<em>int</em>) – Maximum number of concurrent worker threads (capped by 10)</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – Maximum number of concurrent worker threads (default 3, maximum 10)</p></li>
 <li><p><strong>save_figures</strong> (<em>bool</em>) – Whether to save figures in the database or not</p></li>
+<li><p><strong>save_artifacts</strong> (<em>bool</em>) – Whether to save artifacts in the database</p></li>
 <li><p><strong>save_children</strong> (<em>bool</em>) – For composite experiments, whether to save children as well</p></li>
 </ul>
 </dd>
@@ -1584,7 +1636,7 @@ additional tags or notes) use <a class="reference internal" href="#qiskit_experi
 <dd><p>Save this experiments metadata to a database service.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This method does not save analysis results nor figures.
+<p>This method does not save analysis results, figures, or artifacts.
 Use <a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> for general saving of all experiment data.</p>
 <p>See <code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit.providers.experiment.IBMExperimentService.create_experiment()</span></code>
 for fields that are saved.</p>
@@ -1620,7 +1672,7 @@ remaining jobs.</p>
 <dd class="field-odd"><p>The experiment status.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus" title="qiskit_experiments.framework.experiment_data.ExperimentStatus"><em>ExperimentStatus</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus" title="qiskit_experiments.framework.status.ExperimentStatus"><em>ExperimentStatus</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1676,7 +1728,7 @@ remaining jobs.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/06</div>
+              Last updated on 2024/02/08</div>
           </div>
           <div class="right-details">
             
@@ -1727,6 +1779,7 @@ remaining jobs.</p>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.updated_datetime"><code class="docutils literal notranslate"><span class="pre">ExperimentData.updated_datetime</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_callback"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_callback()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_artifacts"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_child_data"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_child_data()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_data"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_data()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_figures"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_figures()</span></code></a></li>
@@ -1735,6 +1788,7 @@ remaining jobs.</p>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.analysis_errors"><code class="docutils literal notranslate"><span class="pre">ExperimentData.analysis_errors()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.analysis_results"><code class="docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.analysis_status"><code class="docutils literal notranslate"><span class="pre">ExperimentData.analysis_status()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.artifacts"><code class="docutils literal notranslate"><span class="pre">ExperimentData.artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.block_for_results"><code class="docutils literal notranslate"><span class="pre">ExperimentData.block_for_results()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.cancel"><code class="docutils literal notranslate"><span class="pre">ExperimentData.cancel()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.cancel_analysis"><code class="docutils literal notranslate"><span class="pre">ExperimentData.cancel_analysis()</span></code></a></li>
@@ -1743,6 +1797,7 @@ remaining jobs.</p>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.copy"><code class="docutils literal notranslate"><span class="pre">ExperimentData.copy()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.data"><code class="docutils literal notranslate"><span class="pre">ExperimentData.data()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.delete_analysis_result"><code class="docutils literal notranslate"><span class="pre">ExperimentData.delete_analysis_result()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.delete_artifact"><code class="docutils literal notranslate"><span class="pre">ExperimentData.delete_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.delete_figure"><code class="docutils literal notranslate"><span class="pre">ExperimentData.delete_figure()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.errors"><code class="docutils literal notranslate"><span class="pre">ExperimentData.errors()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.figure"><code class="docutils literal notranslate"><span class="pre">ExperimentData.figure()</span></code></a></li>
@@ -1771,7 +1826,7 @@ remaining jobs.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4553e729"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cc59e42b"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

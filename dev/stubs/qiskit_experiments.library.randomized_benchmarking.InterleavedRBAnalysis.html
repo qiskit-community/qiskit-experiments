@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="RBUtils" href="qiskit_experiments.library.randomized_benchmarking.RBUtils.html" /><link rel="prev" title="RBAnalysis" href="qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>InterleavedRBAnalysis - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
+        <title>InterleavedRBAnalysis - Qiskit Experiments 0.5.0-147-ga7d260ac</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
+    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
     
     
 
@@ -203,7 +204,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.5.0-147-ga7d260ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +231,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-147-ga7d260ac</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -251,6 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
@@ -285,6 +287,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
@@ -706,13 +709,13 @@ The following equation(s) are used to represent curve(s).</p>
 <li><p><strong>return_fit_parameters</strong> (bool)</p>
 <div class="line-block">
 <div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></div>
-<div class="line">Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to return all fit model parameters with details of the fit outcome. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</div>
+<div class="line">(Deprecated) Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to return all fit model parameters with details of the fit outcome. Default to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</div>
 </div>
 </li>
 <li><p><strong>return_data_points</strong> (bool)</p>
 <div class="line-block">
 <div class="line">Default value: <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></div>
-<div class="line">Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to include in the analysis result the formatted data points given to the fitter. Default to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</div>
+<div class="line">(Deprecated) Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to include in the analysis result the formatted data points given to the fitter. Default to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</div>
 </div>
 </li>
 <li><p><strong>data_processor</strong> (Callable)</p>
@@ -927,15 +930,15 @@ to allocate experimental results to a particular fit model.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>experiment_data</strong> (<a class="reference internal" href="qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a>) – the experiment data to analyze.</p></li>
-<li><p><strong>replace_results</strong> (<em>bool</em>) – If True clear any existing analysis results and
-figures in the experiment data and replace with
+<li><p><strong>replace_results</strong> (<em>bool</em>) – If True clear any existing analysis results, figures,
+and artifacts in the experiment data and replace with
 new results. See note for additional information.</p></li>
 <li><p><strong>options</strong> – additional analysis options. See class documentation for
 supported options.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An experiment data object containing the analysis results and figures.</p>
+<dd class="field-even"><p>An experiment data object containing analysis results, figures, and artifacts.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>QiskitError</strong> – If experiment_data container is not valid for analysis.</p>
@@ -947,8 +950,8 @@ supported options.</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>Updating Results</strong></p>
-<p>If analysis is run with <code class="docutils literal notranslate"><span class="pre">replace_results=True</span></code> then any analysis results
-and figures in the experiment data will be cleared and replaced with the
+<p>If analysis is run with <code class="docutils literal notranslate"><span class="pre">replace_results=True</span></code> then any analysis results,
+figures, and artifacts in the experiment data will be cleared and replaced with the
 new analysis results. Saving this experiment data will replace any
 previously saved data in a database service using the same experiment ID.</p>
 <p>If analysis is run with <code class="docutils literal notranslate"><span class="pre">replace_results=False</span></code> and the experiment data
@@ -966,9 +969,6 @@ This data can then be saved as its own experiment to a database service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fields</strong> – The fields to update the options</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>KeyError</strong> – When removed option <code class="docutils literal notranslate"><span class="pre">curve_fitter</span></code> is set.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1024,7 +1024,7 @@ This data can then be saved as its own experiment to a database service.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/06</div>
+              Last updated on 2024/02/08</div>
           </div>
           <div class="right-details">
             
@@ -1074,7 +1074,7 @@ This data can then be saved as its own experiment to a database service.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4553e729"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=cc59e42b"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

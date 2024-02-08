@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-146-g777e2d5b</title>
+        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.5.0-147-ga7d260ac</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-gallery.css?v=26227f6e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/dataframe.css?v=96dbfbde" />
     
     
 
@@ -203,7 +204,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-146-g777e2d5b</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.5.0-147-ga7d260ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +231,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-146-g777e2d5b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.5.0-147-ga7d260ac</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -251,6 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/artifacts.html">Work with experiment artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/figure_generation.html">Control figure generation</a></li>
@@ -285,6 +287,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
@@ -626,20 +629,16 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">concurrent</span> <span class="kn">import</span> <span class="n">futures</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">import</span> <span class="nn">enum</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
@@ -648,7 +647,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">tz</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
-<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span> <span class="k">as</span> <span class="n">MatplotlibFigure</span>
 <span class="kn">from</span> <span class="nn">qiskit.result</span> <span class="kn">import</span> <span class="n">Result</span>
 <span class="kn">from</span> <span class="nn">qiskit.providers.jobstatus</span> <span class="kn">import</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="n">JOB_FINAL_STATES</span>
 <span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
@@ -673,12 +671,16 @@
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result_data</span> <span class="kn">import</span> <span class="n">AnalysisResultData</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result_table</span> <span class="kn">import</span> <span class="n">AnalysisResultTable</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.containers</span> <span class="kn">import</span> <span class="n">ArtifactData</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentStatus</span><span class="p">,</span> <span class="n">AnalysisStatus</span><span class="p">,</span> <span class="n">AnalysisCallback</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExperimentDataError</span><span class="p">,</span>
     <span class="n">ExperimentEntryNotFound</span><span class="p">,</span>
     <span class="n">ExperimentDataSaveFailed</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.utils</span> <span class="kn">import</span> <span class="n">objs_to_zip</span><span class="p">,</span> <span class="n">zip_to_objs</span>
 
+<span class="kn">from</span> <span class="nn">.containers.figure_data</span> <span class="kn">import</span> <span class="n">FigureData</span><span class="p">,</span> <span class="n">FigureType</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="c1"># There is a cyclical dependency here, but the name needs to exist for</span>
@@ -742,74 +744,6 @@
     <span class="n">dt_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dt_str</span><span class="p">,</span> <span class="n">db_datetime_format</span><span class="p">)</span>
     <span class="n">dt_utc</span> <span class="o">=</span> <span class="n">dt_utc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dt_utc</span>
-
-
-<div class="viewcode-block" id="FigureData"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData">[docs]</a><span class="k">class</span> <span class="nc">FigureData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper class for figures and figure metadata. The raw figure can be accessed with</span>
-<span class="sd">    the ``figure`` attribute.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new figure data object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            figure: the raw figure itself. Can be SVG or matplotlib.Figure.</span>
-<span class="sd">            name: Optional, the name of the figure.</span>
-<span class="sd">            metadata: Optional, any metadata to be stored with the figure.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">figure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
-
-    <span class="c1"># name is read only</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The name of the figure&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The metadata dictionary stored with the figure&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
-
-    <span class="nd">@metadata</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the metadata to new value; must be a dictionary&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_metadata</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;figure metadata must be a dictionary&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">new_metadata</span>
-
-<div class="viewcode-block" id="FigureData.copy"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a copy of the figure data&quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">new_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">return</span> <span class="n">FigureData</span><span class="p">(</span><span class="n">figure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">))</span></div>
-
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the json representation of the figure data&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;figure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;FigureData&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a figure data from the json representation&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_repr_png_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">MatplotlibFigure</span><span class="p">):</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-            <span class="n">png</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">png</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">_repr_svg_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
-
-
-<span class="n">FigureType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">MatplotlibFigure</span><span class="p">,</span> <span class="n">FigureData</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ExperimentData"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData">[docs]</a><span class="k">class</span> <span class="nc">ExperimentData</span><span class="p">:</span>
@@ -966,9 +900,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_data</span> <span class="o">=</span> <span class="n">ThreadSafeList</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">figure_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span> <span class="o">=</span> <span class="n">AnalysisResultTable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_figures</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_artifacts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># for holding unique artifact names to be deleted</span>
 
         <span class="c1"># Child related</span>
         <span class="c1"># Add component data and set parent ID to current container</span>
@@ -1300,9 +1236,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">result_ids</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="c1"># Schedule existing figures for deletion next save call</span>
+        <span class="c1"># TODO: Fully delete artifacts from the service</span>
+        <span class="c1"># Current implementation uploads empty files instead</span>
+        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_artifacts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]:</span>
@@ -1900,10 +1841,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ExperimentEntryNotFound: If the figure is not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">figure_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">figure_key</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">figure_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure </span><span class="si">{</span><span class="n">figure_key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="n">figure_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_figure_key</span><span class="p">(</span><span class="n">figure_key</span><span class="p">)</span>
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="p">[</span><span class="n">figure_key</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_figures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure_key</span><span class="p">)</span>
@@ -1914,6 +1852,26 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_figures</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">figure_key</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">figure_key</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_figure_key</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">figure_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to find figure key.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">figure_key</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">figure_key</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure index </span><span class="si">{</span><span class="n">figure_key</span><span class="si">}</span><span class="s2"> out of range.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">figure_key</span><span class="p">]</span>
+
+        <span class="c1"># All figures must have &#39;.svg&#39; in their names when added, as the extension is added to the key</span>
+        <span class="c1"># name in the `add_figures()` method of this class.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">figure_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.svg&quot;</span><span class="p">):</span>
+                <span class="n">figure_key</span> <span class="o">+=</span> <span class="s2">&quot;.svg&quot;</span>
+
+        <span class="k">if</span> <span class="n">figure_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure key </span><span class="si">{</span><span class="n">figure_key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">figure_key</span>
 
 <div class="viewcode-block" id="ExperimentData.figure"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.figure">[docs]</a>    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1934,16 +1892,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ExperimentEntryNotFound: If the figure cannot be found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">figure_key</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">figure_key</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure </span><span class="si">{</span><span class="n">figure_key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
-            <span class="n">figure_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">figure_key</span><span class="p">]</span>
-
-        <span class="c1"># All figures must have &#39;.svg&#39; in their names when added, as the extension is added to the key</span>
-        <span class="c1"># name in the `add_figures()` method of this class.</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">figure_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.svg&quot;</span><span class="p">):</span>
-                <span class="n">figure_key</span> <span class="o">+=</span> <span class="s2">&quot;.svg&quot;</span>
+        <span class="n">figure_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_figure_key</span><span class="p">(</span><span class="n">figure_key</span><span class="p">)</span>
 
         <span class="n">figure_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">figure_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">figure_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">:</span>
@@ -2225,6 +2174,20 @@
                     <span class="n">auto_save</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">tmp_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Curve fit results have moved to experiment artifacts and will be removed &quot;</span>
+                <span class="s2">&quot;from analysis results in a future release. Use &quot;</span>
+                <span class="s1">&#39;expdata.artifacts(&quot;fit_summary&quot;).data to access curve fit results.&#39;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">)):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Accessing analysis results via a numerical index is deprecated and will be &quot;</span>
+                <span class="s2">&quot;removed in a future release. Use the ID or name of the analysis result &quot;</span>
+                <span class="s2">&quot;instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">service_results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">service_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">service_results</span></div>
@@ -2235,7 +2198,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save this experiments metadata to a database service.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            This method does not save analysis results nor figures.</span>
+<span class="sd">            This method does not save analysis results, figures, or artifacts.</span>
 <span class="sd">            Use :meth:`save` for general saving of all experiment data.</span>
 
 <span class="sd">            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`</span>
@@ -2304,11 +2267,14 @@
         <span class="n">total_metadata_size</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_encoder</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">total_metadata_size</span> <span class="o">&gt;</span> <span class="mi">10000</span>
 
+    <span class="c1"># Save and load from the database</span>
+
 <div class="viewcode-block" id="ExperimentData.save"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">suppress_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="n">save_figures</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">save_artifacts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">save_children</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the experiment data to a database service.</span>
@@ -2316,8 +2282,9 @@
 <span class="sd">        Args:</span>
 <span class="sd">            suppress_errors: should the method catch exceptions (true) or</span>
 <span class="sd">                pass them on, potentially aborting the experiment (false)</span>
-<span class="sd">            max_workers: Maximum number of concurrent worker threads (capped by 10)</span>
+<span class="sd">            max_workers: Maximum number of concurrent worker threads (default 3, maximum 10)</span>
 <span class="sd">            save_figures: Whether to save figures in the database or not</span>
+<span class="sd">            save_artifacts: Whether to save artifacts in the database</span>
 <span class="sd">            save_children: For composite experiments, whether to save children as well</span>
 
 <span class="sd">        Raises:</span>
@@ -2350,7 +2317,15 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_max_workers_cap</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">max_workers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_workers_cap</span>
+
+        <span class="k">if</span> <span class="n">save_artifacts</span><span class="p">:</span>
+            <span class="c1"># populate the metadata entry for artifact file names</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;artifact_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.zip&quot;</span> <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">}</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_experiment_metadata</span><span class="p">(</span><span class="n">suppress_errors</span><span class="o">=</span><span class="n">suppress_errors</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_in_db</span><span class="p">:</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not save experiment metadata to DB, aborting experiment save&quot;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -2410,6 +2385,44 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">delete_figure</span><span class="p">(</span><span class="n">experiment_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">figure_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_figures</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
+        <span class="c1"># save artifacts</span>
+        <span class="k">if</span> <span class="n">save_artifacts</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="c1"># make dictionary {artifact name: [artifact ids]}</span>
+                <span class="n">artifact_list</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">artifact_list</span><span class="p">[</span><span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">artifact_id</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">artifact_name</span><span class="p">,</span> <span class="n">artifact_ids</span> <span class="ow">in</span> <span class="n">artifact_list</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">file_zipped</span> <span class="o">=</span> <span class="n">objs_to_zip</span><span class="p">(</span>
+                            <span class="n">artifact_ids</span><span class="p">,</span>
+                            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">[</span><span class="n">artifact_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">artifact_id</span> <span class="ow">in</span> <span class="n">artifact_ids</span><span class="p">],</span>
+                            <span class="n">json_encoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_encoder</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">file_upload</span><span class="p">(</span>
+                            <span class="n">experiment_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+                            <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">.zip&quot;</span><span class="p">,</span>
+                            <span class="n">file_data</span><span class="o">=</span><span class="n">file_zipped</span><span class="p">,</span>
+                        <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except:</span>
+                    <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to save artifacts: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+
+            <span class="c1"># Upload a blank file if the whole file should be deleted</span>
+            <span class="c1"># TODO: replace with direct artifact deletion when available</span>
+            <span class="k">for</span> <span class="n">artifact_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_artifacts</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>  <span class="c1"># Don&#39;t overwrite with a blank file if there&#39;s still artifacts with this name</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="n">artifact_name</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except:</span>
+                    <span class="k">with</span> <span class="n">service_exception_to_warning</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">file_upload</span><span class="p">(</span>
+                            <span class="n">experiment_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+                            <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_name</span><span class="si">}</span><span class="s2">.zip&quot;</span><span class="p">,</span>
+                            <span class="n">file_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="p">)</span>
+                <span class="c1"># Even if we didn&#39;t overwrite an artifact file, we don&#39;t need to keep this because</span>
+                <span class="c1"># an existing artifact(s) needs to be deleted to delete the artifact file in the future</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_artifacts</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">artifact_name</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">local</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="s2">&quot;You can view the experiment online at &quot;</span>
@@ -2424,6 +2437,7 @@
                     <span class="n">suppress_errors</span><span class="o">=</span><span class="n">suppress_errors</span><span class="p">,</span>
                     <span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">,</span>
                     <span class="n">save_figures</span><span class="o">=</span><span class="n">save_figures</span><span class="p">,</span>
+                    <span class="n">save_artifacts</span><span class="o">=</span><span class="n">save_artifacts</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">original_verbose</span></div>
 
@@ -2431,7 +2445,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of jobs for the experiment&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ExperimentData.cancel_jobs"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="ExperimentData.cancel_jobs"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_jobs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancel any running jobs.</span>
 
 <span class="sd">        Args:</span>
@@ -2465,7 +2482,10 @@
 
         <span class="k">return</span> <span class="n">all_cancelled</span></div>
 
-<div class="viewcode-block" id="ExperimentData.cancel_analysis"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="ExperimentData.cancel_analysis"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancel any queued analysis callbacks.</span>
 
 <span class="sd">        .. note::</span>
@@ -2717,7 +2737,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">statuses</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
-
             <span class="c1"># No jobs present</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">DONE</span>
@@ -2887,6 +2906,7 @@
                 <span class="n">experiment_id</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_metadata_filename</span><span class="p">,</span> <span class="n">json_decoder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_json_decoder</span>
             <span class="p">)</span>
             <span class="n">data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
         <span class="n">expdata</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span> <span class="n">db_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="n">provider</span><span class="p">)</span>
 
         <span class="c1"># Retrieve data and analysis results</span>
@@ -2894,6 +2914,17 @@
         <span class="c1"># be updated to show correct number of results including remote ones</span>
         <span class="n">expdata</span><span class="o">.</span><span class="n">_retrieve_data</span><span class="p">()</span>
         <span class="n">expdata</span><span class="o">.</span><span class="n">_retrieve_analysis_results</span><span class="p">()</span>
+
+        <span class="c1"># Recreate artifacts</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;artifact_files&quot;</span> <span class="ow">in</span> <span class="n">expdata</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">expdata</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;artifact_files&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">experiment_has_file</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+                        <span class="n">artifact_file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">file_download</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">zip_to_objs</span><span class="p">(</span><span class="n">artifact_file</span><span class="p">,</span> <span class="n">json_decoder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_json_decoder</span><span class="p">):</span>
+                            <span class="n">expdata</span><span class="o">.</span><span class="n">add_artifacts</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to load artifacts: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
 
         <span class="c1"># mark it as existing in the DB</span>
         <span class="n">expdata</span><span class="o">.</span><span class="n">_created_in_db</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2910,7 +2941,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a copy of the experiment data with a new experiment ID.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            copy_results: If True copy the analysis results and figures</span>
+<span class="sd">            copy_results: If True copy the analysis results, figures, and artifacts</span>
 <span class="sd">                          into the returned container, along with the</span>
 <span class="sd">                          experiment data and metadata. If False only copy</span>
 <span class="sd">                          the experiment data and metadata.</span>
@@ -2936,6 +2967,8 @@
             <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">new_instance</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Figure names shouldn&#39;t be copied over</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">figure_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_instance</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
             <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
         <span class="p">)</span>  <span class="c1"># different id for copied experiment</span>
@@ -2974,6 +3007,10 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">new_instance</span><span class="o">.</span><span class="n">_figures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
             <span class="n">new_instance</span><span class="o">.</span><span class="n">add_figures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">new_instance</span><span class="o">.</span><span class="n">_artifacts</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
+            <span class="n">new_instance</span><span class="o">.</span><span class="n">add_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="c1"># Recursively copy child data</span>
         <span class="n">child_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">copy_results</span><span class="o">=</span><span class="n">copy_results</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">child_data</span><span class="p">()]</span>
@@ -3104,6 +3141,7 @@
             <span class="s2">&quot;_created_in_db&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_in_db</span><span class="p">,</span>
             <span class="s2">&quot;_figures&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_serialize_figures</span><span class="p">(),</span>  <span class="c1"># Convert figures to SVG</span>
             <span class="s2">&quot;_jobs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_serialize_jobs</span><span class="p">(),</span>  <span class="c1"># Handle non-serializable objects</span>
+            <span class="s2">&quot;_artifacts&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">,</span>
             <span class="s2">&quot;_experiment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span><span class="p">,</span>
             <span class="s2">&quot;_child_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_child_data</span><span class="p">,</span>
             <span class="s2">&quot;_running_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running_time</span><span class="p">,</span>
@@ -3213,7 +3251,92 @@
         <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Data: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Analysis Results: </span><span class="si">{</span><span class="n">n_res</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Figures: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figures</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Artifacts: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+<div class="viewcode-block" id="ExperimentData.add_artifacts"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_artifacts">[docs]</a>    <span class="k">def</span> <span class="nf">add_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">:</span> <span class="n">ArtifactData</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">],</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add artifacts to experiment. The artifact ID must be unique.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            artifacts: Artifact or list of artifacts to be added.</span>
+<span class="sd">            overwrite: Whether to overwrite the existing artifact.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">ArtifactData</span><span class="p">):</span>
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">artifacts</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">artifact_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;An artifact with id </span><span class="si">{artifact.id}</span><span class="s2"> already exists.&quot;</span>
+                    <span class="s2">&quot;Set overwrite to True if you want to overwrite the existing&quot;</span>
+                    <span class="s2">&quot;artifact.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">[</span><span class="n">artifact</span><span class="o">.</span><span class="n">artifact_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">artifact</span></div>
+
+<div class="viewcode-block" id="ExperimentData.delete_artifact"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_artifact">[docs]</a>    <span class="k">def</span> <span class="nf">delete_artifact</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete specified artifact data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            artifact_key: UID, name or index of the figure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Deleted artifact ids.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">artifact_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_artifact_keys</span><span class="p">(</span><span class="n">artifact_key</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">artifact_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_artifacts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">artifact_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">artifact_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">artifact_keys</span></div>
+
+<div class="viewcode-block" id="ExperimentData.artifacts"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.artifacts">[docs]</a>    <span class="k">def</span> <span class="nf">artifacts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArtifactData</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return specified artifact data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            artifact_key: UID, name or index of the figure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of specified artifact data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">artifact_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="n">artifact_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_artifact_keys</span><span class="p">(</span><span class="n">artifact_key</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">artifact_keys</span><span class="p">:</span>
+            <span class="n">artifact_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact_data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_artifact_keys</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to find artifact key.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">artifact_key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">artifact_key</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">artifact_key</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact index </span><span class="si">{</span><span class="n">artifact_key</span><span class="si">}</span><span class="s2"> out of range.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="n">artifact_key</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">artifact_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="p">:</span>
+            <span class="n">name_matched</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artifacts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">artifact_key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_matched</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact key </span><span class="si">{</span><span class="n">artifact_key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">name_matched</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">artifact_key</span><span class="p">]</span></div>
 
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
@@ -3223,65 +3346,6 @@
         <span class="k">yield</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Experiment service operation failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
-
-
-<div class="viewcode-block" id="ExperimentStatus"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus">[docs]</a><span class="k">class</span> <span class="nc">ExperimentStatus</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for experiment status enumerated type.&quot;&quot;&quot;</span>
-
-    <span class="n">EMPTY</span> <span class="o">=</span> <span class="s2">&quot;experiment data is empty&quot;</span>
-    <span class="n">INITIALIZING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are being initialized&quot;</span>
-    <span class="n">VALIDATING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are validating&quot;</span>
-    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are queued&quot;</span>
-    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs is actively running&quot;</span>
-    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs or analysis has been cancelled&quot;</span>
-    <span class="n">POST_PROCESSING</span> <span class="o">=</span> <span class="s2">&quot;experiment analysis is actively running&quot;</span>
-    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs and analysis have successfully run&quot;</span>
-    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs or analysis incurred an error&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__members__</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>  <span class="c1"># pylint: disable=unsubscriptable-object</span></div>
-
-
-<div class="viewcode-block" id="AnalysisStatus"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus">[docs]</a><span class="k">class</span> <span class="nc">AnalysisStatus</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for analysis callback status enumerated type.&quot;&quot;&quot;</span>
-
-    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">&quot;analysis callback is queued&quot;</span>
-    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;analysis callback is actively running&quot;</span>
-    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">&quot;analysis callback has been cancelled&quot;</span>
-    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">&quot;analysis callback has successfully run&quot;</span>
-    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">&quot;analysis callback incurred an error&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__members__</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>  <span class="c1"># pylint: disable=unsubscriptable-object</span></div>
-
-
-<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">AnalysisCallback</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass for analysis callback status&quot;&quot;&quot;</span>
-
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">callback_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">status</span><span class="p">:</span> <span class="n">AnalysisStatus</span> <span class="o">=</span> <span class="n">AnalysisStatus</span><span class="o">.</span><span class="n">QUEUED</span>
-    <span class="n">error_msg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Event</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># We need to remove the Event object from state when pickling</span>
-        <span class="c1"># since events are not pickleable</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;event&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">state</span>
-
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_series_to_service_result</span><span class="p">(</span>
@@ -3387,7 +3451,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/06</div>
+              Last updated on 2024/02/08</div>
           </div>
           <div class="right-details">
             
@@ -3404,7 +3468,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=4553e729"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=cc59e42b"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>

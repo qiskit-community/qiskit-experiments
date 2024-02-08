@@ -17,7 +17,6 @@ AnalysisResultData
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -25,7 +24,6 @@ AnalysisResultData
    .. autoattribute:: AnalysisResultData.value
    .. autoattribute:: AnalysisResultData.tags
    .. autoattribute:: AnalysisResultData.extra
-   .. autoattribute:: AnalysisResultData.device_components
    
 
 
