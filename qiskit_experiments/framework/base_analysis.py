@@ -23,8 +23,10 @@ from dateutil import tz
 
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
+from qiskit_experiments.framework.containers.artifact_data import ArtifactData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
-from qiskit_experiments.framework.experiment_data import ExperimentData, FigureData
+from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.containers import FigureData, FigureType
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData, as_table_element
 
@@ -126,14 +128,14 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
         Args:
             experiment_data: the experiment data to analyze.
-            replace_results: If True clear any existing analysis results and
-                             figures in the experiment data and replace with
+            replace_results: If True clear any existing analysis results, figures,
+                             and artifacts in the experiment data and replace with
                              new results. See note for additional information.
             options: additional analysis options. See class documentation for
                      supported options.
 
         Returns:
-            An experiment data object containing the analysis results and figures.
+            An experiment data object containing analysis results, figures, and artifacts.
 
         Raises:
             QiskitError: If experiment_data container is not valid for analysis.
@@ -141,8 +143,8 @@ class BaseAnalysis(ABC, StoreInitArgs):
         .. note::
             **Updating Results**
 
-            If analysis is run with ``replace_results=True`` then any analysis results
-            and figures in the experiment data will be cleared and replaced with the
+            If analysis is run with ``replace_results=True`` then any analysis results,
+            figures, and artifacts in the experiment data will be cleared and replaced with the
             new analysis results. Saving this experiment data will replace any
             previously saved data in a database service using the same experiment ID.
 
@@ -175,28 +177,42 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
             if results:
                 for result in results:
-                    # Populate missing data fields
-                    if not result.experiment_id:
-                        result.experiment_id = expdata.experiment_id
-                    if not result.experiment:
-                        result.experiment = expdata.experiment_type
-                    if not result.device_components:
-                        result.device_components = self._get_experiment_components(expdata)
-                    if not result.backend:
-                        result.backend = expdata.backend_name
-                    if not result.created_time:
-                        result.created_time = datetime.now(tz.tzlocal())
-                    if not result.run_time:
-                        result.run_time = expdata.running_time
+                    if isinstance(result, AnalysisResultData):
+                        # Populate missing data fields
+                        if not result.experiment_id:
+                            result.experiment_id = expdata.experiment_id
+                        if not result.experiment:
+                            result.experiment = expdata.experiment_type
+                        if not result.device_components:
+                            result.device_components = self._get_experiment_components(expdata)
+                        if not result.backend:
+                            result.backend = expdata.backend_name
+                        if not result.created_time:
+                            result.created_time = datetime.now(tz.tzlocal())
+                        if not result.run_time:
+                            result.run_time = expdata.running_time
 
-                    # To canonical kwargs to add to the analysis table.
-                    table_format = as_table_element(result)
+                        # To canonical kwargs to add to the analysis table.
+                        table_format = as_table_element(result)
 
-                    # Remove result_id to make sure the id is unique in the scope of the container.
-                    # This will let the container generate a unique id.
-                    del table_format["result_id"]
+                        # Remove result_id to make sure the id is unique in the scope of the container.
+                        # This will let the container generate a unique id.
+                        del table_format["result_id"]
 
-                    expdata.add_analysis_results(**table_format)
+                        expdata.add_analysis_results(**table_format)
+                    elif isinstance(result, ArtifactData):
+                        if not result.experiment_id:
+                            result.experiment_id = expdata.experiment_id
+                        if not result.device_components:
+                            result.device_components = self._get_experiment_components(expdata)
+                        if not result.experiment:
+                            result.experiment = expdata.experiment_type
+                        expdata.add_artifacts(result)
+                    else:
+                        raise TypeError(
+                            f"Invalid object type {result.__class__.__name__} for analysis results. "
+                            "This data cannot be stored in the experiment data."
+                        )
 
             if figures:
                 figure_to_add = []
@@ -232,7 +248,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
         """Run analysis on circuit data.
 
         Args:

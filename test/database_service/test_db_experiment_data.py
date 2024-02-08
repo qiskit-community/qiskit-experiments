@@ -35,9 +35,8 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit.providers.backend import Backend
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.framework import AnalysisResult
-from qiskit_experiments.framework import BackendData
+from qiskit_experiments.framework import ExperimentData, AnalysisResult, BackendData, ArtifactData
+
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -489,19 +488,20 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 exp_data.add_analysis_results(res)
 
         # We cannot compare results with exp_data.analysis_results()
-        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        # This test is too hacky since it tries to compare MagicMock with AnalysisResult.
         self.assertEqual(
             [res.result_id for res in exp_data.analysis_results()],
             result_ids,
         )
-        self.assertEqual(
-            exp_data.analysis_results(1).result_id,
-            result_ids[1],
-        )
-        self.assertEqual(
-            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
-            result_ids[2:4],
-        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                exp_data.analysis_results(1).result_id,
+                result_ids[1],
+            )
+            self.assertEqual(
+                [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+                result_ids[2:4],
+            )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
@@ -1064,6 +1064,18 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertFalse(copied.analysis_results())
         self.assertEqual(exp_data.provider, copied.provider)
 
+    def test_copy_figure_artifacts(self):
+        """Test copy expdata figures and artifacts."""
+        exp_data = FakeExperiment(experiment_type="qiskit_test").run(backend=FakeBackend())
+        exp_data.add_figures(str.encode("hello world"))
+        exp_data.add_artifacts(ArtifactData(name="test", data="foo"))
+        copied = exp_data.copy(copy_results=True)
+
+        self.assertEqual(exp_data.artifacts(), copied.artifacts())
+        self.assertEqual(exp_data.figure_names, copied.figure_names)
+        for i in exp_data.figure_names:
+            self.assertEqual(exp_data.figure(i), copied.figure(i))
+
     def test_copy_metadata_pending_job(self):
         """Test copy metadata with a pending job."""
         event = threading.Event()
@@ -1183,8 +1195,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(data.source, "source_data")
 
     def test_metadata_too_large(self):
-        """Tests that ExperimentData can detect when the metadta
-        should be saved as a seperate file"""
+        """Tests that ExperimentData can detect when the metadata
+        should be saved as a separate file"""
         exp_data = ExperimentData()
         metadata_size = 100000
         exp_data.metadata["components"] = [
@@ -1201,3 +1213,90 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual("ibm-q-internal", exp_data.hub)
         self.assertEqual("deployed", exp_data.group)
         self.assertEqual("default", exp_data.project)
+
+    def test_add_delete_artifact(self):
+        """Tests adding an artifact and a list of artifacts. Tests deleting an artifact
+        by name, ID, and index and ID. Test the metadata is correctly tracking additions
+        and deletions."""
+        exp_data = ExperimentData()
+        self.assertEqual(exp_data.artifacts(), [])
+        new_artifact = ArtifactData(name="test", data="foo")
+        exp_data.add_artifacts(new_artifact)
+        self.assertEqual(exp_data.artifacts(0), new_artifact)
+        self.assertEqual(exp_data.artifacts("test"), new_artifact)
+
+        service = mock.create_autospec(IBMExperimentService, instance=True)
+        exp_data.service = service
+        exp_data.save()
+
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip"})
+
+        # delete by name
+        exp_data.delete_artifact("test")
+        self.assertEqual(exp_data.artifacts(), [])
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(0)
+
+        exp_data.save()
+        # after saving, artifact_files should be updated again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], set())
+
+        new_artifact2 = ArtifactData(name="test", data="foo2")
+        new_artifact3 = ArtifactData(name="test2", data="foo2")
+        exp_data.add_artifacts([new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts(), [new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts("test"), [new_artifact, new_artifact2])
+
+        deleted_id = exp_data.artifacts(0).artifact_id
+        # delete by index
+        exp_data.delete_artifact(0)
+
+        self.assertEqual(exp_data.artifacts(), [new_artifact2, new_artifact3])
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(deleted_id)
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
+
+        exp_data.save()
+        # after saving, deleted artifacts should be cleared again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip", "test2.zip"})
+
+        # finish deleting artifacts named test
+        # delete by id
+        exp_data.delete_artifact(exp_data.artifacts(0).artifact_id)
+        self.assertEqual(exp_data.artifacts(), [new_artifact3])
+        exp_data.save()
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test2.zip"})
+
+    def test_add_duplicated_artifact(self):
+        """Tests behavior when adding an artifact with a duplicate ID."""
+        exp_data = ExperimentData()
+
+        new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
+        new_artifact2 = ArtifactData(artifact_id="0", name="test2", data="foo3")
+
+        exp_data.add_artifacts(new_artifact1)
+
+        # Adding an artifact with the same ID should fail
+        with self.assertRaises(ValueError):
+            exp_data.add_artifacts(new_artifact2)
+
+        # Overwrite the artifact with a new one of the same ID
+        exp_data.add_artifacts(new_artifact2, overwrite=True)
+        self.assertEqual(exp_data.artifacts(), [new_artifact2])
+
+    def test_delete_nonexistent_artifact(self):
+        """Tests behavior when deleting a nonexistent artifact."""
+        exp_data = ExperimentData()
+
+        new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
+        exp_data.add_artifacts(new_artifact1)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact(2)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact("123")

@@ -29,6 +29,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
+from qiskit_experiments.curve_analysis import ParameterRepr
 
 
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
@@ -58,12 +59,14 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
+        result = expdata.analysis_results("rabi_rate")
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
         self.assertAlmostEqual(
-            result.value.params["freq"], self.backend.rabi_rate_01, delta=test_tol
+            expdata.artifacts("fit_summary").data.params["freq"],
+            self.backend.rabi_rate_01,
+            delta=test_tol,
         )
 
     def test_wrong_processor(self):
@@ -124,7 +127,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 11))
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("rabi_rate_12")
 
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.n - self.backend.rabi_rate_12) < test_tol)
@@ -261,12 +264,18 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = OscillationAnalysis().run(
-            experiment_data, data_processor=data_processor, plot=False
+        analysis = OscillationAnalysis()
+        analysis.set_options(
+            result_parameters=[ParameterRepr("freq", "rabi_rate")],
         )
-        result = experiment_data.analysis_results(0)
+
+        experiment_data = analysis.run(
+            experiment_data, data_processor=data_processor, plot=False
+        ).block_for_results()
+
+        result = experiment_data.analysis_results("rabi_rate")
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value.params["freq"], expected_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value, expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""
@@ -282,12 +291,19 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = OscillationAnalysis().run(
-            experiment_data, data_processor=data_processor, plot=False
+        analysis = OscillationAnalysis()
+        analysis.set_options(
+            result_parameters=[ParameterRepr("freq", "rabi_rate")],
         )
-        result = experiment_data.analysis_results()
+        experiment_data = analysis.run(
+            experiment_data,
+            data_processor=data_processor,
+            plot=False,
+        ).block_for_results()
 
-        self.assertEqual(result[0].quality, "bad")
+        result = experiment_data.analysis_results("rabi_rate")
+
+        self.assertEqual(result.quality, "bad")
 
 
 class TestCompositeExperiment(QiskitExperimentsTestCase):

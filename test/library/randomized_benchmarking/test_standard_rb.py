@@ -392,7 +392,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-        overview = expdata.analysis_results(0).value
+        overview = expdata.artifacts("fit_summary").data
         # This yields bad fit due to poor data points, but still fit is not completely off.
         self.assertLess(overview.reduced_chisq, 14)
 

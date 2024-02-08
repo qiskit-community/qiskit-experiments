@@ -116,7 +116,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             warnings.filterwarnings(
                 "default",
                 module="qiskit_experiments",
-                message=".*The curve data representation is replaced with dataframe format.*",
+                message=".*The curve data representation has been replaced by the `DataFrame` format.*",
                 category=PendingDeprecationWarning,
             )
 
