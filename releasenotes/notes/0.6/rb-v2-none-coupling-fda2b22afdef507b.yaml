@@ -1,0 +1,12 @@
+---
+fixes_explib:
+  - |
+    Changed :class:`.StandardRB` to treat two qubit operations in the
+    :class:`qiskit.transpiler.Target` as having all-to-all connectivity if
+    there is no set of specific pairs of coupled qubits. Most importantly, this
+    change allows :class:`.StandardRB` to work with
+    :class:`qiskit_aer.AerSimulator` for multi-qubit benchmarking after
+    ``qiskit-aer`` 0.13.0. Version 0.13.0 of ``qiskit-aer`` changed
+    the default :class:`qiskit_aer.AerSimulator` to have such a
+    :class:`qiskit.transpiler.Target` without specific coupled pairs.
+    See `#1292 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1292>`__.

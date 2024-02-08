@@ -1,0 +1,6 @@
+---
+fixes_calibration:
+  - |
+    Fixed error generating circuits for :class:`.BaseCalibrationExperiment`
+    subclasses when the backend instance had no coupling map. Fixed `#1116
+    <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1116>`_.

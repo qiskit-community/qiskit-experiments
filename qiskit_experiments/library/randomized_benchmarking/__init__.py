@@ -37,6 +37,14 @@ Analysis
     RBAnalysis
     InterleavedRBAnalysis
 
+Synthesis
+=========
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    RBDefaultCliffordSynthesis
+
 Utilities
 =========
 
@@ -52,3 +60,4 @@ from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
+from .clifford_synthesis import RBDefaultCliffordSynthesis

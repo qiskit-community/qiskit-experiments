@@ -6,7 +6,7 @@ prelude: >
     benchmarking experiments has been significantly improved. The ``qubit`` and
     ``qubits`` input to experiments has been regularized to ``physical_qubits``,
     and support for ``qiskit-ibmq-provider`` has been deprecated in favor of
-    ``qiskit-ibm-provider``. New experiments added include
+    :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>`. New experiments added include
     :class:`.MultiStateDiscrimination`, :class:`.ZZRamsey`,
     :class:`.MitigatedStateTomography`, and
     :class:`.MitigatedProcessTomography`, along with significant improvements to

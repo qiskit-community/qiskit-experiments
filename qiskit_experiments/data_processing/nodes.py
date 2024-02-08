@@ -740,9 +740,9 @@ class Probability(CountsAction):
 
         Args:
             outcome: The bitstring for which to return the probability and variance.
-            alpha_prior: A prior Beta distribution parameter ``[`alpha0, alpha1]``.
+            alpha_prior: A prior Beta distribution parameter ``[alpha0, alpha1]``.
                          If specified as float this will use the same value for
-                         ``alpha0`` and``alpha1`` (Default: 0.5).
+                         ``alpha0`` and ``alpha1`` (Default: 0.5).
             validate: If set to False the DataAction will not validate its input.
 
         Raises:

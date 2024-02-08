@@ -173,6 +173,7 @@ intersphinx_mapping = {
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
     "qiskit_dynamics": ("https://qiskit.org/ecosystem/dynamics/", None),
     "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
+    "qiskit_ibm_provider": ("https://docs.quantum.ibm.com/api/qiskit-ibm-provider/", None),
 }
 
 

@@ -41,6 +41,30 @@ cloning the repository:
 The ``-e`` option will keep your installed package up to date as you make or pull new
 changes.
 
+Upgrading Qiskit Experiments
+----------------------------
+
+Qiskit Experiments version numbers are in the form ``0.X.Y``, where ``X`` is the minor version and
+``Y`` is the patch version. There are two kinds of releases: minor releases, which increment the
+minor version, and patch releases, which increment the patch version. New features and API
+changes can only be introduced in a minor release. Patch releases contain only bug fixes and changes that do
+not affect how you use the package, such as performance optimization and documentation updates.
+
+Therefore, when you encounter a bug or unexpected behavior, it is recommended that you first check if there's a
+patch release you can upgrade to under the same minor version to avoid any breaking changes. When
+running ``pip``, you can specify the exact version to install:
+
+.. code-block::
+
+    python -m pip install qiskit-experiments==0.X.Y
+
+Before a nontrivial breaking API change is introduced in a minor release, the old feature will
+undergo a deprecation process lasting two releases for a core framework change and one release
+otherwise. During this process, deprecation warnings will be issued if you use the old feature that
+will instruct you on how to transition to the replacement feature, if applicable. The :doc:`release
+notes </release_notes>` contain full details on which features are deprecated or removed in each
+release.
+
 Running your first experiment
 =============================
 
@@ -58,7 +82,7 @@ Experiments must be run on a backend. We're going to use a simulator,
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
     packages to run simulations.  You can install them with ``python -m pip
     install qiskit-aer qiskit-ibm-runtime``.
 
@@ -72,11 +96,6 @@ backend, real or simulated, that you can access through Qiskit.
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
 Python sequence (usually a tuple or a list).
-
-.. note::
-    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an
-    integer qubit index instead of a one-element sequence for a single-qubit experiment
-    is deprecated.
 
 In addition, the :math:`T_1` experiment has
 a second required parameter, ``delays``, which is a list of times in seconds at which to

@@ -12,7 +12,7 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
     packages to run simulations.  You can install them with ``python -m pip
     install qiskit-aer qiskit-ibm-runtime``.
 
