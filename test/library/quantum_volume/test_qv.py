@@ -113,12 +113,13 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             qv_exp.set_experiment_options(trials=2)
             expdata1 = qv_exp.run(backend)
             self.assertExperimentDone(expdata1)
-            result_data1 = expdata1.analysis_results(0)
+
+            result_data1 = expdata1.analysis_results("mean_HOP")
             expdata2 = qv_exp.run(backend, analysis=None)
             self.assertExperimentDone(expdata2)
             expdata2.add_data(expdata1.data())
             qv_exp.analysis.run(expdata2)
-            result_data2 = expdata2.analysis_results(0)
+            result_data2 = expdata2.analysis_results("mean_HOP")
 
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
@@ -151,7 +152,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         with self.assertWarns(UserWarning):
             qv_exp.analysis.run(exp_data)
-            qv_result = exp_data.analysis_results(1)
+            qv_result = exp_data.analysis_results("quantum_volume")
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
@@ -177,7 +178,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp_data.add_data(insufficient_hop_data)
 
         qv_exp.analysis.run(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        qv_result = exp_data.analysis_results("quantum_volume")
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
@@ -204,7 +205,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp_data.add_data(insufficient_confidence_data)
 
         qv_exp.analysis.run(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        qv_result = exp_data.analysis_results("quantum_volume")
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with insufficient confidence",

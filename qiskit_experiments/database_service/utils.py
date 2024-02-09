@@ -14,13 +14,14 @@
 
 import importlib.metadata
 import io
+import zipfile
 import logging
 import threading
 import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
+from typing import Callable, Tuple, Dict, Any, Union, Type, Optional, List, Iterator
 import json
 
 import dateutil.parser
@@ -72,6 +73,52 @@ def utc_to_local(utc_dt: datetime) -> datetime:
     """
     local_dt = utc_dt.astimezone(tz.tzlocal())
     return local_dt
+
+
+def objs_to_zip(
+    filenames: List[str], objects: List[any], json_encoder: Optional[json.JSONEncoder] = None
+) -> bytes:
+    """Serialize a list of objects to JSON and pack into a zipped file buffer.
+
+    Args:
+        filenames: List of names for each serialized object inside the buffer. Names will have the
+        ``.json`` extension added.
+        objects: List of objects to be JSON serialized then zipped.
+        json_encoder: The JSON encoder to use.
+
+    Returns:
+        A bytes object containing the zipped files.
+    """
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zip_file:
+        for filename, data in zip(filenames, objects):
+            zip_file.writestr(f"{filename}.json", json.dumps(data, cls=json_encoder))
+
+    zip_buffer.seek(0)
+    return zip_buffer
+
+
+def zip_to_objs(zip_bytes: bytes, json_decoder: Optional[json.JSONDecoder] = None) -> Iterator[any]:
+    """Extract objects by deserializing JSON files in a zipped buffer.
+
+    Args:
+        zip_bytes: Bytes object representing the zipped file.
+        json_decoder: The JSON decoder to use.
+
+    Returns:
+        A list of objects extracted from the zip file buffer.
+    """
+    if len(zip_bytes) == 0:  # artifact has been deleted
+        yield iter(())
+
+    zip_buffer = io.BytesIO(zip_bytes)
+
+    with zipfile.ZipFile(zip_buffer, "r") as zip_file:
+        for file_name in zip_file.namelist():
+            with zip_file.open(file_name) as file:
+                json_data = file.read().decode("utf-8")
+                yield json.loads(json_data, cls=json_decoder)
 
 
 def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:

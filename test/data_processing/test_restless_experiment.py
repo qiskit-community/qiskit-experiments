@@ -63,14 +63,14 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
 
         self.assertAlmostEqual(d_theta, error, delta=0.01)
         self.assertEqual(result.quality, "good")
 
         # check that the fit amplitude is almost 1 as expected.
-        amp_fit = expdata.analysis_results(0).value.params["amp"]
+        amp_fit = expdata.artifacts("fit_summary").data.params["amp"]
         self.assertAlmostEqual(amp_fit, 1.0, delta=0.02)
 
     @data(-0.02, 0.04)
@@ -89,11 +89,11 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
+        result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
 
         self.assertTrue(abs(d_theta - error) > 0.01)
 
         # check that the fit amplitude is much smaller than 1.
-        amp_fit = expdata.analysis_results(0).value.params["amp"]
+        amp_fit = expdata.artifacts("fit_summary").data.params["amp"]
         self.assertTrue(amp_fit < 0.05)

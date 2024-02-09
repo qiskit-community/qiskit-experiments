@@ -558,7 +558,7 @@ output if the Pauli corresponding to that bit has a nonzero signature.
 To test our code, we first simulate a noisy backend with asymmetric readout error.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` package for simulations.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` package for simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 

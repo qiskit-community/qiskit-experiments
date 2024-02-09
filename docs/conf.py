@@ -80,9 +80,7 @@ html_static_path = ["_static"]
 templates_path = ["_templates"]
 # Manually add the gallery CSS file for now
 # TODO: Figure out why the styling is not working by default
-html_css_files = [
-    "nbsphinx-gallery.css",
-]
+html_css_files = ["nbsphinx-gallery.css", "dataframe.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -169,12 +167,13 @@ html_last_updated_fmt = "%Y/%m/%d"
 autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
+    "pandas": ("http://pandas.pydata.org/docs/", None),
     "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
-    "qiskit_dynamics": ("https://qiskit.org/documentation/dynamics", None),
-    "qiskit_ibm_runtime": ("https://qiskit.org/ecosystem/ibm-runtime/", None),
+    "qiskit_dynamics": ("https://qiskit.org/ecosystem/dynamics/", None),
+    "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
+    "qiskit_ibm_provider": ("https://docs.quantum.ibm.com/api/qiskit-ibm-provider/", None),
 }
 
 
@@ -237,6 +236,11 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "filter_kwargs",
         "fit_func",
         "signature",
+        "artifact_id",
+        "artifact_data",
+        "device_components",
+        "created_time",
+        "data",
     ]
     skip_members = [
         ParameterRepr.repr,

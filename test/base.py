@@ -116,7 +116,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             warnings.filterwarnings(
                 "default",
                 module="qiskit_experiments",
-                message=".*The curve data representation is replaced with dataframe format.*",
+                message=".*The curve data representation has been replaced by the `DataFrame` format.*",
                 category=PendingDeprecationWarning,
             )
 
@@ -125,11 +125,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # ``QiskitTestCase`` sets all warnings to be treated as an error by
             # default.
             # pylint: disable=invalid-name
-            allow_deprecationwarning_message = [
-                # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
-                r".*Plotting and drawing functionality has been moved",
-                r".*Legacy drawers from `.curve_analysis.visualization are deprecated",
-            ]
+            allow_deprecationwarning_message = []
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 

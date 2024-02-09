@@ -38,7 +38,8 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         exp = ReadoutAngle([0])
         expdata = exp.run(backend, shots=10000)
         self.assertExperimentDone(expdata)
-        res = expdata.analysis_results(0)
+
+        res = expdata.analysis_results("readout_angle")
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
         backend = MockIQBackend(
@@ -47,7 +48,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         exp = ReadoutAngle([0])
         expdata = exp.run(backend, shots=10000)
         self.assertExperimentDone(expdata)
-        res = expdata.analysis_results(0)
+        res = expdata.analysis_results("readout_angle")
         self.assertAlmostEqual(res.value % (2 * np.pi), 15 * np.pi / 8, places=2)
 
     def test_kerneled_expdata_serialization(self):
@@ -69,4 +70,4 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(0))
+        self.assertRoundTripSerializable(expdata.analysis_results("readout_angle"))

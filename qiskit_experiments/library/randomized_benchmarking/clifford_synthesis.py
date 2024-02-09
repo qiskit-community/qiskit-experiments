@@ -60,7 +60,7 @@ class RBDefaultCliffordSynthesis(HighLevelSynthesisPlugin):
 
         Returns:
             The quantum circuit representation of the Operation
-                when successful, and ``None`` otherwise.
+            when successful, and ``None`` otherwise.
 
         Raises:
             QiskitError: If basis_gates is not supplied.

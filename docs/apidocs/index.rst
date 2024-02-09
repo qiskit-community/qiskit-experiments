@@ -30,6 +30,7 @@ Experiment Modules
     
     mod_calibration
     mod_characterization
+    mod_driven_freq_tuning
     mod_randomized_benchmarking
     mod_tomography
     mod_quantum_volume

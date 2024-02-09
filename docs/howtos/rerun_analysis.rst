@@ -12,12 +12,12 @@ Solution
 --------
 
 .. note::
-    Some of this guide uses the :mod:`qiskit-ibm-provider` package. For how to migrate from 
-    the deprecated ``qiskit-ibmq-provider`` to ``qiskit-ibm-provider``, consult the
-    `migration guide <https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
+    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 Once you recreate the exact experiment you ran and all of its parameters and options,
-you can call the :meth:`.add_jobs` method with a list of :class:`Job
+you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job
 <qiskit.providers.JobV1>` objects to generate the new :class:`.ExperimentData` object.
 The following example retrieves jobs from a provider that has access to them via their
 job IDs:
@@ -47,7 +47,7 @@ job IDs:
 instead of overwriting the existing one.
 
 If you have the job data in the form of a :class:`~qiskit.result.Result` object, you can
-invoke the :meth:`.add_data` method instead of :meth:`.add_jobs`:
+invoke the :meth:`.ExperimentData.add_data` method instead of :meth:`.ExperimentData.add_jobs`:
 
 .. jupyter-input::
 

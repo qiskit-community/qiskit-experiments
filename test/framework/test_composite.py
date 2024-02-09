@@ -98,6 +98,7 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 0)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
+        self.assertEqual(len(expdata.artifacts()), 20)
 
     def test_flatten_results_partial(self):
         """Test flattening results."""
@@ -117,6 +118,7 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
+        self.assertEqual(len(expdata.artifacts()), 0)
 
         # check inner experiments were flattened
         child0 = expdata.child_data(0)
@@ -126,6 +128,8 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check right number of analysis results is returned
         self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
+        self.assertEqual(len(child0.artifacts()), 6)
+        self.assertEqual(len(child1.artifacts()), 4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -188,6 +192,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(self.rootdata)
         self.assertEqual(len(self.rootdata.child_data()), 2)
+        self.assertEqual(len(self.rootdata.artifacts()), 0)
 
         self.rootdata.share_level = self.share_level
 
@@ -202,8 +207,19 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         for childdata in components:
             self.check_attributes(childdata)
             self.assertEqual(childdata.parent_id, expdata.experiment_id)
+            if not hasattr(childdata, "child_data"):
+                self.assertEqual(len(childdata.artifacts()), 2)
+                self.assertEqual(childdata.artifacts("curve_data").experiment, "FakeExperiment")
+                self.assertEqual(
+                    childdata.artifacts("curve_data").device_components, childdata.device_components
+                )
+                self.assertEqual(childdata.artifacts("fit_summary").experiment, "FakeExperiment")
+                self.assertEqual(
+                    childdata.artifacts("fit_summary").device_components,
+                    childdata.device_components,
+                )
 
-    def check_if_equal(self, expdata1, expdata2, is_a_copy):
+    def check_if_equal(self, expdata1, expdata2, is_a_copy, check_artifact=False):
         """
         Recursively traverse the tree and check equality of expdata1 and expdata2
         """
@@ -222,6 +238,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         else:
             self.assertEqual(expdata1.experiment_id, expdata2.experiment_id)
+
+        if check_artifact:
+            self.assertEqual(len(expdata1.artifacts()), len(expdata2.artifacts()))
+            for artifact1, artifact2 in zip(expdata1.artifacts(), expdata2.artifacts()):
+                self.assertEqual(artifact1, artifact2, msg="artifacts not equal")
 
         self.assertEqual(len(expdata1.child_data()), len(expdata2.child_data()))
         for childdata1, childdata2 in zip(expdata1.child_data(), expdata2.child_data()):
@@ -242,7 +263,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
-        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
+        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False, check_artifact=True)
 
     def test_composite_save_metadata(self):
         """
@@ -251,7 +272,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save_metadata()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
-
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_copy(self):
@@ -259,7 +279,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         Test composite ExperimentData.copy
         """
         new_instance = self.rootdata.copy()
-        self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
+        self.check_if_equal(new_instance, self.rootdata, is_a_copy=True, check_artifact=True)
         self.check_attributes(new_instance)
         self.assertEqual(new_instance.parent_id, None)
 
@@ -719,6 +739,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
                     "counts": {"0": 6, "1": 4},
                     "memory": ["0", "0", "1", "0", "0", "1", "1", "0", "0", "1"],
+                    "shots": 10,
+                    "meas_level": 2,
                 }
             ],
             [
@@ -726,6 +748,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
                     "counts": {"0": 5, "1": 5},
                     "memory": ["0", "1", "1", "0", "0", "0", "1", "0", "1", "1"],
+                    "shots": 10,
+                    "meas_level": 2,
                 }
             ],
         ]
@@ -775,6 +799,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     [[idx + 0.3, idx + 0.3]],
                     [[idx + 0.4, idx + 0.4]],
                 ],
+                "shots": 5,
+                "meas_level": 1,
             }
 
             self.assertEqual(expected, sub_data[0])
@@ -813,6 +839,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             expected = {
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
                 "memory": [[idx + 0.0, idx + 0.1]],
+                "shots": 5,
+                "meas_level": 1,
             }
 
             self.assertEqual(expected, sub_data[0])
@@ -922,9 +950,13 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
         self.assertExperimentDone(expdata)
 
-        self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
-        self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
-        self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)
+        self.assertEqual(expdata.child_data(0).analysis_results("non-zero counts").value, 8)
+        self.assertEqual(
+            expdata.child_data(1).child_data(0).analysis_results("non-zero counts").value, 16
+        )
+        self.assertEqual(
+            expdata.child_data(1).child_data(1).analysis_results("non-zero counts").value, 4
+        )
 
     def test_separate_jobs(self):
         """Test the separate_job experiment option"""

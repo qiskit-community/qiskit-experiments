@@ -37,6 +37,7 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResult,
     AnalysisResultTable,
+    ArtifactData,
 )
 from qiskit_experiments.visualization import BaseDrawer
 
@@ -264,6 +265,27 @@ def _check_service_analysis_results(
 
 
 @_is_equivalent_dispatcher.register
+def _check_artifact_data(
+    data1: ArtifactData,
+    data2: ArtifactData,
+    **kwargs,
+):
+    """Check equality of the ArtifactData class."""
+    return _check_all_attributes(
+        attrs=[
+            "name",
+            "data",
+            "device_components",
+            "experiment_id",
+            "experiment",
+        ],
+        data1=data1,
+        data2=data2,
+        **kwargs,
+    )
+
+
+@_is_equivalent_dispatcher.register
 def _check_configurable_classes(
     data1: Union[BaseExperiment, BaseAnalysis, BaseDrawer],
     data2: Union[BaseExperiment, BaseAnalysis, BaseDrawer],
@@ -294,8 +316,8 @@ def _check_result_table(
     **kwargs,
 ):
     """Check equality of data frame which may involve Qiskit Experiments class value."""
-    table1 = data1.copy().to_dict(orient="index")
-    table2 = data2.copy().to_dict(orient="index")
+    table1 = data1.dataframe.to_dict(orient="index")
+    table2 = data2.dataframe.to_dict(orient="index")
     for table in (table1, table2):
         for result in table.values():
             result.pop("created_time")
@@ -365,7 +387,13 @@ def _check_experiment_data(
         data2.child_data(),
         **kwargs,
     )
-    return all([attributes_equiv, data_equiv, analysis_results_equiv, child_equiv])
+    artifact_equiv = is_equivalent(
+        data1.artifacts(),
+        data2.artifacts(),
+        **kwargs,
+    )
+
+    return all([attributes_equiv, data_equiv, analysis_results_equiv, child_equiv, artifact_equiv])
 
 
 def _check_all_attributes(

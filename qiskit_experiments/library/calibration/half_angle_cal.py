@@ -28,7 +28,7 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
-    """Calibration version of the half-angle experiment."""
+    """Calibration version of the :class:`.HalfAngle` experiment."""
 
     def __init__(
         self,

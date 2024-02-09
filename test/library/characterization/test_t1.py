@@ -16,7 +16,7 @@ Test T1 experiment
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
-from qiskit.providers.fake_provider import FakeAthensV2
+from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
@@ -205,8 +205,9 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res, _ = T1Analysis()._run_analysis(data)
-        result = res[1]
+        experiment_data = T1Analysis().run(data, plot=False)
+        result = experiment_data.analysis_results("T1")
+
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
 
@@ -241,8 +242,8 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res, _ = T1Analysis()._run_analysis(data)
-        result = res[1]
+        experiment_data = T1Analysis().run(data, plot=False)
+        result = experiment_data.analysis_results("T1")
         self.assertEqual(result.quality, "bad")
 
     def test_t1_parallel_exp_transpile(self):

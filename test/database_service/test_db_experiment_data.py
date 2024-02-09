@@ -29,14 +29,14 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeMelbourneV2
+from qiskit_ibm_runtime.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
+from qiskit.providers.backend import Backend
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.framework import AnalysisResult
-from qiskit_experiments.framework import BackendData
+from qiskit_experiments.framework import ExperimentData, AnalysisResult, BackendData, ArtifactData
+
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -56,6 +56,15 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def setUp(self):
         super().setUp()
         self.backend = FakeMelbourneV2()
+
+    def generate_mock_job(self):
+        """Helper method to generate a mock job."""
+        job = mock.create_autospec(Job, instance=True)
+        # mock a backend without provider
+        backend = mock.create_autospec(Backend, instance=True)
+        backend.provider = None
+        job.backend.return_value = backend
+        return job
 
     def test_db_experiment_data_attributes(self):
         """Test DB experiment data attributes."""
@@ -119,12 +128,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_data_job(self):
         """Test add job data."""
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(3)
         num_circs = 3
         jobs = []
         for _ in range(2):
-            job = mock.create_autospec(Job, instance=True)
+            job = self.generate_mock_job()
             job.result.return_value = self._get_job_result(2, label_from=num_circs)
             job.status.return_value = JobStatus.DONE
             jobs.append(job)
@@ -163,7 +172,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             nonlocal called_back
             called_back = True
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -217,7 +226,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             nonlocal called_back
             called_back = True
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
+        a_job.backend.return_value = mock.create_autospec(Backend, instance=True)
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -235,7 +245,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _callback(_exp_data, **kwargs):
             kwargs["event"].wait(timeout=3)
 
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         a_job.result.return_value = self._get_job_result(2)
         a_job.status.return_value = JobStatus.DONE
 
@@ -452,14 +462,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.backend)
         exp_data.save_metadata()
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         exp_data.add_jobs(a_job)
         self.assertIsNotNone(exp_data.backend)
 
     def test_different_backend(self):
         """Test setting a different backend."""
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        a_job = mock.create_autospec(Job, instance=True)
+        a_job = self.generate_mock_job()
         self.assertNotEqual(exp_data.backend, a_job.backend())
         with self.assertLogs("qiskit_experiments", "WARNING"):
             exp_data.add_jobs(a_job)
@@ -478,19 +488,20 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 exp_data.add_analysis_results(res)
 
         # We cannot compare results with exp_data.analysis_results()
-        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        # This test is too hacky since it tries to compare MagicMock with AnalysisResult.
         self.assertEqual(
             [res.result_id for res in exp_data.analysis_results()],
             result_ids,
         )
-        self.assertEqual(
-            exp_data.analysis_results(1).result_id,
-            result_ids[1],
-        )
-        self.assertEqual(
-            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
-            result_ids[2:4],
-        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                exp_data.analysis_results(1).result_id,
+                result_ids[1],
+            )
+            self.assertEqual(
+                [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+                result_ids[2:4],
+            )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
@@ -609,12 +620,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_job_pending(self):
         """Test experiment status when job is pending."""
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.result.return_value = self._get_job_result(3)
         job1.status.return_value = JobStatus.DONE
 
         event = threading.Event()
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.result = lambda *args, **kwargs: event.wait(timeout=15)
         job2.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
         self.addCleanup(event.set)
@@ -634,11 +645,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_job_error(self):
         """Test experiment status when job failed."""
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.result.return_value = self._get_job_result(3)
         job1.status.return_value = JobStatus.DONE
 
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.status.return_value = JobStatus.ERROR
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
@@ -649,7 +660,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_post_processing(self):
         """Test experiment status during post processing."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -664,7 +675,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_cancelled_analysis(self):
         """Test experiment status during post processing."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -686,7 +697,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _post_processing(*args, **kwargs):
             raise ValueError("Kaboom!")
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
@@ -701,7 +712,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_status_done(self):
         """Test experiment status when all jobs are done."""
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
         exp_data = ExperimentData(experiment_type="qiskit_test")
@@ -734,7 +745,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.cancel = _job_cancel
         job.result = _job_result
@@ -760,7 +771,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _analysis(*args):  # pylint: disable = unused-argument
             event.wait(timeout=15)
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
@@ -796,7 +807,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.wait(timeout=timeout)
             run_analysis.append(name)
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
@@ -848,7 +859,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 return JobStatus.CANCELLED
             return JobStatus.RUNNING
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.cancel = event.set
@@ -874,7 +885,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.wait(timeout=15)
             raise ValueError("Job was cancelled.")
 
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.cancel = event.set
@@ -906,11 +917,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _post_processing(*args, **kwargs):  # pylint: disable=unused-argument
             raise ValueError("Kaboom!")
 
-        job1 = mock.create_autospec(Job, instance=True)
+        job1 = self.generate_mock_job()
         job1.job_id.return_value = "1234"
         job1.status.return_value = JobStatus.DONE
 
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.status.return_value = JobStatus.ERROR
         job2.job_id.return_value = "5678"
 
@@ -1031,7 +1042,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             return self._get_job_result(1)
 
         sleep_count = 0
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result = _sleeper
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
@@ -1053,6 +1064,18 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertFalse(copied.analysis_results())
         self.assertEqual(exp_data.provider, copied.provider)
 
+    def test_copy_figure_artifacts(self):
+        """Test copy expdata figures and artifacts."""
+        exp_data = FakeExperiment(experiment_type="qiskit_test").run(backend=FakeBackend())
+        exp_data.add_figures(str.encode("hello world"))
+        exp_data.add_artifacts(ArtifactData(name="test", data="foo"))
+        copied = exp_data.copy(copy_results=True)
+
+        self.assertEqual(exp_data.artifacts(), copied.artifacts())
+        self.assertEqual(exp_data.figure_names, copied.figure_names)
+        for i in exp_data.figure_names:
+            self.assertEqual(exp_data.figure(i), copied.figure(i))
+
     def test_copy_metadata_pending_job(self):
         """Test copy metadata with a pending job."""
         event = threading.Event()
@@ -1069,12 +1092,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             return job_results2
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        job = mock.create_autospec(Job, instance=True)
+        job = self.generate_mock_job()
         job.result = _job1_result
         exp_data.add_jobs(job)
 
         copied = exp_data.copy(copy_results=False)
-        job2 = mock.create_autospec(Job, instance=True)
+        job2 = self.generate_mock_job()
         job2.result = _job2_result
         copied.add_jobs(job2)
         event.set()
@@ -1172,8 +1195,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(data.source, "source_data")
 
     def test_metadata_too_large(self):
-        """Tests that ExperimentData can detect when the metadta
-        should be saved as a seperate file"""
+        """Tests that ExperimentData can detect when the metadata
+        should be saved as a separate file"""
         exp_data = ExperimentData()
         metadata_size = 100000
         exp_data.metadata["components"] = [
@@ -1190,3 +1213,90 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual("ibm-q-internal", exp_data.hub)
         self.assertEqual("deployed", exp_data.group)
         self.assertEqual("default", exp_data.project)
+
+    def test_add_delete_artifact(self):
+        """Tests adding an artifact and a list of artifacts. Tests deleting an artifact
+        by name, ID, and index and ID. Test the metadata is correctly tracking additions
+        and deletions."""
+        exp_data = ExperimentData()
+        self.assertEqual(exp_data.artifacts(), [])
+        new_artifact = ArtifactData(name="test", data="foo")
+        exp_data.add_artifacts(new_artifact)
+        self.assertEqual(exp_data.artifacts(0), new_artifact)
+        self.assertEqual(exp_data.artifacts("test"), new_artifact)
+
+        service = mock.create_autospec(IBMExperimentService, instance=True)
+        exp_data.service = service
+        exp_data.save()
+
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip"})
+
+        # delete by name
+        exp_data.delete_artifact("test")
+        self.assertEqual(exp_data.artifacts(), [])
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(0)
+
+        exp_data.save()
+        # after saving, artifact_files should be updated again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], set())
+
+        new_artifact2 = ArtifactData(name="test", data="foo2")
+        new_artifact3 = ArtifactData(name="test2", data="foo2")
+        exp_data.add_artifacts([new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts(), [new_artifact, new_artifact2, new_artifact3])
+        self.assertEqual(exp_data.artifacts("test"), [new_artifact, new_artifact2])
+
+        deleted_id = exp_data.artifacts(0).artifact_id
+        # delete by index
+        exp_data.delete_artifact(0)
+
+        self.assertEqual(exp_data.artifacts(), [new_artifact2, new_artifact3])
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.artifacts(deleted_id)
+        self.assertEqual(exp_data._deleted_artifacts, {"test"})
+
+        exp_data.save()
+        # after saving, deleted artifacts should be cleared again
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test.zip", "test2.zip"})
+
+        # finish deleting artifacts named test
+        # delete by id
+        exp_data.delete_artifact(exp_data.artifacts(0).artifact_id)
+        self.assertEqual(exp_data.artifacts(), [new_artifact3])
+        exp_data.save()
+        self.assertEqual(exp_data._deleted_artifacts, set())
+        self.assertEqual(exp_data.metadata["artifact_files"], {"test2.zip"})
+
+    def test_add_duplicated_artifact(self):
+        """Tests behavior when adding an artifact with a duplicate ID."""
+        exp_data = ExperimentData()
+
+        new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
+        new_artifact2 = ArtifactData(artifact_id="0", name="test2", data="foo3")
+
+        exp_data.add_artifacts(new_artifact1)
+
+        # Adding an artifact with the same ID should fail
+        with self.assertRaises(ValueError):
+            exp_data.add_artifacts(new_artifact2)
+
+        # Overwrite the artifact with a new one of the same ID
+        exp_data.add_artifacts(new_artifact2, overwrite=True)
+        self.assertEqual(exp_data.artifacts(), [new_artifact2])
+
+    def test_delete_nonexistent_artifact(self):
+        """Tests behavior when deleting a nonexistent artifact."""
+        exp_data = ExperimentData()
+
+        new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
+        exp_data.add_artifacts(new_artifact1)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact(2)
+
+        with self.assertRaises(ExperimentEntryNotFound):
+            exp_data.delete_artifact("123")

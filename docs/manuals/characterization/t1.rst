@@ -30,8 +30,9 @@ The following code demonstrates a basic run of a :math:`T_1` experiment
 for qubit 0.
 
 .. note::
-    This manual requires the :mod:`qiskit_aer` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
@@ -42,9 +43,9 @@ for qubit 0.
     from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     # A kerneled data simulator
     from qiskit_experiments.test.mock_iq_backend import MockIQBackend
