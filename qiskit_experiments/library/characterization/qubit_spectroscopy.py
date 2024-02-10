@@ -44,6 +44,36 @@ class QubitSpectroscopy(Spectroscopy):
 
     # section: analysis_ref
         :class:`~qiskit_experiments.curve_analysis.ResonanceAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library.characterization import QubitSpectroscopy
+
+            qubit = 0
+            freq01_estimate = backend.defaults().qubit_freq_est[qubit]
+            frequencies = np.linspace(freq01_estimate-15e6, freq01_estimate+15e6, 51)
+
+            exp = QubitSpectroscopy(physical_qubits = (0,),
+                                    frequencies = frequencies,
+                                    backend = backend,
+                                    absolute = True,
+                                    analysis = None,
+                                    )
+            exp.set_experiment_options(amp=0.005)
+
+        .. jupyter-execute::
+
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
     """
 
     __spec_gate_name__ = "Spec"
