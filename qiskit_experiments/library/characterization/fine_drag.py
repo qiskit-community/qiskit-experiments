@@ -127,6 +127,28 @@ class FineDrag(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineXDrag
+
+            qubit=0
+            exp = FineXDrag([qubit], backend=backend)
+            print(exp.circuits()[3])
+
+        .. jupyter-execute::
+
+            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
+
     # section: reference
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
