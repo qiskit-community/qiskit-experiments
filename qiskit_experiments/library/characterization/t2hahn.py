@@ -84,7 +84,10 @@ class T2Hahn(BaseExperiment):
             delays = [float(_)*conversion_factor for _ in delays]
             number_of_echoes = 1
 
-            exp = T2Hahn(physical_qubits=(0, ), delays=delays, num_echoes=number_of_echoes, backend=backend)
+            exp = T2Hahn(physical_qubits=(0, ),
+                         delays=delays,
+                         num_echoes=number_of_echoes,
+                         backend=backend)
             print(exp.circuits()[0])
 
         .. jupyter-execute::
