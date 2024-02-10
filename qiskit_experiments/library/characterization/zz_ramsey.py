@@ -124,6 +124,39 @@ class ZZRamsey(BaseExperiment):
     # section: analysis_ref
 
         :class:`ZZRamseyAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit.providers.fake_provider import FakePerth
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakePerth(),
+                                                  thermal_relaxation=True,
+                                                  gate_error=False,
+                                                  readout_error=False,
+            )
+
+            backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import ZZRamsey
+
+            qubits = (0, 1)
+            exp = ZZRamsey(physical_qubits=qubits, backend=backend)
+            exp.set_run_options(shots=1000, seed_simulator=101)
+            print(exp.circuits()[2])
+            print(exp.circuits()[3])
+
+            exp_data = exp.run().block_for_results()
+            result=exp_data.analysis_results()
+            print(f"The value of {exp_data.analysis_results(1).name} is {exp_data.analysis_results(1).value}")
+
+            exp_data.figure(0)
     """
 
     def __init__(
