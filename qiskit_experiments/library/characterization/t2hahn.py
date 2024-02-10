@@ -59,6 +59,42 @@ class T2Hahn(BaseExperiment):
     # section: analysis_ref
         :class:`T2HahnAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+
+            conversion_factor = 1e-6
+            estimated_t2hahn = 20*conversion_factor
+            backend = T2HahnBackend(
+                t2hahn=[estimated_t2hahn],
+                frequency=[100100],
+                readout0to1 = [0.02],
+                readout1to0 = [0.02],
+                )
+
+        .. jupyter-execute::
+
+            import qiskit
+            from qiskit_experiments.library.characterization.t2hahn import T2Hahn
+
+            delays = list(range(0, 50, 1))
+            delays = [float(_)*conversion_factor for _ in delays]
+            number_of_echoes = 1
+
+            exp = T2Hahn(physical_qubits=(0, ), delays=delays, num_echoes=number_of_echoes, backend=backend)
+            print(exp.circuits()[0])
+
+        .. jupyter-execute::
+
+            exp.analysis.set_options(p0=None, plot=True)
+            exp.set_run_options(shots=1000, seed_simulator=121)
+            expdata = exp.run().block_for_results()
+
+            display(expdata.figure(0))
+
     # section: reference
         .. ref_arxiv:: 1 1904.06560
     """
