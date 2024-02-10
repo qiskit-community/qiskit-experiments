@@ -382,7 +382,7 @@ The full description of :class:`.ScatterTable` columns is as follows:
 - `series_id`: Integer corresponding to the name of data series. This number is automatically assigned.
 - `category`: A category that could group several series. This is defined by a
   developer of the :class:`.CurveAnalysis` subclass and usually corresponds to
-  a stage of data processing like "raw" or "formatted".
+  a stage of data processing like `"raw"` or `"formatted"`.
 - `shots`: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.
 - `analysis`: The name of the curve analysis instance that generated a data point.
 
@@ -514,7 +514,7 @@ for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
-updated with the computed (x, y) values. This dataset is stored under the "fitted" category.
+updated with the computed (x, y) values. This dataset is stored under the `"fitted"` category.
 
 Finally, the :meth:`._create_figures` method is called with the entire scatter table data
 to initialize the curve plotter instance accessible via the :attr:`~.CurveAnalysis.plotter` attribute.
