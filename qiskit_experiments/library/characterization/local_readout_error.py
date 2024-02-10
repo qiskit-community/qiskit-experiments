@@ -62,6 +62,29 @@ class LocalReadoutError(BaseExperiment):
     # section: analysis_ref
         :class:`LocalReadoutErrorAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit.providers.fake_provider import FakePerth
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import LocalReadoutError
+
+            qubits = list(range(4))
+            exp = LocalReadoutError(physical_qubits=qubits, backend=backend)
+            exp.analysis.set_options(plot=True)
+            exp.set_run_options(shots=10000)
+
+            result = exp.run()
+            mitigator = result.analysis_results(0).value
+
+            result.figure(0)
+
     # section: manual
         :doc:`/manuals/measurement/readout_mitigation`
 
