@@ -251,6 +251,27 @@ class FineXAmplitude(FineAmplitude):
 
         :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import FineXAmplitude
+
+            qubit = 0
+            exp = FineXAmplitude(qubit, backend=backend)
+            exp.circuits()[5].draw("mpl")
+
+        .. jupyter-execute::
+
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
