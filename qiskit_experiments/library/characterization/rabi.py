@@ -226,6 +226,36 @@ class EFRabi(Rabi):
             measure: 1/══════════════════════╩═
                                              0
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9, seed=200)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.library import EFRabi
+
+            with pulse.build() as build_sched:
+                pulse.play(
+                    pulse.Gaussian(160, Parameter("amp"), sigma=40),
+                    pulse.DriveChannel(0)
+                )
+
+            exp = EFRabi(
+                physical_qubits=(0,),
+                backend=backend,
+                schedule=build_sched,
+                amplitudes=np.linspace(-0.1, 0.1, 21),
+            )
+
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
     """
 
     __outcome__ = "rabi_rate_12"
