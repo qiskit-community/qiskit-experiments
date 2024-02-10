@@ -248,7 +248,7 @@ Managing intermediate data
 :class:`.ScatterTable` is the single source of truth for the data used in curve
 fit analysis.
 Curve analysis primarily involves working with `curves`, which consist of a
-series of x and y values along with a series standard error values for the y
+series of x and y values along with a series of standard error values for the y
 values.
 :class:`.ScatterTable` gathers all of the data from all of the curves together
 into a single table with one row for each x, y value.
@@ -299,7 +299,7 @@ When no `data_processor` option is set, the default behavior is to convert
 counts to probability for level 2 data.
 For level 1 data, the default behavior is to project the complex values to real
 values using singular value decomposition, average the values if individual
-shot data was returned, and then normalize the results.
+shot data were returned, and then normalize the results.
 This processed data set is then given the `category` `"raw"`.
 This data set is classified into series using the ``data_subfit_map`` analysis
 option as described above with the `series_name` set to the matched key in
@@ -317,7 +317,7 @@ The `"raw"` data are then fed into the ``CurveAnalysis._format_data`` method
 for which the default behavior is to average all of the y values within a
 series with the same x value.
 The formatted data are added to the :class:`.ScatterTable` with the same
-`series` labels and the category of ``"formatted"``.
+`series` labels and the category of `"formatted"`.
 The `"formatted"` data set is then queried from the :class:`.ScatterTable` and
 passed to the ``CurveAnalysis._run_curve_fit()`` method which performs the
 fitting.
@@ -336,19 +336,20 @@ analysis classes can be distinguished.
 Note that :meth:`.ScatterTable.add_row` allows for curve analysis subclasses to
 set arbitrary values for `series_name`, `series_id`, and `category` as
 appropriate.
-Some analysis class may override some of the default curve analysis methods and
+An analysis class may override some of the default curve analysis methods and
 add additional `category` labels or define other `series` not named after a
 model.
 For example, :class:`.StarkRamseyXYAmpScanAnalysis` defines four `series`
-labels in ``data_subfit_map`` (``Xpos``, ``Ypos``, ``Xneg``, ``Yneg``) but only
-two models (``FREQpos``, ``FREQneg``) whose names do not match the series
-labels.
+labels in its ``data_subfit_map`` option (``Xpos``, ``Ypos``, ``Xneg``,
+``Yneg``) but only two models (``FREQpos``, ``FREQneg``) whose names do not
+match the series labels.
 It does this by overriding the ``CurveData._format_data()`` method and adding
 its own series to the :class:`.ScatterTable` with series labels to match its
-fit model names (by combining "X" and "Y" series data into "FREQ" series).
+fit model names (by combining ``Xpos``  and ``Ypos`` series data into a
+``FREQpos`` series and similary for the series with names ending with ``neg``).
 It sets a custom category, `"freq"`, for its series but also sets the
 ``fit_category`` analysis option to `"freq"` so that normal curve fitting is
-performed on this custom series data.
+performed on this custom ``"freq"`` series data.
 
 The (`series`, `category`, `analysis`) triplet can be used to extract data
 points that belong to a particular categorized series. For example,
@@ -366,11 +367,12 @@ This operation is equivalent to
     mini_x = table.xvals(series="my_experiment1", category="raw", analysis="AnalysisA")
     mini_y = table.yvals(series="my_experiment1", category="raw", analysis="AnalysisA")
 
-When an analysis only has a single model and the table is created from a single
-analysis instance, the `series_id` and `analysis` are trivial, and you only need to
-specify the `category` to get subset data of interest.
+When a :class:`.CurveAnalysis` subclass only has a single model and the table
+is created from a single analysis instance, the `series_id` and `analysis` are
+trivial, and you only need to specify the `category` to get subset data of
+interest.
 
-The full description of :class:`.ScatterTable` columns are as follows:
+The full description of :class:`.ScatterTable` columns is as follows:
 
 - `xval`: Parameter scanned in the experiment. This value must be defined in the circuit metadata.
 - `yval`: Nominal part of the outcome. The outcome is, for example, an expectation value
@@ -379,8 +381,8 @@ The full description of :class:`.ScatterTable` columns are as follows:
 - `series_name`: Human readable name of the data series. This is defined by the ``data_subfit_map`` option in the :class:`.CurveAnalysis`.
 - `series_id`: Integer corresponding to the name of data series. This number is automatically assigned.
 - `category`: A category that could group several series. This is defined by a
-  developer of the curve analysis and usually corresponds to a stage of data
-  processing like "raw" or "formatted".
+  developer of the :class:`.CurveAnalysis` subclass and usually corresponds to
+  a stage of data processing like "raw" or "formatted".
 - `shots`: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.
 - `analysis`: The name of the curve analysis instance that generated a data point.
 
