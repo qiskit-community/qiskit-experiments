@@ -50,6 +50,48 @@ class Tphi(BatchExperiment):
     # section: analysis_ref
         :class:`.TPhiAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit.providers.fake_provider import FakeManilaV2
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakeManilaV2(),
+                                                  thermal_relaxation=True,
+                                                  gate_error=False,
+                                                  readout_error=False,
+                                                 )
+
+            backend = AerSimulator.from_backend(FakeManilaV2(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            import qiskit
+            from qiskit_experiments.library.characterization import Tphi
+
+            delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
+            delays_t2 = np.arange(1e-6, 50e-6, 2e-6)
+
+        .. jupyter-execute::
+
+            exp = Tphi(physical_qubits=(0, ),
+                        delays_t1=delays_t1,
+                        delays_t2=delays_t2,
+                        t2type="hahn",
+                        osc_freq = 5.e-6,
+                        num_echoes=1,
+                        backend=backend
+                        )
+            exp.set_run_options(seed_simulator=100)
+            exp_data = exp.run().block_for_results()
+
+            result = exp_data.analysis_results("T_phi")
+            print(result)
+
     # section: reference
         .. ref_arxiv:: 1 1904.06560
 
