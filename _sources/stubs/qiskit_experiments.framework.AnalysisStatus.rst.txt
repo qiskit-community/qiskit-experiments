@@ -35,5 +35,13 @@ AnalysisStatus
 
    
    
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AnalysisStatus.__getitem__
+   .. automethod:: AnalysisStatus.__len__
 
    

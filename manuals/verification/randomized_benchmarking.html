@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>Randomized Benchmarking - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,7 +575,7 @@
         </div>
         <article role="main">
           <section id="randomized-benchmarking">
-<h1>Randomized Benchmarking<a class="headerlink" href="#randomized-benchmarking" title="Permalink to this heading">#</a></h1>
+<h1>Randomized Benchmarking<a class="headerlink" href="#randomized-benchmarking" title="Link to this heading">#</a></h1>
 <p>Randomized benchmarking (RB) is a popular protocol for characterizing the error rate of
 quantum processors. An RB experiment consists of the generation of random Clifford
 circuits on the given qubits such that the unitary computed by the circuits is the
@@ -643,7 +586,7 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. <a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#id9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.org/ecosystem/aer/index.html" title="(in Qiskit Aer v0.13.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.13.3)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
@@ -666,7 +609,7 @@ packages to run simulations.  You can install them with <code class="docutils li
 </div>
 </div>
 <section id="standard-rb-experiment">
-<h2>Standard RB experiment<a class="headerlink" href="#standard-rb-experiment" title="Permalink to this heading">#</a></h2>
+<h2>Standard RB experiment<a class="headerlink" href="#standard-rb-experiment" title="Link to this heading">#</a></h2>
 <p>To run the RB experiment we need to provide the following RB parameters,
 in order to generate the RB circuits and run them on a backend:</p>
 <ul class="simple">
@@ -692,7 +635,7 @@ or 2-qubit quantum gates (see <a class="footnote-reference brackets" href="#id10
 </ul>
 </section>
 <section id="running-a-1-qubit-rb-experiment">
-<h2>Running a 1-qubit RB experiment<a class="headerlink" href="#running-a-1-qubit-rb-experiment" title="Permalink to this heading">#</a></h2>
+<h2>Running a 1-qubit RB experiment<a class="headerlink" href="#running-a-1-qubit-rb-experiment" title="Link to this heading">#</a></h2>
 <p>The standard RB experiment will provide you gate errors for every basis gate
 constituting an averaged Clifford gate. Note that you can only obtain a single EPC value
 <span class="math notranslate nohighlight">\(\cal E\)</span> from a single RB experiment. As such, computing the error values for
@@ -754,48 +697,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 107
+ - number of function evals: 137
  - degree of freedom: 1
- - chi-square: 0.6732541126892415
- - reduced chi-square: 0.6732541126892415
- - Akaike info crit.: -1.1277071988745195
- - Bayesian info crit.: -2.968824115514848
+ - chi-square: 1.9375071403692063
+ - reduced chi-square: 1.9375071403692063
+ - Akaike info crit.: 3.1004312258821276
+ - Bayesian info crit.: 1.259314309241799
  - init params:
-  * a = 0.4794450183405667
-  * alpha = 0.9997331390150265
+  * a = 0.47545530774670636
+  * alpha = 0.9997092585281471
   * b = 0.5
  - fit params:
-  * a = 0.1304814202044406 ± 0.034590750559021416
-  * alpha = 0.9986610513065152 ± 0.000488285389120221
-  * b = 0.8490818700651421 ± 0.0348353901781435
+  * a = 0.9758243566876144 ± 3.2980455209962347
+  * alpha = 0.9998686865899459 ± 0.0004594267597934772
+  * b = 9.92447527526925e-14 ± 3.29846663833798
  - correlations:
-  * (a, b) = -0.9994467289833059
-  * (alpha, b) = -0.9919177885597297
-  * (a, alpha) = 0.9895276297077992
+  * (a, b) = -0.9999999177976658
+  * (alpha, b) = -0.9999482161048199
+  * (a, alpha) = 0.9999454306707763
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9987+/-0.0005
-- χ²: 0.6732541126892415
+- value: 0.9999+/-0.0005
+- χ²: 1.9375071403692063
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00067+/-0.00024
-- χ²: 0.6732541126892415
+- value: 0.00007+/-0.00023
+- χ²: 1.9375071403692063
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00072+/-0.00026
-- χ²: 0.6732541126892415
+- value: 0.00007+/-0.00025
+- χ²: 1.9375071403692063
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -803,15 +746,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 0.6732541126892415
+- χ²: 1.9375071403692063
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00072+/-0.00026
-- χ²: 0.6732541126892415
+- value: 0.00007+/-0.00025
+- χ²: 1.9375071403692063
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -822,7 +765,7 @@ AnalysisResult
 </div>
 </section>
 <section id="running-a-2-qubit-rb-experiment">
-<h2>Running a 2-qubit RB experiment<a class="headerlink" href="#running-a-2-qubit-rb-experiment" title="Permalink to this heading">#</a></h2>
+<h2>Running a 2-qubit RB experiment<a class="headerlink" href="#running-a-2-qubit-rb-experiment" title="Link to this heading">#</a></h2>
 <p>In the same way we can compute EPC for two-qubit RB experiment.
 However, the EPC value obtained by the experiment indicates a depolarization
 which is a composition of underlying error channels for 2Q gates and 1Q gates in each qubit.
@@ -920,30 +863,30 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - success: True
  - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 6.006593628296638
- - reduced chi-square: 1.5016484070741596
- - Akaike info crit.: 4.928633583822473
- - Bayesian info crit.: 4.766364030988412
+ - chi-square: 0.707915472007912
+ - reduced chi-square: 0.176978868001978
+ - Akaike info crit.: -10.039385119034169
+ - Bayesian info crit.: -10.20165467186823
  - init params:
-  * a = 0.7153908397301181
-  * alpha = 0.9833274003054449
+  * a = 0.7157450292427316
+  * alpha = 0.9835223309297522
   * b = 0.25
  - fit params:
-  * a = 0.707043378785094 ± 0.0063324720698308455
-  * alpha = 0.9819329102435933 ± 0.0004746239823969715
-  * b = 0.257910082963762 ± 0.005488783307144004
+  * a = 0.7080983140895241 ± 0.005643207124662578
+  * alpha = 0.9818224271603304 ± 0.0005109657480344805
+  * b = 0.2586450643023129 ± 0.005175536181044641
  - correlations:
-  * (alpha, b) = -0.8728042448820191
-  * (a, b) = -0.7268000485928281
-  * (a, alpha) = 0.4971536723482676
+  * (alpha, b) = -0.8962117938468411
+  * (a, b) = -0.8107155741234127
+  * (a, alpha) = 0.650252887910736
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9819+/-0.0005
-- χ²: 1.5016484070741596
+- value: 0.9818+/-0.0005
+- χ²: 0.176978868001978
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -951,23 +894,23 @@ AnalysisResult
 AnalysisResult
 - name: EPC
 - value: 0.0136+/-0.0004
-- χ²: 1.5016484070741596
+- χ²: 0.176978868001978
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0127+/-0.0006
-- χ²: 1.5016484070741596
+- value: 0.0122+/-0.0006
+- χ²: 0.176978868001978
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0082+/-0.0004
-- χ²: 1.5016484070741596
+- value: 0.0079+/-0.0004
+- χ²: 0.176978868001978
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -980,7 +923,7 @@ AnalysisResult
 contribution of depolarization from single-qubit error channels.</p>
 </section>
 <section id="displaying-the-rb-circuits">
-<h2>Displaying the RB circuits<a class="headerlink" href="#displaying-the-rb-circuits" title="Permalink to this heading">#</a></h2>
+<h2>Displaying the RB circuits<a class="headerlink" href="#displaying-the-rb-circuits" title="Link to this heading">#</a></h2>
 <p>The default RB circuit output shows Clifford blocks:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -1026,7 +969,7 @@ Transpiled circuits may have less number of gates after the change.</p>
 </div>
 </section>
 <section id="interleaved-rb-experiment">
-<h2>Interleaved RB experiment<a class="headerlink" href="#interleaved-rb-experiment" title="Permalink to this heading">#</a></h2>
+<h2>Interleaved RB experiment<a class="headerlink" href="#interleaved-rb-experiment" title="Link to this heading">#</a></h2>
 <p>The interleaved RB experiment is used to estimate the gate error of the interleaved gate
 (see <a class="footnote-reference brackets" href="#id11" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>). In addition to the usual RB parameters, we also need to provide:</p>
 <ul class="simple">
@@ -1085,53 +1028,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 25
+ - number of function evals: 30
  - degree of freedom: 10
- - chi-square: 14.40516969771666
- - reduced chi-square: 1.440516969771666
- - Akaike info crit.: 8.399417470550825
- - Bayesian info crit.: 10.955646789011858
+ - chi-square: 4.281343434125511
+ - reduced chi-square: 0.42813434341255113
+ - Akaike info crit.: -8.587066759139582
+ - Bayesian info crit.: -6.030837440678548
  - init params:
-  * a = 0.7126638264435229
-  * alpha = 0.9830081638014985
+  * a = 0.7165486059300679
+  * alpha = 0.9832615592087711
   * b = 0.25
-  * alpha_c = 0.9914508877056706
+  * alpha_c = 0.9855658695663906
  - fit params:
-  * a = 0.7093102639396548 ± 0.003538777314875402
-  * alpha = 0.981992916968858 ± 0.0003166647093338
-  * b = 0.25437062605886857 ± 0.0024675587091633573
-  * alpha_c = 0.9894392400350617 ± 0.0005294971979923898
+  * a = 0.7134198830125985 ± 0.003636549476869393
+  * alpha = 0.9825305708813271 ± 0.00032371487686398454
+  * b = 0.25178139527292814 ± 0.002584160010123071
+  * alpha_c = 0.9893719209566828 ± 0.0005503762186691062
  - correlations:
-  * (alpha, b) = -0.6633639946741174
-  * (a, b) = -0.5670094565078011
-  * (b, alpha_c) = -0.4061889246497461
-  * (alpha, alpha_c) = -0.03188888169635885
-  * (a, alpha_c) = 0.17930564123616816
-  * (a, alpha) = 0.2125169994262081
+  * (alpha, b) = -0.630010532048512
+  * (a, b) = -0.5874321350642775
+  * (b, alpha_c) = -0.36669684185227175
+  * (alpha, alpha_c) = -0.08729622631659853
+  * (a, alpha_c) = 0.13009823829223727
+  * (a, alpha) = 0.2226386140308698
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98199+/-0.00032
-- χ²: 1.440516969771666
+- value: 0.98253+/-0.00032
+- χ²: 0.42813434341255113
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9894+/-0.0005
-- χ²: 1.440516969771666
+- value: 0.9894+/-0.0006
+- χ²: 0.42813434341255113
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0079+/-0.0004
-- χ²: 1.440516969771666
+- value: 0.0080+/-0.0004
+- χ²: 0.42813434341255113
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1142,7 +1085,7 @@ AnalysisResult
 </div>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id8" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -1175,7 +1118,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
 </aside>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../../apidocs/mod_randomized_benchmarking.html#module-qiskit_experiments.library.randomized_benchmarking" title="qiskit_experiments.library.randomized_benchmarking"><code class="xref py py-mod docutils literal notranslate"><span class="pre">randomized_benchmarking</span></code></a></p></li>
 <li><p>Qiskit Textbook: <a class="reference external" href="https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb">Randomized Benchmarking</a></p></li>
@@ -1186,20 +1129,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="state_tomography.html">
               <div class="page-info">
                 <div class="context">
@@ -1230,7 +1160,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1272,9 +1202,9 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

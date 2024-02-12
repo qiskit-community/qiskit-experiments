@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="MitigatedStateTomography" href="qiskit_experiments.library.tomography.MitigatedStateTomography.html" /><link rel="prev" title="StateTomography" href="qiskit_experiments.library.tomography.StateTomography.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>ProcessTomography - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,10 +575,10 @@
         </div>
         <article role="main">
           <section id="processtomography">
-<h1>ProcessTomography<a class="headerlink" href="#processtomography" title="Permalink to this heading">#</a></h1>
+<h1>ProcessTomography<a class="headerlink" href="#processtomography" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProcessTomography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_qubits=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_basis=&lt;PauliMeasurementBasis:</span> <span class="pre">PauliMeasurementBasis&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation_basis=&lt;PauliPreparationBasis:</span> <span class="pre">PauliPreparationBasis&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_circuit_clbits=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis='default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target='default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/qpt_experiment.html#ProcessTomography"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProcessTomography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physical_qubits=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_basis=&lt;PauliMeasurementBasis:</span> <span class="pre">PauliMeasurementBasis&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation_basis=&lt;PauliPreparationBasis:</span> <span class="pre">PauliPreparationBasis&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preparation_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_circuit_clbits=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis='default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target='default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/qpt_experiment.html#ProcessTomography"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography" title="Link to this definition">#</a></dt>
 <dd><p>An experiment to reconstruct the quantum channel from measurement data.</p>
 <p class="rubric">Overview</p>
 <p>Quantum process tomography (QPT) is a method for experimentally
@@ -726,56 +669,56 @@ if it contains no classical instructions.</p></li>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.analysis">
-<span class="sig-name descname"><span class="pre">analysis</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.analysis" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">analysis</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.analysis" title="Link to this definition">#</a></dt>
 <dd><p>Return the analysis instance for the experiment</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.backend">
-<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.backend" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.backend" title="Link to this definition">#</a></dt>
 <dd><p>Return the backend for the experiment</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.experiment_options">
-<span class="sig-name descname"><span class="pre">experiment_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.experiment_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.experiment_options" title="Link to this definition">#</a></dt>
 <dd><p>Return the options for the experiment.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.experiment_type">
-<span class="sig-name descname"><span class="pre">experiment_type</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.experiment_type" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_type</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.experiment_type" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment type.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.num_qubits">
-<span class="sig-name descname"><span class="pre">num_qubits</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.num_qubits" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">num_qubits</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.num_qubits" title="Link to this definition">#</a></dt>
 <dd><p>Return the number of qubits for the experiment.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.physical_qubits">
-<span class="sig-name descname"><span class="pre">physical_qubits</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.physical_qubits" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">physical_qubits</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.physical_qubits" title="Link to this definition">#</a></dt>
 <dd><p>Return the device qubits for the experiment.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.run_options">
-<span class="sig-name descname"><span class="pre">run_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.run_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.run_options" title="Link to this definition">#</a></dt>
 <dd><p>Return options values for the experiment <a class="reference internal" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="qiskit_experiments.library.tomography.ProcessTomography.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.transpile_options">
-<span class="sig-name descname"><span class="pre">transpile_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.transpile_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transpile_options</span></span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.transpile_options" title="Link to this definition">#</a></dt>
 <dd><p>Return the transpiler options for the <a class="reference internal" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="qiskit_experiments.library.tomography.ProcessTomography.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.circuits">
-<span class="sig-name descname"><span class="pre">circuits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.circuits" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">circuits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.circuits" title="Link to this definition">#</a></dt>
 <dd><p>Return a list of experiment circuits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -792,7 +735,7 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.config">
-<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.config" title="Link to this definition">#</a></dt>
 <dd><p>Return the config dataclass for this experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -803,7 +746,7 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.copy" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.copy" title="Link to this definition">#</a></dt>
 <dd><p>Return a copy of the experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -814,7 +757,7 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.from_config" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Initialize an experiment from experiment config</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -825,12 +768,12 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.job_info">
-<span class="sig-name descname"><span class="pre">job_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.job_info" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">job_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.job_info" title="Link to this definition">#</a></dt>
 <dd><p>Get information about job distribution for the experiment on a specific
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -859,7 +802,7 @@ experiment on the currently set backend.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">run_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">run_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="Link to this definition">#</a></dt>
 <dd><p>Run an experiment and perform analysis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -891,7 +834,7 @@ cancelling.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.set_experiment_options">
-<span class="sig-name descname"><span class="pre">set_experiment_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_experiment_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_experiment_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_experiment_options" title="Link to this definition">#</a></dt>
 <dd><p>Set the experiment options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -905,7 +848,7 @@ cancelling.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.set_run_options">
-<span class="sig-name descname"><span class="pre">set_run_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_run_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_run_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_run_options" title="Link to this definition">#</a></dt>
 <dd><p>Set options values for the experiment  <a class="reference internal" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="qiskit_experiments.library.tomography.ProcessTomography.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -920,7 +863,7 @@ cancelling.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.ProcessTomography.set_transpile_options">
-<span class="sig-name descname"><span class="pre">set_transpile_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_transpile_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_transpile_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.ProcessTomography.set_transpile_options" title="Link to this definition">#</a></dt>
 <dd><p>Set the transpiler options for <a class="reference internal" href="#qiskit_experiments.library.tomography.ProcessTomography.run" title="qiskit_experiments.library.tomography.ProcessTomography.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -943,20 +886,7 @@ cancelling.</p></li>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="qiskit_experiments.library.tomography.MitigatedStateTomography.html">
               <div class="page-info">
                 <div class="context">
@@ -987,7 +917,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1042,9 +972,9 @@ cancelling.</p></li>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>qiskit_experiments.framework.composite.composite_experiment - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -655,7 +598,9 @@
 <span class="kn">from</span> <span class="nn">.composite_analysis</span> <span class="kn">import</span> <span class="n">CompositeAnalysis</span>
 
 
-<div class="viewcode-block" id="CompositeExperiment"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment">[docs]</a><span class="k">class</span> <span class="nc">CompositeExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<div class="viewcode-block" id="CompositeExperiment">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment">[docs]</a>
+<span class="k">class</span> <span class="nc">CompositeExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite Experiment base class&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -712,22 +657,30 @@
             <span class="n">experiment_type</span><span class="o">=</span><span class="n">experiment_type</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="CompositeExperiment.circuits"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.circuits">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="CompositeExperiment.circuits">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.circuits">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="CompositeExperiment.set_transpile_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.set_transpile_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CompositeExperiment.set_transpile_options">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.set_transpile_options">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="c1"># Recursively set transpile options of component experiments</span>
         <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span><span class="p">:</span>
             <span class="n">exp</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of sub experiments&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_experiments</span>
 
-<div class="viewcode-block" id="CompositeExperiment.component_experiment"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.component_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">component_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">]]:</span>
+<div class="viewcode-block" id="CompositeExperiment.component_experiment">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.component_experiment">[docs]</a>
+    <span class="k">def</span> <span class="nf">component_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the component Experiment object.</span>
 
 <span class="sd">        Args:</span>
@@ -738,6 +691,7 @@
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">CompositeAnalysis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
@@ -751,7 +705,9 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a None or a CompositeAnalysis subclass.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span> <span class="o">=</span> <span class="n">analysis</span>
 
-<div class="viewcode-block" id="CompositeExperiment.copy"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseExperiment&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="CompositeExperiment.copy">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.copy">[docs]</a>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseExperiment&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of the experiment&quot;&quot;&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># Recursively call copy of component experiments</span>
@@ -767,10 +723,14 @@
                     <span class="n">ret</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">_analyses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">_experiments</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">analysis</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="CompositeExperiment.set_run_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.set_run_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_run_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CompositeExperiment.set_run_options">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.set_run_options">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_run_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">subexp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span><span class="p">:</span>
             <span class="n">subexp</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
@@ -832,24 +792,12 @@
             <span class="n">sub_exp</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span> <span class="k">for</span> <span class="n">sub_exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">()</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
+
 </pre></div>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           
           
         </div>
@@ -862,7 +810,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -879,9 +827,9 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../../_static/thebelab-helper.js"></script>

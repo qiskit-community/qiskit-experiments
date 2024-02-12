@@ -43,5 +43,13 @@ ExperimentStatus
 
    
    
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ExperimentStatus.__getitem__
+   .. automethod:: ExperimentStatus.__len__
 
    

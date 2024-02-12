@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentStatus" href="qiskit_experiments.framework.ExperimentStatus.html" /><link rel="prev" title="Experiment Framework (qiskit_experiments.framework)" href="../apidocs/framework.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>ExperimentData - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,10 +575,10 @@
         </div>
         <article role="main">
           <section id="experimentdata">
-<h1>ExperimentData<a class="headerlink" href="#experimentdata" title="Permalink to this heading">#</a></h1>
+<h1>ExperimentData<a class="headerlink" href="#experimentdata" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData" title="Link to this definition">#</a></dt>
 <dd><p>Experiment data container class.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -691,7 +634,7 @@ via three different methods, given here by priority:</p>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.auto_save">
-<span class="sig-name descname"><span class="pre">auto_save</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.auto_save" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">auto_save</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.auto_save" title="Link to this definition">#</a></dt>
 <dd><p>Return current auto-save option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -702,7 +645,7 @@ via three different methods, given here by priority:</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.backend">
-<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.backend" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.backend" title="Link to this definition">#</a></dt>
 <dd><p>Return backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -713,19 +656,19 @@ via three different methods, given here by priority:</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.backend_name">
-<span class="sig-name descname"><span class="pre">backend_name</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.backend_name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">backend_name</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.backend_name" title="Link to this definition">#</a></dt>
 <dd><p>Return the backend’s name</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.completion_times">
-<span class="sig-name descname"><span class="pre">completion_times</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.completion_times" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">completion_times</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.completion_times" title="Link to this definition">#</a></dt>
 <dd><p>Returns the completion times of the jobs.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.creation_datetime">
-<span class="sig-name descname"><span class="pre">creation_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.creation_datetime" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">creation_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.creation_datetime" title="Link to this definition">#</a></dt>
 <dd><p>Return the creation datetime of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -737,7 +680,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.end_datetime">
-<span class="sig-name descname"><span class="pre">end_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.end_datetime" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">end_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.end_datetime" title="Link to this definition">#</a></dt>
 <dd><p>Return the end datetime of this experiment data.</p>
 <p>The end datetime is the time the latest job data was
 added without errors; this can change as more jobs finish.</p>
@@ -751,7 +694,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.experiment">
-<span class="sig-name descname"><span class="pre">experiment</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment" title="Link to this definition">#</a></dt>
 <dd><p>Return the experiment for this data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -765,7 +708,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.experiment_id">
-<span class="sig-name descname"><span class="pre">experiment_id</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_id</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment_id" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment ID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -776,7 +719,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.experiment_type">
-<span class="sig-name descname"><span class="pre">experiment_type</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment_type" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_type</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.experiment_type" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment type</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -787,7 +730,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.figure_names">
-<span class="sig-name descname"><span class="pre">figure_names</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.figure_names" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">figure_names</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.figure_names" title="Link to this definition">#</a></dt>
 <dd><p>Return names of the figures associated with this experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -798,7 +741,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.group">
-<span class="sig-name descname"><span class="pre">group</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.group" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">group</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.group" title="Link to this definition">#</a></dt>
 <dd><p>Return the group of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -809,13 +752,13 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.hgp">
-<span class="sig-name descname"><span class="pre">hgp</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.hgp" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hgp</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.hgp" title="Link to this definition">#</a></dt>
 <dd><p>Returns Hub/Group/Project data as a formatted string</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.hub">
-<span class="sig-name descname"><span class="pre">hub</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.hub" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hub</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.hub" title="Link to this definition">#</a></dt>
 <dd><p>Return the hub of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -826,14 +769,14 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_ids">
-<span class="sig-name descname"><span class="pre">job_ids</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_ids" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">job_ids</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_ids" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment job IDs.</p>
 <p>Returns: IDs of jobs submitted for this experiment.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.metadata">
-<span class="sig-name descname"><span class="pre">metadata</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.metadata" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">metadata</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.metadata" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -844,7 +787,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.notes">
-<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.notes" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.notes" title="Link to this definition">#</a></dt>
 <dd><p>Return experiment notes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -855,7 +798,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.parent_id">
-<span class="sig-name descname"><span class="pre">parent_id</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.parent_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">parent_id</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.parent_id" title="Link to this definition">#</a></dt>
 <dd><p>Return parent experiment ID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -866,7 +809,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.project">
-<span class="sig-name descname"><span class="pre">project</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.project" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">project</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.project" title="Link to this definition">#</a></dt>
 <dd><p>Return the project of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -877,7 +820,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.provider">
-<span class="sig-name descname"><span class="pre">provider</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.provider" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">provider</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.provider" title="Link to this definition">#</a></dt>
 <dd><p>Return the backend provider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -888,7 +831,7 @@ in the local timezone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.running_time">
-<span class="sig-name descname"><span class="pre">running_time</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.running_time" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">running_time</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.running_time" title="Link to this definition">#</a></dt>
 <dd><p>Return the running time of this experiment data.</p>
 <p>The running time is the time the latest successful job started running on
 the remote quantum machine. This can change as more jobs finish.</p>
@@ -896,7 +839,7 @@ the remote quantum machine. This can change as more jobs finish.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.service">
-<span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.service" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">service</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.service" title="Link to this definition">#</a></dt>
 <dd><p>Return the database service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -907,7 +850,7 @@ the remote quantum machine. This can change as more jobs finish.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.share_level">
-<span class="sig-name descname"><span class="pre">share_level</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.share_level" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">share_level</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.share_level" title="Link to this definition">#</a></dt>
 <dd><p>Return the share level for this experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -918,13 +861,13 @@ the remote quantum machine. This can change as more jobs finish.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.source">
-<span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.source" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.source" title="Link to this definition">#</a></dt>
 <dd><p>Return the class name and version.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.start_datetime">
-<span class="sig-name descname"><span class="pre">start_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.start_datetime" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.start_datetime" title="Link to this definition">#</a></dt>
 <dd><p>Return the start datetime of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -935,7 +878,7 @@ the remote quantum machine. This can change as more jobs finish.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.tags">
-<span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.tags" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.tags" title="Link to this definition">#</a></dt>
 <dd><p>Return tags assigned to this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -946,7 +889,7 @@ the remote quantum machine. This can change as more jobs finish.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.updated_datetime">
-<span class="sig-name descname"><span class="pre">updated_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.updated_datetime" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">updated_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.updated_datetime" title="Link to this definition">#</a></dt>
 <dd><p>Return the update datetime of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -959,7 +902,7 @@ in the local timezone.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_analysis_callback">
-<span class="sig-name descname"><span class="pre">add_analysis_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_callback" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_analysis_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_callback" title="Link to this definition">#</a></dt>
 <dd><p>Add analysis callback for running after experiment data jobs are finished.</p>
 <p>This method adds the <cite>callback</cite> function to a queue to be run
 asynchronously after completion of any running jobs, or immediately
@@ -982,7 +925,7 @@ keyword arguments passed to this method.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_analysis_results">
-<span class="sig-name descname"><span class="pre">add_analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="Link to this definition">#</a></dt>
 <dd><p>Save the analysis result.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6_pending: </span><code class="docutils literal notranslate"><span class="pre">qiskit_experiments.framework.experiment_data.ExperimentData.add_analysis_results()</span></code>’s argument <code class="docutils literal notranslate"><span class="pre">results</span></code> is pending deprecation as of qiskit-experiments 0.6. It will be marked deprecated in a future release, and then removed no earlier than 3 months after the release date. Use keyword arguments rather than creating an AnalysisResult object.</p>
@@ -1011,12 +954,12 @@ New dataframe columns are created in the analysis result table with added keys.<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_artifacts">
-<span class="sig-name descname"><span class="pre">add_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_artifacts" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_artifacts" title="Link to this definition">#</a></dt>
 <dd><p>Add artifacts to experiment. The artifact ID must be unique.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>artifacts</strong> (<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData"><em>ArtifactData</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData"><em>ArtifactData</em></a><em>]</em>) – Artifact or list of artifacts to be added.</p></li>
+<li><p><strong>artifacts</strong> (<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.containers.artifact_data.ArtifactData"><em>ArtifactData</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.containers.artifact_data.ArtifactData"><em>ArtifactData</em></a><em>]</em>) – Artifact or list of artifacts to be added.</p></li>
 <li><p><strong>overwrite</strong> (<em>bool</em>) – Whether to overwrite the existing artifact.</p></li>
 </ul>
 </dd>
@@ -1025,7 +968,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_child_data">
-<span class="sig-name descname"><span class="pre">add_child_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_child_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_child_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_child_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_child_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_child_data" title="Link to this definition">#</a></dt>
 <dd><p>Add child experiment data to the current experiment data</p>
 <dl class="field-list simple">
 </dl>
@@ -1033,7 +976,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_data">
-<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_data" title="Link to this definition">#</a></dt>
 <dd><p>Add experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1054,7 +997,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_figures">
-<span class="sig-name descname"><span class="pre">add_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_figures" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_figures" title="Link to this definition">#</a></dt>
 <dd><p>Add the experiment figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1088,7 +1031,7 @@ the <code class="docutils literal notranslate"><span class="pre">auto-save</span
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_jobs">
-<span class="sig-name descname"><span class="pre">add_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_jobs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_jobs" title="Link to this definition">#</a></dt>
 <dd><p>Add experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1113,7 +1056,7 @@ kwarg of <a class="reference internal" href="#qiskit_experiments.framework.Exper
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_tags_recursive">
-<span class="sig-name descname"><span class="pre">add_tags_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags2add</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_tags_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_tags_recursive" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_tags_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags2add</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_tags_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_tags_recursive" title="Link to this definition">#</a></dt>
 <dd><p>Add tags to this experiment itself and its descendants</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1124,7 +1067,7 @@ kwarg of <a class="reference internal" href="#qiskit_experiments.framework.Exper
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.analysis_errors">
-<span class="sig-name descname"><span class="pre">analysis_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_errors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">analysis_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_errors" title="Link to this definition">#</a></dt>
 <dd><p>Return any errors encountered during analysis callbacks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1135,8 +1078,14 @@ kwarg of <a class="reference internal" href="#qiskit_experiments.framework.Exper
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.analysis_results">
-<span class="sig-name descname"><span class="pre">analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_results" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_results" title="Link to this definition">#</a></dt>
 <dd><p>Return analysis results associated with this experiment.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Retrieving analysis results by a numerical index, whether an integer or a slice,
+is deprecated as of 0.6 and will be removed in a future release. Use the name
+or ID of the result instead.</p>
+</div>
 <p>When this method is called with <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code> you will receive
 matched result entries with the <code class="docutils literal notranslate"><span class="pre">index</span></code> condition in the dataframe format.
 You can access a certain entry value by specifying its row index by either
@@ -1206,14 +1155,14 @@ mutate the original dataset.</p>
 <dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html#qiskit_experiments.database_service.ExperimentEntryNotFound" title="qiskit_experiments.database_service.ExperimentEntryNotFound"><strong>ExperimentEntryNotFound</strong></a> – If the entry cannot be found.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.AnalysisResult">AnalysisResult</a> | list[<a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.AnalysisResult">AnalysisResult</a>] | pd.DataFrame</p>
+<dd class="field-even"><p><a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a> | list[<a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a>] | <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.0)"><em>DataFrame</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.analysis_status">
-<span class="sig-name descname"><span class="pre">analysis_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_status" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">analysis_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_status" title="Link to this definition">#</a></dt>
 <dd><p>Return the data analysis post-processing status.</p>
 <p>Possible return values for <a class="reference internal" href="qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus" title="qiskit_experiments.framework.AnalysisStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisStatus</span></code></a> are</p>
 <ul class="simple">
@@ -1235,7 +1184,7 @@ mutate the original dataset.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.artifacts">
-<span class="sig-name descname"><span class="pre">artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.artifacts" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.artifacts" title="Link to this definition">#</a></dt>
 <dd><p>Return specified artifact data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1245,14 +1194,14 @@ mutate the original dataset.</p>
 <dd class="field-even"><p>A list of specified artifact data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData">ArtifactData</a> | list[<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.ArtifactData">ArtifactData</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.containers.artifact_data.ArtifactData"><em>ArtifactData</em></a> | list[<a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html#qiskit_experiments.framework.ArtifactData" title="qiskit_experiments.framework.containers.artifact_data.ArtifactData"><em>ArtifactData</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.block_for_results">
-<span class="sig-name descname"><span class="pre">block_for_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.block_for_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.block_for_results" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">block_for_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.block_for_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.block_for_results" title="Link to this definition">#</a></dt>
 <dd><p>Block until all pending jobs and analysis callbacks finish.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1262,14 +1211,14 @@ mutate the original dataset.</p>
 <dd class="field-even"><p>The experiment data with finished jobs and post-processing.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData">ExperimentData</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.cancel">
-<span class="sig-name descname"><span class="pre">cancel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cancel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel" title="Link to this definition">#</a></dt>
 <dd><p>Attempt to cancel any running jobs and queued analysis callbacks.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1287,7 +1236,7 @@ mutate the original dataset.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.cancel_analysis">
-<span class="sig-name descname"><span class="pre">cancel_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel_analysis" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cancel_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel_analysis" title="Link to this definition">#</a></dt>
 <dd><p>Cancel any queued analysis callbacks.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1310,7 +1259,7 @@ cancelled otherwise false.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.cancel_jobs">
-<span class="sig-name descname"><span class="pre">cancel_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel_jobs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cancel_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.cancel_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.cancel_jobs" title="Link to this definition">#</a></dt>
 <dd><p>Cancel any running jobs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1328,7 +1277,7 @@ otherwise false.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.child_data">
-<span class="sig-name descname"><span class="pre">child_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.child_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.child_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">child_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.child_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.child_data" title="Link to this definition">#</a></dt>
 <dd><p>Return child experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1359,7 +1308,7 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copy_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.copy" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copy_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.copy" title="Link to this definition">#</a></dt>
 <dd><p>Make a copy of the experiment data with a new experiment ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1373,14 +1322,14 @@ the experiment data and metadata.</p>
 but different IDs.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData">ExperimentData</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.data">
-<span class="sig-name descname"><span class="pre">data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.data" title="Link to this definition">#</a></dt>
 <dd><p>Return the experiment data at the specified index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1410,11 +1359,11 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_analysis_result">
-<span class="sig-name descname"><span class="pre">delete_analysis_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_analysis_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_analysis_result" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_analysis_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_analysis_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_analysis_result" title="Link to this definition">#</a></dt>
 <dd><p>Delete the analysis result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>result_key</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em>) – ID or index of the analysis result to be deleted.</p>
+<dd class="field-odd"><p><strong>result_key</strong> (<em>int</em><em> | </em><em>str</em>) – ID or index of the analysis result to be deleted.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Deleted analysis result IDs.</p>
@@ -1430,7 +1379,7 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_artifact">
-<span class="sig-name descname"><span class="pre">delete_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_artifact" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_artifact" title="Link to this definition">#</a></dt>
 <dd><p>Delete specified artifact data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1447,7 +1396,7 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_figure">
-<span class="sig-name descname"><span class="pre">delete_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_figure" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_figure" title="Link to this definition">#</a></dt>
 <dd><p>Add the experiment figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1467,7 +1416,7 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.errors">
-<span class="sig-name descname"><span class="pre">errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.errors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.errors" title="Link to this definition">#</a></dt>
 <dd><p>Return errors encountered during job and analysis execution.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1486,7 +1435,7 @@ Several types are accepted for convenience:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.figure">
-<span class="sig-name descname"><span class="pre">figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.figure" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.figure" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve the specified experiment figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1511,19 +1460,19 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.get_service_from_backend">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_backend" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_backend" title="Link to this definition">#</a></dt>
 <dd><p>Initializes the service from the backend data</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.get_service_from_provider">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_provider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_provider" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_provider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_provider" title="Link to this definition">#</a></dt>
 <dd><p>Initializes the service from the provider data</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_errors">
-<span class="sig-name descname"><span class="pre">job_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_errors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">job_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_errors" title="Link to this definition">#</a></dt>
 <dd><p>Return any errors encountered in job execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1534,7 +1483,7 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_status">
-<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_status" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_status" title="Link to this definition">#</a></dt>
 <dd><p>Return the experiment job execution status.</p>
 <p>Possible return values for <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a> are</p>
 <ul class="simple">
@@ -1564,7 +1513,7 @@ pending or running jobs. In these cases it may be beneficial to call
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.jobs">
-<span class="sig-name descname"><span class="pre">jobs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.jobs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">jobs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.jobs" title="Link to this definition">#</a></dt>
 <dd><p>Return a list of jobs for the experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1575,7 +1524,7 @@ pending or running jobs. In these cases it may be beneficial to call
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.load" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.load" title="Link to this definition">#</a></dt>
 <dd><p>Load a saved experiment data from a database service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1597,14 +1546,14 @@ not be confused with the experiment database service
 <dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataError.html#qiskit_experiments.database_service.ExperimentDataError" title="qiskit_experiments.database_service.ExperimentDataError"><strong>ExperimentDataError</strong></a> – If not service nor provider were given.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData">ExperimentData</a></p>
+<dd class="field-even"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.remove_tags_recursive">
-<span class="sig-name descname"><span class="pre">remove_tags_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags2remove</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.remove_tags_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.remove_tags_recursive" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">remove_tags_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags2remove</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.remove_tags_recursive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.remove_tags_recursive" title="Link to this definition">#</a></dt>
 <dd><p>Remove tags from this experiment itself and its descendants</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1615,7 +1564,7 @@ not be confused with the experiment database service
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suppress_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_artifacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suppress_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_artifacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save" title="Link to this definition">#</a></dt>
 <dd><p>Save the experiment data to a database service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1647,7 +1596,7 @@ additional tags or notes) use <a class="reference internal" href="#qiskit_experi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.save_metadata">
-<span class="sig-name descname"><span class="pre">save_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save_metadata" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.save_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.save_metadata" title="Link to this definition">#</a></dt>
 <dd><p>Save this experiments metadata to a database service.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1662,7 +1611,7 @@ for fields that are saved.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.status" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.status" title="Link to this definition">#</a></dt>
 <dd><p>Return the experiment status.</p>
 <p>Possible return values for <a class="reference internal" href="qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus" title="qiskit_experiments.framework.ExperimentStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentStatus</span></code></a> are</p>
 <ul class="simple">
@@ -1699,20 +1648,7 @@ remaining jobs.</p>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="qiskit_experiments.framework.ExperimentStatus.html">
               <div class="page-info">
                 <div class="context">
@@ -1743,7 +1679,7 @@ remaining jobs.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1841,9 +1777,9 @@ remaining jobs.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

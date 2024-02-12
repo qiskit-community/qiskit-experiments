@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -664,7 +607,9 @@
 <span class="kn">from</span> <span class="nn">.base_drawer</span> <span class="kn">import</span> <span class="n">BaseDrawer</span><span class="p">,</span> <span class="n">SeriesName</span>
 
 
-<div class="viewcode-block" id="MplDrawer"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer">[docs]</a><span class="k">class</span> <span class="nc">MplDrawer</span><span class="p">(</span><span class="n">BaseDrawer</span><span class="p">):</span>
+<div class="viewcode-block" id="MplDrawer">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer">[docs]</a>
+<span class="k">class</span> <span class="nc">MplDrawer</span><span class="p">(</span><span class="n">BaseDrawer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drawer for MatplotLib backend.&quot;&quot;&quot;</span>
 
     <span class="n">DefaultMarkers</span> <span class="o">=</span> <span class="n">MarkerStyle</span><span class="o">.</span><span class="n">filled_markers</span>
@@ -704,7 +649,9 @@
         <span class="c1"># _get_default_color.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_series</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="MplDrawer.initialize_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.initialize_canvas">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MplDrawer.initialize_canvas">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.initialize_canvas">[docs]</a>
+    <span class="k">def</span> <span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create axis if empty</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span><span class="p">:</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="n">get_non_gui_ax</span><span class="p">()</span>
@@ -773,7 +720,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span> <span class="o">=</span> <span class="n">axis</span></div>
 
-<div class="viewcode-block" id="MplDrawer.format_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.format_canvas">[docs]</a>    <span class="k">def</span> <span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MplDrawer.format_canvas">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.format_canvas">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">:</span>
             <span class="c1"># Multi canvas mode</span>
             <span class="n">all_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span>
@@ -916,6 +866,7 @@
                 <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">],</span>
             <span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_get_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get inset axis.</span>
 
@@ -999,7 +950,9 @@
             <span class="k">if</span> <span class="n">_label</span><span class="p">:</span>
                 <span class="n">options</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_label</span>
 
-<div class="viewcode-block" id="MplDrawer.scatter"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.scatter">[docs]</a>    <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span>
+<div class="viewcode-block" id="MplDrawer.scatter">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.scatter">[docs]</a>
+    <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1054,7 +1007,10 @@
                 <span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">y_err</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">x_err</span><span class="p">,</span> <span class="o">**</span><span class="n">errorbar_options</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MplDrawer.line"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.line">[docs]</a>    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span>
+
+<div class="viewcode-block" id="MplDrawer.line">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.line">[docs]</a>
+    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1076,7 +1032,10 @@
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="o">**</span><span class="n">draw_ops</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MplDrawer.hline"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.hline">[docs]</a>    <span class="k">def</span> <span class="nf">hline</span><span class="p">(</span>
+
+<div class="viewcode-block" id="MplDrawer.hline">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.hline">[docs]</a>
+    <span class="k">def</span> <span class="nf">hline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1097,7 +1056,10 @@
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y_value</span><span class="p">,</span> <span class="o">**</span><span class="n">draw_ops</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MplDrawer.filled_y_area"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_y_area">[docs]</a>    <span class="k">def</span> <span class="nf">filled_y_area</span><span class="p">(</span>
+
+<div class="viewcode-block" id="MplDrawer.filled_y_area">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_y_area">[docs]</a>
+    <span class="k">def</span> <span class="nf">filled_y_area</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1119,7 +1081,10 @@
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="n">y_lb</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="n">y_ub</span><span class="p">,</span> <span class="o">**</span><span class="n">draw_ops</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MplDrawer.filled_x_area"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_x_area">[docs]</a>    <span class="k">def</span> <span class="nf">filled_x_area</span><span class="p">(</span>
+
+<div class="viewcode-block" id="MplDrawer.filled_x_area">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_x_area">[docs]</a>
+    <span class="k">def</span> <span class="nf">filled_x_area</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">x_lb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1141,7 +1106,10 @@
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">y_data</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="n">x_lb</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">x_ub</span><span class="p">,</span> <span class="o">**</span><span class="n">draw_ops</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MplDrawer.textbox"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.textbox">[docs]</a>    <span class="k">def</span> <span class="nf">textbox</span><span class="p">(</span>
+
+<div class="viewcode-block" id="MplDrawer.textbox">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.textbox">[docs]</a>
+    <span class="k">def</span> <span class="nf">textbox</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">rel_pos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1169,6 +1137,7 @@
             <span class="n">zorder</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Very large zorder to draw over other graphics.</span>
         <span class="p">)</span>
         <span class="n">text_box_handler</span><span class="o">.</span><span class="n">set_bbox</span><span class="p">(</span><span class="n">bbox_props</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_series_names_to_cmap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">series_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span>
@@ -1232,7 +1201,9 @@
 
         <span class="k">return</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">series_cmap_idx</span>
 
-<div class="viewcode-block" id="MplDrawer.image"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
+<div class="viewcode-block" id="MplDrawer.image">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.image">[docs]</a>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">extent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExtentTuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1276,6 +1247,7 @@
             <span class="n">colorbar_label</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">)</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Figure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.</span>
@@ -1292,24 +1264,12 @@
 <span class="sd">        collecting all child axes drawings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span></div>
+
 </pre></div>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           
           
         </div>
@@ -1322,7 +1282,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1339,9 +1299,9 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../../_static/thebelab-helper.js"></script>

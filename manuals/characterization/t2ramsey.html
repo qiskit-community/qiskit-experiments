@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tφ Characterization" href="tphi.html" /><link rel="prev" title="T2 Hahn Characterization" href="t2hahn.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>T2* Ramsey Characterization - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,7 +575,7 @@
         </div>
         <article role="main">
           <section id="t2-ramsey-characterization">
-<h1>T2* Ramsey Characterization<a class="headerlink" href="#t2-ramsey-characterization" title="Permalink to this heading">#</a></h1>
+<h1>T2* Ramsey Characterization<a class="headerlink" href="#t2-ramsey-characterization" title="Link to this heading">#</a></h1>
 <p>The purpose of the <span class="math notranslate nohighlight">\(T_2^*\)</span> Ramsey experiment is to determine two of the qubit’s
 properties: <em>Ramsey</em> or <em>detuning frequency</em> and <span class="math notranslate nohighlight">\(T_2^\ast\)</span>. In this experiment,
 we would like to get a more precise estimate of the qubit’s frequency given a rough
@@ -709,7 +652,7 @@ c: 1/═════════════════════════
 pure T1/T2 relaxation noise model.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.org/ecosystem/aer/index.html" title="(in Qiskit Aer v0.13.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.13.3)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
@@ -784,11 +727,11 @@ frequency.</p>
   * phi = -1.5707963267948966
   * base = 0.4766116941529235
  - fit params:
-  * amp = 0.491368728646375 ± 0.004916006342544433
+  * amp = 0.491368728646375 ± 0.004916006342544435
   * tau = 0.0001020165082319563 ± 4.464271894146877e-06
-  * freq = 99947.5512727167 ± 82.73439786250935
-  * phi = 0.004163082478029033 ± 0.012641175702185288
-  * base = 0.501137727889661 ± 0.001821649620644427
+  * freq = 99947.5512727167 ± 82.7343978625094
+  * phi = 0.004163082478029033 ± 0.012641175702185295
+  * base = 0.501137727889661 ± 0.0018216496206444265
  - correlations:
   * (freq, phi) = -0.8232512482515973
   * (amp, tau) = -0.8137656484569767
@@ -825,7 +768,7 @@ AnalysisResult
 </div>
 </div>
 <section id="providing-initial-user-estimates">
-<h2>Providing initial user estimates<a class="headerlink" href="#providing-initial-user-estimates" title="Permalink to this heading">#</a></h2>
+<h2>Providing initial user estimates<a class="headerlink" href="#providing-initial-user-estimates" title="Link to this heading">#</a></h2>
 <p>The user can provide initial estimates for the parameters to help the
 analysis process. Because the curve is expected to decay toward
 <span class="math notranslate nohighlight">\(0.5\)</span>, the natural choice for parameters <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span>
@@ -890,9 +833,9 @@ computed for other qubits.</p>
  - fit params:
   * amp = 0.49136873033031153 ± 0.004916006360304091
   * tau = 0.0001020165068145614 ± 4.4642717842585194e-06
-  * freq = 99947.55117665333 ± 82.73439933497814
-  * phi = 0.004163094706704786 ± 0.012641175763416519
-  * base = 0.5011377282284685 ± 0.0018216496199839904
+  * freq = 99947.55117665333 ± 82.7343993349782
+  * phi = 0.004163094706704786 ± 0.012641175763416525
+  * base = 0.5011377282284685 ± 0.0018216496199839913
  - correlations:
   * (freq, phi) = -0.823251250482674
   * (amp, tau) = -0.8137656489368544
@@ -929,7 +872,7 @@ AnalysisResult
 </div>
 </div>
 <section id="see-also">
-<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h3>
+<h3>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html#qiskit_experiments.library.characterization.T2Ramsey" title="qiskit_experiments.library.characterization.T2Ramsey"><code class="xref py py-mod docutils literal notranslate"><span class="pre">T2Ramsey</span></code></a></p></li>
 </ul>
@@ -940,20 +883,7 @@ AnalysisResult
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="tphi.html">
               <div class="page-info">
                 <div class="context">
@@ -984,7 +914,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1023,9 +953,9 @@ AnalysisResult
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

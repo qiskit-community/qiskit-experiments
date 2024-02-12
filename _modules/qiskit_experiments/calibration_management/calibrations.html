@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>qiskit_experiments.calibration_management.calibrations - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -688,7 +631,9 @@
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span><span class="p">,</span> <span class="n">ExperimentEncoder</span><span class="p">,</span> <span class="n">ExperimentDecoder</span>
 
 
-<div class="viewcode-block" id="Calibrations"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations">[docs]</a><span class="k">class</span> <span class="nc">Calibrations</span><span class="p">:</span>
+<div class="viewcode-block" id="Calibrations">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations">[docs]</a>
+<span class="k">class</span> <span class="nc">Calibrations</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to manage schedules with calibrated parameter values. Schedules are</span>
 <span class="sd">    intended to be fully parameterized, including the index of the channels. See</span>
@@ -867,7 +812,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the schedule dependencies in the calibrations.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_dependency</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Calibrations.from_backend"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.from_backend">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Calibrations.from_backend">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.from_backend">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_backend</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">,</span>
@@ -919,6 +866,7 @@
 
         <span class="k">return</span> <span class="n">cals</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">libraries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BasisGateLibrary</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the libraries used to initialize the calibrations.&quot;&quot;&quot;</span>
@@ -964,7 +912,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default and up to date instruction schedule map.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inst_map</span>
 
-<div class="viewcode-block" id="Calibrations.get_inst_map"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_inst_map">[docs]</a>    <span class="k">def</span> <span class="nf">get_inst_map</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.get_inst_map">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_inst_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_inst_map</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">cutoff_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -996,7 +946,10 @@
 
         <span class="k">return</span> <span class="n">inst_map</span></div>
 
-<div class="viewcode-block" id="Calibrations.update_inst_map"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.update_inst_map">[docs]</a>    <span class="k">def</span> <span class="nf">update_inst_map</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.update_inst_map">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.update_inst_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_inst_map</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">schedules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1039,6 +992,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">qubits_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_operated_qubits</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedules_qubits</span><span class="p">[</span><span class="n">key</span><span class="p">]]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_robust_inst_map_add</span><span class="p">(</span><span class="n">inst_map</span><span class="p">,</span> <span class="n">sched_name</span><span class="p">,</span> <span class="n">qubits_</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">cutoff_date</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_robust_inst_map_add</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1111,7 +1065,9 @@
 
         <span class="k">return</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Calibrations.inst_map_add"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.inst_map_add">[docs]</a>    <span class="k">def</span> <span class="nf">inst_map_add</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.inst_map_add">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.inst_map_add">[docs]</a>
+    <span class="k">def</span> <span class="nf">inst_map_add</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">instruction_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -1153,7 +1109,10 @@
             <span class="n">arguments</span><span class="o">=</span><span class="n">inst_map_args</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Calibrations.add_schedule"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.add_schedule">[docs]</a>    <span class="k">def</span> <span class="nf">add_schedule</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.add_schedule">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.add_schedule">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_schedule</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">schedule</span><span class="p">:</span> <span class="n">ScheduleBlock</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1247,7 +1206,10 @@
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params_to_register</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_register_parameter</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Calibrations.has_template"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.has_template">[docs]</a>    <span class="k">def</span> <span class="nf">has_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Calibrations.has_template">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.has_template">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test if a template schedule is defined</span>
 
 <span class="sd">        Args:</span>
@@ -1266,7 +1228,10 @@
 
         <span class="k">return</span> <span class="n">found</span></div>
 
-<div class="viewcode-block" id="Calibrations.get_template"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_template">[docs]</a>    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.get_template">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_template">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">schedule_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduleBlock</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a template schedule.</span>
@@ -1301,7 +1266,10 @@
 
         <span class="k">raise</span> <span class="n">CalibrationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Calibrations.remove_schedule"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.remove_schedule">[docs]</a>    <span class="k">def</span> <span class="nf">remove_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Calibrations.remove_schedule">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.remove_schedule">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">ScheduleBlock</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a schedule that was previously registered.</span>
 
 <span class="sd">        Allows users to remove a schedule from the calibrations. The history of the parameters</span>
@@ -1334,6 +1302,7 @@
 
         <span class="c1"># Clean the parameter to schedule mapping.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_clean_parameter_map</span><span class="p">(</span><span class="n">schedule</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_clean_parameter_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean the parameter to schedule mapping for the given schedule, parameter and qubits.</span>
@@ -1402,7 +1371,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameter_map_r</span>
 
-<div class="viewcode-block" id="Calibrations.calibration_parameter"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.calibration_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">calibration_parameter</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.calibration_parameter">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.calibration_parameter">[docs]</a>
+    <span class="k">def</span> <span class="nf">calibration_parameter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parameter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1441,7 +1412,10 @@
                 <span class="sa">f</span><span class="s2">&quot;and qubits </span><span class="si">{</span><span class="n">qubits</span><span class="si">}</span><span class="s2">. No default value exists.&quot;</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Calibrations.add_parameter_value"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.add_parameter_value">[docs]</a>    <span class="k">def</span> <span class="nf">add_parameter_value</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.add_parameter_value">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.add_parameter_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_parameter_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">,</span> <span class="n">ParameterValue</span><span class="p">],</span>
         <span class="n">param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
@@ -1496,6 +1470,7 @@
             <span class="c1"># make use of the updated parameter.</span>
             <span class="n">schedules</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">used_in_references</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_dependency</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_inst_map</span><span class="p">(</span><span class="n">schedules</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_get_channel_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">chan</span><span class="p">:</span> <span class="n">PulseChannel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the index of the parameterized channel.</span>
@@ -1560,7 +1535,9 @@
 
         <span class="k">return</span> <span class="n">chan</span><span class="o">.</span><span class="n">index</span>
 
-<div class="viewcode-block" id="Calibrations.get_parameter_value"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_parameter_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameter_value</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.get_parameter_value">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_parameter_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_parameter_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
@@ -1654,6 +1631,7 @@
         <span class="c1"># 5) Return the most recent parameter.</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">candidates</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">date_time</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span></div>
 
+
     <span class="k">def</span> <span class="nf">_standardize_assign_params</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">assign_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
@@ -1695,7 +1673,9 @@
 
         <span class="k">return</span> <span class="n">linked_assign_params</span>
 
-<div class="viewcode-block" id="Calibrations.get_schedule"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_schedule">[docs]</a>    <span class="k">def</span> <span class="nf">get_schedule</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.get_schedule">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.get_schedule">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_schedule</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
@@ -1790,6 +1770,7 @@
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">assigned_schedule</span></div>
+
 
     <span class="k">def</span> <span class="nf">_assign</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1897,7 +1878,9 @@
 
         <span class="k">return</span> <span class="n">schedule</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">(</span><span class="n">binding_dict</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Calibrations.schedules"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.schedules">[docs]</a>    <span class="k">def</span> <span class="nf">schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Calibrations.schedules">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.schedules">[docs]</a>
+    <span class="k">def</span> <span class="nf">schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the managed schedules in a list of dictionaries.</span>
 
 <span class="sd">        Returns:</span>
@@ -1916,7 +1899,10 @@
 
         <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="Calibrations.parameters_table"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.parameters_table">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_table</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.parameters_table">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.parameters_table">[docs]</a>
+    <span class="k">def</span> <span class="nf">parameters_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parameters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">qubit_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1984,6 +1970,7 @@
         <span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="n">columns</span><span class="p">}</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_append_to_list</span><span class="p">(</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">ParameterValue</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">ParameterKey</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1999,7 +1986,9 @@
         <span class="n">value_dict</span><span class="p">[</span><span class="s2">&quot;date_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_dict</span><span class="p">[</span><span class="s2">&quot;date_time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">%z&quot;</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value_dict</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Calibrations.save"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.save">[docs]</a>    <span class="nd">@deprecate_arg</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.save">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.save">[docs]</a>
+    <span class="nd">@deprecate_arg</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;file_type&quot;</span><span class="p">,</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;Full calibration saving is now supported in json format. csv is deprecated.&quot;</span><span class="p">,</span>
@@ -2114,7 +2103,10 @@
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Calibrations.schedule_information"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.schedule_information">[docs]</a>    <span class="nd">@deprecate_func</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.schedule_information">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.schedule_information">[docs]</a>
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;Saving calibration in csv format is deprecate &quot;</span>
@@ -2140,7 +2132,10 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;qubits&quot;</span><span class="p">,</span> <span class="s2">&quot;schedule&quot;</span><span class="p">],</span> <span class="n">schedules</span></div>
 
-<div class="viewcode-block" id="Calibrations.load_parameter_values"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.load_parameter_values">[docs]</a>    <span class="nd">@deprecate_func</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Calibrations.load_parameter_values">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.load_parameter_values">[docs]</a>
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;Loading and saving calibrations in CSV format is deprecated.&quot;</span><span class="p">,</span>
         <span class="n">package_name</span><span class="o">=</span><span class="s2">&quot;qiskit-experiments&quot;</span><span class="p">,</span>
@@ -2160,6 +2155,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_add_parameter_value_from_conf</span><span class="p">(</span><span class="o">**</span><span class="n">row</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_inst_map</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="nf">_add_parameter_value_from_conf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2200,7 +2196,9 @@
         <span class="n">key</span> <span class="o">=</span> <span class="n">ParameterKey</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_tuple</span><span class="p">(</span><span class="n">qubits</span><span class="p">),</span> <span class="n">schedule_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter_value</span><span class="p">(</span><span class="n">param_val</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="n">update_inst_map</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Calibrations.load"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.load">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Calibrations.load">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.load">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="nd">@deprecate_arg</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;files&quot;</span><span class="p">,</span>
         <span class="n">new_alias</span><span class="o">=</span><span class="s2">&quot;file_path&quot;</span><span class="p">,</span>
@@ -2227,6 +2225,7 @@
             <span class="n">cal_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">ExperimentDecoder</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">calibrations_from_dict</span><span class="p">(</span><span class="n">cal_data</span><span class="p">)</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_to_tuple</span><span class="p">(</span><span class="n">qubits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
@@ -2298,7 +2297,9 @@
         <span class="c1"># https://en.wikipedia.org/wiki/Counting_sort</span>
         <span class="k">return</span> <span class="n">_counting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_table</span><span class="p">())</span> <span class="o">==</span> <span class="n">_counting</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">parameters_table</span><span class="p">())</span>
 
-<div class="viewcode-block" id="Calibrations.config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.config">[docs]</a>    <span class="nd">@deprecate_func</span><span class="p">(</span>
+<div class="viewcode-block" id="Calibrations.config">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.config">[docs]</a>
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;Configuration data for Calibrations instance is deprecate. &quot;</span>
@@ -2338,7 +2339,10 @@
             <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters_table</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Calibrations.from_config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Calibrations.from_config">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="nd">@deprecate_func</span><span class="p">(</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;This method will be removed and no alternative will be provided.&quot;</span><span class="p">,</span>
@@ -2357,6 +2361,7 @@
 
         <span class="k">return</span> <span class="n">calibrations_from_dict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to format that can be JSON serialized.&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">.save_utils</span> <span class="kn">import</span> <span class="n">calibrations_to_dict</span>
@@ -2369,24 +2374,12 @@
         <span class="kn">from</span> <span class="nn">.save_utils</span> <span class="kn">import</span> <span class="n">calibrations_from_dict</span>
 
         <span class="k">return</span> <span class="n">calibrations_from_dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           
           
         </div>
@@ -2399,7 +2392,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -2416,9 +2409,9 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/thebelab-helper.js"></script>

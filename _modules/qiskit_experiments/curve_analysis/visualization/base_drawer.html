@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>qiskit_experiments.curve_analysis.visualization.base_drawer - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -653,7 +596,9 @@
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">Options</span>
 
 
-<div class="viewcode-block" id="BaseCurveDrawer"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer">[docs]</a><span class="k">class</span> <span class="nc">BaseCurveDrawer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseCurveDrawer">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseCurveDrawer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for the serializable Qiskit Experiments curve drawer.</span>
 
 <span class="sd">    A curve drawer may be implemented by different drawing backends such as matplotlib</span>
@@ -806,7 +751,9 @@
             <span class="n">figure_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="BaseCurveDrawer.set_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.set_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseCurveDrawer.set_options">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.set_options">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the drawing options.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
@@ -814,15 +761,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.initialize_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.initialize_canvas">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.initialize_canvas">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.initialize_canvas">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the drawing canvas.&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.format_canvas"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.format_canvas">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.format_canvas">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.format_canvas">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Final cleanup for the canvas appearance.&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.draw_raw_data"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_raw_data">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.draw_raw_data">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_raw_data">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">draw_raw_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -839,7 +795,10 @@
 <span class="sd">            options: Valid options for the drawer backend API.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.draw_formatted_data"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_formatted_data">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.draw_formatted_data">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_formatted_data">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">draw_formatted_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -858,7 +817,10 @@
 <span class="sd">            options: Valid options for the drawer backend API.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.draw_fit_line"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_fit_line">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.draw_fit_line">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_fit_line">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">draw_fit_line</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -875,7 +837,10 @@
 <span class="sd">            options: Valid options for the drawer backend API.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.draw_confidence_interval"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_confidence_interval">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.draw_confidence_interval">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_confidence_interval">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">draw_confidence_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -894,7 +859,10 @@
 <span class="sd">            options: Valid options for the drawer backend API.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseCurveDrawer.draw_fit_report"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_fit_report">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseCurveDrawer.draw_fit_report">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.draw_fit_report">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">draw_fit_report</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -907,16 +875,20 @@
 <span class="sd">            options: Valid options for the drawer backend API.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
+
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="BaseCurveDrawer.config"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseCurveDrawer.config">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html#qiskit_experiments.curve_analysis.BaseCurveDrawer.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dictionary for this drawing.&quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span></div>
+
 
     <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
@@ -927,24 +899,12 @@
         <span class="k">if</span> <span class="s2">&quot;options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
             <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">instance</span></div>
+
 </pre></div>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           
           
         </div>
@@ -957,7 +917,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -974,9 +934,9 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../../_static/thebelab-helper.js"></script>

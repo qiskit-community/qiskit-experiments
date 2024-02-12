@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Visualization: Creating figures" href="visualization.html" /><link rel="prev" title="Data Processor: Wrangling data" href="data_processor.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>Curve Analysis: Fitting your data - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,7 +575,7 @@
         </div>
         <article role="main">
           <section id="curve-analysis-fitting-your-data">
-<h1>Curve Analysis: Fitting your data<a class="headerlink" href="#curve-analysis-fitting-your-data" title="Permalink to this heading">#</a></h1>
+<h1>Curve Analysis: Fitting your data<a class="headerlink" href="#curve-analysis-fitting-your-data" title="Link to this heading">#</a></h1>
 <p>For most experiments, we are interested in fitting our results to a pre-defined
 mathematical model.
 The Curve Analysis module provides the analysis base class for a variety of experiments with
@@ -642,7 +585,7 @@ including providing systematic initial guesses for parameters tailored to the ex
 Here we describe how the Curve Analysis module works and how you can create new
 analyses that inherit from the base class.</p>
 <section id="curve-analysis-overview">
-<span id="id1"></span><h2>Curve Analysis overview<a class="headerlink" href="#curve-analysis-overview" title="Permalink to this heading">#</a></h2>
+<span id="id1"></span><h2>Curve Analysis overview<a class="headerlink" href="#curve-analysis-overview" title="Link to this heading">#</a></h2>
 <p>The base class <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> implements the multi-objective optimization on
 different sets of experiment results. A single experiment can define sub-experiments
 consisting of multiple circuits which are tagged with common metadata,
@@ -699,7 +642,7 @@ various curve analyses subclasses and can quickly write up
 the analysis code for a particular experiment.</p>
 </section>
 <section id="defining-new-models">
-<span id="curve-analysis-define-group"></span><h2>Defining new models<a class="headerlink" href="#defining-new-models" title="Permalink to this heading">#</a></h2>
+<span id="curve-analysis-define-group"></span><h2>Defining new models<a class="headerlink" href="#defining-new-models" title="Link to this heading">#</a></h2>
 <p>The fit model is defined by the <a class="reference external" href="https://lmfit.github.io/lmfit-py/intro.html">LMFIT</a> <code class="docutils literal notranslate"><span class="pre">Model</span></code>. If you are familiar with this
 package, you can skip this section. The LMFIT package manages complicated fit functions
 and offers several algorithms to solve non-linear least-square problems. Curve Analysis
@@ -814,7 +757,7 @@ Here one should expect the experiment data will have two classes of data with me
 with different trigonometric functions.</p>
 </section>
 <section id="fitting-with-fixed-parameters">
-<span id="curve-analysis-fixed-param"></span><h2>Fitting with fixed parameters<a class="headerlink" href="#fitting-with-fixed-parameters" title="Permalink to this heading">#</a></h2>
+<span id="curve-analysis-fixed-param"></span><h2>Fitting with fixed parameters<a class="headerlink" href="#fitting-with-fixed-parameters" title="Link to this heading">#</a></h2>
 <p>You can also keep certain parameters unchanged during the fitting by specifying the
 parameter names in the analysis option <code class="docutils literal notranslate"><span class="pre">fixed_parameters</span></code>. This feature is useful
 especially when you want to define a subclass of a particular analysis class.</p>
@@ -870,43 +813,107 @@ On the other hand, in the latter case, you need to manually copy and paste
 every logic defined in <code class="docutils literal notranslate"><span class="pre">AnalysisA</span></code>.</p>
 </section>
 <section id="managing-intermediate-data">
-<span id="data-management-with-scatter-table"></span><h2>Managing intermediate data<a class="headerlink" href="#managing-intermediate-data" title="Permalink to this heading">#</a></h2>
-<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> is the single source of truth for the data used in the curve fit analysis.
-Each data point in a 1-D curve fit may consist of the x value, y value, and
-standard error of the y value.
-In addition, such analysis may internally create several data subsets.
-Each data point is given a metadata triplet (<cite>series_id</cite>, <cite>category</cite>, <cite>analysis</cite>)
-to distinguish the subset.</p>
+<span id="data-management-with-scatter-table"></span><h2>Managing intermediate data<a class="headerlink" href="#managing-intermediate-data" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> is the single source of truth for the data used in curve
+fit analysis.
+Curve analysis primarily involves working with <cite>curves</cite>, which consist of a
+series of x and y values along with a series of standard error values for the y
+values.
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> gathers all of the data from all of the curves together
+into a single table with one row for each x, y value.</p>
+<p>Since analysis can involve several curves, a system is needed for labeling them.
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> uses three labels for identifying curves.
+In order of narrowest to broadest scope, these labels are <cite>series</cite> (represented
+by <cite>series_id</cite> and <cite>series_name</cite> columns in the table; see below), <cite>category</cite>,
+and <cite>analysis</cite>.</p>
 <ul class="simple">
-<li><p>The <cite>series_id</cite> is an integer key representing a label of the data which may be classified by fits models.
-When an analysis consists of multiple fit models and performs a multi-objective fit,
-the created table may contain multiple datasets for each fit model.
-Usually the index of series matches with the index of the fit model in the analysis.
-The table also provides a <cite>series_name</cite> column which is a human-friendly text notation of the <cite>series_id</cite>.
-The <cite>series_name</cite> and corresponding <cite>series_id</cite> must refer to the identical data subset,
-and the <cite>series_name</cite> typically matches with the name of the fit model.
-You can find a particular data subset by either <cite>series_id</cite> or <cite>series_name</cite>.</p></li>
-<li><p>The <cite>category</cite> is a string tag categorizing a group of data points.
-The measured outcomes input as-is to the curve analysis are categorized by “raw”.
-In a standard <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass, the input data is formatted for
-the fitting and the formatted data is also stored in the table with the “formatted” category.
-You can filter the formatted data to run curve fitting with your custom program.
-After the fit is successfully conducted and the model parameters are identified,
-data points in the interpolated fit curves are stored with the “fitted” category
-for visualization. The management of the data groups depends on the design of
-the curve analysis protocol, and the convention of category naming might
-be different in a particular analysis.</p></li>
-<li><p>The <cite>analysis</cite> is a string key representing a name of
-the analysis instance that generated the data point.
-This allows a user to combine multiple tables from different analyses without collapsing the data points.
-For a simple analysis class, all rows will have the same value,
-but a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a> instance consists of
-nested component analysis instances containing statistically independent fit models.
-Each component is given a unique analysis name, and datasets generated from each instance
-are merged into a single table stored in the outermost composite analysis.</p></li>
+<li><p>A <cite>series</cite> is a set of x and y values for which the y values are expected to
+follow a single function of x with fixed values for any other parameters of
+the function.
+For example, a series could consist of x and correpsonding y values for the
+model <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">cos(w</span> <span class="pre">*</span> <span class="pre">x)</span></code> for specific <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">w</span></code> values.
+However, if the data set had values for <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">0.5</span></code>, it would
+contain two series rather than one.
+In the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a>, a series is specified with the <cite>series_id</cite>
+(integer) and <cite>series_name</cite> (string) columns (see below).
+Some methods like <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter" title="qiskit_experiments.curve_analysis.ScatterTable.filter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ScatterTable.filter()</span></code></a> accept <cite>series</cite> as an argument
+that could be either <cite>series_name</cite> or <cite>series_id</cite> so we use <cite>series</cite> when the
+distinction is not important.</p></li>
+<li><p>A <cite>category</cite> is a label for a group of series that correspond to a particular
+stage of processing.
+For example, the series data received from quantum circuit execution and
+prepared for fitting could be labeled with the category <cite>“formatted”</cite> while
+the series data produced using fitted model parameters could be labeled with
+the category <cite>“fitted”</cite>.</p></li>
+<li><p>The <cite>analysis</cite> label holds the name of the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass
+associated with each series.
+For a simple <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass, all series would have the same
+<cite>analysis</cite> label.
+However, for <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a>, multiple
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclasses can be associated with a single
+experiment, and this label can help distinguish curves that have the same
+<cite>series</cite> and <cite>category</cite>.</p></li>
 </ul>
-<p>User must be aware of this triplet to extract data points that belong to a
-particular data subset. For example,</p>
+<p>Here we review the default behavior of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> and
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a> regarding the assignment of <cite>series_id</cite>,
+<cite>series_name</cite>, <cite>category</cite>, and <cite>analysis</cite>.</p>
+<p>The data set provided to the analysis by <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.data" title="qiskit_experiments.framework.ExperimentData.data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.data()</span></code></a> is
+processed using the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a> set with the <cite>data_processor</cite>
+analysis option.
+When no <cite>data_processor</cite> option is set, the default behavior is to convert
+counts to probability for level 2 data.
+For level 1 data, the default behavior is to project the complex values to real
+values using singular value decomposition, average the values if individual
+shot data were returned, and then normalize the results.
+This processed data set is then given the <cite>category</cite> <cite>“raw”</cite>.
+This data set is classified into series using the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> analysis
+option as described above with the <cite>series_name</cite> set to the matched key in
+<code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> (which matches a fit model name) and the <cite>series_id</cite> set to
+the corresponding index for that fit model in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.models" title="qiskit_experiments.curve_analysis.CurveAnalysis.models"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CurveAnalysis.models</span></code></a>
+list.
+If the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass has a single unnamed model, the
+<cite>series_name</cite> is set to <cite>model-0</cite>.
+If a data point does not match any key, it is given a null value for
+<cite>series_name</cite> and <cite>series_id</cite>.
+These operations are performed in the
+<code class="docutils literal notranslate"><span class="pre">CurveAnalysis._run_data_processing()</span></code> method.</p>
+<p>The <cite>“raw”</cite> data are then fed into the <code class="docutils literal notranslate"><span class="pre">CurveAnalysis._format_data</span></code> method
+for which the default behavior is to average all of the y values within a
+series with the same x value.
+The formatted data are added to the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with the same
+<cite>series</cite> labels and the category of <cite>“formatted”</cite>.
+The <cite>“formatted”</cite> data set is then queried from the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> and
+passed to the <code class="docutils literal notranslate"><span class="pre">CurveAnalysis._run_curve_fit()</span></code> method which performs the
+fitting.
+Afterward new curves for each series are generated using the fit models and
+fitting parameters and added to the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with the category
+<cite>“fitted”</cite>.</p>
+<p>The preceding steps are performed by <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> and all of the
+entries in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> are given the name of the analysis class
+for the <cite>analysis</cite> column.
+For <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a>, the same procedure is repeated for each
+component <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> class and the series are given the name of
+that class for the <cite>analysis</cite> column, so the results from different component
+analysis classes can be distinguished.</p>
+<p>Note that <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.add_row" title="qiskit_experiments.curve_analysis.ScatterTable.add_row"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ScatterTable.add_row()</span></code></a> allows for curve analysis subclasses to
+set arbitrary values for <cite>series_name</cite>, <cite>series_id</cite>, and <cite>category</cite> as
+appropriate.
+An analysis class may override some of the default curve analysis methods and
+add additional <cite>category</cite> labels or define other <cite>series</cite> not named after a
+model.
+For example, <a class="reference internal" href="../stubs/qiskit_experiments.library.driven_freq_tuning.StarkRamseyXYAmpScanAnalysis.html#qiskit_experiments.library.driven_freq_tuning.StarkRamseyXYAmpScanAnalysis" title="qiskit_experiments.library.driven_freq_tuning.StarkRamseyXYAmpScanAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXYAmpScanAnalysis</span></code></a> defines four <cite>series</cite>
+labels in its <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option (<code class="docutils literal notranslate"><span class="pre">Xpos</span></code>, <code class="docutils literal notranslate"><span class="pre">Ypos</span></code>, <code class="docutils literal notranslate"><span class="pre">Xneg</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Yneg</span></code>) but only two models (<code class="docutils literal notranslate"><span class="pre">FREQpos</span></code>, <code class="docutils literal notranslate"><span class="pre">FREQneg</span></code>) whose names do not
+match the series labels.
+It does this by overriding the <code class="docutils literal notranslate"><span class="pre">CurveData._format_data()</span></code> method and adding
+its own series to the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with series labels to match its
+fit model names (by combining <code class="docutils literal notranslate"><span class="pre">Xpos</span></code>  and <code class="docutils literal notranslate"><span class="pre">Ypos</span></code> series data into a
+<code class="docutils literal notranslate"><span class="pre">FREQpos</span></code> series and similary for the series with names ending with <code class="docutils literal notranslate"><span class="pre">neg</span></code>).
+It sets a custom category, <cite>“freq”</cite>, for its series but also sets the
+<code class="docutils literal notranslate"><span class="pre">fit_category</span></code> analysis option to <cite>“freq”</cite> so that normal curve fitting is
+performed on this custom <code class="docutils literal notranslate"><span class="pre">&quot;freq&quot;</span></code> series data.</p>
+<p>The (<cite>series</cite>, <cite>category</cite>, <cite>analysis</cite>) triplet can be used to extract data
+points that belong to a particular categorized series. For example,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mini_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
 <span class="n">mini_x</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">x</span>
 <span class="n">mini_y</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">y</span>
@@ -917,30 +924,34 @@ particular data subset. For example,</p>
 <span class="n">mini_y</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">yvals</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>When an analysis only has a single model and the table is created from a single
-analysis instance, the <cite>series_id</cite> and <cite>analysis</cite> are trivial, and you only need to
-specify the <cite>category</cite> to get subset data of interest.</p>
-<p>The full description of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> columns are following below:</p>
+<p>When a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass only has a single model and the table
+is created from a single analysis instance, the <cite>series_id</cite> and <cite>analysis</cite> are
+trivial, and you only need to specify the <cite>category</cite> to get subset data of
+interest.</p>
+<p>The full description of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> columns is as follows:</p>
 <ul class="simple">
 <li><p><cite>xval</cite>: Parameter scanned in the experiment. This value must be defined in the circuit metadata.</p></li>
-<li><p><cite>yval</cite>: Nominal part of the outcome. The outcome is something like expectation value,
-which is computed from the experiment result with the data processor.</p></li>
+<li><p><cite>yval</cite>: Nominal part of the outcome. The outcome is, for example, an expectation value
+computed from the experiment results with a data processor.</p></li>
 <li><p><cite>yerr</cite>: Standard error of the outcome, which is mainly due to sampling error.</p></li>
 <li><p><cite>series_name</cite>: Human readable name of the data series. This is defined by the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>.</p></li>
 <li><p><cite>series_id</cite>: Integer corresponding to the name of data series. This number is automatically assigned.</p></li>
-<li><p><cite>category</cite>: A tag for the data group. This is defined by a developer of the curve analysis.</p></li>
+<li><p><cite>category</cite>: A category that could group several series. This is defined by a
+developer of the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass and usually corresponds to
+a stage of data processing like <cite>“raw”</cite> or <cite>“formatted”</cite>.</p></li>
 <li><p><cite>shots</cite>: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.</p></li>
 <li><p><cite>analysis</cite>: The name of the curve analysis instance that generated a data point.</p></li>
 </ul>
-<p>This object helps an analysis developer with writing a custom analysis class
-without an overhead of complex data management, as well as end-users with
-retrieving and reusing the intermediate data for their custom fitting workflow
-outside our curve fitting framework.
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> helps an analysis developer to write a custom analysis class
+without the overhead of complex data management.
+It also helps end-users to retrieve and reuse the intermediate data from an
+experiment in their custom fitting workflow outside our curve fitting
+framework.
 Note that a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> instance may be saved in the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> as an artifact.
 See the <a class="reference internal" href="../howtos/artifacts.html"><span class="doc">Artifacts how-to</span></a> for more information.</p>
 </section>
 <section id="curve-analysis-workflow">
-<span id="id2"></span><h2>Curve Analysis workflow<a class="headerlink" href="#curve-analysis-workflow" title="Permalink to this heading">#</a></h2>
+<span id="id2"></span><h2>Curve Analysis workflow<a class="headerlink" href="#curve-analysis-workflow" title="Link to this heading">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveData.html#qiskit_experiments.curve_analysis.CurveData" title="qiskit_experiments.curve_analysis.CurveData"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code></a> dataclass is replaced with <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> dataframe.
@@ -949,7 +960,7 @@ This class will be deprecated and removed in the future release.</p>
 <p>Typically curve analysis performs fitting as follows.
 This workflow is defined in the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">CurveAnalysis._run_analysis()</span></code>.</p>
 <section id="initialization">
-<h3>1. Initialization<a class="headerlink" href="#initialization" title="Permalink to this heading">#</a></h3>
+<h3>1. Initialization<a class="headerlink" href="#initialization" title="Link to this heading">#</a></h3>
 <p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_initialization()</span></code> method, where it initializes
 some internal states and optionally populates analysis options
 with the input experiment data.
@@ -958,7 +969,7 @@ or dynamically generate the fit models (<code class="docutils literal notranslat
 A developer can override this method to perform initialization of analysis-specific variables.</p>
 </section>
 <section id="data-processing">
-<h3>2. Data processing<a class="headerlink" href="#data-processing" title="Permalink to this heading">#</a></h3>
+<h3>2. Data processing<a class="headerlink" href="#data-processing" title="Link to this heading">#</a></h3>
 <p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_data_processing()</span></code> method, where
 the data processor in the analysis option is internally called.
 This consumes input experiment results and creates the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> dataframe.
@@ -994,7 +1005,7 @@ for each condition.
 See <a class="reference internal" href="#data-management-with-scatter-table"><span class="std std-ref">Managing intermediate data</span></a> for the details of columns.</p>
 </section>
 <section id="formatting">
-<h3>3. Formatting<a class="headerlink" href="#formatting" title="Permalink to this heading">#</a></h3>
+<h3>3. Formatting<a class="headerlink" href="#formatting" title="Link to this heading">#</a></h3>
 <p>Next, the processed dataset is converted into another format suited for the fitting.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
@@ -1036,7 +1047,7 @@ The (xval, yval) value in each row is passed to the corresponding fit model obje
 to compute residual values for the least square optimization.</p>
 </section>
 <section id="fitting">
-<h3>3. Fitting<a class="headerlink" href="#fitting" title="Permalink to this heading">#</a></h3>
+<h3>3. Fitting<a class="headerlink" href="#fitting" title="Link to this heading">#</a></h3>
 <p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_curve_fit()</span></code> method with the formatted subset of the scatter table.
 This internally calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_fit_guesses()</span></code> to prepare
 the initial guess and parameter boundary with respect to the formatted dataset.
@@ -1047,14 +1058,14 @@ Developers can also override the entire <code class="xref py py-meth docutils li
 custom fitting algorithms. This method must return a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> dataclass.</p>
 </section>
 <section id="post-processing">
-<h3>4. Post processing<a class="headerlink" href="#post-processing" title="Permalink to this heading">#</a></h3>
+<h3>4. Post processing<a class="headerlink" href="#post-processing" title="Link to this heading">#</a></h3>
 <p>Curve analysis runs several postprocessing against the fit outcome.
 When the fit is successful, it calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_analysis_results()</span></code> to create the <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects
 for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See <a class="reference internal" href="#curve-analysis-results"><span class="std std-ref">Curve Analysis Results</span></a> for details.
 Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
-updated with the computed (x, y) values. This dataset is stored under the “fitted” category.</p>
+updated with the computed (x, y) values. This dataset is stored under the <cite>“fitted”</cite> category.</p>
 <p>Finally, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_figures()</span></code> method is called with the entire scatter table data
 to initialize the curve plotter instance accessible via the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.plotter" title="qiskit_experiments.curve_analysis.CurveAnalysis.plotter"><code class="xref py py-attr docutils literal notranslate"><span class="pre">plotter</span></code></a> attribute.
 The visualization is handed over to the <a class="reference internal" href="visualization.html"><span class="doc">Visualization</span></a> module,
@@ -1063,7 +1074,7 @@ A developer can overwrite this method to draw custom images.</p>
 </section>
 </section>
 <section id="providing-initial-guesses">
-<span id="curve-analysis-init-guess"></span><h2>Providing initial guesses<a class="headerlink" href="#providing-initial-guesses" title="Permalink to this heading">#</a></h2>
+<span id="curve-analysis-init-guess"></span><h2>Providing initial guesses<a class="headerlink" href="#providing-initial-guesses" title="Link to this heading">#</a></h2>
 <p>Fitting without initial guesses for parameters often results in a bad fit. Users can
 provide initial guesses and boundaries for the fit parameters through analysis options
 <code class="docutils literal notranslate"><span class="pre">p0</span></code> and <code class="docutils literal notranslate"><span class="pre">bounds</span></code>. These values are the dictionary keyed on the parameter name, and
@@ -1112,7 +1123,7 @@ the most reasonable parameters to explain the model. This allows you to avoid an
 failure with the poor initial guesses.</p>
 </section>
 <section id="evaluate-fit-quality">
-<span id="curve-analysis-quality"></span><h2>Evaluate Fit Quality<a class="headerlink" href="#evaluate-fit-quality" title="Permalink to this heading">#</a></h2>
+<span id="curve-analysis-quality"></span><h2>Evaluate Fit Quality<a class="headerlink" href="#evaluate-fit-quality" title="Link to this heading">#</a></h2>
 <p>A subclass can override <code class="xref py py-meth docutils literal notranslate"><span class="pre">_evaluate_quality()</span></code> method to
 provide an algorithm to evaluate quality of the fitting.
 This method is called with the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> object which contains
@@ -1121,7 +1132,7 @@ in addition to the several statistics on the fitting.
 Qiskit Experiments often uses the empirical criterion chi-squared &lt; 3 as a good fitting.</p>
 </section>
 <section id="curve-analysis-results">
-<span id="id3"></span><h2>Curve Analysis Results<a class="headerlink" href="#curve-analysis-results" title="Permalink to this heading">#</a></h2>
+<span id="id3"></span><h2>Curve Analysis Results<a class="headerlink" href="#curve-analysis-results" title="Link to this heading">#</a></h2>
 <p>Once the best fit parameters are found, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_analysis_results()</span></code> method is
 called with the same <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> object.</p>
 <p>If you want to create an analysis result entry for the particular parameter,
@@ -1180,7 +1191,7 @@ Since this object natively supports error propagation,
 you don’t have to manually recompute the error of the new value.</p>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <p>API documentation: <a class="reference internal" href="../apidocs/curve_analysis.html"><span class="doc">Curve Analysis Module</span></a></p>
 </section>
 </section>
@@ -1188,20 +1199,7 @@ you don’t have to manually recompute the error of the new value.</p>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="visualization.html">
               <div class="page-info">
                 <div class="context">
@@ -1232,7 +1230,7 @@ you don’t have to manually recompute the error of the new value.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1283,9 +1281,9 @@ you don’t have to manually recompute the error of the new value.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

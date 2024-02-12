@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>qiskit_experiments.curve_analysis.fit_function - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -650,7 +593,9 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="cos"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos.html#qiskit_experiments.curve_analysis.fit_function.cos">[docs]</a><span class="k">def</span> <span class="nf">cos</span><span class="p">(</span>
+<div class="viewcode-block" id="cos">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos.html#qiskit_experiments.curve_analysis.fit_function.cos">[docs]</a>
+<span class="k">def</span> <span class="nf">cos</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
@@ -666,7 +611,10 @@
     <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">phase</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="sin"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin.html#qiskit_experiments.curve_analysis.fit_function.sin">[docs]</a><span class="k">def</span> <span class="nf">sin</span><span class="p">(</span>
+
+<div class="viewcode-block" id="sin">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin.html#qiskit_experiments.curve_analysis.fit_function.sin">[docs]</a>
+<span class="k">def</span> <span class="nf">sin</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
@@ -682,7 +630,10 @@
     <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">phase</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="exponential_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.exponential_decay.html#qiskit_experiments.curve_analysis.fit_function.exponential_decay">[docs]</a><span class="k">def</span> <span class="nf">exponential_decay</span><span class="p">(</span>
+
+<div class="viewcode-block" id="exponential_decay">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.exponential_decay.html#qiskit_experiments.curve_analysis.fit_function.exponential_decay">[docs]</a>
+<span class="k">def</span> <span class="nf">exponential_decay</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">lamb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -698,7 +649,10 @@
     <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">base</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">lamb</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x0</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="gaussian"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.gaussian.html#qiskit_experiments.curve_analysis.fit_function.gaussian">[docs]</a><span class="k">def</span> <span class="nf">gaussian</span><span class="p">(</span>
+
+<div class="viewcode-block" id="gaussian">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.gaussian.html#qiskit_experiments.curve_analysis.fit_function.gaussian">[docs]</a>
+<span class="k">def</span> <span class="nf">gaussian</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">baseline</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gaussian function</span>
@@ -709,7 +663,10 @@
     <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="sqrt_lorentzian"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian.html#qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian">[docs]</a><span class="k">def</span> <span class="nf">sqrt_lorentzian</span><span class="p">(</span>
+
+<div class="viewcode-block" id="sqrt_lorentzian">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian.html#qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian">[docs]</a>
+<span class="k">def</span> <span class="nf">sqrt_lorentzian</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">baseline</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Square-root Lorentzian function for spectroscopy.</span>
@@ -720,7 +677,10 @@
     <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">kappa</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="cos_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos_decay.html#qiskit_experiments.curve_analysis.fit_function.cos_decay">[docs]</a><span class="k">def</span> <span class="nf">cos_decay</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cos_decay">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos_decay.html#qiskit_experiments.curve_analysis.fit_function.cos_decay">[docs]</a>
+<span class="k">def</span> <span class="nf">cos_decay</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -737,7 +697,10 @@
     <span class="k">return</span> <span class="n">exponential_decay</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lamb</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
 
 
-<div class="viewcode-block" id="sin_decay"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin_decay.html#qiskit_experiments.curve_analysis.fit_function.sin_decay">[docs]</a><span class="k">def</span> <span class="nf">sin_decay</span><span class="p">(</span>
+
+<div class="viewcode-block" id="sin_decay">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin_decay.html#qiskit_experiments.curve_analysis.fit_function.sin_decay">[docs]</a>
+<span class="k">def</span> <span class="nf">sin_decay</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -752,24 +715,12 @@
 <span class="sd">        + {\rm phase}\right) + {\rm baseline}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">exponential_decay</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lamb</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">)</span> <span class="o">+</span> <span class="n">baseline</span></div>
+
 </pre></div>
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           
           
         </div>
@@ -782,7 +733,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -799,9 +750,9 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/thebelab-helper.js"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CurvePlotter" href="qiskit_experiments.visualization.CurvePlotter.html" /><link rel="prev" title="Visualization (qiskit_experiments.visualization)" href="../apidocs/visualization.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>BasePlotter - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,10 +575,10 @@
         </div>
         <article role="main">
           <section id="baseplotter">
-<h1>BasePlotter<a class="headerlink" href="#baseplotter" title="Permalink to this heading">#</a></h1>
+<h1>BasePlotter<a class="headerlink" href="#baseplotter" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drawer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BasePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drawer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter" title="Link to this definition">#</a></dt>
 <dd><p>An abstract class for the serializable figure plotters.</p>
 <p class="rubric">Overview</p>
 <p>A plotter takes data from an experiment analysis class or experiment and plots a
@@ -729,7 +672,7 @@ before setting figure options in the drawer.</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.drawer">
-<span class="sig-name descname"><span class="pre">drawer</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.drawer" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">drawer</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.drawer" title="Link to this definition">#</a></dt>
 <dd><p>The drawer to use when plotting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -872,7 +815,7 @@ before setting figure options in the drawer.</p>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.figure_options">
-<span class="sig-name descname"><span class="pre">figure_options</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.figure_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">figure_options</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.figure_options" title="Link to this definition">#</a></dt>
 <dd><p>Figure options for the plotter and its drawer.</p>
 <p>Figure options differ from normal options (<a class="reference internal" href="#qiskit_experiments.visualization.BasePlotter.options" title="qiskit_experiments.visualization.BasePlotter.options"><code class="xref py py-attr docutils literal notranslate"><span class="pre">options</span></code></a>) in that the plotter
 passes figure options on to the drawer when creating a figure (when
@@ -882,7 +825,7 @@ figure. An example of a figure option is the x-axis label.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.options">
-<span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.options" title="Link to this definition">#</a></dt>
 <dd><p>Options for the plotter.</p>
 <p>Options for a plotter modify how the class generates a figure. This includes an
 optional axis object, being the drawer canvas. Make sure verify whether the
@@ -891,13 +834,13 @@ option you want to set is in <a class="reference internal" href="#qiskit_experim
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.series">
-<span class="sig-name descname"><span class="pre">series</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.series" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">series</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.series" title="Link to this definition">#</a></dt>
 <dd><p>Series names that have been added to this plotter.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.series_data">
-<span class="sig-name descname"><span class="pre">series_data</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.series_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">series_data</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.series_data" title="Link to this definition">#</a></dt>
 <dd><p>Data for series being plotted.</p>
 <p>Series data includes data such as scatter points, interpolated fit values, and
 standard deviations. Series data is grouped by series name (<code class="docutils literal notranslate"><span class="pre">Union[str,</span> <span class="pre">int,</span>
@@ -914,7 +857,7 @@ nested values and can handle multiple data keys in one query.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.supplementary_data">
-<span class="sig-name descname"><span class="pre">supplementary_data</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.supplementary_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">supplementary_data</span></span><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.supplementary_data" title="Link to this definition">#</a></dt>
 <dd><p>Additional data for the figure being plotted, that isn’t associated with a
 series.</p>
 <p>Supplementary data includes text, fit reports, or other data that is associated
@@ -925,7 +868,7 @@ the direct results of an experiment.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.clear_series_data">
-<span class="sig-name descname"><span class="pre">clear_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.clear_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.clear_series_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.clear_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.clear_series_data" title="Link to this definition">#</a></dt>
 <dd><p>Clear series data for this plotter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -937,13 +880,13 @@ None, all series data is cleared. Defaults to None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.clear_supplementary_data">
-<span class="sig-name descname"><span class="pre">clear_supplementary_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.clear_supplementary_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.clear_supplementary_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_supplementary_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.clear_supplementary_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.clear_supplementary_data" title="Link to this definition">#</a></dt>
 <dd><p>Clears supplementary data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.config">
-<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.config" title="Link to this definition">#</a></dt>
 <dd><p>Return the config dictionary for this drawing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -954,7 +897,7 @@ None, all series data is cleared. Defaults to None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.data_exists_for">
-<span class="sig-name descname"><span class="pre">data_exists_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_exists_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_exists_for" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data_exists_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_exists_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_exists_for" title="Link to this definition">#</a></dt>
 <dd><p>Returns whether the given data keys exist for the given series.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -975,7 +918,7 @@ least one does not have a value assigned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.data_for">
-<span class="sig-name descname"><span class="pre">data_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_for" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_for" title="Link to this definition">#</a></dt>
 <dd><p>Returns data associated with the given series.</p>
 <p>The returned tuple contains the data, associated with <code class="docutils literal notranslate"><span class="pre">data_keys</span></code>, in the same
 orders as they are provided. For example,</p>
@@ -1012,7 +955,7 @@ the associated tuple entry.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.data_keys_for">
-<span class="sig-name descname"><span class="pre">data_keys_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_keys_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_keys_for" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data_keys_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.data_keys_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.data_keys_for" title="Link to this definition">#</a></dt>
 <dd><p>Returns a list of data keys for the given series.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1032,7 +975,7 @@ returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.expected_series_data_keys">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_series_data_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.expected_series_data_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.expected_series_data_keys" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_series_data_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.expected_series_data_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.expected_series_data_keys" title="Link to this definition">#</a></dt>
 <dd><p>Returns the expected series data keys supported by this plotter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1043,7 +986,7 @@ returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_supplementary_data_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.expected_supplementary_data_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_supplementary_data_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.expected_supplementary_data_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys" title="Link to this definition">#</a></dt>
 <dd><p>Returns the expected supplementary data keys supported by this plotter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1054,7 +997,7 @@ returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.figure">
-<span class="sig-name descname"><span class="pre">figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.figure" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.figure" title="Link to this definition">#</a></dt>
 <dd><p>Generates and returns a figure for the already provided series and
 supplementary data.</p>
 <p><a class="reference internal" href="#qiskit_experiments.visualization.BasePlotter.figure" title="qiskit_experiments.visualization.BasePlotter.figure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">figure()</span></code></a> calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">_plot_figure()</span></code>, which is overridden by sub-classes.
@@ -1073,7 +1016,7 @@ Before and after calling <code class="xref py py-meth docutils literal notransla
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.set_figure_options">
-<span class="sig-name descname"><span class="pre">set_figure_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_figure_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_figure_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_figure_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_figure_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_figure_options" title="Link to this definition">#</a></dt>
 <dd><p>Set the figure options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1084,7 +1027,7 @@ Before and after calling <code class="xref py py-meth docutils literal notransla
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.set_options">
-<span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_options" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_options" title="Link to this definition">#</a></dt>
 <dd><p>Set the plotter options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1098,7 +1041,7 @@ Before and after calling <code class="xref py py-meth docutils literal notransla
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.set_series_data">
-<span class="sig-name descname"><span class="pre">set_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_series_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_series_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_series_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_series_data" title="Link to this definition">#</a></dt>
 <dd><p>Sets data for the given series.</p>
 <p>Note that if data has already been assigned for the given series and data key,
 it will be overwritten with the new values. <code class="docutils literal notranslate"><span class="pre">set_series_data</span></code> will warn if the
@@ -1116,7 +1059,7 @@ data key is unexpected; i.e., not within those returned by
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.visualization.BasePlotter.set_supplementary_data">
-<span class="sig-name descname"><span class="pre">set_supplementary_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_supplementary_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_supplementary_data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_supplementary_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/visualization/plotters/base_plotter.html#BasePlotter.set_supplementary_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.visualization.BasePlotter.set_supplementary_data" title="Link to this definition">#</a></dt>
 <dd><p>Sets supplementary data for the plotter.</p>
 <p>Supplementary data differs from series data in that it is not associate with a
 series name. Fit reports are examples of supplementary data as they contain fit
@@ -1134,20 +1077,7 @@ data key is unexpected; i.e., not within those returned by
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="qiskit_experiments.visualization.CurvePlotter.html">
               <div class="page-info">
                 <div class="context">
@@ -1178,7 +1108,7 @@ data key is unexpected; i.e., not within those returned by
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1235,9 +1165,9 @@ data key is unexpected; i.e., not within those returned by
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

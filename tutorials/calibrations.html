@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Data Processor: Wrangling data" href="data_processor.html" /><link rel="prev" title="Introduction" href="intro.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
         <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.6.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -632,7 +575,7 @@
         </div>
         <article role="main">
           <section id="calibrations-schedules-and-gate-parameters-from-experiments">
-<h1>Calibrations: Schedules and gate parameters from experiments<a class="headerlink" href="#calibrations-schedules-and-gate-parameters-from-experiments" title="Permalink to this heading">#</a></h1>
+<h1>Calibrations: Schedules and gate parameters from experiments<a class="headerlink" href="#calibrations-schedules-and-gate-parameters-from-experiments" title="Link to this heading">#</a></h1>
 <p>To produce high fidelity quantum operations, we want to be able to run good gates. The
 calibration module in Qiskit Experiments allows users to run experiments to find the
 pulse shapes and parameter values that maximize the fidelity of the resulting quantum
@@ -779,9 +722,9 @@ we change the default value of the pulse duration to 320 samples</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
 &lt;InstructionScheduleMap(1Q instructions:
-  q0: {&#39;sy&#39;, &#39;y&#39;, &#39;sx&#39;, &#39;x&#39;}
+  q0: {&#39;y&#39;, &#39;sy&#39;, &#39;x&#39;, &#39;sx&#39;}
 Multi qubit instructions:
 )&gt;
 ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.5, angle=0), DriveChannel(0)), name=&quot;x&quot;, transform=AlignLeft())
@@ -793,7 +736,7 @@ ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.5, angle=0), Drive
 one after another and update the parameters after every experiment, keeping track of
 parameter values.</p>
 <section id="finding-qubits-with-spectroscopy">
-<h2>Finding qubits with spectroscopy<a class="headerlink" href="#finding-qubits-with-spectroscopy" title="Permalink to this heading">#</a></h2>
+<h2>Finding qubits with spectroscopy<a class="headerlink" href="#finding-qubits-with-spectroscopy" title="Link to this heading">#</a></h2>
 <p>Here, we are using a backend for which we already know the qubit frequency.
 We will therefore use the spectroscopy experiment to confirm that
 there is a resonance at the qubit frequency reported by the backend.</p>
@@ -850,99 +793,99 @@ Observe that the parameter values of <code class="docutils literal notranslate">
   <tbody>
     <tr>
       <th>0</th>
-      <td>σ</td>
+      <td>β</td>
       <td>()</td>
       <td>x</td>
-      <td>8.00000e+01</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>0.00000e+00</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>meas_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
+      <td>β</td>
+      <td>()</td>
+      <td>sx</td>
       <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>2</th>
+      <td>drive_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>5.20000e+09</td>
+      <td>2024-02-12 23:15:22....</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>σ</td>
+      <td>()</td>
+      <td>x</td>
+      <td>8.00000e+01</td>
+      <td>2024-02-12 23:15:22....</td>
+    </tr>
+    <tr>
+      <th>4</th>
       <td>σ</td>
       <td>()</td>
       <td>sx</td>
       <td>8.00000e+01</td>
-      <td>2024-02-08 06:28:59....</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>duration</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>3.20000e+02</td>
-      <td>2024-02-08 06:28:59....</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>5.00000e-01</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>5</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>2.50000e-01</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>x</td>
+      <td>5.00000e-01</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>β</td>
+      <td>amp</td>
       <td>()</td>
-      <td>x</td>
-      <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>sx</td>
+      <td>2.50000e-01</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>β</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
-    </tr>
-    <tr>
-      <th>8</th>
       <td>angle</td>
       <td>()</td>
       <td>x</td>
       <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
-      <th>9</th>
-      <td>angle</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>drive_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>5.20000e+09</td>
-      <td>2024-02-08 06:28:59....</td>
-    </tr>
-    <tr>
-      <th>11</th>
+      <th>8</th>
       <td>duration</td>
       <td>()</td>
       <td>x</td>
       <td>3.20000e+02</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>duration</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>3.20000e+02</td>
+      <td>2024-02-12 23:15:22....</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>meas_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>0.00000e+00</td>
+      <td>2024-02-12 23:15:22....</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>angle</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.00000e+00</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
   </tbody>
 </table>
@@ -1061,7 +1004,7 @@ experiment id that produced a value.</p>
       <td>(0,)</td>
       <td>None</td>
       <td>0.00000e+00</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
@@ -1069,7 +1012,7 @@ experiment id that produced a value.</p>
       <td>(0,)</td>
       <td>None</td>
       <td>5.20002e+09</td>
-      <td>2024-02-08 06:29:52....</td>
+      <td>2024-02-12 23:16:11....</td>
     </tr>
   </tbody>
 </table>
@@ -1077,7 +1020,7 @@ experiment id that produced a value.</p>
 </div>
 </section>
 <section id="calibrating-the-pulse-amplitudes-with-a-rabi-experiment">
-<span id="rabi-calibration"></span><h2>Calibrating the pulse amplitudes with a Rabi experiment<a class="headerlink" href="#calibrating-the-pulse-amplitudes-with-a-rabi-experiment" title="Permalink to this heading">#</a></h2>
+<span id="rabi-calibration"></span><h2>Calibrating the pulse amplitudes with a Rabi experiment<a class="headerlink" href="#calibrating-the-pulse-amplitudes-with-a-rabi-experiment" title="Link to this heading">#</a></h2>
 <p>In the Rabi experiment we apply a pulse at the frequency of the qubit
 and scan its amplitude to find the amplitude that creates a rotation
 of a desired angle. We do this with the calibration experiment <a class="reference internal" href="../stubs/qiskit_experiments.library.calibration.RoughXSXAmplitudeCal.html#qiskit_experiments.library.calibration.RoughXSXAmplitudeCal" title="qiskit_experiments.library.calibration.RoughXSXAmplitudeCal"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoughXSXAmplitudeCal</span></code></a>.
@@ -1175,34 +1118,34 @@ argument given to the calibration experiment at initialization.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>0.02921</td>
-      <td>2024-02-08 06:30:14....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-02-12 23:16:30....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01461</td>
-      <td>2024-02-08 06:30:14....</td>
+      <td>()</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01461</td>
+      <td>2024-02-12 23:16:30....</td>
     </tr>
   </tbody>
 </table>
@@ -1253,7 +1196,7 @@ the value of the <code class="docutils literal notranslate"><span class="pre">sx
 </div>
 </section>
 <section id="saving-and-loading-calibrations">
-<h2>Saving and loading calibrations<a class="headerlink" href="#saving-and-loading-calibrations" title="Permalink to this heading">#</a></h2>
+<h2>Saving and loading calibrations<a class="headerlink" href="#saving-and-loading-calibrations" title="Link to this heading">#</a></h2>
 <p>The values of the calibrated parameters can be saved to a .csv file
 and reloaded at a later point in time.</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1316,34 +1259,34 @@ By contrast, the value of the parameters will be recovered from the file.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>0.02921</td>
-      <td>2024-02-08 06:30:14....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-02-12 23:16:30....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01461</td>
-      <td>2024-02-08 06:30:14....</td>
+      <td>()</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01461</td>
+      <td>2024-02-12 23:16:30....</td>
     </tr>
   </tbody>
 </table>
@@ -1351,7 +1294,7 @@ By contrast, the value of the parameters will be recovered from the file.</p>
 </div>
 </section>
 <section id="calibrating-the-value-of-the-drag-coefficient">
-<span id="drag-calibration"></span><h2>Calibrating the value of the DRAG coefficient<a class="headerlink" href="#calibrating-the-value-of-the-drag-coefficient" title="Permalink to this heading">#</a></h2>
+<span id="drag-calibration"></span><h2>Calibrating the value of the DRAG coefficient<a class="headerlink" href="#calibrating-the-value-of-the-drag-coefficient" title="Link to this heading">#</a></h2>
 <p>A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
 and phase errors to a neighbouring transition. It is a standard pulse with an additional
 derivative component. It is designed to reduce the frequency spectrum of a
@@ -1401,8 +1344,8 @@ negative amplitude.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: beta
-- value: -1.541+/-0.009
-- χ²: 0.8308099626414587
+- value: -1.526+/-0.009
+- χ²: 1.0858357187866368
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -1448,25 +1391,25 @@ negative amplitude.</p>
       <th>0</th>
       <td>β</td>
       <td>()</td>
-      <td>x</td>
+      <td>sx</td>
       <td>0.00000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>β</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>x</td>
-      <td>-1.54111</td>
-      <td>2024-02-08 06:30:21....</td>
+      <td>0.00000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>β</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.00000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>-1.52647</td>
+      <td>2024-02-12 23:16:36....</td>
     </tr>
   </tbody>
 </table>
@@ -1474,7 +1417,7 @@ negative amplitude.</p>
 </div>
 </section>
 <section id="fine-calibrations-of-a-pulse-amplitude">
-<span id="fine-amplitude-cal"></span><h2>Fine calibrations of a pulse amplitude<a class="headerlink" href="#fine-calibrations-of-a-pulse-amplitude" title="Permalink to this heading">#</a></h2>
+<span id="fine-amplitude-cal"></span><h2>Fine calibrations of a pulse amplitude<a class="headerlink" href="#fine-calibrations-of-a-pulse-amplitude" title="Link to this heading">#</a></h2>
 <p>The amplitude of a pulse can be precisely calibrated using error amplifying gate
 sequences. These gate sequences apply the same gate a variable number of times.
 Therefore, if each gate has a small error <span class="math notranslate nohighlight">\(d\theta\)</span> in the rotation angle then a
@@ -1494,7 +1437,7 @@ update calibrations with a calibration experiment.</p>
 </div>
 </div>
 <section id="detecting-over-and-under-rotated-pulses">
-<h3>Detecting over- and under-rotated pulses<a class="headerlink" href="#detecting-over-and-under-rotated-pulses" title="Permalink to this heading">#</a></h3>
+<h3>Detecting over- and under-rotated pulses<a class="headerlink" href="#detecting-over-and-under-rotated-pulses" title="Link to this heading">#</a></h3>
 <p>We now run the error amplifying experiments with our own pulse schedules on which we
 purposefully add over- and under-rotations to observe their effects. To do this, we
 create an instruction to schedule map which we populate with the schedules we wish to
@@ -1620,7 +1563,7 @@ Thus, scale the 0.0570 pulse amplitude by 1.020 to obtain 0.05820.
 </div>
 </section>
 <section id="calibrating-a-pi-2-x-pulse">
-<h3>Calibrating a <span class="math notranslate nohighlight">\(\pi\)</span>/2 <span class="math notranslate nohighlight">\(X\)</span> pulse<a class="headerlink" href="#calibrating-a-pi-2-x-pulse" title="Permalink to this heading">#</a></h3>
+<h3>Calibrating a <span class="math notranslate nohighlight">\(\pi\)</span>/2 <span class="math notranslate nohighlight">\(X\)</span> pulse<a class="headerlink" href="#calibrating-a-pi-2-x-pulse" title="Link to this heading">#</a></h3>
 <p>Now we apply the same principles to a different example using the calibration version of
 a Fine Amplitude experiment. The amplitude of the <span class="math notranslate nohighlight">\(SX\)</span> gate, which is an <span class="math notranslate nohighlight">\(X\)</span>
 pulse with half the amplitude, is calibrated with the <a class="reference internal" href="../stubs/qiskit_experiments.library.calibration.FineSXAmplitudeCal.html#qiskit_experiments.library.calibration.FineSXAmplitudeCal" title="qiskit_experiments.library.calibration.FineSXAmplitudeCal"><code class="xref py py-class docutils literal notranslate"><span class="pre">FineSXAmplitudeCal</span></code></a>
@@ -1693,34 +1636,34 @@ error which we want to correct.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>0.02921</td>
-      <td>2024-02-08 06:30:14....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-02-12 23:16:30....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01455</td>
-      <td>2024-02-08 06:30:24....</td>
+      <td>()</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-02-12 23:15:22....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-02-08 06:28:59....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01454</td>
+      <td>2024-02-12 23:16:39....</td>
     </tr>
   </tbody>
 </table>
@@ -1733,7 +1676,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145450852, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145363442, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
 </pre></div>
 </div>
 </div>
@@ -1754,7 +1697,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
 </section>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../apidocs/calibration_management.html#module-qiskit_experiments.calibration_management" title="qiskit_experiments.calibration_management"><code class="xref py py-mod docutils literal notranslate"><span class="pre">calibration_management</span></code></a> and <a class="reference internal" href="../apidocs/mod_calibration.html#module-qiskit_experiments.library.calibration" title="qiskit_experiments.library.calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">calibration</span></code></a></p></li>
 <li><p>Qiskit Textbook: <a class="reference external" href="https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/calibrating-qubits-pulse.ipynb">Calibrating Qubits with Qiskit Pulse</a></p></li>
@@ -1765,20 +1708,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="data_processor.html">
               <div class="page-info">
                 <div class="context">
@@ -1809,7 +1739,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/08</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1854,9 +1784,9 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=add265a1"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
