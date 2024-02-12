@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.6.0-2-g3d211bfa</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.6.0-3-g5f64525d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -43,64 +43,7 @@
   }
 </style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script src="../../_static/js/web-components/top-nav-bar.js"></script>
-<script>
-  (function () {
-    window._analytics = {
-      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
-      coremetrics: false,
-      optimizely: false,
-      googleAddServices: false,
-      fullStory: false,
-      autoPageEventSpa: false,
-      autoFormEvents: false,
-      autoPageView: false
-    }
-
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          productTitle: 'IBM Q Experience',
-          analytics: {
-            category: 'Qiskit.org'
-          }
-        }
-      }
-    }
-  }());
-</script>
-<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
-<script>
-  (function () {
-    'use strict'
-
-    if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-    const category = window.digitalData.page.pageInfo.analytics.category
-    const productTitle = window.digitalData.page.pageInfo.productTitle
-    const routeName = 'documentation'
-
-    window.bluemixAnalytics.pageEvent(category, routeName, {
-      navigationType: 'pushState',
-      productTitle: productTitle,
-      title: document.title
-    })
-
-    window.trackCta = (action) => {
-      if (!window.bluemixAnalytics || !window.digitalData) { return }
-
-      const category = window.digitalData.page.pageInfo.analytics.category
-      const productTitle = window.digitalData.page.pageInfo.productTitle
-
-      window.bluemixAnalytics.trackEvent('CTA Clicked', {
-        productTitle,
-        category,
-        CTA: action
-      })
-    }
-
-  }());
-</script></head>
+<script src="../../_static/js/web-components/top-nav-bar.js"></script></head>
   <body>
     
     <script>document.body.dataset.theme = "light";</script>
@@ -204,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-2-g3d211bfa</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -231,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-2-g3d211bfa</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -649,7 +592,7 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. <a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#id9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.org/ecosystem/aer/index.html" title="(in Qiskit Aer v0.13.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.13.3)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
@@ -760,48 +703,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 106
+ - number of function evals: 155
  - degree of freedom: 1
- - chi-square: 4.164103189832504
- - reduced chi-square: 4.164103189832504
- - Akaike info crit.: 6.160826282982749
- - Bayesian info crit.: 4.319709366342421
+ - chi-square: 5.627962752066598
+ - reduced chi-square: 5.627962752066598
+ - Akaike info crit.: 7.365812639141188
+ - Bayesian info crit.: 5.5246957225008595
  - init params:
-  * a = 0.47378929405265197
-  * alpha = 0.9997240176826967
+  * a = 0.47574257916016666
+  * alpha = 0.9997208089659745
   * b = 0.5
  - fit params:
-  * a = 0.9748917533042626 ± 4.195035213157855
-  * alpha = 0.9998774521597149 ± 0.00054480004962096
-  * b = 2.14667018121539e-10 ± 4.195657831891358
+  * a = 0.9759523734962724 ± 3.386396448263993
+  * alpha = 0.9998752344614739 ± 0.00044769649196451966
+  * b = 2.141122869577826e-16 ± 3.386914231125085
  - correlations:
-  * (a, b) = -0.9999999342988118
-  * (alpha, b) = -0.9999407593171679
-  * (a, alpha) = 0.9999381756855799
+  * (a, b) = -0.9999999069341715
+  * (alpha, b) = -0.9999491172702484
+  * (a, alpha) = 0.9999458489478574
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9999+/-0.0005
-- χ²: 4.164103189832504
+- value: 0.9999+/-0.0004
+- χ²: 5.627962752066598
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00006+/-0.00027
-- χ²: 4.164103189832504
+- value: 0.00006+/-0.00022
+- χ²: 5.627962752066598
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00007+/-0.00029
-- χ²: 4.164103189832504
+- value: 0.00007+/-0.00024
+- χ²: 5.627962752066598
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -809,15 +752,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 4.164103189832504
+- χ²: 5.627962752066598
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00007+/-0.00029
-- χ²: 4.164103189832504
+- value: 0.00007+/-0.00024
+- χ²: 5.627962752066598
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -924,24 +867,24 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 16
+ - number of function evals: 24
  - degree of freedom: 4
- - chi-square: 0.33219820534041816
- - reduced chi-square: 0.08304955133510454
- - Akaike info crit.: -15.33553543253701
- - Bayesian info crit.: -15.497804985371072
+ - chi-square: 7.552279144932154
+ - reduced chi-square: 1.8880697862330384
+ - Akaike info crit.: 6.531574695063509
+ - Bayesian info crit.: 6.369305142229448
  - init params:
-  * a = 0.7165476679690282
-  * alpha = 0.9828291039382245
+  * a = 0.7189803353920353
+  * alpha = 0.9815391080040773
   * b = 0.25
  - fit params:
-  * a = 0.7158674406577219 ± 0.0062031010469541185
-  * alpha = 0.982638454577878 ± 0.000481927156225098
-  * b = 0.25077011513976344 ± 0.005945817724310026
+  * a = 0.7163116149541392 ± 0.005709938236095058
+  * alpha = 0.9825663945773457 ± 0.00048192484953083945
+  * b = 0.25092693861709225 ± 0.005202314008166148
  - correlations:
-  * (alpha, b) = -0.8825253436545528
-  * (a, b) = -0.832098355597723
-  * (a, alpha) = 0.6389525316314658
+  * (alpha, b) = -0.9081727124556762
+  * (a, b) = -0.7991996448371684
+  * (a, alpha) = 0.6488261912280436
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -949,31 +892,31 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 AnalysisResult
 - name: alpha
 - value: 0.9826+/-0.0005
-- χ²: 0.08304955133510454
+- χ²: 1.8880697862330384
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0130+/-0.0004
-- χ²: 0.08304955133510454
+- value: 0.0131+/-0.0004
+- χ²: 1.8880697862330384
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0115+/-0.0006
-- χ²: 0.08304955133510454
+- value: 0.0112+/-0.0006
+- χ²: 1.8880697862330384
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0074+/-0.0004
-- χ²: 0.08304955133510454
+- value: 0.0072+/-0.0004
+- χ²: 1.8880697862330384
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1091,53 +1034,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 25
+ - number of function evals: 30
  - degree of freedom: 10
- - chi-square: 12.214588135077902
- - reduced chi-square: 1.2214588135077902
- - Akaike info crit.: 6.090031191877101
- - Bayesian info crit.: 8.646260510338134
+ - chi-square: 3.694842766038503
+ - reduced chi-square: 0.3694842766038503
+ - Akaike info crit.: -10.64967061006081
+ - Bayesian info crit.: -8.093441291599776
  - init params:
-  * a = 0.7156412338108218
-  * alpha = 0.9832396599348886
+  * a = 0.716523645142103
+  * alpha = 0.9822574800998126
   * b = 0.25
-  * alpha_c = 0.987670915417561
+  * alpha_c = 0.9855662533333338
  - fit params:
-  * a = 0.7169440303647869 ± 0.0037718143881154
-  * alpha = 0.9829463699596184 ± 0.00030407745994688986
-  * b = 0.24773271654066542 ± 0.002913948338967571
-  * alpha_c = 0.9896546870725855 ± 0.0004912654625386404
+  * a = 0.7158034559054901 ± 0.0034271157357056367
+  * alpha = 0.982238628239965 ± 0.0002944119365528303
+  * b = 0.24951484032997964 ± 0.002578294930582173
+  * alpha_c = 0.9903483770853931 ± 0.00040914801790059303
  - correlations:
-  * (alpha, b) = -0.7231150180723319
-  * (a, b) = -0.665642547811144
-  * (b, alpha_c) = -0.33149267018803086
-  * (alpha, alpha_c) = -0.022340075493748522
-  * (a, alpha_c) = 0.15095513727320362
-  * (a, alpha) = 0.35109740324222116
+  * (alpha, b) = -0.7073284488765588
+  * (a, b) = -0.6498637941952007
+  * (b, alpha_c) = -0.3227104635560498
+  * (alpha, alpha_c) = -0.10128828142678305
+  * (a, alpha_c) = 0.17153452082568418
+  * (a, alpha) = 0.32181289933197693
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98295+/-0.00030
-- χ²: 1.2214588135077902
+- value: 0.98224+/-0.00029
+- χ²: 0.3694842766038503
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9897+/-0.0005
-- χ²: 1.2214588135077902
+- value: 0.9903+/-0.0004
+- χ²: 0.3694842766038503
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0078+/-0.0004
-- χ²: 1.2214588135077902
+- value: 0.00724+/-0.00031
+- χ²: 0.3694842766038503
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1192,20 +1135,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
         </article>
       </div>
       <footer>
-        
-  <script>
-    function userFeedbackClicked(ctaType) {
-      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
-      window.trackCta(`Helpful - ${ctaType}`);
-    }
-  </script>
-    <div class="qiskit-analytics-container">
-      <div>Was this page helpful?</div>
-      <a onclick="userFeedbackClicked('yes')">Yes</a>
-      <a onclick="userFeedbackClicked('no')">No</a>
-      <div id="qiskit-analytics-thank-you">Thank you!</div>
-    </div>
-<div class="related-pages">
+        <div class="related-pages">
           <a class="next-page" href="state_tomography.html">
               <div class="page-info">
                 <div class="context">
@@ -1236,7 +1166,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/10</div>
+              Last updated on 2024/02/12</div>
           </div>
           <div class="right-details">
             
@@ -1278,7 +1208,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=39f53d10"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=385588ad"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
