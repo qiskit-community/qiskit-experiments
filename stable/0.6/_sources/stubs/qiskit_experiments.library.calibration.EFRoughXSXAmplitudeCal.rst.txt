@@ -1,0 +1,51 @@
+﻿
+
+EFRoughXSXAmplitudeCal
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: EFRoughXSXAmplitudeCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: EFRoughXSXAmplitudeCal.analysis
+   .. autoattribute:: EFRoughXSXAmplitudeCal.backend
+   .. autoattribute:: EFRoughXSXAmplitudeCal.calibrations
+   .. autoattribute:: EFRoughXSXAmplitudeCal.experiment_options
+   .. autoattribute:: EFRoughXSXAmplitudeCal.experiment_type
+   .. autoattribute:: EFRoughXSXAmplitudeCal.num_qubits
+   .. autoattribute:: EFRoughXSXAmplitudeCal.physical_qubits
+   .. autoattribute:: EFRoughXSXAmplitudeCal.run_options
+   .. autoattribute:: EFRoughXSXAmplitudeCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: EFRoughXSXAmplitudeCal.circuits
+   .. automethod:: EFRoughXSXAmplitudeCal.config
+   .. automethod:: EFRoughXSXAmplitudeCal.copy
+   .. automethod:: EFRoughXSXAmplitudeCal.enable_restless
+   .. automethod:: EFRoughXSXAmplitudeCal.from_config
+   .. automethod:: EFRoughXSXAmplitudeCal.job_info
+   .. automethod:: EFRoughXSXAmplitudeCal.run
+   .. automethod:: EFRoughXSXAmplitudeCal.set_experiment_options
+   .. automethod:: EFRoughXSXAmplitudeCal.set_run_options
+   .. automethod:: EFRoughXSXAmplitudeCal.set_transpile_options
+   .. automethod:: EFRoughXSXAmplitudeCal.update_calibrations
+   
+
+   
+   

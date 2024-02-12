@@ -1,0 +1,43 @@
+﻿
+
+MockIQParallelExperimentHelper
+======================================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: MockIQParallelExperimentHelper
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: MockIQParallelExperimentHelper.iq_cluster_centers
+   .. autoattribute:: MockIQParallelExperimentHelper.iq_cluster_width
+   
+
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: MockIQParallelExperimentHelper.compute_probabilities
+   .. automethod:: MockIQParallelExperimentHelper.iq_clusters
+   .. automethod:: MockIQParallelExperimentHelper.iq_phase
+
+   

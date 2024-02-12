@@ -1,0 +1,43 @@
+﻿
+
+ZZRamseyAnalysis
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: ZZRamseyAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: ZZRamseyAnalysis.drawer
+   .. autoattribute:: ZZRamseyAnalysis.models
+   .. autoattribute:: ZZRamseyAnalysis.name
+   .. autoattribute:: ZZRamseyAnalysis.options
+   .. autoattribute:: ZZRamseyAnalysis.parameters
+   .. autoattribute:: ZZRamseyAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: ZZRamseyAnalysis.config
+   .. automethod:: ZZRamseyAnalysis.copy
+   .. automethod:: ZZRamseyAnalysis.from_config
+   .. automethod:: ZZRamseyAnalysis.model_names
+   .. automethod:: ZZRamseyAnalysis.run
+   .. automethod:: ZZRamseyAnalysis.set_options
+   
+
+   
+   

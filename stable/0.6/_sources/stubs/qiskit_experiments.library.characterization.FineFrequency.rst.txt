@@ -1,0 +1,48 @@
+﻿
+
+FineFrequency
+=========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: FineFrequency
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: FineFrequency.analysis
+   .. autoattribute:: FineFrequency.backend
+   .. autoattribute:: FineFrequency.experiment_options
+   .. autoattribute:: FineFrequency.experiment_type
+   .. autoattribute:: FineFrequency.num_qubits
+   .. autoattribute:: FineFrequency.physical_qubits
+   .. autoattribute:: FineFrequency.run_options
+   .. autoattribute:: FineFrequency.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: FineFrequency.circuits
+   .. automethod:: FineFrequency.config
+   .. automethod:: FineFrequency.copy
+   .. automethod:: FineFrequency.from_config
+   .. automethod:: FineFrequency.job_info
+   .. automethod:: FineFrequency.run
+   .. automethod:: FineFrequency.set_experiment_options
+   .. automethod:: FineFrequency.set_run_options
+   .. automethod:: FineFrequency.set_transpile_options
+   
+
+   
+   

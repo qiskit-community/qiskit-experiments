@@ -1,0 +1,40 @@
+﻿
+
+StarkCoefficients
+===============================================================
+
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
+
+.. autoclass:: StarkCoefficients
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: StarkCoefficients.convert_amp_to_freq
+   .. automethod:: StarkCoefficients.convert_freq_to_amp
+   .. automethod:: StarkCoefficients.find_min_max_frequency
+   .. automethod:: StarkCoefficients.negative_coeffs
+   .. automethod:: StarkCoefficients.positive_coeffs
+
+   

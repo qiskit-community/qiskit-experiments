@@ -1,0 +1,75 @@
+﻿
+
+AnalysisResult
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisResult
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisResult.RESULT_QUALITY_TO_TEXT
+   .. autoattribute:: AnalysisResult.auto_save
+   .. autoattribute:: AnalysisResult.chisq
+   .. autoattribute:: AnalysisResult.device_components
+   .. autoattribute:: AnalysisResult.experiment_id
+   .. autoattribute:: AnalysisResult.extra
+   .. autoattribute:: AnalysisResult.name
+   .. autoattribute:: AnalysisResult.quality
+   .. autoattribute:: AnalysisResult.result_id
+   .. autoattribute:: AnalysisResult.service
+   .. autoattribute:: AnalysisResult.source
+   .. autoattribute:: AnalysisResult.tags
+   .. autoattribute:: AnalysisResult.value
+   .. autoattribute:: AnalysisResult.verified
+   .. autoattribute:: AnalysisResult.version
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AnalysisResult.copy
+   .. automethod:: AnalysisResult.default_source
+   .. automethod:: AnalysisResult.format_result_data
+   .. automethod:: AnalysisResult.load
+   .. automethod:: AnalysisResult.save
+   .. automethod:: AnalysisResult.set_data
+
+   

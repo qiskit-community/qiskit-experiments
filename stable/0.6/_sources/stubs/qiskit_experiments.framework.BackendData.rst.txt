@@ -1,0 +1,71 @@
+﻿
+
+BackendData
+========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BackendData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: BackendData.acquire_alignment
+   .. autoattribute:: BackendData.coupling_map
+   .. autoattribute:: BackendData.drive_freqs
+   .. autoattribute:: BackendData.dt
+   .. autoattribute:: BackendData.granularity
+   .. autoattribute:: BackendData.is_simulator
+   .. autoattribute:: BackendData.max_circuits
+   .. autoattribute:: BackendData.meas_freqs
+   .. autoattribute:: BackendData.min_length
+   .. autoattribute:: BackendData.name
+   .. autoattribute:: BackendData.num_qubits
+   .. autoattribute:: BackendData.provider
+   .. autoattribute:: BackendData.pulse_alignment
+   .. autoattribute:: BackendData.version
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BackendData.acquire_channel
+   .. automethod:: BackendData.control_channel
+   .. automethod:: BackendData.drive_channel
+   .. automethod:: BackendData.measure_channel
+   .. automethod:: BackendData.qubit_t1
+
+   

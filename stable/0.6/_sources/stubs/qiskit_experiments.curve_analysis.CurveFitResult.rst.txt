@@ -1,0 +1,37 @@
+﻿
+
+CurveFitResult
+================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: CurveFitResult
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: CurveFitResult.correl
+   .. autoattribute:: CurveFitResult.ufloat_params
+   .. autoattribute:: CurveFitResult.x_range
+   .. autoattribute:: CurveFitResult.y_range
+   
+
+
+
+
+   
+   
+
+   

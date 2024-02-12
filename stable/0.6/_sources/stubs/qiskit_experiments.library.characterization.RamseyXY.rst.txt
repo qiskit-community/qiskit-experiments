@@ -1,0 +1,49 @@
+﻿
+
+RamseyXY
+====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: RamseyXY
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: RamseyXY.analysis
+   .. autoattribute:: RamseyXY.backend
+   .. autoattribute:: RamseyXY.experiment_options
+   .. autoattribute:: RamseyXY.experiment_type
+   .. autoattribute:: RamseyXY.num_qubits
+   .. autoattribute:: RamseyXY.physical_qubits
+   .. autoattribute:: RamseyXY.run_options
+   .. autoattribute:: RamseyXY.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: RamseyXY.circuits
+   .. automethod:: RamseyXY.config
+   .. automethod:: RamseyXY.copy
+   .. automethod:: RamseyXY.enable_restless
+   .. automethod:: RamseyXY.from_config
+   .. automethod:: RamseyXY.job_info
+   .. automethod:: RamseyXY.run
+   .. automethod:: RamseyXY.set_experiment_options
+   .. automethod:: RamseyXY.set_run_options
+   .. automethod:: RamseyXY.set_transpile_options
+   
+
+   
+   
