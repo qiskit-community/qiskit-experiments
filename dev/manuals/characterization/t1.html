@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2 Hahn Characterization" href="t2hahn.html" /><link rel="prev" title="AC Stark Effect" href="stark_experiment.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>T1 Characterization - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>T1 Characterization - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,9 +581,9 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="t1-characterization">
-<h1>T1 Characterization<a class="headerlink" href="#t1-characterization" title="Permalink to this heading">#</a></h1>
+<h1>T1 Characterization<a class="headerlink" href="#t1-characterization" title="Link to this heading">#</a></h1>
 <section id="background">
-<h2>Background<a class="headerlink" href="#background" title="Permalink to this heading">#</a></h2>
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
 <p>In a <span class="math notranslate nohighlight">\(T_1\)</span> experiment, we measure an excited qubit after a delay.
 Due to decoherence processes (e.g. the amplitude damping channel), it is
 possible that, at the time of measurement, after the delay, the qubit
@@ -678,9 +678,9 @@ packages to run simulations.  You can install them with <code class="docutils li
   * tau = 0.00019768172598987
   * base = 0.04341463414634146
  - fit params:
-  * amp = 1.0032519355220268 ± 0.007783313537707188
-  * tau = 0.00020330212844709507 ± 5.070164300054228e-06
-  * base = -0.004961836734312509 ± 0.0070304121598271435
+  * amp = 1.0032519355220268 ± 0.007783313537707187
+  * tau = 0.00020330212844709507 ± 5.0701643000542294e-06
+  * base = -0.004961836734312509 ± 0.007030412159827144
  - correlations:
   * (tau, base) = -0.9018531751179741
   * (amp, base) = -0.6626453599693406
@@ -703,7 +703,7 @@ AnalysisResult
 </div>
 </section>
 <section id="t-1-experiments-with-kerneled-measurement">
-<h2><span class="math notranslate nohighlight">\(T_1\)</span> experiments with kerneled measurement<a class="headerlink" href="#t-1-experiments-with-kerneled-measurement" title="Permalink to this heading">#</a></h2>
+<h2><span class="math notranslate nohighlight">\(T_1\)</span> experiments with kerneled measurement<a class="headerlink" href="#t-1-experiments-with-kerneled-measurement" title="Link to this heading">#</a></h2>
 <p><span class="math notranslate nohighlight">\(T_1\)</span> experiments can also be done with kerneled measurements.
 If we set the run option <code class="docutils literal notranslate"><span class="pre">meas_level=MeasLevel.KERNELED</span></code>, the job
 will not discriminate the IQ data and will not label it. In the T1 experiment,
@@ -780,9 +780,9 @@ that is close to a logical value ‘0’.</p>
   * tau = 4.95e-05
   * base = 0.0
  - fit params:
-  * amp = 1.0469535442726126 ± 0.01131046679086006
-  * tau = 4.394415455708184e-05 ± 1.0357555420825247e-06
-  * base = -0.05146921117096622 ± 0.01143193957622925
+  * amp = 1.0469535442726126 ± 0.011310466790860061
+  * tau = 4.394415455708184e-05 ± 1.035755542082525e-06
+  * base = -0.05146921117096622 ± 0.011431939576229254
  - correlations:
   * (amp, base) = -0.9835183492877463
   * (tau, base) = -0.849316060844548
@@ -805,7 +805,7 @@ AnalysisResult
 </div>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-mod docutils literal notranslate"><span class="pre">T1</span></code></a></p></li>
 </ul>
@@ -884,9 +884,9 @@ AnalysisResult
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

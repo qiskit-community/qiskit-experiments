@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.data_processing.discriminator - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>qiskit_experiments.data_processing.discriminator - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -592,7 +592,9 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 
-<div class="viewcode-block" id="BaseDiscriminator"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator">[docs]</a><span class="k">class</span> <span class="nc">BaseDiscriminator</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseDiscriminator">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseDiscriminator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract base class for serializable discriminators used in the</span>
 <span class="sd">    :class:`.DiscriminatorNode` data action nodes.</span>
 
@@ -607,9 +609,12 @@
 <span class="sd">    - :meth:`is_trained`: indicates if the discriminator is trained, i.e., fit to training data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="BaseDiscriminator.predict"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.predict">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseDiscriminator.predict">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.predict">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The function used to predict the labels of the data.&quot;&quot;&quot;</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -620,17 +625,26 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="BaseDiscriminator.config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.config">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseDiscriminator.config">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.config">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration of the discriminator.&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseDiscriminator.is_trained"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.is_trained">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseDiscriminator.is_trained">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.is_trained">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if this discriminator has been trained on data.&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="BaseDiscriminator.from_config"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="BaseDiscriminator.from_config">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseDiscriminator&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a discriminator from the configuration.&quot;&quot;&quot;</span></div>
+
 
     <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to format that can be JSON serialized.&quot;&quot;&quot;</span>
@@ -640,6 +654,7 @@
     <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseDiscriminator&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load from JSON compatible format.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -674,9 +689,9 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../../../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/thebelab-helper.js"></script>

@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -603,7 +603,9 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="Tphi"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi">[docs]</a><span class="k">class</span> <span class="nc">Tphi</span><span class="p">(</span><span class="n">BatchExperiment</span><span class="p">):</span>
+<div class="viewcode-block" id="Tphi">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi">[docs]</a>
+<span class="k">class</span> <span class="nc">Tphi</span><span class="p">(</span><span class="n">BatchExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to measure the qubit dephasing rate in the :math:`x - y` plane.</span>
 
 <span class="sd">    # section: overview</span>
@@ -702,7 +704,9 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">exp_options</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Tphi.set_experiment_options"><a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi.set_experiment_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="Tphi.set_experiment_options">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi.set_experiment_options">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment options.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields defining the options.</span>
@@ -721,7 +725,9 @@
             <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;num_echoes&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">T2Hahn</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">num_echoes</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;num_echoes&quot;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tphi experiment does not support option </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div></div>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tphi experiment does not support option </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
         </article>
       </div>
@@ -756,9 +762,9 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../../../../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../../_static/thebelab-helper.js"></script>

@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -605,7 +605,9 @@
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ScatterTable"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable">[docs]</a><span class="k">class</span> <span class="nc">ScatterTable</span><span class="p">:</span>
+<div class="viewcode-block" id="ScatterTable">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable">[docs]</a>
+<span class="k">class</span> <span class="nc">ScatterTable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A table-like dataset for the intermediate data used for curve fitting.</span>
 
 <span class="sd">    Default table columns are defined in the class attribute :attr:`.COLUMNS`.</span>
@@ -653,7 +655,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_add_rows</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dump</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COLUMNS</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ScatterTable.from_dataframe"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.from_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ScatterTable.from_dataframe">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.from_dataframe">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -670,6 +674,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input dataframe columns don&#39;t match with the ScatterTable spec.&quot;</span><span class="p">)</span>
         <span class="n">format_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_format_table</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="n">format_data</span><span class="p">)</span></div>
+
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_new_instance</span><span class="p">(</span>
@@ -709,7 +714,9 @@
     <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
-<div class="viewcode-block" id="ScatterTable.xvals"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.xvals">[docs]</a>    <span class="k">def</span> <span class="nf">xvals</span><span class="p">(</span>
+<div class="viewcode-block" id="ScatterTable.xvals">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.xvals">[docs]</a>
+    <span class="k">def</span> <span class="nf">xvals</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">series</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -735,6 +742,7 @@
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">sub_table</span><span class="o">.</span><span class="n">x</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Y values.&quot;&quot;&quot;</span>
@@ -745,7 +753,9 @@
     <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
-<div class="viewcode-block" id="ScatterTable.yvals"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yvals">[docs]</a>    <span class="k">def</span> <span class="nf">yvals</span><span class="p">(</span>
+<div class="viewcode-block" id="ScatterTable.yvals">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yvals">[docs]</a>
+    <span class="k">def</span> <span class="nf">yvals</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">series</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -771,6 +781,7 @@
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">sub_table</span><span class="o">.</span><span class="n">y</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">y_err</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Standard deviation of Y values.&quot;&quot;&quot;</span>
@@ -781,7 +792,9 @@
     <span class="k">def</span> <span class="nf">y_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yerr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
-<div class="viewcode-block" id="ScatterTable.yerrs"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yerrs">[docs]</a>    <span class="k">def</span> <span class="nf">yerrs</span><span class="p">(</span>
+<div class="viewcode-block" id="ScatterTable.yerrs">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yerrs">[docs]</a>
+    <span class="k">def</span> <span class="nf">yerrs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">series</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -806,6 +819,7 @@
         <span class="k">if</span> <span class="n">check_unique</span><span class="p">:</span>
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">sub_table</span><span class="o">.</span><span class="n">y_err</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">series_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -852,7 +866,9 @@
     <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
-<div class="viewcode-block" id="ScatterTable.filter"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
+<div class="viewcode-block" id="ScatterTable.filter">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter">[docs]</a>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">series</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -888,7 +904,10 @@
             <span class="n">filt_data</span> <span class="o">=</span> <span class="n">filt_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="n">filt_data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ScatterTable.iter_by_series_id"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.iter_by_series_id">[docs]</a>    <span class="k">def</span> <span class="nf">iter_by_series_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;ScatterTable&quot;</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="ScatterTable.iter_by_series_id">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.iter_by_series_id">[docs]</a>
+    <span class="k">def</span> <span class="nf">iter_by_series_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;ScatterTable&quot;</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over subset of data sorted by the data series index.</span>
 
 <span class="sd">        Yields:</span>
@@ -898,7 +917,10 @@
         <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">id_values</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
             <span class="k">yield</span> <span class="n">did</span><span class="p">,</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">id_values</span> <span class="o">==</span> <span class="n">did</span><span class="p">,</span> <span class="p">:])</span></div>
 
-<div class="viewcode-block" id="ScatterTable.iter_groups"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.iter_groups">[docs]</a>    <span class="k">def</span> <span class="nf">iter_groups</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ScatterTable.iter_groups">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.iter_groups">[docs]</a>
+    <span class="k">def</span> <span class="nf">iter_groups</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">group_by</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="s2">&quot;ScatterTable&quot;</span><span class="p">]]:</span>
@@ -925,7 +947,10 @@
                 <span class="k">continue</span>
             <span class="k">yield</span> <span class="n">values</span><span class="p">,</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">all_matched</span><span class="p">,</span> <span class="p">:])</span></div>
 
-<div class="viewcode-block" id="ScatterTable.add_row"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.add_row">[docs]</a>    <span class="k">def</span> <span class="nf">add_row</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ScatterTable.add_row">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.add_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_row</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">xval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
         <span class="n">yval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
@@ -953,6 +978,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_add_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">[</span><span class="n">xval</span><span class="p">,</span> <span class="n">yval</span><span class="p">,</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">series_name</span><span class="p">,</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">analysis</span><span class="p">]</span>
         <span class="p">)</span></div>
+
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_format_table</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1008,7 +1034,9 @@
         <span class="n">name_id_tups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;series_name&quot;</span><span class="p">,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">name_id_tups</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-<div class="viewcode-block" id="ScatterTable.get_subset_of"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.get_subset_of">[docs]</a>    <span class="nd">@deprecate_func</span><span class="p">(</span>
+<div class="viewcode-block" id="ScatterTable.get_subset_of">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.get_subset_of">[docs]</a>
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
         <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
         <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;Use filter method instead.&quot;</span><span class="p">,</span>
         <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1025,9 +1053,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="n">index</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ScatterTable.__len__"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScatterTable.__len__">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of data points stored in the table.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span>
@@ -1044,6 +1076,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON decoded value for ScatterTable is not valid class type.&quot;</span><span class="p">)</span>
         <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">tmp_df</span><span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -1078,9 +1111,9 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../../../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/thebelab-helper.js"></script>

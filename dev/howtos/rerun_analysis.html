@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Use Experiments with Runtime sessions" href="runtime_sessions.html" /><link rel="prev" title="Control the splitting of experiment circuits into jobs" href="job_splitting.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,15 +581,15 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="rerun-analysis-for-an-existing-experiment">
-<h1>Rerun analysis for an existing experiment<a class="headerlink" href="#rerun-analysis-for-an-existing-experiment" title="Permalink to this heading">#</a></h1>
+<h1>Rerun analysis for an existing experiment<a class="headerlink" href="#rerun-analysis-for-an-existing-experiment" title="Link to this heading">#</a></h1>
 <section id="problem">
-<h2>Problem<a class="headerlink" href="#problem" title="Permalink to this heading">#</a></h2>
+<h2>Problem<a class="headerlink" href="#problem" title="Link to this heading">#</a></h2>
 <p>You want to rerun the analysis, possibly with different options, and generate a new
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object for an existing experiment whose jobs have finished
 execution successfully.</p>
 </section>
 <section id="solution">
-<h2>Solution<a class="headerlink" href="#solution" title="Permalink to this heading">#</a></h2>
+<h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This guide requires <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
@@ -644,7 +644,7 @@ invoke the <a class="reference internal" href="../stubs/qiskit_experiments.frame
 parent experiment. The child experiment data will automatically populate.</p>
 </section>
 <section id="discussion">
-<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this heading">#</a></h2>
+<h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">#</a></h2>
 <p>This guide is helpful for cases such as a lost connection during experiment
 execution, where the jobs may have finished running on the remote backends but the
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class returned upon completion of an experiment does not
@@ -684,7 +684,7 @@ restore it later with the following lines of code:</p>
 </div>
 </div>
 <section id="rerunning-with-different-analysis-options">
-<h3>Rerunning with different analysis options<a class="headerlink" href="#rerunning-with-different-analysis-options" title="Permalink to this heading">#</a></h3>
+<h3>Rerunning with different analysis options<a class="headerlink" href="#rerunning-with-different-analysis-options" title="Link to this heading">#</a></h3>
 <p>You may also want to rerun the analysis with different options of a previously-run
 experiment when you instantiate this new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object. Here’s a code
 snippet where we reconstruct a parallel experiment consisting of randomized benchmarking
@@ -716,7 +716,7 @@ first component experiment.</p>
 </section>
 </section>
 <section id="see-also">
-<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="cloud_service.html">Saving and loading experiment data with the cloud service</a></p></li>
 </ul>
@@ -799,9 +799,9 @@ first component experiment.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

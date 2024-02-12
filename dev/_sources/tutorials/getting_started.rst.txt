@@ -185,23 +185,36 @@ exponential decay model of the :math:`T_1` experiment:
 Analysis Results
 ----------------
 
-The analysis results resulting from the fit are accessed with :meth:`~.ExperimentData.analysis_results`:
+The analysis results resulting from the fit are accessed with
+:meth:`~.ExperimentData.analysis_results`. If the ``dataframe=True`` parameter is passed, analysis
+results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format:
+
+.. jupyter-execute::
+
+    exp_data.analysis_results(dataframe=True)
+
+Alternatively, analysis results can be accessed via the legacy list format:
 
 .. jupyter-execute::
 
     for result in exp_data.analysis_results():
         print(result)
 
-Results can be indexed numerically (starting from 0) or using their name. Analysis results can also be
-retrieved in the pandas :class:`~pandas:pandas.DataFrame` format by passing ``dataframe=True``:
+Individual results can be retrieved using their name or their long or short IDs, which will all
+return the corresponding :class:`AnalysisResult` object:
 
 .. jupyter-execute::
+    :hide-code:
 
-    exp_data.analysis_results(dataframe=True)
+    result_id = exp_data.analysis_results("T1").result_id
+    short_id = result_id.split("-")[0]
+    print(f"exp_data.analysis_results(\"T1\")")
+    print(f"exp_data.analysis_results(\"{result_id}\")")
+    print(f"exp_data.analysis_results(\"{short_id}\")")
 
-.. note::
-    See the :meth:`~.ExperimentData.analysis_results` API documentation for more 
-    advanced usage patterns to access subsets of analysis results.
+.. attention::
+    Retrieving analysis results by a numerical index, whether an integer or a slice, is deprecated
+    as of 0.6 and will be removed in a future release.
 
 Each analysis
 result value is a ``UFloat`` object from the ``uncertainties`` package. The nominal

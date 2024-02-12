@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-To Guides" href="../howtos/index.html" /><link rel="prev" title="Visualization: Creating figures" href="visualization.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Writing your own experiment - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>Writing your own experiment - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,14 +581,14 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="writing-your-own-experiment">
-<h1>Writing your own experiment<a class="headerlink" href="#writing-your-own-experiment" title="Permalink to this heading">#</a></h1>
+<h1>Writing your own experiment<a class="headerlink" href="#writing-your-own-experiment" title="Link to this heading">#</a></h1>
 <p>Qiskit Experiments is designed to be easily customizable. If you would like to
 run an experiment that’s similar to an existing experiment in the
 <a class="reference internal" href="../apidocs/library.html"><span class="doc">library</span></a>, you can subclass the existing experiment and analysis
 classes. You can also write your own experiment class from the ground up by subclassing
 the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class. We will discuss both cases in this tutorial.</p>
 <section id="experiment-subclassing">
-<h2>Experiment subclassing<a class="headerlink" href="#experiment-subclassing" title="Permalink to this heading">#</a></h2>
+<h2>Experiment subclassing<a class="headerlink" href="#experiment-subclassing" title="Link to this heading">#</a></h2>
 <p>In general, to subclass the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class, you should:</p>
 <ul class="simple">
 <li><p>Implement the abstract <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.circuits" title="qiskit_experiments.framework.BaseExperiment.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.circuits()</span></code></a> method.
@@ -646,7 +646,7 @@ immediately after the previous measurement. Here, the <a class="reference intern
 can help to set the appropriate run options and data processing chain.</p>
 </section>
 <section id="analysis-subclassing">
-<h2>Analysis subclassing<a class="headerlink" href="#analysis-subclassing" title="Permalink to this heading">#</a></h2>
+<h2>Analysis subclassing<a class="headerlink" href="#analysis-subclassing" title="Link to this heading">#</a></h2>
 <p>To create an analysis subclass, one only needs to implement the abstract
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method. This method takes an
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> container and kwarg analysis options. If any
@@ -665,7 +665,7 @@ experiment data.</p>
 <a class="reference internal" href="visualization.html"><span class="doc">Visualization tutorial</span></a>.</p>
 </section>
 <section id="custom-experiment-template">
-<h2>Custom experiment template<a class="headerlink" href="#custom-experiment-template" title="Permalink to this heading">#</a></h2>
+<h2>Custom experiment template<a class="headerlink" href="#custom-experiment-template" title="Link to this heading">#</a></h2>
 <p>Here is a barebones template to help you get started with customization:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -762,7 +762,7 @@ by the user at this stage.</p>
 the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> template.</p>
 </section>
 <section id="example-custom-experiment-randomized-measurement">
-<h2>Example custom experiment: randomized measurement<a class="headerlink" href="#example-custom-experiment-randomized-measurement" title="Permalink to this heading">#</a></h2>
+<h2>Example custom experiment: randomized measurement<a class="headerlink" href="#example-custom-experiment-randomized-measurement" title="Link to this heading">#</a></h2>
 <p>Symmetrizing the measurement readout error of a circuit is especially useful in systems
 where readout has an unknown and potentially large bias. We can create an experiment
 using the Qiskit Experiments framework to take a circuit as an input and symmetrize
@@ -1099,7 +1099,7 @@ perfect symmetrical results between <span class="math notranslate nohighlight">\
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 50048, &#39;0000&#39;: 49952}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 49941, &#39;0000&#39;: 50059}
 </pre></div>
 </div>
 </div>
@@ -1234,9 +1234,9 @@ unaffected by the added randomized measurements, which use its own classical reg
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

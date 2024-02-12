@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Curve Analysis: Fitting your data" href="curve_analysis.html" /><link rel="prev" title="Calibrations: Schedules and gate parameters from experiments" href="calibrations.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Data Processor: Wrangling data - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>Data Processor: Wrangling data - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="data-processor-wrangling-data">
-<h1>Data Processor: Wrangling data<a class="headerlink" href="#data-processor-wrangling-data" title="Permalink to this heading">#</a></h1>
+<h1>Data Processor: Wrangling data<a class="headerlink" href="#data-processor-wrangling-data" title="Link to this heading">#</a></h1>
 <p>Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.
 It is implemented as a chain of data processing steps that transform various input data,
@@ -604,7 +604,7 @@ Correlation between computed values is also considered.</p>
 <p>Let’s look at an example to see how to initialize an instance of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a> and
 create the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> nodes that process the data.</p>
 <section id="data-types-on-ibm-quantum-backends">
-<h2>Data types on IBM Quantum backends<a class="headerlink" href="#data-types-on-ibm-quantum-backends" title="Permalink to this heading">#</a></h2>
+<h2>Data types on IBM Quantum backends<a class="headerlink" href="#data-types-on-ibm-quantum-backends" title="Link to this heading">#</a></h2>
 <p>IBM Quantum backends can return different types of data. There is counts data and IQ
 data <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, referred to as level 2 and level 1 data, respectively. Level 2 data
 corresponds to a dictionary with bit-strings as keys and the number of times the
@@ -619,7 +619,7 @@ experiment should return is specified by the <code class="xref py py-meth docuti
 experiment.</p>
 </section>
 <section id="processing-data-of-different-types">
-<h2>Processing data of different types<a class="headerlink" href="#processing-data-of-different-types" title="Permalink to this heading">#</a></h2>
+<h2>Processing data of different types<a class="headerlink" href="#processing-data-of-different-types" title="Link to this heading">#</a></h2>
 <p>An experiment should work with the different data levels.
 Crucially, the analysis, such as a curve analysis, expects the
 same data format no matter the run options of the experiment.
@@ -750,7 +750,7 @@ comprises a single data action which converts the counts to an estimation
 of the probability of measuring the outcome “1”.</p>
 </section>
 <section id="writing-data-actions">
-<h2>Writing data actions<a class="headerlink" href="#writing-data-actions" title="Permalink to this heading">#</a></h2>
+<h2>Writing data actions<a class="headerlink" href="#writing-data-actions" title="Link to this heading">#</a></h2>
 <p>The nodes in a data processor are all sub-classes of <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a>.
 Users who wish to write their own data actions must (i) sub-class
 <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> and (ii) implement the internal <code class="docutils literal notranslate"><span class="pre">_process</span></code> method
@@ -769,7 +769,7 @@ developers must also implement the <a class="reference internal" href="../stubs/
 called when <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor.train" title="qiskit_experiments.data_processing.DataProcessor.train"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train()</span></code></a> is called.</p>
 </section>
 <section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading">#</a></h2>
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
 <p>Data is processed by data processors that
 call a list of nodes each acting once on the data. Data
 processing connects the data returned by the backend to the data that
@@ -780,7 +780,7 @@ your data. More advanced data processing includes, for example, handling
 <a class="reference internal" href="../manuals/measurement/restless_measurements.html"><span class="doc">restless measurements</span></a>.</p>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -792,7 +792,7 @@ Science and Technology <strong>5</strong>, 044006 (2020). <a class="reference ex
 </aside>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Experiment manual: <a class="reference internal" href="../manuals/measurement/restless_measurements.html"><span class="doc">Restless Measurements</span></a></p></li>
 </ul>
@@ -874,9 +874,9 @@ Science and Technology <strong>5</strong>, 044006 (2020). <a class="reference ex
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

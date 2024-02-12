@@ -29,5 +29,13 @@ ShotOrder
 
    
    
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ShotOrder.__getitem__
+   .. automethod:: ShotOrder.__len__
 
    

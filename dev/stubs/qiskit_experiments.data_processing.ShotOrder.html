@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="RestlessNode" href="qiskit_experiments.data_processing.RestlessNode.html" /><link rel="prev" title="MinMaxNormalize" href="qiskit_experiments.data_processing.MinMaxNormalize.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>ShotOrder - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>ShotOrder - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,10 +581,10 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="shotorder">
-<h1>ShotOrder<a class="headerlink" href="#shotorder" title="Permalink to this heading">#</a></h1>
+<h1>ShotOrder<a class="headerlink" href="#shotorder" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.ShotOrder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ShotOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/nodes.html#ShotOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ShotOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/nodes.html#ShotOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder" title="Link to this definition">#</a></dt>
 <dd><p>Shot order allowed values.</p>
 <p>Generally, there are two possible modes in which a backend measures m
 circuits with n shots:</p>
@@ -599,13 +599,26 @@ circuits in the same way until it measures the m-th circuit n times.</p></li>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.ShotOrder.circuit_first">
-<span class="sig-name descname"><span class="pre">circuit_first</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'c'</span></em><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.circuit_first" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">circuit_first</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'c'</span></em><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.circuit_first" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.ShotOrder.shot_first">
-<span class="sig-name descname"><span class="pre">shot_first</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'s'</span></em><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.shot_first" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shot_first</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'s'</span></em><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.shot_first" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.data_processing.ShotOrder.__getitem__">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.__getitem__" title="Link to this definition">#</a></dt>
+<dd><p>Return the member matching <cite>name</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.data_processing.ShotOrder.__len__">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.data_processing.ShotOrder.__len__" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of members (no aliases)</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -670,6 +683,8 @@ circuits in the same way until it measures the m-th circuit n times.</p></li>
 <li><a class="reference internal" href="#qiskit_experiments.data_processing.ShotOrder"><code class="docutils literal notranslate"><span class="pre">ShotOrder</span></code></a><ul>
 <li><a class="reference internal" href="#qiskit_experiments.data_processing.ShotOrder.circuit_first"><code class="docutils literal notranslate"><span class="pre">ShotOrder.circuit_first</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.data_processing.ShotOrder.shot_first"><code class="docutils literal notranslate"><span class="pre">ShotOrder.shot_first</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.data_processing.ShotOrder.__getitem__"><code class="docutils literal notranslate"><span class="pre">ShotOrder.__getitem__()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.data_processing.ShotOrder.__len__"><code class="docutils literal notranslate"><span class="pre">ShotOrder.__len__()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -685,9 +700,9 @@ circuits in the same way until it measures the m-th circuit n times.</p></li>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>

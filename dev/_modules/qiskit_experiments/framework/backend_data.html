@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.framework.backend_data - Qiskit Experiments 0.6.0-3-g5f64525d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
+        <title>qiskit_experiments.framework.backend_data - Qiskit Experiments 0.6.0-4-g4c547912</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-3-g5f64525d</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-4-g4c547912</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-3-g5f64525d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-4-g4c547912</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -630,7 +630,9 @@
         <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="BackendData"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData">[docs]</a><span class="k">class</span> <span class="nc">BackendData</span><span class="p">:</span>
+<div class="viewcode-block" id="BackendData">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData">[docs]</a>
+<span class="k">class</span> <span class="nc">BackendData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for providing joint interface for accessing backend data&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
@@ -657,7 +659,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BackendData.control_channel"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.control_channel">[docs]</a>    <span class="k">def</span> <span class="nf">control_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">):</span>
+<div class="viewcode-block" id="BackendData.control_channel">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.control_channel">[docs]</a>
+    <span class="k">def</span> <span class="nf">control_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend control channel for the given qubits&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
@@ -671,7 +675,10 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="BackendData.drive_channel"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.drive_channel">[docs]</a>    <span class="k">def</span> <span class="nf">drive_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BackendData.drive_channel">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.drive_channel">[docs]</a>
+    <span class="k">def</span> <span class="nf">drive_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend drive channel for the given qubit&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
@@ -685,7 +692,10 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="BackendData.measure_channel"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.measure_channel">[docs]</a>    <span class="k">def</span> <span class="nf">measure_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BackendData.measure_channel">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.measure_channel">[docs]</a>
+    <span class="k">def</span> <span class="nf">measure_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend measure channel for the given qubit&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
@@ -699,7 +709,10 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="BackendData.acquire_channel"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.acquire_channel">[docs]</a>    <span class="k">def</span> <span class="nf">acquire_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BackendData.acquire_channel">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.acquire_channel">[docs]</a>
+    <span class="k">def</span> <span class="nf">acquire_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend acquire channel for the given qubit&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
@@ -712,6 +725,7 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">granularity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -882,7 +896,9 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BackendData.qubit_t1"><a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.qubit_t1">[docs]</a>    <span class="k">def</span> <span class="nf">qubit_t1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="BackendData.qubit_t1">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.qubit_t1">[docs]</a>
+    <span class="k">def</span> <span class="nf">qubit_t1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the T1 value for a qubit from the backend properties</span>
 
 <span class="sd">        Args:</span>
@@ -895,7 +911,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">qubit_property</span><span class="p">(</span><span class="n">qubit</span><span class="p">)[</span><span class="s2">&quot;T1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">qubit_properties</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">t1</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
         </article>
       </div>
@@ -930,9 +948,9 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=385588ad"></script>
+    <script src="../../../_static/documentation_options.js?v=1ee7df21"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/thebelab-helper.js"></script>
