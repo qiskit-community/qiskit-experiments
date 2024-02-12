@@ -13,7 +13,6 @@ testtools
 # Extra dependencies for tests/documentation code
 multimethod
 qiskit-ibm-runtime>=0.19
-pyarrow # avoid pandas warning
 
 # Documentation tools
 arxiv
