@@ -152,12 +152,6 @@ modindex_common_prefix = ["qiskit_experiments."]
 # -- Options for HTML output -------------------------------------------------
 
 html_theme = "qiskit-ecosystem"
-
-html_context = {
-    "analytics_enabled": True,
-    "expandable_sidebar": True,
-}
-
 html_title = f"{project} {release}"
 
 docs_url_prefix = "qiskit-experiments"
@@ -170,8 +164,8 @@ intersphinx_mapping = {
     "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "pandas": ("http://pandas.pydata.org/docs/", None),
-    "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
-    "qiskit_dynamics": ("https://qiskit.org/ecosystem/dynamics/", None),
+    "qiskit_aer": ("https://qiskit.github.io/qiskit-aer/", None),
+    "qiskit_dynamics": ("https://qiskit-extensions.github.io/qiskit-dynamics/", None),
     "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
     "qiskit_ibm_provider": ("https://docs.quantum.ibm.com/api/qiskit-ibm-provider/", None),
 }
