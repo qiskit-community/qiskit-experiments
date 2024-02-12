@@ -1475,6 +1475,11 @@ class ExperimentData:
     ) -> AnalysisResult | list[AnalysisResult] | pd.DataFrame:
         """Return analysis results associated with this experiment.
 
+        .. caution::
+            Retrieving analysis results by a numerical index, whether an integer or a slice,
+            is deprecated as of 0.6 and will be removed in a future release. Use the name
+            or ID of the result instead.
+
         When this method is called with ``dataframe=True`` you will receive
         matched result entries with the ``index`` condition in the dataframe format.
         You can access a certain entry value by specifying its row index by either
