@@ -154,9 +154,6 @@ class ZZRamsey(BaseExperiment):
 
                 exp_data = exp.run().block_for_results()
                 result=exp_data.analysis_results()
-    #            print(f"The value of {exp_data.analysis_results(1).name}
-    #                  is {exp_data.analysis_results(1).value}")
-
                 exp_data.figure(0)
     """
 
