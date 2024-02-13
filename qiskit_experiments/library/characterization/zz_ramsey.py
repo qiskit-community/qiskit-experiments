@@ -28,136 +28,136 @@ from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 class ZZRamsey(BaseExperiment):
     r"""An experiment to characterize the static :math:`ZZ` interaction for a qubit pair.
 
-    # section: overview
+        # section: overview
 
-        This experiment assumes a two qubit Hamiltonian of the form
+            This experiment assumes a two qubit Hamiltonian of the form
 
-        .. math::
+            .. math::
 
-            H = h \left(\frac{f_0}{2} ZI + \frac{f_1}{2} IZ + \frac{f_{ZZ}}{4} ZZ\right)
+                H = h \left(\frac{f_0}{2} ZI + \frac{f_1}{2} IZ + \frac{f_{ZZ}}{4} ZZ\right)
 
-        and measures the strength :math:`f_{ZZ}` of the :math:`ZZ` term.
-        :math:`f_{ZZ}` can be described as the difference between the frequency
-        of qubit 0 when qubit 1 is excited and the frequency of qubit 0 when
-        qubit 1 is in the ground state. Because :math:`f_{ZZ}` is symmetric in
-        qubit index, it can also be expressed with the roles of 0 and 1
-        reversed.  Experimentally, we measure :math:`f_{ZZ}` by performing
-        Ramsey sequences on qubit 0 with qubit 1 in the ground state and again
-        with qubit 1 in the excited state. The standard Ramsey experiment
-        consists of putting a qubit along the :math:`X` axis of Bloch sphere,
-        waiting for some time, and then measuring the qubit project along
-        :math:`X`. By measuring the :math:`X` projection versus time the qubit
-        frequency can be inferred. See
-        :class:`~qiskit_experiments.library.characterization.T2Ramsey` and
-        :class:`~qiskit_experiments.library.characterization.RamseyXY`.
+            and measures the strength :math:`f_{ZZ}` of the :math:`ZZ` term.
+            :math:`f_{ZZ}` can be described as the difference between the frequency
+            of qubit 0 when qubit 1 is excited and the frequency of qubit 0 when
+            qubit 1 is in the ground state. Because :math:`f_{ZZ}` is symmetric in
+            qubit index, it can also be expressed with the roles of 0 and 1
+            reversed.  Experimentally, we measure :math:`f_{ZZ}` by performing
+            Ramsey sequences on qubit 0 with qubit 1 in the ground state and again
+            with qubit 1 in the excited state. The standard Ramsey experiment
+            consists of putting a qubit along the :math:`X` axis of Bloch sphere,
+            waiting for some time, and then measuring the qubit project along
+            :math:`X`. By measuring the :math:`X` projection versus time the qubit
+            frequency can be inferred. See
+            :class:`~qiskit_experiments.library.characterization.T2Ramsey` and
+            :class:`~qiskit_experiments.library.characterization.RamseyXY`.
 
-        Because we are interested in the difference in qubit 0 frequency
-        between the two qubit 1 preparations rather than the absolute
-        frequencies of qubit 0 for those preparations, we modify the Ramsey
-        sequences (the circuits for the modified sequences are shown below).
-        First, we add an X gate on qubit 0 to the middle of the Ramsey delay.
-        This would have the effect of echoing out the phase accumulation of
-        qubit 0 (like a Hahn echo sequence as used in
-        :class:`~qiskit_experiments.library.characterization.T2Hahn`), but we
-        add a simultaneous X gate to qubit 1 as well.  Flipping qubit 1 inverts
-        the sign of the :math:`f_{ZZ}` term. The net result is that qubit 0
-        continues to accumulate phase proportional to :math:`f_{ZZ}` while the
-        phase due to any ZI term is canceled out. This technique allows
-        :math:`f_{ZZ}` to be measured using longer delay times than might
-        otherwise be possible with a qubit with a slow frequency drift (i.e.
-        the measurement is not sensitive to qubit frequency drift from shot to
-        shot, only to drift within a single shot).
+            Because we are interested in the difference in qubit 0 frequency
+            between the two qubit 1 preparations rather than the absolute
+            frequencies of qubit 0 for those preparations, we modify the Ramsey
+            sequences (the circuits for the modified sequences are shown below).
+            First, we add an X gate on qubit 0 to the middle of the Ramsey delay.
+            This would have the effect of echoing out the phase accumulation of
+            qubit 0 (like a Hahn echo sequence as used in
+            :class:`~qiskit_experiments.library.characterization.T2Hahn`), but we
+            add a simultaneous X gate to qubit 1 as well.  Flipping qubit 1 inverts
+            the sign of the :math:`f_{ZZ}` term. The net result is that qubit 0
+            continues to accumulate phase proportional to :math:`f_{ZZ}` while the
+            phase due to any ZI term is canceled out. This technique allows
+            :math:`f_{ZZ}` to be measured using longer delay times than might
+            otherwise be possible with a qubit with a slow frequency drift (i.e.
+            the measurement is not sensitive to qubit frequency drift from shot to
+            shot, only to drift within a single shot).
 
-        The resulting excited state population of qubit 0 versus delay time
-        exhibits slow sinusoidal oscillations (assuming :math:`f_{ZZ}` is
-        relatively small). To help with distinguishing between qubit decay and
-        a slow oscillation, an extra Z rotation is applied before the final
-        pulse on qubit 0. The angle of this Z rotation is set proportional to
-        the delay time of the sequence. This angle proportional to time behaves
-        similarly to measuring at a fixed angle with the qubit rotating at a
-        constant frequency. This virtual frequency is common to the two qubit 1
-        preparations. By looking at the difference in frequency fitted for the
-        two cases, this virtual frequency (called :math:`f` in the circuits
-        shown below) is removed, leaving only the :math:`f_{ZZ}` value. The
-        value of :math:`f` in terms of the experiment options is
-        ``num_rotations / (max(delays) - min(delays))``.
+            The resulting excited state population of qubit 0 versus delay time
+            exhibits slow sinusoidal oscillations (assuming :math:`f_{ZZ}` is
+            relatively small). To help with distinguishing between qubit decay and
+            a slow oscillation, an extra Z rotation is applied before the final
+            pulse on qubit 0. The angle of this Z rotation is set proportional to
+            the delay time of the sequence. This angle proportional to time behaves
+            similarly to measuring at a fixed angle with the qubit rotating at a
+            constant frequency. This virtual frequency is common to the two qubit 1
+            preparations. By looking at the difference in frequency fitted for the
+            two cases, this virtual frequency (called :math:`f` in the circuits
+            shown below) is removed, leaving only the :math:`f_{ZZ}` value. The
+            value of :math:`f` in terms of the experiment options is
+            ``num_rotations / (max(delays) - min(delays))``.
 
-        This experiment consists of the following two circuits repeated with
-        different ``delay`` values.
+            This experiment consists of the following two circuits repeated with
+            different ``delay`` values.
 
-        .. parsed-literal::
+            .. parsed-literal::
 
-            Modified Ramsey sequence with qubit 1 initially in the ground state
+                Modified Ramsey sequence with qubit 1 initially in the ground state
 
-                 ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
-            q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
-                 └────┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »
-            q_1: ───────░─────────────────────░─┤ X ├─░─────────────────────░─»
-                        ░                     ░ └───┘ ░                     ░ »
-            c: 1/═════════════════════════════════════════════════════════════»
-                                                                              »
-            «     ┌─────────────────────┐┌────┐ ░ ┌─┐
-            «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├
-            «     └────────┬───┬────────┘└────┘ ░ └╥┘
-            «q_1: ─────────┤ X ├────────────────░──╫─
-            «              └───┘                ░  ║
-            «c: 1/═════════════════════════════════╩═
-            «                                      0
+                     ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
+                q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
+                     └────┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »
+                q_1: ───────░─────────────────────░─┤ X ├─░─────────────────────░─»
+                            ░                     ░ └───┘ ░                     ░ »
+                c: 1/═════════════════════════════════════════════════════════════»
+                                                                                  »
+                «     ┌─────────────────────┐┌────┐ ░ ┌─┐
+                «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├
+                «     └────────┬───┬────────┘└────┘ ░ └╥┘
+                «q_1: ─────────┤ X ├────────────────░──╫─
+                «              └───┘                ░  ║
+                «c: 1/═════════════════════════════════╩═
+                «                                      0
 
-            Modified Ramsey sequence with qubit 1 initially in the excited state
+                Modified Ramsey sequence with qubit 1 initially in the excited state
 
-                 ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
-            q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
-                 ├───┬┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »
-            q_1: ┤ X ├──░─────────────────────░─┤ X ├─░─────────────────────░─»
-                 └───┘  ░                     ░ └───┘ ░                     ░ »
-            c: 1/═════════════════════════════════════════════════════════════»
-                                                                              »
-            «     ┌─────────────────────┐┌────┐ ░ ┌─┐
-            «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├
-            «     └─────────────────────┘└────┘ ░ └╥┘
-            «q_1: ──────────────────────────────░──╫─
-            «                                   ░  ║
-            «c: 1/═════════════════════════════════╩═
-            «                                      0
+                     ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
+                q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
+                     ├───┬┘ ░ └─────────────────┘ ░ ├───┤ ░ └─────────────────┘ ░ »
+                q_1: ┤ X ├──░─────────────────────░─┤ X ├─░─────────────────────░─»
+                     └───┘  ░                     ░ └───┘ ░                     ░ »
+                c: 1/═════════════════════════════════════════════════════════════»
+                                                                                  »
+                «     ┌─────────────────────┐┌────┐ ░ ┌─┐
+                «q_0: ┤ Rz(4*delay*dt*f*pi) ├┤ √X ├─░─┤M├
+                «     └─────────────────────┘└────┘ ░ └╥┘
+                «q_1: ──────────────────────────────░──╫─
+                «                                   ░  ║
+                «c: 1/═════════════════════════════════╩═
+                «                                      0
 
-    # section: analysis_ref
+        # section: analysis_ref
 
-        :class:`ZZRamseyAnalysis`
+            :class:`ZZRamseyAnalysis`
 
-    # section: example
-        .. jupyter-execute::
-            :hide-code:
+        # section: example
+            .. jupyter-execute::
+                :hide-code:
 
-            # backend
-            from qiskit.providers.fake_provider import FakePerth
-            from qiskit_aer import AerSimulator
-            from qiskit_aer.noise import NoiseModel
+                # backend
+                from qiskit.providers.fake_provider import FakePerth
+                from qiskit_aer import AerSimulator
+                from qiskit_aer.noise import NoiseModel
 
-            noise_model = NoiseModel.from_backend(FakePerth(),
-                                                  thermal_relaxation=True,
-                                                  gate_error=False,
-                                                  readout_error=False,
-            )
+                noise_model = NoiseModel.from_backend(FakePerth(),
+                                                      thermal_relaxation=True,
+                                                      gate_error=False,
+                                                      readout_error=False,
+                )
 
-            backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+                backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
-        .. jupyter-execute::
+            .. jupyter-execute::
 
-            from qiskit_experiments.library.characterization import ZZRamsey
+                from qiskit_experiments.library.characterization import ZZRamsey
 
-            qubits = (0, 1)
-            exp = ZZRamsey(physical_qubits=qubits, backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=101)
-            print(exp.circuits()[2])
-            print(exp.circuits()[3])
+                qubits = (0, 1)
+                exp = ZZRamsey(physical_qubits=qubits, backend=backend)
+                exp.set_run_options(shots=1000, seed_simulator=101)
+                print(exp.circuits()[2])
+                print(exp.circuits()[3])
 
-            exp_data = exp.run().block_for_results()
-            result=exp_data.analysis_results()
-#            print(f"The value of {exp_data.analysis_results(1).name}
-#                  is {exp_data.analysis_results(1).value}")
+                exp_data = exp.run().block_for_results()
+                result=exp_data.analysis_results()
+    #            print(f"The value of {exp_data.analysis_results(1).name}
+    #                  is {exp_data.analysis_results(1).value}")
 
-            exp_data.figure(0)
+                exp_data.figure(0)
     """
 
     def __init__(
