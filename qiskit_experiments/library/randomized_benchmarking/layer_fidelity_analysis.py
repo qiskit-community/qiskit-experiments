@@ -23,6 +23,7 @@ import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.database_service.device_component as device
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import CompositeAnalysis, AnalysisResultData, ExperimentData
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
 
 LOG = logging.getLogger(__name__)
 
@@ -160,7 +161,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
         try:
             return super()._run_analysis(experiment_data)
         except Exception:  # pylint: disable=broad-except
@@ -235,16 +236,15 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
         try:
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate single layer fidelity from process fidelities of subsystems
-            pfs = [res.value for res in analysis_results if res.name == "ProcessFidelity"]
+            pf_results = [res for res in analysis_results if res.name == "ProcessFidelity"]
+            pfs = [res.value for res in pf_results]
             slf = np.prod(pfs)
-            quality_slf = (
-                "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
-            )
+            quality_slf = "good" if all(sub.quality == "good" for sub in pf_results) else "bad"
             slf_result = AnalysisResultData(
                 name="SingleLF",
                 value=slf,
@@ -292,7 +292,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
         r"""Run analysis for Layer Fidelity experiment.
 
         It invokes :meth:`CompositeAnalysis._run_analysis` that will invoke
@@ -314,9 +314,10 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate full layer fidelity from single layer fidelities
-            slfs = [res.value for res in analysis_results if res.name == "SingleLF"]
+            slf_results = [res for res in analysis_results if res.name == "SingleLF"]
+            slfs = [res.value for res in slf_results]
             lf = np.prod(slfs)
-            quality_lf = "good" if all(sub.quality == "good" for sub in analysis_results) else "bad"
+            quality_lf = "good" if all(sub.quality == "good" for sub in slf_results) else "bad"
             lf_result = AnalysisResultData(
                 name="LF",
                 value=lf,
