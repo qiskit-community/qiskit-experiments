@@ -78,7 +78,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
-        replicate_in_parallel: bool = False,  # TODO: remove this option
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -94,8 +93,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             two_qubit_gate: Two-qubit gate name (e.g. "cx", "cz", "ecr")
                             of which the two qubit layers consist.
             one_qubit_basis_gates: One-qubit gates to use for implementing 1q Clifford operations.
-            replicate_in_parallel: Use a common 1Q/2Q direct RB sequence
-                                   for all quibit pairs in a layer or not.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -166,7 +163,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             two_qubit_layers=two_qubit_layers,
             two_qubit_gate=two_qubit_gate,
             one_qubit_basis_gates=tuple(one_qubit_basis_gates),
-            replicate_in_parallel=replicate_in_parallel,
         )
 
         # Verify two_qubit_gate and one_qubit_basis_gates
@@ -187,8 +183,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr")
                 of which the two qubit layers consist.
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
-            replicate_in_parallel (bool): Use a common 1Q/2Q direct RB sequence
-                for all quibit pairs in a layer or not.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
                 for building circuits of RB sequences.
         """
@@ -201,7 +195,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             two_qubit_gate=None,
             one_qubit_basis_gates=None,
             clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
-            replicate_in_parallel=True,
         )
         return options
 
@@ -323,33 +316,18 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
                     barrier_inst = CircuitInstruction(Barrier(num_qubits), circ.qubits)
-                    # add the main body of the circuit switching implementation for speed
-                    if opts.replicate_in_parallel:
-                        self.__circuit_body_with_replication(
-                            circ,
-                            length,
-                            two_qubit_layer,
-                            one_qubits,
-                            rng,
-                            _to_gate_1q,
-                            _to_gate_2q,
-                            gate2q,
-                            gate2q_cliff,
-                            barrier_inst,
-                        )
-                    else:
-                        self.__circuit_body(
-                            circ,
-                            length,
-                            two_qubit_layer,
-                            one_qubits,
-                            rng,
-                            _to_gate_1q,
-                            _to_gate_2q,
-                            gate2q,
-                            gate2q_cliff,
-                            barrier_inst,
-                        )
+                    self.__circuit_body(
+                        circ,
+                        length,
+                        two_qubit_layer,
+                        one_qubits,
+                        rng,
+                        _to_gate_1q,
+                        _to_gate_2q,
+                        gate2q,
+                        gate2q_cliff,
+                        barrier_inst,
+                    )
                     # add the measurements
                     circ._append(barrier_inst)
                     for qubits, clbits in zip(composite_qubits, composite_clbits):
@@ -431,53 +409,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             circ._append(_to_gate_2q(inv), tuple(circ.qubits[q] for q in qpair), ())
         for k, q in enumerate(one_qubits):
             inv = inverse_1q(cliffs_1q[k])
-            circ._append(_to_gate_1q(inv), (circ.qubits[q],), ())
-        return circ
-
-    @staticmethod
-    def __circuit_body_with_replication(
-        circ,
-        length,
-        two_qubit_layer,
-        one_qubits,
-        rng,
-        _to_gate_1q,
-        _to_gate_2q,
-        GATE2Q,
-        GATE2Q_CLIFF,
-        BARRIER_INST,
-    ):
-        # initialize cliffords and a ciruit (0: identity clifford)
-        cliff_2q = 0
-        cliff_1q = 0
-        for _ in range(length):
-            # sample random 1q-Clifford layer
-            samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
-            cliff_2q = compose_2q(cliff_2q, _product_1q_nums(*samples))
-            for qpair in two_qubit_layer:
-                for sample, q in zip(samples, qpair):
-                    circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-            if one_qubits:
-                sample = rng.integers(NUM_1Q_CLIFFORD)
-                cliff_1q = compose_1q(cliff_1q, sample)
-                for q in one_qubits:
-                    circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-            circ._append(BARRIER_INST)
-            # add two qubit gates
-            cliff_2q = compose_2q(cliff_2q, GATE2Q_CLIFF)
-            for qpair in two_qubit_layer:
-                circ._append(GATE2Q, tuple(circ.qubits[q] for q in qpair), ())
-                # TODO: add dd if necessary
-            for q in one_qubits:
-                # TODO: add dd if necessary
-                pass
-            circ._append(BARRIER_INST)
-        # add the last inverse
-        inv = inverse_2q(cliff_2q)
-        for qpair in two_qubit_layer:
-            circ._append(_to_gate_2q(inv), tuple(circ.qubits[q] for q in qpair), ())
-        inv = inverse_1q(cliff_1q)
-        for q in one_qubits:
             circ._append(_to_gate_1q(inv), (circ.qubits[q],), ())
         return circ
 
