@@ -19,8 +19,8 @@ from ddt import ddt, data, unpack
 
 from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManilaV2
 from qiskit.pulse import Schedule
+from qiskit_ibm_runtime.fake_provider import FakeManilaV2
 from qiskit_experiments.library.randomized_benchmarking import LayerFidelity, LayerFidelityAnalysis
 
 
