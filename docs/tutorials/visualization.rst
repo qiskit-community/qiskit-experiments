@@ -179,7 +179,7 @@ were styled differently according to the ``series_params`` attribute of ``figure
 
 By default, the supported figure options are ``xlabel``, ``ylabel``, ``xlim``, ``ylim``,
 ``xval_unit``, ``yval_unit``, ``xval_unit_scale``, ``yval_unit_scale``, ``xscale``, ``yscale``,
-``figure_title``, and ``series_params``; see `:class:.MplDrawer` for details on how to set these
+``figure_title``, and ``series_params``; see :class:`.MplDrawer` for details on how to set these
 options. The following T1 experiment provides examples to options that have not been demonstrated
 until now in this tutorial:
 
