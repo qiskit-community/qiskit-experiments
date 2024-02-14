@@ -79,12 +79,6 @@ and customizing the figure can be done by setting the plotter's options. We now 
 the color, symbols, and size of our plot, as well as change the axis labels for the amplitude units:
 
 .. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    %matplotlib inline
-
-.. jupyter-execute::
 
     # Retrieve the plotter from the analysis instance
     plotter = rabi.analysis.plotter
