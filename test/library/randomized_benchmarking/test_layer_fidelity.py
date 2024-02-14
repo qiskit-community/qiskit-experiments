@@ -11,11 +11,10 @@
 # that they have been altered from the originals.
 
 """Test for layer fidelity experiments."""
-import copy
-import numpy as np
-
 from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
+import copy
+import numpy as np
 from ddt import ddt, data, unpack
 
 from qiskit.circuit.library import SXGate

@@ -17,7 +17,6 @@ import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
-import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -106,9 +105,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         for two_q_layer in two_qubit_layers:
             qubits_in_layer = {q for qpair in two_q_layer for q in qpair}
             if len(qubits_in_layer) != 2 * len(two_q_layer):
-                raise QiskitError(
-                    f"two_qubit_layers have a layer with gates on non-disjoint qubits"
-                )
+                raise QiskitError("two_qubit_layers have a layer with gates on non-disjoint qubits")
             for q in qubits_in_layer:
                 if q not in physical_qubits:
                     raise QiskitError(f"Qubit {q} in two_qubit_layers is not in physical_qubits")
@@ -129,7 +126,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
 
         if two_qubit_gate is None:
             if self.backend is None:
-                raise QiskitError(f"two_qubit_gate or backend must be supplied.")
+                raise QiskitError("two_qubit_gate or backend must be supplied.")
             # Try to set default two_qubit_gate from backend
             for op in self.backend.target.operations:
                 if isinstance(op, Gate) and op.num_qubits == 2:
@@ -137,14 +134,14 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     LOG.info("%s is set for two_qubit_gate", op.name)
                     break
             if not two_qubit_gate:
-                raise QiskitError(f"two_qubit_gate is not provided and failed to set from backend.")
+                raise QiskitError("two_qubit_gate is not provided and failed to set from backend.")
         else:
             if self.backend is None and two_qubit_gate not in GATE_NAME_MAP:
                 raise QiskitError(f"Unknown two_qubit_gate: {two_qubit_gate}.")
 
         if one_qubit_basis_gates is None:
             if self.backend is None:
-                raise QiskitError(f"one_qubit_basis_gates or backend must be supplied.")
+                raise QiskitError("one_qubit_basis_gates or backend must be supplied.")
             # Try to set default one_qubit_basis_gates from backend
             one_qubit_basis_gates = []
             for op in self.backend.target.operations:
@@ -153,7 +150,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
             if not one_qubit_basis_gates:
                 raise QiskitError(
-                    f"one_qubit_basis_gates is not provided and failed to set from backend."
+                    "one_qubit_basis_gates is not provided and failed to set from backend."
                 )
         else:
             if self.backend is None:
@@ -306,12 +303,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             synthesis_method=opts.clifford_synthesis_method,
         )
         if self.backend:
-            GATE2Q = self.backend.target.operation_from_name(opts.two_qubit_gate)
+            gate2q = self.backend.target.operation_from_name(opts.two_qubit_gate)
         else:
-            GATE2Q = GATE_NAME_MAP[opts.two_qubit_gate]
-        GATE2Q_CLIFF = num_from_2q_circuit(Clifford(GATE2Q).to_circuit())
+            gate2q = GATE_NAME_MAP[opts.two_qubit_gate]
+        gate2q_cliff = num_from_2q_circuit(Clifford(gate2q).to_circuit())
         # Circuit generation
-        circuits = []
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
             for i_set, (two_qubit_layer, one_qubits) in enumerate(
@@ -326,7 +322,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 )
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
-                    BARRIER_INST = CircuitInstruction(Barrier(num_qubits), circ.qubits)
+                    barrier_inst = CircuitInstruction(Barrier(num_qubits), circ.qubits)
                     # add the main body of the circuit switching implementation for speed
                     if opts.replicate_in_parallel:
                         self.__circuit_body_with_replication(
@@ -337,9 +333,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                             rng,
                             _to_gate_1q,
                             _to_gate_2q,
-                            GATE2Q,
-                            GATE2Q_CLIFF,
-                            BARRIER_INST,
+                            gate2q,
+                            gate2q_cliff,
+                            barrier_inst,
                         )
                     else:
                         self.__circuit_body(
@@ -350,12 +346,12 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                             rng,
                             _to_gate_1q,
                             _to_gate_2q,
-                            GATE2Q,
-                            GATE2Q_CLIFF,
-                            BARRIER_INST,
+                            gate2q,
+                            gate2q_cliff,
+                            barrier_inst,
                         )
                     # add the measurements
-                    circ._append(BARRIER_INST)
+                    circ._append(barrier_inst)
                     for qubits, clbits in zip(composite_qubits, composite_clbits):
                         circ.measure(qubits, clbits)
                     # store composite structure in metadata
@@ -400,9 +396,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         rng,
         _to_gate_1q,
         _to_gate_2q,
-        GATE2Q,
-        GATE2Q_CLIFF,
-        BARRIER_INST,
+        gate2q,
+        gate2q_cliff,
+        barrier_inst,
     ):
         # initialize cliffords and a ciruit (0: identity clifford)
         cliffs_2q = [0] * len(two_qubit_layer)
@@ -419,16 +415,16 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
                 cliffs_1q[k] = compose_1q(cliffs_1q[k], sample)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-            circ._append(BARRIER_INST)
+            circ._append(barrier_inst)
             # add two qubit gates
             for j, qpair in enumerate(two_qubit_layer):
-                circ._append(GATE2Q, tuple(circ.qubits[q] for q in qpair), ())
-                cliffs_2q[j] = compose_2q(cliffs_2q[j], GATE2Q_CLIFF)
+                circ._append(gate2q, tuple(circ.qubits[q] for q in qpair), ())
+                cliffs_2q[j] = compose_2q(cliffs_2q[j], gate2q_cliff)
                 # TODO: add dd if necessary
             for k, q in enumerate(one_qubits):
                 # TODO: add dd if necessary
                 pass
-            circ._append(BARRIER_INST)
+            circ._append(barrier_inst)
         # add the last inverse
         for j, qpair in enumerate(two_qubit_layer):
             inv = inverse_2q(cliffs_2q[j])

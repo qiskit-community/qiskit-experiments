@@ -14,9 +14,9 @@ Analysis classes for Layer Fidelity RB.
 """
 from typing import List, Tuple, Union
 
-import lmfit
 import logging
 import traceback
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -163,7 +163,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         try:
             return super()._run_analysis(experiment_data)
-        except:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             LOG.error(
                 "%s(%s) failed: %s",
                 self.__class__.__name__,
@@ -226,7 +226,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     def __init__(self, layer, analyses=None):
         if analyses:
             if len(layer) != len(analyses):
-                raise AnalysisError(f"'analyses' must have the same length with 'layer'")
+                raise AnalysisError("'analyses' must have the same length with 'layer'")
         else:
             analyses = [_ProcessFidelityAnalysis(qubits) for qubits in layer]
 
@@ -254,7 +254,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             # Return combined results
             analysis_results = [slf_result] + analysis_results
             return analysis_results, figures
-        except:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_result = AnalysisResultData(
                 name="SingleLF",
@@ -282,7 +282,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
     def __init__(self, layers, analyses=None):
         if analyses:
             if len(layers) != len(analyses):
-                raise AnalysisError(f"'analyses' must have the same length with 'layers'")
+                raise AnalysisError("'analyses' must have the same length with 'layers'")
         else:
             analyses = [_SingleLayerFidelityAnalysis(a_layer) for a_layer in layers]
 
@@ -331,7 +331,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # Return combined results
             analysis_results = [lf_result, eplg_result] + analysis_results
             return analysis_results, figures
-        except:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_results = [
                 AnalysisResultData(
