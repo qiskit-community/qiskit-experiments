@@ -15,7 +15,7 @@ Layer Fidelity RB Experiment class.
 import functools
 import logging
 from collections import defaultdict
-from typing import Union, Iterable, Optional, List, Sequence, Tuple
+from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
 import numpy as np
 from numpy.random import Generator, default_rng
@@ -30,6 +30,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 
 from .clifford_utils import (
@@ -50,6 +51,7 @@ from .layer_fidelity_analysis import LayerFidelityAnalysis
 LOG = logging.getLogger(__name__)
 
 
+GATE_NAME_MAP = get_standard_gate_name_mapping()
 NUM_1Q_CLIFFORD = CliffordUtils.NUM_CLIFFORD_1_QUBIT
 
 
@@ -103,6 +105,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         full_layers = []
         for two_q_layer in two_qubit_layers:
             qubits_in_layer = {q for qpair in two_q_layer for q in qpair}
+            if len(qubits_in_layer) != 2 * len(two_q_layer):
+                raise QiskitError(
+                    f"two_qubit_layers have a layer with gates on non-disjoint qubits"
+                )
             for q in qubits_in_layer:
                 if q not in physical_qubits:
                     raise QiskitError(f"Qubit {q} in two_qubit_layers is not in physical_qubits")
@@ -121,45 +127,39 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         if num_samples <= 0:
             raise QiskitError(f"The number of samples {num_samples} should be positive.")
 
-        if two_qubit_gate:
-            if self.backend:
-                if two_qubit_gate not in self.backend.target.operation_names:
-                    raise QiskitError(f"two_qubit_gate {two_qubit_gate} is not in backend.target")
-                for two_q_layer in two_qubit_layers:
-                    for qpair in two_q_layer:
-                        if not self.backend.target.instruction_supported(two_qubit_gate, qpair):
-                            raise QiskitError(f"{two_qubit_gate}{qpair} is not in backend.target")
-        else:
-            if self.backend:
-                # Try to set default two_qubit_gate from backend
-                for op in self.backend.target.operations:
-                    if isinstance(op, Gate) and op.num_qubits == 2:
-                        two_qubit_gate = op.name
-                        LOG.info("%s is set for two_qubit_gate", op.name)
-                        break
+        if two_qubit_gate is None:
+            if self.backend is None:
+                raise QiskitError(f"two_qubit_gate or backend must be supplied.")
+            # Try to set default two_qubit_gate from backend
+            for op in self.backend.target.operations:
+                if isinstance(op, Gate) and op.num_qubits == 2:
+                    two_qubit_gate = op.name
+                    LOG.info("%s is set for two_qubit_gate", op.name)
+                    break
             if not two_qubit_gate:
                 raise QiskitError(f"two_qubit_gate is not provided and failed to set from backend.")
-
-        if one_qubit_basis_gates:
-            for gate in one_qubit_basis_gates:
-                if gate not in self.backend.target.operation_names:
-                    raise QiskitError(f"{gate} in one_qubit_basis_gates is not in backend.target")
-            for gate in one_qubit_basis_gates:
-                for q in self.physical_qubits:
-                    if not self.backend.target.instruction_supported(gate, (q,)):
-                        raise QiskitError(f"{gate}({q}) is not in backend.target")
         else:
-            if self.backend:
-                # Try to set default one_qubit_basis_gates from backend
-                one_qubit_basis_gates = []
-                for op in self.backend.target.operations:
-                    if isinstance(op, Gate) and op.num_qubits == 1:
-                        one_qubit_basis_gates.append(op.name)
-                LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
+            if self.backend is None and two_qubit_gate not in GATE_NAME_MAP:
+                raise QiskitError(f"Unknown two_qubit_gate: {two_qubit_gate}.")
+
+        if one_qubit_basis_gates is None:
+            if self.backend is None:
+                raise QiskitError(f"one_qubit_basis_gates or backend must be supplied.")
+            # Try to set default one_qubit_basis_gates from backend
+            one_qubit_basis_gates = []
+            for op in self.backend.target.operations:
+                if isinstance(op, Gate) and op.num_qubits == 1:
+                    one_qubit_basis_gates.append(op.name)
+            LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
             if not one_qubit_basis_gates:
                 raise QiskitError(
                     f"one_qubit_basis_gates is not provided and failed to set from backend."
                 )
+        else:
+            if self.backend is None:
+                for gate in one_qubit_basis_gates:
+                    if gate not in GATE_NAME_MAP:
+                        raise QiskitError(f"Unknown gate in one_qubit_basis_gates: {gate}.")
 
         # Set configurable options
         self.set_experiment_options(
@@ -171,6 +171,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             one_qubit_basis_gates=tuple(one_qubit_basis_gates),
             replicate_in_parallel=replicate_in_parallel,
         )
+
+        # Verify two_qubit_gate and one_qubit_basis_gates
+        self.__validate_basis_gates()
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -199,7 +202,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             seed=None,
             two_qubit_layers=None,
             two_qubit_gate=None,
-            one_qubit_basis_gates=(),
+            one_qubit_basis_gates=None,
             clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
             replicate_in_parallel=True,
         )
@@ -246,6 +249,28 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             super()._set_backend(BackendV2Converter(backend, add_delay=True))
         else:
             super()._set_backend(backend)
+        self.__validate_basis_gates()
+
+    def __validate_basis_gates(self) -> None:
+        if not self.backend:
+            return
+        opts = self.experiment_options
+        # validate two_qubit_gate if it is set
+        if opts.two_qubit_gate:
+            if opts.two_qubit_gate not in self.backend.target.operation_names:
+                raise QiskitError(f"two_qubit_gate {opts.two_qubit_gate} is not in backend.target")
+            for two_q_layer in opts.two_qubit_layers:
+                for qpair in two_q_layer:
+                    if not self.backend.target.instruction_supported(opts.two_qubit_gate, qpair):
+                        raise QiskitError(f"{opts.two_qubit_gate}{qpair} is not in backend.target")
+        # validate one_qubit_basis_gates if it is set
+        for gate in opts.one_qubit_basis_gates or []:
+            if gate not in self.backend.target.operation_names:
+                raise QiskitError(f"{gate} in one_qubit_basis_gates is not in backend.target")
+        for gate in opts.one_qubit_basis_gates or []:
+            for q in self.physical_qubits:
+                if not self.backend.target.instruction_supported(gate, (q,)):
+                    raise QiskitError(f"{gate}({q}) is not in backend.target")
 
     def __residual_qubits(self, two_qubit_layer):
         qubits_in_layer = {q for qpair in two_qubit_layer for q in qpair}
@@ -280,7 +305,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             coupling_tuple=((0, 1),),
             synthesis_method=opts.clifford_synthesis_method,
         )
-        GATE2Q = self.backend.target.operation_from_name(opts.two_qubit_gate)
+        if self.backend:
+            GATE2Q = self.backend.target.operation_from_name(opts.two_qubit_gate)
+        else:
+            GATE2Q = GATE_NAME_MAP[opts.two_qubit_gate]
         GATE2Q_CLIFF = num_from_2q_circuit(Clifford(GATE2Q).to_circuit())
         # Circuit generation
         circuits = []
@@ -462,11 +490,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         transpiled = [_decompose_clifford_ops(circ) for circ in self.circuits()]
         # Set custom calibrations provided in backend
         if isinstance(self.backend, BackendV2):
-            instructions = []  # (op_name, qargs) for each element where qargs means qubit tuple
+            instructions = []  # (op_name, qargs) for each element where qargs mean qubit tuple
             for two_qubit_layer in self.experiment_options.two_qubit_layers:
                 for qpair in two_qubit_layer:
                     instructions.append((self.experiment_options.two_qubit_gate, tuple(qpair)))
-                for q in self.__residual_qubits(two_qubit_layer):
+                for q in self.physical_qubits:
                     for gate_1q in self.experiment_options.one_qubit_basis_gates:
                         instructions.append((gate_1q, (q,)))
 
@@ -494,3 +522,13 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         metadata = super()._metadata()
         metadata["two_qubit_layers"] = self.experiment_options.two_qubit_layers
         return metadata
+
+    @classmethod
+    def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "LayerFidelity":
+        """Initialize an experiment from experiment config"""
+        if isinstance(config, dict):
+            config = ExperimentConfig(**dict)
+        ret = cls(*config.args, **config.kwargs)
+        if config.run_options:
+            ret.set_run_options(**config.run_options)
+        return ret

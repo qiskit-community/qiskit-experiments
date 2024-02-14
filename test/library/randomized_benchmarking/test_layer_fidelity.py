@@ -171,13 +171,14 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
 
         exp = LayerFidelity(
             physical_qubits=(0, 1, 2, 3),
-            two_qubit_layers=[[(1, 0), (2, 3)], [(1, 2)]],
+            two_qubit_layers=[[(1, 0), (2, 3)], [(2, 1)]],
             lengths=[10, 20, 30],
             seed=42,
+            num_samples=1,
             backend=my_backend,
         )
         transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
+        for qc in transpiled[3:]:  # check only the second layer
             self.assertTrue(qc.count_ops().get("cx", 0) > 0)
             expected_qubits = (qc.qubits[2], qc.qubits[1])
             for inst in qc:
