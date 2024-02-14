@@ -21,7 +21,7 @@ import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier
+from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
@@ -50,7 +50,6 @@ from .layer_fidelity_analysis import LayerFidelityAnalysis
 LOG = logging.getLogger(__name__)
 
 
-GATE_NAME_MAP = get_standard_gate_name_mapping()
 NUM_1Q_CLIFFORD = CliffordUtils.NUM_CLIFFORD_1_QUBIT
 
 
@@ -74,12 +73,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         two_qubit_layers: Sequence[Sequence[Tuple[int, int]]],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
-        num_samples: int = 3,
+        num_samples: int = 6,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        # full_sampling: Optional[bool] = True, TODO: can we remove this option?
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
-        replicate_in_parallel: bool = True,
+        replicate_in_parallel: bool = False,  # TODO: remove this option
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -105,6 +103,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         full_layers = []
         for two_q_layer in two_qubit_layers:
             qubits_in_layer = {q for qpair in two_q_layer for q in qpair}
+            for q in qubits_in_layer:
+                if q not in physical_qubits:
+                    raise QiskitError(f"Qubit {q} in two_qubit_layers is not in physical_qubits")
             layer = two_q_layer + [(q,) for q in physical_qubits if q not in qubits_in_layer]
             full_layers.append(layer)
 
@@ -112,25 +113,53 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         super().__init__(
             physical_qubits, analysis=LayerFidelityAnalysis(full_layers), backend=backend
         )
+        # assert isinstance(backend, BackendV2)
 
         # Verify parameters
-        # TODO more checks
         if len(set(lengths)) != len(lengths):
-            raise QiskitError(
-                f"The lengths list {lengths} should not contain " "duplicate elements."
-            )
+            raise QiskitError(f"The lengths list {lengths} should not contain duplicate elements.")
         if num_samples <= 0:
-            raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
-        if two_qubit_gate not in GATE_NAME_MAP:
-            pass  # TODO: too restrictive to forbidden custom two qubit gate name?
+            raise QiskitError(f"The number of samples {num_samples} should be positive.")
 
-        # Get parameters from backend
-        if two_qubit_gate is None:
-            # TODO: implement and raise an error if backend is None
-            raise NotImplemented()
-        if one_qubit_basis_gates is None:
-            # TODO: implement and raise an error if backend is None
-            raise NotImplemented()
+        if two_qubit_gate:
+            if self.backend:
+                if two_qubit_gate not in self.backend.target.operation_names:
+                    raise QiskitError(f"two_qubit_gate {two_qubit_gate} is not in backend.target")
+                for two_q_layer in two_qubit_layers:
+                    for qpair in two_q_layer:
+                        if not self.backend.target.instruction_supported(two_qubit_gate, qpair):
+                            raise QiskitError(f"{two_qubit_gate}{qpair} is not in backend.target")
+        else:
+            if self.backend:
+                # Try to set default two_qubit_gate from backend
+                for op in self.backend.target.operations:
+                    if isinstance(op, Gate) and op.num_qubits == 2:
+                        two_qubit_gate = op.name
+                        LOG.info("%s is set for two_qubit_gate", op.name)
+                        break
+            if not two_qubit_gate:
+                raise QiskitError(f"two_qubit_gate is not provided and failed to set from backend.")
+
+        if one_qubit_basis_gates:
+            for gate in one_qubit_basis_gates:
+                if gate not in self.backend.target.operation_names:
+                    raise QiskitError(f"{gate} in one_qubit_basis_gates is not in backend.target")
+            for gate in one_qubit_basis_gates:
+                for q in self.physical_qubits:
+                    if not self.backend.target.instruction_supported(gate, (q,)):
+                        raise QiskitError(f"{gate}({q}) is not in backend.target")
+        else:
+            if self.backend:
+                # Try to set default one_qubit_basis_gates from backend
+                one_qubit_basis_gates = []
+                for op in self.backend.target.operations:
+                    if isinstance(op, Gate) and op.num_qubits == 1:
+                        one_qubit_basis_gates.append(op.name)
+                LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
+            if not one_qubit_basis_gates:
+                raise QiskitError(
+                    f"one_qubit_basis_gates is not provided and failed to set from backend."
+                )
 
         # Set configurable options
         self.set_experiment_options(
@@ -142,7 +171,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             one_qubit_basis_gates=tuple(one_qubit_basis_gates),
             replicate_in_parallel=replicate_in_parallel,
         )
-        # self.analysis.set_options(outcome="0" * self.num_qubits)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -211,10 +239,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         )
 
     def _set_backend(self, backend: Backend):
-        """Set the backend V2 for RB experiments since RB experiments only support BackendV2
-        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
+        """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
+        If BackendV1 is provided, it is converted to V2 and stored.
         """
-        if isinstance(backend, BackendV1) and "simulator" not in backend.name():
+        if isinstance(backend, BackendV1):
             super()._set_backend(BackendV2Converter(backend, add_delay=True))
         else:
             super()._set_backend(backend)
@@ -252,7 +280,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             coupling_tuple=((0, 1),),
             synthesis_method=opts.clifford_synthesis_method,
         )
-        GATE2Q = GATE_NAME_MAP[opts.two_qubit_gate]
+        GATE2Q = self.backend.target.operation_from_name(opts.two_qubit_gate)
         GATE2Q_CLIFF = num_from_2q_circuit(Clifford(GATE2Q).to_circuit())
         # Circuit generation
         circuits = []
@@ -458,9 +486,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     common_calibrations[op_name][(qargs, tuple())] = schedule
 
             for circ in transpiled:
-                # This logic is inefficient in terms of payload size and backend compilation
-                # because this binds every custom pulse to a circuit regardless of
-                # its existence. It works but redundant calibration must be removed -- NK.
                 circ.calibrations = common_calibrations
 
         return transpiled

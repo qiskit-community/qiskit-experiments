@@ -140,7 +140,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
         # Calculate process fidelity
         alpha = fit_data.ufloat_params["alpha"]
-        pf = (1 + (d**2 - 1) * alpha) / (d**2)
+        pf = (1 + (d * d - 1) * alpha) / (d * d)
 
         quality, reason = self.__evaluate_quality(fit_data)
 
@@ -161,10 +161,6 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        r"""TODO
-
-        Note: Empty analysis results will be returned when failing analysis.
-        """
         try:
             return super()._run_analysis(experiment_data)
         except:  # pylint: disable=broad-except
@@ -221,7 +217,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     r"""A class to estimate a process fidelity per disjoint layer.
 
-    Note: Empty analysis results will be returned when failing analysis.
+    TODO: Add math.
 
     # section: reference
         .. ref_arxiv:: 1 2311.05933
@@ -229,8 +225,8 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
 
     def __init__(self, layer, analyses=None):
         if analyses:
-            # TODO: Validation
-            pass
+            if len(layer) != len(analyses):
+                raise AnalysisError(f"'analyses' must have the same length with 'layer'")
         else:
             analyses = [_ProcessFidelityAnalysis(qubits) for qubits in layer]
 
@@ -240,7 +236,6 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        r"""TODO"""
         try:
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
@@ -286,8 +281,8 @@ class LayerFidelityAnalysis(CompositeAnalysis):
 
     def __init__(self, layers, analyses=None):
         if analyses:
-            # TODO: Validation
-            pass
+            if len(layers) != len(analyses):
+                raise AnalysisError(f"'analyses' must have the same length with 'layers'")
         else:
             analyses = [_SingleLayerFidelityAnalysis(a_layer) for a_layer in layers]
 
@@ -299,9 +294,21 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Run analysis for Layer Fidelity experiment.
-        It invokes CompositeAnalysis._run_analysis that will invoke
-        _run_analysis for the sub-experiments (1Q/2Q simultaneous direct RBs).
-        Based on the results, it computes the result for Layer Fidelity.
+
+        It invokes :meth:`CompositeAnalysis._run_analysis` that will invoke
+        ``_run_analysis`` for the sub-experiments (1Q/2Q simultaneous direct RBs for each layer).
+        Based on the results, it computes Layer Fidelity and EPLG (error per layered gate).
+
+        TODO: Add math.
+
+        Args:
+            experiment_data: the experiment data to analyze.
+
+        Returns:
+            A pair ``(analysis_results, figures)`` where ``analysis_results``
+            is a list of :class:`AnalysisResultData` objects, and ``figures``
+            is a list of any figures for the experiment.
+            If an analysis fails, an analysis result with ``None`` value will be returned.
         """
         try:
             # Run composite analysis and extract sub-experiments results
