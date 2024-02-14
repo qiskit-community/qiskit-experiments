@@ -499,10 +499,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 inst_prop = self.backend.target[op_name].get(qargs, None)
                 if inst_prop is None:
                     continue
-                try:
-                    schedule = inst_prop.calibration
-                except:  # TODO remove after qiskit #11397
-                    continue
+                schedule = inst_prop.calibration
                 if schedule is None:
                     continue
                 publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
