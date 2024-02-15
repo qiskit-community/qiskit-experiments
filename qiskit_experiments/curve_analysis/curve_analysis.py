@@ -17,7 +17,6 @@ import warnings
 
 # pylint: disable=invalid-name
 
-import warnings
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 
@@ -450,7 +449,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                 data=sub_data.y,
                 weights=weights_list,
                 x=sub_data.x,
-
             )
             partial_weighted_residuals.append(model_weighted_residual)
 
@@ -564,11 +562,11 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
 
             if self.options.get("plot_residuals", False):
-                residuals_data = data[data.category == "residuals"]
+                residuals_data = sub_data.filter(category="residuals")
                 self.plotter.set_series_data(
-                    series_name=name,
-                    x_residuals=residuals_data.xval.to_numpy(),
-                    y_residuals=residuals_data.yval.to_numpy(),
+                    series_name=model_name,
+                    x_residuals=residuals_data.x,
+                    y_residuals=residuals_data.y,
                 )
 
         return [self.plotter.figure()]
@@ -635,7 +633,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
                 yval_arr_fit = unp.nominal_values(uval_arr_fit)
                 if fit_data.covar is not None:
-                        yerr_arr_fit = unp.std_devs(uval_arr_fit)
+                    yerr_arr_fit = unp.std_devs(uval_arr_fit)
                 else:
                     yerr_arr_fit = np.zeros_like(xval_arr_fit)
                 for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
@@ -648,25 +646,23 @@ class CurveAnalysis(BaseCurveAnalysis):
                         category="fitted",
                         analysis=self.name,
                     )
-					
-				# need to check here the analysis options with self.options.get("plot_residuals", None)
+
+                # need to check here the analysis options with self.options.get("plot_residuals", None)
                 # if self.plotter.options.style.get("style_name", None) == "residuals":
                 if self.options.get("plot_residuals", None):
                     # need to add here the residuals plot.
-					xval_residual = xval
-					yval_residuals = unp.nominal_values(fit_data.residuals[i])
-					
-					for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
-						table.add_row(
-							xval=xval_residual,
-							yval=yval_residuals,
-							yerr=yerr,
-							series_name=model_names[series_id],
-							series_id=series_id,
-							category="residuals",
-							analysis=self.name,
-						)
-					
+                    xval_residual = sub_data.x
+                    yval_residuals = unp.nominal_values(fit_data.residuals[series_id])
+
+                    for xval, yval in zip(xval_residual, yval_residuals):
+                        table.add_row(
+                            xval=xval,
+                            yval=yval,
+                            series_name=model_names[series_id],
+                            series_id=series_id,
+                            category="residuals",
+                            analysis=self.name,
+                        )
 
             result_data.extend(
                 self._create_analysis_results(
