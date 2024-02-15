@@ -38,7 +38,8 @@ from qiskit_experiments.visualization import (
     MplDrawer,
 )
 
-from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
+from .base_curve_analysis import DATA_ENTRY_PREFIX, BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import eval_with_uncertainties
@@ -86,8 +87,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         The experimental circuits starting with different initial states must be
         distinguished by the circuit metadata ``{"init_state": 0}`` or ``{"init_state": 1}``,
         along with the "xval" in the same dictionary.
-        If you want to compute another quantity using two fitting outcomes, you can
-        override :meth:`CompositeCurveAnalysis._create_curve_data` in subclass.
 
     :class:`.CompositeCurveAnalysis` subclass may override following methods.
 
@@ -230,34 +229,35 @@ class CompositeCurveAnalysis(BaseAnalysis):
             A list of figures.
         """
         for analysis in self.analyses():
-            sub_data = curve_data[curve_data.group == analysis.name]
-            for name, data in list(sub_data.groupby("name")):
-                full_name = f"{name}_{analysis.name}"
+            group_data = curve_data.filter(analysis=analysis.name)
+            model_names = analysis.model_names()
+            for series_id, sub_data in group_data.iter_by_series_id():
+                full_name = f"{model_names[series_id]}_{analysis.name}"
                 # Plot raw data scatters
                 if analysis.options.plot_raw_data:
-                    raw_data = data[data.category == "raw"]
+                    raw_data = sub_data.filter(category="raw")
                     self.plotter.set_series_data(
                         series_name=full_name,
-                        x=raw_data.xval.to_numpy(),
-                        y=raw_data.yval.to_numpy(),
+                        x=raw_data.x,
+                        y=raw_data.y,
                     )
                 # Plot formatted data scatters
-                formatted_data = data[data.category == analysis.options.fit_category]
+                formatted_data = sub_data.filter(category=analysis.options.fit_category)
                 self.plotter.set_series_data(
                     series_name=full_name,
-                    x_formatted=formatted_data.xval.to_numpy(),
-                    y_formatted=formatted_data.yval.to_numpy(),
-                    y_formatted_err=formatted_data.yerr.to_numpy(),
+                    x_formatted=formatted_data.x,
+                    y_formatted=formatted_data.y,
+                    y_formatted_err=formatted_data.y_err,
                 )
                 # Plot fit lines
-                line_data = data[data.category == "fitted"]
+                line_data = sub_data.filter(category="fitted")
                 if len(line_data) == 0:
                     continue
-                fit_stdev = line_data.yerr.to_numpy()
+                fit_stdev = line_data.y_err
                 self.plotter.set_series_data(
                     series_name=full_name,
-                    x_interp=line_data.xval.to_numpy(),
-                    y_interp=line_data.yval.to_numpy(),
+                    x_interp=line_data.x,
+                    y_interp=line_data.y,
                     y_interp_err=fit_stdev if np.isfinite(fit_stdev).all() else None,
                 )
 
@@ -272,9 +272,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``True``.
-            return_data_points (bool): Set ``True`` to include in the analysis result
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``False``.
+            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
@@ -283,7 +283,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         options.update_options(
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
-            return_fit_parameters=True,
+            return_fit_parameters=False,
             return_data_points=False,
             extra={},
         )
@@ -330,7 +330,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        figures: List[FigureType] = []
+        artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -340,9 +343,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             plot = "never"
         else:
             plot = getattr(self, "_generate_figures", "always")
-
-        analysis_results = []
-        figures = []
 
         fit_dataset = {}
         curve_data_set = []
@@ -354,7 +354,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             metadata["group"] = analysis.name
 
             table = analysis._format_data(analysis._run_data_processing(experiment_data.data()))
-            formatted_subset = table[table.category == analysis.options.fit_category]
+            formatted_subset = table.filter(category=analysis.options.fit_category)
             fit_data = analysis._run_curve_fit(formatted_subset)
             fit_dataset[analysis.name] = fit_data
 
@@ -372,37 +372,40 @@ class CompositeCurveAnalysis(BaseAnalysis):
                     quality=quality,
                     extra=metadata,
                 )
-                analysis_results.append(overview)
+                result_data.append(overview)
 
             if fit_data.success:
                 # Add fit data to curve data table
-                fit_curves = []
-                columns = list(table.columns)
                 model_names = analysis.model_names()
-                for i, sub_data in list(formatted_subset.groupby("class_id")):
-                    xval = sub_data.xval.to_numpy()
+                for series_id, sub_data in formatted_subset.iter_by_series_id():
+                    xval = sub_data.x
                     if len(xval) == 0:
                         # If data is empty, skip drawing this model.
                         # This is the case when fit model exist but no data to fit is provided.
                         continue
                     # Compute X, Y values with fit parameters.
-                    xval_fit = np.linspace(np.min(xval), np.max(xval), num=100)
-                    yval_fit = eval_with_uncertainties(
-                        x=xval_fit,
-                        model=analysis.models[i],
+                    xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
+                    uval_arr_fit = eval_with_uncertainties(
+                        x=xval_arr_fit,
+                        model=analysis.models[series_id],
                         params=fit_data.ufloat_params,
                     )
-                    model_fit = np.full((100, len(columns)), np.nan, dtype=object)
-                    fit_curves.append(model_fit)
-                    model_fit[:, columns.index("xval")] = xval_fit
-                    model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
+                    yval_arr_fit = unp.nominal_values(uval_arr_fit)
                     if fit_data.covar is not None:
-                        model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
-                    model_fit[:, columns.index("name")] = model_names[i]
-                    model_fit[:, columns.index("class_id")] = i
-                    model_fit[:, columns.index("category")] = "fitted"
-                table = table.append_list_values(other=np.vstack(fit_curves))
-                analysis_results.extend(
+                        yerr_arr_fit = unp.std_devs(uval_arr_fit)
+                    else:
+                        yerr_arr_fit = np.zeros_like(xval_arr_fit)
+                    for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
+                        table.add_row(
+                            xval=xval,
+                            yval=yval,
+                            yerr=yerr,
+                            series_name=model_names[series_id],
+                            series_id=series_id,
+                            category="fitted",
+                            analysis=analysis.name,
+                        )
+                result_data.extend(
                     analysis._create_analysis_results(
                         fit_data=fit_data,
                         quality=quality,
@@ -412,15 +415,21 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if self.options.return_data_points:
                 # Add raw data points
-                analysis_results.extend(
+                warnings.warn(
+                    f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
+                    "Saving this result with 'return_data_points'=True will be disabled in "
+                    "Qiskit Experiments 0.7.",
+                    DeprecationWarning,
+                )
+                result_data.extend(
                     analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
-            # Add extra column to identify the fit model
-            table["group"] = analysis.name
             curve_data_set.append(table)
 
-        combined_curve_data = pd.concat(curve_data_set)
+        combined_curve_data = ScatterTable.from_dataframe(
+            pd.concat([d.dataframe for d in curve_data_set])
+        )
         total_quality = self._evaluate_quality(fit_dataset)
 
         # After the quality is determined, plot can become a boolean flag for whether
@@ -432,9 +441,22 @@ class CompositeCurveAnalysis(BaseAnalysis):
             composite_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-            analysis_results.extend(composite_results)
+            result_data.extend(composite_results)
         else:
             composite_results = []
+
+        artifacts.append(
+            ArtifactData(
+                name="curve_data",
+                data=combined_curve_data,
+            )
+        )
+        artifacts.append(
+            ArtifactData(
+                name="fit_summary",
+                data=fit_dataset,
+            )
+        )
 
         if plot_bool:
             self.plotter.set_supplementary_data(
@@ -443,4 +465,4 @@ class CompositeCurveAnalysis(BaseAnalysis):
             )
             figures.extend(self._create_figures(curve_data=combined_curve_data))
 
-        return analysis_results, figures
+        return result_data + artifacts, figures

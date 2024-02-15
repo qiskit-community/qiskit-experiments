@@ -98,13 +98,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     This method creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
 
-    .. rubric:: _create_curve_data
-
-    This method creates analysis results for the formatted dataset, i.e. data used for the fitting.
-    Entries are created when the analysis option ``return_data_points`` is ``True``.
-    If analysis consists of multiple series, analysis result is created for
-    each curve data in the series definitions.
-
     .. rubric:: _create_figures
 
     This method creates figures by consuming the scatter table data.
@@ -164,9 +157,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 fitting model. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result or ``False`` to
                 not create a figure. This overrides the behavior of ``generate_figures``.
-            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``True``.
-            return_data_points (bool): Set ``True`` to include in the analysis result
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``False``.
+            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
@@ -239,49 +232,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
-
-    def set_options(self, **fields):
-        """Set the analysis options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-
-        Raises:
-            KeyError: When removed option ``curve_fitter`` is set.
-        """
-        # TODO remove this in Qiskit Experiments v0.5
-
-        if "curve_fitter_options" in fields:
-            warnings.warn(
-                "The option 'curve_fitter_options' is replaced with 'lmfit_options.' "
-                "This option will be removed in Qiskit Experiments 0.5.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            fields["lmfit_options"] = fields.pop("curve_fitter_options")
-
-        # TODO remove this in Qiskit Experiments 0.6
-        if "curve_drawer" in fields:
-            warnings.warn(
-                "The option 'curve_drawer' is replaced with 'plotter'. "
-                "This option will be removed in Qiskit Experiments 0.6.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
-            # directly. If not, wrap it in a compatibility drawer.
-            if isinstance(fields["curve_drawer"], BaseDrawer):
-                plotter = self.options.plotter
-                plotter.drawer = fields.pop("curve_drawer")
-                fields["plotter"] = plotter
-            else:
-                drawer = fields["curve_drawer"]
-                compat_drawer = LegacyCurveCompatDrawer(drawer)
-                plotter = self.options.plotter
-                plotter.drawer = compat_drawer
-                fields["plotter"] = plotter
-
-        super().set_options(**fields)
 
     @abstractmethod
     def _run_data_processing(

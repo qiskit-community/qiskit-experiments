@@ -127,8 +127,8 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
             New scatter table instance including fit data.
         """
         # check if the SVD decomposition categorized 0 as 1 by calculating the average slope
-        diff_y = np.diff(curve_data.yval)
+        diff_y = np.diff(curve_data.y)
         avg_slope = sum(diff_y) / len(diff_y)
         if avg_slope > 0:
-            curve_data.yval = 1 - curve_data.yval
+            curve_data.y = 1 - curve_data.y
         return super()._format_data(curve_data)

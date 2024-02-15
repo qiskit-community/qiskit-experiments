@@ -31,7 +31,7 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` and :mod:`qiskit_ibm_runtime`
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
     packages to run simulations.  You can install them with ``python -m pip
     install qiskit-aer qiskit-ibm-runtime``.
 
@@ -78,7 +78,7 @@ circuits, one for all “0” and one for all “1” results.
 
     exp.analysis.set_options(plot=True)
     result = exp.run(backend)
-    mitigator = result.analysis_results(0).value
+    mitigator = result.analysis_results("Local Readout Mitigator").value
 
 The resulting measurement matrix can be illustrated by comparing it to
 the identity.

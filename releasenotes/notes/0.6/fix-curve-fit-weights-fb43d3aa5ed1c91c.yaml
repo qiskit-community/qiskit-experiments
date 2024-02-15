@@ -1,0 +1,9 @@
+---
+fixes_curvefit:
+  - |
+    Fix calculation of weight for curve fitting. Previously the weights of data points to obtain
+    the residual of fit curve were computed by the inverse of the error bars of y data. 
+    This may yield significant weights on certain data points when their error bar is small or zero,
+    and this can cause the local overfit to these data points. 
+    To avoid this edge case of small error bars, computed weights are now clipped at 90 percentile. 
+    This update might slightly change the outcome of fit.

@@ -1,0 +1,4 @@
+---
+upgrade_package:
+  - |
+    Dropped support for Python 3.7 and added support for Python 3.12.

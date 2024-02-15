@@ -205,8 +205,9 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res, _ = T1Analysis()._run_analysis(data)
-        result = res[1]
+        experiment_data = T1Analysis().run(data, plot=False)
+        result = experiment_data.analysis_results("T1")
+
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
 
@@ -241,8 +242,8 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res, _ = T1Analysis()._run_analysis(data)
-        result = res[1]
+        experiment_data = T1Analysis().run(data, plot=False)
+        result = experiment_data.analysis_results("T1")
         self.assertEqual(result.quality, "bad")
 
     def test_t1_parallel_exp_transpile(self):

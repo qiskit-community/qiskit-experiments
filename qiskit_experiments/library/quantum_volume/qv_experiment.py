@@ -88,7 +88,7 @@ class QuantumVolume(BaseExperiment):
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
-                (in case :mod:`qiskit_aer` is not
+                (in case :external+qiskit_aer:doc:`qiskit-aer <index>` is not
                 installed, :class:`qiskit.quantum_info.Statevector` will be used).
         """
         super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)

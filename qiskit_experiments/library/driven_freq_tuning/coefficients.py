@@ -181,6 +181,7 @@ class StarkCoefficients:
                 self.neg_coef_o1 == other.neg_coef_o1,
                 self.neg_coef_o2 == other.neg_coef_o2,
                 self.neg_coef_o3 == other.neg_coef_o3,
+                self.offset == other.offset,
             ]
         )
 

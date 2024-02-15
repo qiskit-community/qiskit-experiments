@@ -18,8 +18,8 @@ Saving
 ~~~~~~
 
 .. note::
-    This guide requires :mod:`qiskit-ibm-runtime` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
-    For how to migrate from the older :mod:`qiskit-ibm-provider` to :mod:`qiskit-ibm-runtime`,
+    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
     consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 You must run the experiment on a real IBM
@@ -56,9 +56,8 @@ experiment <https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e9
 
 .. jupyter-input::
 
-    from qiskit_experiments.framework.experiment_data import ExperimentData
-    service = ExperimentData.get_service_from_backend(backend)
-    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
+    from qiskit_experiments.framework import ExperimentData
+    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", provider=service)
 
 Now we can display the figure from the loaded experiment data:
 
