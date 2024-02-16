@@ -68,7 +68,7 @@ class LocalReadoutError(BaseExperiment):
 
             # backend
             from qiskit_aer import AerSimulator
-            from qiskit.providers.fake_provider import FakePerth
+            from qiskit_ibm_runtime.fake_provider import FakePerth
             backend = AerSimulator.from_backend(FakePerth())
 
         .. jupyter-execute::
