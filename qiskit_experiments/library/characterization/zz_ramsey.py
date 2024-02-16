@@ -130,7 +130,7 @@ class ZZRamsey(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit.providers.fake_provider import FakePerth
+            from qiskit_ibm_runtime.fake_provider import FakePerth
             from qiskit_aer import AerSimulator
             from qiskit_aer.noise import NoiseModel
 
