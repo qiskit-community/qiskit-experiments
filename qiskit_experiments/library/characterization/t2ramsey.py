@@ -64,7 +64,7 @@ class T2Ramsey(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit.providers.fake_provider import FakeManilaV2
+            from qiskit_ibm_runtime.fake_provider import FakeManilaV2
             from qiskit_aer import AerSimulator
             from qiskit_aer.noise import NoiseModel
 
