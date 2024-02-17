@@ -140,12 +140,18 @@ class CompositeAnalysis(BaseAnalysis):
         return super().run(experiment_data, replace_results=True, **options)
 
     def _run_analysis(self, experiment_data: ExperimentData):
-        # Return list of experiment data containers for each component experiment
-        # containing the marginalized data from the composite experiment
-        component_expdata = self._component_experiment_data(experiment_data)
+        child_data = experiment_data.child_data()
 
-        # Run the component analysis on each component data
-        for i, sub_expdata in enumerate(component_expdata):
+        if len(self._analyses) != len(child_data):
+            # Child data is automatically created when composite result data is added.
+            # Validate that child data size matches with number of analysis entries.
+            raise RuntimeError(
+                "Number of sub-analysis and child data don't match: "
+                f"{len(self._analyses)} != {len(child_data)}. "
+                "Please check if the composite experiment and analysis are properly instantiated."
+            )
+
+        for sub_analysis, sub_data in zip(self._analyses, child_data):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
             self._analyses[i].run(sub_expdata, replace_results=True)
