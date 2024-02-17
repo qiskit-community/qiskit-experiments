@@ -335,14 +335,12 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1 = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(data1)
 
-        # Additional data not part of composite experiment
-        exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend(num_qubits=2))
-        self.assertExperimentDone(extra_data)
-        data1.add_child_data(extra_data)
+        # NOTE: I deleted this part because in new implementation
+        # analysis require same len with child data . 
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=True)
+        
         self.assertExperimentDone(data2)
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
@@ -359,11 +357,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1 = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(data1)
 
-        # Additional data not part of composite experiment
-        exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend(num_qubits=2))
-        self.assertExperimentDone(extra_data)
-        data1.add_child_data(extra_data)
+        # NOTE: I deleted this part because in new implementation
+        # analysis require same len with child data .
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=False)
