@@ -159,8 +159,8 @@ class CurveAnalysis(BaseCurveAnalysis):
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
         """
-        if fields.get("plot_residuals", None) and not self.options.get("plot_residuals", None):
-            # checking there are no subplots for the figure to prevent collision in subplot indexes.
+        if fields.get("plot_residuals") and not self.options.get("plot_residuals"):
+            # checking there are no subplots for the figure to prevent collision in subplot indices.
             if self.plotter.options.get("subplots") != (1, 1):
                 warnings.warn(
                     "Residuals plotting is currently supported for analysis with 1 subplot.",
@@ -209,7 +209,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                         ),
                     )
 
-        if not fields.get("plot_residuals", True) and self.options.get("plot_residuals", None):
+        if not fields.get("plot_residuals", True) and self.options.get("plot_residuals"):
             # set options for single plot and cancel residuals plotting.
             if self.models:
                 self.plotter.set_figure_options(
@@ -425,7 +425,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
 
         # creating storage for residual plotting
-        if self.options.get("plot_residuals", None):
+        if self.options.get("plot_residuals"):
             residual_weights_list = []
 
         for idx, sub_data in curve_data.iter_by_series_id():
@@ -453,7 +453,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             partial_weighted_residuals.append(model_weighted_residual)
 
             # adding weights to weights_list for residuals
-            if self.options.get("plot_residuals", None):
+            if self.options.get("plot_residuals"):
                 if isinstance(weights_list, np.ndarray):
                     residual_weights_list.append(weights_list)
                 else:
@@ -494,8 +494,10 @@ class CurveAnalysis(BaseCurveAnalysis):
             if new.success and res.redchi > new.redchi:
                 res = new
 
-        residuals_model = []
-        if res.success and self.options.get("plot_residuals", None):
+        # if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it
+        # wasn't calculated.
+        residuals_model = [] if self.options.get("plot_residuals") else None
+        if res.success and self.options.get("plot_residuals"):
             for weights in residual_weights_list:
                 if isinstance(weights, np.ndarray):
                     residuals_model.append(
@@ -561,7 +563,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     y_interp_err=fit_stdev,
                 )
 
-            if self.options.get("plot_residuals", False):
+            if self.options.get("plot_residuals"):
                 residuals_data = sub_data.filter(category="residuals")
                 self.plotter.set_series_data(
                     series_name=model_name,
@@ -647,9 +649,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                         analysis=self.name,
                     )
 
-                # need to check here the analysis options with self.options.get("plot_residuals", None)
-                # if self.plotter.options.style.get("style_name", None) == "residuals":
-                if self.options.get("plot_residuals", None):
+                if self.options.get("plot_residuals"):
                     # need to add here the residuals plot.
                     xval_residual = sub_data.x
                     yval_residuals = unp.nominal_values(fit_data.residuals[series_id])

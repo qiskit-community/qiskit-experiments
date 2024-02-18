@@ -92,7 +92,7 @@ class MplDrawer(BaseDrawer):
             # Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.
             # This draws inset axes with shared x and y axis.
             if (
-                self.figure_options.get("custom_style", {}).get("style_name", None) == "residuals"
+                self.figure_options.get("custom_style", {}).get("style_name") == "residuals"
                 and n_subplots != 2
             ):
                 # raising an error for residual plotting that isn't on individual plot per figure.
@@ -116,7 +116,7 @@ class MplDrawer(BaseDrawer):
                 )
 
             # adding a check for correct sizes of subplots.
-            if sum(inset_ax_h_list) != 1 or sum(inset_ax_w_list) != 1:
+            if not np.isclose(sum(inset_ax_h_list), 1) or not np.isclose(sum(inset_ax_w_list), 1):
                 raise QiskitError(
                     "The subplots aren't covering all the figure. "
                     "Check subplots heights and widths configurations."
@@ -357,7 +357,7 @@ class MplDrawer(BaseDrawer):
         Returns:
             Default color available in matplotlib.
         """
-        if self.figure_options.get("custom_style", {}).get("style_name", None) == "residuals":
+        if self.figure_options.get("custom_style", {}).get("style_name") == "residuals":
             if name[: -len("_residuals")] in self._series:
                 name = name[: -len("_residuals")]
 
