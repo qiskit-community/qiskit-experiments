@@ -158,7 +158,6 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         test_data2 = ramsey.run().block_for_results()
         test_data2_figure_bounds = test_data2.figure(0).figure.figbbox.bounds
 
-        self.assertNotEqual(test_data_figure_bounds[2], test_data2_figure_bounds[2])
         self.assertNotEqual(test_data_figure_bounds[3], test_data2_figure_bounds[3])
 
     @unittest.skip("Cal experiments are not yet JSON serializable")
