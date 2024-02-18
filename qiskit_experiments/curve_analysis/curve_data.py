@@ -169,7 +169,7 @@ class CurveFitResult:
         x_data: Optional[np.ndarray] = None,
         y_data: Optional[np.ndarray] = None,
         weighted_residuals: Optional[np.ndarray] = None,
-        residuals: Optional[Union[np.array, List]] = None,
+        residuals: Optional[np.array] = None,
         covar: Optional[np.ndarray] = None,
     ):
         """Create new Qiskit curve analysis result object.

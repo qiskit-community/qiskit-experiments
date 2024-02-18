@@ -454,10 +454,10 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             # adding weights to weights_list for residuals
             if self.options.get("plot_residuals"):
-                if weights_list is None:
-                    residual_weights_list.append(None)
-                else:
+                if weights_list is not None:
                     residual_weights_list.append(weights_list)
+                else:
+                    residual_weights_list.append(None)
 
         # Run fit for each configuration
         res = None
@@ -499,14 +499,17 @@ class CurveAnalysis(BaseCurveAnalysis):
         residuals_model = [] if self.options.get("plot_residuals") else None
         if res.success and self.options.get("plot_residuals"):
             for weights in residual_weights_list:
-                if isinstance(weights, np.ndarray):
+                if weights is not None:
                     residuals_model.append(
-                        [res / np.abs(weight) for res, weight in zip(res.residual, weights)]
+                        [
+                            weighted_res / np.abs(weight)
+                            for weighted_res, weight in zip(res.residual, weights)
+                        ]
                     )
                 else:
                     residuals_model.append(res.residual)
 
-        if residuals_model:
+        if residuals_model is not None:
             residuals_model = np.array(residuals_model)
 
         return convert_lmfit_result(
