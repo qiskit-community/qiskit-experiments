@@ -454,10 +454,10 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             # adding weights to weights_list for residuals
             if self.options.get("plot_residuals"):
-                if isinstance(weights_list, np.ndarray):
-                    residual_weights_list.append(weights_list)
-                else:
+                if weights_list is None:
                     residual_weights_list.append(None)
+                else:
+                    residual_weights_list.append(weights_list)
 
         # Run fit for each configuration
         res = None
