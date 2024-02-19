@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="rbdefaultcliffordsynthesis">
+          <section id="rbdefaultcliffordsynthesis">
 <h1>RBDefaultCliffordSynthesis<a class="headerlink" href="#rbdefaultcliffordsynthesis" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis">
@@ -594,12 +588,12 @@ released.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>high_level_object</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Operation" title="(in Qiskit v0.46)"><em>Operation</em></a>) – The operation to synthesize to a
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> object.</p></li>
-<li><p><strong>coupling_map</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v0.46)"><em>CouplingMap</em></a><em> | </em><em>None</em>) – The reduced coupling map of the backend. For example,
+<li><p><strong>high_level_object</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Operation" title="(in Qiskit v1.0)"><em>Operation</em></a>) – The operation to synthesize to a
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> object.</p></li>
+<li><p><strong>coupling_map</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v1.0)"><em>CouplingMap</em></a><em> | </em><em>None</em>) – The reduced coupling map of the backend. For example,
 if physical qubits [5, 6, 7] to be benchmarked is connected
 as 5 - 7 - 6 linearly, the reduced coupling map is 0 - 2 - 1.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v0.46)"><em>Target</em></a><em> | </em><em>None</em>) – A target representing the target backend, which will be ignored in this plugin.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v1.0)"><em>Target</em></a><em> | </em><em>None</em>) – A target representing the target backend, which will be ignored in this plugin.</p></li>
 <li><p><strong>qubits</strong> (<em>Sequence</em><em> | </em><em>None</em>) – List of physical qubits over which the operation is defined,
 which will be ignored in this plugin.</p></li>
 <li><p><strong>options</strong> – Additional method-specific optional kwargs,
@@ -614,7 +608,7 @@ when successful, and <code class="docutils literal notranslate"><span class="pre
 <dd class="field-odd"><p><strong>QiskitError</strong> – If basis_gates is not supplied.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,7 +651,7 @@ when successful, and <code class="docutils literal notranslate"><span class="pre
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

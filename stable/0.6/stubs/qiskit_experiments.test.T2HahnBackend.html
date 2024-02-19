@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="t2hahnbackend">
+          <section id="t2hahnbackend">
 <h1>T2HahnBackend<a class="headerlink" href="#t2hahnbackend" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend">
@@ -593,7 +587,7 @@ released.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend.coupling_map">
 <span class="sig-name descname"><span class="pre">coupling_map</span></span><a class="headerlink" href="#qiskit_experiments.test.T2HahnBackend.coupling_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -628,13 +622,13 @@ be returned.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend.instruction_durations">
 <span class="sig-name descname"><span class="pre">instruction_durations</span></span><a class="headerlink" href="#qiskit_experiments.test.T2HahnBackend.instruction_durations" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend.instruction_schedule_map">
 <span class="sig-name descname"><span class="pre">instruction_schedule_map</span></span><a class="headerlink" href="#qiskit_experiments.test.T2HahnBackend.instruction_schedule_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
 instructions defined in this backend’s target.</p>
 </dd></dl>
 
@@ -681,7 +675,7 @@ scheduling.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend.operations">
 <span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#qiskit_experiments.test.T2HahnBackend.operations" title="Link to this definition">#</a></dt>
-<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
+<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -849,7 +843,7 @@ returned. If properties are missing for a qubit this can be
     qubit properties</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -858,7 +852,7 @@ returned. If properties are missing for a qubit this can be
 <dt class="sig sig-object py" id="qiskit_experiments.test.T2HahnBackend.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/test/t2hahn_backend.html#T2HahnBackend.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.test.T2HahnBackend.run" title="Link to this definition">#</a></dt>
 <dd><p>Run on the backend.</p>
-<p>This method returns a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> object
+<p>This method returns a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> object
 that runs circuits. Depending on the backend this may be either an async
 or sync call. It is at the discretion of the provider to decide whether
 running should block until the execution is finished or not: the Job
@@ -868,7 +862,7 @@ class can handle either situation.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>run_input</strong> (<em>QuantumCircuit</em><em> or </em><em>Schedule</em><em> or </em><em>ScheduleBlock</em><em> or </em><em>list</em>) – An
 individual or a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code>,
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.ScheduleBlock" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduleBlock</span></code></a>, or <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.Schedule" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schedule</span></code></a> objects to
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.ScheduleBlock" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduleBlock</span></code></a>, or <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.Schedule" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schedule</span></code></a> objects to
 run on the backend.</p></li>
 <li><p><strong>options</strong> – Any kwarg options to pass to the backend for running the
 config. If a key is also present in the options
@@ -942,7 +936,7 @@ pass in the kwarg with the new value for the options.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

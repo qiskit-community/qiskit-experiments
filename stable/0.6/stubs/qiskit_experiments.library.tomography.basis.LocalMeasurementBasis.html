@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="localmeasurementbasis">
+          <section id="localmeasurementbasis">
 <h1>LocalMeasurementBasis<a class="headerlink" href="#localmeasurementbasis" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.LocalMeasurementBasis">
@@ -595,10 +589,10 @@ measurement.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – a name to identity the basis.</p></li>
-<li><p><strong>instructions</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v0.46)"><em>Instruction</em></a><em>] </em><em>| </em><em>None</em>) – list of instructions for rotating a desired
+<li><p><strong>instructions</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.0)"><em>Instruction</em></a><em>] </em><em>| </em><em>None</em>) – list of instructions for rotating a desired
 measurement basis to the standard <span class="math notranslate nohighlight">\(Z^{\otimes n}\)</span>
 computational basis measurement.</p></li>
-<li><p><strong>default_povms</strong> (<em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v0.46)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v0.46)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>] </em><em>| </em><em>None</em>) – Optional, list if positive operators valued measures (POVM)
+<li><p><strong>default_povms</strong> (<em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.0)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.0)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>] </em><em>| </em><em>None</em>) – Optional, list if positive operators valued measures (POVM)
 for of the measurement basis instructions. A POVM can be
 input as a list of effects (Statevector or DensityMatrix)
 for each possible measurement outcome of that basis, or as
@@ -606,7 +600,7 @@ a single QuantumChannel. For the channel case the effects
 will be calculated by evolving the computation basis states
 by the adjoint of the channel. If None the input instructions
 will be used as the POVM channel.</p></li>
-<li><p><strong>qubit_povms</strong> (<em>Dict</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v0.46)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v0.46)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional, a dict with physical qubit keys and a list of POVMs
+<li><p><strong>qubit_povms</strong> (<em>Dict</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.0)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.0)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional, a dict with physical qubit keys and a list of POVMs
 corresponding to each basis measurement instruction for the
 specific qubit. The default POVMs will be used for any qubits
 not specified in this dict.</p></li>
@@ -762,7 +756,7 @@ length N index.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

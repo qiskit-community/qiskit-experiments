@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,23 +574,17 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="correlatedreadouterror">
+          <section id="correlatedreadouterror">
 <h1>CorrelatedReadoutError<a class="headerlink" href="#correlatedreadouterror" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.characterization.CorrelatedReadoutError">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CorrelatedReadoutError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/characterization/correlated_readout_error.html#CorrelatedReadoutError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="Link to this definition">#</a></dt>
 <dd><p>Correlated readout error characterization experiment.</p>
 <p class="rubric">Overview</p>
-<p>This class constructs the a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>
+<p>This class constructs the a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>
 containing the full assignment matrix <span class="math notranslate nohighlight">\(A\)</span> characterizing the readout error
 for the given qubits from the experiment results accessible via the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator#assignment_matrix" title="(in Qiskit v0.46)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assignment_matrix()</span></code></a> method.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator#assignment_matrix" title="(in Qiskit v1.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assignment_matrix()</span></code></a> method.</p>
 <p>Readout errors affect quantum computation during the measurement
 of the qubits in a quantum device. By characterizing the readout errors,
 it is possible to construct a <em>readout error mitigator</em> that is used both
@@ -603,7 +597,7 @@ to compute the <em>mitigation matrix</em> used in the readout error mitigation p
 <p>A <em>Correlated readout mitigator</em> uses the full <span class="math notranslate nohighlight">\(2^n \times 2^n\)</span> assignment matrix, meaning
 it can only be used for small values of <span class="math notranslate nohighlight">\(n\)</span>.
 The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> in <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/result#module-qiskit.result" title="(in Qiskit v0.46)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.result</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> in <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/result#module-qiskit.result" title="(in Qiskit v1.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.result</span></code></a>.</p>
 <p>The experiment generates <span class="math notranslate nohighlight">\(2^n\)</span> circuits, for every possible
 <span class="math notranslate nohighlight">\(n\)</span>-qubit quantum state and constructs
 the assignment matrix and correlated mitigator from the results.</p>
@@ -640,7 +634,7 @@ documentation for additional information on correlated readout error experiment 
 <li><p><strong>physical_qubits</strong> (<em>Iterable</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – Optional, the backend qubits being characterized
 for readout error. If None all qubits on the provided backend
 will be characterized.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to characterize.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to characterize.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -703,7 +697,7 @@ will be characterized.</p></li>
 <dd><p>Returns the experiment’s circuits</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -748,7 +742,7 @@ will be characterized.</p></li>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -782,7 +776,7 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
 will override any currently set backends for the single
 execution.</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -892,7 +886,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

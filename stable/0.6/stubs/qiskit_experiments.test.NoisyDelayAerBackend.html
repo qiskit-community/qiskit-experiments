@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="noisydelayaerbackend">
+          <section id="noisydelayaerbackend">
 <h1>NoisyDelayAerBackend<a class="headerlink" href="#noisydelayaerbackend" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.test.NoisyDelayAerBackend">
@@ -593,7 +587,7 @@ released.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.NoisyDelayAerBackend.coupling_map">
 <span class="sig-name descname"><span class="pre">coupling_map</span></span><a class="headerlink" href="#qiskit_experiments.test.NoisyDelayAerBackend.coupling_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -628,13 +622,13 @@ be returned.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.NoisyDelayAerBackend.instruction_durations">
 <span class="sig-name descname"><span class="pre">instruction_durations</span></span><a class="headerlink" href="#qiskit_experiments.test.NoisyDelayAerBackend.instruction_durations" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.NoisyDelayAerBackend.instruction_schedule_map">
 <span class="sig-name descname"><span class="pre">instruction_schedule_map</span></span><a class="headerlink" href="#qiskit_experiments.test.NoisyDelayAerBackend.instruction_schedule_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
 instructions defined in this backend’s target.</p>
 </dd></dl>
 
@@ -681,7 +675,7 @@ scheduling.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.NoisyDelayAerBackend.operations">
 <span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#qiskit_experiments.test.NoisyDelayAerBackend.operations" title="Link to this definition">#</a></dt>
-<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
+<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -911,7 +905,7 @@ returned. If properties are missing for a qubit this can be
     qubit properties</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -923,7 +917,7 @@ returned. If properties are missing for a qubit this can be
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_input</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a><em>]</em>) – List of circuit to run.</p></li>
+<li><p><strong>run_input</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a><em>]</em>) – List of circuit to run.</p></li>
 <li><p><strong>run_options</strong> (<em>kwargs</em>) – additional run time backend options.</p></li>
 </ul>
 </dd>
@@ -1013,7 +1007,7 @@ update special option values.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

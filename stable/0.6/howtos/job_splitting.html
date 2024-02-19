@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="control-the-splitting-of-experiment-circuits-into-jobs">
+          <section id="control-the-splitting-of-experiment-circuits-into-jobs">
 <h1>Control the splitting of experiment circuits into jobs<a class="headerlink" href="#control-the-splitting-of-experiment-circuits-into-jobs" title="Link to this heading">#</a></h1>
 <section id="problem">
 <h2>Problem<a class="headerlink" href="#problem" title="Link to this heading">#</a></h2>
@@ -624,8 +618,8 @@ experiment of parallel experiments.</p>
 <h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">#</a></h2>
 <p>Qiskit Experiments will automatically split circuits across jobs for you for backends
 that have a maximum circuit number per job, which is given by the <code class="docutils literal notranslate"><span class="pre">max_experiments</span></code>
-property of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV1#configuration" title="(in Qiskit v0.46)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configuration()</span></code></a> for V1 backends and
-the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV2#max_circuits" title="(in Qiskit v0.46)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_circuits</span></code></a> attribute for V2 backends. This should
+property of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV1#configuration" title="(in Qiskit v1.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configuration()</span></code></a> for V1 backends and
+the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV2#max_circuits" title="(in Qiskit v1.0)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_circuits</span></code></a> attribute for V2 backends. This should
 work automatically in most cases, but there may be some backends where other limits
 exist. When the <code class="docutils literal notranslate"><span class="pre">max_circuits</span></code> experiment option is provided, the experiment class
 will split the experiment circuits as dictated by the smaller of the backend property
@@ -667,7 +661,7 @@ and the experiment option.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

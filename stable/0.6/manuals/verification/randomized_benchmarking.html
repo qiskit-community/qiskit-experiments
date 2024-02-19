@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="randomized-benchmarking">
+          <section id="randomized-benchmarking">
 <h1>Randomized Benchmarking<a class="headerlink" href="#randomized-benchmarking" title="Link to this heading">#</a></h1>
 <p>Randomized benchmarking (RB) is a popular protocol for characterizing the error rate of
 quantum processors. An RB experiment consists of the generation of random Clifford
@@ -703,48 +697,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 173
+ - number of function evals: 163
  - degree of freedom: 1
- - chi-square: 0.4982618125253459
- - reduced chi-square: 0.4982618125253459
- - Akaike info crit.: -2.331695893045447
- - Bayesian info crit.: -4.172812809685776
+ - chi-square: 0.30743678228317123
+ - reduced chi-square: 0.30743678228317123
+ - Akaike info crit.: -4.263120640248625
+ - Bayesian info crit.: -6.104237556888953
  - init params:
-  * a = 0.4753435468799648
-  * alpha = 0.9997390630720518
+  * a = 0.4756390818003924
+  * alpha = 0.9997332290736897
   * b = 0.5
  - fit params:
-  * a = 0.18779072516211592 ± 0.09979878816044836
-  * alpha = 0.9992351047692911 ± 0.0005192807775301096
-  * b = 0.7876948371958643 ± 0.10032921809519989
+  * a = 0.97579005649165 ± 3.583889451271878
+  * alpha = 0.9998756553030933 ± 0.00047251580446670745
+  * b = 2.283535923754824e-11 ± 3.5841873673951286
  - correlations:
-  * (a, b) = -0.9998755236699601
-  * (alpha, b) = -0.9991086955660392
-  * (a, alpha) = 0.9985186426675727
+  * (a, b) = -0.9999999582916244
+  * (alpha, b) = -0.9999574806239581
+  * (a, alpha) = 0.9999560361104933
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9992+/-0.0005
-- χ²: 0.4982618125253459
+- value: 0.9999+/-0.0005
+- χ²: 0.30743678228317123
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00038+/-0.00026
-- χ²: 0.4982618125253459
+- value: 0.00006+/-0.00024
+- χ²: 0.30743678228317123
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00041+/-0.00028
-- χ²: 0.4982618125253459
+- value: 0.00007+/-0.00026
+- χ²: 0.30743678228317123
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -752,15 +746,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 0.4982618125253459
+- χ²: 0.30743678228317123
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00041+/-0.00028
-- χ²: 0.4982618125253459
+- value: 0.00007+/-0.00026
+- χ²: 0.30743678228317123
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -867,56 +861,56 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 24
+ - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 5.129071386345846
- - reduced chi-square: 1.2822678465864614
- - Akaike info crit.: 3.823101342045582
- - Bayesian info crit.: 3.6608317892115214
+ - chi-square: 1.6002898304225623
+ - reduced chi-square: 0.4000724576056406
+ - Akaike info crit.: -4.330077745400505
+ - Bayesian info crit.: -4.492347298234566
  - init params:
-  * a = 0.7187648135841728
-  * alpha = 0.9806118148410753
+  * a = 0.7134476678524835
+  * alpha = 0.9835442018968935
   * b = 0.25
  - fit params:
-  * a = 0.7205022684013944 ± 0.005526437730925128
-  * alpha = 0.9826907742108829 ± 0.0004603333289231239
-  * b = 0.2460286634895529 ± 0.004995584442625035
+  * a = 0.708769353139853 ± 0.007834913517582472
+  * alpha = 0.9822540845562515 ± 0.0005743286338301261
+  * b = 0.2555200746584366 ± 0.007011582510750315
  - correlations:
-  * (alpha, b) = -0.8874275519531161
-  * (a, b) = -0.7644087349066633
-  * (a, alpha) = 0.5776248379926952
+  * (alpha, b) = -0.8701912050770355
+  * (a, b) = -0.7581385293528439
+  * (a, alpha) = 0.5271470028849118
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9827+/-0.0005
-- χ²: 1.2822678465864614
+- value: 0.9823+/-0.0006
+- χ²: 0.4000724576056406
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.01298+/-0.00035
-- χ²: 1.2822678465864614
+- value: 0.0133+/-0.0004
+- χ²: 0.4000724576056406
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0117+/-0.0006
-- χ²: 1.2822678465864614
+- value: 0.0125+/-0.0006
+- χ²: 0.4000724576056406
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0076+/-0.0004
-- χ²: 1.2822678465864614
+- value: 0.0081+/-0.0004
+- χ²: 0.4000724576056406
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1036,51 +1030,51 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
  - success: True
  - number of function evals: 25
  - degree of freedom: 10
- - chi-square: 9.080534492657895
- - reduced chi-square: 0.9080534492657895
- - Akaike info crit.: 1.9390601653389847
- - Bayesian info crit.: 4.495289483800018
+ - chi-square: 8.86531654621383
+ - reduced chi-square: 0.886531654621383
+ - Akaike info crit.: 1.6032504336060391
+ - Bayesian info crit.: 4.159479752067073
  - init params:
-  * a = 0.7146410698118371
-  * alpha = 0.9820796905786695
+  * a = 0.7118446171536397
+  * alpha = 0.9823991167149585
   * b = 0.25
-  * alpha_c = 0.9943311114165914
+  * alpha_c = 0.9910364311650578
  - fit params:
-  * a = 0.711997517024779 ± 0.0031985021723532994
-  * alpha = 0.9822084114366018 ± 0.00029360985952105683
-  * b = 0.2542359865646695 ± 0.002338886785737469
-  * alpha_c = 0.9892930831550254 ± 0.0004525046488926453
+  * a = 0.7129112657762876 ± 0.0030713877723707547
+  * alpha = 0.9824628576306229 ± 0.00026546366727830907
+  * b = 0.24834110334939719 ± 0.0023201895207330026
+  * alpha_c = 0.9891154250959119 ± 0.0005196010522643095
  - correlations:
-  * (alpha, b) = -0.6943896597919313
-  * (a, b) = -0.6232838591208548
-  * (b, alpha_c) = -0.30501481354626225
-  * (alpha, alpha_c) = -0.09445509676888589
-  * (a, alpha_c) = 0.11749761597021248
-  * (a, alpha) = 0.306202828383792
+  * (alpha, b) = -0.7030156659606005
+  * (a, b) = -0.6168133657511835
+  * (b, alpha_c) = -0.4822801444272771
+  * (alpha, alpha_c) = 0.11089734746510964
+  * (a, alpha_c) = 0.22463582490152453
+  * (a, alpha) = 0.2957517702373268
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.98221+/-0.00029
-- χ²: 0.9080534492657895
+- value: 0.98246+/-0.00027
+- χ²: 0.886531654621383
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9893+/-0.0005
-- χ²: 0.9080534492657895
+- value: 0.9891+/-0.0005
+- χ²: 0.886531654621383
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00803+/-0.00034
-- χ²: 0.9080534492657895
+- value: 0.0082+/-0.0004
+- χ²: 0.886531654621383
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1166,7 +1160,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

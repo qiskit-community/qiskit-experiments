@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="pulsebackend">
+          <section id="pulsebackend">
 <h1>PulseBackend<a class="headerlink" href="#pulsebackend" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.test.PulseBackend">
@@ -624,7 +618,7 @@ set then the seed defaults to 0.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.PulseBackend.coupling_map">
 <span class="sig-name descname"><span class="pre">coupling_map</span></span><a class="headerlink" href="#qiskit_experiments.test.PulseBackend.coupling_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.CouplingMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CouplingMap</span></code></a> object</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -671,13 +665,13 @@ be returned.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.PulseBackend.instruction_durations">
 <span class="sig-name descname"><span class="pre">instruction_durations</span></span><a class="headerlink" href="#qiskit_experiments.test.PulseBackend.instruction_durations" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.InstructionDurations" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionDurations</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.PulseBackend.instruction_schedule_map">
 <span class="sig-name descname"><span class="pre">instruction_schedule_map</span></span><a class="headerlink" href="#qiskit_experiments.test.PulseBackend.instruction_schedule_map" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
+<dd><p>Return the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.InstructionScheduleMap" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">InstructionScheduleMap</span></code></a> for the
 instructions defined in this backend’s target.</p>
 </dd></dl>
 
@@ -724,7 +718,7 @@ scheduling.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.test.PulseBackend.operations">
 <span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#qiskit_experiments.test.PulseBackend.operations" title="Link to this definition">#</a></dt>
-<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
+<dd><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instruction</span></code></a> instances that the backend supports.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -899,7 +893,7 @@ returned. If properties are missing for a qubit this can be
     qubit properties</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v0.46)"><em>QubitProperties</em></a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a> | <em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.QubitProperties" title="(in Qiskit v1.0)"><em>QubitProperties</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -911,7 +905,7 @@ returned. If properties are missing for a qubit this can be
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_input</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a><em>]</em>) – Circuits to run.</p></li>
+<li><p><strong>run_input</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a><em>]</em>) – Circuits to run.</p></li>
 <li><p><strong>run_options</strong> – Any option that affects the way that the circuits are run. The options
 that are currently supported are <code class="docutils literal notranslate"><span class="pre">shots</span></code>, <code class="docutils literal notranslate"><span class="pre">meas_level</span></code>, <code class="docutils literal notranslate"><span class="pre">meas_return</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">memory</span></code>.</p></li>
@@ -951,7 +945,7 @@ pass in the kwarg with the new value for the options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>schedule</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.ScheduleBlock" title="(in Qiskit v0.46)"><em>ScheduleBlock</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.Schedule" title="(in Qiskit v0.46)"><em>Schedule</em></a>) – Pulse signal</p></li>
+<li><p><strong>schedule</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.ScheduleBlock" title="(in Qiskit v1.0)"><em>ScheduleBlock</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.pulse.Schedule" title="(in Qiskit v1.0)"><em>Schedule</em></a>) – Pulse signal</p></li>
 <li><p><strong>qubits</strong> (<em>Tuple</em><em>[</em><em>int</em><em>]</em>) – (remove after multi-qubit gates is implemented)</p></li>
 </ul>
 </dd>
@@ -1002,7 +996,7 @@ pass in the kwarg with the new value for the options.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

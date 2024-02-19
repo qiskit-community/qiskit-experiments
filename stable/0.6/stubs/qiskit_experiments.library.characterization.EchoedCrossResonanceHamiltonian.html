@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="echoedcrossresonancehamiltonian">
+          <section id="echoedcrossresonancehamiltonian">
 <h1>EchoedCrossResonanceHamiltonian<a class="headerlink" href="#echoedcrossresonancehamiltonian" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.characterization.EchoedCrossResonanceHamiltonian">
@@ -690,8 +684,8 @@ However, it is sensitive to the IX and IY terms.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>physical_qubits</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – Two-value tuple of qubit indices on which to run tomography.
 The first index stands for the control qubit.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
-<li><p><strong>cr_gate</strong> (<em>Type</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v0.46)"><em>Gate</em></a><em>] </em><em>| </em><em>None</em>) – Optional, circuit gate class representing the cross resonance pulse.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
+<li><p><strong>cr_gate</strong> (<em>Type</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v1.0)"><em>Gate</em></a><em>] </em><em>| </em><em>None</em>) – Optional, circuit gate class representing the cross resonance pulse.
 Providing this object allows us to run this experiment with circuit simulator,
 and this object might be used for testing, development of analysis protocol,
 and educational purpose without needing to wait for hardware queueing.
@@ -780,7 +774,7 @@ This argument should be provided in units of sec.</p></li>
 <dd class="field-even"><p><strong>QiskitError</strong> – When the backend is not set and cr gate is <code class="docutils literal notranslate"><span class="pre">CRPulseGate</span></code> type.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v0.46)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.0)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -825,7 +819,7 @@ This argument should be provided in units of sec.</p></li>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -859,7 +853,7 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v0.46)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
 will override any currently set backends for the single
 execution.</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -969,7 +963,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

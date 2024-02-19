@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="experimentdata">
+          <section id="experimentdata">
 <h1>ExperimentData<a class="headerlink" href="#experimentdata" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData">
@@ -986,7 +980,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dd><p>Add experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.Result" title="(in Qiskit v0.46)"><em>Result</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.Result" title="(in Qiskit v0.46)"><em>Result</em></a><em>] </em><em>| </em><em>Dict</em><em> | </em><em>List</em><em>[</em><em>Dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.Result" title="(in Qiskit v1.0)"><em>Result</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.Result" title="(in Qiskit v1.0)"><em>Result</em></a><em>] </em><em>| </em><em>Dict</em><em> | </em><em>List</em><em>[</em><em>Dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
 <ul class="simple">
 <li><p>Result: Add data from this <code class="docutils literal notranslate"><span class="pre">Result</span></code> object.</p></li>
 <li><p>List[Result]: Add data from the <code class="docutils literal notranslate"><span class="pre">Result</span></code> objects.</p></li>
@@ -1008,7 +1002,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em> | </em><em>List</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.2)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
+<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.3)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em> | </em><em>List</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.3)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
 <li><p><strong>figure_names</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Names of the figures. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the figure file
 names, if given, or a generated name of the format <code class="docutils literal notranslate"><span class="pre">experiment_type</span></code>, figure
 index, first 5 elements of <code class="docutils literal notranslate"><span class="pre">device_components</span></code>, and first 8 digits of the
@@ -1042,7 +1036,7 @@ the <code class="docutils literal notranslate"><span class="pre">auto-save</span
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jobs</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v0.46)"><em>Job</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v0.46)"><em>Job</em></a><em>]</em>) – The Job or list of Jobs to add result data from.</p></li>
+<li><p><strong>jobs</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v1.0)"><em>Job</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v1.0)"><em>Job</em></a><em>]</em>) – The Job or list of Jobs to add result data from.</p></li>
 <li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Optional, time in seconds to wait for all jobs to finish
 before cancelling them.</p></li>
 </ul>
@@ -1491,7 +1485,7 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_status">
 <span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_status" title="Link to this definition">#</a></dt>
 <dd><p>Return the experiment job execution status.</p>
-<p>Possible return values for <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a> are</p>
+<p>Possible return values for <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a> are</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code> - if any job incurred an error</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code> - if any job is cancelled.</p></li>
@@ -1512,7 +1506,7 @@ pending or running jobs. In these cases it may be beneficial to call
 <dd class="field-odd"><p>The job execution status.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v0.46)"><em>JobStatus</em></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v1.0)"><em>JobStatus</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1523,7 +1517,7 @@ pending or running jobs. In these cases it may be beneficial to call
 <dd><p>Return a list of jobs for the experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v0.46)"><em>Job</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Job" title="(in Qiskit v1.0)"><em>Job</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1537,7 +1531,7 @@ pending or running jobs. In these cases it may be beneficial to call
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>experiment_id</strong> (<em>str</em>) – Experiment ID.</p></li>
 <li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – the database service.</p></li>
-<li><p><strong>provider</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Provider" title="(in Qiskit v0.46)"><em>Provider</em></a><em> | </em><em>None</em>) – an IBMProvider required for loading job data and
+<li><p><strong>provider</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Provider" title="(in Qiskit v1.0)"><em>Provider</em></a><em> | </em><em>None</em>) – an IBMProvider required for loading job data and
 can be used to initialize the service. When using
 <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
 this is the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.QiskitRuntimeService" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a> and should
@@ -1685,7 +1679,7 @@ remaining jobs.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

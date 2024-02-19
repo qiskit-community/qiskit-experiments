@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="correlatedreadouterroranalysis">
+          <section id="correlatedreadouterroranalysis">
 <h1>CorrelatedReadoutErrorAnalysis<a class="headerlink" href="#correlatedreadouterroranalysis" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis">
@@ -589,7 +583,7 @@ released.</p>
 <p class="rubric">Overview</p>
 <p>This class generates the full assignment matrix <span class="math notranslate nohighlight">\(A\)</span> characterizing the
 readout error for the given qubits from the experiment results
-and returns the resulting <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a></p>
+and returns the resulting <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a></p>
 <p><span class="math notranslate nohighlight">\(A\)</span> is a <span class="math notranslate nohighlight">\(2^n\times 2^n\)</span> matrix <span class="math notranslate nohighlight">\(A\)</span> such that <span class="math notranslate nohighlight">\(A_{y,x}\)</span>
 is the probability to observe <span class="math notranslate nohighlight">\(y\)</span> given the true outcome should be <span class="math notranslate nohighlight">\(x\)</span>.</p>
 <p>In the experiment, for each <span class="math notranslate nohighlight">\(x\)</span> a circuit is constructed whose expected
@@ -597,7 +591,7 @@ outcome is <span class="math notranslate nohighlight">\(x\)</span>. From the obs
 each <span class="math notranslate nohighlight">\(y\)</span> is determined, and <span class="math notranslate nohighlight">\(A_{y,x}\)</span> is set accordingly.</p>
 <dl class="simple">
 <dt>Analysis Results:</dt><dd><ul class="simple">
-<li><p>“Local Readout Mitigator”: The <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p></li>
+<li><p>“Local Readout Mitigator”: The <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt>Analysis Figures:</dt><dd><ul class="simple">
@@ -772,7 +766,7 @@ This data can then be saved as its own experiment to a database service.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             

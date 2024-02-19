@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -574,13 +574,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
-of Qiskit Experiments. The documentation or APIs here can change prior to being
-released.</p>
-</div>
-<section id="readout-mitigation">
+          <section id="readout-mitigation">
 <h1>Readout Mitigation<a class="headerlink" href="#readout-mitigation" title="Link to this heading">#</a></h1>
 <p>Readout errors affect quantum computation during the measurement of the
 qubits in a quantum device. By characterizing the readout errors, it is
@@ -599,11 +593,11 @@ the tensor product of <span class="math notranslate nohighlight">\(n\)</span> <s
 each qubit, making it practical to store the assignment matrix in
 implicit form, by storing the individual <span class="math notranslate nohighlight">\(2 \times 2\)</span> assignment
 matrices. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
 <p>A <em>Correlated readout mitigator</em> uses the full <span class="math notranslate nohighlight">\(2^n \times 2^n\)</span>
 assignment matrix, meaning it can only be used for small values of
 <span class="math notranslate nohighlight">\(n\)</span>. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
 <p>This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.</p>
 <div class="admonition note">
@@ -723,17 +717,17 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.03202479 -0.02582645]
- [-0.03202479  1.02582645]]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.02661208 -0.02149437]
+ [-0.02661208  1.02149437]]
 
-[[ 1.01821862 -0.01821862]
- [-0.01821862  1.01821862]]
+[[ 1.01717172 -0.01717172]
+ [-0.01717172  1.01717172]]
 
-[[ 1.01611279 -0.01510574]
- [-0.01611279  1.01510574]]
+[[ 1.02532928 -0.01215805]
+ [-0.02532928  1.01215805]]
 
-[[ 1.01111111 -0.02323232]
- [-0.01111111  1.02323232]]
+[[ 1.01609658 -0.01408451]
+ [-0.01609658  1.01408451]]
 
 </pre></div>
 </div>
@@ -824,7 +818,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fb242bf1580&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fbeddc79160&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_11_1.png" src="../../_images/readout_mitigation_11_1.png" />
@@ -927,7 +921,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             
