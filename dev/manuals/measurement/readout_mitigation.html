@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Restless Measurements" href="restless_measurements.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.6.0-5-gaa3b54fe</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-5-gaa3b54fe</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-5-gaa3b54fe</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -576,7 +576,7 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
+<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main">development branch</a>
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
@@ -599,11 +599,11 @@ the tensor product of <span class="math notranslate nohighlight">\(n\)</span> <s
 each qubit, making it practical to store the assignment matrix in
 implicit form, by storing the individual <span class="math notranslate nohighlight">\(2 \times 2\)</span> assignment
 matrices. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
 <p>A <em>Correlated readout mitigator</em> uses the full <span class="math notranslate nohighlight">\(2^n \times 2^n\)</span>
 assignment matrix, meaning it can only be used for small values of
 <span class="math notranslate nohighlight">\(n\)</span>. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
 <p>This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.</p>
 <div class="admonition note">
@@ -723,17 +723,17 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.02974359 -0.02051282]
- [-0.02974359  1.02051282]]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.01844262 -0.0307377 ]
+ [-0.01844262  1.0307377 ]]
 
-[[ 1.01522843 -0.02436548]
- [-0.01522843  1.02436548]]
+[[ 1.01515152 -0.01919192]
+ [-0.01515152  1.01919192]]
 
-[[ 1.01005025 -0.01909548]
- [-0.01005025  1.01909548]]
+[[ 1.01302605 -0.01302605]
+ [-0.01302605  1.01302605]]
 
-[[ 1.01198801 -0.01098901]
- [-0.01198801  1.01098901]]
+[[ 1.01397206 -0.00798403]
+ [-0.01397206  1.00798403]]
 
 </pre></div>
 </div>
@@ -824,7 +824,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fadb4611ca0&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fb4df5806b0&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_11_1.png" src="../../_images/readout_mitigation_11_1.png" />
@@ -927,7 +927,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/14</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             
@@ -971,7 +971,7 @@ meas: 2/═════════╩══╩═
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=dcdd07f1"></script>
+    <script src="../../_static/documentation_options.js?v=2d479917"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

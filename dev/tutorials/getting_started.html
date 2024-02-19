@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>Getting Started - Qiskit Experiments 0.6.0-5-gaa3b54fe</title>
+        <title>Getting Started - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-5-gaa3b54fe</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-5-gaa3b54fe</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -576,7 +576,7 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the development branch
+<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main">development branch</a>
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
@@ -837,7 +837,7 @@ results will be retrieved in the pandas <a class="reference external" href="http
   </thead>
   <tbody>
     <tr>
-      <th>b95ddae7</th>
+      <th>06ccde45</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -849,15 +849,15 @@ results will be retrieved in the pandas <a class="reference external" href="http
       <td>None</td>
     </tr>
     <tr>
-      <th>5813c985</th>
+      <th>5de13558</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000194+/-0.000006</td>
+      <td>0.000199+/-0.000006</td>
       <td>good</td>
       <td>'aer_simulator(fake_perth)</td>
       <td>None</td>
-      <td>0.612828</td>
+      <td>0.993877</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -880,32 +880,32 @@ results will be retrieved in the pandas <a class="reference external" href="http
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 11.030908366598089
- - reduced chi-square: 0.6128282425887828
- - Akaike info crit.: -7.520246327061473
- - Bayesian info crit.: -4.386679013891204
+ - chi-square: 17.889788022702536
+ - reduced chi-square: 0.9938771123723631
+ - Akaike info crit.: 2.6338598268078273
+ - Bayesian info crit.: 5.767427139978096
  - init params:
-  * amp = 0.9053658536585365
-  * tau = 0.0002361372285645017
-  * base = 0.06975609756097562
+  * amp = 0.895609756097561
+  * tau = 0.00022464633507625911
+  * base = 0.07073170731707316
  - fit params:
-  * amp = 0.9435329081759185 ± 0.008628892236024683
-  * tau = 0.00019378504573007335 ± 5.54645077320204e-06
-  * base = 0.037763936085277075 ± 0.007571455447323973
+  * amp = 0.9476449433154637 ± 0.008456056354344313
+  * tau = 0.00019894846442459455 ± 5.583819894243376e-06
+  * base = 0.02191974785739356 ± 0.007515063346582816
  - correlations:
-  * (tau, base) = -0.8900392996366762
-  * (amp, base) = -0.5853915008385097
-  * (amp, tau) = 0.3252695552177528
+  * (tau, base) = -0.8977449234451829
+  * (amp, base) = -0.6119809148253581
+  * (amp, tau) = 0.37031966196212446
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000194+/-0.000006
-- χ²: 0.6128282425887828
+- value: 0.000199+/-0.000006
+- χ²: 0.9938771123723631
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -919,8 +919,8 @@ return the corresponding <code class="xref py py-class docutils literal notransl
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>exp_data.analysis_results(&quot;T1&quot;)
-exp_data.analysis_results(&quot;5813c985-dc75-4cd5-924f-4489c733fa81&quot;)
-exp_data.analysis_results(&quot;5813c985&quot;)
+exp_data.analysis_results(&quot;5de13558-3bb2-445c-8707-bc20dec76e01&quot;)
+exp_data.analysis_results(&quot;5de13558&quot;)
 </pre></div>
 </div>
 </div>
@@ -941,8 +941,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019378504573007335
-5.54645077320204e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019894846442459455
+5.583819894243376e-06
 </pre></div>
 </div>
 </div>
@@ -968,24 +968,24 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 11.030908366598089
- - reduced chi-square: 0.6128282425887828
- - Akaike info crit.: -7.520246327061473
- - Bayesian info crit.: -4.386679013891204
+ - chi-square: 17.889788022702536
+ - reduced chi-square: 0.9938771123723631
+ - Akaike info crit.: 2.6338598268078273
+ - Bayesian info crit.: 5.767427139978096
  - init params:
-  * amp = 0.9053658536585365
-  * tau = 0.0002361372285645017
-  * base = 0.06975609756097562
+  * amp = 0.895609756097561
+  * tau = 0.00022464633507625911
+  * base = 0.07073170731707316
  - fit params:
-  * amp = 0.9435329081759185 ± 0.008628892236024683
-  * tau = 0.00019378504573007335 ± 5.54645077320204e-06
-  * base = 0.037763936085277075 ± 0.007571455447323973
+  * amp = 0.9476449433154637 ± 0.008456056354344313
+  * tau = 0.00019894846442459455 ± 5.583819894243376e-06
+  * base = 0.02191974785739356 ± 0.007515063346582816
  - correlations:
-  * (tau, base) = -0.8900392996366762
-  * (amp, base) = -0.5853915008385097
-  * (amp, tau) = 0.3252695552177528
+  * (tau, base) = -0.8977449234451829
+  * (amp, base) = -0.6119809148253581
+  * (amp, tau) = 0.37031966196212446
 </pre></div>
 </div>
 </div>
@@ -1016,7 +1016,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 25, &#39;1&#39;: 999}, &#39;job_id&#39;: &#39;7c4a0825-bdc4-434e-8b33-aca1ff0f2a79&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 34, &#39;1&#39;: 990}, &#39;job_id&#39;: &#39;04cddd63-cbe9-4b6d-9e07-5ccb6af0c47d&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1030,7 +1030,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;physical_qubits&#39;: [0], &#39;device_components&#39;: [&lt;Qubit(Q0)&gt;], &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;, &#39;_source&#39;: {&#39;class&#39;: &#39;qiskit_experiments.framework.experiment_data.ExperimentData&#39;, &#39;metadata_version&#39;: 1, &#39;qiskit_version&#39;: {&#39;qiskit&#39;: &#39;0.46.0&#39;, &#39;qiskit-experiments&#39;: &#39;0.7.0&#39;}}}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;physical_qubits&#39;: [0], &#39;device_components&#39;: [&lt;Qubit(Q0)&gt;], &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;, &#39;_source&#39;: {&#39;class&#39;: &#39;qiskit_experiments.framework.experiment_data.ExperimentData&#39;, &#39;metadata_version&#39;: 1, &#39;qiskit_version&#39;: {&#39;qiskit&#39;: &#39;1.0.0&#39;, &#39;qiskit-experiments&#39;: &#39;0.7.0&#39;}}}
 </pre></div>
 </div>
 </div>
@@ -1079,7 +1079,7 @@ For example, see <a class="reference external" href="https://docs.quantum.ibm.co
 </section>
 <section id="transpile-options">
 <h3>Transpile options<a class="headerlink" href="#transpile-options" title="Link to this heading">#</a></h3>
-<p>These options are passed to the Qiskit <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/transpiler#module-qiskit.transpiler" title="(in Qiskit v0.46)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">transpiler</span></code></a> to transpile the experiment circuits
+<p>These options are passed to the Qiskit <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/transpiler#module-qiskit.transpiler" title="(in Qiskit v1.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">transpiler</span></code></a> to transpile the experiment circuits
 before execution:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -1096,7 +1096,7 @@ before execution:</p>
 </div>
 </div>
 </div>
-<p>Consult the documentation of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v0.46)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> for valid options.</p>
+<p>Consult the documentation of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v1.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> for valid options.</p>
 </section>
 <section id="experiment-options">
 <h3>Experiment options<a class="headerlink" href="#experiment-options" title="Link to this heading">#</a></h3>
@@ -1288,32 +1288,32 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 20
+ - number of function evals: 24
  - degree of freedom: 18
- - chi-square: 17.898925418801944
- - reduced chi-square: 0.9943847454889969
- - Akaike info crit.: 2.6445830578941094
- - Bayesian info crit.: 5.778150371064379
+ - chi-square: 20.764456053068105
+ - reduced chi-square: 1.1535808918371169
+ - Akaike info crit.: 5.76312511649529
+ - Bayesian info crit.: 8.89669242966556
  - init params:
-  * amp = 0.864390243902439
-  * tau = 0.00027118650316732034
-  * base = 0.11170731707317073
+  * amp = 0.8634146341463415
+  * tau = 0.0002717886121826526
+  * base = 0.1126829268292683
  - fit params:
-  * amp = 0.9930718245726285 ± 0.01351834171890958
-  * tau = 0.00027604544913724377 ± 1.0896827800628069e-05
-  * base = -0.00651469915616195 ± 0.015162875314532467
+  * amp = 0.9921622791216417 ± 0.01340833341689468
+  * tau = 0.0002746056611921962 ± 1.0792998425253204e-05
+  * base = -0.00452491115075445 ± 0.015028410736464277
  - correlations:
-  * (tau, base) = -0.9510831378472492
-  * (amp, base) = -0.8605461571342
-  * (amp, tau) = 0.7225643034662952
+  * (tau, base) = -0.9504058028365334
+  * (amp, base) = -0.8576733662762848
+  * (amp, tau) = 0.7177156306135922
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000276+/-0.000011
-- χ²: 0.9943847454889969
+- value: 0.000275+/-0.000011
+- χ²: 1.1535808918371169
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1329,49 +1329,49 @@ Component experiment 1
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 44
+ - number of function evals: 24
  - degree of freedom: 7
- - chi-square: 115.19596808387247
- - reduced chi-square: 16.45656686912464
- - Akaike info crit.: 30.440496553833164
- - Bayesian info crit.: 31.3482518328153
+ - chi-square: 6.2299403096819645
+ - reduced chi-square: 0.8899914728117092
+ - Akaike info crit.: 1.2678165864897792
+ - Bayesian info crit.: 2.175571865471917
  - init params:
-  * a = 0.7145618793864836
-  * alpha = 0.9820105680359694
+  * a = 0.7083640498170829
+  * alpha = 0.9830276728391942
   * b = 0.25
  - fit params:
-  * a = 0.82650950780451 ± 0.01622542604691633
-  * alpha = 0.9865841031063738 ± 0.0005589773062919365
-  * b = 0.1192449653549318 ± 0.019261233380950742
+  * a = 0.6946676390143295 ± 0.017736571137904104
+  * alpha = 0.981430507566321 ± 0.0009766712460702299
+  * b = 0.2643364171077993 ± 0.01918639182191658
  - correlations:
-  * (alpha, b) = -0.9865330640216059
-  * (a, b) = -0.9779275220232847
-  * (a, alpha) = 0.9344268614413468
-- quality: bad
+  * (a, b) = -0.9836878961201684
+  * (alpha, b) = -0.9790470515716795
+  * (a, alpha) = 0.9414084812009855
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9866+/-0.0006
-- χ²: 16.45656686912464
-- quality: bad
+- value: 0.9814+/-0.0010
+- χ²: 0.8899914728117092
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0101+/-0.0004
-- χ²: 16.45656686912464
-- quality: bad
+- value: 0.0139+/-0.0007
+- χ²: 0.8899914728117092
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.00644+/-0.00027
-- χ²: 16.45656686912464
-- quality: bad
+- value: 0.0093+/-0.0005
+- χ²: 0.8899914728117092
+- quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
@@ -1425,7 +1425,7 @@ into one level:</p>
   </thead>
   <tbody>
     <tr>
-      <th>1511d602</th>
+      <th>a1267384</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1437,7 +1437,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>86d26e76</th>
+      <th>41eb2f20</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1449,7 +1449,7 @@ into one level:</p>
       <td>0.932191</td>
     </tr>
     <tr>
-      <th>a25e154b</th>
+      <th>5a3f376a</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1461,7 +1461,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>de6e5423</th>
+      <th>4faa5077</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1530,7 +1530,7 @@ In this instance, the analysis will not generate a figure for the child experime
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/14</div>
+              Last updated on 2024/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1590,7 +1590,7 @@ In this instance, the analysis will not generate a figure for the child experime
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=dcdd07f1"></script>
+    <script src="../_static/documentation_options.js?v=2d479917"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
