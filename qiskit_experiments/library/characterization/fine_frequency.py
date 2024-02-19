@@ -72,7 +72,7 @@ class FineFrequency(BaseExperiment):
             exp.set_run_options(shots=1000, seed_simulator=199)
             print(exp.circuits()[3])
 
-        .. jupyter-execute:
+        .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
             result = exp_data.analysis_results()
