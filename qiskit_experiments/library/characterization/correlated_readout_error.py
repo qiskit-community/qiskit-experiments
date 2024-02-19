@@ -86,7 +86,7 @@ class CorrelatedReadoutError(BaseExperiment):
         .. jupyter-execute::
             # mwc
             from qiskit_experiments.library import CorrelatedReadoutError
- 
+
             qubits = [119,120]
             num_qubits = len(qubits)
             exp = CorrelatedReadoutError(physical_qubits=qubits, backend=backend)
@@ -95,14 +95,14 @@ class CorrelatedReadoutError(BaseExperiment):
 
             step1=False # run carefully if your device is a real one!
             if step1==True:
- 
+
                 exp_data = exp.run()
                 mitigator = exp_data.analysis_results(0).value
                 result=exp_data.analysis_results()
- 
+
                 for _ in result:
                     print(_)
- 
+
                 exp_data.figure(0)
 
             else:
