@@ -64,9 +64,9 @@ class FineFrequency(BaseExperiment):
 
             qubit=0
             repetitions = list(range(40))
-            exp = FineFrequency((qubit,), 
-                                delay_duration=320, 
-                                backend=backend, 
+            exp = FineFrequency((qubit,),
+                                delay_duration=320,
+                                backend=backend,
                                 repetitions=repetitions)
             exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
             exp.set_run_options(shots=1000, seed_simulator=199)
