@@ -99,7 +99,7 @@ class CorrelatedReadoutError(BaseExperiment):
                 exp_data = exp.run()
                 mitigator = exp_data.analysis_results(0).value
                 result=exp_data.analysis_results()
-  
+ 
                 for _ in result:
                     print(_)
  
@@ -108,7 +108,7 @@ class CorrelatedReadoutError(BaseExperiment):
             else:
                 pass
 
-            from qiskit_experiments.framework import ExperimentData             
+            from qiskit_experiments.framework import ExperimentData
             job_ids= ["cq863hp7fy8g008hsseg"] # retrieve your jobs
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
