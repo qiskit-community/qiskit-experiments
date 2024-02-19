@@ -1,3 +1,9 @@
+/* Wrap text of jupyter-sphinx output blocks */
+
+div.output pre{
+    white-space: pre-wrap;
+}
+
 /* Styling for pandas dataframes in documentation */
 
 div.output table {

@@ -79,12 +79,6 @@ and customizing the figure can be done by setting the plotter's options. We now 
 the color, symbols, and size of our plot, as well as change the axis labels for the amplitude units:
 
 .. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    %matplotlib inline
-
-.. jupyter-execute::
 
     # Retrieve the plotter from the analysis instance
     plotter = rabi.analysis.plotter
@@ -185,7 +179,7 @@ were styled differently according to the ``series_params`` attribute of ``figure
 
 By default, the supported figure options are ``xlabel``, ``ylabel``, ``xlim``, ``ylim``,
 ``xval_unit``, ``yval_unit``, ``xval_unit_scale``, ``yval_unit_scale``, ``xscale``, ``yscale``,
-``figure_title``, and ``series_params``; see `:class:.MplDrawer` for details on how to set these
+``figure_title``, and ``series_params``; see :class:`.MplDrawer` for details on how to set these
 options. The following T1 experiment provides examples to options that have not been demonstrated
 until now in this tutorial:
 
