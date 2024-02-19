@@ -51,7 +51,7 @@ class FineFrequency(BaseExperiment):
 
     # section: example
         .. jupyter-execute::
-            # :hide-code:
+            :hide-code:
 
             # backend
             from qiskit.providers.fake_provider import GenericBackendV2
