@@ -84,7 +84,7 @@ class CorrelatedReadoutError(BaseExperiment):
             backend = provider.get_backend("ibm_brisbane")
 
         .. jupyter-execute::
-            # mwc
+
             from qiskit_experiments.library import CorrelatedReadoutError
 
             qubits = [119,120]
@@ -99,7 +99,6 @@ class CorrelatedReadoutError(BaseExperiment):
                 exp_data = exp.run()
                 mitigator = exp_data.analysis_results(0).value
                 result=exp_data.analysis_results()
-
                 for _ in result:
                     print(_)
 
