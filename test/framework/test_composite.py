@@ -98,10 +98,10 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 2)
         # NOTE : At new implementation there will be inner child datas
         # so I changed it 0 to 2
-        
+
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
-        
+
         # NOTE: If I know true in our exp data there is no artifacts
         # so I deleted them
 
@@ -134,7 +134,7 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check right number of analysis results is returned
         self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
-        
+
         # NOTE: If I know true in our exp data there is no artifacts
         # so I deleted them
 
@@ -343,7 +343,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
-        
+
         # NOTE: I deleted this part because in new implementation
         # analysis require same len with child data .
 
@@ -366,7 +366,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
-        
+
         # NOTE: I deleted this part because in new implementation
         # analysis require same len with child data .
 
@@ -713,6 +713,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
     )
     def test_composite_count_memory_marginalization(self, memory):
         """Test the marginalization of level two memory."""
+
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
+
         test_data = ExperimentData()
 
         # Simplified experimental data
@@ -734,11 +738,15 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         }
 
         test_data.add_data(datum)
-        sub_data = [[inner_data] for data in test_data.data() for idx,inner_data in ExperimentData._decompose_component_data(data)]
+        sub_data = [
+            [inner_data]
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
         expected = [
             [
                 {
-                    "shots": 10, 
+                    "shots": 10,
                     "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
                     "counts": {"0": 6, "1": 4},
@@ -747,7 +755,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
             [
                 {
-                    "shots": 10, 
+                    "shots": 10,
                     "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
                     "counts": {"0": 5, "1": 5},
@@ -759,6 +767,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
     def test_composite_single_kerneled_memory_marginalization(self):
         """Test the marginalization of level 1 data."""
+
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
+
         test_data = ExperimentData()
 
         datum = {
@@ -790,8 +802,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         for itr in datas:
             idx, sub_data = next(itr)
             expected = {
-                "shots" : 5,
-                "meas_level" : 1,
+                "shots": 5,
+                "meas_level": 1,
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
                 "memory": [
                     [[idx + 0.0, idx + 0.0]],
@@ -805,6 +817,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
     def test_composite_avg_kerneled_memory_marginalization(self):
         """The the marginalization of level 1 averaged data."""
+
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
+
         test_data = ExperimentData()
 
         datum = {
@@ -830,7 +846,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         test_data.add_data(datum)
 
-        all_sub_data = [(idx,inner_data) for data in test_data.data() for idx,inner_data in ExperimentData._decompose_component_data(data)]
+        all_sub_data = [
+            (idx, inner_data)
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
 
         for idx, sub_data in all_sub_data:
             expected = {
@@ -997,3 +1017,127 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertExperimentDone(meta_expdata)
         job_ids = meta_expdata.job_ids
         self.assertEqual(len(job_ids), 2)
+
+
+class TestNewWorkflow(QiskitExperimentsTestCase):
+
+    """
+    #1268
+    """
+
+    def setUp(self):
+
+        super().setUp()
+
+        # NOTE: When I use setUp for calculating variables in
+        # exp_data disappear. I dont know why.
+
+        backend = FakeBackend()
+
+        exp1 = FakeExperiment([0])
+        exp2 = FakeExperiment([1])
+        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
+
+        exp3 = FakeExperiment([0])
+        exp4 = FakeExperiment([1])
+        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
+
+        # Set a batch experiment
+        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
+        self.exp_data = batch_exp.run(backend)
+
+    def test_new_workflow_is_done(self):
+
+        backend = FakeBackend()
+
+        exp1 = FakeExperiment([0])
+        exp2 = FakeExperiment([1])
+        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
+
+        exp3 = FakeExperiment([0])
+        exp4 = FakeExperiment([1])
+        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
+
+        # Set a batch experiment
+        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
+        exp_data = batch_exp.run(backend)
+
+        self.assertExperimentDone(exp_data)
+
+    def test_new_workflow_all_same(self):
+
+        data = [
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{}, {}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[], []],
+                        }
+                    ],
+                    "composite_index": [0],
+                }
+            },
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{}, {}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[], []],
+                        }
+                    ],
+                    "composite_index": [1],
+                },
+            }
+        ]
+        
+        
+        backend = FakeBackend()
+
+        exp1 = FakeExperiment([0])
+        exp2 = FakeExperiment([1])
+        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
+
+        exp3 = FakeExperiment([0])
+        exp4 = FakeExperiment([1])
+        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
+
+        # Set a batch experiment
+        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
+        exp_data = batch_exp.run(backend)
+        
+        for metadata,datum in zip(data,exp_data.data()):
+            self.assertTrue(metadata in datum)
+        
+    
+    def test_new_workflow_child_count(self):
+        
+        backend = FakeBackend()
+
+        exp1 = FakeExperiment([0])
+        exp2 = FakeExperiment([1])
+        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
+
+        exp3 = FakeExperiment([0])
+        exp4 = FakeExperiment([1])
+        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
+
+        # Set a batch experiment
+        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
+        exp_data = batch_exp.run(backend)
+        
+        for child in exp_data.child_data():
+
+            self.assertEqual(len(child.child_data()),2)
+            
+            for inner_child in child.child_data():
+                
+                self.assertEqual(len(inner_child.child_data()),0)
