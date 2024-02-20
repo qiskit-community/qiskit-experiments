@@ -241,7 +241,7 @@ you aren't using and update the contents for those you are. For example, the end
 should look something like:
 
 ```yaml
-features:
+features_expclass:
   - |
     Introduced a new feature foo that adds support for doing something to
     :class:`~qiskit.circuit.QuantumCircuit` objects. It can be used by using the foo function,
@@ -272,7 +272,10 @@ deprecations:
     :func:`qiskit.bar.foobar` calls to :func:`qiskit.foo`.
 ```
 
-You can also look at existing release notes for more examples.
+Note that we are using subsections within the `features`, `upgrade`, and `fixes` sections to
+organize the notes by functional area. We strongly encourage you to file your note under the most
+appropriate category. You can see the current list of categories in
+[release_notes/config.yaml](https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/releasenotes/config.yaml).
 
 You can use any restructured text feature in them (code sections, tables, enumerated
 lists, bulleted list, etc.) to express what is being changed as needed. In general, you
