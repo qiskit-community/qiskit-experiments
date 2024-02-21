@@ -142,14 +142,15 @@ class TestCurvePlotter(LoggingTestCase):
             fit_red_chi=3.0,
             primary_results=[test_result],
         )
+        # pylint: disable=anomalous-backslash-in-string
         self.assertDrawerAPICallEqual(
             plotter,
             expected=[
                 "Calling initialize_canvas",
                 "Calling scatter with x_data=[0, 1], y_data=[1, 1], x_err=None, y_err=None, "
                 "name='test', label=None, legend=True, options={'zorder': 1}",
-                r"Calling textbox with description='test =   1 ±  0.2\n"
-                r"reduced-$\chi^2$ =  3', rel_pos=None, options={}",
+                "Calling textbox with description='test =   1 ±  0.2\n"
+                "reduced-$\chi^2$ =  3', rel_pos=None, options={}",
                 "Calling format_canvas",
             ],
         )
