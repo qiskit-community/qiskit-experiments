@@ -25,7 +25,7 @@ jobs:
       - name: Build docs stable
         env:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
-        run: EXPERIMENTS_DEV_DOCS=1 PROD_BUILD=1 tox -e docs
+        run: PROD_BUILD=1 tox -e docs
       - name: Bypass Jekyll Processing # Necessary for setting the correct css path
         run: touch docs/_build/html/.nojekyll
       - name: Set current version
