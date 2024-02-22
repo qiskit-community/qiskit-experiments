@@ -513,7 +513,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         # if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it
         # wasn't calculated.
         residuals_model = [] if self.options.get("plot_residuals") else None
-        if res.success and self.options.get("plot_residuals"):
+        if res is not None and res.success and self.options.get("plot_residuals"):
             for weights in residual_weights_list:
                 if weights is not None:
                     residuals_model.append(
