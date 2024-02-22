@@ -101,7 +101,7 @@ frequency.
     for result in expdata1.analysis_results():
         print(result)
 
-If we would like to see the residual plot, we should set ``plot_residuals=True`` in
+To see the residual plot, set ``plot_residuals=True`` in
 the analysis options:
 
 .. jupyter-execute::
