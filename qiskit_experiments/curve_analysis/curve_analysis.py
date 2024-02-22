@@ -125,7 +125,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         self._models = models or []
         self._name = name or self.__class__.__name__
-        self._cache = {}
+        self._plot_config_cache = {}
 
     @property
     def name(self) -> str:
@@ -181,12 +181,16 @@ class CurveAnalysis(BaseCurveAnalysis):
         # check we have model to fit into
         if self.models:
             # Cache figure options.
-            self._cache["figure_options"] = {}
-            self._cache["figure_options"]["ylabel"] = self.plotter.figure_options.get("ylabel")
-            self._cache["figure_options"]["series_params"] = self.plotter.figure_options[
+            self._plot_config_cache["figure_options"] = {}
+            self._plot_config_cache["figure_options"]["ylabel"] = self.plotter.figure_options.get(
+                "ylabel"
+            )
+            self._plot_config_cache["figure_options"][
                 "series_params"
+            ] = self.plotter.figure_options["series_params"]
+            self._plot_config_cache["figure_options"]["sharey"] = self.plotter.figure_options[
+                "sharey"
             ]
-            self._cache["figure_options"]["sharey"] = self.plotter.figure_options["sharey"]
 
             self.plotter.set_figure_options(
                 ylabel=[
@@ -196,8 +200,6 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
             model_names = self.model_names()
             for model_name in model_names:
-                # Cache figure options.
-                self._cache[model_name] = {}
                 self.plotter.set_figure_options(
                     sharey=False,
                     series_params={
@@ -215,9 +217,11 @@ class CurveAnalysis(BaseCurveAnalysis):
                 )
 
             # Cache plotter options.
-            self._cache["plotter"] = {}
-            self._cache["plotter"]["subplots"] = self.plotter.options.get("subplots")
-            self._cache["plotter"]["style"] = self.plotter.options.get("style", PlotStyle({}))
+            self._plot_config_cache["plotter"] = {}
+            self._plot_config_cache["plotter"]["subplots"] = self.plotter.options.get("subplots")
+            self._plot_config_cache["plotter"]["style"] = self.plotter.options.get(
+                "style", PlotStyle({})
+            )
 
             # Here add the configuration for the residuals plot:
             self.plotter.set_options(
@@ -237,18 +241,21 @@ class CurveAnalysis(BaseCurveAnalysis):
         """set options for a single plot to its cached values."""
         if self.models:
             self.plotter.set_figure_options(
-                ylabel=self._cache["figure_options"]["ylabel"],
-                sharey=self._cache["figure_options"]["sharey"],
-                series_params=self._cache["figure_options"]["series_params"],
+                ylabel=self._plot_config_cache["figure_options"]["ylabel"],
+                sharey=self._plot_config_cache["figure_options"]["sharey"],
+                series_params=self._plot_config_cache["figure_options"]["series_params"],
             )
 
             # Here add the style_name so the plotter will know not to print the residual data.
             self.plotter.set_options(
-                subplots=self._cache["plotter"]["subplots"],
+                subplots=self._plot_config_cache["plotter"]["subplots"],
                 style=PlotStyle.merge(
-                    self._cache["plotter"]["style"], PlotStyle({"style_name": "canceled_residuals"})
+                    self._plot_config_cache["plotter"]["style"],
+                    PlotStyle({"style_name": "canceled_residuals"}),
                 ),
             )
+
+        self._plot_config_cache = {}
 
     def _run_data_processing(
         self,
@@ -470,10 +477,10 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             # adding weights to weights_list for residuals
             if self.options.get("plot_residuals"):
-                if weights_list is not None:
-                    residual_weights_list.append(weights_list)
-                else:
+                if weights_list is None:
                     residual_weights_list.append(None)
+                else:
+                    residual_weights_list.append(weights_list)
 
         # Run fit for each configuration
         res = None
@@ -513,17 +520,17 @@ class CurveAnalysis(BaseCurveAnalysis):
         # if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it
         # wasn't calculated.
         residuals_model = [] if self.options.get("plot_residuals") else None
-        if res is not None and res.success and self.options.get("plot_residuals"):
+        if res and res.success and self.options.get("plot_residuals"):
             for weights in residual_weights_list:
-                if weights is not None:
+                if weights is None:
+                    residuals_model.append(res.residual)
+                else:
                     residuals_model.append(
                         [
                             weighted_res / np.abs(weight)
                             for weighted_res, weight in zip(res.residual, weights)
                         ]
                     )
-                else:
-                    residuals_model.append(res.residual)
 
         if residuals_model is not None:
             residuals_model = np.array(residuals_model)
