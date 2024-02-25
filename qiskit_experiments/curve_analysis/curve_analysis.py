@@ -206,11 +206,17 @@ class CurveAnalysis(BaseCurveAnalysis):
                         **self.plotter.figure_options["series_params"],
                         **{
                             model_name: {
-                                "canvas": 0,
+                                **{
+                                    "canvas": 0,
+                                },
+                                **self.plotter.figure_options["series_params"].get(model_name, {}),
                             },
                             model_name
                             + "_residuals": {
-                                "canvas": 1,
+                                **{
+                                    "canvas": 1,
+                                },
+                                **self.plotter.figure_options["series_params"].get(model_name, {}),
                             },
                         },
                     },
@@ -223,17 +229,28 @@ class CurveAnalysis(BaseCurveAnalysis):
                 "style", PlotStyle({})
             )
 
+            # removing the name from the plotter style, so it will not clash with the new name
+            previous_plotter_style = self._plot_config_cache["plotter"]["style"].copy()
+            previous_plotter_style.pop("style_name", "")
+
+            # creating new fig size base on previous size
+            new_figsize = self.plotter.drawer.options.get("figsize", (8, 5))
+            new_figsize = (new_figsize[0], round(new_figsize[1] * (10 / 5)))
+
             # Here add the configuration for the residuals plot:
             self.plotter.set_options(
                 subplots=(2, 1),
-                style=PlotStyle(
-                    {
-                        "figsize": (8, 8),
-                        "textbox_rel_pos": (0.28, -0.10),
-                        "sub_plot_heights_list": [7 / 10, 3 / 10],
-                        "sub_plot_widths_list": [1],
-                        "style_name": "residuals",
-                    }
+                style=PlotStyle.merge(
+                    PlotStyle(
+                        {
+                            "figsize": new_figsize,
+                            "textbox_rel_pos": (0.28, -0.10),
+                            "sub_plot_heights_list": [7 / 10, 3 / 10],
+                            "sub_plot_widths_list": [1],
+                            "style_name": "residuals",
+                        }
+                    ),
+                    previous_plotter_style,
                 ),
             )
 
