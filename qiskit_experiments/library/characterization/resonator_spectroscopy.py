@@ -82,18 +82,45 @@ class ResonatorSpectroscopy(Spectroscopy):
             may not properly reflect the properties of the readout resonator.
 
     # section: example
+        .. jupyter-execute::
+            :hide-code:
 
-        The resonator spectroscopy experiment can be run by doing:
+            # backend
+            from qiskit_ibm_provider import IBMProvider
+            INSTANCE="ibm-q/open/main"
+            provider = IBMProvider(instance=INSTANCE)
+            backend = provider.get_backend("ibm_kyoto")
 
-        .. code:: python
+        .. jupyter-execute::
 
-            qubit = 1
-            spec = ResonatorSpectroscopy([qubit], backend)
-            exp_data = spec.run().block_for_results()
+            import numpy as np
+            from qiskit_experiments.library.characterization import ResonatorSpectroscopy
+
+            qubit = 13
+            exp = ResonatorSpectroscopy(physical_qubits = (qubit,), backend = backend)
+            exp.set_run_options(shots=1000, seed_simulator=119)
+            print(exp.circuits()[0])
+
+            step1=False  # run carefully if your backend is a real device
+            if step1==True:
+                exp_data = exp.run().block_for_results()
+                result = exp_data.analysis_results()
+                exp_data.figure(0)
+
+            else:
+                pass
+
+            # retrieve your jobs
+            from qiskit_experiments.framework import ExperimentData
+
+            job_ids= ["cq80v7wf1wdg0086g60g"] # List of job IDs for the experiment
+            exp_data = ExperimentData(experiment=exp)
+            exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+            exp.analysis.run(exp_data)
+            exp_data.block_for_results()
+            result = exp_data.analysis_results()
+
             exp_data.figure(0)
-
-        This will measure the resonator attached to qubit 1 and report the resonance frequency
-        as well as the kappa, i.e. the line width, of the resonator.
 
     # section: analysis_ref
         :class:`ResonatorSpectroscopyAnalysis`
