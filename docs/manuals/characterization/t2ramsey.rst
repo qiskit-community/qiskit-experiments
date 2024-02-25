@@ -101,21 +101,6 @@ frequency.
     for result in expdata1.analysis_results():
         print(result)
 
-To see the residual plot, set ``plot_residuals=True`` in
-the analysis options:
-
-.. jupyter-execute::
-
-    # Set to ``True`` analysis option for residual plot
-    exp1.analysis.set_options(plot_residuals=True)
-
-    # Run experiment
-    expdata1 = exp1.run(backend=backend, shots=2000, seed_simulator=101)
-    expdata1.block_for_results()  # Wait for job/analysis to finish.
-
-    # Display the figure
-    display(expdata1.figure(0))
-
 
 Providing initial user estimates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

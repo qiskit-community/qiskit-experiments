@@ -105,6 +105,20 @@ Plotters have two sets of options that customize their behavior and figure conte
 and ``figure_options``, which have figure-specific parameters that control aspects of the
 figure itself, such as axis labels and series colors.
 
+To see the residual plot, set ``plot_residuals=True`` in the analysis options:
+
+.. jupyter-execute::
+
+    # Set to ``True`` analysis option for residual plot
+    rabi.analysis.set_options(plot_residuals=True)
+
+    # Run experiment
+    rabi_data = rabi.run().block_for_results()
+    rabi_data.figure(0)
+
+
+This option works for experiments without subplots in their figures.
+
 Here is a more complicated experiment in which we customize the figure of a DRAG
 experiment before it's run, so that we don't need to regenerate the figure like in 
 the previous example. First, we run the experiment without customizing the options
