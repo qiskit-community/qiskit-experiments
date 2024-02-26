@@ -167,8 +167,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
             # retrieve your jobs
             from qiskit_experiments.framework import ExperimentData
-            #job_ids= ["cnvwmx38ybr000846y6g"] # case: shots=100
-            #job_ids= ["cnvwv2c8ybr000846yz0"] # case: shots=1000
 
             job_ids= ["cqccf2wqgrzg008cz3dg"]
             exp_data = ExperimentData(experiment=exp)
