@@ -69,7 +69,10 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
             ]
         )
         self._physical_qubits = physical_qubits
-        self.set_options(outcome="0" * len(physical_qubits))
+        self.set_options(
+            outcome="0" * len(physical_qubits),
+            figure_names="DirectRB_Q" + "_Q".join(map(str, physical_qubits)) + ".svg",
+        )
         self.plotter.set_figure_options(
             figure_title=f"Simultaneous Direct RB on Qubit{physical_qubits}",
         )

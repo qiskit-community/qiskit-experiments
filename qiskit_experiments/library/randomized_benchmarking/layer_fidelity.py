@@ -84,9 +84,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         Args:
             physical_qubits: List of physical qubits for the experiment.
             two_qubit_layers: List of pairs of qubits to run on, will use the direction given here.
-            lengths: A list of RB sequences lengths.
+            lengths: A list of layer lengths.
             backend: The backend to run the experiment on.
-            num_samples: Number of samples to generate for each sequence length.
+            num_samples: Number of samples to generate for each layer length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:`circuits` is called.
@@ -174,8 +174,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
 
         Experiment Options:
             two_qubit_layers (List[List[Tuple[int, int]]]): List of pairs of qubits to run on.
-            lengths (List[int]): A list of RB sequences lengths.
-            num_samples (int): Number of samples to generate for each sequence length.
+            lengths (List[int]): A list of layer lengths.
+            num_samples (int): Number of samples to generate for each layer length.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value every time
