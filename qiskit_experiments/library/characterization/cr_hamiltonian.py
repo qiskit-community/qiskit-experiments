@@ -141,12 +141,12 @@ class CrossResonanceHamiltonian(BaseExperiment):
             exp=CrossResonanceHamiltonian(physical_qubits=qubits, backend=backend)
 
             exp.set_experiment_options(
-                                   min_durations=1.0e-07, 
-                                   max_durations=1.2e-06, 
-                                   num_durations=48, 
-                                   amp=0.2024212826036257, 
-                                   amp_t=0.0, 
-                                   sigma=30, 
+                                   min_durations=1.0e-07,
+                                   max_durations=1.2e-06,
+                                   num_durations=48,
+                                   amp=0.2024212826036257,
+                                   amp_t=0.0,
+                                   sigma=30,
                                    risefall=2)
             exp.set_run_options(shots=1000)
             print(exp.circuits()[0])
