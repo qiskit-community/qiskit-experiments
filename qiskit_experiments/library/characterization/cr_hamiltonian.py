@@ -593,10 +593,10 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
                 exp_data.figure(0)
 
             else:
-                pass 
+                pass
 
             # retrieve your jobs
-            from qiskit_experiments.framework import ExperimentData 
+            from qiskit_experiments.framework import ExperimentData
 
             job_ids= ["cnwbhqe5vh500087x5fg"]
             exp_data = ExperimentData(experiment=exp)
