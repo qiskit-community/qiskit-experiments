@@ -737,6 +737,8 @@ class ExperimentData:
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
 
+    #
+
     def _add_canonical_dict_data(self, data: dict):
         """A common subroutine to store result dictionary in canonical format.
 
@@ -749,17 +751,26 @@ class ExperimentData:
             composite_index = data["metadata"]["composite_index"]
             max_index = max(composite_index)
             with self._child_data.lock:
-                self.create_child_data(max_index)
-            for idx, sub_data in self._decompose_component_data(data):
-                self.child_data(idx).add_data(sub_data)
+                self.create_child_data(max_index,data)
                 
         with self._result_data.lock:
             self._result_data.append(data)
 
-    def create_child_data(self,max_index:int):
+    @property
+    def __retrive_self_attrs_as_dict(self) -> dict:
+
+        return {"backend" : self.backend,"tags":self.tags,
+                "share_level":self.share_level,"auto_save": self.auto_save,
+                "service":self.service,"provider":self.provider,
+                "hgp":self.hgp,"backed_name":self.backend_name,
+                "notes":self.notes,"figure_names":self.figure_names,
+                "job_ids":self.job_ids,"provider":self.provider,
+                "start_datetime":self.start_datetime,"verbose":self.verbose}
+
+    def create_child_data(self,max_index:int, data:dict = False):
         
         while (new_idx := len(self._child_data)) <= max_index:
-            child_data = ExperimentData(backend=self.backend)
+            child_data = ExperimentData(**self.__retrive_self_attrs)
             # Add automatically generated component experiment metadata
             try:
                 component_metadata = self.metadata["component_metadata"][new_idx].copy()
@@ -772,6 +783,10 @@ class ExperimentData:
             except (KeyError, IndexError):
                 pass
             self.add_child_data(child_data)
+
+        if data:
+            for idx, sub_data in self._decompose_component_data(data):
+                self.child_data(idx).add_data(sub_data)
         
 
     @staticmethod
