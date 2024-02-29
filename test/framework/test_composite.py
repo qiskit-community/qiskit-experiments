@@ -1019,7 +1019,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertEqual(len(job_ids), 2)
 
 
-class TestNewWorkflow(QiskitExperimentsTestCase):
+class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
     """
     #1268
@@ -1046,25 +1046,7 @@ class TestNewWorkflow(QiskitExperimentsTestCase):
         batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
         self.exp_data = batch_exp.run(backend)
 
-    def test_new_workflow_is_done(self):
-
-        backend = FakeBackend()
-
-        exp1 = FakeExperiment([0])
-        exp2 = FakeExperiment([1])
-        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
-
-        exp3 = FakeExperiment([0])
-        exp4 = FakeExperiment([1])
-        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
-
-        # Set a batch experiment
-        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend)
-
-        self.assertExperimentDone(exp_data)
-
-    def test_new_workflow_all_same(self):
+    def test_outermost_container_keep_composite_data(self):
 
         data = [
             {
@@ -1118,7 +1100,7 @@ class TestNewWorkflow(QiskitExperimentsTestCase):
             self.assertTrue(metadata in datum)
         
     
-    def test_new_workflow_child_count(self):
+    def test_experiment_data_bootstrap_child(self):
         
         backend = FakeBackend()
 
@@ -1132,7 +1114,8 @@ class TestNewWorkflow(QiskitExperimentsTestCase):
 
         # Set a batch experiment
         batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend)
+        exp_data = batch_exp.run(backend, analysis=None)  
+        self.assertExperimentDone(exp_data)
         
         for child in exp_data.child_data():
 
