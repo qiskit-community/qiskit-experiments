@@ -19,6 +19,7 @@ from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 from unittest import mock
 from ddt import ddt, data
+import pandas as pd
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
@@ -27,6 +28,7 @@ from qiskit_aer import AerSimulator, noise
 
 from qiskit_ibm_experiment import IBMExperimentService
 
+from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.fake_backend import FakeBackend
@@ -1024,103 +1026,171 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
     """
     #1268
     """
-
-    def setUp(self):
-
-        super().setUp()
-
-        # NOTE: When I use setUp for calculating variables in
-        # exp_data disappear. I dont know why.
-
-        backend = FakeBackend()
-
-        exp1 = FakeExperiment([0])
-        exp2 = FakeExperiment([1])
-        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
-
-        exp3 = FakeExperiment([0])
-        exp4 = FakeExperiment([1])
-        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
-
-        # Set a batch experiment
-        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
-        self.exp_data = batch_exp.run(backend)
-
-    def test_outermost_container_keep_composite_data(self):
-
-        data = [
-            {
-                "metadata": {
-                    "experiment_type": "BatchExperiment",
-                    "composite_metadata": [
-                        {
-                            "experiment_type": "ParallelExperiment",
-                            "composite_index": [0, 1],
-                            "composite_metadata": [{}, {}],
-                            "composite_qubits": [[0], [1]],
-                            "composite_clbits": [[], []],
-                        }
-                    ],
-                    "composite_index": [0],
-                }
-            },
-            {
-                "metadata": {
-                    "experiment_type": "BatchExperiment",
-                    "composite_metadata": [
-                        {
-                            "experiment_type": "ParallelExperiment",
-                            "composite_index": [0, 1],
-                            "composite_metadata": [{}, {}],
-                            "composite_qubits": [[0], [1]],
-                            "composite_clbits": [[], []],
-                        }
-                    ],
-                    "composite_index": [1],
-                },
-            }
-        ]
-        
-        
-        backend = FakeBackend()
-
-        exp1 = FakeExperiment([0])
-        exp2 = FakeExperiment([1])
-        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
-
-        exp3 = FakeExperiment([0])
-        exp4 = FakeExperiment([1])
-        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
-
-        # Set a batch experiment
-        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend)
-        
-        for metadata,datum in zip(data,exp_data.data()):
-            self.assertTrue(metadata in datum)
-        
     
     def test_experiment_data_bootstrap_child(self):
         
-        backend = FakeBackend()
+        class TestAnalysis(BaseAnalysis):
 
-        exp1 = FakeExperiment([0])
-        exp2 = FakeExperiment([1])
-        par_exp1 = ParallelExperiment([exp1, exp2], flatten_results=True)
-
-        exp3 = FakeExperiment([0])
-        exp4 = FakeExperiment([1])
-        par_exp2 = ParallelExperiment([exp3, exp4], flatten_results=True)
-
-        # Set a batch experiment
-        batch_exp = BatchExperiment([par_exp1, par_exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend, analysis=None)  
-        self.assertExperimentDone(exp_data)
-        
-        for child in exp_data.child_data():
-
-            self.assertEqual(len(child.child_data()),2)
-            
-            for inner_child in child.child_data():
+            def _run_analysis(self, experiment_data):
+                results = []
                 
-                self.assertEqual(len(inner_child.child_data()),0)
+                for datum in experiment_data.data():
+                    results.append(
+                        AnalysisResultData(
+                            name="p1",
+                            value=datum["counts"].get("1", 0) / 1000,
+                            extra={"test_val": datum.get("test_val", None)},
+                        )
+                    )
+                return results, []
+
+        mock_data = [
+            # Batch element0, Two parallel instances for q0, q1
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{"test_val": 1}, {"test_val": 2}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[0], [1]],
+                        }
+                    ],
+                    "composite_index": [0],
+                },
+                "counts": {"00": 100, "01": 200, "10": 300, "11": 400},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+            # Batch element0, Two parallel instances for q0, q1
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{"test_val": 3}, {"test_val": 4}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[0], [1]],
+                        }
+                    ],
+                    "composite_index": [0],
+                },
+                "counts": {"00": 200, "01": 200, "10": 300, "11": 300},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+            # Batch element1, One instance for q2
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [{"test_val": 5}],
+                    "composite_index": [1],
+                },
+                "counts": {"0": 100, "1": 900},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+        ]
+
+        ## Test
+
+        ref_q0_0 = {
+            "shots": 1000, 
+            "meas_level": 2, 
+            "metadata": {"test_val": 1}, 
+            "counts": {"1": 600, "0": 400},
+        }
+        ref_q0_1 = {
+            "shots": 1000, 
+            "meas_level": 2, 
+            "metadata": {"test_val": 3}, 
+            "counts": {"1": 500, "0": 500},
+        }
+        ref_q1_0 = {
+            "shots": 1000, 
+            "meas_level": 2, 
+            "metadata": {"test_val": 2}, 
+            "counts": {"1": 700, "0": 300},
+        }
+        ref_q1_1 = {
+            "shots": 1000, 
+            "meas_level": 2, 
+            "metadata": {"test_val": 4}, 
+            "counts": {"1": 600, "0": 400},
+        }
+        ref_q2_0 = {
+            "shots": 1000, 
+            "meas_level": 2, 
+            "metadata": {"test_val": 5}, 
+            "counts": {"0": 100, "1": 900},
+        }
+
+
+        exp_data = ExperimentData()
+        
+        exp_data.metadata.update(
+            {
+                "component_types": ["ParallelExperiment", "SomeExperiment2"],
+                "component_metadata": [
+                    {
+                        "component_types": ["SomeExperiment1", "SomeExperiment1"],
+                        "component_metadata": [
+                            {
+                                "physical_qubits": [0],
+                                "device_components": [Qubit(0)],
+                            },                
+                            {
+                                "physical_qubits": [1],
+                                "device_components": [Qubit(1)],
+                            },         
+                        ],
+                    },
+                    {
+                        "physical_qubits": [2],
+                        "device_components": [Qubit(2)],
+                    },
+                ],
+            }
+        )
+        
+        exp_data.add_data(mock_data)
+        
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(0).data(), 
+            [ref_q0_0, ref_q0_1],
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(1).data(), 
+            [ref_q2_0],
+        )
+        
+
+        composite_analysis = CompositeAnalysis(
+            [
+                CompositeAnalysis([TestAnalysis(), TestAnalysis()],
+                                  flatten_results=True),
+                TestAnalysis(),
+            ],
+            flatten_results=True,
+        )
+
+        exp_data = composite_analysis.run(exp_data, replace_results=True)
+
+        test_data = exp_data.analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+
+        ref_data = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1", "p1", "p1", "p1"],
+                "experiment": ["SomeExperiment1", "SomeExperiment1", "SomeExperiment1", "SomeExperiment1", "SomeExperiment2"],
+                "components": [[Qubit(0)], [Qubit(0)], [Qubit(1)], [Qubit(1)], [Qubit(2)]],
+                "value": [0.6, 0.5, 0.7, 0.6, 0.9],
+            }
+        )
+
+        for (_, test), (_, ref) in zip(test_data.iterrows(), ref_data.iterrows()):
+            self.assertTrue(test.equals(ref))
