@@ -731,30 +731,18 @@ class ExperimentData:
         # Directly add non-job data
         for datum in data:
             if isinstance(datum, dict):
-                self._add_canonical_dict_data(datum)
+                if "metadata" in datum and "composite_metadata" in datum["metadata"]:
+                    composite_index = datum["metadata"]["composite_index"]
+                    max_index = max(composite_index)
+                    with self._child_data.lock:
+                        self.create_child_data(max_index,datum)
+                        
+                with self._result_data.lock:
+                    self._result_data.append(datum)
             elif isinstance(datum, Result):
                 self._add_result_data(datum)
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
-
-    #
-
-    def _add_canonical_dict_data(self, data: dict):
-        """A common subroutine to store result dictionary in canonical format.
-
-        Args:
-            data: A single formatted entry of experiment results.
-                ExperimentData expects this data dictionary to include keys such as
-                metadata, counts, memory and so forth.
-        """
-        if "metadata" in data and "composite_metadata" in data["metadata"]:
-            composite_index = data["metadata"]["composite_index"]
-            max_index = max(composite_index)
-            with self._child_data.lock:
-                self.create_child_data(max_index,data)
-                
-        with self._result_data.lock:
-            self._result_data.append(data)
 
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
@@ -770,7 +758,7 @@ class ExperimentData:
     def create_child_data(self,max_index:int, data:dict = False):
         
         while (new_idx := len(self._child_data)) <= max_index:
-            child_data = ExperimentData(**self.__retrive_self_attrs)
+            child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
             try:
                 component_metadata = self.metadata["component_metadata"][new_idx].copy()
@@ -1127,7 +1115,7 @@ class ExperimentData:
             data["meas_level"] = expr_result.meas_level
             if hasattr(expr_result, "meas_return"):
                 data["meas_return"] = expr_result.meas_return
-            self._add_canonical_dict_data(data)
+            self.add_data(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
