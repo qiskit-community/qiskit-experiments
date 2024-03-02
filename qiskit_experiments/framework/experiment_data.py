@@ -776,6 +776,8 @@ class ExperimentData:
             for idx, sub_data in self._decompose_component_data(data):
                 self.child_data(idx).add_data(sub_data)
         
+        return self
+        
 
     @staticmethod
     def _decompose_component_data(
