@@ -214,9 +214,9 @@ class CurveAnalysis(BaseCurveAnalysis):
             # Cache plotter options.
             self._plot_config_cache["plotter"] = {}
             self._plot_config_cache["plotter"]["subplots"] = self.plotter.options.get("subplots")
-            self._plot_config_cache["plotter"]["style"] = self.plotter.options.get(
+            self._plot_config_cache["plotter"]["style"] = deepcopy(self.plotter.options.get(
                 "style", PlotStyle({})
-            ).copy()
+            ))
 
             # removing the name from the plotter style, so it will not clash with the new name
             previous_plotter_style = self._plot_config_cache["plotter"]["style"].copy()
