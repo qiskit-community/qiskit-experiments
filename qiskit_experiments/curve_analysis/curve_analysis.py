@@ -20,7 +20,7 @@ import warnings
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 
-
+from copy import deepcopy
 import lmfit
 import numpy as np
 import pandas as pd
@@ -179,18 +179,19 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _add_residuals_plot_config(self):
         """Configure plotter options for residuals plot."""
         # check we have model to fit into
+        residual_plot_y_axis_size = 3
         if self.models:
             # Cache figure options.
             self._plot_config_cache["figure_options"] = {}
             self._plot_config_cache["figure_options"]["ylabel"] = self.plotter.figure_options.get(
                 "ylabel"
             )
-            self._plot_config_cache["figure_options"][
-                "series_params"
-            ] = self.plotter.figure_options["series_params"]
-            self._plot_config_cache["figure_options"]["sharey"] = self.plotter.figure_options[
+            self._plot_config_cache["figure_options"]["series_params"] = deepcopy(
+                self.plotter.figure_options.get("series_params")
+            )
+            self._plot_config_cache["figure_options"]["sharey"] = self.plotter.figure_options.get(
                 "sharey"
-            ]
+            )
 
             self.plotter.set_figure_options(
                 ylabel=[
@@ -198,36 +199,24 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "Residuals",
                 ],
             )
+
             model_names = self.model_names()
+            series_params = self.plotter.figure_options["series_params"]
             for model_name in model_names:
-                self.plotter.set_figure_options(
-                    sharey=False,
-                    series_params={
-                        **self.plotter.figure_options["series_params"],
-                        **{
-                            model_name: {
-                                **{
-                                    "canvas": 0,
-                                },
-                                **self.plotter.figure_options["series_params"].get(model_name, {}),
-                            },
-                            model_name
-                            + "_residuals": {
-                                **{
-                                    "canvas": 1,
-                                },
-                                **self.plotter.figure_options["series_params"].get(model_name, {}),
-                            },
-                        },
-                    },
-                )
+                if series_params.get(model_name, {}):
+                    series_params[model_name]["canvas"] = 0
+                else:
+                    series_params[model_name] = {"canvas": 0}
+                series_params[model_name + "_residuals"] = series_params[model_name].copy()
+                series_params[model_name + "_residuals"]["canvas"] = 1
+            self.plotter.set_figure_options(sharey=False, series_params=series_params)
 
             # Cache plotter options.
             self._plot_config_cache["plotter"] = {}
             self._plot_config_cache["plotter"]["subplots"] = self.plotter.options.get("subplots")
             self._plot_config_cache["plotter"]["style"] = self.plotter.options.get(
                 "style", PlotStyle({})
-            )
+            ).copy()
 
             # removing the name from the plotter style, so it will not clash with the new name
             previous_plotter_style = self._plot_config_cache["plotter"]["style"].copy()
@@ -235,7 +224,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             # creating new fig size based on previous size
             new_figsize = self.plotter.drawer.options.get("figsize", (8, 5))
-            new_figsize = (new_figsize[0], round(new_figsize[1] * (10 / 5)))
+            new_figsize = (new_figsize[0], new_figsize[1] + residual_plot_y_axis_size)
 
             # Here add the configuration for the residuals plot:
             self.plotter.set_options(
