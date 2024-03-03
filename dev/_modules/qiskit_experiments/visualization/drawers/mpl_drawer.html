@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.6.0-7-g6845440b</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-7-g6845440b</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-7-g6845440b</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -671,17 +671,55 @@
             <span class="c1"># especially when the analysis consists of multiple curves.</span>
             <span class="c1"># Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.</span>
             <span class="c1"># This draws inset axes with shared x and y axis.</span>
-            <span class="n">inset_ax_h</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_rows</span>
-            <span class="n">inset_ax_w</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_cols</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_rows</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;custom_style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;residuals&quot;</span>
+                <span class="ow">and</span> <span class="n">n_subplots</span> <span class="o">!=</span> <span class="mi">2</span>
+            <span class="p">):</span>
+                <span class="c1"># raising an error for residual plotting that isn&#39;t on individual plot per figure.</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                    <span class="s2">&quot;Residual plots and residual plotting style is supported for &quot;</span>
+                    <span class="s2">&quot;figures with one sub-plot only.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">inset_ax_h_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;sub_plot_heights_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_rows</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_rows</span>
+            <span class="p">)</span>
+            <span class="n">inset_ax_w_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;sub_plot_widths_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_cols</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cols</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Check that the heights and widths are lists.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset_ax_h_list</span><span class="p">,</span> <span class="n">List</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset_ax_w_list</span><span class="p">,</span> <span class="n">List</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                    <span class="s2">&quot;Sub-plots heights and widths list need to be a list of floats that sum&quot;</span>
+                    <span class="s2">&quot; up to 1&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># adding a check for correct sizes of subplots.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">inset_ax_h_list</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">inset_ax_w_list</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                    <span class="s2">&quot;The subplots aren&#39;t covering all the figure. &quot;</span>
+                    <span class="s2">&quot;Check subplots heights and widths configurations.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># setting the row tracker.</span>
+            <span class="n">sum_heights</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inset_ax_h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inset_ax_h_list</span><span class="p">):</span>
+                <span class="c1"># updating row tracker.</span>
+                <span class="n">sum_heights</span> <span class="o">+=</span> <span class="n">inset_ax_h</span>
+
+                <span class="c1"># setting column tracker.</span>
+                <span class="n">sum_widths</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">inset_ax_w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inset_ax_w_list</span><span class="p">):</span>
                     <span class="c1"># x0, y0, width, height</span>
                     <span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">inset_ax_w</span> <span class="o">*</span> <span class="n">j</span><span class="p">,</span>
-                        <span class="mi">1</span> <span class="o">-</span> <span class="n">inset_ax_h</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="n">sum_widths</span><span class="p">,</span>
+                        <span class="mi">1</span> <span class="o">-</span> <span class="n">sum_heights</span><span class="p">,</span>
                         <span class="n">inset_ax_w</span><span class="p">,</span>
                         <span class="n">inset_ax_h</span><span class="p">,</span>
                     <span class="p">]</span>
+
                     <span class="n">sub_ax</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">axis</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">sharey</span><span class="p">:</span>
                         <span class="c1"># remove y axis except for most-left plot</span>
@@ -709,6 +747,9 @@
                         <span class="c1"># Set label size for outer axes where labels are drawn</span>
                         <span class="n">sub_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;tick_label_size&quot;</span><span class="p">])</span>
                     <span class="n">sub_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+                    <span class="c1"># updating where we are on the grid.</span>
+                    <span class="n">sum_widths</span> <span class="o">+=</span> <span class="n">inset_ax_w</span>
 
             <span class="c1"># Remove original axis frames</span>
             <span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
@@ -900,6 +941,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Default color available in matplotlib.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;custom_style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;residuals&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;_residuals&quot;</span><span class="p">)]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;_residuals&quot;</span><span class="p">)]</span>
+
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
@@ -1282,7 +1327,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/19</div>
+              Last updated on 2024/03/03</div>
           </div>
           <div class="right-details">
             
@@ -1299,7 +1344,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=2d479917"></script>
+    <script src="../../../../_static/documentation_options.js?v=d0e6df56"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

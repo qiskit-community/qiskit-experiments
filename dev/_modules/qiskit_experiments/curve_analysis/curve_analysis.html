@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.curve_analysis.curve_analysis - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>qiskit_experiments.curve_analysis.curve_analysis - Qiskit Experiments 0.6.0-7-g6845440b</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-7-g6845440b</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-7-g6845440b</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -596,6 +596,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">lmfit</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -607,6 +608,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework.containers</span> <span class="kn">import</span> <span class="n">FigureType</span><span class="p">,</span> <span class="n">ArtifactData</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.exceptions</span> <span class="kn">import</span> <span class="n">DataProcessorError</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="n">PlotStyle</span>
 
 <span class="kn">from</span> <span class="nn">.base_curve_analysis</span> <span class="kn">import</span> <span class="n">BaseCurveAnalysis</span><span class="p">,</span> <span class="n">DATA_ENTRY_PREFIX</span><span class="p">,</span> <span class="n">PARAMS_ENTRY_PREFIX</span>
 <span class="kn">from</span> <span class="nn">.curve_data</span> <span class="kn">import</span> <span class="n">FitOptions</span><span class="p">,</span> <span class="n">CurveFitResult</span>
@@ -701,6 +703,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="n">models</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -728,6 +731,121 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return model names.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">)]</span></div>
 
+
+<div class="viewcode-block" id="CurveAnalysis.set_options">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.set_options">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis options for :meth:`run` method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fields: The fields to update the options</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: When removed option ``curve_fitter`` is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+            <span class="c1"># checking there are no subplots for the figure to prevent collision in subplot indices.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subplots&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Residuals plotting is currently supported for analysis with 1 subplot.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_residuals_plot_config</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_residuals_plot_config</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_add_residuals_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure plotter options for residuals plot.&quot;&quot;&quot;</span>
+        <span class="c1"># check we have model to fit into</span>
+        <span class="n">residual_plot_y_axis_size</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="c1"># Cache figure options.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;ylabel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;ylabel&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;series_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series_params&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;sharey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;sharey&quot;</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+                <span class="n">ylabel</span><span class="o">=</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ylabel&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;Residuals&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="n">model_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_names</span><span class="p">()</span>
+            <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="p">[</span><span class="s2">&quot;series_params&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;canvas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;canvas&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span><span class="p">][</span><span class="s2">&quot;canvas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">series_params</span><span class="o">=</span><span class="n">series_params</span><span class="p">)</span>
+
+            <span class="c1"># Cache plotter options.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;subplots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subplots&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="n">PlotStyle</span><span class="p">({}))</span>
+            <span class="p">)</span>
+
+            <span class="c1"># removing the name from the plotter style, so it will not clash with the new name</span>
+            <span class="n">previous_plotter_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">previous_plotter_style</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># creating new fig size based on previous size</span>
+            <span class="n">new_figsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">new_figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_figsize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_figsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">residual_plot_y_axis_size</span><span class="p">)</span>
+
+            <span class="c1"># Here add the configuration for the residuals plot:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
+                <span class="n">subplots</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">PlotStyle</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="n">new_figsize</span><span class="p">,</span>
+                            <span class="s2">&quot;textbox_rel_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.28</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.10</span><span class="p">),</span>
+                            <span class="s2">&quot;sub_plot_heights_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">10</span><span class="p">],</span>
+                            <span class="s2">&quot;sub_plot_widths_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="s2">&quot;style_name&quot;</span><span class="p">:</span> <span class="s2">&quot;residuals&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">),</span>
+                    <span class="n">previous_plotter_style</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_remove_residuals_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set options for a single plot to its cached values.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+                <span class="n">ylabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;ylabel&quot;</span><span class="p">],</span>
+                <span class="n">sharey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;sharey&quot;</span><span class="p">],</span>
+                <span class="n">series_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;series_params&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Here add the style_name so the plotter will know not to print the residual data.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
+                <span class="n">subplots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;subplots&quot;</span><span class="p">],</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">],</span>
+                    <span class="n">PlotStyle</span><span class="p">({</span><span class="s2">&quot;style_name&quot;</span><span class="p">:</span> <span class="s2">&quot;canceled_residuals&quot;</span><span class="p">}),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">_run_data_processing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -916,8 +1034,13 @@
             <span class="n">fit_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_options</span><span class="p">]</span>
 
         <span class="c1"># Create convenient function to compute residual of the models.</span>
-        <span class="n">partial_residuals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">partial_weighted_residuals</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">valid_uncertainty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">))</span>
+
+        <span class="c1"># creating storage for residual plotting</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+            <span class="n">residual_weights_list</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">iter_by_series_id</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">valid_uncertainty</span><span class="p">:</span>
                 <span class="n">nonzero_yerr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
@@ -931,16 +1054,23 @@
                 <span class="c1"># some yerr values might be very close to zero, yielding significant weights.</span>
                 <span class="c1"># With such outlier, the fit doesn&#39;t sense residual of other data points.</span>
                 <span class="n">maximum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">maximum_weight</span><span class="p">)</span>
+                <span class="n">weights_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">maximum_weight</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">model_residual</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+                <span class="n">weights_list</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">model_weighted_residual</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">_residual</span><span class="p">,</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-                <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+                <span class="n">weights</span><span class="o">=</span><span class="n">weights_list</span><span class="p">,</span>
                 <span class="n">x</span><span class="o">=</span><span class="n">sub_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">partial_residuals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_residual</span><span class="p">)</span>
+            <span class="n">partial_weighted_residuals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_weighted_residual</span><span class="p">)</span>
+
+            <span class="c1"># adding weights to weights_list for residuals</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">weights_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">residual_weights_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">residual_weights_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weights_list</span><span class="p">)</span>
 
         <span class="c1"># Run fit for each configuration</span>
         <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
@@ -960,7 +1090,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
                     <span class="n">new</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
-                        <span class="n">fcn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partial_residuals</span><span class="p">]),</span>
+                        <span class="n">fcn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partial_weighted_residuals</span><span class="p">]),</span>
                         <span class="n">params</span><span class="o">=</span><span class="n">guess_params</span><span class="p">,</span>
                         <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fit_method</span><span class="p">,</span>
                         <span class="n">scale_covar</span><span class="o">=</span><span class="ow">not</span> <span class="n">valid_uncertainty</span><span class="p">,</span>
@@ -977,11 +1107,30 @@
             <span class="k">if</span> <span class="n">new</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">redchi</span> <span class="o">&gt;</span> <span class="n">new</span><span class="o">.</span><span class="n">redchi</span><span class="p">:</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="n">new</span>
 
+        <span class="c1"># if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it</span>
+        <span class="c1"># wasn&#39;t calculated.</span>
+        <span class="n">residuals_model</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">residual_weights_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">residuals_model</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">residual</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">residuals_model</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">weighted_res</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">weighted_res</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">residual</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">residuals_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">residuals_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">residuals_model</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">convert_lmfit_result</span><span class="p">(</span>
             <span class="n">res</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">,</span>
             <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
             <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">residuals_model</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_figures</span><span class="p">(</span>
@@ -1028,6 +1177,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
                     <span class="n">series_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
                     <span class="n">y_interp_err</span><span class="o">=</span><span class="n">fit_stdev</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+                <span class="n">residuals_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;residuals&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                    <span class="n">series_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                    <span class="n">x_residuals</span><span class="o">=</span><span class="n">residuals_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                    <span class="n">y_residuals</span><span class="o">=</span><span class="n">residuals_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
@@ -1107,6 +1264,22 @@
                         <span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">,</span>
                         <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+                    <span class="c1"># need to add here the residuals plot.</span>
+                    <span class="n">xval_residual</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">x</span>
+                    <span class="n">yval_residuals</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">residuals</span><span class="p">[</span><span class="n">series_id</span><span class="p">])</span>
+
+                    <span class="k">for</span> <span class="n">xval</span><span class="p">,</span> <span class="n">yval</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xval_residual</span><span class="p">,</span> <span class="n">yval_residuals</span><span class="p">):</span>
+                        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                            <span class="n">xval</span><span class="o">=</span><span class="n">xval</span><span class="p">,</span>
+                            <span class="n">yval</span><span class="o">=</span><span class="n">yval</span><span class="p">,</span>
+                            <span class="n">series_name</span><span class="o">=</span><span class="n">model_names</span><span class="p">[</span><span class="n">series_id</span><span class="p">],</span>
+                            <span class="n">series_id</span><span class="o">=</span><span class="n">series_id</span><span class="p">,</span>
+                            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;residuals&quot;</span><span class="p">,</span>
+                            <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="p">)</span>
+
             <span class="n">result_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span>
                     <span class="n">fit_data</span><span class="o">=</span><span class="n">fit_data</span><span class="p">,</span>
@@ -1182,7 +1355,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/19</div>
+              Last updated on 2024/03/03</div>
           </div>
           <div class="right-details">
             
@@ -1199,7 +1372,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../_static/documentation_options.js?v=2d479917"></script>
+    <script src="../../../_static/documentation_options.js?v=d0e6df56"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>

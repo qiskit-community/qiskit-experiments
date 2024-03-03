@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.6.0-7-g6845440b</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-7-g6845440b</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-7-g6845440b</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -626,6 +626,8 @@
 <span class="sd">            y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.</span>
 <span class="sd">            y_interp_err: The standard deviations of the fit for each X-value in</span>
 <span class="sd">                ``y_interp``. This data key relates to the option ``plot_sigma``.</span>
+<span class="sd">            x_residuals: The X-values for the residual plot.</span>
+<span class="sd">            y_residuals: The residual from the fitting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;x&quot;</span><span class="p">,</span>
@@ -636,6 +638,8 @@
             <span class="s2">&quot;x_interp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;y_interp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;y_interp_err&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;y_residuals&quot;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
@@ -747,6 +751,14 @@
                         <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                     <span class="p">)</span>
 
+            <span class="c1"># Plot residuals</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">]):</span>
+                <span class="c1"># check if we cancel residuals plotting</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;canceled_residuals&quot;</span><span class="p">:</span>
+                    <span class="n">series_name</span> <span class="o">=</span> <span class="n">ser</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">series_name</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
             <span class="c1"># Fit report</span>
             <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -813,7 +825,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/19</div>
+              Last updated on 2024/03/03</div>
           </div>
           <div class="right-details">
             
@@ -830,7 +842,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=2d479917"></script>
+    <script src="../../../../_static/documentation_options.js?v=d0e6df56"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="eval_with_uncertainties" href="qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html" /><link rel="prev" title="analysis_result_to_repr" href="qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>convert_lmfit_result - Qiskit Experiments 0.6.0-6-g0bbd426d</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>convert_lmfit_result - Qiskit Experiments 0.6.0-7-g6845440b</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-6-g0bbd426d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-7-g6845440b</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-6-g0bbd426d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-7-g6845440b</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -584,7 +584,7 @@ released.</p>
 <h1>convert_lmfit_result<a class="headerlink" href="#convert-lmfit-result" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="qiskit_experiments.curve_analysis.utils.convert_lmfit_result">
-<span class="sig-name descname"><span class="pre">convert_lmfit_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ydata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/curve_analysis/utils.html#convert_lmfit_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.curve_analysis.utils.convert_lmfit_result" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_lmfit_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ydata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residuals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/curve_analysis/utils.html#convert_lmfit_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.curve_analysis.utils.convert_lmfit_result" title="Link to this definition">#</a></dt>
 <dd><p>A helper function to convert LMFIT <code class="docutils literal notranslate"><span class="pre">MinimizerResult</span></code> into <a class="reference internal" href="qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a>.</p>
 <p><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> is a dataclass that can be serialized with the experiment JSON decoder.
 In addition, this class converts LMFIT <code class="docutils literal notranslate"><span class="pre">Parameter</span></code> objects into ufloats so that
@@ -597,6 +597,7 @@ accurate error propagation with parameter correlation.</p>
 <li><p><strong>models</strong> (<em>List</em><em>[</em><em>Model</em><em>]</em>) – Model used for the fitting. Function description is extracted.</p></li>
 <li><p><strong>xdata</strong> (<em>ndarray</em>) – X values used for the fitting.</p></li>
 <li><p><strong>ydata</strong> (<em>ndarray</em>) – Y values used for the fitting.</p></li>
+<li><p><strong>residuals</strong> (<em>ndarray</em>) – The residuals of the ydata from the model.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -644,7 +645,7 @@ accurate error propagation with parameter correlation.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/19</div>
+              Last updated on 2024/03/03</div>
           </div>
           <div class="right-details">
             
@@ -680,7 +681,7 @@ accurate error propagation with parameter correlation.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=2d479917"></script>
+    <script src="../_static/documentation_options.js?v=d0e6df56"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
