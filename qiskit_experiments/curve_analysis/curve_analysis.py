@@ -233,7 +233,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             previous_plotter_style = self._plot_config_cache["plotter"]["style"].copy()
             previous_plotter_style.pop("style_name", "")
 
-            # creating new fig size base on previous size
+            # creating new fig size based on previous size
             new_figsize = self.plotter.drawer.options.get("figsize", (8, 5))
             new_figsize = (new_figsize[0], round(new_figsize[1] * (10 / 5)))
 
