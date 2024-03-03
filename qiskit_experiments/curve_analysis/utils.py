@@ -115,6 +115,7 @@ def convert_lmfit_result(
     models: List[lmfit.Model],
     xdata: np.ndarray,
     ydata: np.ndarray,
+    residuals: np.ndarray,
 ) -> CurveFitResult:
     """A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.
 
@@ -128,6 +129,7 @@ def convert_lmfit_result(
         models: Model used for the fitting. Function description is extracted.
         xdata: X values used for the fitting.
         ydata: Y values used for the fitting.
+        residuals: The residuals of the ydata from the model.
 
     Returns:
         QiskitExperiments :class:`.CurveFitResult` object.
@@ -169,6 +171,8 @@ def convert_lmfit_result(
         var_names=result.var_names,
         x_data=xdata,
         y_data=ydata,
+        weighted_residuals=result.residual,
+        residuals=residuals,
         covar=covar,
     )
 
