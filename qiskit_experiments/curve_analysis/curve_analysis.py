@@ -203,7 +203,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             model_names = self.model_names()
             series_params = self.plotter.figure_options["series_params"]
             for model_name in model_names:
-                if series_params.get(model_name, {}):
+                if series_params.get(model_name):
                     series_params[model_name]["canvas"] = 0
                 else:
                     series_params[model_name] = {"canvas": 0}
