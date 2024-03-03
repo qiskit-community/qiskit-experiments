@@ -91,17 +91,55 @@ class MplDrawer(BaseDrawer):
             # especially when the analysis consists of multiple curves.
             # Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.
             # This draws inset axes with shared x and y axis.
-            inset_ax_h = 1 / n_rows
-            inset_ax_w = 1 / n_cols
-            for i in range(n_rows):
-                for j in range(n_cols):
+            if (
+                self.figure_options.get("custom_style", {}).get("style_name") == "residuals"
+                and n_subplots != 2
+            ):
+                # raising an error for residual plotting that isn't on individual plot per figure.
+                raise QiskitError(
+                    "Residual plots and residual plotting style is supported for "
+                    "figures with one sub-plot only."
+                )
+
+            inset_ax_h_list = self.figure_options.custom_style.get(
+                "sub_plot_heights_list", [1 / n_rows] * n_rows
+            )
+            inset_ax_w_list = self.figure_options.custom_style.get(
+                "sub_plot_widths_list", [1 / n_cols] * n_cols
+            )
+
+            # Check that the heights and widths are lists.
+            if (not isinstance(inset_ax_h_list, List)) or (not isinstance(inset_ax_w_list, List)):
+                raise QiskitError(
+                    "Sub-plots heights and widths list need to be a list of floats that sum"
+                    " up to 1"
+                )
+
+            # adding a check for correct sizes of subplots.
+            if not np.isclose(sum(inset_ax_h_list), 1) or not np.isclose(sum(inset_ax_w_list), 1):
+                raise QiskitError(
+                    "The subplots aren't covering all the figure. "
+                    "Check subplots heights and widths configurations."
+                )
+
+            # setting the row tracker.
+            sum_heights = 0
+            for i, inset_ax_h in enumerate(inset_ax_h_list):
+                # updating row tracker.
+                sum_heights += inset_ax_h
+
+                # setting column tracker.
+                sum_widths = 0
+
+                for j, inset_ax_w in enumerate(inset_ax_w_list):
                     # x0, y0, width, height
                     bounds = [
-                        inset_ax_w * j,
-                        1 - inset_ax_h * (i + 1),
+                        sum_widths,
+                        1 - sum_heights,
                         inset_ax_w,
                         inset_ax_h,
                     ]
+
                     sub_ax = axis.inset_axes(bounds, transform=axis.transAxes, zorder=1)
                     if j != 0 and sharey:
                         # remove y axis except for most-left plot
@@ -129,6 +167,9 @@ class MplDrawer(BaseDrawer):
                         # Set label size for outer axes where labels are drawn
                         sub_ax.tick_params(labelsize=self.style["tick_label_size"])
                     sub_ax.grid()
+
+                    # updating where we are on the grid.
+                    sum_widths += inset_ax_w
 
             # Remove original axis frames
             axis.axis("off")
@@ -316,6 +357,10 @@ class MplDrawer(BaseDrawer):
         Returns:
             Default color available in matplotlib.
         """
+        if self.figure_options.get("custom_style", {}).get("style_name") == "residuals":
+            if name[: -len("_residuals")] in self._series:
+                name = name[: -len("_residuals")]
+
         if name not in self._series:
             self._series.append(name)
 

@@ -168,6 +168,8 @@ class CurveFitResult:
         var_names: Optional[List[str]] = None,
         x_data: Optional[np.ndarray] = None,
         y_data: Optional[np.ndarray] = None,
+        weighted_residuals: Optional[np.ndarray] = None,
+        residuals: Optional[np.ndarray] = None,
         covar: Optional[np.ndarray] = None,
     ):
         """Create new Qiskit curve analysis result object.
@@ -188,6 +190,8 @@ class CurveFitResult:
             var_names: Name of variables, i.e. fixed parameters are excluded from the list.
             x_data: X values used for the fitting.
             y_data: Y values used for the fitting.
+            weighted_residuals: The residuals from the fitting after assigning weights for each ydata.
+            residuals: residuals of the fitted model.
             covar: Covariance matrix of fitting variables.
         """
         self.method = method
@@ -205,6 +209,8 @@ class CurveFitResult:
         self.var_names = var_names
         self.x_data = x_data
         self.y_data = y_data
+        self.weighted_residuals = weighted_residuals
+        self.residuals = residuals
         self.covar = covar
 
     @property

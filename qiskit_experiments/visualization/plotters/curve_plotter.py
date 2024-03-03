@@ -46,6 +46,8 @@ class CurvePlotter(BasePlotter):
             y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.
             y_interp_err: The standard deviations of the fit for each X-value in
                 ``y_interp``. This data key relates to the option ``plot_sigma``.
+            x_residuals: The X-values for the residual plot.
+            y_residuals: The residual from the fitting.
         """
         return [
             "x",
@@ -56,6 +58,8 @@ class CurvePlotter(BasePlotter):
             "x_interp",
             "y_interp",
             "y_interp_err",
+            "x_residuals",
+            "y_residuals",
         ]
 
     @classmethod
@@ -162,6 +166,14 @@ class CurvePlotter(BasePlotter):
                         alpha=alpha,
                         zorder=5,
                     )
+
+            # Plot residuals
+            if self.data_exists_for(ser, ["x_residuals", "y_residuals"]):
+                # check if we cancel residuals plotting
+                if self.options.get("style", {}).get("style_name") != "canceled_residuals":
+                    series_name = ser + "_residuals"
+                    x, y = self.data_for(ser, ["x_residuals", "y_residuals"])
+                    self.drawer.scatter(x, y, name=series_name, legend=True)
 
             # Fit report
             report = self._write_report()
