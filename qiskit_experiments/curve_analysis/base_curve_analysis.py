@@ -153,6 +153,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
+            plot_residuals (bool): Set ``True`` to draw the residuals data for the
+                fitting model. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result or ``False`` to
                 not create a figure. This overrides the behavior of ``generate_figures``.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
@@ -207,6 +209,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
+        options.plot_residuals = False
         options.return_fit_parameters = True
         options.return_data_points = False
         options.data_processor = None
