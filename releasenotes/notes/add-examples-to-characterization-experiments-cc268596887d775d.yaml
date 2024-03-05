@@ -1,5 +1,5 @@
 ---
-features-expclass:
+features_expclass:
   - |
     Added minimal working code examples to the API pages for each experiment, especially in characterizaion experiments.
     The minimal working code example is a code snippet which users can copy and paste to run the experiment. Users are required
