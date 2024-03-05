@@ -1026,14 +1026,12 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
     """
     #1268
     """
-    
-    def test_experiment_data_bootstrap_child(self):
-        
-        class TestAnalysis(BaseAnalysis):
 
+    def test_experiment_data_bootstrap_child(self):
+        class TestAnalysis(BaseAnalysis):
             def _run_analysis(self, experiment_data):
                 results = []
-                
+
                 for datum in experiment_data.data():
                     results.append(
                         AnalysisResultData(
@@ -1099,39 +1097,38 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
         ## Test
 
         ref_q0_0 = {
-            "shots": 1000, 
-            "meas_level": 2, 
-            "metadata": {"test_val": 1}, 
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 1},
             "counts": {"1": 600, "0": 400},
         }
         ref_q0_1 = {
-            "shots": 1000, 
-            "meas_level": 2, 
-            "metadata": {"test_val": 3}, 
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 3},
             "counts": {"1": 500, "0": 500},
         }
         ref_q1_0 = {
-            "shots": 1000, 
-            "meas_level": 2, 
-            "metadata": {"test_val": 2}, 
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 2},
             "counts": {"1": 700, "0": 300},
         }
         ref_q1_1 = {
-            "shots": 1000, 
-            "meas_level": 2, 
-            "metadata": {"test_val": 4}, 
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 4},
             "counts": {"1": 600, "0": 400},
         }
         ref_q2_0 = {
-            "shots": 1000, 
-            "meas_level": 2, 
-            "metadata": {"test_val": 5}, 
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 5},
             "counts": {"0": 100, "1": 900},
         }
 
-
         exp_data = ExperimentData()
-        
+
         exp_data.metadata.update(
             {
                 "component_types": ["ParallelExperiment", "SomeExperiment2"],
@@ -1142,11 +1139,11 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
                             {
                                 "physical_qubits": [0],
                                 "device_components": [Qubit(0)],
-                            },                
+                            },
                             {
                                 "physical_qubits": [1],
                                 "device_components": [Qubit(1)],
-                            },         
+                            },
                         ],
                     },
                     {
@@ -1156,24 +1153,22 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
                 ],
             }
         )
-        
+
         exp_data.add_data(mock_data)
-        
+
         self.assertListEqual(
-            exp_data.child_data(0).child_data(0).data(), 
+            exp_data.child_data(0).child_data(0).data(),
             [ref_q0_0, ref_q0_1],
         )
 
         self.assertListEqual(
-            exp_data.child_data(1).data(), 
+            exp_data.child_data(1).data(),
             [ref_q2_0],
         )
-        
 
         composite_analysis = CompositeAnalysis(
             [
-                CompositeAnalysis([TestAnalysis(), TestAnalysis()],
-                                  flatten_results=True),
+                CompositeAnalysis([TestAnalysis(), TestAnalysis()], flatten_results=True),
                 TestAnalysis(),
             ],
             flatten_results=True,
@@ -1181,12 +1176,20 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
         exp_data = composite_analysis.run(exp_data, replace_results=True)
 
-        test_data = exp_data.analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+        test_data = exp_data.analysis_results(
+            dataframe=True, columns=["name", "experiment", "components", "value"]
+        )
 
         ref_data = pd.DataFrame.from_dict(
             {
                 "name": ["p1", "p1", "p1", "p1", "p1"],
-                "experiment": ["SomeExperiment1", "SomeExperiment1", "SomeExperiment1", "SomeExperiment1", "SomeExperiment2"],
+                "experiment": [
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment2",
+                ],
                 "components": [[Qubit(0)], [Qubit(0)], [Qubit(1)], [Qubit(1)], [Qubit(2)]],
                 "value": [0.6, 0.5, 0.7, 0.6, 0.9],
             }

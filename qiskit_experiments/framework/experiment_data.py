@@ -16,7 +16,7 @@ Experiment Data class
 from __future__ import annotations
 import logging
 import re
-from typing import Dict, Optional, List, Union, Any, Callable, Tuple, Iterator,TYPE_CHECKING
+from typing import Dict, Optional, List, Union, Any, Callable, Tuple, Iterator, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
 from functools import wraps, partial
@@ -735,8 +735,8 @@ class ExperimentData:
                     composite_index = datum["metadata"]["composite_index"]
                     max_index = max(composite_index)
                     with self._child_data.lock:
-                        self.create_child_data(max_index,datum)
-                        
+                        self.create_child_data(max_index, datum)
+
                 with self._result_data.lock:
                     self._result_data.append(datum)
             elif isinstance(datum, Result):
@@ -747,16 +747,25 @@ class ExperimentData:
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
 
-        return {"backend" : self.backend,"tags":self.tags,
-                "share_level":self.share_level,"auto_save": self.auto_save,
-                "service":self.service,"provider":self.provider,
-                "hgp":self.hgp,"backed_name":self.backend_name,
-                "notes":self.notes,"figure_names":self.figure_names,
-                "job_ids":self.job_ids,"provider":self.provider,
-                "start_datetime":self.start_datetime,"verbose":self.verbose}
+        return {
+            "backend": self.backend,
+            "tags": self.tags,
+            "share_level": self.share_level,
+            "auto_save": self.auto_save,
+            "service": self.service,
+            "provider": self.provider,
+            "hgp": self.hgp,
+            "backed_name": self.backend_name,
+            "notes": self.notes,
+            "figure_names": self.figure_names,
+            "job_ids": self.job_ids,
+            "provider": self.provider,
+            "start_datetime": self.start_datetime,
+            "verbose": self.verbose,
+        }
 
-    def create_child_data(self,max_index:int, data:dict = False):
-        
+    def create_child_data(self, max_index: int, data: dict = False):
+
         while (new_idx := len(self._child_data)) <= max_index:
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
@@ -775,9 +784,8 @@ class ExperimentData:
         if data:
             for idx, sub_data in self._decompose_component_data(data):
                 self.child_data(idx).add_data(sub_data)
-        
+
         return self
-        
 
     @staticmethod
     def _decompose_component_data(

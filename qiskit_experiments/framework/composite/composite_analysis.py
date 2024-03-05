@@ -143,7 +143,7 @@ class CompositeAnalysis(BaseAnalysis):
         # for adding to the main experiment data container
         if self._flatten_results:
             analysis_results, figures = self._combine_results(child_data)
-            
+
             for res in analysis_results:
                 # Override experiment  ID because entries are flattened
                 res.experiment_id = experiment_data.experiment_id
