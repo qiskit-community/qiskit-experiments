@@ -18,8 +18,23 @@ class unifies data access for various data fields.
 from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.providers import BackendV1, BackendV2
 from qiskit.providers.fake_provider import FakeBackend
-from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
 from qiskit.utils.deprecation import deprecate_func
+
+try:
+    # Removed in Qiskit 1.0.
+    from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
+except ImportError:
+
+    class FakeBackendV2:
+        """Dummy class for when FakeBackendV2 import fails
+
+        This class is only used in isinstance checks. If the import fails, then
+        there won't be an instance of the class either so any dummy class is
+        fine.
+        """
+
+        pass
+
 
 try:
     # Removed in Qiskit 1.0. Different from the other FakeBackendV2's
