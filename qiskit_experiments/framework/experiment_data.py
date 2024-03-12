@@ -731,18 +731,13 @@ class ExperimentData:
         # Directly add non-job data
         for datum in data:
             if isinstance(datum, dict):
-                if "metadata" in datum and "composite_metadata" in datum["metadata"]:
-                    composite_index = datum["metadata"]["composite_index"]
-                    max_index = max(composite_index)
-                    with self._child_data.lock:
-                        self.create_child_data(max_index, datum)
-
                 with self._result_data.lock:
                     self._result_data.append(datum)
             elif isinstance(datum, Result):
                 self._add_result_data(datum)
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
+        self.create_child_data()
 
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
@@ -759,19 +754,21 @@ class ExperimentData:
             "notes": self.notes,
             "figure_names": self.figure_names,
             "job_ids": self.job_ids,
-            "provider": self.provider,
             "start_datetime": self.start_datetime,
             "verbose": self.verbose,
         }
 
-    def create_child_data(self, max_index: int, data: dict = False):
+    def create_child_data(self):
 
-        while (new_idx := len(self._child_data)) <= max_index:
+        if (component_metadata := self.metadata.get("component_metadata", None)) is None:
+            return
+    
+        while (new_idx := len(self._child_data)) <= len(component_metadata):
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
             try:
-                component_metadata = self.metadata["component_metadata"][new_idx].copy()
-                child_data.metadata.update(component_metadata)
+                this_data = component_metadata[new_idx].copy()
+                child_data.metadata.update(this_data)
             except (KeyError, IndexError):
                 pass
             try:
@@ -781,9 +778,12 @@ class ExperimentData:
                 pass
             self.add_child_data(child_data)
 
-        if data:
+        for data in self._result_data:
             for idx, sub_data in self._decompose_component_data(data):
-                self.child_data(idx).add_data(sub_data)
+                # NOTE : These lines for preventing multiple data addition,
+                # it occurs and I dont know why
+                if sub_data not in self.child_data(idx).data():
+                    self.child_data(idx).add_data(sub_data)
 
         return self
 
@@ -1157,7 +1157,7 @@ class ExperimentData:
                 try:
                     job = self.provider.retrieve_job(jid)
                     retrieved_jobs[jid] = job
-                except Exception:  # pylint: disable=broad-except
+                except (Exception,AttributeError):  # pylint: disable=broad-except
                     LOG.warning(
                         "Unable to retrieve data from job [Job ID: %s]: %s",
                         jid,

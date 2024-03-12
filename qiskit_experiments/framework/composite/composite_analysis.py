@@ -126,7 +126,7 @@ class CompositeAnalysis(BaseAnalysis):
         if len(self._analyses) != len(child_data):
             # Child data is automatically created when composite result data is added.
             # Validate that child data size matches with number of analysis entries.
-            experiment_data.create_child_data(len(self._analyses))
+            experiment_data.create_child_data()
 
         for sub_analysis, sub_data in zip(self._analyses, child_data):
             # Since copy for replace result is handled at the parent level
