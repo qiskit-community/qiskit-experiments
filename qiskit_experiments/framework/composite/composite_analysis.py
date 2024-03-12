@@ -13,15 +13,10 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict, Union, Optional, Tuple
+from typing import List, Union, Optional, Tuple
 import warnings
-import numpy as np
-from qiskit.result import marginal_distribution
-from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
-from qiskit_experiments.framework.base_analysis import _requires_copy
-from qiskit_experiments.exceptions import AnalysisError
 
 
 class CompositeAnalysis(BaseAnalysis):

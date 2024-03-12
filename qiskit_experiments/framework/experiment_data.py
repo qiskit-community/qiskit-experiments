@@ -742,6 +742,10 @@ class ExperimentData:
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
 
+        """
+        retrive data about self to bootstrap
+        """
+
         return {
             "backend": self.backend,
             "tags": self.tags,
@@ -758,11 +762,17 @@ class ExperimentData:
             "verbose": self.verbose,
         }
 
-    def create_child_data(self):
+    def create_child_data(self): # pylint: disable=inconsistent-return-statements
+
+        """Bootstrap Experiment data containers
+
+        Returns:
+            self : return itself for method calling
+        """
 
         if (component_metadata := self.metadata.get("component_metadata", None)) is None:
             return
-    
+
         while (new_idx := len(self._child_data)) <= len(component_metadata):
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
@@ -1157,7 +1167,7 @@ class ExperimentData:
                 try:
                     job = self.provider.retrieve_job(jid)
                     retrieved_jobs[jid] = job
-                except (Exception,AttributeError):  # pylint: disable=broad-except
+                except (Exception, AttributeError):  # pylint: disable=broad-except
                     LOG.warning(
                         "Unable to retrieve data from job [Job ID: %s]: %s",
                         jid,

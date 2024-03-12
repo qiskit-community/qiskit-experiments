@@ -1026,9 +1026,18 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
     """
     #1268
     """
-    
+
     class TestAnalysis(BaseAnalysis):
+
+        """
+        Analysis child class for testing bootstrapping
+        """
+
         def _run_analysis(self, experiment_data):
+
+            """
+            dummy _run_analysis for testing
+            """
             results = []
 
             for datum in experiment_data.data():
@@ -1042,6 +1051,10 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             return results, []
 
     def setUp(self):
+        """
+        Bootstrap test variables
+        """
+
         super().setUp()
         self.mock_data = [
             # Batch element0, Two parallel instances for q0, q1
@@ -1130,6 +1143,10 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
     def test_experiment_data_bootstrap_child_flatten(self):
 
+        """
+        Checks bootstrap when flatten
+        """
+
         exp_data = ExperimentData()
 
         exp_data.metadata.update(
@@ -1202,7 +1219,11 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             self.assertTrue(test.equals(ref))
 
     def test_experiment_data_bootstrap_child_not_flatten(self):
-        
+
+        """
+        Checks bootstrap when not flatten
+        """
+
         exp_data = ExperimentData()
 
         exp_data.metadata.update(
@@ -1273,4 +1294,3 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
         for (_, test), (_, ref) in zip(test_data.iterrows(), ref_data.iterrows()):
             self.assertTrue(test.equals(ref))
-        
