@@ -256,7 +256,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            is a list of :class:`AnalysisResultData` objects, and ``figures``
+            is a list of :class:`.AnalysisResultData` objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

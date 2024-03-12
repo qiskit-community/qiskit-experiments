@@ -1,4 +1,0 @@
----
-fixes_visualization:
-  - |
-    Fixed a deprecated Matplotlib ``MarkerStyle`` usage in the visualization module that was causing warnings in Matplotlib 3.6+.

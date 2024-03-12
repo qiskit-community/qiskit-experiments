@@ -80,7 +80,7 @@ html_static_path = ["_static"]
 templates_path = ["_templates"]
 # Manually add the gallery CSS file for now
 # TODO: Figure out why the styling is not working by default
-html_css_files = ["nbsphinx-gallery.css", "dataframe.css"]
+html_css_files = ["nbsphinx-gallery.css", "customstyles.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -176,7 +176,8 @@ intersphinx_mapping = {
 if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. note::
-    This is the documentation for the current state of the development branch
+    This is the documentation for the current state of the `development branch 
+    <https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main>`_
     of Qiskit Experiments. The documentation or APIs here can change prior to being
     released.
 """

@@ -4,7 +4,7 @@ default_branch: main
 sections:
   - [features, New Features, 1]
   - [features_expnew, New Experiments, 2]
-  - [features_explib, Experiment Library Updates, 2]
+  - [features_explib, Experiment Library Features, 2]
   - [features_expclass, Experiment Class Features, 2]
   - [features_analysis, Analysis Class Features, 2]
   - [features_expdata, Experiment Data Features, 2]
