@@ -35,6 +35,7 @@ except ImportError:
 
         pass
 
+
 try:
     # Removed in Qiskit 1.0. Different from the other FakeBackendV2's
     from qiskit.providers.fake_provider import QiskitFakeBackendV2
@@ -49,6 +50,7 @@ except ImportError:
         """
 
         pass
+
 
 try:
     # A copy of qiskit.providers.fake_provider.fake_backend.FakeBackendV2, at
