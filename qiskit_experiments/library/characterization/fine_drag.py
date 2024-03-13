@@ -137,16 +137,18 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
         .. jupyter-execute::
 
-            from qiskit_experiments.library.characterization import FineXDrag
+            from qiskit.circuits.library import XGate
+            from qiskit_experiments.library.characterization import FineDrag
 
             qubit=0
-            exp = FineXDrag([qubit], backend=backend)
+            exp = FineDrag(physical_qubits=(qubit,), gate=XGate(), backend=backend)
             print(exp.circuits()[3])
 
         .. jupyter-execute::
 
             exp.set_run_options(shots=1000, seed_simulator=101)
             exp_data = exp.run().block_for_results()
+            result = exp_data.analysis_results()
             exp_data.figure(0)
 
     # section: reference
@@ -257,7 +259,30 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an X gate."""
+    """Class to fine characterize the DRAG parameter of an X gate.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineXDrag
+
+            qubit=0
+            exp = FineXDrag(physical_qubits=(qubit,), backend=backend)
+            print(exp.circuits()[3])
+
+        .. jupyter-execute::
+
+            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
+    """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
@@ -282,7 +307,30 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an :math:`SX` gate."""
+    """Class to fine characterize the DRAG parameter of an :math:`SX` gate.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineSXDrag
+
+            qubit=0
+            exp = FineSXDrag(physical_qubits=(qubit,), backend=backend)
+            print(exp.circuits()[3])
+
+        .. jupyter-execute::
+
+            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
+    """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
