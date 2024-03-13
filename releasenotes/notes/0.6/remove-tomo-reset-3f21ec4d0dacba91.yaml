@@ -1,8 +1,0 @@
----
-other:
-  - |
-    Removed the reset instruction from the beginning of tomography experiments.
-    Since qubits are usually reset between circuits, this change should have no
-    impact on tomography experiments, but it should allow backends that do not
-    provide a reset instruction to run tomography experiments. See `#1250
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/881>`_.

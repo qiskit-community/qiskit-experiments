@@ -11,16 +11,18 @@
 # that they have been altered from the originals.
 
 """A mock IQ backend for testing."""
+import datetime
 from abc import abstractmethod
 from typing import Sequence, List, Tuple, Dict, Union, Any
+
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
+from qiskit.providers import BackendV2, Provider, convert_to_target
 from qiskit.providers.fake_provider import FakeOpenPulse2Q
 from qiskit.qobj.utils import MeasLevel
-from qiskit_ibm_runtime.fake_provider.fake_backend import FakeBackendV2
 
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
@@ -33,39 +35,32 @@ from qiskit_experiments.test.mock_iq_helpers import (
 )
 
 
-class FakeOpenPulse2QV2(FakeBackendV2):
-    """BackendV2 version of FakeOpenPulse2Q"""
+class FakeOpenPulse2QV2(BackendV2):
+    """BackendV2 conversion of qiskit.providers.fake_provider.FakeOpenPulse2Q"""
 
-    def __init__(self):
-        # FakeOpenPulse2Q has its data hard-coded rather than in json files. We
-        # prepopulate the dicts so that FakeBackendV2 does not try to load them
-        # from files.
-        #
-        # We have to use a hack to populate _conf_dict
+    def __init__(
+        self,
+        provider: Provider = None,
+        name: str = None,
+        description: str = None,
+        online_date: datetime.datetime = None,
+        backend_version: str = None,
+        **fields,
+    ):
+        super().__init__(provider, name, description, online_date, backend_version, **fields)
+
         backend_v1 = FakeOpenPulse2Q()
-        self._conf_dict_real = backend_v1._configuration.to_dict()
-        super().__init__()
-        self._props_dict = backend_v1._properties.to_dict()
-        self._defs_dict = backend_v1._defaults.to_dict()
+        # convert_to_target requires the description attribute
+        backend_v1._configuration.description = "A fake test backend with pulse defaults"
+
+        self._target = convert_to_target(
+            backend_v1.configuration(),
+            backend_v1.properties(),
+            backend_v1.defaults(),
+            add_delay=True,
+        )
+        # See commented out defaults() method below
         self._defaults = backend_v1._defaults
-
-        # Workaround a bug in FakeOpenPulse2Q. It defines u1 on qubit 1 in the
-        # cmd_def in the defaults json file but not in the gates in the
-        # properties instance. The code FakeBackendV2 uses to build the Target
-        # assumes these two are consistent.
-        u1_0 = next(g for g in self._props_dict["gates"] if g["gate"] == "u1")
-        self._props_dict["gates"].append(u1_0.copy())
-        self._props_dict["gates"][-1]["qubits"] = [1]
-
-    @property
-    def _conf_dict(self):
-        # FakeBackendV2 sets this in __init__. As a hack, we use this property
-        # to prevent it from overriding our values.
-        return self._conf_dict_real
-
-    @_conf_dict.setter
-    def _conf_dict(self, value):
-        pass
 
     # This method is not defined in the base class as we would like to avoid
     # relying on it as much as necessary. Individual tests should add it when
@@ -73,6 +68,14 @@ class FakeOpenPulse2QV2(FakeBackendV2):
     # def defaults(self):
     #     """Pulse defaults"""
     #     return self._defaults
+
+    @property
+    def max_circuits(self):
+        return 300
+
+    @property
+    def target(self):
+        return self._target
 
 
 class MockRestlessBackend(FakeOpenPulse2QV2):

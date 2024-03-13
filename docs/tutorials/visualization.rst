@@ -79,12 +79,6 @@ and customizing the figure can be done by setting the plotter's options. We now 
 the color, symbols, and size of our plot, as well as change the axis labels for the amplitude units:
 
 .. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    %matplotlib inline
-
-.. jupyter-execute::
 
     # Retrieve the plotter from the analysis instance
     plotter = rabi.analysis.plotter
@@ -110,6 +104,20 @@ Plotters have two sets of options that customize their behavior and figure conte
 ``options``, which have class-specific parameters that define how an instance behaves,
 and ``figure_options``, which have figure-specific parameters that control aspects of the
 figure itself, such as axis labels and series colors.
+
+To see the residual plot, set ``plot_residuals=True`` in the analysis options:
+
+.. jupyter-execute::
+
+    # Set to ``True`` analysis option for residual plot
+    rabi.analysis.set_options(plot_residuals=True)
+
+    # Run experiment
+    rabi_data = rabi.run().block_for_results()
+    rabi_data.figure(0)
+
+
+This option works for experiments without subplots in their figures.
 
 Here is a more complicated experiment in which we customize the figure of a DRAG
 experiment before it's run, so that we don't need to regenerate the figure like in 
@@ -185,7 +193,7 @@ were styled differently according to the ``series_params`` attribute of ``figure
 
 By default, the supported figure options are ``xlabel``, ``ylabel``, ``xlim``, ``ylim``,
 ``xval_unit``, ``yval_unit``, ``xval_unit_scale``, ``yval_unit_scale``, ``xscale``, ``yscale``,
-``figure_title``, and ``series_params``; see `:class:.MplDrawer` for details on how to set these
+``figure_title``, and ``series_params``; see :class:`.MplDrawer` for details on how to set these
 options. The following T1 experiment provides examples to options that have not been demonstrated
 until now in this tutorial:
 
