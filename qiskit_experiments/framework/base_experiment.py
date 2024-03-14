@@ -16,10 +16,12 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
+import logging
+import traceback
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
 from qiskit import transpile, QuantumCircuit
-from qiskit.providers import Job, Backend
+from qiskit.providers import Provider, Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -28,7 +30,12 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service import Qubit
+from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
+from qiskit_ibm_experiment import IBMExperimentService
+
+LOG = logging.getLogger(__name__)
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -185,7 +192,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Initialize an experiment from experiment config"""
         if isinstance(config, dict):
             config = ExperimentConfig(**dict)
-        ret = cls(*config.args, **config.kwargs)
+        if isinstance(cls, type(BaseExperiment)):
+            ret = config.cls(*config.args, **config.kwargs)
+        else:
+            ret = cls(*config.args, **config.kwargs)
         if config.experiment_options:
             ret.set_experiment_options(**config.experiment_options)
         if config.transpile_options:
@@ -193,6 +203,61 @@ class BaseExperiment(ABC, StoreInitArgs):
         if config.run_options:
             ret.set_run_options(**config.run_options)
         return ret
+
+    @classmethod
+    def load(
+        cls,
+        experiment_id: str,
+        service: Optional[IBMExperimentService] = None,
+        provider: Optional[Provider] = None,
+    ) -> "BaseExperiment":
+        """Load a saved experiment from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+            provider: an IBMProvider required for loading the experiment data and
+                can be used to initialize the service. When using
+                :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
+                this is the :class:`~qiskit_ibm_runtime.QiskitRuntimeService` and should
+                not be confused with the experiment database service
+                :meth:`qiskit_ibm_experiment.IBMExperimentService`.
+
+        Returns:
+            The reconstructed experiment.
+        Raises:
+            ExperimentError: If not service nor provider were given.
+        """
+        if service is None:
+            if provider is None:
+                raise QiskitError(
+                    "Loading an experiment requires a valid Qiskit provider or experiment service."
+                )
+            service = ExperimentData.get_service_from_provider(provider)
+
+        # here we load the data
+        data = service.experiment(experiment_id, json_decoder=ExperimentDecoder)
+        if service.experiment_has_file(experiment_id, ExperimentData._metadata_filename):
+            metadata = service.file_download(
+                experiment_id, ExperimentData._metadata_filename, json_decoder=ExperimentDecoder
+            )
+            data.metadata.update(metadata)
+
+        # Recreate artifacts
+        experiment_config_filename = "experiment_config"
+        try:
+            if experiment_config_filename in data.metadata:
+                if service.experiment_has_file(experiment_id, experiment_config_filename):
+                    artifact_file = service.file_download(experiment_id, experiment_config_filename)
+
+                    experiment_config = zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)[
+                        0
+                    ]
+                    reconstructed_experiment = cls.from_config(experiment_config)
+                    return reconstructed_experiment
+
+        except Exception:  # pylint: disable=broad-except:
+            LOG.error("Unable to load artifacts: %s", traceback.format_exc())
 
     def run(
         self,
