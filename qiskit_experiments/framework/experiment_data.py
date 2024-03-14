@@ -744,25 +744,25 @@ class ExperimentData:
 
         """
         retrive data about self to bootstrap
+        TODO: Write better docstring
         """
 
         return {
             "backend": self.backend,
             "tags": self.tags,
-            "share_level": self.share_level,
             "auto_save": self.auto_save,
             "service": self.service,
             "provider": self.provider,
-            "hgp": self.hgp,
             "backed_name": self.backend_name,
             "notes": self.notes,
-            "figure_names": self.figure_names,
-            "job_ids": self.job_ids,
             "start_datetime": self.start_datetime,
             "verbose": self.verbose,
+            "source": self.source,
+            "share_level": self.share_level,
+            "experiment_type": self.experiment_type,
         }
 
-    def create_child_data(self): # pylint: disable=inconsistent-return-statements
+    def create_child_data(self):  # pylint: disable=inconsistent-return-statements
 
         """Bootstrap Experiment data containers
 
