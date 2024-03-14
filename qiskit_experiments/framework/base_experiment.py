@@ -540,18 +540,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         By default, this assumes the experiment is running on qubits only. Subclasses can override
         this method to add custom experiment metadata to the returned experiment result data.
         """
-        from qiskit.version import get_version_info as get_qiskit_version
-        from qiskit_experiments.version import get_version_info as get_qiskit_experiments_version
 
-        experiment_class = self._metadata.__qualname__[: -len("._metadata")]
         metadata = {
             "physical_qubits": list(self.physical_qubits),
             "device_components": list(map(Qubit, self.physical_qubits)),
-            "environment_data": {
-                "Qiskit_version": get_qiskit_version(),
-                "Qiskit_Experiment_version": get_qiskit_experiments_version(),
-                "experiment_class": experiment_class,
-            },
         }
         return metadata
 
