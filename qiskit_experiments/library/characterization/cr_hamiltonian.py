@@ -168,7 +168,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             from qiskit_ibm_provider import IBMProvider
             from qiskit_experiments.framework import ExperimentData
 
-            provider = IBMProvider() 
+            provider = IBMProvider()
             job_ids = ["cqccf2wqgrzg008cz3dg"]
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
