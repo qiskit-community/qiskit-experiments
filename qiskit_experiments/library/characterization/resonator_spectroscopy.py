@@ -85,20 +85,19 @@ class ResonatorSpectroscopy(Spectroscopy):
         .. jupyter-execute::
             :hide-code:
 
-            # backend
-            from qiskit_ibm_provider import IBMProvider
-            INSTANCE="ibm-q/open/main"
-            provider = IBMProvider(instance=INSTANCE)
-            backend = provider.get_backend("ibm_kyoto")
+            # backend ibm-kyoto
+            from qiskit_ibm_runtime import QiskitRuntimeService
+            service = QiskitRuntimeService(channel="ibm_quantum") 
+            backend = service.backend("ibm_kyoto")
 
         .. jupyter-execute::
 
             import numpy as np
             from qiskit_experiments.library.characterization import ResonatorSpectroscopy
 
-            qubit = 13
+            qubit = 107
             exp = ResonatorSpectroscopy(physical_qubits = (qubit,), backend = backend)
-            exp.set_run_options(shots=1000, seed_simulator=119)
+            exp.set_run_options(shots=1000, seed_simulator=118)            
             print(exp.circuits()[0])
 
             step1=False  # run carefully if your backend is a real device
@@ -111,15 +110,18 @@ class ResonatorSpectroscopy(Spectroscopy):
                 pass
 
             # retrieve your jobs
+            from qiskit_ibm_provider import IBMProvider
             from qiskit_experiments.framework import ExperimentData
 
-            job_ids= ["cq80v7wf1wdg0086g60g"] # List of job IDs for the experiment
+            provider=IBMProvider()
+            job_ids= ["cqs4qjy88ev00080zbj0"]
+
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
             exp.analysis.run(exp_data)
+
             exp_data.block_for_results()
             result = exp_data.analysis_results()
-
             exp_data.figure(0)
 
     # section: analysis_ref
