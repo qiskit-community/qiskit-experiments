@@ -77,18 +77,16 @@ class CorrelatedReadoutError(BaseExperiment):
         .. jupyter-execute::
             :hide-code:
 
-            # backend
-            from qiskit_ibm_provider import IBMProvider
-            INSTANCE="ibm-q/open/main"
-            provider = IBMProvider(instance=INSTANCE)
-            backend = provider.get_backend("ibm_brisbane")
+            # backend=ibm_brisbane
+            from qiskit_ibm_runtime import QiskitRuntimeService
+            service = QiskitRuntimeService(channel="ibm_quantum")
+            backend = service.backend("ibm_brisbane")
 
         .. jupyter-execute::
 
             from qiskit_experiments.library import CorrelatedReadoutError
 
-            qubits = [119,120]
-            num_qubits = len(qubits)
+            qubits = (120,119,)
             exp = CorrelatedReadoutError(physical_qubits=qubits, backend=backend)
             exp.set_run_options(shots=1000)
             exp.analysis.set_options(plot=True)
@@ -107,8 +105,13 @@ class CorrelatedReadoutError(BaseExperiment):
             else:
                 pass
 
+            # retrieve your jobs
+            from qiskit_ibm_provider import IBMProvider
             from qiskit_experiments.framework import ExperimentData
-            job_ids= ["cq863hp7fy8g008hsseg"] # retrieve your jobs
+
+            provider=IBMProvider()
+            job_ids= ["cqs655w4x0mg008jgccg"]
+ 
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
             exp.analysis.run(exp_data)
