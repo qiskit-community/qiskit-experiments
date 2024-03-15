@@ -122,10 +122,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
             :hide-code:
 
             # backend ibm_kyoto
-            from qiskit_ibm_provider import IBMProvider
-            INSTANCE="ibm-q/open/main"
-            provider = IBMProvider(instance=INSTANCE)
-            backend = provider.get_backend("ibm_kyoto")
+            from qiskit_ibm_runtime import QiskitRuntimeService
+            service = QiskitRuntimeService(channel="ibm_quantum")
+            backend = service.backend("ibm_kyoto")
 
         .. jupyter-execute::
 
@@ -166,9 +165,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 pass
 
             # retrieve your jobs
+            from qiskit_ibm_provider import IBMProvider
             from qiskit_experiments.framework import ExperimentData
 
-            job_ids= ["cqccf2wqgrzg008cz3dg"]
+            provider = IBMProvider() 
+            job_ids = ["cqccf2wqgrzg008cz3dg"]
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
             exp.analysis.run(exp_data)
@@ -562,10 +563,9 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             :hide-code:
 
             # backend ibm-kyoto
-            from qiskit_ibm_provider import IBMProvider
-            INSTANCE="ibm-q/open/main"
-            provider = IBMProvider(instance=INSTANCE)
-            backend = provider.get_backend("ibm_kyoto")
+            from qiskit_ibm_runtime import QiskitRuntimeService
+            service = QiskitRuntimeService(channel="ibm_quantum")
+            backend = service.backend("ibm_kyoto")
 
         .. jupyter-execute::
 
@@ -596,9 +596,11 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
                 pass
 
             # retrieve your jobs
+            from qiskit_ibm_provider import IBMProvider
             from qiskit_experiments.framework import ExperimentData
 
-            job_ids= ["cnwbhqe5vh500087x5fg"]
+            provider = IBMProvider()
+            job_ids = ["cnwbhqe5vh500087x5fg"]
             exp_data = ExperimentData(experiment=exp)
             exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
             exp.analysis.run(exp_data)
