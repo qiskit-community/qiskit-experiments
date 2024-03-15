@@ -322,7 +322,7 @@ class FineSXAmplitude(FineAmplitude):
         .. jupyter-execute::
 
             from qiskit_experiments.library import FineSXAmplitude
-  
+
             qubit = 0
             exp = FineSXAmplitude(physical_qubits=(qubit,), backend=backend)
             exp.circuits()[5].draw("mpl")
