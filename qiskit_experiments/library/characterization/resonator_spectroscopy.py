@@ -87,7 +87,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
             # backend ibm-kyoto
             from qiskit_ibm_runtime import QiskitRuntimeService
-            service = QiskitRuntimeService(channel="ibm_quantum") 
+            service = QiskitRuntimeService(channel="ibm_quantum")
             backend = service.backend("ibm_kyoto")
 
         .. jupyter-execute::
@@ -97,7 +97,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
             qubit = 107
             exp = ResonatorSpectroscopy(physical_qubits = (qubit,), backend = backend)
-            exp.set_run_options(shots=1000, seed_simulator=118)            
+            exp.set_run_options(shots=1000, seed_simulator=118)
             print(exp.circuits()[0])
 
             step1=False  # run carefully if your backend is a real device
