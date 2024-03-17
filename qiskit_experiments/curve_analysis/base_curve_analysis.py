@@ -455,5 +455,5 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             config = AnalysisConfig(**config)
         ret = super().from_config(config)
         if config.plotter:
-            ret.set_options(plotter=config.plotter.plotter())
+            ret.options.plotter = config.plotter.plotter()
         return ret
