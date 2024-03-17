@@ -50,13 +50,13 @@ class DrawerConfig:
             raise QiskitError("No drawer class in drawer config")
         if isinstance(cls, dict):
             raise QiskitError(
-                "Unable to load analysis class. Try manually loading "
-                "analysis using `Analysis.plotter.drawer.from_config(config)` instead."
+                "Unable to load drawer class. Try manually loading "
+                "drawer using `Analysis.plotter.drawer.from_config(config)` instead."
             )
         try:
             return cls.from_config(self)
         except Exception as ex:
-            msg = "Unable to construct analysis from config."
+            msg = "Unable to construct drawer from config."
             if cls.version != __version__:
                 msg += (
                     f" Note that config version ({cls.version}) differs from the current"
