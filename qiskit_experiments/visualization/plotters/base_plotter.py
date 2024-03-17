@@ -567,12 +567,6 @@ class BasePlotter(ABC):
             figure_options=figure_options,
             drawer=drawer,
         )
-        # return {
-        #     "cls": type(self),
-        #     "options": options,
-        #     "figure_options": figure_options,
-        #     "drawer": drawer,
-        # }
 
     @classmethod
     def from_config(cls, config: Union[PlotterConfig, Dict]) -> "BasePlotter":
