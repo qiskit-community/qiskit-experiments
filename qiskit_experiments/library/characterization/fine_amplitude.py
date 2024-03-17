@@ -62,21 +62,31 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         in this case.
 
     # section: example
+        ..jupyter-execute::
+            :hide-code:
 
-        The steps to run a fine amplitude experiment are
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=185)
 
-        .. code-block:: python
+        ..jupyter-execute::
 
-            qubit = 3
-            amp_cal = FineAmplitude([qubit], SXGate())
-            amp_cal.set_experiment_options(
-                angle_per_gate=np.pi/2,
-                phase_offset=np.pi
-            )
-            amp_cal.run(backend)
+            import numpy as np
+            from qiskit.circuit.library import XGate
+            from qiskit_experiments.library import FineAmplitude
 
-        Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
-        that set the appropriate options for specific gates by default.
+            qubit = 0
+            exp = FineAmplitude(physical_qubits=(qubit,), gate=XGate(), backend=backend)
+            exp.set_run_options(shots=1000)
+            exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi/2})
+
+            print(exp.circuits()[5])
+            exp_data = exp.run().block_for_results()
+            result =exp_data.analysis_results()
+            for _ in result:
+                print(_)
+
+            exp_data.figure(0)
 
     # section: analysis_ref
         :class:`FineAmplitudeAnalysis`
