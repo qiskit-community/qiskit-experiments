@@ -62,14 +62,14 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         in this case.
 
     # section: example
-        ..jupyter-execute::
+        .. jupyter-execute::
             :hide-code:
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
             backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=185)
 
-        ..jupyter-execute::
+        .. jupyter-execute::
 
             import numpy as np
             from qiskit.circuit.library import XGate
