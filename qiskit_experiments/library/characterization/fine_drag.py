@@ -142,11 +142,8 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
             qubit=0
             exp = FineDrag(physical_qubits=(qubit,), gate=XGate(), backend=backend)
-            print(exp.circuits()[3])
-
-        .. jupyter-execute::
-
             exp.set_run_options(shots=1000, seed_simulator=101)
+
             exp_data = exp.run().block_for_results()
             result = exp_data.analysis_results()
             exp_data.figure(0)
@@ -275,12 +272,10 @@ class FineXDrag(FineDrag):
 
             qubit=0
             exp = FineXDrag(physical_qubits=(qubit,), backend=backend)
-            print(exp.circuits()[3])
-
-        .. jupyter-execute::
-
             exp.set_run_options(shots=1000, seed_simulator=101)
+
             exp_data = exp.run().block_for_results()
+            result = exp_data.analysis_results()
             exp_data.figure(0)
     """
 
@@ -323,11 +318,18 @@ class FineSXDrag(FineDrag):
 
             qubit=0
             exp = FineSXDrag(physical_qubits=(qubit,), backend=backend)
-            print(exp.circuits()[3])
+            exp.analysis.set_options(normalization= True,
+                                     fixed_parameters={
+                                         "angle_per_gate" : 0.0,
+                                         "phase_offset" : np.pi/2,
+                                         "amp" : 0.6
+                                         },
+                                    )
+            print(exp.circuits()[1])
 
         .. jupyter-execute::
 
-            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp.set_run_options(shots=10000, seed_simulator=101)
             exp_data = exp.run().block_for_results()
             exp_data.figure(0)
     """
