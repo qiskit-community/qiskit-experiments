@@ -155,7 +155,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             This data can then be saved as its own experiment to a database service.
         """
         experiment_data.add_artifacts(
-            ArtifactData(name="analysis_options", data=self.options), overwrite_name=True
+            ArtifactData(name="analysis_config", data=self.config()), overwrite_name=True
         )
         # Make a new copy of experiment data if not updating results
         if not replace_results and _requires_copy(experiment_data):

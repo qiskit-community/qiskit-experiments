@@ -2686,7 +2686,7 @@ class ExperimentData:
                 keys = self._find_artifact_keys(artifact.name)
                 if keys:
                     for key in keys:
-                        self._artifacts[key] = artifact 
+                        self._artifacts[key] = artifact
                 else:
                     self._artifacts[artifact.artifact_id] = artifact
             else:
