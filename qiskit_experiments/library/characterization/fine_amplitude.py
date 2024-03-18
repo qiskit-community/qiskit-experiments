@@ -67,7 +67,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=185)
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e6, noise=True, seed=185)
 
         .. jupyter-execute::
 
@@ -77,15 +77,12 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             qubit = 0
             exp = FineAmplitude(physical_qubits=(qubit,), gate=XGate(), backend=backend)
-            exp.set_run_options(shots=1000)
-            exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi/2})
-
+            exp.set_run_options(shots=10000)
+            exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi})
             print(exp.circuits()[5])
+
             exp_data = exp.run().block_for_results()
             result =exp_data.analysis_results()
-            for _ in result:
-                print(_)
-
             exp_data.figure(0)
 
     # section: analysis_ref
