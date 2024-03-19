@@ -63,7 +63,7 @@ class Rabi(BaseExperiment, RestlessMixin):
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            backend = SingleTransmonTestBackend(5.2e9,-0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)
 
         .. jupyter-execute::
 
@@ -233,7 +233,7 @@ class EFRabi(Rabi):
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            backend = SingleTransmonTestBackend(5.2e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)
 
         .. jupyter-execute::
 
