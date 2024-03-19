@@ -55,11 +55,21 @@ NUM_1Q_CLIFFORD = CliffordUtils.NUM_CLIFFORD_1_QUBIT
 
 
 class LayerFidelity(BaseExperiment, RestlessMixin):
-    """TODO
+    r"""A holistic benchmarking experiment to characterize the full quality of the devices at scale.
 
     # section: overview
+        Layer Fidelity (LF) is a method to estimate the fidelity of
+        a connecting set of two-qubit gates over :math:`N` qubits by measuring gate errors
+        using simultaneous direct randomized benchmarking (RB) in disjoint layers.
+        LF can easily be expressed as a layer size independent quantity, error per layered gate (EPLG):
+        :math:`EPLG = 1 - LF^{1/N_{2Q}}` where :math:`N_{2Q}` is number of 2-qubit gates in the layers.
 
-    TODO
+        Each of the 2-qubit (or 1-qubit) direct RBs yields the decaying probabilities
+        to get back to the ground state for an increasing sequence length (i.e. number of layers),
+        fits the exponential curve to estimate the decay rate, and calculates
+        the process fidelity of the subsystem from the rate.
+        LF is calculated as the product of the 2-qubit (or 1-qubit) process fidelities.
+        See Ref. [1] for details.
 
     # section: analysis_ref
         :class:`LayerFidelityAnalysis`
@@ -79,20 +89,25 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
     ):
-        """Initialize a standard randomized benchmarking experiment.
+        """Initialize a layer fidelity experiment.
 
         Args:
             physical_qubits: List of physical qubits for the experiment.
-            two_qubit_layers: List of pairs of qubits to run on, will use the direction given here.
-            lengths: A list of layer lengths.
+            two_qubit_layers: List of list of qubit pairs where a list of qubit pairs
+                    corresponds with a two-qubit gate layer. Qubit direction matters.
+            lengths: A list of layer lengths (the number of depth points).
             backend: The backend to run the experiment on.
-            num_samples: Number of samples to generate for each layer length.
+            num_samples: Number of samples (i.e. circuits) to generate for each layer length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:`circuits` is called.
-            two_qubit_gate: Two-qubit gate name (e.g. "cx", "cz", "ecr")
+            two_qubit_gate: Optional, two-qubit gate name (e.g. "cx", "cz", "ecr")
                             of which the two qubit layers consist.
-            one_qubit_basis_gates: One-qubit gates to use for implementing 1q Clifford operations.
+                            If not specified (but ``backend is supplied),
+                            one of 2q-gates supported in the backend is automatically set.
+            one_qubit_basis_gates: Optional, one-qubit gates to use for implementing 1q Clifford operations.
+                            If not specified (but ``backend is supplied),
+                            all 1q-gates supported in the backend are automatically set.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -275,7 +290,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         return list(self.circuits_generator())
 
     def circuits_generator(self) -> Iterable[QuantumCircuit]:
-        """Generate physical circuits to measure layer fidelity.
+        """Return a generator of physical circuits to measure layer fidelity.
 
         Returns:
             A generator of :class:`QuantumCircuit`s.

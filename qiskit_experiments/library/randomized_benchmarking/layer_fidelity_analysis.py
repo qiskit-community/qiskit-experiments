@@ -32,9 +32,10 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
     r"""A class to estimate process fidelity from one of 1Q/2Q simultaneous direct RB experiments
 
     # section: overview
-        This analysis takes only single series.
+        This analysis takes only a single series.
         This series is fit by the exponential decay function.
-        From the fit :math:`\alpha` value this analysis estimates the process fidelity.
+        From the fit :math:`\alpha` value this analysis estimates the process fidelity:
+        .. math:: F = \frac{1+(d^2-1)\alpha}{d^2}
 
     # section: fit_model
         .. math::
@@ -219,13 +220,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
 
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
-    r"""A class to estimate a process fidelity per disjoint layer.
-
-    TODO: Add math.
-
-    # section: reference
-        .. ref_arxiv:: 1 2311.05933
-    """
+    """A class to estimate a process fidelity per disjoint layer."""
 
     def __init__(self, layer, analyses=None):
         if analyses:
@@ -278,6 +273,12 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
 class LayerFidelityAnalysis(CompositeAnalysis):
     r"""A class to analyze layer fidelity experiments.
 
+    # section: overview
+        It estimates Layer Fidelity and EPLG (error per layered gate)
+        by fitting the exponential curve to estimate the decay rate, hence the process fidelity,
+        for each 2-qubit (or 1-qubit) direct randomized benchmarking result.
+        See Ref. [1] for details.
+
     # section: reference
         .. ref_arxiv:: 1 2311.05933
     """
@@ -298,11 +299,9 @@ class LayerFidelityAnalysis(CompositeAnalysis):
     ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
         r"""Run analysis for Layer Fidelity experiment.
 
-        It invokes :meth:`CompositeAnalysis._run_analysis` that will invoke
-        ``_run_analysis`` for the sub-experiments (1Q/2Q simultaneous direct RBs for each layer).
+        It invokes :meth:`CompositeAnalysis._run_analysis` that will recursively invoke
+        ``_run_analysis`` of the sub-experiments (1Q/2Q simultaneous direct RBs for each layer).
         Based on the results, it computes Layer Fidelity and EPLG (error per layered gate).
-
-        TODO: Add math.
 
         Args:
             experiment_data: the experiment data to analyze.
