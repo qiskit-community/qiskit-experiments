@@ -81,6 +81,7 @@ class Rabi(BaseExperiment, RestlessMixin):
                        backend=backend,)
 
             exp_data = exp.run().block_for_results()
+            result = exp_data.analysis_results()
             exp_data.figure(0)
     """
 
@@ -255,6 +256,7 @@ class EFRabi(Rabi):
             )
 
             exp_data = exp.run().block_for_results()
+            result = exp_data.analysis_results()
             exp_data.figure(0)
     """
 
