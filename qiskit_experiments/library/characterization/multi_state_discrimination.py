@@ -67,6 +67,9 @@ class MultiStateDiscrimination(BaseExperiment):
 
             qubit=0
             exp=MultiStateDiscrimination([qubit], backend=backend)
+            print(exp.circuits()[0])
+            print(exp.circuits()[1])
+
             exp_data=exp.run().block_for_results()
             result=exp_data.analysis_results()
             exp_data.figure(0)
