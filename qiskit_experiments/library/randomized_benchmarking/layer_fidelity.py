@@ -101,11 +101,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:`circuits` is called.
-            two_qubit_gate: Optional, two-qubit gate name (e.g. "cx", "cz", "ecr")
+            two_qubit_gate: Optional, 2q-gate name (e.g. "cx", "cz", "ecr")
                             of which the two qubit layers consist.
                             If not specified (but ``backend is supplied),
                             one of 2q-gates supported in the backend is automatically set.
-            one_qubit_basis_gates: Optional, one-qubit gates to use for implementing 1q Clifford operations.
+            one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
                             If not specified (but ``backend is supplied),
                             all 1q-gates supported in the backend are automatically set.
 
