@@ -99,29 +99,14 @@ class HalfAngle(BaseExperiment):
 
         .. jupyter-execute::
 
-            from qiskit import pulse
             from qiskit_experiments.library.characterization import HalfAngle
 
             qubit=0
             exp = HalfAngle([qubit], backend=backend)
-            print(exp.circuits()[5])
-
-        .. jupyter-execute::
-
-            inst_map = backend.defaults().instruction_schedule_map
-            with pulse.build(backend=backend, name="y") as sched_build:
-                pulse.play(pulse.Drag(duration=160,
-                                      sigma=40,
-                                      beta=5,
-                                      amp=0.05821399464431249,
-                                      angle=0.0,
-                                      name="Yp_d0"
-                                     ), pulse.DriveChannel(0), name="Yp_d0")
-            inst_map.add("y", (qubit,), sched_build)
-            exp.set_transpile_options(inst_map=inst_map)
             exp.set_run_options(shots=1000, seed_simulator=178)
 
             exp_data = exp.run().block_for_results()
+            result = exp_data.analysis_results()
             exp_data.figure(0)
 
     # section: reference
