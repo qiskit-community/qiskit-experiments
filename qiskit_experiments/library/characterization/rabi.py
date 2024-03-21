@@ -233,7 +233,7 @@ class EFRabi(Rabi):
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)
+            backend = SingleTransmonTestBackend(5.2e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
 
         .. jupyter-execute::
 
@@ -243,17 +243,12 @@ class EFRabi(Rabi):
             from qiskit_experiments.library import EFRabi
 
             with pulse.build() as build_sched:
-                pulse.play(
-                    pulse.Gaussian(160, Parameter("amp"), sigma=40),
-                    pulse.DriveChannel(0)
-                )
+                pulse.play(pulse.Gaussian(160, Parameter("amp"), sigma=40), pulse.DriveChannel(0))
 
-            exp = EFRabi(
-                physical_qubits=(0,),
-                backend=backend,
-                schedule=build_sched,
-                amplitudes=np.linspace(-0.1, 0.1, 21),
-            )
+            exp = EFRabi(physical_qubits=(0,),
+                	 backend=backend,
+                	 schedule=build_sched,
+                	 amplitudes=np.linspace(-0.1, 0.1, 21),)
 
             exp_data = exp.run().block_for_results()
             result = exp_data.analysis_results()
