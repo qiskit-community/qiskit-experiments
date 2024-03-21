@@ -13,10 +13,13 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 
 import datetime
+import importlib.metadata
+from functools import cached_property
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from packaging.version import Version
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
@@ -510,10 +513,25 @@ class SingleTransmonTestBackend(PulseBackend):
         self.rabi_rate_12 = 6.876
 
         if noise is True:
-            evaluation_mode = "dense_vectorized"
+            if self._dynamics_ge_05:
+                solver_args = {
+                    "array_library": "numpy",
+                    "vectorized": True,
+                }
+            else:
+                solver_args = {
+                    "evaluation_mode": "dense_vectorized",
+                }
             static_dissipators = [t1_dissipator]
         else:
-            evaluation_mode = "dense"
+            if self._dynamics_ge_05:
+                solver_args = {
+                    "array_library": "numpy",
+                }
+            else:
+                solver_args = {
+                    "evaluation_mode": "dense",
+                }
             static_dissipators = None
 
         super().__init__(
@@ -523,9 +541,9 @@ class SingleTransmonTestBackend(PulseBackend):
             rotating_frame=r_frame,
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
-            evaluation_mode=evaluation_mode,
             atol=atol,
             rtol=rtol,
+            **solver_args,
             **kwargs,
         )
 
@@ -614,3 +632,9 @@ class SingleTransmonTestBackend(PulseBackend):
         self._simulated_pulse_unitaries = {
             (schedule.name, (0,), ()): self.solve(schedule, (0,)) for schedule in default_schedules
         }
+
+    @cached_property
+    def _dynamics_ge_05(self):
+        """True if installed version of qiskit-dynamics>=0.5.0.dev0"""
+        dyn_version = Version(importlib.metadata.distribution("qiskit-dynamics").version)
+        return dyn_version > Version("0.5.0.dev0")
