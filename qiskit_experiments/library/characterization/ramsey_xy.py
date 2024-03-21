@@ -85,7 +85,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         .. jupyter-execute::
             :hide-code:
 
-            # backend 
+            # backend
             from qiskit_aer import AerSimulator
             from qiskit_ibm_runtime.fake_provider import FakePerth
 
