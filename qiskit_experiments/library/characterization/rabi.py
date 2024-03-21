@@ -246,9 +246,9 @@ class EFRabi(Rabi):
                 pulse.play(pulse.Gaussian(160, Parameter("amp"), sigma=40), pulse.DriveChannel(0))
 
             exp = EFRabi(physical_qubits=(0,),
-			 backend=backend,
-			 schedule=build_sched,
-			 amplitudes=np.linspace(-0.1, 0.1, 21),)
+                         backend=backend,
+                         schedule=build_sched,
+                         amplitudes=np.linspace(-0.1, 0.1, 21),)
 
             exp_data = exp.run().block_for_results()
             result = exp_data.analysis_results()
