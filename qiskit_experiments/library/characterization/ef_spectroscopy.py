@@ -34,7 +34,6 @@ class EFSpectroscopy(QubitSpectroscopy):
                        └───┘└────────────┘ ░ └╥┘
             measure: 1/═══════════════════════╩═
                                               0
-
     # section: example
         .. jupyter-execute::
             :hide-code:
