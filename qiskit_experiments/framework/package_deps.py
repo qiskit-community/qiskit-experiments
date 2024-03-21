@@ -10,12 +10,62 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Functions for checking dependency versions.
+Functions for checking and reporting installed package versions.
 """
 
-from importlib.metadata import version
+from __future__ import annotations
+
+from functools import lru_cache
+from importlib.metadata import version as metadata_version
+
+from packaging.version import Version
+
+from qiskit.utils.lazy_tester import LazyImportTester
 
 
-def numpy_version():
-    """Returns the current numpy version in (major, minor) form."""
-    return tuple(map(int, version("numpy").split(".")[:2]))
+__all__ = ["HAS_SKLEARN", "HAS_DYNAMICS", "qiskit_version", "version_is_at_least"]
+
+
+HAS_SKLEARN = LazyImportTester(
+    {
+        "sklearn.discriminant_analysis": (
+            "LinearDiscriminantAnalysis",
+            "QuadraticDiscriminantAnalysis",
+        )
+    },
+    name="scikit-learn",
+    install="pip install scikit-learn",
+)
+
+HAS_DYNAMICS = LazyImportTester(
+    "qiskit_dynamics",
+    name="qiskit-dynamics",
+    install="pip install qiskit-dynamics",
+)
+
+
+def qiskit_version() -> dict[str, str]:
+    """Return a deict with Qiskit names and versions."""
+    return {p: metadata_version(p) for p in ("qiskit", "qiskit-experiments")}
+
+
+@lru_cache(maxsize=None)
+def version_is_at_least(package: str, version: str) -> bool:
+    """Return True if the installed version of package greater than minimum version
+
+    Args:
+        package: Name of the package
+        version: Minimum version name as a string. This should just include
+            major, minor, and micro parts. The function will add ``.dev0`` to
+            also catch any pre-release versions (otherwise ``0.5.0a1`` would
+            evaluate as less than ``0.5.0``).
+
+    Returns:
+        True if installed version greater than ``version``. False if it is less.
+
+    Raises:
+        PackageNotFoundError:
+            If ``package`` is not installed.
+    """
+    installed_version = Version(metadata_version(package))
+    return installed_version > Version(f"{version}.dev0")

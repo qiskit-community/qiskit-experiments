@@ -12,7 +12,6 @@
 
 """Experiment utility functions."""
 
-import importlib.metadata
 import io
 import zipfile
 import logging
@@ -35,11 +34,6 @@ from qiskit_ibm_experiment import (
 from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentDataError
 
 LOG = logging.getLogger(__name__)
-
-
-def qiskit_version():
-    """Return the Qiskit version."""
-    return {p: importlib.metadata.distribution(p).version for p in ("qiskit", "qiskit-experiments")}
 
 
 def parse_timestamp(utc_dt: Union[datetime, str]) -> datetime:
