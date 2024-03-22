@@ -282,7 +282,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         return [q for q in self.physical_qubits if q not in qubits_in_layer]
 
     def circuits(self) -> List[QuantumCircuit]:
-        """Return a list of physical circuits to measure layer fidelity.
+        r"""Return a list of physical circuits to measure layer fidelity.
 
         Returns:
             A list of :class:`QuantumCircuit`\s.
@@ -290,7 +290,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         return list(self.circuits_generator())
 
     def circuits_generator(self) -> Iterable[QuantumCircuit]:
-        """Return a generator of physical circuits to measure layer fidelity.
+        r"""Return a generator of physical circuits to measure layer fidelity.
 
         Returns:
             A generator of :class:`QuantumCircuit`\s.
