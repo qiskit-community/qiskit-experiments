@@ -103,10 +103,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                   with this seed value every time :meth:`circuits` is called.
             two_qubit_gate: Optional, 2q-gate name (e.g. "cx", "cz", "ecr")
                             of which the two qubit layers consist.
-                            If not specified (but ``backend is supplied),
+                            If not specified (but ``backend`` is supplied),
                             one of 2q-gates supported in the backend is automatically set.
             one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
-                            If not specified (but ``backend is supplied),
+                            If not specified (but ``backend`` is supplied),
                             all 1q-gates supported in the backend are automatically set.
 
         Raises:
@@ -285,7 +285,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         """Return a list of physical circuits to measure layer fidelity.
 
         Returns:
-            A list of :class:`QuantumCircuit`.
+            A list of :class:`QuantumCircuit`\s.
         """
         return list(self.circuits_generator())
 
@@ -293,7 +293,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         """Return a generator of physical circuits to measure layer fidelity.
 
         Returns:
-            A generator of :class:`QuantumCircuit`s.
+            A generator of :class:`QuantumCircuit`\s.
         """
         opts = self.experiment_options
         residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
