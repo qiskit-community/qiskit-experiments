@@ -25,6 +25,7 @@ Experiments
 
     StandardRB
     InterleavedRB
+    LayerFidelity
 
 
 Analysis
@@ -36,6 +37,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    LayerFidelityAnalysis
 
 Synthesis
 =========
