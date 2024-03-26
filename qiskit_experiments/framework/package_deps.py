@@ -82,4 +82,4 @@ def version_is_at_least(package: str, version: str) -> bool:
             RuntimeWarning,
         )
         return False
-    return installed_version > Version(f"{version}.dev0")
+    return installed_version >= Version(f"{version}.dev0")
