@@ -45,7 +45,7 @@ HAS_DYNAMICS = LazyImportTester(
 
 
 def qiskit_version() -> dict[str, str]:
-    """Return a deict with Qiskit names and versions."""
+    """Return a dict with Qiskit names and versions."""
     return {p: metadata_version(p) for p in ("qiskit", "qiskit-experiments")}
 
 
