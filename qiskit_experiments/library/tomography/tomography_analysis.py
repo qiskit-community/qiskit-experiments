@@ -25,7 +25,8 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, numpy_version
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework.package_deps import version_is_at_least
 from .fitters import (
     tomography_fitter_data,
     postprocess_fitter,
@@ -311,7 +312,7 @@ class TomographyAnalysis(BaseAnalysis):
         bs_fidelities = []
         for _ in range(self.options.target_bootstrap_samples):
             # TODO: remove conditional once numpy is pinned at 1.22 and above
-            if numpy_version() >= (1, 22):
+            if version_is_at_least("numpy", "1.22"):
                 sampled_data = rng.multinomial(shot_data, prob_data)
             else:
                 sampled_data = np.zeros_like(outcome_data)

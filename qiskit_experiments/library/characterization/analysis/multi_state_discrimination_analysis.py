@@ -21,7 +21,7 @@ from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
 from qiskit_experiments.data_processing import SkQDA
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
-from qiskit_experiments.warnings import HAS_SKLEARN
+from qiskit_experiments.framework.package_deps import HAS_SKLEARN
 
 if TYPE_CHECKING:
     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
