@@ -15,10 +15,11 @@ Functions for checking and reporting installed package versions.
 
 from __future__ import annotations
 
+import warnings
 from functools import lru_cache
 from importlib.metadata import version as metadata_version
 
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 
 from qiskit.utils.lazy_tester import LazyImportTester
 
@@ -61,11 +62,24 @@ def version_is_at_least(package: str, version: str) -> bool:
             evaluate as less than ``0.5.0``).
 
     Returns:
-        True if installed version greater than ``version``. False if it is less.
+        True if installed version greater than ``version``. False if it is less
+        or if the installed version of ``package`` can not be parsed using the
+        specifications of PEP440.
 
     Raises:
         PackageNotFoundError:
             If ``package`` is not installed.
     """
-    installed_version = Version(metadata_version(package))
+    raw_installed_version = metadata_version(package)
+    try:
+        installed_version = Version(raw_installed_version)
+    except InvalidVersion:
+        warnings.warn(
+            (
+                f"Version string of installed {package} does not match PyPA "
+                f"specification. Treating as less than {version}."
+            ),
+            RuntimeWarning,
+        )
+        return False
     return installed_version > Version(f"{version}.dev0")
