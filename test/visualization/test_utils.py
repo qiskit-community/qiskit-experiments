@@ -22,7 +22,7 @@ from ddt import data, ddt
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.visualization.utils import DataExtentCalculator
-from qiskit_experiments.framework.package_deps import numpy_version
+from qiskit_experiments.framework.package_deps import version_is_at_least
 
 
 @ddt
@@ -49,7 +49,7 @@ class TestDataExtentCalculator(QiskitExperimentsTestCase):
         # The result is a list of pairs representing a moving window of size 2.
         # TODO: remove the old code once numpy is above 1.20.
         dummy_data = []
-        if numpy_version() >= (1, 20):
+        if version_is_at_least("numpy", "1.20"):
             for (x_min, x_max), (y_min, y_max) in it.product(
                 *np.lib.stride_tricks.sliding_window_view(bin_edges, 2, 1)
             ):
