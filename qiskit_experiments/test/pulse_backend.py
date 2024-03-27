@@ -13,13 +13,10 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 
 import datetime
-import importlib.metadata
-from functools import cached_property
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from packaging.version import Version
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
@@ -38,9 +35,9 @@ from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
 
-from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
+from qiskit_experiments.framework.package_deps import HAS_DYNAMICS, version_is_at_least
 from qiskit_experiments.test.utils import FakeJob
 
 
@@ -513,7 +510,7 @@ class SingleTransmonTestBackend(PulseBackend):
         self.rabi_rate_12 = 6.876
 
         if noise is True:
-            if self._dynamics_ge_05:
+            if version_is_at_least("qiskit-dynamics", "0.5.0"):
                 solver_args = {
                     "array_library": "numpy",
                     "vectorized": True,
@@ -524,7 +521,7 @@ class SingleTransmonTestBackend(PulseBackend):
                 }
             static_dissipators = [t1_dissipator]
         else:
-            if self._dynamics_ge_05:
+            if version_is_at_least("qiskit-dynamics", "0.5.0"):
                 solver_args = {
                     "array_library": "numpy",
                 }
@@ -632,9 +629,3 @@ class SingleTransmonTestBackend(PulseBackend):
         self._simulated_pulse_unitaries = {
             (schedule.name, (0,), ()): self.solve(schedule, (0,)) for schedule in default_schedules
         }
-
-    @cached_property
-    def _dynamics_ge_05(self):
-        """True if installed version of qiskit-dynamics>=0.5.0.dev0"""
-        dyn_version = Version(importlib.metadata.distribution("qiskit-dynamics").version)
-        return dyn_version > Version("0.5.0.dev0")

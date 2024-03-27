@@ -33,7 +33,7 @@ from qiskit_experiments.framework.json import (
 
 from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
 from qiskit_experiments.database_service.exceptions import ExperimentDataError
-from qiskit_experiments.database_service.utils import qiskit_version
+from qiskit_experiments.framework.package_deps import qiskit_version
 
 LOG = logging.getLogger(__name__)
 
