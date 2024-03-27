@@ -84,6 +84,10 @@ class CorrelatedReadoutError(BaseExperiment):
 
         .. jupyter-execute::
 
+	    # In this example, the backend is assumed to be a real device
+            # on the IBM Quantum platform
+
+
             from qiskit_experiments.library import CorrelatedReadoutError
 
             qubits = (120,119,)
@@ -91,31 +95,25 @@ class CorrelatedReadoutError(BaseExperiment):
             exp.set_run_options(shots=1000)
             exp.analysis.set_options(plot=True)
 
-            step1=False # run carefully if your device is a real one!
+            step1=False # "False" shows the result saved in a previous job
             if step1==True:
-
                 exp_data = exp.run()
                 mitigator = exp_data.analysis_results(0).value
-                result=exp_data.analysis_results()
-                for _ in result:
-                    print(_)
-
-                exp_data.figure(0)
 
             else:
-                pass
 
-            # retrieve your jobs
-            from qiskit_ibm_provider import IBMProvider
-            from qiskit_experiments.framework import ExperimentData
+                # retrieve your jobs
+                from qiskit_ibm_provider import IBMProvider
+                from qiskit_experiments.framework import ExperimentData
 
-            provider=IBMProvider()
-            job_ids= ["cqs655w4x0mg008jgccg"]
+                provider=IBMProvider()
+                job_ids= ["cqs655w4x0mg008jgccg"]
 
-            exp_data = ExperimentData(experiment=exp)
-            exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-            exp.analysis.run(exp_data)
-            exp_data.block_for_results()
+                exp_data = ExperimentData(experiment=exp)
+                exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+                exp.analysis.run(exp_data)
+                exp_data.block_for_results()
+
             result=exp_data.analysis_results()
             exp_data.figure(0)
 
