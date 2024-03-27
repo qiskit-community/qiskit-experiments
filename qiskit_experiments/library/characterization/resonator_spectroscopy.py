@@ -92,6 +92,9 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         .. jupyter-execute::
 
+            # In this example, the backend is assumed to be a real device
+            # on the IBM Quantum platform
+
             import numpy as np
             from qiskit_experiments.library.characterization import ResonatorSpectroscopy
 
@@ -100,27 +103,22 @@ class ResonatorSpectroscopy(Spectroscopy):
             exp.set_run_options(shots=1000, seed_simulator=118)
             print(exp.circuits()[0])
 
-            step1=False  # run carefully if your backend is a real device
+            step1=False # "False" shows the result saved in a previous job
             if step1==True:
                 exp_data = exp.run().block_for_results()
-                result = exp_data.analysis_results()
-                exp_data.figure(0)
 
             else:
-                pass
+                # retrieve your jobs
+                from qiskit_ibm_provider import IBMProvider
+                from qiskit_experiments.framework import ExperimentData
+                provider=IBMProvider()
+                job_ids= ["cqs4qjy88ev00080zbj0"]
 
-            # retrieve your jobs
-            from qiskit_ibm_provider import IBMProvider
-            from qiskit_experiments.framework import ExperimentData
+                exp_data = ExperimentData(experiment=exp)
+                exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+                exp.analysis.run(exp_data)
+                exp_data.block_for_results()
 
-            provider=IBMProvider()
-            job_ids= ["cqs4qjy88ev00080zbj0"]
-
-            exp_data = ExperimentData(experiment=exp)
-            exp_data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
-            exp.analysis.run(exp_data)
-
-            exp_data.block_for_results()
             result = exp_data.analysis_results()
             exp_data.figure(0)
 
