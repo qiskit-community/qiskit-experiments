@@ -47,7 +47,6 @@ from qiskit_ibm_experiment import (
 )
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
-    qiskit_version,
     plot_to_svg_bytes,
     ThreadSafeOrderedDict,
     ThreadSafeList,
@@ -59,6 +58,7 @@ from qiskit_experiments.framework.analysis_result_table import AnalysisResultTab
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
+from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
