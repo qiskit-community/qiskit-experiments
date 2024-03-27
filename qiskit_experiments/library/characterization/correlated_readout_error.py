@@ -84,7 +84,7 @@ class CorrelatedReadoutError(BaseExperiment):
 
         .. jupyter-execute::
 
-	    # In this example, the backend is assumed to be a real device
+            # In this example, the backend is assumed to be a real device
             # on the IBM Quantum platform
 
 
