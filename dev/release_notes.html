@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Release Notes - Qiskit Experiments 0.6.0-10-gcf6222de</title>
+        <title>Release Notes - Qiskit Experiments 0.6.0-11-gc4e9a52d</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.6.0-10-gcf6222de</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.6.0-11-gc4e9a52d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-10-gcf6222de</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-11-gc4e9a52d</span>
 </div><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -582,10 +582,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
-<section id="relnotes-0-6-0-10">
-<span id="id1"></span><h2>0.6.0-10<a class="headerlink" href="#relnotes-0-6-0-10" title="Link to this heading">#</a></h2>
+<section id="relnotes-0-6-0-11">
+<span id="id1"></span><h2>0.6.0-11<a class="headerlink" href="#relnotes-0-6-0-11" title="Link to this heading">#</a></h2>
 <section id="new-features">
-<span id="relnotes-0-6-0-10-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
+<span id="relnotes-0-6-0-11-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added residual plot option for single-figure experiments. Enable by setting plot_residuals to True. 
 Introducing sub_plot_heights_list and sub_plot_widths_list attributes in PlotStyle for customizable 
@@ -594,12 +594,24 @@ no subplots.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
-<span id="relnotes-0-6-0-10-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<span id="relnotes-0-6-0-11-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.test.SingleTransmonTestBackend.html#qiskit_experiments.test.SingleTransmonTestBackend" title="qiskit_experiments.test.SingleTransmonTestBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingleTransmonTestBackend</span></code></a> was updated to be compatible with
 <a class="reference external" href="https://qiskit-extensions.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a> version 0.5.0. The updates accounted for changes in
 the expected arguments to Dynamics API’s and did not change behavior. See
 <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1427">#1427</a>.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> was updated so that running analysis a second time
+with <code class="docutils literal notranslate"><span class="pre">replace_results=True</span></code> does not result in the <code class="docutils literal notranslate"><span class="pre">figure_names</span></code>
+property having incorrect data (both old and new figure names if the names
+changed). See <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430">#1430</a>.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.BaseAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAnalysis</span></code></a> was updated to respect <code class="docutils literal notranslate"><span class="pre">figure_names</span></code> as a keyword
+argument to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method. Previously, this argument was ignored and
+<code class="docutils literal notranslate"><span class="pre">figure_names</span></code> could only be set as an analysis option prior to calling
+<code class="docutils literal notranslate"><span class="pre">run()</span></code>. See <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430">#1430</a>.</p></li>
 </ul>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.test.MockIQBackend.html#qiskit_experiments.test.MockIQBackend" title="qiskit_experiments.test.MockIQBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">MockIQBackend</span></code></a> was refactored so that it does not import
@@ -1810,7 +1822,7 @@ even if exactly the same arguments are used for their construction.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/03/26</div>
+              Last updated on 2024/03/29</div>
           </div>
           <div class="right-details">
             
@@ -1832,7 +1844,7 @@ even if exactly the same arguments are used for their construction.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-6-0-10">0.6.0-10</a><ul>
+<li><a class="reference internal" href="#relnotes-0-6-0-11">0.6.0-11</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
 </ul>
@@ -1922,7 +1934,7 @@ even if exactly the same arguments are used for their construction.</p></li>
   </div>
 </div><script src="_static/jquery.js?v=5d32c60e"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="_static/documentation_options.js?v=8b649b41"></script>
+    <script src="_static/documentation_options.js?v=86ed481a"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
