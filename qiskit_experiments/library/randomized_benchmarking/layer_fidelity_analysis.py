@@ -147,7 +147,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         alpha = fit_data.ufloat_params["alpha"]
         pf = (1 + (d * d - 1) * alpha) / (d * d)
 
-        quality, reason = self.__evaluate_quality(fit_data)
+        quality, reason = self._evaluate_quality_with_reason(fit_data)
 
         metadata["qubits"] = self._physical_qubits
         metadata["reason"] = reason
@@ -187,7 +187,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         """Set physical qubits to the experiment components."""
         return [device.Qubit(qubit) for qubit in self._physical_qubits]
 
-    def __evaluate_quality(
+    def _evaluate_quality_with_reason(
         self,
         fit_data: curve.CurveFitResult,
     ) -> Tuple[str, Union[str, None]]:
