@@ -126,6 +126,14 @@ Experiment Configuration Helper Classes
     BackendTiming
     RestlessMixin
 
+Helper Functions
+****************
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    load_all
+
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData
@@ -155,3 +163,4 @@ from .composite import (
 )
 from .json import ExperimentEncoder, ExperimentDecoder
 from .restless_mixin import RestlessMixin
+from qiskit_experiments.framework.helpers import load_all

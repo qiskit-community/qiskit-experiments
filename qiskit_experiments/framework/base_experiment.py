@@ -20,18 +20,19 @@ import logging
 import traceback
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Provider, Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.framework.json import ExperimentDecoder
+from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.database_service.utils import zip_to_objs
 
@@ -210,6 +211,18 @@ class BaseExperiment(ABC, StoreInitArgs):
             ret.analysis = config.analysis.analysis()
         return ret
 
+    def save(self, service=None, backend=None):
+        """Save an experiment without running it."""
+        if not service:
+            raise QiskitError("A service must be provided to save the experiment.")
+        if not self.backend and not backend:
+            raise QiskitError("Backend must be set to save the experiment.")
+        exp_data = self._initialize_experiment_data(
+            service=service, backend=backend or self.backend
+        )
+        exp_data.save()
+        return exp_data
+
     @classmethod
     def load(
         cls,
@@ -232,7 +245,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Returns:
             The reconstructed experiment.
         Raises:
-            QiskitError: If not service nor provider were given.
+            QiskitError: If the experiment could not be reconstructed.
         """
         if service is None:
             if provider is None:
@@ -242,42 +255,50 @@ class BaseExperiment(ABC, StoreInitArgs):
             service = ExperimentData.get_service_from_provider(provider)
 
         data = service.experiment(experiment_id, json_decoder=ExperimentDecoder)
-        # loading metadata artifact if exist
-        if service.experiment_has_file(experiment_id, ExperimentData._metadata_filename):
-            metadata = service.file_download(
-                experiment_id, ExperimentData._metadata_filename, json_decoder=ExperimentDecoder
-            )
-            data.metadata.update(metadata)
 
         # Recreate artifacts
-        experiment_config_filename = "experiment_config"
+        experiment_config_filename = "experiment_config.zip"
         try:
-            if experiment_config_filename in data.metadata:
+            if experiment_config_filename in data.metadata["artifact_files"]:
                 if service.experiment_has_file(experiment_id, experiment_config_filename):
                     artifact_file = service.file_download(experiment_id, experiment_config_filename)
 
-                    experiment_config = zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)[
-                        0
-                    ]
+                    experiment_config = next(
+                        zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)
+                    ).data
+
+                    exp_versions = data.metadata["_source"]["qiskit_version"]
+                    cur_versions = qiskit_version()
+                    if exp_versions != cur_versions:
+                        warnings.warn(
+                            f"The experiment was created with {exp_versions}, but you have versions {cur_versions}."
+                        )
+
+                    try:
+                        reconstructed_experiment = experiment_config.cls.from_config(
+                            experiment_config
+                        )
+                    except Exception as exc:  # pylint: disable=broad-except:
+                        raise QiskitError("Recreating experiment failed with {Exception}.") from exc
                     backend_name = data.backend
-                    reconstructed_experiment = cls.from_config(experiment_config)
                     if backend_name:
-                        reconstructed_experiment.backend = provider.get_backend(backend_name)
+                        try:
+                            reconstructed_experiment.backend = provider.get_backend(backend_name)
+                        except Exception:  # pylint: disable=broad-except
+                            warnings.warn("Unable to retrieve backend.")
                     else:
-                        warnings.warn("No backend for loaded data.")
+                        warnings.warn("No backend specified in loaded experiment.")
                     return reconstructed_experiment
                 else:
-                    raise QiskitError(
-                        "The experiment doesn't have saved experiment in the DB to load."
-                    )
+                    raise QiskitError("The experiment doesn't have saved metadata in the service.")
             else:
                 raise QiskitError(
                     f"No '{experiment_config_filename}' field in the experiment metadata. can't load "
                     f"the experiment."
                 )
 
-        except Exception:  # pylint: disable=broad-except:
-            LOG.error("Unable to load artifacts: %s", traceback.format_exc())
+        except Exception:  # pylint: disable=broad-except
+            LOG.error("Unable to load experiment: %s", traceback.format_exc())
 
     def run(
         self,
@@ -345,9 +366,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         else:
             return experiment_data
 
-    def _initialize_experiment_data(self) -> ExperimentData:
+    def _initialize_experiment_data(self, **kwargs) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return ExperimentData(experiment=self)
+        return ExperimentData(experiment=self, **kwargs)
 
     def _finalize(self):
         """Finalize experiment object before running jobs.
