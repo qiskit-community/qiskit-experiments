@@ -2409,7 +2409,7 @@ class ExperimentData:
 
         with self._artifacts.lock:
             new_instance._artifacts = ThreadSafeOrderedDict()
-            new_instance.add_artifacts(self._artifacts.values())
+            new_instance.add_artifacts(self._artifacts.values(), overwrite_id=True)
 
         # Recursively copy child data
         child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]
@@ -2668,19 +2668,22 @@ class ExperimentData:
     ):
         """Add artifacts to experiment. The artifact ID must be unique.
 
+        TODO: update argument list to have only `overwrite` with multiple options
+
         Args:
             artifacts: Artifact or list of artifacts to be added.
             overwrite_id: Whether to overwrite the existing artifact by ID.
             overwrite_name: Whether to overwrite the existing artifact by name.
         """
+
         if isinstance(artifacts, ArtifactData):
             artifacts = [artifacts]
 
         for artifact in artifacts:
             if artifact.artifact_id in self._artifacts and not overwrite_id:
                 raise ValueError(
-                    "An artifact with id {artifact.id} already exists."
-                    "Set overwrite_id to True if you want to overwrite the existing"
+                    f"An artifact with id {artifact.artifact_id} already exists. "
+                    "Set overwrite_id to True if you want to overwrite the existing "
                     "artifact."
                 )
             if overwrite_name:

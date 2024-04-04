@@ -38,7 +38,7 @@ def load_all(
             not be confused with the experiment database service
             :meth:`qiskit_ibm_experiment.IBMExperimentService`.
         run_analysis: Whether to run the analysis associated with the experiment and return a new
-        experiment data container. Defaults to ``False``.
+            experiment data container. Defaults to ``False``.
 
     Returns:
         A tuple consisting of the reconstructed experiment and experiment data.

@@ -155,7 +155,9 @@ class BaseAnalysis(ABC, StoreInitArgs):
             This data can then be saved as its own experiment to a database service.
         """
         experiment_data.add_artifacts(
-            ArtifactData(name="analysis_config", data=self.config()), overwrite_name=True
+            ArtifactData(name="analysis_config", data=self.config()),
+            overwrite_name=True,
+            overwrite_id=True,
         )
         # Make a new copy of experiment data if not updating results
         if not replace_results and _requires_copy(experiment_data):
@@ -203,13 +205,18 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
                         expdata.add_analysis_results(**table_format)
                     elif isinstance(result, ArtifactData):
-                        if not result.experiment_id:
-                            result.experiment_id = expdata.experiment_id
-                        if not result.device_components:
-                            result.device_components = analysis._get_experiment_components(expdata)
-                        if not result.experiment:
-                            result.experiment = expdata.experiment_type
-                        expdata.add_artifacts(result)
+                        if (
+                            result.name != "analysis_config"
+                        ):  # Not saving constituent analysis configs
+                            if not result.experiment_id:
+                                result.experiment_id = expdata.experiment_id
+                            if not result.device_components:
+                                result.device_components = analysis._get_experiment_components(
+                                    expdata
+                                )
+                            if not result.experiment:
+                                result.experiment = expdata.experiment_type
+                            expdata.add_artifacts(result)
                     else:
                         raise TypeError(
                             f"Invalid object type {result.__class__.__name__} for analysis results. "

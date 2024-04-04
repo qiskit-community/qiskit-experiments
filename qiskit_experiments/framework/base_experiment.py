@@ -258,47 +258,42 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Recreate artifacts
         experiment_config_filename = "experiment_config.zip"
-        try:
-            if experiment_config_filename in data.metadata["artifact_files"]:
-                if service.experiment_has_file(experiment_id, experiment_config_filename):
-                    artifact_file = service.file_download(experiment_id, experiment_config_filename)
 
-                    experiment_config = next(
-                        zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)
-                    ).data
+        if experiment_config_filename in data.metadata["artifact_files"]:
+            if service.experiment_has_file(experiment_id, experiment_config_filename):
+                artifact_file = service.file_download(experiment_id, experiment_config_filename)
 
-                    exp_versions = data.metadata["_source"]["qiskit_version"]
-                    cur_versions = qiskit_version()
-                    if exp_versions != cur_versions:
-                        warnings.warn(
-                            f"The experiment was created with {exp_versions}, but you have versions {cur_versions}."
-                        )
+                experiment_config = next(
+                    zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)
+                ).data
 
+                exp_versions = data.metadata["_source"]["qiskit_version"]
+                cur_versions = qiskit_version()
+                if exp_versions != cur_versions:
+                    warnings.warn(
+                        f"The experiment was created with {exp_versions}, "
+                        f"but you have versions {cur_versions}."
+                    )
+                try:
+                    reconstructed_experiment = experiment_config.cls.from_config(experiment_config)
+                except Exception as exc:  # pylint: disable=broad-except:
+                    raise QiskitError("Recreating experiment failed with {Exception}.") from exc
+                backend_name = data.backend
+                if backend_name:
                     try:
-                        reconstructed_experiment = experiment_config.cls.from_config(
-                            experiment_config
-                        )
-                    except Exception as exc:  # pylint: disable=broad-except:
-                        raise QiskitError("Recreating experiment failed with {Exception}.") from exc
-                    backend_name = data.backend
-                    if backend_name:
-                        try:
-                            reconstructed_experiment.backend = provider.get_backend(backend_name)
-                        except Exception:  # pylint: disable=broad-except
-                            warnings.warn("Unable to retrieve backend.")
-                    else:
-                        warnings.warn("No backend specified in loaded experiment.")
-                    return reconstructed_experiment
+                        reconstructed_experiment.backend = provider.get_backend(backend_name)
+                    except Exception:  # pylint: disable=broad-except
+                        warnings.warn("Unable to retrieve backend.")
                 else:
-                    raise QiskitError("The experiment doesn't have saved metadata in the service.")
+                    warnings.warn("No backend specified in loaded experiment.")
+                return reconstructed_experiment
             else:
-                raise QiskitError(
-                    f"No '{experiment_config_filename}' field in the experiment metadata. can't load "
-                    f"the experiment."
-                )
-
-        except Exception:  # pylint: disable=broad-except
-            LOG.error("Unable to load experiment: %s", traceback.format_exc())
+                raise QiskitError("The experiment doesn't have saved metadata in the service.")
+        else:
+            raise QiskitError(
+                f"No '{experiment_config_filename}' field in the experiment metadata. can't load "
+                f"the experiment."
+            )
 
     def run(
         self,
