@@ -40,7 +40,7 @@ from .clifford_utils import (
     inverse_1q,
     inverse_2q,
     num_from_2q_circuit,
-    _product_1q_nums,
+    _tensor_1q_nums,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
     _decompose_clifford_ops,
@@ -403,8 +403,11 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             for j, qpair in enumerate(two_qubit_layer):
                 # sample product of two 1q-Cliffords as 2q interger Clifford
                 samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
-                cliffs_2q[j] = compose_2q(cliffs_2q[j], _product_1q_nums(*samples))
-                for sample, q in zip(samples, qpair):
+                cliffs_2q[j] = compose_2q(cliffs_2q[j], _tensor_1q_nums(*samples))
+                # For Clifford 1 (x) Clifford 2, in its circuit representation,
+                # Clifford 1 acts on the 2nd qubit and Clifford 2 acts on the 1st qubit.
+                # That's why the qpair is reversed here.
+                for sample, q in zip(samples, reversed(qpair)):
                     circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
             for k, q in enumerate(one_qubits):
                 sample = rng.integers(NUM_1Q_CLIFFORD)

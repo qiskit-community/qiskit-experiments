@@ -46,6 +46,7 @@ _CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
 _valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
 # map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
+_CLIFFORD_TENSOR_1Q = np.load(f"{_DATA_FOLDER}/clifford_tensor_1q.npz")["table"]
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -740,12 +741,6 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     return idx0, idx1, idx2
 
 
-@lru_cache(maxsize=24 * 24)
-def _product_1q_nums(first: Integral, second: Integral) -> Integral:
-    """Return the 2-qubit Clifford integer that represents the product of 1-qubit Cliffords."""
-    qc0 = CliffordUtils.clifford_1_qubit_circuit(first)
-    qc1 = CliffordUtils.clifford_1_qubit_circuit(second)
-    qc = QuantumCircuit(2)
-    qc.compose(qc0, qubits=(0,), inplace=True)
-    qc.compose(qc1, qubits=(1,), inplace=True)
-    return num_from_2q_circuit(qc)
+def _tensor_1q_nums(first: Integral, second: Integral) -> Integral:
+    """Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords."""
+    return _CLIFFORD_TENSOR_1Q[first, second]
