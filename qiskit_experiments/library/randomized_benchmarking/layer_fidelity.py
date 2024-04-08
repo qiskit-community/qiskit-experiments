@@ -93,14 +93,15 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
 
         Args:
             physical_qubits: List of physical qubits for the experiment.
-            two_qubit_layers: List of list of qubit pairs where a list of qubit pairs
-                    corresponds with a two-qubit gate layer. Qubit direction matters.
+            two_qubit_layers: List of two-qubit gate layers to run on. Each two-qubit
+                    gate layer must be given as a list of directed qubit pairs.
             lengths: A list of layer lengths (the number of depth points).
-            backend: The backend to run the experiment on.
+            backend: The backend to run the experiment on. Note that either ``backend`` or
+                    ``two_qubit_gate`` and ``one_qubit_basis_gates`` must be set at instantiation.
             num_samples: Number of samples (i.e. circuits) to generate for each layer length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value every time :meth:`circuits` is called.
+                  with this seed value every time :meth:~.LayerFidelity.circuits` is called.
             two_qubit_gate: Optional, 2q-gate name (e.g. "cx", "cz", "ecr")
                             of which the two qubit layers consist.
                             If not specified (but ``backend`` is supplied),
@@ -188,7 +189,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         """Default experiment options.
 
         Experiment Options:
-            two_qubit_layers (List[List[Tuple[int, int]]]): List of pairs of qubits to run on.
+            two_qubit_layers (List[List[Tuple[int, int]]]): List of two-qubit gate layers to run on.
+                Each two-qubit gate layer must be given as a list of directed qubit pairs.
             lengths (List[int]): A list of layer lengths.
             num_samples (int): Number of samples to generate for each layer length.
             seed (None or int or SeedSequence or BitGenerator or Generator): A seed
