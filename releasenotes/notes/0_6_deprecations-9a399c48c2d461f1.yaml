@@ -1,0 +1,20 @@
+---
+upgrade_package:
+  - |
+    Several deprecated modules, methods, functions, and options have been removed and will no longer work:
+
+    * The visualization module of :mod:`.CurveAnalysis` has been replaced by the
+    standalone :mod:`.visualization` module. The ``LegacyCurveCompatDrawer`` has
+    been removed from :mod:`.visualization`.
+    * The ``curve_drawer`` option to :class:`.CompositeCurveAnalysis` has been
+    replaced by the plotter in the visualization module.
+    * ``SeriesDef`` and ``CurveData`` have been replaced
+    * ``random_cliffords()`` and ``random_clifford_circuits()`` have been
+    removed from :class:`.CliffordUtils`. Use the ___ instead.
+    * ``beta`` has been renamed to ``outcome_prior`` in ``binomial_weights()``.
+    * The ``return_data_points`` option has been removed from curve analysis.
+    Data points are now automatically provided in :class:`.ExperimentData` objects via the ``curve_data``
+    artifact.
+    * The default value of ``flatten_results`` in composite experiments has changed to ``True``.
+    * The default value of ``dataframe`` in :method:`.analysis_results` has changed to ``True``.
+

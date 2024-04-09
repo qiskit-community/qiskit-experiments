@@ -22,8 +22,6 @@ import numpy as np
 import pandas as pd
 from uncertainties import unumpy as unp
 
-from qiskit.utils.deprecation import deprecate_func
-
 from qiskit_experiments.framework import (
     AnalysisResultData,
     BaseAnalysis,
@@ -31,10 +29,8 @@ from qiskit_experiments.framework import (
     Options,
 )
 from qiskit_experiments.visualization import (
-    BaseDrawer,
     BasePlotter,
     CurvePlotter,
-    LegacyCurveCompatDrawer,
     MplDrawer,
 )
 
@@ -77,7 +73,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for qi in (0, 1):
                 analysis = curve.OscillationAnalysis(name=f"init{qi}")
                 analysis.set_options(
-                    return_fit_parameters=["freq"],
                     filter_data={"init_state": qi},
                 )
             analysis = CompositeCurveAnalysis(analyses=analyses)
@@ -147,20 +142,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def plotter(self) -> BasePlotter:
         """A short-cut to the plotter instance."""
         return self._options.plotter
-
-    @property
-    @deprecate_func(
-        since="0.5",
-        additional_msg="Use `plotter` from the new visualization module instead.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def drawer(self) -> BaseDrawer:
-        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
-        if hasattr(self._options, "curve_drawer"):
-            return self._options.curve_drawer
-        else:
-            return None
 
     def analyses(
         self, index: Optional[Union[str, int]] = None
@@ -272,10 +253,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``False``.
-            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
-                the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
         """
@@ -283,8 +260,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         options.update_options(
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
-            return_fit_parameters=False,
-            return_data_points=False,
             extra={},
         )
 
@@ -294,27 +269,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return options
 
     def set_options(self, **fields):
-        # TODO remove this in Qiskit Experiments 0.6
-        if "curve_drawer" in fields:
-            warnings.warn(
-                "The option 'curve_drawer' is replaced with 'plotter'. "
-                "This option will be removed in Qiskit Experiments 0.6.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
-            # directly. If not, wrap it in a compatibility drawer.
-            if isinstance(fields["curve_drawer"], BaseDrawer):
-                plotter = self.options.plotter
-                plotter.drawer = fields.pop("curve_drawer")
-                fields["plotter"] = plotter
-            else:
-                drawer = fields["curve_drawer"]
-                compat_drawer = LegacyCurveCompatDrawer(drawer)
-                plotter = self.options.plotter
-                plotter.drawer = compat_drawer
-                fields["plotter"] = plotter
-
         for field in fields:
             if not hasattr(self.options, field):
                 warnings.warn(
@@ -363,16 +317,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
             else:
                 quality = "bad"
 
-            if self.options.return_fit_parameters:
-                # Store fit status overview entry regardless of success.
-                # This is sometime useful when debugging the fitting code.
-                overview = AnalysisResultData(
-                    name=PARAMS_ENTRY_PREFIX + analysis.name,
-                    value=fit_data,
-                    quality=quality,
-                    extra=metadata,
-                )
-                result_data.append(overview)
+            # Store fit status overview entry regardless of success.
+            # This is sometime useful when debugging the fitting code.
+            overview = AnalysisResultData(
+                name=PARAMS_ENTRY_PREFIX + analysis.name,
+                value=fit_data,
+                quality=quality,
+                extra=metadata,
+            )
+            result_data.append(overview)
 
             if fit_data.success:
                 # Add fit data to curve data table
@@ -411,18 +364,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         quality=quality,
                         **metadata.copy(),
                     )
-                )
-
-            if self.options.return_data_points:
-                # Add raw data points
-                warnings.warn(
-                    f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
-                    "Saving this result with 'return_data_points'=True will be disabled in "
-                    "Qiskit Experiments 0.7.",
-                    DeprecationWarning,
-                )
-                result_data.extend(
-                    analysis._create_curve_data(curve_data=formatted_subset, **metadata)
                 )
 
             curve_data_set.append(table)

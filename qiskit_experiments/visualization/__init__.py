@@ -68,6 +68,6 @@ Plotting Style
     PlotStyle
 """
 
-from .drawers import BaseDrawer, LegacyCurveCompatDrawer, MplDrawer
+from .drawers import BaseDrawer, MplDrawer
 from .plotters import BasePlotter, CurvePlotter, IQPlotter
 from .style import PlotStyle

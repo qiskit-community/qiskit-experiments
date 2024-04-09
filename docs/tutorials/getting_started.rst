@@ -186,18 +186,18 @@ Analysis Results
 ----------------
 
 The analysis results resulting from the fit are accessed with
-:meth:`~.ExperimentData.analysis_results`. If the ``dataframe=True`` parameter is passed, analysis
+:meth:`~.ExperimentData.analysis_results`. By default, analysis
 results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format:
 
 .. jupyter-execute::
 
-    exp_data.analysis_results(dataframe=True)
+    exp_data.analysis_results()
 
 Alternatively, analysis results can be accessed via the legacy list format:
 
 .. jupyter-execute::
 
-    for result in exp_data.analysis_results():
+    for result in exp_data.analysis_results(dataframe=False):
         print(result)
 
 Individual results can be retrieved using their name or their long or short IDs, which will all
@@ -437,39 +437,23 @@ arbitrarily to make complex composite experiments.
 Viewing child experiment data
 -----------------------------
 
-The experiment data returned from a composite experiment contains individual analysis
-results for each child experiment that can be accessed using
-:meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
-analysis results.
+The experiment data returned from a composite experiment contains analysis
+results for each child experiment in the parent experiment.
 
 .. note::
 
-    This behavior will be updated in Qiskit Experiments 0.7.
     By default, all analysis results will be stored in the parent data object,
-    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
-
-.. jupyter-execute::
-
-    parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
-
-    for i, sub_data in enumerate(parallel_data.child_data()):
-        print("Component experiment",i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
-
-If you want the parent data object to contain the analysis results instead, you can set
-the ``flatten_results`` flag to true to flatten the results of all component experiments
-into one level:
+    and you need to explicitly set ``flatten_results=False`` to generate child
+    data objects in the legacy format.
 
 .. jupyter-execute::
 
     parallel_exp = ParallelExperiment(
-        [T1(physical_qubits=(i,), delays=delays) for i in range(2)], flatten_results=True
+        [T1(physical_qubits=(i,), delays=delays) for i in range(2)]
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    parallel_data.analysis_results(dataframe=True)
+    parallel_data.analysis_results()
 
 Broadcasting analysis options to child experiments
 --------------------------------------------------
