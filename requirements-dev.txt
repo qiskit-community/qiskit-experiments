@@ -20,7 +20,7 @@ jupyter-sphinx>=0.4.0
 nbsphinx
 pylatexenc
 qiskit-sphinx-theme
-reno @ git+https://github.com/openstack/reno.git@270c97d738430e35abae5985be13f30078137504
+reno>=4.1.0
 sphinx>=6.2.1
 sphinx-copybutton
 sphinx-design
