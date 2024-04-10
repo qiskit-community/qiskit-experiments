@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Save and load experiment data with the cloud service" href="cloud_service.html" /><link rel="prev" title="How-To Guides" href="index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19 -->
-        <title>Work with experiment artifacts - Qiskit Experiments 0.6.0</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>Work with experiment artifacts - Qiskit Experiments 0.6.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
-    <link rel="stylesheet" type="text/css" href="../_static/dataframe.css?v=96dbfbde" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
     
     
 
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.1</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -589,7 +589,7 @@
 object is automatically populated with <code class="docutils literal notranslate"><span class="pre">fit_summary</span></code> and <code class="docutils literal notranslate"><span class="pre">curve_data</span></code> artifacts. The <code class="docutils literal notranslate"><span class="pre">fit_summary</span></code>
 artifact has one or more <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> objects that contain parameters from the fit. The
 <code class="docutils literal notranslate"><span class="pre">curve_data</span></code> artifact has a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> object that contains raw and fitted data in a pandas
-<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
 <section id="viewing-artifacts">
 <h3>Viewing artifacts<a class="headerlink" href="#viewing-artifacts" title="Link to this heading">#</a></h3>
 <p>Here we run a parallel experiment consisting of two <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a> experiments in parallel and then view the output
@@ -611,10 +611,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=99c9ec08-f855-462c-adc3-4e1eb7ed7f24, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=a6c3cb7b-139b-41d4-94ac-0a264fede5ad, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=c18babe3-06c8-4f9f-9757-ca206563ffe1, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=3c37905f-87d4-48bb-ac8f-1b7600cd19c0, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=c68629c4-3b7a-4cba-b538-0dcba022308e, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=b9ba1a71-7df3-487e-990f-a217b7466dac, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=9da85a97-3f91-4b7b-81e6-99695dc4aa11, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=c71f217a-4170-4fe5-867b-27b621fba6da, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -672,8 +672,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.972195</td>
-      <td>0.005133</td>
+      <td>0.976098</td>
+      <td>0.004769</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -683,8 +683,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.77122</td>
-      <td>0.013114</td>
+      <td>0.767317</td>
+      <td>0.013192</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -694,8 +694,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.612195</td>
-      <td>0.015212</td>
+      <td>0.613171</td>
+      <td>0.015205</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -705,8 +705,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.472683</td>
-      <td>0.015586</td>
+      <td>0.467805</td>
+      <td>0.015577</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -716,8 +716,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.34878</td>
-      <td>0.014879</td>
+      <td>0.405366</td>
+      <td>0.015328</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -738,8 +738,8 @@ The first curve_data artifact:
     <tr>
       <th>119</th>
       <td>0.000529</td>
-      <td>0.091595</td>
-      <td>0.005332</td>
+      <td>0.092408</td>
+      <td>0.00543</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -749,8 +749,8 @@ The first curve_data artifact:
     <tr>
       <th>120</th>
       <td>0.000534</td>
-      <td>0.089715</td>
-      <td>0.005422</td>
+      <td>0.09049</td>
+      <td>0.005523</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -760,8 +760,8 @@ The first curve_data artifact:
     <tr>
       <th>121</th>
       <td>0.00054</td>
-      <td>0.087886</td>
-      <td>0.005512</td>
+      <td>0.088624</td>
+      <td>0.005616</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -771,8 +771,8 @@ The first curve_data artifact:
     <tr>
       <th>122</th>
       <td>0.000545</td>
-      <td>0.086107</td>
-      <td>0.005602</td>
+      <td>0.086808</td>
+      <td>0.00571</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -782,8 +782,8 @@ The first curve_data artifact:
     <tr>
       <th>123</th>
       <td>0.000551</td>
-      <td>0.084376</td>
-      <td>0.005692</td>
+      <td>0.085042</td>
+      <td>0.005804</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -847,7 +847,7 @@ Qiskit Experiments.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=54b0ce28-69ab-4b55-a337-6147a7593a15, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=ee2f7541-8c46-4dfd-a8f2-2a984dce23dd, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
@@ -881,13 +881,13 @@ by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- a6c3cb7b-139b-41d4-94ac-0a264fede5ad.json
-|- 3c37905f-87d4-48bb-ac8f-1b7600cd19c0.json
+|- b9ba1a71-7df3-487e-990f-a217b7466dac.json
+|- c71f217a-4170-4fe5-867b-27b621fba6da.json
 curve_data.zip
-|- 99c9ec08-f855-462c-adc3-4e1eb7ed7f24.json
-|- c18babe3-06c8-4f9f-9757-ca206563ffe1.json
+|- c68629c4-3b7a-4cba-b538-0dcba022308e.json
+|- 9da85a97-3f91-4b7b-81e6-99695dc4aa11.json
 experiment_notes.zip
-|- 54b0ce28-69ab-4b55-a337-6147a7593a15.json
+|- ee2f7541-8c46-4dfd-a8f2-2a984dce23dd.json
 </pre></div>
 </div>
 </div>
@@ -947,7 +947,7 @@ these artifacts.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/02/12</div>
+              Last updated on 2024/04/10</div>
           </div>
           <div class="right-details">
             
@@ -990,7 +990,7 @@ these artifacts.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
