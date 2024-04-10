@@ -26,7 +26,7 @@ Bug Fixes
 
 .. releasenotes/notes/fix-curve-fit-weights-fb43d3aa5ed1c91c.yaml @ b'8bf58e97a005fbdf10cf1eee8f455bd23d746177'
 
-- Fix calculation of weight for curve fitting. Previously the weights of data points to obtain
+- Fixed calculation of weight for curve fitting. Previously the weights of data points to obtain
   the residual of fit curve were computed by the inverse of the error bars of y data. 
   This may yield significant weights on certain data points when their error bar is small or zero,
   and this can cause the local overfit to these data points. 

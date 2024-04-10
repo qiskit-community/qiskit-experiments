@@ -1,9 +1,0 @@
----
-fixes:
-  - |
-    Fixed :meth:`.BackendData.coupling_map` and
-    :meth:`.BackendData.drive_freqs` raising exceptions when the underlying
-    backend has ``None`` for its coupling and qubit property entries. Also,
-    changed :meth:`.BackendData.control_channel` to return an empty list rather
-    than ``None`` when there is no control channel data.
-    See `#1035 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1035>`__.
