@@ -1,6 +1,0 @@
----
-features:
-  - |
-    qiskit-experiments has been marked as compatible with Python 3.11 in the
-    package metadata. qiskit-experiments currently tests against Python 3.7,
-    3.8, 3.9, 3.10, and 3.11.
