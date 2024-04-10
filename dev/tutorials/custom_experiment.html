@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-To Guides" href="../howtos/index.html" /><link rel="prev" title="Visualization: Creating figures" href="visualization.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Writing your own experiment - Qiskit Experiments 0.6.0-11-gc4e9a52d</title>
+        <title>Writing your own experiment - Qiskit Experiments 0.6.0-12-g4c938335</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-11-gc4e9a52d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-12-g4c938335</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-11-gc4e9a52d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-12-g4c938335</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -657,7 +657,7 @@ after instantiating the experiment object <code class="docutils literal notransl
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method should return a pair
 <code class="code docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">figures)</span></code>, where <code class="docutils literal notranslate"><span class="pre">results</span></code> is a list of
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects and <code class="docutils literal notranslate"><span class="pre">figures</span></code> is a list of
-<a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
+<a class="reference external" href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v3.8.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
 <p>The <a class="reference internal" href="data_processor.html"><span class="doc">Data Processor</span></a> module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.</p>
@@ -1031,7 +1031,7 @@ output if the Pauli corresponding to that bit has a nonzero signature.</p>
 <p>To test our code, we first simulate a noisy backend with asymmetric readout error.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.13.3)"><span class="xref std std-doc">qiskit-aer</span></a> package for simulations.
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.14.0)"><span class="xref std std-doc">qiskit-aer</span></a> package for simulations.
 You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1099,7 +1099,7 @@ perfect symmetrical results between <span class="math notranslate nohighlight">\
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0000&#39;: 50126, &#39;1111&#39;: 49874}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0000&#39;: 50069, &#39;1111&#39;: 49931}
 </pre></div>
 </div>
 </div>
@@ -1195,7 +1195,7 @@ unaffected by the added randomized measurements, which use its own classical reg
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/03/29</div>
+              Last updated on 2024/04/10</div>
           </div>
           <div class="right-details">
             
@@ -1234,7 +1234,7 @@ unaffected by the added randomized measurements, which use its own classical reg
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=86ed481a"></script>
+    <script src="../_static/documentation_options.js?v=d37c680e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
