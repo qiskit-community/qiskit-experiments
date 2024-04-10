@@ -31,7 +31,7 @@ class CompositeExperiment(BaseExperiment):
         physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
-        flatten_results: bool = None,
+        flatten_results: bool = True,
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
@@ -55,17 +55,6 @@ class CompositeExperiment(BaseExperiment):
             QiskitError: If the provided analysis class is not a CompositeAnalysis
                          instance.
         """
-        if flatten_results is None:
-            # Backward compatibility for 0.6
-            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
-            warnings.warn(
-                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
-                "If you want child experiment data for each subset experiment, "
-                "set 'flatten_results=False' explicitly.",
-                DeprecationWarning,
-            )
-            flatten_results = False
-
         self._experiments = experiments
         self._num_experiments = len(experiments)
         if analysis is None:

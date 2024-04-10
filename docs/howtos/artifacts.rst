@@ -36,7 +36,7 @@ artifacts as a list of :class:`.ArtifactData` objects accessed by :meth:`.Experi
     backend = AerSimulator.from_backend(FakePerth())
     exp1 = T1(physical_qubits=[0], delays=np.arange(1e-6, 6e-4, 5e-5))
     exp2 = T1(physical_qubits=[1], delays=np.arange(1e-6, 6e-4, 5e-5))
-    data = ParallelExperiment([exp1, exp2], flatten_results=True).run(backend).block_for_results()
+    data = ParallelExperiment([exp1, exp2]).run(backend).block_for_results()
     data.artifacts()
 
 Artifacts can be accessed using either the artifact ID, which has to be unique in each

@@ -583,26 +583,11 @@ class ExperimentData:
         self._db_data.backend = self._backend_data.name
         if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        provider = self._backend_data.provider
-        if provider is not None:
-            self._set_hgp_from_provider(provider)
-        # qiskit-ibm-runtime style
-        elif hasattr(self._backend, "_instance"):
+        if hasattr(self._backend, "_instance"):
             self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
-
-    def _set_hgp_from_provider(self, provider):
-        try:
-            # qiskit-ibm-provider style
-            if hasattr(provider, "_hgps"):
-                for hgp_string, hgp in provider._hgps.items():
-                    if self.backend.name in hgp.backends:
-                        self.hgp = hgp_string
-                        break
-        except (AttributeError, IndexError, QiskitError):
-            return
 
     @property
     def hgp(self) -> str:

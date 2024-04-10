@@ -47,7 +47,7 @@ class BatchExperiment(CompositeExperiment):
         self,
         experiments: List[BaseExperiment],
         backend: Optional[Backend] = None,
-        flatten_results: bool = None,
+        flatten_results: bool = True,
         analysis: Optional[CompositeAnalysis] = None,
         experiment_type: Optional[str] = None,
     ):

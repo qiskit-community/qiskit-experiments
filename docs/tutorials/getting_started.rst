@@ -384,7 +384,7 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine

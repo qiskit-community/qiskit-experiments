@@ -16,5 +16,8 @@ upgrade_package:
     Data points are now automatically provided in :class:`.ExperimentData` objects via the ``curve_data``
     artifact.
     * The default value of ``flatten_results`` in composite experiments has changed to ``True``.
-    * The default value of ``dataframe`` in :method:`.analysis_results` has changed to ``True``.
+    * The default value of ``dataframe`` in :method:`.analysis_results` has
+    changed to ``True``.
+    * Support for the deprecated ``qiskit-ibm-provider`` has been removed. This
+    includes the removal of the ``ExperimentData.provider`` attribute.
 
