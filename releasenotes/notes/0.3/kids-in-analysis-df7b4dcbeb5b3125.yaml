@@ -1,7 +1,0 @@
----
-upgrade:
-  - |
-    The :class:`.ParallelExperiment` and :class:`.BatchExperiment` composite experiments
-    have been changed to no longer return analysis results containing information about
-    sub-experiments. Instead, use the :meth:`~.ParallelExperiment.child_data` method to
-    retrieve sub-experiments of a given composite experiment.

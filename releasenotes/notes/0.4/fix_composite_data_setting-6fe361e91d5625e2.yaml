@@ -1,5 +1,0 @@
----
-fixes:
-  - |
-    Fixed a bug with the way composite experiments set the ``experiment_id``
-    and ``experiment_type`` of :class:`.AnalysisResult` and :class:`.ExperimentData`.
