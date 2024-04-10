@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Removed a ``FakeBackendV2`` import path which would have been incompatible with Qiskit 1.1 and above. See 
+    `#1420 <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1420>`_.
