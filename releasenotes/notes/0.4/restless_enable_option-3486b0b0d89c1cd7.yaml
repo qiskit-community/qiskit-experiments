@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    The :meth:`~.RestlessMixin.enable_restless` method of the :class:`.RestlessMixin` class now has
-    the non-default option to supress errors when T1 values are lower than
-    the repetition dely. This allows users to accomodate cases when backends
-    report erronous T1 values.
