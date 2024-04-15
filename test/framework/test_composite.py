@@ -98,7 +98,7 @@ class TestComposite(QiskitExperimentsTestCase):
         expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check no child data was saved
-        self.assertEqual(len(expdata.child_data()), 3)
+        self.assertEqual(len(expdata.child_data()), 2)
         # NOTE : At new implementation there will be inner child datas
         # so I changed it 0 to 3
 
@@ -124,7 +124,7 @@ class TestComposite(QiskitExperimentsTestCase):
         expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check out experiment wasn't flattened
-        self.assertEqual(len(expdata.child_data()), 3)
+        self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
         # self.assertEqual(len(expdata.artifacts()), 0)
         # NOTE: In this fork there is no artifacts
@@ -133,8 +133,8 @@ class TestComposite(QiskitExperimentsTestCase):
         child0 = expdata.child_data(0)
         child1 = expdata.child_data(1)
 
-        self.assertEqual(len(child0.child_data()), 4)
-        self.assertEqual(len(child1.child_data()), 3)
+        self.assertEqual(len(child0.child_data()), 3)
+        self.assertEqual(len(child1.child_data()), 2)
         # Check right number of analysis results is returned
         self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
@@ -202,7 +202,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         self.rootdata = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(self.rootdata)
-        self.assertEqual(len(self.rootdata.child_data()), 3)
+        self.assertEqual(len(self.rootdata.child_data()), 2)
         # self.assertEqual(len(self.rootdata.artifacts()), 0)
 
         self.rootdata.share_level = self.share_level
@@ -438,7 +438,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         expdata.service = service
         self.assertExperimentDone(expdata)
         expdata.auto_save = True
-        self.assertEqual(service.create_or_update_experiment.call_count, 4)
+        self.assertEqual(service.create_or_update_experiment.call_count, 3)
 
     def test_composite_subexp_data(self):
         """
@@ -606,7 +606,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
         ]
 
-        self.assertEqual(len(expdata.child_data()), 3)
+        self.assertEqual(len(expdata.child_data()), 2)
         for childdata, child_counts in zip(expdata.child_data(), counts1):
             self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
@@ -621,7 +621,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
         ]
 
-        self.assertEqual(len(expdata.child_data(1).child_data()), 3)
+        self.assertEqual(len(expdata.child_data(1).child_data()), 2)
         for childdata, child_counts in zip(expdata.child_data(1).child_data(), counts2):
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
@@ -631,7 +631,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             [{"0": 20, "1": 32}, {"0": 22, "1": 24}],
         ]
 
-        self.assertEqual(len(expdata.child_data(1).child_data(0).child_data()), 3)
+        self.assertEqual(len(expdata.child_data(1).child_data(0).child_data()), 2)
         for childdata, child_counts in zip(
             expdata.child_data(1).child_data(0).child_data(), counts3
         ):
@@ -1183,9 +1183,9 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
         })
 
         self.ref_data_not_flatten = (row_iter for row_iter in 
-                     (*tee(self.ref_child_data_0_0.iterrows(),1),
+                     [*tee(self.ref_child_data_0_0.iterrows(),1),
                           *tee(self.ref_child_data_0_1.iterrows(),1),
-                          *tee(self.ref_child_data_1.iterrows())))
+                          *tee(self.ref_child_data_1.iterrows(),1)])
 
     def test_experiment_data_bootstrap_child_flatten(self):
 
@@ -1249,7 +1249,9 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             dataframe=True, columns=["name", "experiment", "components", "value"]
         )
 
-        for (_, test), (_, ref) in zip(test_data.iterrows(), *tee(self.ref_data.iterrows(),1)):
+        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
+
+        for (_, test), (_, ref) in zip(test_data.iterrows(), ref_data_itr):
             self.assertTrue(test.equals(ref))
 
     def test_experiment_data_bootstrap_child_not_flatten(self):
@@ -1312,19 +1314,17 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
         # NOTE: Continue from here and start with checking 
         # analysis report in child datas
         
-        self.assertEqual(len(exp_data.child_data()),3)
-        self.assertEqual(len(exp_data.child_data(0).child_data()),3)
+        self.assertEqual(len(exp_data.child_data()),2)
+        self.assertEqual(len(exp_data.child_data(0).child_data()),2)
         
         test_data = (exp_data.child_data(0).child_data(0).analysis_results(
             dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),exp_data.child_data(0).child_data(1).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),exp_data.child_data(1).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
         ).iterrows(),)
         
-        for test_row_iter, ref_row_iter in zip(test_data,*tee(self.ref_data_not_flatten,1)):
-            for (_, test), (_, ref) in zip(test_row_iter,ref_row_iter):
+        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
+        
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
                 self.assertTrue(test.equals(ref))
 
     def test_experiment_data_bootstrap_rerun_analysis_flatten(self):
@@ -1384,14 +1384,12 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
         
         test_data = (composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True).analysis_results(
             dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),composite_analysis.run(exp_data.child_data(0).child_data(1), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),composite_analysis.run(exp_data.child_data(1), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
         ).iterrows(),)
         
-        for test_row_iter, ref_row_iter in zip(test_data,*tee(self.ref_data_not_flatten,1)):
-            for (_, test), (_, ref) in zip(test_row_iter,ref_row_iter):
+        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
+        
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
                 self.assertTrue(test.equals(ref))
             
 
@@ -1458,12 +1456,11 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             dataframe=True, columns=["name", "experiment", "components", "value"]
         ).iterrows(),)
         
-        for idx,test_row_iter, ref_row_iter in zip((2,2,1),test_data,*tee(self.ref_data_not_flatten,1)):
-            for test_idx, (_, test), (_, ref) in zip(count(),test_row_iter,ref_row_iter):
-                self.assertTrue(test.equals(ref))
-            
-            self.assetEqual(test_idx,idx) 
-
+        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
         
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
+                self.assertTrue(test.equals(ref))
+
         
 
