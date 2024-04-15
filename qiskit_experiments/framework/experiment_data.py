@@ -738,6 +738,7 @@ class ExperimentData:
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
         self.create_child_data()
+        self.init_children_data()
 
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
@@ -787,13 +788,21 @@ class ExperimentData:
             except (KeyError, IndexError):
                 pass
             self.add_child_data(child_data)
+        
+        return self
+    
+    def init_children_data(self):
+        
+        if (component_metadata := self.metadata.get("component_metadata", None)) is None:
+            return
 
-        for data in self._result_data:
-            for idx, sub_data in self._decompose_component_data(data):
-                # NOTE : These lines for preventing multiple data addition,
-                # it occurs and I dont know why
-                if sub_data not in self.child_data(idx).data():
-                    self.child_data(idx).add_data(sub_data)
+        with self._result_data.lock:
+            for data in self._result_data:
+                for idx, sub_data in self._decompose_component_data(data):
+                    # NOTE : These lines for preventing multiple data addition,
+                    # it occurs and I dont know why
+                    if sub_data not in self.child_data(idx).data():
+                        self.child_data(idx).add_data(sub_data)
                 
 
         return self
