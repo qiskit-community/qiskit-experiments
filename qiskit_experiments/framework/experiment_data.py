@@ -773,7 +773,7 @@ class ExperimentData:
         if (component_metadata := self.metadata.get("component_metadata", None)) is None:
             return
 
-        while (new_idx := len(self._child_data)) <= len(component_metadata):
+        while (new_idx := len(self._child_data)) < len(component_metadata):
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
             try:
@@ -794,6 +794,7 @@ class ExperimentData:
                 # it occurs and I dont know why
                 if sub_data not in self.child_data(idx).data():
                     self.child_data(idx).add_data(sub_data)
+                
 
         return self
 
