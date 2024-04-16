@@ -1,7 +1,0 @@
----
-upgrade:
-  - |
-    The RB data processing flow is updated to align it with the recent
-    refactoring of the :func:`get_processor` function. The RB analysis
-    will now use the :func:`get_processor` function to choose the 
-    suitable data processor.

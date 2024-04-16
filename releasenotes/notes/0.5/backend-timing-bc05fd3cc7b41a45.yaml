@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Introduced a new class :class:`qiskit_experiments.framework.BackendTiming`, which
-    provides helper methods for rounding pulse and delay times to values
-    compatible with a backend's timing constraints.
