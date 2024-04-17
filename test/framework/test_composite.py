@@ -14,7 +14,7 @@
 
 import copy
 import uuid
-from itertools import count,tee,chain
+from itertools import tee
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
@@ -1142,7 +1142,7 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             "metadata": {"test_val": 5},
             "counts": {"0": 100, "1": 900},
         }
-        
+
         self.ref_data = pd.DataFrame.from_dict(
             {
                 "name": ["p1", "p1", "p1", "p1", "p1"],
@@ -1157,35 +1157,42 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
                 "value": [0.6, 0.5, 0.7, 0.6, 0.9],
             }
         )
-        
-        self.ref_child_data_0_0 = pd.DataFrame.from_dict({
-            
-            "name":["p1","p1"],
-            "experiment":["SomeExperiment1","SomeExperiment1"],
-            "components":[Qubit(0),Qubit(0)],
-            "value":[0.6,0.5]
-        })
-        
-        self.ref_child_data_0_1 = pd.DataFrame.from_dict({
-            
-            "name":["p1","p1"],
-            "experiment":["SomeExperiment1","SomeExperiment1"],
-            "components":[Qubit(1),Qubit(1)],
-            "value":[0.7,0.6]
-        })
-        
-        self.ref_child_data_1 = pd.DataFrame.from_dict({
-            
-            "name":["p1"],
-            "experiment":["SomeExperiment2"],
-            "components":[Qubit(2)],
-            "value":[0.9]
-        })
 
-        self.ref_data_not_flatten = (row_iter for row_iter in 
-                     [*tee(self.ref_child_data_0_0.iterrows(),1),
-                          *tee(self.ref_child_data_0_1.iterrows(),1),
-                          *tee(self.ref_child_data_1.iterrows(),1)])
+        self.ref_child_data_0_0 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1"],
+                "experiment": ["SomeExperiment1", "SomeExperiment1"],
+                "components": [Qubit(0), Qubit(0)],
+                "value": [0.6, 0.5],
+            }
+        )
+
+        self.ref_child_data_0_1 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1"],
+                "experiment": ["SomeExperiment1", "SomeExperiment1"],
+                "components": [Qubit(1), Qubit(1)],
+                "value": [0.7, 0.6],
+            }
+        )
+
+        self.ref_child_data_1 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1"],
+                "experiment": ["SomeExperiment2"],
+                "components": [Qubit(2)],
+                "value": [0.9],
+            }
+        )
+
+        self.ref_data_not_flatten = (
+            row_iter
+            for row_iter in [
+                *tee(self.ref_child_data_0_0.iterrows(), 1),
+                *tee(self.ref_child_data_0_1.iterrows(), 1),
+                *tee(self.ref_child_data_1.iterrows(), 1),
+            ]
+        )
 
     def test_experiment_data_bootstrap_child_flatten(self):
 
@@ -1227,8 +1234,9 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             [self.ref_q0_0, self.ref_q0_1],
         )
 
-        self.assertListEqual(exp_data.child_data(0).child_data(1).data(),
-                         [self.ref_q1_0,self.ref_q1_1])
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(1).data(), [self.ref_q1_0, self.ref_q1_1]
+        )
 
         self.assertListEqual(
             exp_data.child_data(1).data(),
@@ -1249,7 +1257,7 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             dataframe=True, columns=["name", "experiment", "components", "value"]
         )
 
-        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
 
         for (_, test), (_, ref) in zip(test_data.iterrows(), ref_data_itr):
             self.assertTrue(test.equals(ref))
@@ -1294,8 +1302,9 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             [self.ref_q0_0, self.ref_q0_1],
         )
 
-        self.assertListEqual(exp_data.child_data(0).child_data(1).data(),
-                         [self.ref_q1_0,self.ref_q1_1])
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(1).data(), [self.ref_q1_0, self.ref_q1_1]
+        )
         self.assertListEqual(
             exp_data.child_data(1).data(),
             [self.ref_q2_0],
@@ -1303,34 +1312,39 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
         composite_analysis = CompositeAnalysis(
             [
-                CompositeAnalysis([self.TestAnalysis(), self.TestAnalysis()], flatten_results=False),
+                CompositeAnalysis(
+                    [self.TestAnalysis(), self.TestAnalysis()], flatten_results=False
+                ),
                 self.TestAnalysis(),
             ],
             flatten_results=False,
         )
 
         exp_data = composite_analysis.run(exp_data, replace_results=True)
-        
-        # NOTE: Continue from here and start with checking 
+
+        # NOTE: Continue from here and start with checking
         # analysis report in child datas
-        
-        self.assertEqual(len(exp_data.child_data()),2)
-        self.assertEqual(len(exp_data.child_data(0).child_data()),2)
-        
-        test_data = (exp_data.child_data(0).child_data(0).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),)
-        
-        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
-        
+
+        self.assertEqual(len(exp_data.child_data()), 2)
+        self.assertEqual(len(exp_data.child_data(0).child_data()), 2)
+
+        test_data = (
+            exp_data.child_data(0)
+            .child_data(0)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
         for test_row_iter in test_data:
-            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
                 self.assertTrue(test.equals(ref))
 
     def test_experiment_data_bootstrap_rerun_analysis_flatten(self):
 
         """
-        Checks bootstrap when not flatten
+        Checks bootstrap when flatten after rerun
         """
 
         exp_data = ExperimentData()
@@ -1381,22 +1395,23 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
         )
 
         exp_data = composite_analysis.run(exp_data, replace_results=True)
-        
-        test_data = (composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),)
-        
-        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
-        
+
+        test_data = (
+            composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
         for test_row_iter in test_data:
-            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
                 self.assertTrue(test.equals(ref))
-            
 
     def test_experiment_data_bootstrap_rerun_analysis_not_flatten(self):
 
         """
-        Checks bootstrap when not flatten
+        Checks bootstrap when not flatten after rerun
         """
 
         exp_data = ExperimentData()
@@ -1440,27 +1455,30 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
         composite_analysis = CompositeAnalysis(
             [
-                CompositeAnalysis([self.TestAnalysis(), self.TestAnalysis()], flatten_results=False),
+                CompositeAnalysis(
+                    [self.TestAnalysis(), self.TestAnalysis()], flatten_results=False
+                ),
                 self.TestAnalysis(),
             ],
             flatten_results=False,
         )
 
         exp_data = composite_analysis.run(exp_data, replace_results=True)
-        
-        test_data = (composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),composite_analysis.run(exp_data.child_data(0).child_data(1), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),composite_analysis.run(exp_data.child_data(1), replace_results=True).analysis_results(
-            dataframe=True, columns=["name", "experiment", "components", "value"]
-        ).iterrows(),)
-        
-        ref_data_itr = tee(self.ref_data.iterrows(),1)[0]
-        
+
+        test_data = (
+            composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+            composite_analysis.run(exp_data.child_data(0).child_data(1), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+            composite_analysis.run(exp_data.child_data(1), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
         for test_row_iter in test_data:
-            for (_, test), (_, ref) in zip(test_row_iter,ref_data_itr):
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
                 self.assertTrue(test.equals(ref))
-
-        
-

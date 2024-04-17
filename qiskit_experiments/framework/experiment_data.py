@@ -745,7 +745,6 @@ class ExperimentData:
 
         """
         retrive data about self to bootstrap
-        TODO: Write better docstring
         """
 
         return {
@@ -788,12 +787,18 @@ class ExperimentData:
             except (KeyError, IndexError):
                 pass
             self.add_child_data(child_data)
-        
+
         return self
-    
-    def init_children_data(self):
-        
-        if (component_metadata := self.metadata.get("component_metadata", None)) is None:
+
+    def init_children_data(self):  # pylint: disable=inconsistent-return-statements
+
+        """Bootstrap Experiment data containers's data
+
+        Returns:
+            self : return itself for method calling
+        """
+
+        if self.metadata.get("component_metadata", None) is None:
             return
 
         with self._result_data.lock:
@@ -803,7 +808,6 @@ class ExperimentData:
                     # it occurs and I dont know why
                     if sub_data not in self.child_data(idx).data():
                         self.child_data(idx).add_data(sub_data)
-                
 
         return self
 
