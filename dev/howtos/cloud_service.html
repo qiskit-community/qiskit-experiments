@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Get experiment timing information" href="experiment_times.html" /><link rel="prev" title="Work with experiment artifacts" href="artifacts.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Save and load experiment data with the cloud service - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>Save and load experiment data with the cloud service - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="save-and-load-experiment-data-with-the-cloud-service">
-<h1>Save and load experiment data with the cloud service<a class="headerlink" href="#save-and-load-experiment-data-with-the-cloud-service" title="Link to this heading">#</a></h1>
+<h1>Save and load experiment data with the cloud service<a class="headerlink" href="#save-and-load-experiment-data-with-the-cloud-service" title="Link to this heading">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This guide is only for those who have access to the cloud service. You can
@@ -589,17 +589,17 @@ check whether you do by logging into the IBM Quantum interface
 and seeing if you can see the <a class="reference external" href="https://quantum.ibm.com/experiments">database</a>.</p>
 </div>
 <section id="problem">
-<h2>Problem<a class="headerlink" href="#problem" title="Link to this heading">#</a></h2>
+<h2>Problem<a class="headerlink" href="#problem" title="Link to this heading">¶</a></h2>
 <p>You want to save and retrieve experiment data from the cloud service.</p>
 </section>
 <section id="solution">
-<h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">#</a></h2>
+<h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">¶</a></h2>
 <section id="saving">
-<h3>Saving<a class="headerlink" href="#saving" title="Link to this heading">#</a></h3>
+<h3>Saving<a class="headerlink" href="#saving" title="Link to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This guide requires <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
-For how to migrate from the older <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-provider/index" title="(in Qiskit IBM Quantum Provider)"><span class="xref std std-doc">qiskit-ibm-provider</span></a> to <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
+For how to migrate from the older <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> to <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
 consult the <a class="reference external" href="https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider">migration guide</a>.</p>
 </div>
 <p>You must run the experiment on a real IBM
@@ -632,7 +632,7 @@ https://quantum.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
 </div>
 </section>
 <section id="loading">
-<h3>Loading<a class="headerlink" href="#loading" title="Link to this heading">#</a></h3>
+<h3>Loading<a class="headerlink" href="#loading" title="Link to this heading">¶</a></h3>
 <p>Let’s load a <a class="reference external" href="https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571">previous T1
 experiment</a>
 (requires login to view), which we’ve made public by editing the <code class="docutils literal notranslate"><span class="pre">Share</span> <span class="pre">level</span></code> field:</p>
@@ -709,7 +709,7 @@ AnalysisResult
 </section>
 </section>
 <section id="discussion">
-<h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">#</a></h2>
+<h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">¶</a></h2>
 <p>Note that calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> before the experiment is complete will
 instantiate an experiment entry in the database, but it will not have
 complete data. To fix this, you can call <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> again once the
@@ -718,7 +718,7 @@ experiment is done running.</p>
 In this case, a separate <code class="docutils literal notranslate"><span class="pre">metadata.json</span></code> file will be stored along with the experiment. Saving and loading
 this file is done automatically in <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> and <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.load" title="qiskit_experiments.framework.ExperimentData.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a>.</p>
 <section id="auto-saving-an-experiment">
-<h3>Auto-saving an experiment<a class="headerlink" href="#auto-saving-an-experiment" title="Link to this heading">#</a></h3>
+<h3>Auto-saving an experiment<a class="headerlink" href="#auto-saving-an-experiment" title="Link to this heading">¶</a></h3>
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">auto_save()</span></code> feature automatically saves changes to the
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object to the cloud service whenever it’s updated.</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -743,7 +743,7 @@ this file is done automatically in <a class="reference internal" href="../stubs/
 setting to the child experiments.</p>
 </section>
 <section id="deleting-an-experiment">
-<h3>Deleting an experiment<a class="headerlink" href="#deleting-an-experiment" title="Link to this heading">#</a></h3>
+<h3>Deleting an experiment<a class="headerlink" href="#deleting-an-experiment" title="Link to this heading">¶</a></h3>
 <p>Both figures and analysis results can be deleted. Note that unless you
 have auto save on, the update has to be manually saved to the remote
 database by calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>. Because there are two analysis
@@ -767,7 +767,7 @@ Are you sure you want to delete the analysis result? [y/N]: y
 </div>
 </section>
 <section id="tagging-and-sharing-experiments">
-<h3>Tagging and sharing experiments<a class="headerlink" href="#tagging-and-sharing-experiments" title="Link to this heading">#</a></h3>
+<h3>Tagging and sharing experiments<a class="headerlink" href="#tagging-and-sharing-experiments" title="Link to this heading">¶</a></h3>
 <p>Tags and notes can be added to experiments to help identify specific experiments in the interface.
 For example, an experiment can be tagged and made public with the following code.</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -783,7 +783,7 @@ For example, an experiment can be tagged and made public with the following code
 </div>
 </section>
 <section id="web-interface">
-<h3>Web interface<a class="headerlink" href="#web-interface" title="Link to this heading">#</a></h3>
+<h3>Web interface<a class="headerlink" href="#web-interface" title="Link to this heading">¶</a></h3>
 <p>You can also view experiment results as well as change the tags and share level at the <a class="reference external" href="https://quantum.ibm.com/experiments?date_interval=last-90-days&amp;owner=me">IBM Quantum Experiments
 pane</a>
 on the cloud.</p>
@@ -825,7 +825,7 @@ on the cloud.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -873,8 +873,8 @@ on the cloud.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>

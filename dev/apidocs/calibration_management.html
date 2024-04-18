@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Calibrations" href="../stubs/qiskit_experiments.calibration_management.Calibrations.html" /><link rel="prev" title="probability" href="../stubs/qiskit_experiments.curve_analysis.utils.probability.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Calibration Management (qiskit_experiments.calibration_management) - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>Calibration Management (qiskit_experiments.calibration_management) - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="calibration-management-qiskit-experiments-calibration-management">
-<span id="module-qiskit_experiments.calibration_management"></span><span id="qiskit-experiments-calibration-management"></span><h1>Calibration Management (<a class="reference internal" href="#module-qiskit_experiments.calibration_management" title="qiskit_experiments.calibration_management"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code></a>)<a class="headerlink" href="#calibration-management-qiskit-experiments-calibration-management" title="Link to this heading">#</a></h1>
+<span id="module-qiskit_experiments.calibration_management"></span><span id="qiskit-experiments-calibration-management"></span><h1>Calibration Management (<a class="reference internal" href="#module-qiskit_experiments.calibration_management" title="qiskit_experiments.calibration_management"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management</span></code></a>)<a class="headerlink" href="#calibration-management-qiskit-experiments-calibration-management" title="Link to this heading">¶</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The calibrations interface is still in active development. It may have
@@ -596,7 +596,7 @@ calibration management module in Qiskit experiments allows users to manage
 the resulting schedules and parameter values from obtained when running
 calibration experiments from the <a class="reference internal" href="library.html#module-qiskit_experiments.library" title="qiskit_experiments.library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a>.</p>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -623,7 +623,7 @@ calibration experiments from the <a class="reference internal" href="library.htm
 </div>
 </section>
 <section id="managing-calibration-data">
-<h2>Managing Calibration Data<a class="headerlink" href="#managing-calibration-data" title="Link to this heading">#</a></h2>
+<h2>Managing Calibration Data<a class="headerlink" href="#managing-calibration-data" title="Link to this heading">¶</a></h2>
 <p>Calibrations are managed by the <a class="reference internal" href="../stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrations</span></code></a> class. This class stores schedules
 which are intended to be fully parameterized, including the index of the channels. This
 class:</p>
@@ -659,7 +659,7 @@ values to the parameters and query a schedule.</p>
 </div>
 <p>The Calibrations make a couple of assumptions which are discussed below.</p>
 <section id="parametric-channel-naming-convention">
-<h3>Parametric channel naming convention<a class="headerlink" href="#parametric-channel-naming-convention" title="Link to this heading">#</a></h3>
+<h3>Parametric channel naming convention<a class="headerlink" href="#parametric-channel-naming-convention" title="Link to this heading">¶</a></h3>
 <p>Parametrized channel indices must be named according to a predefined pattern to properly
 identify the channels and control channels when assigning values to the parametric
 channel indices. A channel must have a name that starts with <code class="docutils literal notranslate"><span class="pre">ch</span></code> followed by an integer.
@@ -676,7 +676,7 @@ then given qubits <code class="docutils literal notranslate"><span class="pre">(
 <code class="docutils literal notranslate"><span class="pre">&quot;ch1.0$0&quot;</span></code> will resolve to <code class="docutils literal notranslate"><span class="pre">ControlChannel(3)</span></code>. A channel can only have one parameter.</p>
 </section>
 <section id="parameter-naming-restriction">
-<h3>Parameter naming restriction<a class="headerlink" href="#parameter-naming-restriction" title="Link to this heading">#</a></h3>
+<h3>Parameter naming restriction<a class="headerlink" href="#parameter-naming-restriction" title="Link to this heading">¶</a></h3>
 <p>Each parameter must have a unique name within each schedule. For example, it is
 acceptable to have a parameter named <code class="docutils literal notranslate"><span class="pre">amp</span></code> in the schedule <code class="docutils literal notranslate"><span class="pre">xp</span></code> and a different
 parameter instance named <code class="docutils literal notranslate"><span class="pre">amp</span></code> in the schedule named <code class="docutils literal notranslate"><span class="pre">xm</span></code>. It is not acceptable
@@ -752,7 +752,7 @@ resonance gate.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -793,8 +793,8 @@ resonance gate.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
@@ -803,5 +803,7 @@ resonance gate.</p>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

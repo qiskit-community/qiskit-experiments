@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Probability" href="qiskit_experiments.data_processing.Probability.html" /><link rel="prev" title="DataAction" href="qiskit_experiments.data_processing.DataAction.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>TrainableDataAction - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>TrainableDataAction - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,10 +581,10 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="trainabledataaction">
-<h1>TrainableDataAction<a class="headerlink" href="#trainabledataaction" title="Link to this heading">#</a></h1>
+<h1>TrainableDataAction<a class="headerlink" href="#trainabledataaction" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TrainableDataAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TrainableDataAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction" title="Link to this definition">¶</a></dt>
 <dd><p>A base class for data actions that need training.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -608,7 +608,7 @@ a trainable node with parameters set during training.</p>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction.is_trained">
-<span class="sig-name descname"><span class="pre">is_trained</span></span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.is_trained" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_trained</span></span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.is_trained" title="Link to this definition">¶</a></dt>
 <dd><p>Return False if the DataAction needs to be trained.</p>
 <p>A node is considered trained if all its parameters are assigned,
 or do not have <code class="docutils literal notranslate"><span class="pre">None</span></code> values.</p>
@@ -621,14 +621,14 @@ or do not have <code class="docutils literal notranslate"><span class="pre">None
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction.parameters">
-<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Return the parameters of the trainable node.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.__call__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.__call__" title="Link to this definition">¶</a></dt>
 <dd><p>Call the data action of this node on the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -647,13 +647,13 @@ is done automatically.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction.set_parameters">
-<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.set_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.set_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Set parameters for training.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.data_processing.TrainableDataAction.train">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.train" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/data_processing/data_action.html#TrainableDataAction.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.data_processing.TrainableDataAction.train" title="Link to this definition">¶</a></dt>
 <dd><p>Train a DataAction.</p>
 <p>Certain data processing nodes, such as a SVD, require data to first train.</p>
 <dl class="field-list simple">
@@ -702,7 +702,7 @@ all circuit results input to the data processor <code class="xref py py-meth doc
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -745,8 +745,8 @@ all circuit results input to the data processor <code class="xref py py-meth doc
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>

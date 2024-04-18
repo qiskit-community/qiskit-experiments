@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2* Ramsey Characterization" href="t2ramsey.html" /><link rel="prev" title="T1 Characterization" href="t1.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>T2 Hahn Characterization - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>T2 Hahn Characterization - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="t2-hahn-characterization">
-<h1>T2 Hahn Characterization<a class="headerlink" href="#t2-hahn-characterization" title="Link to this heading">#</a></h1>
+<h1>T2 Hahn Characterization<a class="headerlink" href="#t2-hahn-characterization" title="Link to this heading">¶</a></h1>
 <p>The purpose of the <span class="math notranslate nohighlight">\(T_2\)</span> Hahn Echo experiment is to determine the
 <span class="math notranslate nohighlight">\(T_2\)</span> qubit property.</p>
 <p>In this experiment, we would like to get a more precise estimate of the qubit’s decay
@@ -601,7 +601,7 @@ probability function to take the following form:</p>
 experiment, there is only one echo sequence while in CPMG there are
 multiple echo sequences.</p>
 <section id="decoherence-time">
-<h2>Decoherence Time<a class="headerlink" href="#decoherence-time" title="Link to this heading">#</a></h2>
+<h2>Decoherence Time<a class="headerlink" href="#decoherence-time" title="Link to this heading">¶</a></h2>
 <p>The decoherence time is the time taken for off-diagonal components of the
 density matrix to fall to approximately 37% (<span class="math notranslate nohighlight">\(\frac{1}{e}\)</span>). For
 <span class="math notranslate nohighlight">\(t\gg T_2\)</span>, the qubit statistics behave like a random bit, with
@@ -756,7 +756,7 @@ AnalysisResult
 </div>
 </section>
 <section id="providing-initial-user-estimates">
-<h2>Providing initial user estimates<a class="headerlink" href="#providing-initial-user-estimates" title="Link to this heading">#</a></h2>
+<h2>Providing initial user estimates<a class="headerlink" href="#providing-initial-user-estimates" title="Link to this heading">¶</a></h2>
 <p>The user can provide initial estimates for the parameters to help the
 analysis process. In the initial guess, the keys <code class="docutils literal notranslate"><span class="pre">{amp,</span> <span class="pre">tau,</span> <span class="pre">base}</span></code>
 correspond to the parameters <code class="docutils literal notranslate"><span class="pre">{A,</span> <span class="pre">T_2,</span> <span class="pre">B}</span></code> respectively. Because the
@@ -835,7 +835,7 @@ AnalysisResult
 </div>
 </section>
 <section id="number-of-echoes">
-<h2>Number of echoes<a class="headerlink" href="#number-of-echoes" title="Link to this heading">#</a></h2>
+<h2>Number of echoes<a class="headerlink" href="#number-of-echoes" title="Link to this heading">¶</a></h2>
 <p>The user can provide the number of echoes that the circuit will perform.
 This will determine the amount of delay and echo gates. As the number of
 echoes increases, the total time of the circuit will grow. The echoes
@@ -957,7 +957,7 @@ mock backend for this experiment used <span class="math notranslate nohighlight"
 is close to the estimate of the one echo experiment.</p>
 </section>
 <section id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-mod docutils literal notranslate"><span class="pre">T2Hahn</span></code></a></p></li>
 </ul>
@@ -998,7 +998,7 @@ is close to the estimate of the one echo experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -1037,8 +1037,8 @@ is close to the estimate of the one echo experiment.</p>
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T1 Characterization" href="t1.html" /><link rel="prev" title="Quantum State Tomography" href="../verification/state_tomography.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>AC Stark Effect - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>AC Stark Effect - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="ac-stark-effect">
-<h1>AC Stark Effect<a class="headerlink" href="#ac-stark-effect" title="Link to this heading">#</a></h1>
+<h1>AC Stark Effect<a class="headerlink" href="#ac-stark-effect" title="Link to this heading">¶</a></h1>
 <p>When a qubit is driven with an off-resonant tone,
 the qubit frequency <span class="math notranslate nohighlight">\(f_0\)</span> is slightly shifted through what is known as the (AC) Stark effect.
 This technique is sometimes used to characterize qubit properties in the vicinity of
@@ -600,7 +600,7 @@ that the qubit may experience is described as follows <a class="footnote-referen
 frequency separation of the Stark tone from the qubit frequency <span class="math notranslate nohighlight">\(f_0\)</span>.
 We sometimes call <span class="math notranslate nohighlight">\(\delta f_S\)</span> the <em>Stark shift</em> <a class="footnote-reference brackets" href="#id8" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
 <section id="stark-tone-implementation-in-qiskit">
-<span id="stark-tone-implementation"></span><h2>Stark tone implementation in Qiskit<a class="headerlink" href="#stark-tone-implementation-in-qiskit" title="Link to this heading">#</a></h2>
+<span id="stark-tone-implementation"></span><h2>Stark tone implementation in Qiskit<a class="headerlink" href="#stark-tone-implementation-in-qiskit" title="Link to this heading">¶</a></h2>
 <p>Usually, we fix the Stark tone frequency <span class="math notranslate nohighlight">\(f_S\)</span> and control the amplitude <span class="math notranslate nohighlight">\(\Omega\)</span>
 to modulate the qubit frequency.
 In Qiskit, we often use an abstracted amplitude <span class="math notranslate nohighlight">\(\bar{\Omega}\)</span>,
@@ -638,7 +638,7 @@ the Stark shift with the <code class="docutils literal notranslate"><span class=
 Note that <code class="docutils literal notranslate"><span class="pre">stark_freq_offset</span></code> should be set as a positive number.</p>
 </section>
 <section id="stark-tone-frequency">
-<span id="stark-frequency-consideration"></span><h2>Stark tone frequency<a class="headerlink" href="#stark-tone-frequency" title="Link to this heading">#</a></h2>
+<span id="stark-frequency-consideration"></span><h2>Stark tone frequency<a class="headerlink" href="#stark-tone-frequency" title="Link to this heading">¶</a></h2>
 <p>As you can see in the equation for <span class="math notranslate nohighlight">\(\delta f_S\)</span> above,
 <span class="math notranslate nohighlight">\(\Delta=0\)</span> yields a singular point where <span class="math notranslate nohighlight">\(\delta f_S\)</span> diverges.
 This corresponds to a Rabi drive, where the qubit is driven on resonance and
@@ -656,7 +656,7 @@ due to the transition levels of the nearest neighbor qubits.
 The frequency must be carefully chosen to avoid frequency collisions <a class="footnote-reference brackets" href="#id9" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="stark-tone-channel">
-<span id="stark-channel-consideration"></span><h2>Stark tone channel<a class="headerlink" href="#stark-tone-channel" title="Link to this heading">#</a></h2>
+<span id="stark-channel-consideration"></span><h2>Stark tone channel<a class="headerlink" href="#stark-tone-channel" title="Link to this heading">¶</a></h2>
 <p>It may be necessary to supply a pulse channel to apply the Stark tone.
 In Qiskit Experiments, the Stark experiments usually have an experiment option <code class="docutils literal notranslate"><span class="pre">stark_channel</span></code>
 to specify this.
@@ -700,7 +700,7 @@ backend.  You can install it with <code class="docutils literal notranslate"><sp
 This approach may not work for other device architectures.</p>
 </section>
 <section id="characterizing-the-frequency-shift">
-<h2>Characterizing the frequency shift<a class="headerlink" href="#characterizing-the-frequency-shift" title="Link to this heading">#</a></h2>
+<h2>Characterizing the frequency shift<a class="headerlink" href="#characterizing-the-frequency-shift" title="Link to this heading">¶</a></h2>
 <p>One can experimentally measure <span class="math notranslate nohighlight">\(\delta f_S\)</span> with the <a class="reference internal" href="../../stubs/qiskit_experiments.library.driven_freq_tuning.StarkRamseyXY.html#qiskit_experiments.library.driven_freq_tuning.StarkRamseyXY" title="qiskit_experiments.library.driven_freq_tuning.StarkRamseyXY"><code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXY</span></code></a> experiment.
 The following pulse sequence illustrates how <span class="math notranslate nohighlight">\(\delta f_S\)</span> is characterized
 by a variant of the Hahn-echo pulse sequence <a class="footnote-reference brackets" href="#id10" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
@@ -748,7 +748,7 @@ proportional to only the flat-top part of the StarkU pulse.</p>
 the height of this GaussianSquare flat-top.</p>
 </section>
 <section id="workflow">
-<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h2>
+<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">¶</a></h2>
 <p>In this example, you’ll learn how to measure a spectrum of qubit relaxation versus
 frequency with fixed frequency transmons.
 As you already know, we give an offset to the qubit frequency with a Stark tone,
@@ -869,7 +869,7 @@ See <a class="reference internal" href="../../stubs/qiskit_experiments.library.d
 <p>This protocol can be parallelized among many qubits unless crosstalk matters.</p>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id6" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -940,7 +940,7 @@ Phys. Rev. Lett. 127, 080505 (2021).
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -981,8 +981,8 @@ Phys. Rev. Lett. 127, 080505 (2021).
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

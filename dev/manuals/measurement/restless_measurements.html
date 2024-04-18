@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="API Reference" href="../../apidocs/index.html" /><link rel="prev" title="Readout Mitigation" href="readout_mitigation.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Restless Measurements - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>Restless Measurements - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,7 +581,7 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="restless-measurements">
-<h1>Restless Measurements<a class="headerlink" href="#restless-measurements" title="Link to this heading">#</a></h1>
+<h1>Restless Measurements<a class="headerlink" href="#restless-measurements" title="Link to this heading">¶</a></h1>
 <p>When running circuits, the qubits are typically reset to the ground state after
 each measurement to ensure that the next circuit has a well-defined initial state.
 This can be done passively by waiting several <span class="math notranslate nohighlight">\(T_1\)</span>-times so that qubits in
@@ -620,9 +620,10 @@ measurement. As one can see in the IQ plane on the right the single measurement
 outcomes of the <span class="math notranslate nohighlight">\(Id`\)</span> and <span class="math notranslate nohighlight">\(X\)</span> circuits no longer match with the
 <span class="math notranslate nohighlight">\(\left\vert0\right\rangle\)</span> and <span class="math notranslate nohighlight">\(\left\vert1\right\rangle\)</span> states,
 respectively. This is why restless measurements need special post-processing.</p>
-<a class="reference internal image-reference" href="../../_images/restless_shots.png"><img alt="../../_images/restless_shots.png" src="../../_images/restless_shots.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../../_images/restless_shots.png"><img alt="../../_images/restless_shots.png" src="../../_images/restless_shots.png" style="width: 600px;" />
+</a>
 <section id="enabling-restless-measurements">
-<h2>Enabling restless measurements<a class="headerlink" href="#enabling-restless-measurements" title="Link to this heading">#</a></h2>
+<h2>Enabling restless measurements<a class="headerlink" href="#enabling-restless-measurements" title="Link to this heading">¶</a></h2>
 <p>In Qiskit Experiments, the experiments that support restless measurements
 have a special method <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin.enable_restless" title="qiskit_experiments.framework.RestlessMixin.enable_restless"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_restless()</span></code></a> to set the restless run options
 and define the data processor that will process the measured data.
@@ -720,7 +721,7 @@ of experiments such as fine amplitude and drag error amplifying gate sequences
 as well as randomized benchmarking.</p>
 </section>
 <section id="calculating-restless-quantum-processor-speed-ups">
-<h2>Calculating restless quantum processor speed-ups<a class="headerlink" href="#calculating-restless-quantum-processor-speed-ups" title="Link to this heading">#</a></h2>
+<h2>Calculating restless quantum processor speed-ups<a class="headerlink" href="#calculating-restless-quantum-processor-speed-ups" title="Link to this heading">¶</a></h2>
 <p>Following Ref. <a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, we can compare the time spent by the quantum processor executing
 restless and standard jobs. This allows us to compute the effective speed-up we gain
 when performing restless experiments. Note that we do not consider any classical
@@ -776,7 +777,7 @@ using the code below.</p>
 <span class="n">tau</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">))</span>
 
 <span class="n">n_circs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cal_drag</span><span class="o">.</span><span class="n">circuits</span><span class="p">())</span>
-<span class="c1"># can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-provider</span>
+<span class="c1"># can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-runtime</span>
 
 <span class="n">delay_s</span> <span class="o">=</span> <span class="mf">0.0025</span>
 <span class="n">delay_r</span> <span class="o">=</span> <span class="mf">1e-6</span>  <span class="c1"># restless delay</span>
@@ -795,7 +796,7 @@ using the code below.</p>
 <p>The example above is applicable to other experiments and shows that restless
 measurements can greatly speed-up characterization and calibration tasks.</p>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id5" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -821,7 +822,7 @@ attributes to measure the performance of near-term quantum computers,
 </aside>
 </section>
 <section id="see-also">
-<h3>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h3>
+<h3>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>API documentation: <a class="reference internal" href="../../stubs/qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a></p></li>
 </ul>
@@ -863,7 +864,7 @@ attributes to measure the performance of near-term quantum computers,
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -904,8 +905,8 @@ attributes to measure the performance of near-term quantum computers,
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

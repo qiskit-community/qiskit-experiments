@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>Getting Started - Qiskit Experiments 0.6.0-13-g44178f76</title>
+    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
+        <title>Getting Started - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-13-g44178f76</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-13-g44178f76</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -581,9 +581,9 @@ of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
 <section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
 <p>Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
 Qiskit following its <a class="reference external" href="https://docs.quantum.ibm.com/start/install">installation guide</a>. Qiskit
 Experiments supports the same platforms as Qiskit itself and Python versions 3.8 through 3.12.</p>
@@ -611,7 +611,7 @@ cloning the repository:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option will keep your installed package up to date as you make or pull new
 changes.</p>
 <section id="upgrading-qiskit-experiments">
-<h3>Upgrading Qiskit Experiments<a class="headerlink" href="#upgrading-qiskit-experiments" title="Link to this heading">#</a></h3>
+<h3>Upgrading Qiskit Experiments<a class="headerlink" href="#upgrading-qiskit-experiments" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments version numbers are in the form <code class="docutils literal notranslate"><span class="pre">0.X.Y</span></code>, where <code class="docutils literal notranslate"><span class="pre">X</span></code> is the minor version and
 <code class="docutils literal notranslate"><span class="pre">Y</span></code> is the patch version. There are two kinds of releases: minor releases, which increment the
 minor version, and patch releases, which increment the patch version. New features and API
@@ -632,7 +632,7 @@ release.</p>
 </section>
 </section>
 <section id="running-your-first-experiment">
-<h2>Running your first experiment<a class="headerlink" href="#running-your-first-experiment" title="Link to this heading">#</a></h2>
+<h2>Running your first experiment<a class="headerlink" href="#running-your-first-experiment" title="Link to this heading">¶</a></h2>
 <p>Let’s run a <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a> Experiment, which estimates the characteristic relaxation time
 of a qubit from the excited state to the ground state, also known as <span class="math notranslate nohighlight">\(T_1\)</span>, by
 measuring the excited state population after varying delays. First, we have to import
@@ -722,7 +722,7 @@ first and last circuits for our <span class="math notranslate nohighlight">\(T_1
 <p>As expected, the delay block spans the full range of time values that we specified.</p>
 </section>
 <section id="the-experimentdata-class">
-<h2>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class<a class="headerlink" href="#the-experimentdata-class" title="Link to this heading">#</a></h2>
+<h2>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class<a class="headerlink" href="#the-experimentdata-class" title="Link to this heading">¶</a></h2>
 <p>After instantiating the experiment, we run the experiment by calling
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> with our backend of choice. This transpiles our experiment
 circuits then packages them into jobs that are run on the backend.</p>
@@ -778,7 +778,7 @@ AnalysisStatus.DONE
 </div>
 </div>
 <section id="figures">
-<h3>Figures<a class="headerlink" href="#figures" title="Link to this heading">#</a></h3>
+<h3>Figures<a class="headerlink" href="#figures" title="Link to this heading">¶</a></h3>
 <p>Once the analysis is complete, figures are retrieved using the
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.figure" title="qiskit_experiments.framework.ExperimentData.figure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">figure()</span></code></a> method. See the <a class="reference internal" href="visualization.html"><span class="doc">visualization module</span></a> tutorial on how to customize figures for an experiment. For our
 <span class="math notranslate nohighlight">\(T_1\)</span> experiment, we have a single figure showing the raw data and fit to the
@@ -795,7 +795,7 @@ exponential decay model of the <span class="math notranslate nohighlight">\(T_1\
 </div>
 </section>
 <section id="analysis-results">
-<h3>Analysis Results<a class="headerlink" href="#analysis-results" title="Link to this heading">#</a></h3>
+<h3>Analysis Results<a class="headerlink" href="#analysis-results" title="Link to this heading">¶</a></h3>
 <p>The analysis results resulting from the fit are accessed with
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis_results()</span></code></a>. If the <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code> parameter is passed, analysis
 results will be retrieved in the pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> format:</p>
@@ -837,7 +837,7 @@ results will be retrieved in the pandas <a class="reference external" href="http
   </thead>
   <tbody>
     <tr>
-      <th>80a2dff5</th>
+      <th>ad5e3c1e</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -849,15 +849,15 @@ results will be retrieved in the pandas <a class="reference external" href="http
       <td>None</td>
     </tr>
     <tr>
-      <th>41f073d6</th>
+      <th>509909c2</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000211+/-0.000006</td>
+      <td>0.000191+/-0.000005</td>
       <td>good</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
-      <td>1.43269</td>
+      <td>1.253841</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -880,32 +880,32 @@ results will be retrieved in the pandas <a class="reference external" href="http
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 16
+ - number of function evals: 24
  - degree of freedom: 18
- - chi-square: 25.788414632128003
- - reduced chi-square: 1.432689701784889
- - Akaike info crit.: 10.313461069822262
- - Bayesian info crit.: 13.447028382992531
+ - chi-square: 22.569143716089666
+ - reduced chi-square: 1.253841317560537
+ - Akaike info crit.: 7.513285480479671
+ - Bayesian info crit.: 10.64685279364994
  - init params:
-  * amp = 0.9073170731707316
-  * tau = 0.00021619672450376199
-  * base = 0.059024390243902436
+  * amp = 0.8868292682926829
+  * tau = 0.000234106127819373
+  * base = 0.07951219512195122
  - fit params:
-  * amp = 0.969618673895488 ± 0.008652686979856165
-  * tau = 0.0002113279952448285 ± 5.945182772172167e-06
-  * base = 0.004037250398157368 ± 0.008093296127082927
+  * amp = 0.9442702633676763 ± 0.008533099507108063
+  * tau = 0.00019132925617326826 ± 5.396353064057269e-06
+  * base = 0.03585152740897954 ± 0.007362379541938858
  - correlations:
-  * (tau, base) = -0.9101993004396312
-  * (amp, base) = -0.6621150694875229
-  * (amp, tau) = 0.4414157487000173
+  * (tau, base) = -0.8881745414620503
+  * (amp, base) = -0.5665570327331256
+  * (amp, tau) = 0.3023266108623738
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000211+/-0.000006
-- χ²: 1.432689701784889
+- value: 0.000191+/-0.000005
+- χ²: 1.253841317560537
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -919,8 +919,8 @@ return the corresponding <code class="xref py py-class docutils literal notransl
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>exp_data.analysis_results(&quot;T1&quot;)
-exp_data.analysis_results(&quot;41f073d6-819a-4a10-9fb3-9aee98397639&quot;)
-exp_data.analysis_results(&quot;41f073d6&quot;)
+exp_data.analysis_results(&quot;509909c2-4fec-4c58-ae7c-0193a9f235e7&quot;)
+exp_data.analysis_results(&quot;509909c2&quot;)
 </pre></div>
 </div>
 </div>
@@ -941,8 +941,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.0002113279952448285
-5.945182772172167e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019132925617326826
+5.396353064057269e-06
 </pre></div>
 </div>
 </div>
@@ -951,7 +951,7 @@ value and standard deviation of each value can be accessed as follows:</p>
 <a class="reference external" href="https://pythonhosted.org/uncertainties/user_guide.html" title="(in uncertainties Python package v1)"><span>User Guide</span></a>.</p>
 </section>
 <section id="artifacts">
-<h3>Artifacts<a class="headerlink" href="#artifacts" title="Link to this heading">#</a></h3>
+<h3>Artifacts<a class="headerlink" href="#artifacts" title="Link to this heading">¶</a></h3>
 <p>The curve fit data itself is contained in <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.artifacts" title="qiskit_experiments.framework.ExperimentData.artifacts"><code class="xref py py-meth docutils literal notranslate"><span class="pre">artifacts()</span></code></a>, which are accessed
 in an analogous manner. Artifacts for a standard experiment include both the curve fit data
 stored in <code class="docutils literal notranslate"><span class="pre">artifacts(&quot;curve_data&quot;)</span></code> and information on the fit stored in <code class="docutils literal notranslate"><span class="pre">artifacts(&quot;fit_summary&quot;)</span></code>.
@@ -968,24 +968,24 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 16
+ - number of function evals: 24
  - degree of freedom: 18
- - chi-square: 25.788414632128003
- - reduced chi-square: 1.432689701784889
- - Akaike info crit.: 10.313461069822262
- - Bayesian info crit.: 13.447028382992531
+ - chi-square: 22.569143716089666
+ - reduced chi-square: 1.253841317560537
+ - Akaike info crit.: 7.513285480479671
+ - Bayesian info crit.: 10.64685279364994
  - init params:
-  * amp = 0.9073170731707316
-  * tau = 0.00021619672450376199
-  * base = 0.059024390243902436
+  * amp = 0.8868292682926829
+  * tau = 0.000234106127819373
+  * base = 0.07951219512195122
  - fit params:
-  * amp = 0.969618673895488 ± 0.008652686979856165
-  * tau = 0.0002113279952448285 ± 5.945182772172167e-06
-  * base = 0.004037250398157368 ± 0.008093296127082927
+  * amp = 0.9442702633676763 ± 0.008533099507108063
+  * tau = 0.00019132925617326826 ± 5.396353064057269e-06
+  * base = 0.03585152740897954 ± 0.007362379541938858
  - correlations:
-  * (tau, base) = -0.9101993004396312
-  * (amp, base) = -0.6621150694875229
-  * (amp, tau) = 0.4414157487000173
+  * (tau, base) = -0.8881745414620503
+  * (amp, base) = -0.5665570327331256
+  * (amp, tau) = 0.3023266108623738
 </pre></div>
 </div>
 </div>
@@ -996,7 +996,7 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
 </div>
 </section>
 <section id="circuit-data-and-metadata">
-<h3>Circuit data and metadata<a class="headerlink" href="#circuit-data-and-metadata" title="Link to this heading">#</a></h3>
+<h3>Circuit data and metadata<a class="headerlink" href="#circuit-data-and-metadata" title="Link to this heading">¶</a></h3>
 <p>Raw circuit output data and its associated metadata can be accessed with the
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.data" title="qiskit_experiments.framework.ExperimentData.data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">data()</span></code></a> property. Data is indexed by the circuit it corresponds
 to. Depending on the measurement level set in the experiment, the raw data will either
@@ -1016,7 +1016,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 34, &#39;1&#39;: 990}, &#39;job_id&#39;: &#39;3e485f37-a7ca-4c90-b1c5-396d9853d52b&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 34, &#39;1&#39;: 990}, &#39;job_id&#39;: &#39;1b7cdab7-a4ac-4710-8f13-71c2fd250dfb&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1037,7 +1037,7 @@ fitting the data.</p>
 </div>
 </section>
 <section id="job-information">
-<h3>Job information<a class="headerlink" href="#job-information" title="Link to this heading">#</a></h3>
+<h3>Job information<a class="headerlink" href="#job-information" title="Link to this heading">¶</a></h3>
 <p>The actual backend jobs that were executed for the experiment can be accessed with the
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.jobs" title="qiskit_experiments.framework.ExperimentData.jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jobs()</span></code></a> method.</p>
 <div class="admonition note">
@@ -1048,11 +1048,11 @@ for an existing experiment that finished execution.</p>
 </section>
 </section>
 <section id="setting-options-for-your-experiment">
-<span id="guide-setting-options"></span><h2>Setting options for your experiment<a class="headerlink" href="#setting-options-for-your-experiment" title="Link to this heading">#</a></h2>
+<span id="guide-setting-options"></span><h2>Setting options for your experiment<a class="headerlink" href="#setting-options-for-your-experiment" title="Link to this heading">¶</a></h2>
 <p>It’s often insufficient to run an experiment with only its default options. There are
 four types of options one can set for an experiment:</p>
 <section id="run-options">
-<h3>Run options<a class="headerlink" href="#run-options" title="Link to this heading">#</a></h3>
+<h3>Run options<a class="headerlink" href="#run-options" title="Link to this heading">¶</a></h3>
 <p>These options are passed to the experiment’s <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> method and
 then to the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of your specified backend. Any run option that your backend
 supports can be set:</p>
@@ -1075,10 +1075,10 @@ supports can be set:</p>
 </div>
 <p>Consult the documentation of the run method of your
 specific backend type for valid options.
-For example, see <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-provider/qiskit_ibm_provider.IBMBackend#run" title="(in Qiskit IBM Quantum Provider)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_provider.IBMBackend.run()</span></code></a> for IBM backends.</p>
+For example, see <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.IBMBackend#run" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.IBMBackend.run()</span></code></a> for IBM backends.</p>
 </section>
 <section id="transpile-options">
-<h3>Transpile options<a class="headerlink" href="#transpile-options" title="Link to this heading">#</a></h3>
+<h3>Transpile options<a class="headerlink" href="#transpile-options" title="Link to this heading">¶</a></h3>
 <p>These options are passed to the Qiskit <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/transpiler#module-qiskit.transpiler" title="(in Qiskit v1.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">transpiler</span></code></a> to transpile the experiment circuits
 before execution:</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1099,7 +1099,7 @@ before execution:</p>
 <p>Consult the documentation of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v1.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> for valid options.</p>
 </section>
 <section id="experiment-options">
-<h3>Experiment options<a class="headerlink" href="#experiment-options" title="Link to this heading">#</a></h3>
+<h3>Experiment options<a class="headerlink" href="#experiment-options" title="Link to this heading">¶</a></h3>
 <p>These options are unique to each experiment class. Many experiment options can be set
 upon experiment instantiation, but can also be explicitly set via
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.set_experiment_options" title="qiskit_experiments.framework.BaseExperiment.set_experiment_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_experiment_options()</span></code></a>:</p>
@@ -1123,7 +1123,7 @@ upon experiment instantiation, but can also be explicitly set via
 class.</p>
 </section>
 <section id="analysis-options">
-<h3>Analysis options<a class="headerlink" href="#analysis-options" title="Link to this heading">#</a></h3>
+<h3>Analysis options<a class="headerlink" href="#analysis-options" title="Link to this heading">¶</a></h3>
 <p>These options are unique to each analysis class. Unlike the other options, analysis
 options are not directly set via the experiment object but use instead a method of the
 associated <code class="docutils literal notranslate"><span class="pre">analysis</span></code>:</p>
@@ -1147,7 +1147,7 @@ experiment’s analysis class.</p>
 </section>
 </section>
 <section id="running-experiments-on-multiple-qubits">
-<h2>Running experiments on multiple qubits<a class="headerlink" href="#running-experiments-on-multiple-qubits" title="Link to this heading">#</a></h2>
+<h2>Running experiments on multiple qubits<a class="headerlink" href="#running-experiments-on-multiple-qubits" title="Link to this heading">¶</a></h2>
 <p>To run experiments across many qubits of the same device, we use <strong>composite
 experiments</strong>. A <a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment" title="qiskit_experiments.framework.CompositeExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeExperiment</span></code></a> is a parent object that contains one or more child
 experiments, which may themselves be composite. There are two core types of composite
@@ -1253,7 +1253,7 @@ arbitrarily to make complex composite experiments.</p>
 <img alt="../_images/compositeexperiments.png" src="../_images/compositeexperiments.png" />
 </figure>
 <section id="viewing-child-experiment-data">
-<h3>Viewing child experiment data<a class="headerlink" href="#viewing-child-experiment-data" title="Link to this heading">#</a></h3>
+<h3>Viewing child experiment data<a class="headerlink" href="#viewing-child-experiment-data" title="Link to this heading">¶</a></h3>
 <p>The experiment data returned from a composite experiment contains individual analysis
 results for each child experiment that can be accessed using
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.child_data" title="qiskit_experiments.framework.ExperimentData.child_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">child_data()</span></code></a>. By default, the parent data object does not contain
@@ -1288,32 +1288,32 @@ and you need to explicitly set <code class="docutils literal notranslate"><span 
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 16
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 18.96851223882973
- - reduced chi-square: 1.0538062354905406
- - Akaike info crit.: 3.863416238021525
- - Bayesian info crit.: 6.996983551191795
+ - chi-square: 20.523585637031623
+ - reduced chi-square: 1.1401992020573124
+ - Akaike info crit.: 5.5180984251787315
+ - Bayesian info crit.: 8.651665738349001
  - init params:
-  * amp = 0.864390243902439
-  * tau = 0.0002732444334626081
-  * base = 0.11170731707317073
+  * amp = 0.8653658536585366
+  * tau = 0.00027002745060887703
+  * base = 0.11073170731707317
  - fit params:
-  * amp = 0.9866912088213955 ± 0.013350190205494121
-  * tau = 0.00027343293665439087 ± 1.077080282950428e-05
-  * base = -0.0014354851187522776 ± 0.014934963349561356
+  * amp = 0.9956580654788216 ± 0.013618867946699408
+  * tau = 0.0002773853817598644 ± 1.097319656468247e-05
+  * base = -0.009297900769527015 ± 0.015289626633775085
  - correlations:
-  * (tau, base) = -0.949783116366392
-  * (amp, base) = -0.8549661035740365
-  * (amp, tau) = 0.7132578635263052
+  * (tau, base) = -0.9517513134509766
+  * (amp, base) = -0.862852689398465
+  * (amp, tau) = 0.7265697279580481
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000273+/-0.000011
-- χ²: 1.0538062354905406
+- value: 0.000277+/-0.000011
+- χ²: 1.1401992020573124
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q2&#39;]
@@ -1329,49 +1329,49 @@ Component experiment 1
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 28
+ - number of function evals: 36
  - degree of freedom: 7
- - chi-square: 13.433996472141919
- - reduced chi-square: 1.9191423531631313
- - Akaike info crit.: 8.95203451243917
- - Bayesian info crit.: 9.859789791421306
+ - chi-square: 75.76034949662468
+ - reduced chi-square: 10.822907070946384
+ - Akaike info crit.: 26.249899690809595
+ - Bayesian info crit.: 27.157654969791732
  - init params:
-  * a = 0.7025516082856376
-  * alpha = 0.9828285875865733
+  * a = 0.6940841635722435
+  * alpha = 0.9821680897668479
   * b = 0.25
  - fit params:
-  * a = 0.6891278315696467 ± 0.011346500408581678
-  * alpha = 0.9795866679099304 ± 0.0009494728629425513
-  * b = 0.2780445014448125 ± 0.01436554055951424
+  * a = 0.7447304947723814 ± 0.023764620142528736
+  * alpha = 0.9850810529187602 ± 0.0007046661641847007
+  * b = 0.19615398090673072 ± 0.024206263423401472
  - correlations:
-  * (alpha, b) = -0.9777755094422181
-  * (a, b) = -0.9498030028096627
-  * (a, alpha) = 0.8812382765821671
-- quality: good
+  * (a, b) = -0.9973635987110485
+  * (alpha, b) = -0.9890511292850269
+  * (a, alpha) = 0.9799853010835765
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9796+/-0.0009
-- χ²: 1.9191423531631313
-- quality: good
+- value: 0.9851+/-0.0007
+- χ²: 10.822907070946384
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0153+/-0.0007
-- χ²: 1.9191423531631313
-- quality: good
+- value: 0.0112+/-0.0005
+- χ²: 10.822907070946384
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0090+/-0.0004
-- χ²: 1.9191423531631313
-- quality: good
+- value: 0.00624+/-0.00029
+- χ²: 10.822907070946384
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
 - verified: False
@@ -1425,7 +1425,7 @@ into one level:</p>
   </thead>
   <tbody>
     <tr>
-      <th>9230e8c6</th>
+      <th>f5548453</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1437,7 +1437,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>2e9c6e79</th>
+      <th>a2de6bce</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1449,7 +1449,7 @@ into one level:</p>
       <td>0.932191</td>
     </tr>
     <tr>
-      <th>899813d4</th>
+      <th>01096d80</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1461,7 +1461,7 @@ into one level:</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>3b536142</th>
+      <th>92cd2546</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1478,7 +1478,7 @@ into one level:</p>
 </div>
 </section>
 <section id="broadcasting-analysis-options-to-child-experiments">
-<h3>Broadcasting analysis options to child experiments<a class="headerlink" href="#broadcasting-analysis-options-to-child-experiments" title="Link to this heading">#</a></h3>
+<h3>Broadcasting analysis options to child experiments<a class="headerlink" href="#broadcasting-analysis-options-to-child-experiments" title="Link to this heading">¶</a></h3>
 <p>Use the <cite>broadcast</cite> parameter to set analysis options to each of the child experiments.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -1530,7 +1530,7 @@ In this instance, the analysis will not generate a figure for the child experime
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/16</div>
+              Last updated on 2024/04/18</div>
           </div>
           <div class="right-details">
             
@@ -1590,8 +1590,8 @@ In this instance, the analysis will not generate a figure for the child experime
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=824a48f4"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
