@@ -23,7 +23,7 @@ from qiskit.exceptions import MissingOptionalLibraryError
 from qiskit_experiments.library import MultiStateDiscrimination
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 
-from qiskit_experiments.warnings import HAS_SKLEARN
+from qiskit_experiments.framework.package_deps import HAS_SKLEARN
 
 
 def requires_sklearn(func):

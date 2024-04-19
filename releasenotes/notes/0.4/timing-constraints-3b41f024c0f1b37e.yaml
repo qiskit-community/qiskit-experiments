@@ -1,9 +1,0 @@
----
-fixes:
-  - |
-    Do not adjust timing constraints in experiments :class:`.T1`,
-    :class:`.T2Hahn`, :class:`.T2Ramsey`, and :class:`.RamseyXY`. This
-    adjustment was needed to supply missing timing constraints information for
-    IBM backends but is not needed now and can lead to problems (see `#881
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/881>`).
-

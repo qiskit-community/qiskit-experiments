@@ -49,7 +49,6 @@ from qiskit_ibm_experiment import (
 )
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
-    qiskit_version,
     plot_to_svg_bytes,
     ThreadSafeOrderedDict,
     ThreadSafeList,
@@ -61,6 +60,7 @@ from qiskit_experiments.framework.analysis_result_table import AnalysisResultTab
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
+from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -632,6 +632,7 @@ class ExperimentData:
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
         self._artifacts = ThreadSafeOrderedDict()
+        self._db_data.figure_names.clear()
 
     @property
     def service(self) -> Optional[IBMExperimentService]:
