@@ -20,6 +20,6 @@ features:
       df[(df.name=="ProcessFidelity") & (df.qubits==(59, 60))].value
 
     See `an example notebook
-    <https://gist.github.com/itoko/28c7cc117614c67e2a1899a3757d4ad1>`_ for more examples
+    <https://github.com/qiskit-community/qiskit-device-benchmarking/notebooks/layer_fidelity.ipynb>`_ for more examples
     such as how to select a best possible qubit chain to measure and
     how to plot EPLG as a function of (sub)chain length.
