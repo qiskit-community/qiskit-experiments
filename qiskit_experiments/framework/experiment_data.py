@@ -739,14 +739,10 @@ class ExperimentData:
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
         self.create_child_data()
-        self.init_children_data()
+        self._init_children_data()
 
     @property
     def __retrive_self_attrs_as_dict(self) -> dict:
-
-        """
-        retrive data about self to bootstrap
-        """
 
         return {
             "backend": self.backend,
@@ -763,12 +759,12 @@ class ExperimentData:
             "experiment_type": self.experiment_type,
         }
 
-    def create_child_data(self):  # pylint: disable=inconsistent-return-statements
+    def create_child_data(self) -> "ExperimenData":  # pylint: disable=inconsistent-return-statements
 
-        """Bootstrap Experiment data containers
+        """Bootstrap child experiment data containers from result metadata.  
 
-        Returns:
-            self : return itself for method calling
+        Returns:  
+            Current instance populated with the child experiment data.  
         """
 
         if (component_metadata := self.metadata.get("component_metadata", None)) is None:
@@ -791,7 +787,7 @@ class ExperimentData:
 
         return self
 
-    def init_children_data(self):  # pylint: disable=inconsistent-return-statements
+    def _init_children_data(self):  # pylint: disable=inconsistent-return-statements
 
         """Bootstrap Experiment data containers's data
 

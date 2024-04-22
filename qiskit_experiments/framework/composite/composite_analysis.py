@@ -118,10 +118,13 @@ class CompositeAnalysis(BaseAnalysis):
     def _run_analysis(self, experiment_data: ExperimentData):
         child_data = experiment_data.child_data()
 
-        if len(self._analyses) != len(child_data):
-            # Child data is automatically created when composite result data is added.
-            # Validate that child data size matches with number of analysis entries.
+        if len(child_data) == 0:  
+            # Child data is automatically created when composite result data is added.  
+            # Validate that child data size matches with number of analysis entries.  
             experiment_data.create_child_data()
+
+        if len(self._analyses) != len(child_data):
+            raise("analysis length and experiment lenggth are not same")
 
         for sub_analysis, sub_data in zip(self._analyses, child_data):
             # Since copy for replace result is handled at the parent level
