@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Data Processor: Wrangling data" href="data_processor.html" /><link rel="prev" title="Introduction" href="intro.html" />
 
-    <!-- Generated with Sphinx 7.3.6 and Furo 2024.01.29 -->
-        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.6.0-14-g3b039c5d</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
+        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.6.0-17-gcb37d42a</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-14-g3b039c5d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-17-gcb37d42a</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-14-g3b039c5d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-17-gcb37d42a</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -728,9 +728,9 @@ we change the default value of the pulse duration to 320 samples</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
 &lt;InstructionScheduleMap(1Q instructions:
-  q0: {&#39;sy&#39;, &#39;sx&#39;, &#39;x&#39;, &#39;y&#39;}
+  q0: {&#39;x&#39;, &#39;sx&#39;, &#39;y&#39;, &#39;sy&#39;}
 Multi qubit instructions:
 )&gt;
 ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.5, angle=0), DriveChannel(0)), name=&quot;x&quot;, transform=AlignLeft())
@@ -799,67 +799,67 @@ Observe that the parameter values of <code class="docutils literal notranslate">
   <tbody>
     <tr>
       <th>0</th>
-      <td>σ</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>8.00000e+01</td>
-      <td>2024-04-18 15:23:24....</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>2.50000e-01</td>
-      <td>2024-04-18 15:23:24....</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>duration</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>3.20000e+02</td>
-      <td>2024-04-18 15:23:24....</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>angle</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
-    </tr>
-    <tr>
-      <th>4</th>
       <td>β</td>
       <td>()</td>
       <td>x</td>
       <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>drive_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>5.20000e+09</td>
-      <td>2024-04-18 15:23:24....</td>
+      <th>1</th>
+      <td>angle</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.00000e+00</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
-      <th>6</th>
+      <th>2</th>
       <td>σ</td>
       <td>()</td>
-      <td>x</td>
+      <td>sx</td>
       <td>8.00000e+01</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
-      <th>7</th>
+      <th>3</th>
       <td>amp</td>
       <td>()</td>
       <td>x</td>
       <td>5.00000e-01</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>amp</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>2.50000e-01</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>duration</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>3.20000e+02</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>drive_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>5.20000e+09</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>meas_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>0.00000e+00</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>8</th>
@@ -867,23 +867,23 @@ Observe that the parameter values of <code class="docutils literal notranslate">
       <td>()</td>
       <td>sx</td>
       <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>meas_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
-    </tr>
-    <tr>
-      <th>10</th>
       <td>angle</td>
       <td>()</td>
       <td>x</td>
       <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>σ</td>
+      <td>()</td>
+      <td>x</td>
+      <td>8.00000e+01</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>11</th>
@@ -891,7 +891,7 @@ Observe that the parameter values of <code class="docutils literal notranslate">
       <td>()</td>
       <td>x</td>
       <td>3.20000e+02</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
   </tbody>
 </table>
@@ -1006,19 +1006,19 @@ experiment id that produced a value.</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>drive_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>5.20002e+09</td>
-      <td>2024-04-18 15:23:50....</td>
-    </tr>
-    <tr>
-      <th>1</th>
       <td>meas_freq</td>
       <td>(0,)</td>
       <td>None</td>
       <td>0.00000e+00</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>drive_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>5.20002e+09</td>
+      <td>2024-04-23 14:11:13....</td>
     </tr>
   </tbody>
 </table>
@@ -1124,34 +1124,34 @@ argument given to the calibration experiment at initialization.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-04-23 14:11:27....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01461</td>
-      <td>2024-04-18 15:24:05....</td>
+      <td>0.25000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01461</td>
+      <td>2024-04-23 14:11:27....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>x</td>
-      <td>0.02921</td>
-      <td>2024-04-18 15:24:05....</td>
+      <td>0.50000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
   </tbody>
 </table>
@@ -1265,34 +1265,34 @@ By contrast, the value of the parameters will be recovered from the file.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-04-23 14:11:27....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01461</td>
-      <td>2024-04-18 15:24:05....</td>
+      <td>0.25000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01461</td>
+      <td>2024-04-23 14:11:27....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>x</td>
-      <td>0.02921</td>
-      <td>2024-04-18 15:24:05....</td>
+      <td>0.50000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
   </tbody>
 </table>
@@ -1350,8 +1350,8 @@ negative amplitude.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: beta
-- value: -1.533+/-0.009
-- χ²: 0.890722780694327
+- value: -1.518+/-0.009
+- χ²: 0.8057990854637757
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -1397,25 +1397,25 @@ negative amplitude.</p>
       <th>0</th>
       <td>β</td>
       <td>()</td>
-      <td>sx</td>
+      <td>x</td>
       <td>0.00000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>β</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.00000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>-1.51839</td>
+      <td>2024-04-23 14:11:32....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>β</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>-1.53325</td>
-      <td>2024-04-18 15:24:09....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.00000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
   </tbody>
 </table>
@@ -1560,9 +1560,9 @@ error but also its sign.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The ideal angle is 3.14 rad. We measured a deviation of 0.065 rad in over-rotated pulse case.
-Thus, scale the 0.0594 pulse amplitude by 0.980 to obtain 0.05818.
+Thus, scale the 0.0594 pulse amplitude by 0.980 to obtain 0.05817.
 On the other hand, we measured a deviation of -0.062 rad in under-rotated pulse case.
-Thus, scale the 0.0570 pulse amplitude by 1.020 to obtain 0.05819.
+Thus, scale the 0.0570 pulse amplitude by 1.020 to obtain 0.05820.
 </pre></div>
 </div>
 </div>
@@ -1642,34 +1642,34 @@ error which we want to correct.</p>
     <tr>
       <th>0</th>
       <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>x</td>
+      <td>0.02921</td>
+      <td>2024-04-23 14:11:27....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01454</td>
-      <td>2024-04-18 15:24:13....</td>
+      <td>0.25000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-04-18 15:23:24....</td>
+      <td>(0,)</td>
+      <td>sx</td>
+      <td>0.01454</td>
+      <td>2024-04-23 14:11:35....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>x</td>
-      <td>0.02921</td>
-      <td>2024-04-18 15:24:05....</td>
+      <td>0.50000</td>
+      <td>2024-04-23 14:10:46....</td>
     </tr>
   </tbody>
 </table>
@@ -1682,7 +1682,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145403624, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145440415, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
 </pre></div>
 </div>
 </div>
@@ -1745,7 +1745,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/18</div>
+              Last updated on 2024/04/23</div>
           </div>
           <div class="right-details">
             
@@ -1790,7 +1790,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=e7b4dd0e"></script>
+    <script src="../_static/documentation_options.js?v=eac889fa"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
