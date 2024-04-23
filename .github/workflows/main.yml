@@ -88,6 +88,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Temporary workaround for GitVersion
+        shell: bash
+        run: |
+          git config --unset-all extensions.worktreeconfig
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
