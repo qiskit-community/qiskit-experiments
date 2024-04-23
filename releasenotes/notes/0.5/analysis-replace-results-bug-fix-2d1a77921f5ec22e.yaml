@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed a bug where old analysis results were saved in the case of a failed analysis. Now analysis
-    results will be cleared before running :meth:`~.BaseAnalysis._run_analysis`. As a result, when analysis fails, an 
-    empty analysis result will be saved to the database service.

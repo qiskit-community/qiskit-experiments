@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    The ``DumpedOscillationAnalysis`` class has been deprecated and will be removed soon. Use
-    the :class:`.DampedOscillationAnalysis` class going forward.
