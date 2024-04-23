@@ -21,6 +21,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -U virtualenv setuptools wheel tox
         sudo apt-get install graphviz pandoc
+    - name: Temporary workaround for GitVersion
+      shell: bash
+      run: |
+        git config --unset-all extensions.worktreeconfig
+        # See https://github.com/GitTools/actions/issues/1115
     - name: Build docs dev
       run: EXPERIMENTS_DEV_DOCS=1 PROD_BUILD=1 RELEASE_STRING=`git describe` tox -edocs
     - name: Bypass Jekyll Processing # Necessary for setting the correct css path
