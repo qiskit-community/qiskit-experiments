@@ -124,7 +124,6 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
         self.assertEqual(len(expdata.artifacts()), 0)
-        print(expdata.child_data(1).analysis_results(dataframe=True))
         # check inner experiments were flattened
         #NOTE : ASK Naoki here becasue we bootstrap
         # 0 to 3, 0 to 2
