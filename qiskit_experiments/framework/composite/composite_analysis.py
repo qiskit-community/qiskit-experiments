@@ -117,43 +117,11 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _run_analysis(self, experiment_data: ExperimentData):
         child_data = experiment_data.child_data()
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         if len(child_data) == 0:  
             # Child data is automatically created when composite result data is added.  
             # Validate that child data size matches with number of analysis entries.  
             experiment_data.create_child_data()
-=======
-        
-<<<<<<< HEAD
-        experiment_data._add_data(component_expdata,experiment_data.data())
->>>>>>> 2dbba8ac (Passed test new start)
-=======
-        experiment_data.add_data(experiment_data.data())
->>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
-=======
-        marginalized_data = self._marginalized_component_data(experiment_data.data())
-        
-        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
-            # Clear any previously stored data and add marginalized data
-            sub_expdata._result_data.clear()
-            sub_expdata.add_data(sub_data)
->>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
-
-        if len(self._analyses) != len(child_data):
-            raise("analysis length and experiment lenggth are not same")
-
-        for sub_analysis, sub_data in zip(self._analyses, child_data):
-            # Since copy for replace result is handled at the parent level
-            # we always run with replace result on component analysis
-<<<<<<< HEAD
-            sub_analysis.run(sub_data, replace_results=True)
-=======
-            self._analyses[i].run(sub_expdata, replace_results=True)
->>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
-=======
+            
         if len(self._analyses) != len(child_data):
             # Child data is automatically created when composite result data is added.
             # Validate that child data size matches with number of analysis entries.
@@ -167,27 +135,21 @@ class CompositeAnalysis(BaseAnalysis):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
             sub_analysis.run(sub_data, replace_results=True)
->>>>>>> a3abf4d2 (Fix marginalize problems)
-
         # Analysis is running in parallel so we add loop to wait
         # for all component analysis to finish before returning
         # the parent experiment analysis results
         for sub_data in child_data:
             sub_data.block_for_results()
-
         # Optionally flatten results from all component experiments
         # for adding to the main experiment data container
         if self._flatten_results:
             analysis_results, figures = self._combine_results(child_data)
-<<<<<<< HEAD
-
-=======
->>>>>>> a3abf4d2 (Fix marginalize problems)
             for res in analysis_results:
                 # Override experiment  ID because entries are flattened
                 res.experiment_id = experiment_data.experiment_id
             return analysis_results, figures
         return [], []
+
 
     def _set_flatten_results(self):
         """Recursively set flatten_results to True for all composite components."""

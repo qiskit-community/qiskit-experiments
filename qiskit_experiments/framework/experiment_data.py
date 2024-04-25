@@ -19,18 +19,12 @@ import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, Iterator, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures
-<<<<<<< HEAD
 from functools import wraps, partial
-=======
 from threading import Event
-<<<<<<< HEAD
 from functools import wraps, singledispatch
->>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
 from collections import deque, defaultdict
-=======
 from functools import wraps, singledispatch, partial
 from collections import deque
->>>>>>> a3abf4d2 (Fix marginalize problems)
 import contextlib
 import copy
 import uuid
@@ -46,12 +40,9 @@ from matplotlib import pyplot
 from qiskit.result import Result
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
-<<<<<<< HEAD
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
 from qiskit.result.utils import marginal_memory
-=======
->>>>>>> a3abf4d2 (Fix marginalize problems)
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
@@ -74,13 +65,10 @@ from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.analysis_result_table import AnalysisResultTable
 from qiskit_experiments.framework import BackendData
-<<<<<<< HEAD
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
 from qiskit_experiments.framework.package_deps import qiskit_version
-=======
 from qiskit_experiments.exceptions import AnalysisError
->>>>>>> 1ed676e0 (Updated add_data #1268)
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -723,154 +711,6 @@ class ExperimentData:
 
     # Data addition and deletion
 
-<<<<<<< HEAD
-    def _add_data(
-        self,
-        data: Union[Result, List[Result], Dict, List[Dict]],
-    ) -> None:
-        """Add experiment data.
-
-        Args:
-            data: Experiment data to add. Several types are accepted for convenience:
-
-                * Result: Add data from this ``Result`` object.
-                * List[Result]: Add data from the ``Result`` objects.
-                * Dict: Add this data.
-                * List[Dict]: Add this list of data.
-
-        Raises:
-            TypeError: If the input data type is invalid.
-        """
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
-            )
-        if not isinstance(data, list):
-            data = [data]
-
-        # Directly add non-job data
-
-        with self._result_data.lock:
-            tmp_exp_data = ExperimentData()
-            composite_flag = False
-            experiment_seperator = defaultdict(lambda : ExperimentData())
-            for datum in data:
-                if isinstance(datum, dict):
-                    if "metadata" in datum and "composite_metadata" in datum["metadata"]:
-                        composite_flag = True
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        marginalized_data = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_data:
-                            #print(inner_datum)
-                            if "experiment_type" in inner_datum[0]["metadata"]:
-                                if inner_datum[0]["metadata"]["experiment_type"] in experiment_seperator:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-                                else:
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]] = ExperimentData()
-                                    experiment_seperator[inner_datum[0]["metadata"]["experiment_type"]].add_data(inner_datum[0])
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    else:
-                        self._result_data.append(datum)
-=======
-
-                        self._result_data.append(datum)
-=======
-                    
-=======
-                        experiment_seperator[datum["metadata"]["experiment_type"]].add_data(datum["metadata"]["composite_metadata"])
-<<<<<<< HEAD
-
->>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
-                    elif "composite_metadata" in datum:
-                        composite_flag = True
-                        experiment_seperator[datum["experiment_type"]].add_data(datum["composite_metadata"])
-                    
-<<<<<<< HEAD
-                    self._result_data.append(datum)
->>>>>>> 9eb2dba0 (Updated add_data tests passed #1268)
-=======
-=======
-=======
-                        experiment_seperator[datum["metadata"]["composite_index"]].add_data(datum["metadata"]["composite_metadata"])
->>>>>>> 8f212786 (commit before second approach)
-                        marginalized_datum = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_datum:
-                            for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["metadata"]["composite_index"]].add_data([inner_inner_datum])
-                    elif "composite_metadata" in datum:
-                        composite_flag = True
-                        experiment_seperator[datum["composite_index"]].add_data(datum["composite_metadata"])
-                        marginalized_datum = self._marginalized_component_data([datum])
-                        for inner_datum in marginalized_datum:
-                            for inner_inner_datum in inner_datum:
-                                experiment_seperator[datum["composite_index"]].add_data([inner_inner_datum])
-
->>>>>>> dd257a28 (Updated add_data #1268)
-                    if datum not in self._result_data:
-                        self._result_data.append(datum)
->>>>>>> 0bd3a186 (Updated add_data and deprecated _add_data #1268)
-
->>>>>>> e7f46c3a (Updated add_data tests passed #1268)
-                elif isinstance(datum, Result):
-                    self._add_result_data(datum)
-                else:
-                    raise TypeError(f"Invalid data type {type(datum)}.")
-
-            if composite_flag:
-
-                tmp_exp_data._set_child_data(list(experiment_seperator.values()))
-<<<<<<< HEAD
-                if self._child_data.values() != []:
-                    self.add_child_data(tmp_exp_data)
-                else:
-                    self._set_child_data([tmp_exp_data])
-
-    def __add_data(
-        self,
-        data: Union[Result, List[Result], Dict, List[Dict]],
-    ) -> None:
-        """Add experiment data.
-
-        Args:
-            data: Experiment data to add. Several types are accepted for convenience:
-
-                * Result: Add data from this ``Result`` object.
-                * List[Result]: Add data from the ``Result`` objects.
-                * Dict: Add this data.
-                * List[Dict]: Add this list of data.
-
-        Raises:
-            TypeError: If the input data type is invalid.
-        """
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
-            )
-        if not isinstance(data, list):
-            data = [data]
-
-        # Directly add non-job data
-        for datum in data:
-            if isinstance(datum, dict):
-                with self._result_data.lock:
-                    self._result_data.append(datum)
-                elif isinstance(datum, Result):
-                    if datum["metadata"]:
-                        self._set_child_data(datum["metadata"]._metadata())
-                    else:
-                        self._add_result_data(datum)
-                else:
-                    raise TypeError(f"Invalid data type {type(datum)}.")
-=======
-                self.add_child_data(tmp_exp_data)
->>>>>>> c79e888e (Updated add_data, _run_analysis, composite_test #1268)
-
-=======
->>>>>>> 745669fd (Tests passed second approach, Updated add_data #1268)
     def add_data(
         self,
         data: Union[Result, List[Result], Dict, List[Dict]],
@@ -900,43 +740,81 @@ class ExperimentData:
         # Directly add non-job data
         for datum in data:
             if isinstance(datum, dict):
-                self._add_canonical_dict_data(datum)
+                with self._result_data.lock:
+                    self._result_data.append(datum)
             elif isinstance(datum, Result):
                 self._add_result_data(datum)
             else:
                 raise TypeError(f"Invalid data type {type(datum)}.")
+        self.create_child_data()
+        self._init_children_data()
 
-    def _add_canonical_dict_data(self, data: dict):
-        """A common subroutine to store result dictionary in canonical format.
+    @property
+    def __retrive_self_attrs_as_dict(self) -> dict:
 
-        Args:
-            data: A single formatted entry of experiment results.
-                ExperimentData expects this data dictionary to include keys such as
-                metadata, counts, memory and so forth.
+        return {
+            "backend": self.backend,
+            "tags": self.tags,
+            "auto_save": self.auto_save,
+            "service": self.service,
+            "provider": self.provider,
+            "backed_name": self.backend_name,
+            "notes": self.notes,
+            "start_datetime": self.start_datetime,
+            "verbose": self.verbose,
+            "source": self.source,
+            "share_level": self.share_level,
+            "experiment_type": self.experiment_type,
+        }
+
+    def create_child_data(self) -> "ExperimenData":  # pylint: disable=inconsistent-return-statements
+
+        """Bootstrap child experiment data containers from result metadata.  
+
+        Returns:  
+            Current instance populated with the child experiment data.  
         """
-        if "metadata" in data and "composite_metadata" in data["metadata"]:
-            composite_index = data["metadata"]["composite_index"]
-            max_index = max(composite_index)
-            with self._child_data.lock:
-                while (new_idx := len(self._child_data)) <= max_index:
-                    child_data = ExperimentData()
-                    # Add automatically generated component experiment metadata
-                    try:
-                        component_metadata = self.metadata["component_metadata"][new_idx].copy()
-                        child_data.metadata.update(component_metadata)
-                    except (KeyError, IndexError):
-                        pass
-                    try:
-                        component_type = self.metadata["component_types"][new_idx]
-                        child_data.experiment_type = component_type
-                    except (KeyError, IndexError):
-                        pass
-                    self.add_child_data(child_data)
-            for idx, sub_data in self._decompose_component_data(data):
-                self.child_data(idx).add_data(sub_data)
-        else:
-            with self._result_data.lock:
-                self._result_data.append(data)
+
+        if (component_metadata := self.metadata.get("component_metadata", None)) is None:
+            return
+
+        while (new_idx := len(self._child_data)) < len(component_metadata):
+            child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
+            # Add automatically generated component experiment metadata
+            try:
+                this_data = component_metadata[new_idx].copy()
+                child_data.metadata.update(this_data)
+            except (KeyError, IndexError):
+                pass
+            try:
+                component_type = self.metadata["component_types"][new_idx]
+                child_data.experiment_type = component_type
+            except (KeyError, IndexError):
+                pass
+            self.add_child_data(child_data)
+
+        return self
+
+    def _init_children_data(self):  # pylint: disable=inconsistent-return-statements
+
+        """Bootstrap Experiment data containers's data
+
+        Returns:
+            self : return itself for method calling
+        """
+
+        if self.metadata.get("component_metadata", None) is None:
+            return
+
+        with self._result_data.lock:
+            for data in self._result_data:
+                for idx, sub_data in self._decompose_component_data(data):
+                    # NOTE : These lines for preventing multiple data addition,
+                    # it occurs and I dont know why
+                    if sub_data not in self.child_data(idx).data():
+                        self.child_data(idx).add_data(sub_data)
+
+        return self
 
     @staticmethod
     def _decompose_component_data(
@@ -973,58 +851,6 @@ class ExperimentData:
         else:
             formatted_mem = None
 
-<<<<<<< HEAD
-            # Pre-process the memory if any to avoid redundant calls to format_counts_memory
-            f_memory = None
-            if (
-                "memory" in datum
-                and composite_clbits is not None
-                and isinstance(datum["memory"][0], str)
-            ):
-                f_memory = marginal_memory(datum["memory"], composite_clbits)
-
-            if "composite_index" not in metadata:
-                continue
-
-            for i, index in enumerate(metadata["composite_index"]):
-                if index not in marginalized_data:
-                    # Initialize data list for marginalized
-                    marginalized_data[index] = []
-                sub_data = {"metadata": metadata["composite_metadata"][i]}
-                if "counts" in datum:
-                    if composite_clbits is not None:
-                        sub_data["counts"] = marginal_distribution(
-                            counts=datum["counts"],
-                            indices=composite_clbits[i],
-                        )
-                    else:
-                        sub_data["counts"] = datum["counts"]
-                if "memory" in datum:
-                    if composite_clbits is not None:
-                        # level 2
-                        if f_memory is not None:
-                            idx = slice(
-                                -1 - composite_clbits[i][-1], -composite_clbits[i][0] or None
-                            )
-                            sub_data["memory"] = [shot[idx] for shot in f_memory]
-                        # level 1
-                        else:
-                            mem = np.array(datum["memory"])
-
-                            # Averaged level 1 data
-                            if len(mem.shape) == 2:
-                                sub_data["memory"] = mem[composite_clbits[i]].tolist()
-                            # Single-shot level 1 data
-                            if len(mem.shape) == 3:
-                                sub_data["memory"] = mem[:, composite_clbits[i]].tolist()
-                    else:
-                        sub_data["memory"] = datum["memory"]
-                marginalized_data[index].append(sub_data)
-
-        # Sort by index
-        return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
-    
-=======
         for i, exp_idx in enumerate(metadata["composite_index"]):
             sub_data = tmp_sub_data.copy()
             try:
@@ -1061,7 +887,6 @@ class ExperimentData:
                     sub_data["memory"] = composite_data["memory"]
             yield exp_idx, sub_data
 
->>>>>>> a3abf4d2 (Fix marginalize problems)
     def add_jobs(
         self,
         jobs: Union[Job, List[Job]],
@@ -1316,11 +1141,6 @@ class ExperimentData:
         if job_id not in self._jobs:
             self._jobs[job_id] = None
             self.job_ids.append(job_id)
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> a3abf4d2 (Fix marginalize problems)
         for i, _ in enumerate(result.results):
             data = result.data(i)
             data["job_id"] = job_id
@@ -1334,32 +1154,8 @@ class ExperimentData:
             data["meas_level"] = expr_result.meas_level
             if hasattr(expr_result, "meas_return"):
                 data["meas_return"] = expr_result.meas_return
-<<<<<<< HEAD
             self.add_data(data)
-=======
-        with self._result_data.lock:
-            # Lock data while adding all result data
-            results = []
-            for i, _ in enumerate(result.results):
-                data = result.data(i)
-                data["job_id"] = job_id
-                if "counts" in data:
-                    # Format to Counts object rather than hex dict
-                    data["counts"] = result.get_counts(i)
-                expr_result = result.results[i]
-                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                    data["metadata"] = expr_result.header.metadata
-                data["shots"] = expr_result.shots
-                data["meas_level"] = expr_result.meas_level
-                if hasattr(expr_result, "meas_return"):
-                    data["meas_return"] = expr_result.meas_return
-                results.append(data)
-            
-            self.add_data(results)
->>>>>>> 5e4b9d2d (Updated add_data and _add_result_data, deprecated _add_data #1268)
-=======
-            self._add_canonical_dict_data(data)
->>>>>>> a3abf4d2 (Fix marginalize problems)
+
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
