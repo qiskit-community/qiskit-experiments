@@ -20,11 +20,7 @@ from typing import Dict, Optional, List, Union, Any, Callable, Tuple, Iterator, 
 from datetime import datetime, timezone
 from concurrent import futures
 from functools import wraps, partial
-from threading import Event
-from functools import wraps, singledispatch
 from collections import deque, defaultdict
-from functools import wraps, singledispatch, partial
-from collections import deque
 import contextlib
 import copy
 import uuid
@@ -40,9 +36,6 @@ from matplotlib import pyplot
 from qiskit.result import Result
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
-from qiskit.result import marginal_distribution
-from qiskit.result.postprocess import format_counts_memory
-from qiskit.result.utils import marginal_memory
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
@@ -68,7 +61,6 @@ from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
 from qiskit_experiments.framework.package_deps import qiskit_version
-from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -767,16 +759,18 @@ class ExperimentData:
             "experiment_type": self.experiment_type,
         }
 
-    def create_child_data(self) -> "ExperimenData":  # pylint: disable=inconsistent-return-statements
+    def create_child_data(
+        self,
+    ) -> "ExperimenData":  # pylint: disable=inconsistent-return-statements
 
-        """Bootstrap child experiment data containers from result metadata.  
+        """Bootstrap child experiment data containers from result metadata.
 
-        Returns:  
-            Current instance populated with the child experiment data.  
+        Returns:
+            Current instance populated with the child experiment data.
         """
 
         if (component_metadata := self.metadata.get("component_metadata", None)) is None:
-            return
+            return self
 
         while (new_idx := len(self._child_data)) < len(component_metadata):
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
@@ -1157,7 +1151,6 @@ class ExperimentData:
             if hasattr(expr_result, "meas_return"):
                 data["meas_return"] = expr_result.meas_return
             self.add_data(data)
-
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""

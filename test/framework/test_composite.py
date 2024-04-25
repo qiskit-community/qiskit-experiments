@@ -98,8 +98,8 @@ class TestComposite(QiskitExperimentsTestCase):
         expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check no child data was saved
-        #NOTE : ASK Naoki because first layer will be saved 
-        #I changed it from 0 to 2.
+        # NOTE : ASK Naoki because first layer will be saved
+        # I changed it from 0 to 2.
         self.assertEqual(len(expdata.child_data()), 2)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
@@ -125,16 +125,16 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.analysis_results()), 0)
         self.assertEqual(len(expdata.artifacts()), 0)
         # check inner experiments were flattened
-        #NOTE : ASK Naoki here becasue we bootstrap
+        # NOTE : ASK Naoki here becasue we bootstrap
         # 0 to 3, 0 to 2
         child0 = expdata.child_data(0)
         child1 = expdata.child_data(1)
         self.assertEqual(len(child0.child_data()), 3)
         self.assertEqual(len(child1.child_data()), 2)
         # Check right number of analysis results is returned
-        self.assertEqual(len(child0.analysis_results()),9)
+        self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
-        
+
         self.assertEqual(len(child0.artifacts()), 6)
         self.assertEqual(len(child1.artifacts()), 4)
 
@@ -1005,13 +1005,14 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         job_ids = meta_expdata.job_ids
         self.assertEqual(len(job_ids), 2)
 
+
 class TestComponentBootstrapping(QiskitExperimentsTestCase):
 
-    """Test suite for adding composite data.  
-    
-    Composite experiment must bootstrap child data containers from result metadata  
-    when data is added to the ExperimentData instance.  
-    """  
+    """Test suite for adding composite data.
+
+    Composite experiment must bootstrap child data containers from result metadata
+    when data is added to the ExperimentData instance.
+    """
 
     class TestAnalysis(BaseAnalysis):
 
@@ -1169,27 +1170,27 @@ class TestComponentBootstrapping(QiskitExperimentsTestCase):
             }
         )
         self.metadata = {
-                "component_types": ["ParallelExperiment", "SomeExperiment2"],
-                "component_metadata": [
-                    {
-                        "component_types": ["SomeExperiment1", "SomeExperiment1"],
-                        "component_metadata": [
-                            {
-                                "physical_qubits": [0],
-                                "device_components": [Qubit(0)],
-                            },
-                            {
-                                "physical_qubits": [1],
-                                "device_components": [Qubit(1)],
-                            },
-                        ],
-                    },
-                    {
-                        "physical_qubits": [2],
-                        "device_components": [Qubit(2)],
-                    },
-                ],
-            }
+            "component_types": ["ParallelExperiment", "SomeExperiment2"],
+            "component_metadata": [
+                {
+                    "component_types": ["SomeExperiment1", "SomeExperiment1"],
+                    "component_metadata": [
+                        {
+                            "physical_qubits": [0],
+                            "device_components": [Qubit(0)],
+                        },
+                        {
+                            "physical_qubits": [1],
+                            "device_components": [Qubit(1)],
+                        },
+                    ],
+                },
+                {
+                    "physical_qubits": [2],
+                    "device_components": [Qubit(2)],
+                },
+            ],
+        }
 
     def test_experiment_data_bootstrap_child_flatten(self):
 
