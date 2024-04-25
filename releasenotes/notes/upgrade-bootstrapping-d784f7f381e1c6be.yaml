@@ -1,0 +1,19 @@
+---
+upgrade_expdata:
+  - |
+    "add_data" method on ExperimenData class hass been upgraded (Refactored).It
+    bootstraps missing experiment_data instances and fills their inside with 
+    parent experiment_data instance data.
+    ExperimentData class decomposes its own data by itself,
+    "_decompose_component_data" handles that.
+upgrade_companalysis:
+  - |
+    "_run_analysis" method on CompositeAnalysis class does not need bootstrapping
+    methods after ExperimentData class refactoring. Therefore, some methods has been
+    deprecated and "_run_analysis" method has been refactored according to that.
+    This refactoring has been reduced coupling.
+deprecations:
+  - |
+    After refactoring ExperimenData class there are no need for 
+    "run", "_component_experiment_data", "_marginalized_component_data",
+    "_format_memory", "_add_child_data", "_initialize_component_experiment_data".
