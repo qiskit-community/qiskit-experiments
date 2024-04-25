@@ -781,6 +781,7 @@ class ExperimentData:
         while (new_idx := len(self._child_data)) < len(component_metadata):
             child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
             # Add automatically generated component experiment metadata
+            child_data._artifacts = self._artifacts
             try:
                 this_data = component_metadata[new_idx].copy()
                 child_data.metadata.update(this_data)
@@ -813,6 +814,7 @@ class ExperimentData:
                     # it occurs and I dont know why
                     if sub_data not in self.child_data(idx).data():
                         self.child_data(idx).add_data(sub_data)
+                        self.child_data(idx)._artifacts = self._artifacts
 
         return self
 

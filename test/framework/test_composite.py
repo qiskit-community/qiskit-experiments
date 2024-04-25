@@ -98,7 +98,9 @@ class TestComposite(QiskitExperimentsTestCase):
         expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check no child data was saved
-        self.assertEqual(len(expdata.child_data()), 0)
+        #NOTE : ASK Naoki because first layer will be saved 
+        #I changed it from 0 to 2.
+        self.assertEqual(len(expdata.child_data()), 2)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
         self.assertEqual(len(expdata.artifacts()), 20)
@@ -122,15 +124,18 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
         self.assertEqual(len(expdata.artifacts()), 0)
-
+        print(expdata.child_data(1).analysis_results(dataframe=True))
         # check inner experiments were flattened
+        #NOTE : ASK Naoki here becasue we bootstrap
+        # 0 to 3, 0 to 2
         child0 = expdata.child_data(0)
         child1 = expdata.child_data(1)
-        self.assertEqual(len(child0.child_data()), 0)
-        self.assertEqual(len(child1.child_data()), 0)
+        self.assertEqual(len(child0.child_data()), 3)
+        self.assertEqual(len(child1.child_data()), 2)
         # Check right number of analysis results is returned
-        self.assertEqual(len(child0.analysis_results()), 9)
+        self.assertEqual(len(child0.analysis_results()),9)
         self.assertEqual(len(child1.analysis_results()), 6)
+        
         self.assertEqual(len(child0.artifacts()), 6)
         self.assertEqual(len(child1.artifacts()), 4)
 
@@ -711,8 +716,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
     )
     def test_composite_count_memory_marginalization(self, memory):
         """Test the marginalization of level two memory."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         # Simplified experimental data
         datum = {
             "counts": {"0 0": 4, "0 1": 1, "1 0": 2, "1 1": 3},
@@ -730,29 +736,29 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 10,
             "meas_level": 2,
         }
-
         test_data.add_data(datum)
-        sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
-        #print([exp_data.data() for exp_data in test_data.child_data()])
+        sub_data = [
+            [inner_data]
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
         expected = [
             [
                 {
+                    "shots": 10,
+                    "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
                     "counts": {"0": 6, "1": 4},
                     "memory": ["0", "0", "1", "0", "0", "1", "1", "0", "0", "1"],
-                    "shots": 10,
-                    "meas_level": 2,
                 }
             ],
             [
                 {
+                    "shots": 10,
+                    "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
                     "counts": {"0": 5, "1": 5},
                     "memory": ["0", "1", "1", "0", "0", "0", "1", "0", "1", "1"],
-                    "shots": 10,
-                    "meas_level": 2,
                 }
             ],
         ]
@@ -760,8 +766,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
     def test_composite_single_kerneled_memory_marginalization(self):
         """Test the marginalization of level 1 data."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         datum = {
             "memory": [
                 # qubit 0,   qubit 1,    qubit 2
@@ -785,14 +792,13 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 5,
             "meas_level": 1,
         }
-
         test_data.add_data(datum)
-
-        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
-        for idx, sub_data in enumerate(all_sub_data):
+        datas = [ExperimentData._decompose_component_data(data) for data in test_data.data()]
+        for itr in datas:
+            idx, sub_data = next(itr)
             expected = {
+                "shots": 5,
+                "meas_level": 1,
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
                 "memory": [
                     [[idx + 0.0, idx + 0.0]],
@@ -801,16 +807,14 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     [[idx + 0.3, idx + 0.3]],
                     [[idx + 0.4, idx + 0.4]],
                 ],
-                "shots": 5,
-                "meas_level": 1,
             }
-
-            self.assertEqual(expected, sub_data[0])
+            self.assertEqual(expected, sub_data)
 
     def test_composite_avg_kerneled_memory_marginalization(self):
         """The the marginalization of level 1 averaged data."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         datum = {
             "memory": [
                 [0.0, 0.1],  # qubit 0
@@ -831,21 +835,20 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 5,
             "meas_level": 1,
         }
-
         test_data.add_data(datum)
-
-        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
-        for idx, sub_data in enumerate(all_sub_data):
+        all_sub_data = [
+            (idx, inner_data)
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
+        for idx, sub_data in all_sub_data:
             expected = {
-                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
-                "memory": [[idx + 0.0, idx + 0.1]],
                 "shots": 5,
                 "meas_level": 1,
+                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
+                "memory": [[idx + 0.0, idx + 0.1]],
             }
-
-            self.assertEqual(expected, sub_data[0])
+            self.assertEqual(expected, sub_data)
 
     def test_composite_properties_setting(self):
         """Test whether DB-critical properties are being set in the

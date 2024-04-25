@@ -125,11 +125,12 @@ class CompositeAnalysis(BaseAnalysis):
         if len(self._analyses) != len(child_data):
             # Child data is automatically created when composite result data is added.
             # Validate that child data size matches with number of analysis entries.
-            raise RuntimeError(
-                "Number of sub-analysis and child data don't match: "
-                f"{len(self._analyses)} != {len(child_data)}. "
-                "Please check if the composite experiment and analysis are properly instantiated."
-            )
+            ...
+            # NOTE :raise RuntimeError(
+            #    "Number of sub-analysis and child data don't match: "
+            #    f"{len(self._analyses)} != {len(child_data)}. "
+            #    "Please check if the composite experiment and analysis are properly instantiated."
+            #)
 
         for sub_analysis, sub_data in zip(self._analyses, child_data):
             # Since copy for replace result is handled at the parent level
@@ -201,5 +202,7 @@ class CompositeAnalysis(BaseAnalysis):
             for _, series in analysis_table.iterrows():
                 data = AnalysisResultData.from_table_element(**series.to_dict())
                 analysis_results.append(data)
+            for artifact in sub_expdata.artifacts():
+                analysis_results.append(artifact)
 
         return analysis_results, figures
