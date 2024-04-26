@@ -53,11 +53,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-<<<<<<< HEAD
       - name: Set up Python 3.12
-=======
-      - name: Set up Python 3.11
->>>>>>> 29e50bf9 (Bump actions/setup-python from 4 to 5 (#1377))
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
