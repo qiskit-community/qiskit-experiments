@@ -81,6 +81,20 @@ class ResonatorSpectroscopy(Spectroscopy):
             spectroscopy experiments. The experiment may not work or the resulting resonance
             may not properly reflect the properties of the readout resonator.
 
+    # section: example
+
+        The resonator spectroscopy experiment can be run by doing:
+
+        .. code:: python
+
+            qubit = 1
+            spec = ResonatorSpectroscopy([qubit], backend)
+            exp_data = spec.run().block_for_results()
+            exp_data.figure(0)
+
+        This will measure the resonator attached to qubit 1 and report the resonance frequency
+        as well as the kappa, i.e. the line width, of the resonator.
+
     # section: analysis_ref
         :class:`ResonatorSpectroscopyAnalysis`
     """

@@ -73,6 +73,26 @@ class CorrelatedReadoutError(BaseExperiment):
     # section: analysis_ref
         :class:`CorrelatedReadoutErrorAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            from qiskit.providers.fake_provider import GenericBackendV2
+            from qiskit_aer import AerSimulator
+ 
+            num_qubits=5
+            backend = AerSimulator.from_backend(GenericBackendV2(num_qubits=num_qubits, calibrate_instructions=True))
+ 
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import CorrelatedReadoutError
+
+            qubits = [0,1,2]
+            exp = CorrelatedReadoutError(physical_qubits=qubits, backend=backend)
+            exp.analysis.set_options(plot=True)
+            exp_data = exp.run().block_for_results()
+            exp_data.figure(0)
+
     # section: manual
         :doc:`/manuals/measurement/readout_mitigation`
 
