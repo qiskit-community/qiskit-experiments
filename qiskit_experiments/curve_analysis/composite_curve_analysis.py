@@ -302,12 +302,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             analysis = source_analysis.copy()
             metadata = analysis.options.extra
             metadata["group"] = analysis.name
-            analysis.set_options(
-                plot=False,
-                extra=metadata,
-                return_fit_parameters=self.options.return_fit_parameters,
-                return_data_points=self.options.return_data_points,
-            )
+            analysis.set_options(plot=False, extra=metadata)
             results, _ = analysis._run_analysis(experiment_data)
             for res in results:
                 if isinstance(res, ArtifactData):
