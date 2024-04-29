@@ -1,8 +1,0 @@
----
-other:
-  - |
-    NumPy runtime warning for zero division has been suppressed in :class:`.CurveAnalysis`.
-    This warning could occur in the edge case where the experiment data
-    may contain data point with zero uncertainty.
-    Such data point is safely ignored by LMFIT, since it may apply infinite fit weight.
-    This runtime warning suppression makes standard error cleaner.

@@ -1,7 +1,0 @@
----
-developer:
-  - |
-    New module :mod:`qiskit_experiments.warnings` has been added.
-    This module implements several decorator functions to raise user-friendly deprecation warning
-    and some also patch the decorated logic to implements new logic for backport.
-    See decorator function documentations for details.
