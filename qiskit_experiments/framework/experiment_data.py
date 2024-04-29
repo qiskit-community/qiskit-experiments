@@ -1472,7 +1472,7 @@ class ExperimentData:
         block: bool = True,
         timeout: float | None = None,
         columns: str | list[str] = "default",
-        dataframe: bool = True,
+        dataframe: bool = False,
     ) -> AnalysisResult | list[AnalysisResult] | pd.DataFrame:
         """Return analysis results associated with this experiment.
 
