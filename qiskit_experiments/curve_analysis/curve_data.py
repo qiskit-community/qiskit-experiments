@@ -15,7 +15,7 @@ Curve data classes.
 """
 import dataclasses
 import itertools
-from typing import Any, Dict, Union, List, Tuple, Optional, Iterable, Callable
+from typing import Any, Dict, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
 import uncertainties

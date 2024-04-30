@@ -15,7 +15,6 @@ Batch Experiment class.
 
 from typing import List, Optional, Dict
 from collections import OrderedDict, defaultdict
-import warnings
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Job, Backend, Options

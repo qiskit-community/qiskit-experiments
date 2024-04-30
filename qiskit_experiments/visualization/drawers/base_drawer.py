@@ -40,9 +40,7 @@ class BaseDrawer(ABC):
         input ``axis`` object. Note that ``drawer`` supports visualization of experiment
         results in multiple canvases tiled into N (row) x M (column) inset grids, which
         is specified in the option ``subplots``. By default, this is N=1, M=1 and thus
-        no inset grid will be initialized. The data points to draw might be provided
-        with a canvas number defined in :attr:`SeriesDef.canvas` which defaults to
-        ``None``, i.e. no-inset grids.
+        no inset grid will be initialized.
 
         This method should first check the drawer options (:attr:`options`) for the axis
         object and initialize the axis only when it is not provided by the options. Once

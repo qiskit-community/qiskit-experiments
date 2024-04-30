@@ -186,18 +186,18 @@ Analysis Results
 ----------------
 
 The analysis results resulting from the fit are accessed with
-:meth:`~.ExperimentData.analysis_results`. By default, analysis
+:meth:`~.ExperimentData.analysis_results`. If the ``dataframe=True`` parameter is passed, analysis
 results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format:
 
 .. jupyter-execute::
 
-    exp_data.analysis_results()
+    exp_data.analysis_results(dataframe=True)
 
 Alternatively, analysis results can be accessed via the legacy list format:
 
 .. jupyter-execute::
 
-    for result in exp_data.analysis_results(dataframe=False):
+    for result in exp_data.analysis_results():
         print(result)
 
 Individual results can be retrieved using their name or their long or short IDs, which will all
@@ -453,7 +453,7 @@ results for each child experiment in the parent experiment.
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    parallel_data.analysis_results()
+    parallel_data.analysis_results(dataframe=True)
 
 Broadcasting analysis options to child experiments
 --------------------------------------------------

@@ -14,7 +14,6 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict, Union, Optional, Tuple
-import warnings
 import numpy as np
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory

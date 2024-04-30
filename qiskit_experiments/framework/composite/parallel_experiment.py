@@ -13,7 +13,6 @@
 Parallel Experiment class.
 """
 from typing import List, Optional
-import warnings
 import numpy as np
 
 from qiskit import QuantumCircuit, ClassicalRegister
