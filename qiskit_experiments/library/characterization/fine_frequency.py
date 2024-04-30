@@ -54,9 +54,9 @@ class FineFrequency(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit.providers.fake_provider import GenericBackendV2
-            num_qubits=27
-            backend =GenericBackendV2(num_qubits=num_qubits)
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer import AerSimulator
+            backend =AerSimulator.from_backend(FakePerth())
 
         .. jupyter-execute::
 
