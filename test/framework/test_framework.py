@@ -17,6 +17,7 @@ from itertools import product
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
+import json
 import ddt
 
 from qiskit import QuantumCircuit
@@ -33,6 +34,8 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResultData,
     AnalysisStatus,
+    ExperimentEncoder,
+    ExperimentDecoder,
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.test.utils import FakeJob
@@ -426,3 +429,16 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertEqual(exp2.experiment_type, "MyExp")
         exp2.experiment_type = "suieee"
         self.assertEqual(exp2.experiment_type, "suieee")
+
+    def test_experiment_serialization_and_deserialization(self):
+        """Check if the serialization of the reconstructed analysis and the original
+        analysis are the same."""
+        exp = FakeExperiment((0, 2))
+        exp.analysis.set_options(dummyoption="dummy")
+        exp_config = exp.config()
+        encode = json.dumps(exp_config, cls=ExperimentEncoder)
+        decode = json.loads(encode, cls=ExperimentDecoder)
+
+        reconstructed_exp_from_config = decode.experiment()
+        # checking the config method output as there is no __equal__ op for plotter and figure.
+        self.assertEqual(exp.analysis.config(), reconstructed_exp_from_config.analysis.config())
