@@ -106,7 +106,7 @@ Mitigation example
 .. jupyter-execute::
 
     qc = QuantumCircuit(num_qubits)
-    qc.h(0)
+    qc.sx(0)
     for i in range(1, num_qubits):
         qc.cx(i - 1, i)
     qc.measure_all()

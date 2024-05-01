@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.6.0-20-g19dd706d</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.6.0-21-gf352b3cc</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-20-g19dd706d</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-21-gf352b3cc</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-20-g19dd706d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-21-gf352b3cc</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -484,8 +484,10 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
@@ -622,6 +624,7 @@
 <span class="n">_valid_sparse_indices</span> <span class="o">=</span> <span class="n">_clifford_compose_2q_data</span><span class="p">[</span><span class="s2">&quot;valid_sparse_indices&quot;</span><span class="p">]</span>
 <span class="c1"># map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE</span>
 <span class="n">_clifford_num_to_dense_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span> <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_valid_sparse_indices</span><span class="p">)}</span>
+<span class="n">_CLIFFORD_TENSOR_1Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_tensor_1q.npz&quot;</span><span class="p">)[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
 
 <span class="c1"># Transpilation utilities</span>
 <span class="k">def</span> <span class="nf">_transpile_clifford_circuit</span><span class="p">(</span>
@@ -1083,7 +1086,11 @@
 
 
 <span class="k">def</span> <span class="nf">num_from_1q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 1-qubit Clifford circuit to the corresponding integer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 1-qubit Clifford circuit to the corresponding integer.</span>
+
+<span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_1Q`,</span>
+<span class="sd">    RZGate, Delay and Barrier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">qc</span><span class="p">:</span>
         <span class="n">rhs</span> <span class="o">=</span> <span class="n">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="p">)</span>
@@ -1094,7 +1101,7 @@
 <span class="k">def</span> <span class="nf">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a given 1-qubit clifford operation to the corresponding integer.</span>
-<span class="sd">    Note that supported operations are limited to ones in :const:`CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.</span>
+<span class="sd">    Note that supported operations are limited to ones in :const:`_CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        op: operation to be converted.</span>
@@ -1153,7 +1160,11 @@
 
 
 <span class="k">def</span> <span class="nf">num_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 2-qubit Clifford circuit to the corresponding integer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 2-qubit Clifford circuit to the corresponding integer.</span>
+
+<span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_2Q`,</span>
+<span class="sd">    RZGate, Delay and Barrier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lhs</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">rhs</span> <span class="ow">in</span> <span class="n">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">):</span>
         <span class="n">lhs</span> <span class="o">=</span> <span class="n">_CLIFFORD_COMPOSE_2Q_DENSE</span><span class="p">[</span><span class="n">lhs</span><span class="p">,</span> <span class="n">_clifford_num_to_dense_index</span><span class="p">[</span><span class="n">rhs</span><span class="p">]]</span>
@@ -1165,7 +1176,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a given 1-qubit clifford operation to the corresponding integer.</span>
-<span class="sd">    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.</span>
+<span class="sd">    Note that supported operations are limited to ones in `_CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        op: operation of instruction to be converted.</span>
@@ -1327,6 +1338,11 @@
     <span class="n">idx1</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="n">_NUM_LAYER_1</span>
     <span class="n">idx0</span> <span class="o">=</span> <span class="n">num</span> <span class="o">//</span> <span class="n">_NUM_LAYER_1</span>
     <span class="k">return</span> <span class="n">idx0</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span>
+
+
+<span class="k">def</span> <span class="nf">_tensor_1q_nums</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CLIFFORD_TENSOR_1Q</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">]</span>
 </pre></div>
         </article>
       </div>
@@ -1344,7 +1360,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/04/26</div>
+              Last updated on 2024/05/01</div>
           </div>
           <div class="right-details">
             
@@ -1361,7 +1377,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=66b49d25"></script>
+    <script src="../../../../_static/documentation_options.js?v=4aee0651"></script>
     <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

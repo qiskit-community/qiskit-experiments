@@ -77,6 +77,7 @@ NoisyDelayAerBackend
          
          
          
+         
 
    
    .. rubric:: Methods
@@ -94,6 +95,7 @@ NoisyDelayAerBackend
    .. automethod:: NoisyDelayAerBackend.properties
    .. automethod:: NoisyDelayAerBackend.qubit_properties
    .. automethod:: NoisyDelayAerBackend.run
+   .. automethod:: NoisyDelayAerBackend.set_max_qubits
    .. automethod:: NoisyDelayAerBackend.set_option
    .. automethod:: NoisyDelayAerBackend.set_options
    .. automethod:: NoisyDelayAerBackend.status
