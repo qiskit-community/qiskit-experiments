@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed a bug when copying :class:`.AnalysisResult` (and thus copying :class:`.ExperimentData` and
-    re-running some analyses) where an exception, regarding the ``extra``
-    attribute of the :class:`.AnalysisResult` instance, would be thrown.

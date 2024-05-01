@@ -1,4 +1,0 @@
-upgrade:
-  - |
-    The processing of ``meas_level=2`` data in the function :func:`get_processor` is generalized 
-    to data processing of experiments with more than one qubit.

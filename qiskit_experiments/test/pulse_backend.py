@@ -35,9 +35,9 @@ from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
 
-from qiskit_experiments.warnings import HAS_DYNAMICS
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
+from qiskit_experiments.framework.package_deps import HAS_DYNAMICS, version_is_at_least
 from qiskit_experiments.test.utils import FakeJob
 
 
@@ -510,10 +510,25 @@ class SingleTransmonTestBackend(PulseBackend):
         self.rabi_rate_12 = 6.876
 
         if noise is True:
-            evaluation_mode = "dense_vectorized"
+            if version_is_at_least("qiskit-dynamics", "0.5.0"):
+                solver_args = {
+                    "array_library": "numpy",
+                    "vectorized": True,
+                }
+            else:
+                solver_args = {
+                    "evaluation_mode": "dense_vectorized",
+                }
             static_dissipators = [t1_dissipator]
         else:
-            evaluation_mode = "dense"
+            if version_is_at_least("qiskit-dynamics", "0.5.0"):
+                solver_args = {
+                    "array_library": "numpy",
+                }
+            else:
+                solver_args = {
+                    "evaluation_mode": "dense",
+                }
             static_dissipators = None
 
         super().__init__(
@@ -523,9 +538,9 @@ class SingleTransmonTestBackend(PulseBackend):
             rotating_frame=r_frame,
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
-            evaluation_mode=evaluation_mode,
             atol=atol,
             rtol=rtol,
+            **solver_args,
             **kwargs,
         )
 

@@ -1,9 +1,0 @@
----
-features:
-  - |
-    The algorithm to estimate fit parameter guesses in :class:`.RamseyXYAnalysis`
-    has been upgraded. 
-    The previous algorithm was not robust to experiment outcomes with low frequency,
-    where Ramsey X and Y curves almost remain at P=1.0 and 0.5, respectively.
-    The new algorithm also offers reliable initial guesses for such situations.
-    In addition, the number of frequency guesses has been increased to cover the uncertainty of FFT.
