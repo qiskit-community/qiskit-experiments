@@ -365,6 +365,19 @@ signature to restore the output to what it should be without the random Pauli fr
 at the end. We make a new :class:`.AnalysisResultData` object since we're rewriting the 
 counts from the original experiment.
 
+.. note::
+
+    As you may find here, circuit metadata is mainly used to generate a structured data
+    in the analysis class for convenience of result handling.
+    A metadata supplied to a particular circuit should appear in the corresponding
+    experiment result data dictionary stored in the experiment data.
+    If you attach large amount of metadata which is not expected to be used in the analysis,
+    the metadata just unnecessarily increases the job payload memory footprint,
+    and it prevents your experiment class from scaling in qubit size through
+    the composite experiment tooling.
+    If you still want to store some experiment setting, which is common to all circuits
+    or irrelevant to the analysis, use the experiment metadata instead.
+
 .. jupyter-input::
 
     from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
@@ -545,13 +558,13 @@ output if the Pauli corresponding to that bit has a nonzero signature.
 To test our code, we first simulate a noisy backend with asymmetric readout error.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` package for simulations.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` package for simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 
 .. jupyter-execute::
 
-  from qiskit.providers.aer import AerSimulator, noise
+  from qiskit_aer import AerSimulator, noise
 
   backend_ideal = AerSimulator()
 

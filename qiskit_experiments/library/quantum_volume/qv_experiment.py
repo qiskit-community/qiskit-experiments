@@ -88,7 +88,7 @@ class QuantumVolume(BaseExperiment):
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
-                (in case :mod:`qiskit_aer` is not
+                (in case :external+qiskit_aer:doc:`qiskit-aer <index>` is not
                 installed, :class:`qiskit.quantum_info.Statevector` will be used).
         """
         super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
@@ -97,9 +97,9 @@ class QuantumVolume(BaseExperiment):
         self.set_experiment_options(trials=trials, seed=seed)
 
         if not simulation_backend and HAS_AER:
-            from qiskit_aer import Aer
+            from qiskit_aer import AerSimulator
 
-            self._simulation_backend = Aer.get_backend("aer_simulator")
+            self._simulation_backend = AerSimulator()
         else:
             self._simulation_backend = simulation_backend
 
@@ -167,10 +167,8 @@ class QuantumVolume(BaseExperiment):
             qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
-                "experiment_type": self._type,
                 "depth": depth,
                 "trial": trial,
-                "qubits": self.physical_qubits,
                 "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
             circuits.append(qv_circ)

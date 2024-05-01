@@ -13,14 +13,22 @@
 """Fake backend class for tests."""
 import uuid
 from qiskit.circuit.library import Measure
+from qiskit.providers import ProviderV1
 from qiskit.providers.backend import BackendV2
-from qiskit.providers.fake_provider import FakeProvider
 from qiskit.providers.options import Options
 from qiskit.transpiler import Target
 
 from qiskit.result import Result
 
 from qiskit_experiments.test.utils import FakeJob
+
+
+class FakeProvider(ProviderV1):
+    """Fake provider with no backends for testing"""
+
+    def backends(self, name=None, **kwargs):
+        """List of available backends. Empty in this case"""
+        return []
 
 
 class FakeBackend(BackendV2):
@@ -55,12 +63,25 @@ class FakeBackend(BackendV2):
         return self._target
 
     def run(self, run_input, **options):
+        if not isinstance(run_input, list):
+            run_input = [run_input]
+        results = [
+            {
+                "data": {"0": 100},
+                "shots": 100,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+                "meas_level": 2,
+            }
+            for circ in run_input
+        ]
+
         result = {
             "backend_name": "fake_backend",
             "backend_version": "0",
             "qobj_id": uuid.uuid4().hex,
             "job_id": uuid.uuid4().hex,
             "success": True,
-            "results": [],
+            "results": results,
         }
         return FakeJob(backend=self, result=Result.from_dict(result))

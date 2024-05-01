@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit import pulse
 from qiskit.circuit import Gate
-from qiskit.providers.fake_provider import FakeArmonkV2
+from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -57,14 +57,14 @@ class TestFineDrag(QiskitExperimentsTestCase):
         exp_data = drag.run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("d_theta").quality, "good")
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
         exp_data = FineXDrag([0]).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
-        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertEqual(exp_data.analysis_results("d_theta").quality, "good")
 
     def test_circuits_roundtrip_serializable(self):
         """Test circuits serialization of the experiment."""
@@ -122,7 +122,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         # run the calibration experiment. This should update the beta parameter of x which we test.
         exp_data = drag_cal.run(self.backend)
         self.assertExperimentDone(exp_data)
-        d_theta = exp_data.analysis_results(1).value.n
+        d_theta = exp_data.analysis_results("d_theta").value.n
         sigma = 40
         target_angle = np.pi
         new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2

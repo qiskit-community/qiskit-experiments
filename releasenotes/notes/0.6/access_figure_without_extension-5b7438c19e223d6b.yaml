@@ -1,0 +1,4 @@
+---
+features_expdata:
+  - |
+    Figures in :class:`.ExperimentData` objects can now be accessed without the ``.svg`` extension.

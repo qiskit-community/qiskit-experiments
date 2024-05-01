@@ -16,7 +16,7 @@ from test.base import QiskitExperimentsTestCase
 
 from ddt import data, ddt, unpack
 from qiskit import QiskitError
-from qiskit.providers.fake_provider import FakeNairobiV2
+from qiskit_ibm_runtime.fake_provider import FakeNairobiV2
 
 from qiskit_experiments.framework import BackendTiming
 

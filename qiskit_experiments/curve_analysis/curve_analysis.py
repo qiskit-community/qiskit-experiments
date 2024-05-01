@@ -13,21 +13,28 @@
 """
 Analysis class for curve fitting.
 """
+import warnings
+
 # pylint: disable=invalid-name
 
 from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
-from itertools import groupby
-from operator import itemgetter
 
+from copy import deepcopy
 import lmfit
 import numpy as np
+import pandas as pd
 from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData
+from qiskit_experiments.framework import (
+    ExperimentData,
+    AnalysisResultData,
+)
+from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.visualization import PlotStyle
 
-from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX, PARAMS_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
@@ -86,14 +93,6 @@ class CurveAnalysis(BaseCurveAnalysis):
     This method creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
 
-    .. rubric:: _create_curve_data
-
-    This method creates analysis results containing the formatted dataset,
-    i.e. data used for the fitting.
-    Entries are created when the analysis option ``return_data_points`` is ``True``.
-    If analysis consists of multiple series, an analysis result is created for
-    each series definition.
-
     .. rubric:: _create_figures
 
     This method creates figures by consuming the scatter table data.
@@ -126,6 +125,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         self._models = models or []
         self._name = name or self.__class__.__name__
+        self._plot_config_cache = {}
 
     @property
     def name(self) -> str:
@@ -147,22 +147,139 @@ class CurveAnalysis(BaseCurveAnalysis):
         """Return fit models."""
         return self._models
 
+    def model_names(self) -> List[str]:
+        """Return model names."""
+        return [getattr(m, "_name", f"model-{i}") for i, m in enumerate(self._models)]
+
+    def set_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            KeyError: When removed option ``curve_fitter`` is set.
+        """
+        if fields.get("plot_residuals") and not self.options.get("plot_residuals"):
+            # checking there are no subplots for the figure to prevent collision in subplot indices.
+            if self.plotter.options.get("subplots") != (1, 1):
+                warnings.warn(
+                    "Residuals plotting is currently supported for analysis with 1 subplot.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                fields["plot_residuals"] = False
+            else:
+                self._add_residuals_plot_config()
+        if not fields.get("plot_residuals", True) and self.options.get("plot_residuals"):
+            self._remove_residuals_plot_config()
+
+        super().set_options(**fields)
+
+    def _add_residuals_plot_config(self):
+        """Configure plotter options for residuals plot."""
+        # check we have model to fit into
+        residual_plot_y_axis_size = 3
+        if self.models:
+            # Cache figure options.
+            self._plot_config_cache["figure_options"] = {}
+            self._plot_config_cache["figure_options"]["ylabel"] = self.plotter.figure_options.get(
+                "ylabel"
+            )
+            self._plot_config_cache["figure_options"]["series_params"] = deepcopy(
+                self.plotter.figure_options.get("series_params")
+            )
+            self._plot_config_cache["figure_options"]["sharey"] = self.plotter.figure_options.get(
+                "sharey"
+            )
+
+            self.plotter.set_figure_options(
+                ylabel=[
+                    self.plotter.figure_options.get("ylabel", ""),
+                    "Residuals",
+                ],
+            )
+
+            model_names = self.model_names()
+            series_params = self.plotter.figure_options["series_params"]
+            for model_name in model_names:
+                if series_params.get(model_name):
+                    series_params[model_name]["canvas"] = 0
+                else:
+                    series_params[model_name] = {"canvas": 0}
+                series_params[model_name + "_residuals"] = series_params[model_name].copy()
+                series_params[model_name + "_residuals"]["canvas"] = 1
+            self.plotter.set_figure_options(sharey=False, series_params=series_params)
+
+            # Cache plotter options.
+            self._plot_config_cache["plotter"] = {}
+            self._plot_config_cache["plotter"]["subplots"] = self.plotter.options.get("subplots")
+            self._plot_config_cache["plotter"]["style"] = deepcopy(
+                self.plotter.options.get("style", PlotStyle({}))
+            )
+
+            # removing the name from the plotter style, so it will not clash with the new name
+            previous_plotter_style = self._plot_config_cache["plotter"]["style"].copy()
+            previous_plotter_style.pop("style_name", "")
+
+            # creating new fig size based on previous size
+            new_figsize = self.plotter.drawer.options.get("figsize", (8, 5))
+            new_figsize = (new_figsize[0], new_figsize[1] + residual_plot_y_axis_size)
+
+            # Here add the configuration for the residuals plot:
+            self.plotter.set_options(
+                subplots=(2, 1),
+                style=PlotStyle.merge(
+                    PlotStyle(
+                        {
+                            "figsize": new_figsize,
+                            "textbox_rel_pos": (0.28, -0.10),
+                            "sub_plot_heights_list": [7 / 10, 3 / 10],
+                            "sub_plot_widths_list": [1],
+                            "style_name": "residuals",
+                        }
+                    ),
+                    previous_plotter_style,
+                ),
+            )
+
+    def _remove_residuals_plot_config(self):
+        """set options for a single plot to its cached values."""
+        if self.models:
+            self.plotter.set_figure_options(
+                ylabel=self._plot_config_cache["figure_options"]["ylabel"],
+                sharey=self._plot_config_cache["figure_options"]["sharey"],
+                series_params=self._plot_config_cache["figure_options"]["series_params"],
+            )
+
+            # Here add the style_name so the plotter will know not to print the residual data.
+            self.plotter.set_options(
+                subplots=self._plot_config_cache["plotter"]["subplots"],
+                style=PlotStyle.merge(
+                    self._plot_config_cache["plotter"]["style"],
+                    PlotStyle({"style_name": "canceled_residuals"}),
+                ),
+            )
+
+        self._plot_config_cache = {}
+
     def _run_data_processing(
         self,
         raw_data: List[Dict],
+        category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
+            category: Category string of the output dataset.
 
         Returns:
             Processed data that will be sent to the formatter method.
 
         Raises:
             DataProcessorError: When key for x values is not found in the metadata.
-            DataProcessorError: When data_subfit_map information for a fit model is missing.
-            ValueError: When input data has incomplete metadata to specify fit model.
+            ValueError: When data processor is not provided.
         """
         opt = self.options
 
@@ -172,71 +289,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         else:
             to_process = raw_data
 
-        # This must align with ScatterTable columns. Use struct array.
-        dtypes = np.dtype(
-            [
-                ("xval", float),
-                ("yval", float),
-                ("yerr", float),
-                ("model_name", "U30"),  # builtin str is U0 which is zero-length unicode in numpy
-                ("model_id", int),
-                ("shots", int),
-            ]
-        )
-        table_data = np.empty(len(to_process), dtype=dtypes)
-        for idx, datum in enumerate(to_process):
-            metadata = datum["metadata"].copy()
-            # Get xval from metadata
-            try:
-                xval = metadata.pop(opt.x_key)
-            except KeyError as ex:
-                raise DataProcessorError(
-                    f"X value key {opt.x_key} is not defined in the circuit metadata."
-                ) from ex
-            # Classify fit model
-            if len(self._models) == 1:
-                m_id = 0
-                m_name = self._models[0]._name
-            else:
-                for i, model in enumerate(self._models):
-                    try:
-                        model_spec = self.options.data_subfit_map[model._name]
-                    except KeyError as ex:
-                        raise DataProcessorError(
-                            f"Mapping to data for the fit model {model._name} is not provided."
-                        ) from ex
-                    if model_spec.items() <= metadata.items():
-                        m_id = i
-                        m_name = model._name
-                        break
-                else:
-                    raise ValueError(f"Experiment data {datum} doesn't belong to any fit model.")
-            table_data[idx]["xval"] = xval
-            table_data[idx]["shots"] = datum.get("shots", -1)
-            table_data[idx]["model_id"] = m_id
-            table_data[idx]["model_name"] = m_name
-
-            # Add extra metadata
-            add_key = metadata.keys() - table_data.dtype.fields
-            if add_key:
-                # Add missing keys to struct array
-                # This code is lengthy but faster than merge_arrays function
-                add_dtypes = []
-                for k in add_key:
-                    if isinstance(metadata[k], str):
-                        new_dtype = "U30"
-                    else:
-                        new_dtype = type(metadata[k])
-                    add_dtypes.append((k, new_dtype))
-                new_table_data = np.empty(
-                    len(to_process), dtype=sum((table_data.dtype.descr, add_dtypes), [])
-                )
-                for k in table_data.dtype.fields:
-                    new_table_data[k] = table_data[k]
-                table_data = new_table_data
-            for k, v in metadata.items():
-                table_data[idx][k] = v
-
         # Compute y value
         if not self.options.data_processor:
             raise ValueError(
@@ -244,69 +296,94 @@ class CurveAnalysis(BaseCurveAnalysis):
                 "Initialize the instance with the experiment data, or set the "
                 "data_processor analysis options."
             )
-        processed_values = self.options.data_processor(to_process)
-        table_data["yval"] = unp.nominal_values(processed_values).flatten()
-        table_data["yerr"] = unp.std_devs(processed_values).flatten()
+        processed = self.options.data_processor(to_process)
+        yvals = unp.nominal_values(processed).flatten()
+        with np.errstate(invalid="ignore"):
+            # For averaged data, the processed std dev will be NaN.
+            # Setting std_devs to NaN will trigger floating point exceptions
+            # which we can ignore. See https://stackoverflow.com/q/75656026
+            yerrs = unp.std_devs(processed).flatten()
 
-        out = ScatterTable(
-            data=table_data,
-            index=[f"processed-{i:04d}" for i in range(len(to_process))],
-        )
-        return out
+        # Prepare circuit metadata to data class mapper from data_subfit_map value.
+        if len(self._models) == 1:
+            classifier = {self.model_names()[0]: {}}
+        else:
+            classifier = self.options.data_subfit_map
+
+        table = ScatterTable()
+        for datum, yval, yerr in zip(to_process, yvals, yerrs):
+            metadata = datum["metadata"]
+            try:
+                xval = metadata[opt.x_key]
+            except KeyError as ex:
+                raise DataProcessorError(
+                    f"X value key {opt.x_key} is not defined in the circuit metadata."
+                ) from ex
+
+            # Assign series name and series id
+            for series_id, (series_name, spec) in enumerate(classifier.items()):
+                if spec.items() <= metadata.items():
+                    break
+            else:
+                # This is unclassified data.
+                series_name = pd.NA
+                series_id = pd.NA
+            table.add_row(
+                xval=xval,
+                yval=yval,
+                yerr=yerr,
+                series_name=series_name,
+                series_id=series_id,
+                category=category,
+                shots=datum.get("shots", pd.NA),
+                analysis=self.name,
+            )
+        return table
 
     def _format_data(
         self,
         curve_data: ScatterTable,
+        category: str = "formatted",
     ) -> ScatterTable:
-        """Postprocessing for the processed dataset.
+        """Postprocessing for preparing the fitting data.
 
         Args:
             curve_data: Processed dataset created from experiment results.
+            category: Category string of the output dataset.
 
         Returns:
-            New scatter table instance including raw and formatted data.
+            New scatter table instance including data to fit.
         """
         averaging_methods = {
             "shots_weighted": shot_weighted_average,
             "iwv": inverse_weighted_variance,
             "sample": sample_average,
         }
-
-        columns = list(curve_data.columns)
-        sort_by = itemgetter(
-            columns.index("model_id"),
-            columns.index("xval"),
-        )
-        # Use python native groupby method on ndarray. This is more performant than pandas one.
         average = averaging_methods[self.options.average_method]
-        formatted = []
-        for (mid, xv), g in groupby(sorted(curve_data.values, key=sort_by), key=sort_by):
-            g_values = np.array(list(g))
-            g_dict = dict(zip(columns, g_values.T))
-            avg_yval, avg_yerr, shots = average(g_dict["yval"], g_dict["yerr"], g_dict["shots"])
-            averaged = dict.fromkeys(columns)
-            averaged["xval"] = xv
-            averaged["yval"] = avg_yval
-            averaged["yerr"] = avg_yerr
-            averaged["model_id"] = mid
-            averaged["shots"] = shots
-            for k, v in g_dict.items():
-                if averaged[k] is not None:
-                    continue
-                if len(g_values) == 1:
-                    averaged[k] = v[0]
-                else:
-                    unique = set(v)
-                    if len(unique) == 1:
-                        averaged[k] = next(iter(unique))
-                    else:
-                        averaged[k] = list(unique)
-            formatted.append(list(averaged.values()))
+        model_names = self.model_names()
 
-        return curve_data.append_list_values(
-            other=formatted,
-            prefix="formatted",
-        )
+        for (series_name, xval), sub_data in curve_data.iter_groups("series_name", "xval"):
+            avg_yval, avg_yerr, shots = average(
+                sub_data.y,
+                sub_data.y_err,
+                sub_data.shots,
+            )
+            try:
+                series_id = model_names.index(series_name)
+            except ValueError:
+                series_id = pd.NA
+            curve_data.add_row(
+                xval=xval,
+                yval=avg_yval,
+                yerr=avg_yerr,
+                series_name=series_name,
+                series_id=series_id,
+                category=category,
+                shots=shots,
+                analysis=self.name,
+            )
+
+        return curve_data
 
     def _generate_fit_guesses(
         self,
@@ -373,14 +450,19 @@ class CurveAnalysis(BaseCurveAnalysis):
             fit_options = [fit_options]
 
         # Create convenient function to compute residual of the models.
-        partial_residuals = []
-        valid_uncertainty = np.all(np.isfinite(curve_data.yerr.to_numpy()))
-        for i, sub_data in list(curve_data.groupby("model_id")):
+        partial_weighted_residuals = []
+        valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
+
+        # creating storage for residual plotting
+        if self.options.get("plot_residuals"):
+            residual_weights_list = []
+
+        for idx, sub_data in curve_data.iter_by_series_id():
             if valid_uncertainty:
                 nonzero_yerr = np.where(
-                    np.isclose(sub_data.yerr, 0.0),
+                    np.isclose(sub_data.y_err, 0.0),
                     np.finfo(float).eps,
-                    sub_data.yerr,
+                    sub_data.y_err,
                 )
                 raw_weights = 1 / nonzero_yerr
                 # Remove outlier. When all sample values are the same with sample average,
@@ -388,16 +470,23 @@ class CurveAnalysis(BaseCurveAnalysis):
                 # some yerr values might be very close to zero, yielding significant weights.
                 # With such outlier, the fit doesn't sense residual of other data points.
                 maximum_weight = np.percentile(raw_weights, 90)
-                weights = np.clip(raw_weights, 0.0, maximum_weight)
+                weights_list = np.clip(raw_weights, 0.0, maximum_weight)
             else:
-                weights = None
-            model_residual = partial(
-                self._models[i]._residual,
-                data=sub_data.yval.to_numpy(),
-                weights=weights,
-                x=sub_data.xval.to_numpy(),
+                weights_list = None
+            model_weighted_residual = partial(
+                self._models[idx]._residual,
+                data=sub_data.y,
+                weights=weights_list,
+                x=sub_data.x,
             )
-            partial_residuals.append(model_residual)
+            partial_weighted_residuals.append(model_weighted_residual)
+
+            # adding weights to weights_list for residuals
+            if self.options.get("plot_residuals"):
+                if weights_list is None:
+                    residual_weights_list.append(None)
+                else:
+                    residual_weights_list.append(weights_list)
 
         # Run fit for each configuration
         res = None
@@ -417,7 +506,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             try:
                 with np.errstate(all="ignore"):
                     new = lmfit.minimize(
-                        fcn=lambda x: np.concatenate([p(x) for p in partial_residuals]),
+                        fcn=lambda x: np.concatenate([p(x) for p in partial_weighted_residuals]),
                         params=guess_params,
                         method=self.options.fit_method,
                         scale_covar=not valid_uncertainty,
@@ -434,11 +523,30 @@ class CurveAnalysis(BaseCurveAnalysis):
             if new.success and res.redchi > new.redchi:
                 res = new
 
+        # if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it
+        # wasn't calculated.
+        residuals_model = [] if self.options.get("plot_residuals") else None
+        if res and res.success and self.options.get("plot_residuals"):
+            for weights in residual_weights_list:
+                if weights is None:
+                    residuals_model.append(res.residual)
+                else:
+                    residuals_model.append(
+                        [
+                            weighted_res / np.abs(weight)
+                            for weighted_res, weight in zip(res.residual, weights)
+                        ]
+                    )
+
+        if residuals_model is not None:
+            residuals_model = np.array(residuals_model)
+
         return convert_lmfit_result(
             res,
             self._models,
-            curve_data.xval.to_numpy(),
-            curve_data.yval.to_numpy(),
+            curve_data.x,
+            curve_data.y,
+            residuals_model,
         )
 
     def _create_figures(
@@ -453,38 +561,46 @@ class CurveAnalysis(BaseCurveAnalysis):
         Returns:
             A list of figures.
         """
-        for model_id, data in list(curve_data.groupby("model_id")):
-            model_name = self._models[model_id]._name
+        for series_id, sub_data in curve_data.iter_by_series_id():
+            model_name = self.model_names()[series_id]
             # Plot raw data scatters
             if self.options.plot_raw_data:
-                raw_data = data.filter(like="processed", axis="index")
+                raw_data = sub_data.filter(category="raw")
                 self.plotter.set_series_data(
                     series_name=model_name,
-                    x=raw_data.xval.to_numpy(),
-                    y=raw_data.yval.to_numpy(),
+                    x=raw_data.x,
+                    y=raw_data.y,
                 )
             # Plot formatted data scatters
-            formatted_data = data.filter(like="formatted", axis="index")
+            formatted_data = sub_data.filter(category=self.options.fit_category)
             self.plotter.set_series_data(
                 series_name=model_name,
-                x_formatted=formatted_data.xval.to_numpy(),
-                y_formatted=formatted_data.yval.to_numpy(),
-                y_formatted_err=formatted_data.yerr.to_numpy(),
+                x_formatted=formatted_data.x,
+                y_formatted=formatted_data.y,
+                y_formatted_err=formatted_data.y_err,
             )
             # Plot fit lines
-            line_data = data.filter(like="fitted", axis="index")
+            line_data = sub_data.filter(category="fitted")
             if len(line_data) == 0:
                 continue
             self.plotter.set_series_data(
                 series_name=model_name,
-                x_interp=line_data.xval.to_numpy(),
-                y_interp=line_data.yval.to_numpy(),
+                x_interp=line_data.x,
+                y_interp=line_data.y,
             )
-            fit_stdev = line_data.yerr.to_numpy()
+            fit_stdev = line_data.y_err
             if np.isfinite(fit_stdev).all():
                 self.plotter.set_series_data(
                     series_name=model_name,
                     y_interp_err=fit_stdev,
+                )
+
+            if self.options.get("plot_residuals"):
+                residuals_data = sub_data.filter(category="residuals")
+                self.plotter.set_series_data(
+                    series_name=model_name,
+                    x_residuals=residuals_data.x,
+                    y_residuals=residuals_data.y,
                 )
 
         return [self.plotter.figure()]
@@ -492,9 +608,10 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        analysis_results = []
-        figures = []
+    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+        figures: List[FigureType] = []
+        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+        artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
         # the analysis option overrides self._generate_figures if set
@@ -508,8 +625,9 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Prepare for fitting
         self._initialize(experiment_data)
 
-        curve_data = self._format_data(self._run_data_processing(experiment_data.data()))
-        fit_data = self._run_curve_fit(curve_data.filter(like="formatted", axis="index"))
+        table = self._format_data(self._run_data_processing(experiment_data.data()))
+        formatted_subset = table.filter(category=self.options.fit_category)
+        fit_data = self._run_curve_fit(formatted_subset)
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
@@ -529,40 +647,56 @@ class CurveAnalysis(BaseCurveAnalysis):
                 quality=quality,
                 extra=self.options.extra,
             )
-            analysis_results.append(overview)
+            result_data.append(overview)
 
         if fit_data.success:
             # Add fit data to curve data table
-            fit_curves = []
-            formatted = curve_data.filter(like="formatted", axis="index")
-            columns = list(curve_data.columns)
-            for i, sub_data in list(formatted.groupby("model_id")):
-                name = self._models[i]._name
-                xval = sub_data.xval.to_numpy()
+            model_names = self.model_names()
+            for series_id, sub_data in formatted_subset.iter_by_series_id():
+                xval = sub_data.x
                 if len(xval) == 0:
                     # If data is empty, skip drawing this model.
                     # This is the case when fit model exist but no data to fit is provided.
                     continue
                 # Compute X, Y values with fit parameters.
-                xval_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
-                yval_fit = eval_with_uncertainties(
-                    x=xval_fit,
-                    model=self._models[i],
+                xval_arr_fit = np.linspace(np.min(xval), np.max(xval), num=100, dtype=float)
+                uval_arr_fit = eval_with_uncertainties(
+                    x=xval_arr_fit,
+                    model=self._models[series_id],
                     params=fit_data.ufloat_params,
                 )
-                model_fit = np.full((100, len(columns)), None, dtype=object)
-                fit_curves.append(model_fit)
-                model_fit[:, columns.index("xval")] = xval_fit
-                model_fit[:, columns.index("yval")] = unp.nominal_values(yval_fit)
+                yval_arr_fit = unp.nominal_values(uval_arr_fit)
                 if fit_data.covar is not None:
-                    model_fit[:, columns.index("yerr")] = unp.std_devs(yval_fit)
-                model_fit[:, columns.index("model_name")] = name
-                model_fit[:, columns.index("model_id")] = i
-            curve_data = curve_data.append_list_values(
-                other=np.vstack(fit_curves),
-                prefix="fitted",
-            )
-            analysis_results.extend(
+                    yerr_arr_fit = unp.std_devs(uval_arr_fit)
+                else:
+                    yerr_arr_fit = np.zeros_like(xval_arr_fit)
+                for xval, yval, yerr in zip(xval_arr_fit, yval_arr_fit, yerr_arr_fit):
+                    table.add_row(
+                        xval=xval,
+                        yval=yval,
+                        yerr=yerr,
+                        series_name=model_names[series_id],
+                        series_id=series_id,
+                        category="fitted",
+                        analysis=self.name,
+                    )
+
+                if self.options.get("plot_residuals"):
+                    # need to add here the residuals plot.
+                    xval_residual = sub_data.x
+                    yval_residuals = unp.nominal_values(fit_data.residuals[series_id])
+
+                    for xval, yval in zip(xval_residual, yval_residuals):
+                        table.add_row(
+                            xval=xval,
+                            yval=yval,
+                            series_name=model_names[series_id],
+                            series_id=series_id,
+                            category="residuals",
+                            analysis=self.name,
+                        )
+
+            result_data.extend(
                 self._create_analysis_results(
                     fit_data=fit_data,
                     quality=quality,
@@ -572,21 +706,36 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if self.options.return_data_points:
             # Add raw data points
-            analysis_results.extend(
-                self._create_curve_data(
-                    curve_data=curve_data.filter(like="formatted", axis="index"),
-                )
+            warnings.warn(
+                f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
+                "Saving this result with 'return_data_points'=True will be disabled in "
+                "Qiskit Experiments 0.7.",
+                DeprecationWarning,
             )
+            result_data.extend(self._create_curve_data(curve_data=formatted_subset))
+
+        artifacts.append(
+            ArtifactData(
+                name="curve_data",
+                data=table,
+            )
+        )
+        artifacts.append(
+            ArtifactData(
+                name="fit_summary",
+                data=fit_data,
+            )
+        )
 
         if plot_bool:
             if fit_data.success:
                 self.plotter.set_supplementary_data(
                     fit_red_chi=fit_data.reduced_chisq,
-                    primary_results=[r for r in analysis_results if not r.name.startswith("@")],
+                    primary_results=[r for r in result_data if not r.name.startswith("@")],
                 )
-            figures.extend(self._create_figures(curve_data=curve_data))
+            figures.extend(self._create_figures(curve_data=table))
 
-        return analysis_results, figures
+        return result_data + artifacts, figures
 
     def __getstate__(self):
         state = self.__dict__.copy()

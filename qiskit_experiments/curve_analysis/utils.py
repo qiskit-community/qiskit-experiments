@@ -18,6 +18,7 @@ import time
 import asteval
 import lmfit
 import numpy as np
+import pandas as pd
 from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
@@ -114,6 +115,7 @@ def convert_lmfit_result(
     models: List[lmfit.Model],
     xdata: np.ndarray,
     ydata: np.ndarray,
+    residuals: np.ndarray,
 ) -> CurveFitResult:
     """A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.
 
@@ -127,6 +129,7 @@ def convert_lmfit_result(
         models: Model used for the fitting. Function description is extracted.
         xdata: X values used for the fitting.
         ydata: Y values used for the fitting.
+        residuals: The residuals of the ydata from the model.
 
     Returns:
         QiskitExperiments :class:`.CurveFitResult` object.
@@ -168,6 +171,8 @@ def convert_lmfit_result(
         var_names=result.var_names,
         x_data=xdata,
         y_data=ydata,
+        weighted_residuals=result.residual,
+        residuals=residuals,
         covar=covar,
     )
 
@@ -243,9 +248,9 @@ def shot_weighted_average(
     if len(yvals) == 1:
         return yvals[0], yerrs[0], shots[0]
 
-    if np.any(shots < -1):
+    if any(s is pd.NA for s in shots):
         # Shot number is unknown
-        return np.mean(yvals), np.nan, -1
+        return np.mean(yvals), np.nan, pd.NA
 
     total_shots = np.sum(shots)
     weights = shots / total_shots
@@ -276,7 +281,7 @@ def inverse_weighted_variance(
     if len(yvals) == 1:
         return yvals[0], yerrs[0], shots[0]
 
-    total_shots = np.sum(shots) if all(shots > 0) else -1
+    total_shots = np.sum(shots)
     weights = 1 / yerrs**2
     yvar = 1 / np.sum(weights)
 
@@ -307,7 +312,7 @@ def sample_average(
     if len(yvals) == 1:
         return yvals[0], 0.0, shots[0]
 
-    total_shots = np.sum(shots) if all(shots > 0) else -1
+    total_shots = np.sum(shots)
 
     avg_yval = np.mean(yvals)
     avg_yerr = np.sqrt(np.mean((avg_yval - yvals) ** 2) / len(yvals))
@@ -317,7 +322,7 @@ def sample_average(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
@@ -350,7 +355,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
@@ -476,7 +481,7 @@ def mean_xy_data(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )
@@ -540,7 +545,7 @@ def multi_mean_xy_data(
 
 @deprecate_func(
     since="0.6",
-    additional_msg="The curve data representation is replaced with dataframe format.",
+    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
     pending=True,
 )

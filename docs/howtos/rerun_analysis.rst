@@ -12,12 +12,12 @@ Solution
 --------
 
 .. note::
-    Some of this guide uses the :mod:`qiskit-ibm-provider` package. For how to migrate from 
-    the deprecated ``qiskit-ibmq-provider`` to ``qiskit-ibm-provider``, consult the
-    `migration guide <https://qiskit.org/ecosystem/ibm-provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
+    For how to migrate from the older ``qiskit-ibm-provider`` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
+    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
 
 Once you recreate the exact experiment you ran and all of its parameters and options,
-you can call the :meth:`.add_jobs` method with a list of :class:`Job
+you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job
 <qiskit.providers.JobV1>` objects to generate the new :class:`.ExperimentData` object.
 The following example retrieves jobs from a provider that has access to them via their
 job IDs:
@@ -25,18 +25,18 @@ job IDs:
 .. jupyter-input::
 
     from qiskit_experiments.framework import ExperimentData
-    from qiskit_ibm_provider import IBMProvider
+    from qiskit_ibm_runtime import QiskitRuntimeService
 
     # The experiment you ran
     experiment = Experiment(**opts)
 
     # List of job IDs for the experiment
-    job_ids= [job1, job2, ...]
+    job_ids= ["job1_id", "job2_id", ...]
 
-    provider = IBMProvider()
+    service = QiskitRuntimeService(channel="ibm_quantum")
 
     expdata = ExperimentData(experiment = experiment)
-    expdata.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+    expdata.add_jobs([service.job(job_id) for job_id in job_ids])
     experiment.analysis.run(expdata, replace_results=True)
 
     # Block execution of subsequent code until analysis is complete
@@ -47,11 +47,11 @@ job IDs:
 instead of overwriting the existing one.
 
 If you have the job data in the form of a :class:`~qiskit.result.Result` object, you can
-invoke the :meth:`.add_data` method instead of :meth:`.add_jobs`:
+invoke the :meth:`.ExperimentData.add_data` method instead of :meth:`.ExperimentData.add_jobs`:
 
 .. jupyter-input::
 
-    data.add_data([provider.retrieve_job(job_id).result() for job_id in job_ids])
+    data.add_data([service.job(job_id).result() for job_id in job_ids])
 
 The remaining workflow remains the same.
 
@@ -116,7 +116,7 @@ first component experiment.
     )
 
     data = ExperimentData(experiment=pexp)
-    data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+    data.add_jobs([service.job(job_id) for job_id in job_ids])
     pexp.analysis.run(data, replace_results=True)
 
 See Also

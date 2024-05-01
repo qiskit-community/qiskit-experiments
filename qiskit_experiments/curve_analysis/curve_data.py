@@ -114,7 +114,7 @@ class CurveData:
 
     @deprecate_func(
         since="0.6",
-        additional_msg="CurveData is replaced with 'ScatterTable' with dataframe representation.",
+        additional_msg="CurveData is replaced by `ScatterTable`'s DataFrame representation.",
         removal_timeline="after 0.7",
         package_name="qiskit-experiments",
     )
@@ -168,6 +168,8 @@ class CurveFitResult:
         var_names: Optional[List[str]] = None,
         x_data: Optional[np.ndarray] = None,
         y_data: Optional[np.ndarray] = None,
+        weighted_residuals: Optional[np.ndarray] = None,
+        residuals: Optional[np.ndarray] = None,
         covar: Optional[np.ndarray] = None,
     ):
         """Create new Qiskit curve analysis result object.
@@ -188,6 +190,8 @@ class CurveFitResult:
             var_names: Name of variables, i.e. fixed parameters are excluded from the list.
             x_data: X values used for the fitting.
             y_data: Y values used for the fitting.
+            weighted_residuals: The residuals from the fitting after assigning weights for each ydata.
+            residuals: residuals of the fitted model.
             covar: Covariance matrix of fitting variables.
         """
         self.method = method
@@ -205,6 +209,8 @@ class CurveFitResult:
         self.var_names = var_names
         self.x_data = x_data
         self.y_data = y_data
+        self.weighted_residuals = weighted_residuals
+        self.residuals = residuals
         self.covar = covar
 
     @property
@@ -235,10 +241,13 @@ class CurveFitResult:
                 )
             else:
                 # Invalid covariance matrix. Std dev is set to nan, i.e. not computed.
-                ufloat_fitvals = uarray(
-                    nominal_values=[self.params[name] for name in self.var_names],
-                    std_devs=np.full(len(self.var_names), np.nan),
-                )
+                with np.errstate(invalid="ignore"):
+                    # Setting std_devs to NaN will trigger floating point exceptions
+                    # which we can ignore. See https://stackoverflow.com/q/75656026
+                    ufloat_fitvals = uarray(
+                        nominal_values=[self.params[name] for name in self.var_names],
+                        std_devs=np.full(len(self.var_names), np.nan),
+                    )
             # Combine fixed params and fitting variables into a single dictionary
             # Fixed parameter has zero std_dev
             ufloat_params = {}

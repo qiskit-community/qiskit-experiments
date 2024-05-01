@@ -16,8 +16,8 @@ from test.base import QiskitExperimentsTestCase
 import copy
 
 from qiskit import pulse, transpile
-from qiskit.providers.fake_provider import FakeAthens
 from qiskit.pulse import InstructionScheduleMap
+from qiskit_ibm_runtime.fake_provider import FakeAthens
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQHalfAngleHelper as HalfAngleHelper
@@ -39,7 +39,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
             exp_data = hac.run(backend)
 
             self.assertExperimentDone(exp_data)
-            d_theta = exp_data.analysis_results(1).value.n
+            d_theta = exp_data.analysis_results("d_hac").value.n
 
             self.assertTrue(abs(d_theta - error) < tol)
 

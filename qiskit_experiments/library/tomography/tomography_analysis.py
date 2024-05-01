@@ -25,7 +25,8 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, numpy_version
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework.package_deps import version_is_at_least
 from .fitters import (
     tomography_fitter_data,
     postprocess_fitter,
@@ -115,6 +116,7 @@ class TomographyAnalysis(BaseAnalysis):
                 the remaining tomographic bases conditional on the basis index. The
                 conditional preparation basis index is stored in state analysis result
                 extra fields `"conditional_preparation_index"`.
+            extra (Dict[str, Any]): Extra metadata dictionary attached to analysis results.
         """
         options = super()._default_options()
 
@@ -132,6 +134,7 @@ class TomographyAnalysis(BaseAnalysis):
         options.conditional_circuit_clbits = None
         options.conditional_measurement_indices = None
         options.conditional_preparation_indices = None
+        options.extra = {}
         return options
 
     @classmethod
@@ -232,6 +235,9 @@ class TomographyAnalysis(BaseAnalysis):
 
         analysis_results = state_results + other_results
 
+        if self.options.extra:
+            for res in analysis_results:
+                res.extra.update(self.options.extra)
         return analysis_results, []
 
     def _fit_state_results(
@@ -306,7 +312,7 @@ class TomographyAnalysis(BaseAnalysis):
         bs_fidelities = []
         for _ in range(self.options.target_bootstrap_samples):
             # TODO: remove conditional once numpy is pinned at 1.22 and above
-            if numpy_version() >= (1, 22):
+            if version_is_at_least("numpy", "1.22"):
                 sampled_data = rng.multinomial(shot_data, prob_data)
             else:
                 sampled_data = np.zeros_like(outcome_data)

@@ -35,10 +35,10 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = os.getenv("VERSION_STRING", "0.6")
+version = os.getenv("VERSION_STRING", "0.7")
 
 # The full version, including alpha/beta/rc tags
-release = os.getenv("RELEASE_STRING", "0.6.0")
+release = os.getenv("RELEASE_STRING", "0.7.0")
 
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
@@ -80,9 +80,7 @@ html_static_path = ["_static"]
 templates_path = ["_templates"]
 # Manually add the gallery CSS file for now
 # TODO: Figure out why the styling is not working by default
-html_css_files = [
-    "nbsphinx-gallery.css",
-]
+html_css_files = ["nbsphinx-gallery.css", "customstyles.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -154,27 +152,21 @@ modindex_common_prefix = ["qiskit_experiments."]
 # -- Options for HTML output -------------------------------------------------
 
 html_theme = "qiskit-ecosystem"
-
-html_context = {
-    "analytics_enabled": True,
-    "expandable_sidebar": True,
-}
-
 html_title = f"{project} {release}"
 
-docs_url_prefix = "ecosystem/experiments"
+docs_url_prefix = "qiskit-experiments"
 
 html_last_updated_fmt = "%Y/%m/%d"
 
 autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
-    "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
-    "qiskit_dynamics": ("https://qiskit.org/documentation/dynamics", None),
-    "qiskit_ibm_runtime": ("https://qiskit.org/ecosystem/ibm-runtime/", None),
+    "pandas": ("http://pandas.pydata.org/docs/", None),
+    "qiskit_aer": ("https://qiskit.github.io/qiskit-aer/", None),
+    "qiskit_dynamics": ("https://qiskit-extensions.github.io/qiskit-dynamics/", None),
+    "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
 }
 
 
@@ -183,7 +175,8 @@ intersphinx_mapping = {
 if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. note::
-    This is the documentation for the current state of the development branch
+    This is the documentation for the current state of the `development branch 
+    <https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main>`_
     of Qiskit Experiments. The documentation or APIs here can change prior to being
     released.
 """
@@ -237,6 +230,11 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "filter_kwargs",
         "fit_func",
         "signature",
+        "artifact_id",
+        "artifact_data",
+        "device_components",
+        "created_time",
+        "data",
     ]
     skip_members = [
         ParameterRepr.repr,

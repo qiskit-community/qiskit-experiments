@@ -14,8 +14,8 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeAthensV2
 from qiskit.qobj.utils import MeasLevel
+from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import QubitSpectroscopy
@@ -49,7 +49,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
         self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
+        result = exp_data.analysis_results("f01")
         value = result.value.n
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)

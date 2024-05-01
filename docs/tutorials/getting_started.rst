@@ -6,9 +6,8 @@ Installation
 ============
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
-Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`. Qiskit
-Experiments supports the same platforms as Qiskit itself and Python versions 3.8,
-3.9, 3.10, and 3.11.
+Qiskit following its `installation guide <https://docs.quantum.ibm.com/start/install>`__. Qiskit
+Experiments supports the same platforms as Qiskit itself and Python versions 3.8 through 3.12.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``
 in your shell environment:
@@ -42,6 +41,30 @@ cloning the repository:
 The ``-e`` option will keep your installed package up to date as you make or pull new
 changes.
 
+Upgrading Qiskit Experiments
+----------------------------
+
+Qiskit Experiments version numbers are in the form ``0.X.Y``, where ``X`` is the minor version and
+``Y`` is the patch version. There are two kinds of releases: minor releases, which increment the
+minor version, and patch releases, which increment the patch version. New features and API
+changes can only be introduced in a minor release. Patch releases contain only bug fixes and changes that do
+not affect how you use the package, such as performance optimization and documentation updates.
+
+Therefore, when you encounter a bug or unexpected behavior, it is recommended that you first check if there's a
+patch release you can upgrade to under the same minor version to avoid any breaking changes. When
+running ``pip``, you can specify the exact version to install:
+
+.. code-block::
+
+    python -m pip install qiskit-experiments==0.X.Y
+
+Before a nontrivial breaking API change is introduced in a minor release, the old feature will
+undergo a deprecation process lasting two releases for a core framework change and one release
+otherwise. During this process, deprecation warnings will be issued if you use the old feature that
+will instruct you on how to transition to the replacement feature, if applicable. The :doc:`release
+notes </release_notes>` contain full details on which features are deprecated or removed in each
+release.
+
 Running your first experiment
 =============================
 
@@ -55,16 +78,17 @@ the experiment from the Qiskit Experiments library:
     from qiskit_experiments.library import T1
 
 Experiments must be run on a backend. We're going to use a simulator,
-:class:`~qiskit.providers.fake_provider.FakePerth`, for this example, but you can use any
+:class:`~qiskit_ibm_runtime.fake_provider.FakePerth`, for this example, but you can use any
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the :mod:`qiskit_aer` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
+    packages to run simulations.  You can install them with ``python -m pip
+    install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakePerth
+    from qiskit_ibm_runtime.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
 
     backend = AerSimulator.from_backend(FakePerth())
@@ -72,11 +96,6 @@ backend, real or simulated, that you can access through Qiskit.
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
 Python sequence (usually a tuple or a list).
-
-.. note::
-    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an
-    integer qubit index instead of a one-element sequence for a single-qubit experiment
-    is deprecated.
 
 In addition, the :math:`T_1` experiment has
 a second required parameter, ``delays``, which is a list of times in seconds at which to
@@ -150,6 +169,9 @@ analysis, respectively:
     print(exp_data.job_status())
     print(exp_data.analysis_status())
 
+Figures
+-------
+
 Once the analysis is complete, figures are retrieved using the
 :meth:`~.ExperimentData.figure` method. See the :doc:`visualization module
 <visualization>` tutorial on how to customize figures for an experiment. For our
@@ -160,19 +182,39 @@ exponential decay model of the :math:`T_1` experiment:
 
     display(exp_data.figure(0))
 
-The fit results and associated parameters are accessed with
-:meth:`~.ExperimentData.analysis_results`:
+Analysis Results
+----------------
+
+The analysis results resulting from the fit are accessed with
+:meth:`~.ExperimentData.analysis_results`. If the ``dataframe=True`` parameter is passed, analysis
+results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format:
+
+.. jupyter-execute::
+
+    exp_data.analysis_results(dataframe=True)
+
+Alternatively, analysis results can be accessed via the legacy list format:
 
 .. jupyter-execute::
 
     for result in exp_data.analysis_results():
         print(result)
 
-Results can be indexed numerically (starting from 0) or using their name.
+Individual results can be retrieved using their name or their long or short IDs, which will all
+return the corresponding :class:`AnalysisResult` object:
 
-.. note::
-    See the :meth:`~.ExperimentData.analysis_results` API documentation for more 
-    advanced usage patterns to access subsets of analysis results.
+.. jupyter-execute::
+    :hide-code:
+
+    result_id = exp_data.analysis_results("T1").result_id
+    short_id = result_id.split("-")[0]
+    print(f"exp_data.analysis_results(\"T1\")")
+    print(f"exp_data.analysis_results(\"{result_id}\")")
+    print(f"exp_data.analysis_results(\"{short_id}\")")
+
+.. attention::
+    Retrieving analysis results by a numerical index, whether an integer or a slice, is deprecated
+    as of 0.6 and will be removed in a future release.
 
 Each analysis
 result value is a ``UFloat`` object from the ``uncertainties`` package. The nominal
@@ -185,6 +227,24 @@ value and standard deviation of each value can be accessed as follows:
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
+
+Artifacts
+---------
+
+The curve fit data itself is contained in :meth:`~.ExperimentData.artifacts`, which are accessed
+in an analogous manner. Artifacts for a standard experiment include both the curve fit data
+stored in ``artifacts("curve_data")`` and information on the fit stored in ``artifacts("fit_summary")``.
+Use the ``data`` attribute to access artifact data:
+
+.. jupyter-execute::
+
+    print(exp_data.artifacts("fit_summary").data)
+
+.. note::
+    See the :doc:`artifacts </howtos/artifacts>` how-to for more information on using artifacts.
+
+Circuit data and metadata
+-------------------------
 
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds
@@ -209,6 +269,9 @@ Experiments also have global associated metadata accessed by the
 .. jupyter-execute::
 
     print(exp_data.metadata)
+
+Job information
+---------------
 
 The actual backend jobs that were executed for the experiment can be accessed with the
 :meth:`~.ExperimentData.jobs` method.
@@ -243,7 +306,7 @@ supports can be set:
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
-For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
+For example, see :meth:`qiskit_ibm_runtime.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
@@ -406,8 +469,7 @@ into one level:
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-    for result in parallel_data.analysis_results():
-        print(result)
+    parallel_data.analysis_results(dataframe=True)
 
 Broadcasting analysis options to child experiments
 --------------------------------------------------

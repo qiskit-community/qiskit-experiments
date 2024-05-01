@@ -49,7 +49,7 @@ Enabling restless measurements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Qiskit Experiments, the experiments that support restless measurements
-have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options 
+have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options
 and define the data processor that will process the measured data.
 If you are an experiment developer, you can add the :class:`.RestlessMixin`
 to your experiment class to add support for restless measurements. For correct method resolution order,
@@ -59,7 +59,13 @@ a fake backend and a rough DRAG experiment. Note however, that you will not
 observe any meaningful outcomes with fake backends since the circuit simulator
 they use always starts with the qubits in the ground state.
 
+.. note::
+    This tutorial requires the :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` package to model a
+    backend.  You can install it with ``python -m pip install qiskit-ibm-runtime``.
+
 .. jupyter-execute::
+
+    from qiskit_ibm_runtime.fake_provider import FakePerth
 
     from qiskit_experiments.library import RoughDragCal
     from qiskit_experiments.calibration_management import (
@@ -67,7 +73,6 @@ they use always starts with the qubits in the ground state.
         FixedFrequencyTransmon,
     )
     from qiskit_experiments.data_processing.data_processor import DataProcessor
-    from qiskit.providers.fake_provider import FakePerth
 
     # replace this lines with an IBM Quantum backend to run the experiment.
     backend = FakePerth()
@@ -79,13 +84,13 @@ they use always starts with the qubits in the ground state.
 
     # Enable restless measurements by setting the run options and data processor
     cal_drag.enable_restless(rep_delay=1e-6)
-    
+
     print(cal_drag.analysis.options.data_processor)
     print(cal_drag.run_options)
 
 As you can see, a restless data processor is automatically chosen for the experiment. This
 data processor post-processes the restless measured shots according to the order in which
-they were acquired. Furthermore, the appropriate run options are also set. Those run options would also
+tthey were acquired. Furthermore, the appropriate run options are also set. Those run options would also
 override new run options that will be set afterward. To disable this override, one should set the
 option `restless` to `False`. Note that these run options might be unique to IBM Quantum providers.
 Therefore, execute may fail on non-IBM Quantum providers if the required options are not supported.
@@ -187,7 +192,7 @@ using the code below.
     tau = sum(durations) * dt / (len(durations))
 
     n_circs = len(cal_drag.circuits())
-    # can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-provider
+    # can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-runtime
 
     delay_s = 0.0025
     delay_r = 1e-6  # restless delay

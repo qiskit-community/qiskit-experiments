@@ -235,7 +235,10 @@ class CompositeAnalysis(BaseAnalysis):
                 if index not in marginalized_data:
                     # Initialize data list for marginalized
                     marginalized_data[index] = []
-                sub_data = {"metadata": metadata["composite_metadata"][i]}
+                sub_data = {
+                    k: v for k, v in datum.items() if k not in ("metadata", "counts", "memory")
+                }
+                sub_data["metadata"] = metadata["composite_metadata"][i]
                 if "counts" in datum:
                     if composite_clbits is not None:
                         sub_data["counts"] = marginal_distribution(
@@ -403,5 +406,7 @@ class CompositeAnalysis(BaseAnalysis):
             for _, series in analysis_table.iterrows():
                 data = AnalysisResultData.from_table_element(**series.to_dict())
                 analysis_results.append(data)
+            for artifact in sub_expdata.artifacts():
+                analysis_results.append(artifact)
 
         return analysis_results, figures

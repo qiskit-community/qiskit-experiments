@@ -99,26 +99,28 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
         roerror_analysis.run(roerror_data, replace_results=True).block_for_results()
 
         # Construct noisy measurement basis
-        mitigator = roerror_data.analysis_results(0).value
+        mitigator = roerror_data.analysis_results("Local Readout Mitigator").value
 
-        # Construct noisy measurement basis
-        measurement_basis = PauliMeasurementBasis(mitigator=mitigator)
-        tomo_analysis.set_options(measurement_basis=measurement_basis)
-
-        # Run mitigated tomography analysis
-        tomo_analysis.run(tomo_data, replace_results=True).block_for_results()
-        for res in tomo_data.analysis_results(block=False):
-            res.extra["mitigated"] = True
+        # Run mitigated tomography analysis with noisy mitigated basis
+        # Tomo analysis instance is internally copied by setting option with run.
+        tomo_analysis.run(
+            tomo_data,
+            replace_results=True,
+            measurement_basis=PauliMeasurementBasis(mitigator=mitigator),
+            extra={"mitigated": True},
+        ).block_for_results()
 
         # Combine results so that tomography results are ordered first
         combined_data = [tomo_data, roerror_data]
 
         # Run unmitigated tomography analysis
         if self.options.unmitigated_fit:
-            tomo_analysis.set_options(measurement_basis=PauliMeasurementBasis())
-            nomit_data = tomo_analysis.run(tomo_data, replace_results=False).block_for_results()
-            for res in nomit_data.analysis_results(block=False):
-                res.extra["mitigated"] = False
+            nomit_data = tomo_analysis.run(
+                tomo_data,
+                replace_results=False,
+                measurement_basis=PauliMeasurementBasis(),
+                extra={"mitigated": False},
+            ).block_for_results()
             combined_data.append(nomit_data)
 
         if self._flatten_results:

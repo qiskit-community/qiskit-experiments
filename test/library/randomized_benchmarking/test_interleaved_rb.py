@@ -16,12 +16,14 @@ from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
+from qiskit import pulse
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
+from qiskit.transpiler import InstructionProperties
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
+from qiskit_ibm_runtime.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit_experiments.library import randomized_benchmarking as rb
 
 
@@ -266,25 +268,44 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             self.assertTrue(all(not inst.operation.name.startswith("Clifford") for inst in qc))
 
     def test_interleaving_cnot_gate_with_non_supported_direction(self):
-        """Test if cx(0, 1) can be interleaved for backend that support only cx(1, 0)."""
+        """Test if fails to interleave cx(1, 2) for backend that support only cx(2, 1)."""
         my_backend = FakeManilaV2()
-        del my_backend.target["cx"][(0, 1)]  # make support only cx(1, 0)
+        del my_backend.target["cx"][(1, 2)]  # make support only cx(2, 1)
 
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
-            physical_qubits=(0, 1),
+            physical_qubits=(1, 2),
             lengths=[3],
             num_samples=4,
             backend=my_backend,
             seed=1234,
         )
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.count_ops().get("cx", 0) > 0)
-            expected_qubits = (qc.qubits[1], qc.qubits[0])
-            for inst in qc:
-                if inst.operation.name == "cx":
-                    self.assertEqual(inst.qubits, expected_qubits)
+        with self.assertRaises(QiskitError):
+            exp.circuits()
+
+    def test_interleaving_three_qubit_gate_with_calibration(self):
+        """Test if circuits for 3Q InterleavedRB contain custom calibrations supplied via target."""
+        my_backend = FakeManilaV2()
+        with pulse.build(my_backend) as custom_3q_sched:  # meaningless schedule
+            pulse.play(pulse.GaussianSquare(1600, 0.2, 64, 1300), pulse.drive_channel(0))
+
+        physical_qubits = (2, 1, 3)
+        custom_3q_gate = self.ThreeQubitGate()
+        my_backend.target.add_instruction(
+            custom_3q_gate, {physical_qubits: InstructionProperties(calibration=custom_3q_sched)}
+        )
+
+        exp = rb.InterleavedRB(
+            interleaved_element=custom_3q_gate,
+            physical_qubits=physical_qubits,
+            lengths=[3],
+            num_samples=1,
+            backend=my_backend,
+            seed=1234,
+        )
+        circuits = exp._transpiled_circuits()
+        qubits = tuple(circuits[0].qubits[q] for q in physical_qubits)
+        self.assertTrue(circuits[0].has_calibration_for((custom_3q_gate, qubits, [])))
 
 
 class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
