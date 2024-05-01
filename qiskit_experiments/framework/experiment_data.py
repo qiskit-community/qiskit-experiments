@@ -737,7 +737,7 @@ class ExperimentData:
             elif isinstance(datum, Result):
                 self._add_result_data(datum)
             else:
-                raise TypeError(f"Invalid data type {type(datum)}.")  
+                raise TypeError(f"Invalid data type {type(datum)}.")
         self.create_child_data()
         self._init_children_data()
 
