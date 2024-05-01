@@ -26,8 +26,8 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.result import Result
 
 
-import qiskit_experiments.data_processing as dp
 from qiskit_ibm_runtime.fake_provider import FakeVigoV2
+import qiskit_experiments.data_processing as dp
 
 from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import AnalysisError
