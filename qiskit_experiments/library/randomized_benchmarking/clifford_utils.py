@@ -46,6 +46,7 @@ _CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
 _valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
 # map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
+_CLIFFORD_TENSOR_1Q = np.load(f"{_DATA_FOLDER}/clifford_tensor_1q.npz")["table"]
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -486,7 +487,11 @@ def inverse_1q(num: Integral) -> Integral:
 
 
 def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
-    """Convert a given 1-qubit Clifford circuit to the corresponding integer."""
+    """Convert a given 1-qubit Clifford circuit to the corresponding integer.
+
+    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_1Q`,
+    RZGate, Delay and Barrier.
+    """
     num = 0
     for inst in qc:
         rhs = _num_from_1q_gate(op=inst.operation)
@@ -497,7 +502,7 @@ def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
 def _num_from_1q_gate(op: Instruction) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
-    Note that supported operations are limited to ones in :const:`CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
+    Note that supported operations are limited to ones in :const:`_CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
 
     Args:
         op: operation to be converted.
@@ -556,7 +561,11 @@ def inverse_2q(num: Integral) -> Integral:
 
 
 def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
-    """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
+    """Convert a given 2-qubit Clifford circuit to the corresponding integer.
+
+    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_2Q`,
+    RZGate, Delay and Barrier.
+    """
     lhs = 0
     for rhs in _clifford_2q_nums_from_2q_circuit(qc):
         lhs = _CLIFFORD_COMPOSE_2Q_DENSE[lhs, _clifford_num_to_dense_index[rhs]]
@@ -568,7 +577,7 @@ def _num_from_2q_gate(
 ) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
-    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.
+    Note that supported operations are limited to ones in `_CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.
 
     Args:
         op: operation of instruction to be converted.
@@ -730,3 +739,8 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
+
+
+def _tensor_1q_nums(first: Integral, second: Integral) -> Integral:
+    """Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords."""
+    return _CLIFFORD_TENSOR_1Q[first, second]
