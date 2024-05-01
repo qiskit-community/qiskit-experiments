@@ -456,4 +456,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         ret = super().from_config(config)
         if config.plotter:
             ret.options.plotter = config.plotter.plotter()
+        else:
+            ret.options.plotter = None
         return ret

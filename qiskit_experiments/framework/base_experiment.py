@@ -208,6 +208,8 @@ class BaseExperiment(ABC, StoreInitArgs):
             ret.set_run_options(**config.run_options)
         if config.analysis:
             ret.analysis = config.analysis.analysis()
+        else:
+            ret.analysis = None
         return ret
 
     @classmethod
@@ -256,11 +258,9 @@ class BaseExperiment(ABC, StoreInitArgs):
                 if service.experiment_has_file(experiment_id, experiment_config_filename):
                     artifact_file = service.file_download(experiment_id, experiment_config_filename)
 
-                    experiment_config = zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)[
-                        0
-                    ]
+                    experiment_config_artifact = zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)[0]
                     backend_name = data.backend
-                    reconstructed_experiment = cls.from_config(experiment_config)
+                    reconstructed_experiment = cls.from_config(experiment_config_artifact.data)
                     if backend_name:
                         reconstructed_experiment.backend = provider.get_backend(backend_name)
                     else:
