@@ -1,19 +1,32 @@
 ---
 upgrade_expdata:
   - |
-    "add_data" method on ExperimenData class hass been upgraded (Refactored).It
-    bootstraps missing experiment_data instances and fills their inside with 
-    parent experiment_data instance data.
-    ExperimentData class decomposes its own data by itself,
-    "_decompose_component_data" handles that.
-upgrade_companalysis:
-  - |
-    "_run_analysis" method on CompositeAnalysis class does not need bootstrapping
-    methods after ExperimentData class refactoring. Therefore, some methods has been
-    deprecated and "_run_analysis" method has been refactored according to that.
-    This refactoring has been reduced coupling.
-deprecations:
-  - |
-    After refactoring ExperimenData class there are no need for 
-    "run", "_component_experiment_data", "_marginalized_component_data",
-    "_format_memory", "_add_child_data", "_initialize_component_experiment_data".
+    The behavior of :meth:`.ExperimentData.add_data` for adding composite experiment  
+    data was upgraded. Previously this method just stored the input data as-is,  
+    and child experiment data was crated by running the composite analysis.  
+    This complicated a workflow of running analysis for a part of composite experiment 
+    results. Now this method immediately crates child data if available,  
+    and user doesn't always need to write :class:`CompositeAnalysis` instance  
+    to perform analysis on the composite data. For example  
+   
+    .. code-block::python  
+       
+        # Run T1 experiment on both Q0 and Q1  
+        exp = ParallelExperiment(  
+            [T1((0,), delays), T1((1,), delays)],  
+            backend,  
+        )  
+        exp_data = exp.run(analysis=None).block_for_results()  
+       
+        # Run analysis later, but only on Q0 data.  
+        analysis = T1Analysis()  
+        q0_data = analysis.run(exp_data.child_data(0))  
+       
+features:  
+  - |  
+    A method :meth:`.ExperimentData.create_child_data` was added. 
+    This method creates child data if not exist, by consuming the result data  
+    in the :meth:`ExperimentData.data` and the composite metadata in 
+    the :attr:`.ExperimentData.metadata`.  
+    This method is usually automatically called when new data is added to 
+    the experiment data instance.  
