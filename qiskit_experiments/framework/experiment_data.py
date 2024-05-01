@@ -737,7 +737,7 @@ class ExperimentData:
             elif isinstance(datum, Result):
                 self._add_result_data(datum)
             else:
-                raise TypeError(f"Invalid data type {type(datum)}.")
+                raise TypeError(f"Invalid data type {type(datum)}.")  
         self.create_child_data()
         self._init_children_data()
 
@@ -761,7 +761,7 @@ class ExperimentData:
 
     def create_child_data(
         self,
-    ) -> "ExperimenData":  # pylint: disable=inconsistent-return-statements
+    ) -> "ExperimenData":
 
         """Bootstrap child experiment data containers from result metadata.
 
@@ -772,25 +772,24 @@ class ExperimentData:
         if (component_metadata := self.metadata.get("component_metadata", None)) is None:
             return self
 
-        while (new_idx := len(self._child_data)) < len(component_metadata):
-            child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
-            # Add automatically generated component experiment metadata
-            child_data._artifacts = self._artifacts
-            try:
-                this_data = component_metadata[new_idx].copy()
-                child_data.metadata.update(this_data)
-            except (KeyError, IndexError):
-                pass
-            try:
-                component_type = self.metadata["component_types"][new_idx]
-                child_data.experiment_type = component_type
-            except (KeyError, IndexError):
-                pass
-            self.add_child_data(child_data)
-
+        with self._child_data.lock:
+            while (new_idx := len(self._child_data)) < len(component_metadata):
+                child_data = ExperimentData(**self.__retrive_self_attrs_as_dict)
+                # Add automatically generated component experiment metadata
+                try:
+                    this_data = component_metadata[new_idx].copy()
+                    child_data.metadata.update(this_data)
+                except (KeyError, IndexError):
+                    pass
+                try:
+                    component_type = self.metadata["component_types"][new_idx]
+                    child_data.experiment_type = component_type
+                except (KeyError, IndexError):
+                    pass
+                self.add_child_data(child_data)
         return self
 
-    def _init_children_data(self):  # pylint: disable=inconsistent-return-statements
+    def _init_children_data(self) -> "ExperimenData":
 
         """Bootstrap Experiment data containers's data
 
@@ -806,9 +805,9 @@ class ExperimentData:
                 for idx, sub_data in self._decompose_component_data(data):
                     # NOTE : These lines for preventing multiple data addition,
                     # it occurs and I dont know why
-                    if sub_data not in self.child_data(idx).data():
-                        self.child_data(idx).add_data(sub_data)
-                        self.child_data(idx)._artifacts = self._artifacts
+                    with self.child_data(idx)._result_data.lock:
+                        if sub_data not in self.child_data(idx).data():
+                            self.child_data(idx).add_data(sub_data)
 
         return self
 
