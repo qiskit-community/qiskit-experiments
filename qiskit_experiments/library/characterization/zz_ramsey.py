@@ -146,8 +146,7 @@ class ZZRamsey(BaseExperiment):
 
             from qiskit_experiments.library.characterization import ZZRamsey
 
-            qubits = (0, 1)
-            exp = ZZRamsey(physical_qubits=qubits, backend=backend)
+            exp = ZZRamsey(physical_qubits=(0,1), backend=backend)
 
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))

@@ -60,6 +60,7 @@ class ReadoutAngle(BaseExperiment):
         .. jupyter-execute::
 
             from qiskit_experiments.library.characterization import ReadoutAngle
+
             exp = ReadoutAngle((0,), backend=backend)
 
             exp_data = exp.run().block_for_results()

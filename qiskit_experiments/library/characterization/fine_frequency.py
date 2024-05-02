@@ -63,13 +63,12 @@ class FineFrequency(BaseExperiment):
             from qiskit_experiments.library.characterization import FineFrequency
 
             repetitions = list(range(40))
+
             exp = FineFrequency((0,),
                                 delay_duration=320,
                                 backend=backend,
                                 repetitions=repetitions)
             exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
-
-        .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))

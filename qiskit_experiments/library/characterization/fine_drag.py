@@ -322,8 +322,6 @@ class FineSXDrag(FineDrag):
                                          },
                                     )
 
-        .. jupyter-execute::
-
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)

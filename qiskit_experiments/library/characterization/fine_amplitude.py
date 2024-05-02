@@ -270,8 +270,6 @@ class FineXAmplitude(FineAmplitude):
 
             exp = FineXAmplitude(physical_qubits=(0,), backend=backend)
 
-        .. jupyter-execute::
-
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
@@ -327,8 +325,6 @@ class FineSXAmplitude(FineAmplitude):
             from qiskit_experiments.library import FineSXAmplitude
 
             exp = FineSXAmplitude(physical_qubits=(0,), backend=backend)
-
-        .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
