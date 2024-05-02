@@ -88,11 +88,10 @@ class CorrelatedReadoutError(BaseExperiment):
 
             from qiskit_experiments.library import CorrelatedReadoutError
 
-            qubits = [0,1,2]
-            exp = CorrelatedReadoutError(physical_qubits=qubits, backend=backend)
-            exp.analysis.set_options(plot=True)
+            exp = CorrelatedReadoutError(physical_qubits=(0,1,2), backend=backend)
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: manual
         :doc:`/manuals/measurement/readout_mitigation`
