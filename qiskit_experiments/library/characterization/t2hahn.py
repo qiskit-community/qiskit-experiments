@@ -87,8 +87,8 @@ class T2Hahn(BaseExperiment):
                          backend=backend)
             exp.analysis.set_options(p0=None, plot=True)
 
-            expdata = exp.run().block_for_results()
-            display(expdata.figure(0))
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
 
     # section: reference

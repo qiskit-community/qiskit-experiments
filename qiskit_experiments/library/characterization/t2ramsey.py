@@ -85,8 +85,8 @@ class T2Ramsey(BaseExperiment):
             delays = list(np.arange(1.00e-6, 50.0e-6, 2.00e-6))
             exp = T2Ramsey(physical_qubits=(0, ), delays=delays, backend=backend, osc_freq=1.0e5)
 
-            expdata = exp.run().block_for_results()
-            display(expdata.figure(0))
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
 
     # section: reference
