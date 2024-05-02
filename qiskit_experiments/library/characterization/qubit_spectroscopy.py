@@ -62,18 +62,15 @@ class QubitSpectroscopy(Spectroscopy):
             freq01_estimate = backend.defaults().qubit_freq_est[qubit]
             frequencies = np.linspace(freq01_estimate-15e6, freq01_estimate+15e6, 51)
 
-            exp = QubitSpectroscopy(physical_qubits = (0,),
+            exp = QubitSpectroscopy(physical_qubits = (qubit,),
                                     frequencies = frequencies,
                                     backend = backend,
-                                    absolute = True,
-                                    analysis = None,
                                     )
             exp.set_experiment_options(amp=0.005)
 
-        .. jupyter-execute::
-
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     __spec_gate_name__ = "Spec"

@@ -101,13 +101,11 @@ class HalfAngle(BaseExperiment):
 
             from qiskit_experiments.library.characterization import HalfAngle
 
-            qubit=0
-            exp = HalfAngle([qubit], backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=178)
+            exp = HalfAngle((0,), backend=backend)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597

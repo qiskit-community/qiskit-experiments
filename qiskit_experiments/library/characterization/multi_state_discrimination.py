@@ -65,14 +65,11 @@ class MultiStateDiscrimination(BaseExperiment):
 
             from qiskit_experiments.library.characterization import MultiStateDiscrimination
 
-            qubit=0
-            exp=MultiStateDiscrimination([qubit], backend=backend)
-            print(exp.circuits()[0])
-            print(exp.circuits()[1])
+            exp=MultiStateDiscrimination((0,), backend=backend)
 
             exp_data=exp.run().block_for_results()
-            result=exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         `Qiskit Textbook\

@@ -81,8 +81,8 @@ class Rabi(BaseExperiment, RestlessMixin):
                        backend=backend,)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     __gate_name__ = "Rabi"
@@ -250,8 +250,8 @@ class EFRabi(Rabi):
                          amplitudes=np.linspace(-0.1, 0.1, 21),)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     __outcome__ = "rabi_rate_12"
