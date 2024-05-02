@@ -75,15 +75,12 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             from qiskit.circuit.library import XGate
             from qiskit_experiments.library import FineAmplitude
 
-            qubit = 0
-            exp = FineAmplitude(physical_qubits=(qubit,), gate=XGate(), backend=backend)
-            exp.set_run_options(shots=10000)
+            exp = FineAmplitude(physical_qubits=(0,), gate=XGate(), backend=backend)
             exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi})
-            print(exp.circuits()[5])
 
             exp_data = exp.run().block_for_results()
-            result =exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: analysis_ref
         :class:`FineAmplitudeAnalysis`
@@ -271,14 +268,13 @@ class FineXAmplitude(FineAmplitude):
 
             from qiskit_experiments.library import FineXAmplitude
 
-            qubit = 0
-            exp = FineXAmplitude(physical_qubits=(qubit,), backend=backend)
-            exp.circuits()[5].draw("mpl")
+            exp = FineXAmplitude(physical_qubits=(0,), backend=backend)
 
         .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -330,14 +326,13 @@ class FineSXAmplitude(FineAmplitude):
 
             from qiskit_experiments.library import FineSXAmplitude
 
-            qubit = 0
-            exp = FineSXAmplitude(physical_qubits=(qubit,), backend=backend)
-            exp.circuits()[5].draw("mpl")
+            exp = FineSXAmplitude(physical_qubits=(0,), backend=backend)
 
         .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

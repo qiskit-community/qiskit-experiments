@@ -89,7 +89,8 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             exp.set_experiment_options(reps=[3, 5, 7])
 
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1011.1949

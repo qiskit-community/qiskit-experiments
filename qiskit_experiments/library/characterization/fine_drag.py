@@ -140,13 +140,11 @@ class FineDrag(BaseExperiment, RestlessMixin):
             from qiskit.circuit.library import XGate
             from qiskit_experiments.library.characterization import FineDrag
 
-            qubit=0
-            exp = FineDrag(physical_qubits=(qubit,), gate=XGate(), backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp = FineDrag(physical_qubits=(0,), gate=XGate(), backend=backend)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1612.00858
@@ -270,13 +268,11 @@ class FineXDrag(FineDrag):
 
             from qiskit_experiments.library.characterization import FineXDrag
 
-            qubit=0
-            exp = FineXDrag(physical_qubits=(qubit,), backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=101)
+            exp = FineXDrag(physical_qubits=(0,), backend=backend)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -317,8 +313,7 @@ class FineSXDrag(FineDrag):
             import numpy as np
             from qiskit_experiments.library.characterization import FineSXDrag
 
-            qubit=0
-            exp = FineSXDrag(physical_qubits=(qubit,), backend=backend)
+            exp = FineSXDrag(physical_qubits=(0,), backend=backend)
             exp.analysis.set_options(normalization= True,
                                      fixed_parameters={
                                          "angle_per_gate" : 0.0,
@@ -326,13 +321,12 @@ class FineSXDrag(FineDrag):
                                          "amp" : 0.6
                                          },
                                     )
-            print(exp.circuits()[1])
 
         .. jupyter-execute::
 
-            exp.set_run_options(shots=10000, seed_simulator=101)
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

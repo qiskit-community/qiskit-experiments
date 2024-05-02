@@ -62,21 +62,18 @@ class FineFrequency(BaseExperiment):
 
             from qiskit_experiments.library.characterization import FineFrequency
 
-            qubit=0
             repetitions = list(range(40))
-            exp = FineFrequency((qubit,),
+            exp = FineFrequency((0,),
                                 delay_duration=320,
                                 backend=backend,
                                 repetitions=repetitions)
             exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
-            exp.set_run_options(shots=1000, seed_simulator=199)
-            print(exp.circuits()[3])
 
         .. jupyter-execute::
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(

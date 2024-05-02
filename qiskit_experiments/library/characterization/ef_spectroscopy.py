@@ -54,12 +54,12 @@ class EFSpectroscopy(QubitSpectroscopy):
             exp = EFSpectroscopy(physical_qubits = (0,),
                                      frequencies = frequencies,
                                      backend = backend,
-                                     absolute = True,
                                     )
             exp.set_experiment_options(amp=0.005)
 
             exp_data = exp.run().block_for_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(
