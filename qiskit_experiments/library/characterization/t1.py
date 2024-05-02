@@ -48,7 +48,7 @@ class T1(BaseExperiment):
 
         .. jupyter-execute::
 
-            import numpy as np  
+            import numpy as np
             from qiskit_experiments.library import T1
 
             delays = np.arange(1.e-6, 300.e-6, 30.e-6)
