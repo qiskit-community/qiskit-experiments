@@ -55,6 +55,7 @@ class T1(BaseExperiment):
             exp = T1(physical_qubits=(0, ), delays=delays, backend=backend)
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: manual
         :doc:`/manuals/characterization/t1`

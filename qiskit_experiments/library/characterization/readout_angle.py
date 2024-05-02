@@ -60,18 +60,11 @@ class ReadoutAngle(BaseExperiment):
         .. jupyter-execute::
 
             from qiskit_experiments.library.characterization import ReadoutAngle
-            qubit=0
-            exp = ReadoutAngle([qubit], backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=106)
+            exp = ReadoutAngle((0,), backend=backend)
 
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            for _ in result:
-                print(_)
-
-        .. jupyter-execute::
-
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     @classmethod

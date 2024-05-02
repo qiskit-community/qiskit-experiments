@@ -148,11 +148,10 @@ class ZZRamsey(BaseExperiment):
 
             qubits = (0, 1)
             exp = ZZRamsey(physical_qubits=qubits, backend=backend)
-            exp.set_run_options(shots=1000, seed_simulator=101)
 
             exp_data = exp.run().block_for_results()
-            result=exp_data.analysis_results()
-            exp_data.figure(0)
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(

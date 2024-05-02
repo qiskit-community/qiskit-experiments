@@ -77,27 +77,19 @@ class T2Hahn(BaseExperiment):
 
         .. jupyter-execute::
 
-            import qiskit
+            import numpy as np
             from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 
-            conversion_factor = 1e-6
-            delays = list(range(0, 50, 1))
-            delays = [float(_)*conversion_factor for _ in delays]
-            number_of_echoes = 1
+            delays = np.linspace(0, 50, 51)*1e-6
 
             exp = T2Hahn(physical_qubits=(0, ),
                          delays=delays,
-                         num_echoes=number_of_echoes,
                          backend=backend)
-            print(exp.circuits()[0])
-
-        .. jupyter-execute::
-
             exp.analysis.set_options(p0=None, plot=True)
-            exp.set_run_options(shots=1000, seed_simulator=121)
-            expdata = exp.run().block_for_results()
 
+            expdata = exp.run().block_for_results()
             display(expdata.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1904.06560
