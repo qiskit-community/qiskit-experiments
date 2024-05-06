@@ -12,14 +12,17 @@
 """
 Base Experiment class.
 """
-
+import warnings
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
+import logging
+import traceback
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit import transpile, QuantumCircuit
-from qiskit.providers import Job, Backend
+from qiskit.providers import Provider, Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -28,7 +31,12 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+from qiskit_experiments.framework.json import ExperimentDecoder
+from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service import Qubit
+from qiskit_experiments.database_service.utils import zip_to_objs
+
+LOG = logging.getLogger(__name__)
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -171,6 +179,12 @@ class BaseExperiment(ABC, StoreInitArgs):
             (key, getattr(self._transpile_options, key)) for key in self._set_transpile_options
         )
         run_options = dict((key, getattr(self._run_options, key)) for key in self._set_run_options)
+
+        if isinstance(self.analysis, BaseAnalysis):
+            analysis_config = self.analysis.config()
+        else:
+            analysis_config = None
+
         return ExperimentConfig(
             cls=type(self),
             args=args,
@@ -178,6 +192,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             experiment_options=experiment_options,
             transpile_options=transpile_options,
             run_options=run_options,
+            analysis=analysis_config,
         )
 
     @classmethod
@@ -192,7 +207,93 @@ class BaseExperiment(ABC, StoreInitArgs):
             ret.set_transpile_options(**config.transpile_options)
         if config.run_options:
             ret.set_run_options(**config.run_options)
+        if config.analysis:
+            ret.analysis = config.analysis.analysis()
         return ret
+
+    def save(self, service=None, backend=None):
+        """Save an experiment without running it."""
+        if not service:
+            raise QiskitError("A service must be provided to save the experiment.")
+        if not self.backend and not backend:
+            raise QiskitError("Backend must be set to save the experiment.")
+        exp_data = self._initialize_experiment_data(
+            service=service, backend=backend or self.backend
+        )
+        exp_data.save()
+        return exp_data
+
+    @classmethod
+    def load(
+        cls,
+        experiment_id: str,
+        service: Optional[IBMExperimentService] = None,
+        provider: Optional[Provider] = None,
+    ) -> "BaseExperiment":
+        """Load a saved experiment from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+            provider: an IBMProvider required for loading the experiment data and
+                can be used to initialize the service. When using
+                :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
+                this is the :class:`~qiskit_ibm_runtime.QiskitRuntimeService` and should
+                not be confused with the experiment database service
+                :meth:`qiskit_ibm_experiment.IBMExperimentService`.
+
+        Returns:
+            The reconstructed experiment.
+        Raises:
+            QiskitError: If the experiment could not be reconstructed.
+        """
+        if service is None:
+            if provider is None:
+                raise QiskitError(
+                    "Loading an experiment requires a valid Qiskit provider or experiment service."
+                )
+            service = ExperimentData.get_service_from_provider(provider)
+
+        data = service.experiment(experiment_id, json_decoder=ExperimentDecoder)
+
+        # Recreate artifacts
+        experiment_config_filename = "experiment_config.zip"
+
+        if experiment_config_filename in data.metadata["artifact_files"]:
+            if service.experiment_has_file(experiment_id, experiment_config_filename):
+                artifact_file = service.file_download(experiment_id, experiment_config_filename)
+
+                experiment_config = next(
+                    zip_to_objs(artifact_file, json_decoder=ExperimentDecoder)
+                ).data
+
+                exp_versions = data.metadata["_source"]["qiskit_version"]
+                cur_versions = qiskit_version()
+                if exp_versions != cur_versions:
+                    warnings.warn(
+                        f"The experiment was created with {exp_versions}, "
+                        f"but you have versions {cur_versions}."
+                    )
+                try:
+                    reconstructed_experiment = experiment_config.cls.from_config(experiment_config)
+                except Exception as exc:  # pylint: disable=broad-except:
+                    raise QiskitError("Recreating experiment failed with {Exception}.") from exc
+                backend_name = data.backend
+                if backend_name:
+                    try:
+                        reconstructed_experiment.backend = provider.get_backend(backend_name)
+                    except Exception:  # pylint: disable=broad-except
+                        warnings.warn("Unable to retrieve backend.")
+                else:
+                    warnings.warn("No backend specified in loaded experiment.")
+                return reconstructed_experiment
+            else:
+                raise QiskitError("The experiment doesn't have saved metadata in the service.")
+        else:
+            raise QiskitError(
+                f"No '{experiment_config_filename}' field in the experiment metadata. can't load "
+                f"the experiment."
+            )
 
     def run(
         self,
@@ -260,9 +361,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         else:
             return experiment_data
 
-    def _initialize_experiment_data(self) -> ExperimentData:
+    def _initialize_experiment_data(self, **kwargs) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return ExperimentData(experiment=self)
+        return ExperimentData(experiment=self, **kwargs)
 
     def _finalize(self):
         """Finalize experiment object before running jobs.
@@ -475,6 +576,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         By default, this assumes the experiment is running on qubits only. Subclasses can override
         this method to add custom experiment metadata to the returned experiment result data.
         """
+
         metadata = {
             "physical_qubits": list(self.physical_qubits),
             "device_components": list(map(Qubit, self.physical_qubits)),
