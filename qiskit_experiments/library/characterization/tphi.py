@@ -83,6 +83,8 @@ class Tphi(BatchExperiment):
                         )
 
             exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            display(exp_data.figure(1))
             exp_data.analysis_results(dataframe=True)
 
     # section: reference
