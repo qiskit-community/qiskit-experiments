@@ -80,10 +80,9 @@ class LocalReadoutError(BaseExperiment):
             exp.analysis.set_options(plot=True)
             exp.set_run_options(shots=10000)
 
-            result = exp.run()
-            mitigator = result.analysis_results(0).value
-
-            result.figure(0)
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: manual
         :doc:`/manuals/measurement/readout_mitigation`
