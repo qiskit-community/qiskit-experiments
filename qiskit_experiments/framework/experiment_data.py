@@ -761,7 +761,7 @@ class ExperimentData:
 
     def create_child_data(
         self,
-    ) -> "ExperimenData":
+    ) -> "ExperimentData":
 
         """Bootstrap child experiment data containers from result metadata.
 
