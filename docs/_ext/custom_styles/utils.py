@@ -25,8 +25,8 @@ from sphinx.util.docstrings import prepare_docstring
 from qiskit_experiments.framework import BaseExperiment
 
 
-_parameter_regex = re.compile(r"(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)")
-_rest_role_regex = re.compile(r":(.+?) (.+?):\s*(.*[^\s]+)")
+_parameter_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)')
+_rest_role_regex = re.compile(r':(.+?) (.+?):\s*(.*[^\s]+)')
 
 
 def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
