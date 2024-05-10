@@ -62,21 +62,25 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         in this case.
 
     # section: example
+        .. jupyter-execute::
+            :hide-code:
 
-        The steps to run a fine amplitude experiment are
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e6, noise=True, seed=185)
 
-        .. code-block:: python
+        .. jupyter-execute::
 
-            qubit = 3
-            amp_cal = FineAmplitude([qubit], SXGate())
-            amp_cal.set_experiment_options(
-                angle_per_gate=np.pi/2,
-                phase_offset=np.pi
-            )
-            amp_cal.run(backend)
+            import numpy as np
+            from qiskit.circuit.library import XGate
+            from qiskit_experiments.library import FineAmplitude
 
-        Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
-        that set the appropriate options for specific gates by default.
+            exp = FineAmplitude(physical_qubits=(0,), gate=XGate(), backend=backend)
+            exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi})
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: analysis_ref
         :class:`FineAmplitudeAnalysis`
@@ -251,6 +255,24 @@ class FineXAmplitude(FineAmplitude):
 
         :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import FineXAmplitude
+
+            exp = FineXAmplitude(physical_qubits=(0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -289,6 +311,24 @@ class FineSXAmplitude(FineAmplitude):
 
         :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import FineSXAmplitude
+
+            exp = FineSXAmplitude(physical_qubits=(0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

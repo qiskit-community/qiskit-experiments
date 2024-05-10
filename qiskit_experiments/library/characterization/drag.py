@@ -64,6 +64,34 @@ class RoughDrag(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`DragCalAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=101)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.library import RoughDrag
+
+            with pulse.build() as build_sched:
+                pulse.play(pulse.Drag(160, 0.50, 40, Parameter("beta")), pulse.DriveChannel(0))
+
+            exp = RoughDrag(physical_qubits=(0,),
+                            schedule=build_sched,
+                            betas = np.linspace(-4, 4, 51),
+                            backend=backend,)
+            exp.set_experiment_options(reps=[3, 5, 7])
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         .. ref_arxiv:: 1 1011.1949
         .. ref_arxiv:: 2 0901.0534

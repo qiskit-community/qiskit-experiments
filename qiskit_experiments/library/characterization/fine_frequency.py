@@ -48,6 +48,31 @@ class FineFrequency(BaseExperiment):
                                                                   0
     # section: analysis_ref
         :class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer import AerSimulator
+            backend =AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineFrequency
+
+            repetitions = list(range(40))
+
+            exp = FineFrequency((0,),
+                                delay_duration=320,
+                                backend=backend,
+                                repetitions=repetitions)
+            exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(
