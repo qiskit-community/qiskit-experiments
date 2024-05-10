@@ -80,7 +80,7 @@ def _generate_analysis_ref(
         raise Exception(f"Option docstring for analysis_ref is missing.")
 
     analysis_ref_lines = []
-    for line in lines[analysis_ref_start + 1 :]:
+    for line in lines[analysis_ref_start + 1:]:
         # add lines until hitting to next section
         if line.startswith("# section:"):
             break
