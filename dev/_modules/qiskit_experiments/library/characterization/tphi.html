@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.6.0-21-gf352b3cc</title>
+        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.6.0-22-g0ddfc917</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-21-gf352b3cc</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-22-g0ddfc917</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-21-gf352b3cc</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-22-g0ddfc917</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -630,6 +630,43 @@
 <span class="sd">    # section: analysis_ref</span>
 <span class="sd">        :class:`.TPhiAnalysis`</span>
 
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            # backend</span>
+<span class="sd">            from qiskit_ibm_runtime.fake_provider import FakeManilaV2</span>
+<span class="sd">            from qiskit_aer import AerSimulator</span>
+<span class="sd">            from qiskit_aer.noise import NoiseModel</span>
+
+<span class="sd">            noise_model = NoiseModel.from_backend(FakeManilaV2(),</span>
+<span class="sd">                                                  thermal_relaxation=True,</span>
+<span class="sd">                                                  gate_error=False,</span>
+<span class="sd">                                                  readout_error=False,</span>
+<span class="sd">                                                 )</span>
+
+<span class="sd">            backend = AerSimulator.from_backend(FakeManilaV2(), noise_model=noise_model)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            import numpy as np</span>
+<span class="sd">            import qiskit</span>
+<span class="sd">            from qiskit_experiments.library.characterization import Tphi</span>
+
+<span class="sd">            delays_t1 = np.arange(1e-6, 300e-6, 10e-6)</span>
+<span class="sd">            delays_t2 = np.arange(1e-6, 50e-6, 2e-6)</span>
+
+<span class="sd">            exp = Tphi(physical_qubits=(0, ),</span>
+<span class="sd">                        delays_t1=delays_t1,</span>
+<span class="sd">                        delays_t2=delays_t2,</span>
+<span class="sd">                        backend=backend</span>
+<span class="sd">                        )</span>
+
+<span class="sd">            exp_data = exp.run().block_for_results()</span>
+<span class="sd">            display(exp_data.figure(0))</span>
+<span class="sd">            display(exp_data.figure(1))</span>
+<span class="sd">            exp_data.analysis_results(dataframe=True)</span>
+
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1904.06560</span>
 
@@ -747,7 +784,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/05/01</div>
+              Last updated on 2024/05/10</div>
           </div>
           <div class="right-details">
             
@@ -764,7 +801,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=4aee0651"></script>
+    <script src="../../../../_static/documentation_options.js?v=686a8778"></script>
     <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

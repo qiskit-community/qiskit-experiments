@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.library.characterization.fine_drag - Qiskit Experiments 0.6.0-21-gf352b3cc</title>
+        <title>qiskit_experiments.library.characterization.fine_drag - Qiskit Experiments 0.6.0-22-g0ddfc917</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-21-gf352b3cc</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.0-22-g0ddfc917</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-21-gf352b3cc</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-22-g0ddfc917</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -707,6 +707,25 @@
 <span class="sd">    # section: analysis_ref</span>
 <span class="sd">        :class:`.ErrorAmplificationAnalysis`</span>
 
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            # backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            from qiskit.circuit.library import XGate</span>
+<span class="sd">            from qiskit_experiments.library.characterization import FineDrag</span>
+
+<span class="sd">            exp = FineDrag(physical_qubits=(0,), gate=XGate(), backend=backend)</span>
+
+<span class="sd">            exp_data = exp.run().block_for_results()</span>
+<span class="sd">            display(exp_data.figure(0))</span>
+<span class="sd">            exp_data.analysis_results(dataframe=True)</span>
+
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1612.00858</span>
 <span class="sd">        .. ref_arxiv:: 2 1011.1949</span>
@@ -821,7 +840,26 @@
 <div class="viewcode-block" id="FineXDrag">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html#qiskit_experiments.library.characterization.FineXDrag">[docs]</a>
 <span class="k">class</span> <span class="nc">FineXDrag</span><span class="p">(</span><span class="n">FineDrag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an X gate.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an X gate.</span>
+
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            # backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            from qiskit_experiments.library.characterization import FineXDrag</span>
+
+<span class="sd">            exp = FineXDrag(physical_qubits=(0,), backend=backend)</span>
+
+<span class="sd">            exp_data = exp.run().block_for_results()</span>
+<span class="sd">            display(exp_data.figure(0))</span>
+<span class="sd">            exp_data.analysis_results(dataframe=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
@@ -849,7 +887,34 @@
 <div class="viewcode-block" id="FineSXDrag">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html#qiskit_experiments.library.characterization.FineSXDrag">[docs]</a>
 <span class="k">class</span> <span class="nc">FineSXDrag</span><span class="p">(</span><span class="n">FineDrag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an :math:`SX` gate.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an :math:`SX` gate.</span>
+
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            # backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            import numpy as np</span>
+<span class="sd">            from qiskit_experiments.library.characterization import FineSXDrag</span>
+
+<span class="sd">            exp = FineSXDrag(physical_qubits=(0,), backend=backend)</span>
+<span class="sd">            exp.analysis.set_options(normalization= True,</span>
+<span class="sd">                                     fixed_parameters={</span>
+<span class="sd">                                         &quot;angle_per_gate&quot; : 0.0,</span>
+<span class="sd">                                         &quot;phase_offset&quot; : np.pi/2,</span>
+<span class="sd">                                         &quot;amp&quot; : 0.6</span>
+<span class="sd">                                         },</span>
+<span class="sd">                                    )</span>
+
+<span class="sd">            exp_data = exp.run().block_for_results()</span>
+<span class="sd">            display(exp_data.figure(0))</span>
+<span class="sd">            exp_data.analysis_results(dataframe=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
@@ -891,7 +956,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/05/01</div>
+              Last updated on 2024/05/10</div>
           </div>
           <div class="right-details">
             
@@ -908,7 +973,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=4aee0651"></script>
+    <script src="../../../../_static/documentation_options.js?v=686a8778"></script>
     <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
