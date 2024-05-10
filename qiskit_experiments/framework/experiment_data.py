@@ -789,12 +789,12 @@ class ExperimentData:
                 self.add_child_data(child_data)
         return self
 
-    def _init_children_data(self) -> "ExperimenData":
+    def _init_children_data(self) -> "ExperimentData":
 
         """Bootstrap Experiment data containers's data
 
         Returns:
-            self : return itself for method calling
+            Current instance for method calling
         """
 
         if self.metadata.get("component_metadata", None) is None:
