@@ -789,7 +789,7 @@ class ExperimentData:
                 self.add_child_data(child_data)
         return self
 
-    def _init_children_data(self) -> "ExperimentData":
+    def _init_children_data(self):
 
         """Bootstrap Experiment data containers's data
 
@@ -808,8 +808,6 @@ class ExperimentData:
                     with self.child_data(idx)._result_data.lock:
                         if sub_data not in self.child_data(idx).data():
                             self.child_data(idx).add_data(sub_data)
-
-        return self
 
     @staticmethod
     def _decompose_component_data(
