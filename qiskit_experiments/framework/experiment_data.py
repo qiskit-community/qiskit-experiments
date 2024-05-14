@@ -792,9 +792,6 @@ class ExperimentData:
     def _init_children_data(self):
 
         """Bootstrap Experiment data containers's data
-
-        Returns:
-            Current instance for method calling
         """
 
         if self.metadata.get("component_metadata", None) is None:
