@@ -19,11 +19,16 @@ import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
+from qiskit_experiments.framework import (
+    SimpleCircuitExtender,
+    BackendTiming,
+    BaseExperiment,
+    Options,
+)
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
-class T1(BaseExperiment):
+class T1(SimpleCircuitExtender, BaseExperiment):
     r"""An experiment to measure the qubit relaxation time.
 
     # section: overview

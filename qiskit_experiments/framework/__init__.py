@@ -125,8 +125,9 @@ Experiment Configuration Helper Classes
     BackendData
     BackendTiming
     RestlessMixin
+    SimpleCircuitExtender
 
-"""
+    """
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
@@ -155,3 +156,4 @@ from .composite import (
 )
 from .json import ExperimentEncoder, ExperimentDecoder
 from .restless_mixin import RestlessMixin
+from .transpile_mixin import SimpleCircuitExtender
