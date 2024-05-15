@@ -12,8 +12,6 @@
 
 """Tests for transpile mixin."""
 
-from typing import Sequence
-
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeAnalysis
 
