@@ -791,8 +791,7 @@ class ExperimentData:
 
     def _init_children_data(self):
 
-        """Bootstrap Experiment data containers's data
-        """
+        """Bootstrap Experiment data containers's data"""
 
         if self.metadata.get("component_metadata", None) is None:
             return
