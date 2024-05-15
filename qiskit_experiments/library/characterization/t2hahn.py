@@ -20,16 +20,11 @@ from qiskit import QuantumCircuit, QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import (
-    SimpleCircuitExtender,
-    BackendTiming,
-    BaseExperiment,
-    Options,
-)
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
 
 
-class T2Hahn(SimpleCircuitExtender, BaseExperiment):
+class T2Hahn(BaseExperiment):
     r"""An experiment to measure the dephasing time insensitive to inhomogeneous
     broadening using Hahn echos.
 
