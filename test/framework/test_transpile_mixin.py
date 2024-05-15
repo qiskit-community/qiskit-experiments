@@ -12,12 +12,16 @@
 
 """Tests for transpile mixin."""
 
+from typing import Sequence
+
 from test.base import QiskitExperimentsTestCase
+from test.fake_experiment import FakeAnalysis
 
 from qiskit import QuantumCircuit
 from qiskit.providers.fake_provider import GenericBackendV2
 
 from qiskit_experiments.framework import SimpleCircuitExtender, BaseExperiment
+from qiskit_experiments.framework.composite import ParallelExperiment
 
 
 class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
@@ -100,7 +104,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
         self.assertEqual(test_circ.clbits.index(test_circ.data[2][2][0]), 1)
 
     def test_empty_backend(self):
-        """Test fast-transpile without backend, which must return virtual circuit."""
+        """Test fast-transpile without backend."""
 
         class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
             def circuits(self) -> list:
@@ -113,7 +117,32 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
         exp = _MockExperiment((10,))
         test_circ = exp._transpiled_circuits()[0]
 
-        self.assertEqual(len(test_circ.qubits), 1)
+        self.assertEqual(len(test_circ.qubits), 11)
 
         # qubit index of X gate
-        self.assertEqual(test_circ.qubits.index(test_circ.data[0][1][0]), 0)
+        self.assertEqual(test_circ.qubits.index(test_circ.data[0][1][0]), 10)
+
+    def test_empty_backend_with_parallel(self):
+        """Test fast-transpile without backend. Circuit qubit location must not overlap."""
+
+        class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
+            def __init__(self, physical_qubits):
+                super().__init__(physical_qubits, FakeAnalysis())
+
+            def circuits(self) -> list:
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+        exp1 = _MockExperiment((3,))
+        exp2 = _MockExperiment((15,))
+        pexp = ParallelExperiment([exp1, exp2], flatten_results=True)
+        test_circ = pexp._transpiled_circuits()[0]
+
+        self.assertEqual(len(test_circ.qubits), 16)
+
+        # qubit index of X gate
+        self.assertEqual(test_circ.qubits.index(test_circ.data[0][1][0]), 3)
+        self.assertEqual(test_circ.qubits.index(test_circ.data[2][1][0]), 15)

@@ -24,14 +24,23 @@ class TranspileMixInProtocol(Protocol):
 
     @property
     def physical_qubits(self):
-        ...
+        """Return the device qubits for the experiment."""
 
     @property
     def backend(self) -> Backend | None:
-        ...
+        """Return the backend for the experiment"""
 
     def circuits(self) -> list[QuantumCircuit]:
-        ...
+        """Return a list of experiment circuits.
+
+        Returns:
+            A list of :class:`~qiskit.circuit.QuantumCircuit`.
+
+        .. note::
+            These circuits should be on qubits ``[0, .., N-1]`` for an
+            *N*-qubit experiment. The circuits mapped to physical qubits
+            are obtained via the internal :meth:`_transpiled_circuits` method.
+        """
 
     def _transpiled_circuits(self) -> list[QuantumCircuit]:
         ...
@@ -40,7 +49,8 @@ class TranspileMixInProtocol(Protocol):
 class SimpleCircuitExtender:
     """A transpiler mixin class that maps virtual qubit index to physical.
 
-    Experiment class returns virtual circuits when the backend is not set.
+    When the backend is not set, the experiment class naively assumes
+    there are max(physical_qubits) + 1 qubits in the quantum circuits.
     """
 
     def _transpiled_circuits(
@@ -53,8 +63,8 @@ class SimpleCircuitExtender:
             # V1 backend model
             n_qubits = self.backend.configuration().n_qubits
         else:
-            # Backend is not set. Return virtual circuits as is.
-            return self.circuits()
+            # Backend is not set. Naively guess qubit size.
+            n_qubits = max(self.physical_qubits) + 1
         return [self._index_mapper(c, n_qubits) for c in self.circuits()]
 
     def _index_mapper(
