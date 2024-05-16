@@ -2674,7 +2674,7 @@ class ExperimentData:
         """Delete specified artifact data.
 
         Args:
-            artifact_key: UID, name or index of the figure.
+            artifact_key: UID, name or index of the artifact.
 
         Returns:
             Deleted artifact ids.
@@ -2696,14 +2696,21 @@ class ExperimentData:
         """Return specified artifact data.
 
         Args:
-            artifact_key: UID, name or index of the figure.
+            artifact_key: UID or name of the artifact. Supplying a numerical index
+            is deprecated.
 
         Returns:
             A list of specified artifact data.
         """
         if artifact_key is None:
             return self._artifacts.values()
-
+        elif isinstance(artifact_key, int):
+            warnings.warn(
+                "Accessing artifacts via a numerical index is deprecated and will be "
+                "removed in a future release. Use the ID or name of the artifact "
+                "instead.",
+                DeprecationWarning,
+            )
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         out = []
