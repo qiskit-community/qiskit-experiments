@@ -80,6 +80,28 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
     # section: analysis_ref
         :class:`RamseyXYAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library.characterization import RamseyXY
+
+            delays = np.linspace(0, 10.e-7, 101)
+            exp = RamseyXY((0,), backend=backend, delays=delays, osc_freq=2.0e6)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     @classmethod

@@ -48,6 +48,24 @@ class ReadoutAngle(BaseExperiment):
 
     # section: analysis_ref
         :class:`ReadoutAngleAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import ReadoutAngle
+
+            exp = ReadoutAngle((0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     @classmethod

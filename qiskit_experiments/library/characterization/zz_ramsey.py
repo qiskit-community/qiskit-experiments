@@ -124,6 +124,33 @@ class ZZRamsey(BaseExperiment):
     # section: analysis_ref
 
         :class:`ZZRamseyAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakePerth(),
+                                                  thermal_relaxation=True,
+                                                  gate_error=False,
+                                                  readout_error=False,
+            )
+
+            backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import ZZRamsey
+
+            exp = ZZRamsey(physical_qubits=(0,1), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(
