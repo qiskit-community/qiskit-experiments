@@ -1223,7 +1223,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.artifacts(), [])
         new_artifact = ArtifactData(name="test", data="foo")
         exp_data.add_artifacts(new_artifact)
-        self.assertEqual(exp_data.artifacts(0), new_artifact)
         self.assertEqual(exp_data.artifacts("test"), new_artifact)
 
         service = mock.create_autospec(IBMExperimentService, instance=True)
@@ -1236,8 +1235,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.delete_artifact("test")
         self.assertEqual(exp_data.artifacts(), [])
         self.assertEqual(exp_data._deleted_artifacts, {"test"})
-        with self.assertRaises(ExperimentEntryNotFound):
-            exp_data.artifacts(0)
 
         exp_data.save()
         # after saving, artifact_files should be updated again
@@ -1250,9 +1247,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.artifacts(), [new_artifact, new_artifact2, new_artifact3])
         self.assertEqual(exp_data.artifacts("test"), [new_artifact, new_artifact2])
 
-        deleted_id = exp_data.artifacts(0).artifact_id
+        deleted_id = exp_data.artifacts()[0].artifact_id
         # delete by index
-        exp_data.delete_artifact(0)
+        exp_data.delete_artifact(deleted_id)
 
         self.assertEqual(exp_data.artifacts(), [new_artifact2, new_artifact3])
         with self.assertRaises(ExperimentEntryNotFound):
@@ -1266,7 +1263,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # finish deleting artifacts named test
         # delete by id
-        exp_data.delete_artifact(exp_data.artifacts(0).artifact_id)
+        exp_data.delete_artifact(exp_data.artifacts()[0].artifact_id)
         self.assertEqual(exp_data.artifacts(), [new_artifact3])
         exp_data.save()
         self.assertEqual(exp_data._deleted_artifacts, set())
@@ -1295,9 +1292,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         new_artifact1 = ArtifactData(artifact_id="0", name="test", data="foo")
         exp_data.add_artifacts(new_artifact1)
-
-        with self.assertRaises(ExperimentEntryNotFound):
-            exp_data.delete_artifact(2)
 
         with self.assertRaises(ExperimentEntryNotFound):
             exp_data.delete_artifact("123")

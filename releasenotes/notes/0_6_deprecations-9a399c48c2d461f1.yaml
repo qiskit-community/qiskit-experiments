@@ -16,8 +16,8 @@ upgrade_package:
     * The ``return_data_points`` option has been removed from curve analysis.
       Data points are now automatically provided in :class:`.ExperimentData` objects via the ``curve_data``
       artifact.
-    * The ``return_fit_parameters`` option has been removed from curve analysis.
-      Fit parameters are automatically provided in the ``fit_summary`` artifact
-      of :class:`.ExperimentData` and will be removed from analysis results in a
-      future release.
     * The default value of ``flatten_results`` in composite experiments has changed to ``True``.
+deprecations:
+  - |
+    * Accessing experiment data artifacts by numerical index has been
+      deprecated. Use the name or ID of the artifact instead.

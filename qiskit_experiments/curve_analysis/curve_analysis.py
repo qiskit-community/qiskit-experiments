@@ -638,15 +638,16 @@ class CurveAnalysis(BaseCurveAnalysis):
         # to generate the figure
         plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
 
-        # Store fit status overview entry regardless of success.
-        # This is sometime useful when debugging the fitting code.
-        overview = AnalysisResultData(
-            name=PARAMS_ENTRY_PREFIX + self.name,
-            value=fit_data,
-            quality=quality,
-            extra=self.options.extra,
-        )
-        result_data.append(overview)
+        if self.options.return_fit_parameters:
+            # Store fit status overview entry regardless of success.
+            # This is sometime useful when debugging the fitting code.
+            overview = AnalysisResultData(
+                name=PARAMS_ENTRY_PREFIX + self.name,
+                value=fit_data,
+                quality=quality,
+                extra=self.options.extra,
+            )
+            result_data.append(overview)
 
         if fit_data.success:
             # Add fit data to curve data table

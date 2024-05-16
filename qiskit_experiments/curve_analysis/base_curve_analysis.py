@@ -138,6 +138,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 fitting model. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result or ``False`` to
                 not create a figure. This overrides the behavior of ``generate_figures``.
+            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
@@ -187,6 +189,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
         options.plot_residuals = False
+        options.return_fit_parameters = True
         options.data_processor = None
         options.normalization = False
         options.average_method = "shots_weighted"
