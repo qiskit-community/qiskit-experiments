@@ -252,7 +252,7 @@ class TestT1(QiskitExperimentsTestCase):
         instruction_durations = []
         for i in range(num_qubits):
             instruction_durations += [
-                ("rx", [i], (i + 1) * 10, "ns"),
+                ("x", [i], (i + 1) * 10, "ns"),
                 ("measure", [i], (i + 1) * 1000, "ns"),
             ]
         coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
@@ -272,14 +272,14 @@ class TestT1(QiskitExperimentsTestCase):
         for circ in circs:
             self.assertEqual(circ.num_qubits, 2)
             op_counts = circ.count_ops()
-            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertEqual(op_counts.get("x"), 2)
             self.assertEqual(op_counts.get("delay"), 2)
 
         tcircs = parexp._transpiled_circuits()
         for circ in tcircs:
             self.assertEqual(circ.num_qubits, num_qubits)
             op_counts = circ.count_ops()
-            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertEqual(op_counts.get("x"), 2)
             self.assertEqual(op_counts.get("delay"), 2)
 
     def test_experiment_config(self):

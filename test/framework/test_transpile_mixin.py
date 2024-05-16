@@ -18,7 +18,7 @@ from test.fake_experiment import FakeAnalysis
 from qiskit import QuantumCircuit
 from qiskit.providers.fake_provider import GenericBackendV2
 
-from qiskit_experiments.framework import SimpleCircuitExtender, BaseExperiment
+from qiskit_experiments.framework import SimpleCircuitExtenderMixin, BaseExperiment
 from qiskit_experiments.framework.composite import ParallelExperiment
 
 
@@ -28,7 +28,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
     def test_transpiled_single_qubit_circuits(self):
         """Test fast-transpile with single qubit circuit."""
 
-        class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
+        class _MockExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
             def circuits(self) -> list:
                 qc1 = QuantumCircuit(1, 1)
                 qc1.x(0)
@@ -43,7 +43,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
 
         num_qubits = 10
 
-        mock_backend = GenericBackendV2(num_qubits, basis_gates=["sx", "rz", "x"])
+        mock_backend = GenericBackendV2(num_qubits, basis_gates=["x", "sx", "measure"])
         exp = _MockExperiment((3,), backend=mock_backend)
         test_circs = exp._transpiled_circuits()
 
@@ -75,7 +75,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
     def test_transpiled_two_qubit_circuits(self):
         """Test fast-transpile with two qubit circuit."""
 
-        class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
+        class _MockExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
             def circuits(self) -> list:
                 qc = QuantumCircuit(2, 2)
                 qc.cx(0, 1)
@@ -85,7 +85,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
 
         num_qubits = 10
 
-        mock_backend = GenericBackendV2(num_qubits, basis_gates=["sx", "rz", "x", "cx"])
+        mock_backend = GenericBackendV2(num_qubits, basis_gates=["cx", "measure"])
         exp = _MockExperiment((9, 2), backend=mock_backend)
         test_circ = exp._transpiled_circuits()[0]
 
@@ -104,7 +104,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
     def test_empty_backend(self):
         """Test fast-transpile without backend."""
 
-        class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
+        class _MockExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
             def circuits(self) -> list:
                 qc = QuantumCircuit(1, 1)
                 qc.x(0)
@@ -123,7 +123,7 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
     def test_empty_backend_with_parallel(self):
         """Test fast-transpile without backend. Circuit qubit location must not overlap."""
 
-        class _MockExperiment(SimpleCircuitExtender, BaseExperiment):
+        class _MockExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
             def __init__(self, physical_qubits):
                 super().__init__(physical_qubits, FakeAnalysis())
 
@@ -144,3 +144,21 @@ class TestSimpleCircuitExtender(QiskitExperimentsTestCase):
         # qubit index of X gate
         self.assertEqual(test_circ.qubits.index(test_circ.data[0][1][0]), 3)
         self.assertEqual(test_circ.qubits.index(test_circ.data[2][1][0]), 15)
+
+    def test_circuit_non_isa(self):
+        """Test fast-transpile with non-ISA circuit. It should use standard transpile."""
+
+        class _MockExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
+            def circuits(self) -> list:
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+        mock_backend = GenericBackendV2(1, basis_gates=["sx", "rz", "measure"])
+        exp = _MockExperiment((0,), backend=mock_backend)
+        test_circ = exp._transpiled_circuits()[0]
+
+        # gate is translated into sx-sx-measure
+        self.assertEqual(len(test_circ.data), 3)

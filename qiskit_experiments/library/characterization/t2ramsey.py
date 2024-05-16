@@ -22,7 +22,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import (
-    SimpleCircuitExtender,
+    SimpleCircuitExtenderMixin,
     BackendTiming,
     BaseExperiment,
     Options,
@@ -30,7 +30,7 @@ from qiskit_experiments.framework import (
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 
 
-class T2Ramsey(SimpleCircuitExtender, BaseExperiment):
+class T2Ramsey(SimpleCircuitExtenderMixin, BaseExperiment):
     r"""An experiment to measure the Ramsey frequency and the qubit dephasing time
     sensitive to inhomogeneous broadening.
 

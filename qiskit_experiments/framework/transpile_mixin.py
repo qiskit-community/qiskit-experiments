@@ -15,7 +15,7 @@
 from __future__ import annotations
 from typing import Protocol
 
-from qiskit import QuantumCircuit, QuantumRegister
+from qiskit import QuantumCircuit, QuantumRegister, transpile
 from qiskit.providers import Backend
 
 
@@ -46,7 +46,7 @@ class TranspileMixInProtocol(Protocol):
         ...
 
 
-class SimpleCircuitExtender:
+class SimpleCircuitExtenderMixin:
     """A transpiler mixin class that maps virtual qubit index to physical.
 
     When the backend is not set, the experiment class naively assumes
@@ -56,22 +56,38 @@ class SimpleCircuitExtender:
     def _transpiled_circuits(
         self: TranspileMixInProtocol,
     ) -> list:
-        if hasattr(self.backend, "num_qubits"):
+        if hasattr(self.backend, "target"):
             # V2 backend model
-            n_qubits = self.backend.num_qubits
+            # This model assumes qubit dependent instruction set,
+            # but we assume experiment mixed with this class doesn't have such architecture.
+            basis_gates = set(self.backend.target.operation_names)
+            n_qubits = self.backend.target.num_qubits
         elif hasattr(self.backend, "configuration"):
             # V1 backend model
+            basis_gates = set(self.backend.configuration().basis_gates)
             n_qubits = self.backend.configuration().n_qubits
         else:
             # Backend is not set. Naively guess qubit size.
+            basis_gates = None
             n_qubits = max(self.physical_qubits) + 1
-        return [self._index_mapper(c, n_qubits) for c in self.circuits()]
+        return [self._index_mapper(c, basis_gates, n_qubits) for c in self.circuits()]
 
     def _index_mapper(
         self: TranspileMixInProtocol,
         v_circ: QuantumCircuit,
+        basis_gates: set[str] | None,
         n_qubits: int,
     ) -> QuantumCircuit:
+        if basis_gates is not None and not basis_gates.issuperset(
+            set(v_circ.count_ops().keys()) - {"barrier"}
+        ):
+            # In Qiskit provider model barrier is not included in target.
+            # Use standard circuit transpile when circuit is not ISA.
+            return transpile(
+                v_circ,
+                backend=self.backend,
+                initial_layout=list(self.physical_qubits),
+            )
         p_qregs = QuantumRegister(n_qubits)
         v_p_map = {q: p_qregs[self.physical_qubits[i]] for i, q in enumerate(v_circ.qubits)}
         p_circ = QuantumCircuit(p_qregs, *v_circ.cregs)
