@@ -1,7 +1,7 @@
 ---
 developer:
   - |
-    Add a mixin class :class:`~.SimpleCircuitExtender` that automatically
+    Add a mixin class :class:`~.SimpleCircuitExtenderMixin` that automatically
     implements the :meth:`.BaseExperiment._transpiled_circuits` method for 
     simple experiments that require neither gate translation nor routing,
     i.e. experiment that directly creates ISA circuits.
@@ -10,9 +10,9 @@ developer:
 
     .. code-block::python
 
-      from qiskit_experiment.framework import BaseExperiment, SimpleCircuitExtender
+      from qiskit_experiment.framework import BaseExperiment, SimpleCircuitExtenderMixin
 
-      class MyExperiment(SimpleCircuitExtender, BaseExperiment):
+      class MyExperiment(SimpleCircuitExtenderMixin, BaseExperiment):
 
         def circuits(self):
           qc = QuantumCircuit(1, 1)
