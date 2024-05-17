@@ -14,9 +14,12 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Union, Optional, Tuple
+import logging
 import warnings
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+
+LOG = logging.getLogger(__name__)
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -125,10 +128,12 @@ class CompositeAnalysis(BaseAnalysis):
         if len(self._analyses) != len(child_data):
             # Child data is automatically created when composite result data is added.
             # Validate that child data size matches with number of analysis entries.
-            raise RuntimeError(
-                "Number of sub-analysis and child data don't match: "
-                f"{len(self._analyses)} != {len(child_data)}. "
-                "Please check if the composite experiment and analysis are properly instantiated."
+            print(
+                RuntimeWarning(
+                    f"Number of sub-analysis and child data don't match: \
+                {len(self._analyses)} != {len(child_data)}. \
+                Please check if the composite experiment and analysis are properly instantiated."
+                )
             )
 
         for sub_analysis, sub_data in zip(self._analyses, child_data):
