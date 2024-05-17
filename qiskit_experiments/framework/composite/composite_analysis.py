@@ -14,12 +14,9 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Union, Optional, Tuple
-import logging
 import warnings
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
-
-LOG = logging.getLogger(__name__)
 
 
 class CompositeAnalysis(BaseAnalysis):
