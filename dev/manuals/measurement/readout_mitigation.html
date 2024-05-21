@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Restless Measurements" href="restless_measurements.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.6.0-23-gfe4ccff9</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.6.0-24-gbc0b89e0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-23-gfe4ccff9</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-24-gbc0b89e0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-23-gfe4ccff9</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-24-gbc0b89e0</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -601,11 +601,11 @@ the tensor product of <span class="math notranslate nohighlight">\(n\)</span> <s
 each qubit, making it practical to store the assignment matrix in
 implicit form, by storing the individual <span class="math notranslate nohighlight">\(2 \times 2\)</span> assignment
 matrices. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>.</p>
 <p>A <em>Correlated readout mitigator</em> uses the full <span class="math notranslate nohighlight">\(2^n \times 2^n\)</span>
 assignment matrix, meaning it can only be used for small values of
 <span class="math notranslate nohighlight">\(n\)</span>. The corresponding class in Qiskit is the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.CorrelatedReadoutMitigator" title="(in Qiskit v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a>.</p>
 <p>This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.</p>
 <div class="admonition note">
@@ -725,17 +725,17 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.01422764 -0.02642276]
- [-0.01422764  1.02642276]]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.03095975 -0.02579979]
+ [-0.03095975  1.02579979]]
 
-[[ 1.01919192 -0.01515152]
- [-0.01919192  1.01515152]]
+[[ 1.02136317 -0.02034588]
+ [-0.02136317  1.02034588]]
 
-[[ 1.01409869 -0.01711984]
- [-0.01409869  1.01711984]]
+[[ 1.02030457 -0.01928934]
+ [-0.02030457  1.01928934]]
 
-[[ 1.01095618 -0.00896414]
- [-0.01095618  1.00896414]]
+[[ 1.012 -0.012]
+ [-0.012  1.012]]
 
 </pre></div>
 </div>
@@ -826,7 +826,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fc5f9afbaa0&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f466a300f20&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_11_1.png" src="../../_images/readout_mitigation_11_1.png" />
@@ -929,7 +929,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/05/14</div>
+              Last updated on 2024/05/21</div>
           </div>
           <div class="right-details">
             
@@ -973,7 +973,7 @@ meas: 2/═════════╩══╩═
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=3094105e"></script>
+    <script src="../../_static/documentation_options.js?v=98d18b07"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

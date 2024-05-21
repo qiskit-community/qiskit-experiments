@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="AC Stark Effect" href="../characterization/stark_experiment.html" /><link rel="prev" title="Randomized Benchmarking" href="randomized_benchmarking.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Quantum State Tomography - Qiskit Experiments 0.6.0-23-gfe4ccff9</title>
+        <title>Quantum State Tomography - Qiskit Experiments 0.6.0-24-gbc0b89e0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-23-gfe4ccff9</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.6.0-24-gbc0b89e0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-23-gfe4ccff9</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-24-gbc0b89e0</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -610,7 +610,7 @@ packages to run simulations.  You can install them with <code class="docutils li
 </div>
 <p>To run a state tomography experiment, we initialize the experiment with a circuit to
 prepare the state to be measured. We can also pass in an
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Operator" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></a> or a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Operator" title="(in Qiskit v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></a> or a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>
 to describe the preparation circuit.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -639,14 +639,14 @@ to describe the preparation circuit.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: state
-- value: DensityMatrix([[ 0.47526042+0.j        ,  0.01074219+0.0086263j ,
-                -0.00292969-0.02229818j, -0.00927734-0.44482422j],
-               [ 0.01074219-0.0086263j ,  0.01985677+0.j        ,
-                -0.01513672-0.00048828j,  0.00488281+0.01285807j],
-               [-0.00292969+0.02229818j, -0.01513672+0.00048828j,
-                 0.0250651 +0.j        ,  0.00097656-0.00113932j],
-               [-0.00927734+0.44482422j,  0.00488281-0.01285807j,
-                 0.00097656+0.00113932j,  0.47981771+0.j        ]],
+- value: DensityMatrix([[ 0.48372396+0.j        ,  0.00325521-0.00406901j,
+                -0.00439453-0.00341797j, -0.00439453-0.453125j  ],
+               [ 0.00325521+0.00406901j,  0.01920573+0.j        ,
+                 0.01513672-0.00683594j, -0.00146484-0.00244141j],
+               [-0.00439453+0.00341797j,  0.01513672+0.00683594j,
+                 0.01692708+0.j        , -0.0016276 +0.00374349j],
+               [-0.00439453+0.453125j  , -0.00146484+0.00244141j,
+                -0.0016276 -0.00374349j,  0.48014323+0.j        ]],
               dims=(2, 2))
 - quality: unknown
 - extra: &lt;9 items&gt;
@@ -654,7 +654,7 @@ to describe the preparation circuit.</p>
 - verified: False
 AnalysisResult
 - name: state_fidelity
-- value: 0.9223632812499993
+- value: 0.9350585937500003
 - quality: unknown
 - extra: &lt;9 items&gt;
 - device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
@@ -682,14 +682,14 @@ AnalysisResult
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.47526042+0.j        ,  0.01074219+0.0086263j ,
-                -0.00292969-0.02229818j, -0.00927734-0.44482422j],
-               [ 0.01074219-0.0086263j ,  0.01985677+0.j        ,
-                -0.01513672-0.00048828j,  0.00488281+0.01285807j],
-               [-0.00292969+0.02229818j, -0.01513672+0.00048828j,
-                 0.0250651 +0.j        ,  0.00097656-0.00113932j],
-               [-0.00927734+0.44482422j,  0.00488281-0.01285807j,
-                 0.00097656+0.00113932j,  0.47981771+0.j        ]],
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.48372396+0.j        ,  0.00325521-0.00406901j,
+                -0.00439453-0.00341797j, -0.00439453-0.453125j  ],
+               [ 0.00325521+0.00406901j,  0.01920573+0.j        ,
+                 0.01513672-0.00683594j, -0.00146484-0.00244141j],
+               [-0.00439453+0.00341797j,  0.01513672+0.00683594j,
+                 0.01692708+0.j        , -0.0016276 +0.00374349j],
+               [-0.00439453+0.453125j  , -0.00146484+0.00244141j,
+                -0.0016276 -0.00374349j,  0.48014323+0.j        ]],
               dims=(2, 2))
 </pre></div>
 </div>
@@ -720,7 +720,7 @@ state cannot be automatically generated and this field will be set to
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.92236
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.93506
 </pre></div>
 </div>
 </div>
@@ -747,12 +747,12 @@ eigenvalues before rescaling was performed.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.0000000000000016,
- &#39;eigvals&#39;: array([9.22782010e-01, 5.83496581e-02, 1.81746990e-02, 6.93633258e-04]),
- &#39;raw_eigvals&#39;: array([9.22782010e-01, 5.83496581e-02, 1.81746990e-02, 6.93633258e-04]),
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.000000000000002,
+ &#39;eigvals&#39;: array([0.93514221, 0.03783719, 0.02565132, 0.00136928]),
+ &#39;raw_eigvals&#39;: array([0.93514221, 0.03783719, 0.02565132, 0.00136928]),
  &#39;rescaled_psd&#39;: False,
  &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
-  &#39;fitter_time&#39;: 0.008167266845703125},
+  &#39;fitter_time&#39;: 0.008027315139770508},
  &#39;conditional_probability&#39;: 1.0,
  &#39;positive&#39;: True,
  &#39;experiment&#39;: &#39;StateTomography&#39;,
@@ -780,14 +780,14 @@ counts:</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: state
-- value: DensityMatrix([[ 0.5349855 +0.00000000e+00j,  0.05388337-7.72601918e-02j,
-                 0.0406592 -1.11891138e-01j, -0.04708765-3.71312345e-01j],
-               [ 0.05388337+7.72601918e-02j,  0.04774807-9.75781955e-19j,
-                 0.03219531-2.11645606e-02j,  0.06572802+6.20040873e-03j],
-               [ 0.0406592 +1.11891138e-01j,  0.03219531+2.11645606e-02j,
-                 0.04390212+3.46944695e-18j,  0.04544915-1.33214613e-02j],
-               [-0.04708765+3.71312345e-01j,  0.06572802-6.20040873e-03j,
-                 0.04544915+1.33214613e-02j,  0.37336431+0.00000000e+00j]],
+- value: DensityMatrix([[ 0.57147302+0.j        ,  0.01369152-0.03712372j,
+                -0.04082615-0.01158175j, -0.12584637-0.44439114j],
+               [ 0.01369152+0.03712372j,  0.02043528+0.j        ,
+                -0.01003999-0.0109561j ,  0.04260064-0.00791379j],
+               [-0.04082615+0.01158175j, -0.01003999+0.0109561j ,
+                 0.01223516+0.j        ,  0.0037606 +0.03074348j],
+               [-0.12584637+0.44439114j,  0.04260064+0.00791379j,
+                 0.0037606 -0.03074348j,  0.39585654+0.j        ]],
               dims=(2, 2))
 - quality: unknown
 - extra: &lt;9 items&gt;
@@ -795,12 +795,12 @@ counts:</p>
 - verified: False
 </pre></div>
 </div>
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.0000000000000062,
- &#39;eigvals&#39;: array([0.87015539, 0.12263162, 0.00721299, 0.        ]),
- &#39;raw_eigvals&#39;: array([ 0.94492573,  0.19740197,  0.08198333, -0.22431104]),
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.0000000000000004,
+ &#39;eigvals&#39;: array([0.9600766, 0.0399234, 0.       , 0.       ]),
+ &#39;raw_eigvals&#39;: array([ 1.03837008,  0.11821688, -0.00376774, -0.15281922]),
  &#39;rescaled_psd&#39;: True,
  &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
-  &#39;fitter_time&#39;: 0.004907846450805664},
+  &#39;fitter_time&#39;: 0.004957437515258789},
  &#39;conditional_probability&#39;: 1.0,
  &#39;positive&#39;: True,
  &#39;experiment&#39;: &#39;StateTomography&#39;,
@@ -845,14 +845,22 @@ PSD without requiring rescaling.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: state
-- value: DensityMatrix([[ 4.75014842e-01+0.j        ,  1.45671000e-03-0.01972959j,
-                 1.12785194e-02+0.01350497j, -3.71249028e-03-0.45024539j],
-               [ 1.45671000e-03+0.01972959j,  2.84126290e-02+0.j        ,
-                -1.29367437e-02-0.00102831j, -2.28653509e-03-0.00765572j],
-               [ 1.12785194e-02-0.01350497j, -1.29367437e-02+0.00102831j,
-                 2.59600783e-02+0.j        , -2.31587012e-04+0.00836082j],
-               [-3.71249028e-03+0.45024539j, -2.28653509e-03+0.00765572j,
-                -2.31587012e-04-0.00836082j,  4.70612451e-01+0.j        ]],
+- value: DensityMatrix([[ 4.79635680e-01+0.00000000e+00j,
+                 7.07039116e-03+1.76417711e-02j,
+                -9.41356023e-03+4.79919309e-03j,
+                 2.38806875e-02-4.52949536e-01j],
+               [ 7.07039116e-03-1.76417711e-02j,
+                 2.67906857e-02+0.00000000e+00j,
+                 1.64520321e-04+8.63564064e-03j,
+                -2.81888545e-03+9.53284412e-03j],
+               [-9.41356023e-03-4.79919309e-03j,
+                 1.64520321e-04-8.63564064e-03j,
+                 2.59182054e-02+0.00000000e+00j,
+                -2.08700496e-02+3.27790873e-04j],
+               [ 2.38806875e-02+4.52949536e-01j,
+                -2.81888545e-03-9.53284412e-03j,
+                -2.08700496e-02-3.27790873e-04j,
+                 4.67655429e-01+0.00000000e+00j]],
               dims=(2, 2))
 - quality: unknown
 - extra: &lt;9 items&gt;
@@ -860,11 +868,11 @@ PSD without requiring rescaling.</p>
 - verified: False
 
 extra:
-- trace: 1.000000000834032
-- eigvals: [0.92341354 0.05496291 0.01871323 0.00291032]
-- raw_eigvals: [0.92341353 0.05496291 0.01871323 0.00291032]
+- trace: 1.0000000024669797
+- eigvals: [9.27918846e-01 4.44745066e-02 2.75892891e-02 1.73581178e-05]
+- raw_eigvals: [9.27918844e-01 4.44745065e-02 2.75892891e-02 1.73581178e-05]
 - rescaled_psd: False
-- fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.023092031478881836}
+- fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.024273395538330078}
 - conditional_probability: 1.0
 - positive: True
 - experiment: StateTomography
@@ -917,33 +925,33 @@ run subsystem tomography on multiple qubits in parallel.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
 PARALLEL EXP 0
-State Fidelity: 0.97070
-State: DensityMatrix([[0.97070312+0.j        , 0.00878906-0.00390625j],
-               [0.00878906+0.00390625j, 0.02929688+0.j        ]],
+State Fidelity: 0.96777
+State: DensityMatrix([[ 0.96777344+0.j        , -0.02734375-0.00097656j],
+               [-0.02734375+0.00097656j,  0.03222656+0.j        ]],
               dims=(2,))
 
 PARALLEL EXP 1
-State Fidelity: 0.99028
-State: DensityMatrix([[ 0.85351563+0.j        , -0.00195312+0.33984375j],
-               [-0.00195312-0.33984375j,  0.14648438+0.j        ]],
+State Fidelity: 0.98406
+State: DensityMatrix([[ 0.84960938+0.j        , -0.03613281+0.33496094j],
+               [-0.03613281-0.33496094j,  0.15039063+0.j        ]],
               dims=(2,))
 
 PARALLEL EXP 2
-State Fidelity: 0.98242
-State: DensityMatrix([[ 0.50683594+0.j        , -0.00878906+0.48242188j],
-               [-0.00878906-0.48242188j,  0.49316406+0.j        ]],
+State Fidelity: 0.99121
+State: DensityMatrix([[ 0.51074219+0.j        , -0.01464844+0.49121094j],
+               [-0.01464844-0.49121094j,  0.48925781+0.j        ]],
               dims=(2,))
 
 PARALLEL EXP 3
-State Fidelity: 0.99580
-State: DensityMatrix([[0.14550781+0.j        , 0.01171875+0.34667969j],
-               [0.01171875-0.34667969j, 0.85449219+0.j        ]],
+State Fidelity: 0.97716
+State: DensityMatrix([[ 0.16796875+0.j        , -0.01269531+0.34277344j],
+               [-0.01269531-0.34277344j,  0.83203125+0.j        ]],
               dims=(2,))
 
 PARALLEL EXP 4
-State Fidelity: 0.97656
-State: DensityMatrix([[ 0.0234375 +0.j       , -0.00585938-0.0078125j],
-               [-0.00585938+0.0078125j,  0.9765625 +0.j       ]],
+State Fidelity: 0.97266
+State: DensityMatrix([[ 0.02734375+0.j        , -0.00195312-0.00292969j],
+               [-0.00195312+0.00292969j,  0.97265625+0.j        ]],
               dims=(2,))
 </pre></div>
 </div>
@@ -1004,7 +1012,7 @@ State: DensityMatrix([[ 0.0234375 +0.j       , -0.00585938-0.0078125j],
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/05/14</div>
+              Last updated on 2024/05/21</div>
           </div>
           <div class="right-details">
             
@@ -1049,7 +1057,7 @@ State: DensityMatrix([[ 0.0234375 +0.j       , -0.00585938-0.0078125j],
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=3094105e"></script>
+    <script src="../../_static/documentation_options.js?v=98d18b07"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
