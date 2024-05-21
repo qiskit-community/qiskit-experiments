@@ -24,6 +24,7 @@ import fixtures
 import testtools
 import uncertainties
 from qiskit.utils.deprecation import deprecate_func
+import qiskit_aer.backends.aerbackend
 
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -32,6 +33,13 @@ from qiskit_experiments.framework import (
 )
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
+
+
+# Workaround until https://github.com/Qiskit/qiskit-aer/pull/2142 is released
+try:
+    del qiskit_aer.backends.aerbackend.AerBackend.get_translation_stage_plugin
+except AttributeError:
+    pass
 
 # Fail tests that take longer than this
 TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
