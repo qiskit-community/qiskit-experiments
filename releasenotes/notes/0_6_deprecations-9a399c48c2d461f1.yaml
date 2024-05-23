@@ -12,12 +12,18 @@ upgrade_package:
     * The ``CurveData`` dataclass has been removed and replaced by :class:`.ScatterTable`'s DataFrame representation.
     * ``random_cliffords()`` and ``random_clifford_circuits()`` have been
       removed from :class:`.CliffordUtils` and replaced by :meth:`.StandardRB.__sample_sequence`.
-    * ``beta`` has been renamed to ``outcome_prior`` in ``binomial_weights()``.
+    * ``beta`` has been renamed to ``outcome_prior`` in the tomography utility
+      function ``binomial_weights()``.
     * The ``return_data_points`` option has been removed from curve analysis.
       Data points are now automatically provided in :class:`.ExperimentData` objects via the ``curve_data``
       artifact.
     * The default value of ``flatten_results`` in composite experiments has changed to ``True``.
 deprecations:
   - |
-    * Accessing experiment data artifacts by numerical index has been
-      deprecated. Use the name or ID of the artifact instead.
+    Accessing experiment data artifacts by numerical index has been
+    deprecated. Use the name or ID of the artifact instead.
+issues:
+  - |
+    Fit parameters are not populated in composite analysis results and are
+    found only in the fit summary artifact. In a future release, they will be 
+    removed from all analysis result objects and live in the artifacts only.
