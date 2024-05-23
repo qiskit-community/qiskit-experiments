@@ -14,11 +14,13 @@
 
 import copy
 import uuid
+from itertools import tee
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 from unittest import mock
 from ddt import ddt, data
+import pandas as pd
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
@@ -27,6 +29,7 @@ from qiskit_aer import AerSimulator, noise
 
 from qiskit_ibm_experiment import IBMExperimentService
 
+from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.fake_backend import FakeBackend
@@ -95,7 +98,9 @@ class TestComposite(QiskitExperimentsTestCase):
         expdata = comp_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
         # Check no child data was saved
-        self.assertEqual(len(expdata.child_data()), 0)
+        # NOTE : ASK Naoki because first layer will be saved
+        # I changed it from 0 to 2.
+        self.assertEqual(len(expdata.child_data()), 2)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
         self.assertEqual(len(expdata.artifacts()), 20)
@@ -119,15 +124,17 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
         self.assertEqual(len(expdata.artifacts()), 0)
-
         # check inner experiments were flattened
+        # NOTE : ASK Naoki here becasue we bootstrap
+        # 0 to 3, 0 to 2
         child0 = expdata.child_data(0)
         child1 = expdata.child_data(1)
-        self.assertEqual(len(child0.child_data()), 0)
-        self.assertEqual(len(child1.child_data()), 0)
+        self.assertEqual(len(child0.child_data()), 3)
+        self.assertEqual(len(child1.child_data()), 2)
         # Check right number of analysis results is returned
         self.assertEqual(len(child0.analysis_results()), 9)
         self.assertEqual(len(child1.analysis_results()), 6)
+
         self.assertEqual(len(child0.artifacts()), 6)
         self.assertEqual(len(child1.artifacts()), 4)
 
@@ -708,8 +715,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
     )
     def test_composite_count_memory_marginalization(self, memory):
         """Test the marginalization of level two memory."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         # Simplified experimental data
         datum = {
             "counts": {"0 0": 4, "0 1": 1, "1 0": 2, "1 1": 3},
@@ -727,39 +735,39 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 10,
             "meas_level": 2,
         }
-
         test_data.add_data(datum)
-
-        sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
+        sub_data = [
+            [inner_data]
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
         expected = [
             [
                 {
+                    "shots": 10,
+                    "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
                     "counts": {"0": 6, "1": 4},
                     "memory": ["0", "0", "1", "0", "0", "1", "1", "0", "0", "1"],
-                    "shots": 10,
-                    "meas_level": 2,
                 }
             ],
             [
                 {
+                    "shots": 10,
+                    "meas_level": 2,
                     "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
                     "counts": {"0": 5, "1": 5},
                     "memory": ["0", "1", "1", "0", "0", "0", "1", "0", "1", "1"],
-                    "shots": 10,
-                    "meas_level": 2,
                 }
             ],
         ]
-
         self.assertListEqual(sub_data, expected)
 
     def test_composite_single_kerneled_memory_marginalization(self):
         """Test the marginalization of level 1 data."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         datum = {
             "memory": [
                 # qubit 0,   qubit 1,    qubit 2
@@ -783,14 +791,13 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 5,
             "meas_level": 1,
         }
-
         test_data.add_data(datum)
-
-        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
-        for idx, sub_data in enumerate(all_sub_data):
+        datas = [ExperimentData._decompose_component_data(data) for data in test_data.data()]
+        for itr in datas:
+            idx, sub_data = next(itr)
             expected = {
+                "shots": 5,
+                "meas_level": 1,
                 "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
                 "memory": [
                     [[idx + 0.0, idx + 0.0]],
@@ -799,16 +806,14 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                     [[idx + 0.3, idx + 0.3]],
                     [[idx + 0.4, idx + 0.4]],
                 ],
-                "shots": 5,
-                "meas_level": 1,
             }
-
-            self.assertEqual(expected, sub_data[0])
+            self.assertEqual(expected, sub_data)
 
     def test_composite_avg_kerneled_memory_marginalization(self):
         """The the marginalization of level 1 averaged data."""
+        # TODO: Can you check this I have modified this and some test
+        # like this to fit your workflow
         test_data = ExperimentData()
-
         datum = {
             "memory": [
                 [0.0, 0.1],  # qubit 0
@@ -829,21 +834,20 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             "shots": 5,
             "meas_level": 1,
         }
-
         test_data.add_data(datum)
-
-        all_sub_data = CompositeAnalysis([], flatten_results=False)._marginalized_component_data(
-            test_data.data()
-        )
-        for idx, sub_data in enumerate(all_sub_data):
+        all_sub_data = [
+            (idx, inner_data)
+            for data in test_data.data()
+            for idx, inner_data in ExperimentData._decompose_component_data(data)
+        ]
+        for idx, sub_data in all_sub_data:
             expected = {
-                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
-                "memory": [[idx + 0.0, idx + 0.1]],
                 "shots": 5,
                 "meas_level": 1,
+                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
+                "memory": [[idx + 0.0, idx + 0.1]],
             }
-
-            self.assertEqual(expected, sub_data[0])
+            self.assertEqual(expected, sub_data)
 
     def test_composite_properties_setting(self):
         """Test whether DB-critical properties are being set in the
@@ -1000,3 +1004,384 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertExperimentDone(meta_expdata)
         job_ids = meta_expdata.job_ids
         self.assertEqual(len(job_ids), 2)
+
+
+class TestComponentBootstrapping(QiskitExperimentsTestCase):
+
+    """Test suite for adding composite data.
+
+    Composite experiment must bootstrap child data containers from result metadata
+    when data is added to the ExperimentData instance.
+    """
+
+    class TestAnalysis(BaseAnalysis):
+
+        """
+        Analysis child class for testing bootstrapping
+        """
+
+        def _run_analysis(self, experiment_data):
+
+            """
+            dummy _run_analysis for testing
+            """
+            results = []
+
+            for datum in experiment_data.data():
+                results.append(
+                    AnalysisResultData(
+                        name="p1",
+                        value=datum["counts"].get("1", 0) / 1000,
+                        extra={"test_val": datum.get("test_val", None)},
+                    )
+                )
+            return results, []
+
+    def setUp(self):
+        """
+        Bootstrap test variables
+        """
+
+        super().setUp()
+        self.mock_data = [
+            # Batch element0, Two parallel instances for q0, q1
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{"test_val": 1}, {"test_val": 2}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[0], [1]],
+                        }
+                    ],
+                    "composite_index": [0],
+                },
+                "counts": {"00": 100, "01": 200, "10": 300, "11": 400},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+            # Batch element0, Two parallel instances for q0, q1
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [
+                        {
+                            "experiment_type": "ParallelExperiment",
+                            "composite_index": [0, 1],
+                            "composite_metadata": [{"test_val": 3}, {"test_val": 4}],
+                            "composite_qubits": [[0], [1]],
+                            "composite_clbits": [[0], [1]],
+                        }
+                    ],
+                    "composite_index": [0],
+                },
+                "counts": {"00": 200, "01": 200, "10": 300, "11": 300},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+            # Batch element1, One instance for q2
+            {
+                "metadata": {
+                    "experiment_type": "BatchExperiment",
+                    "composite_metadata": [{"test_val": 5}],
+                    "composite_index": [1],
+                },
+                "counts": {"0": 100, "1": 900},
+                "shots": 1000,
+                "meas_level": 2,
+            },
+        ]
+
+        ## Test
+
+        self.ref_q0_0 = {
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 1},
+            "counts": {"1": 600, "0": 400},
+        }
+        self.ref_q0_1 = {
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 3},
+            "counts": {"1": 500, "0": 500},
+        }
+        self.ref_q1_0 = {
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 2},
+            "counts": {"1": 700, "0": 300},
+        }
+        self.ref_q1_1 = {
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 4},
+            "counts": {"1": 600, "0": 400},
+        }
+        self.ref_q2_0 = {
+            "shots": 1000,
+            "meas_level": 2,
+            "metadata": {"test_val": 5},
+            "counts": {"0": 100, "1": 900},
+        }
+
+        self.ref_data = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1", "p1", "p1", "p1"],
+                "experiment": [
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment1",
+                    "SomeExperiment2",
+                ],
+                "components": [[Qubit(0)], [Qubit(0)], [Qubit(1)], [Qubit(1)], [Qubit(2)]],
+                "value": [0.6, 0.5, 0.7, 0.6, 0.9],
+            }
+        )
+
+        self.ref_child_data_0_0 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1"],
+                "experiment": ["SomeExperiment1", "SomeExperiment1"],
+                "components": [Qubit(0), Qubit(0)],
+                "value": [0.6, 0.5],
+            }
+        )
+
+        self.ref_child_data_0_1 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1", "p1"],
+                "experiment": ["SomeExperiment1", "SomeExperiment1"],
+                "components": [Qubit(1), Qubit(1)],
+                "value": [0.7, 0.6],
+            }
+        )
+
+        self.ref_child_data_1 = pd.DataFrame.from_dict(
+            {
+                "name": ["p1"],
+                "experiment": ["SomeExperiment2"],
+                "components": [Qubit(2)],
+                "value": [0.9],
+            }
+        )
+        self.metadata = {
+            "component_types": ["ParallelExperiment", "SomeExperiment2"],
+            "component_metadata": [
+                {
+                    "component_types": ["SomeExperiment1", "SomeExperiment1"],
+                    "component_metadata": [
+                        {
+                            "physical_qubits": [0],
+                            "device_components": [Qubit(0)],
+                        },
+                        {
+                            "physical_qubits": [1],
+                            "device_components": [Qubit(1)],
+                        },
+                    ],
+                },
+                {
+                    "physical_qubits": [2],
+                    "device_components": [Qubit(2)],
+                },
+            ],
+        }
+
+    def test_experiment_data_bootstrap_child_flatten(self):
+
+        """
+        Checks bootstrap when flatten
+        """
+
+        exp_data = ExperimentData()
+
+        exp_data.metadata.update(self.metadata)
+
+        exp_data.add_data(self.mock_data)
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(0).data(),
+            [self.ref_q0_0, self.ref_q0_1],
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(1).data(), [self.ref_q1_0, self.ref_q1_1]
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(1).data(),
+            [self.ref_q2_0],
+        )
+
+        composite_analysis = CompositeAnalysis(
+            [
+                CompositeAnalysis([self.TestAnalysis(), self.TestAnalysis()], flatten_results=True),
+                self.TestAnalysis(),
+            ],
+            flatten_results=True,
+        )
+
+        exp_data = composite_analysis.run(exp_data, replace_results=True)
+
+        test_data = exp_data.analysis_results(
+            dataframe=True, columns=["name", "experiment", "components", "value"]
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
+        for (_, test), (_, ref) in zip(test_data.iterrows(), ref_data_itr):
+            self.assertTrue(test.equals(ref))
+
+    def test_experiment_data_bootstrap_child_not_flatten(self):
+
+        """
+        Checks bootstrap when not flatten
+        """
+
+        exp_data = ExperimentData()
+
+        exp_data.metadata.update(self.metadata)
+
+        exp_data.add_data(self.mock_data)
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(0).data(),
+            [self.ref_q0_0, self.ref_q0_1],
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(1).data(), [self.ref_q1_0, self.ref_q1_1]
+        )
+        self.assertListEqual(
+            exp_data.child_data(1).data(),
+            [self.ref_q2_0],
+        )
+
+        composite_analysis = CompositeAnalysis(
+            [
+                CompositeAnalysis(
+                    [self.TestAnalysis(), self.TestAnalysis()], flatten_results=False
+                ),
+                self.TestAnalysis(),
+            ],
+            flatten_results=False,
+        )
+
+        exp_data = composite_analysis.run(exp_data, replace_results=True)
+
+        self.assertEqual(len(exp_data.child_data()), 2)
+        self.assertEqual(len(exp_data.child_data(0).child_data()), 2)
+
+        test_data = (
+            exp_data.child_data(0)
+            .child_data(0)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
+                self.assertTrue(test.equals(ref))
+
+    def test_experiment_data_bootstrap_rerun_analysis_flatten(self):
+
+        """
+        Checks bootstrap when flatten after rerun
+        """
+
+        exp_data = ExperimentData()
+
+        exp_data.metadata.update(self.metadata)
+
+        exp_data.add_data(self.mock_data)
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(0).data(),
+            [self.ref_q0_0, self.ref_q0_1],
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(1).data(),
+            [self.ref_q2_0],
+        )
+
+        composite_analysis = CompositeAnalysis(
+            [
+                CompositeAnalysis([self.TestAnalysis(), self.TestAnalysis()], flatten_results=True),
+                self.TestAnalysis(),
+            ],
+            flatten_results=True,
+        )
+
+        exp_data = composite_analysis.run(exp_data, replace_results=True)
+
+        test_data = (
+            composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
+                self.assertTrue(test.equals(ref))
+
+    def test_experiment_data_bootstrap_rerun_analysis_not_flatten(self):
+
+        """
+        Checks bootstrap when not flatten after rerun
+        """
+
+        exp_data = ExperimentData()
+
+        exp_data.metadata.update(self.metadata)
+
+        exp_data.add_data(self.mock_data)
+
+        self.assertListEqual(
+            exp_data.child_data(0).child_data(0).data(),
+            [self.ref_q0_0, self.ref_q0_1],
+        )
+
+        self.assertListEqual(
+            exp_data.child_data(1).data(),
+            [self.ref_q2_0],
+        )
+
+        composite_analysis = CompositeAnalysis(
+            [
+                CompositeAnalysis(
+                    [self.TestAnalysis(), self.TestAnalysis()], flatten_results=False
+                ),
+                self.TestAnalysis(),
+            ],
+            flatten_results=False,
+        )
+
+        exp_data = composite_analysis.run(exp_data, replace_results=True)
+
+        test_data = (
+            composite_analysis.run(exp_data.child_data(0).child_data(0), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+            composite_analysis.run(exp_data.child_data(0).child_data(1), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+            composite_analysis.run(exp_data.child_data(1), replace_results=True)
+            .analysis_results(dataframe=True, columns=["name", "experiment", "components", "value"])
+            .iterrows(),
+        )
+
+        ref_data_itr = tee(self.ref_data.iterrows(), 1)[0]
+
+        for test_row_iter in test_data:
+            for (_, test), (_, ref) in zip(test_row_iter, ref_data_itr):
+                self.assertTrue(test.equals(ref))
