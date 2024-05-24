@@ -22,8 +22,6 @@ import lmfit
 import numpy as np
 import pandas as pd
 
-from qiskit.utils.deprecation import deprecate_func
-
 from qiskit_experiments.framework import (
     AnalysisResultData,
     BaseAnalysis,
@@ -31,10 +29,8 @@ from qiskit_experiments.framework import (
     Options,
 )
 from qiskit_experiments.visualization import (
-    BaseDrawer,
     BasePlotter,
     CurvePlotter,
-    LegacyCurveCompatDrawer,
     MplDrawer,
 )
 
@@ -76,7 +72,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for qi in (0, 1):
                 analysis = curve.OscillationAnalysis(name=f"init{qi}")
                 analysis.set_options(
-                    return_fit_parameters=["freq"],
                     filter_data={"init_state": qi},
                 )
             analysis = CompositeCurveAnalysis(analyses=analyses)
@@ -146,20 +141,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def plotter(self) -> BasePlotter:
         """A short-cut to the plotter instance."""
         return self._options.plotter
-
-    @property
-    @deprecate_func(
-        since="0.5",
-        additional_msg="Use `plotter` from the new visualization module instead.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def drawer(self) -> BaseDrawer:
-        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
-        if hasattr(self._options, "curve_drawer"):
-            return self._options.curve_drawer
-        else:
-            return None
 
     def analyses(
         self, index: Optional[Union[str, int]] = None
@@ -273,8 +254,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 This is ``True`` by default.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``False``.
-            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
-                the formatted data points given to the fitter. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
         """
@@ -283,7 +262,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
             return_fit_parameters=False,
-            return_data_points=False,
             extra={},
         )
 
@@ -293,27 +271,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return options
 
     def set_options(self, **fields):
-        # TODO remove this in Qiskit Experiments 0.6
-        if "curve_drawer" in fields:
-            warnings.warn(
-                "The option 'curve_drawer' is replaced with 'plotter'. "
-                "This option will be removed in Qiskit Experiments 0.6.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
-            # directly. If not, wrap it in a compatibility drawer.
-            if isinstance(fields["curve_drawer"], BaseDrawer):
-                plotter = self.options.plotter
-                plotter.drawer = fields.pop("curve_drawer")
-                fields["plotter"] = plotter
-            else:
-                drawer = fields["curve_drawer"]
-                compat_drawer = LegacyCurveCompatDrawer(drawer)
-                plotter = self.options.plotter
-                plotter.drawer = compat_drawer
-                fields["plotter"] = plotter
-
         for field in fields:
             if not hasattr(self.options, field):
                 warnings.warn(
@@ -349,10 +306,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             metadata = analysis.options.extra
             metadata["group"] = analysis.name
             analysis.set_options(
-                plot=False,
-                extra=metadata,
-                return_fit_parameters=self.options.return_fit_parameters,
-                return_data_points=self.options.return_data_points,
+                plot=False, extra=metadata, return_fit_parameters=self.options.return_fit_parameters
             )
             results, _ = analysis._run_analysis(experiment_data)
             for res in results:

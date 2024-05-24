@@ -182,8 +182,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
         [
             StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
-        ],
-        flatten_results=True,
+        ]
     )
     expdata_1q = single_exps.run(backend).block_for_results()
 

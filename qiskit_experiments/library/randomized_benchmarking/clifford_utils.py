@@ -20,7 +20,6 @@ from numbers import Integral
 from typing import Optional, Union, Tuple, Sequence, Iterable
 
 import numpy as np
-from numpy.random import Generator, default_rng
 
 from qiskit.circuit import CircuitInstruction, Qubit
 from qiskit.circuit import Gate, Instruction
@@ -28,10 +27,9 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.passes.synthesis.high_level_synthesis import HLSConfig, HighLevelSynthesis
-from qiskit.utils.deprecation import deprecate_func
 
 DEFAULT_SYNTHESIS_METHOD = "rb_default"
 
@@ -47,6 +45,7 @@ _valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
 # map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
 _CLIFFORD_TENSOR_1Q = np.load(f"{_DATA_FOLDER}/clifford_tensor_1q.npz")["table"]
+
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -312,54 +311,6 @@ class CliffordUtils:
         where ``num`` is between 0 and 11519.
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
-
-    @classmethod
-    @deprecate_func(
-        since="0.5",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def random_cliffords(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford elements"""
-        if rng is None:
-            rng = default_rng()
-        elif isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
-        if num_qubits == 2:
-            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [Clifford(cls.clifford_2_qubit_circuit(i), validate=False) for i in samples]
-
-        return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
-
-    @classmethod
-    @deprecate_func(
-        since="0.5",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def random_clifford_circuits(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford circuits"""
-        if rng is None:
-            rng = default_rng()
-        elif isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [cls.clifford_1_qubit_circuit(i) for i in samples]
-        if num_qubits == 2:
-            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [cls.clifford_2_qubit_circuit(i) for i in samples]
-
-        return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
 
     @classmethod
     @lru_cache(maxsize=24)

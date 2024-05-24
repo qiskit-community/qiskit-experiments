@@ -16,7 +16,6 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
 import numpy as np
-from qiskit.utils.deprecation import deprecate_arg
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -189,12 +188,6 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
-@deprecate_arg(
-    "beta",
-    new_alias="outcome_prior",
-    since="0.5",
-    package_name="qiskit-experiments",
-)
 def binomial_weights(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,

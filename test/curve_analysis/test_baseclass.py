@@ -994,38 +994,3 @@ class TestFitOptions(QiskitExperimentsTestCase):
 
         self.assertDictEqual(opt1.options, ref_opt1)
         self.assertDictEqual(opt2.options, ref_opt2)
-
-
-class TestBackwardCompatibility(QiskitExperimentsTestCase):
-    """Test case for backward compatibility."""
-
-    def test_lmfit_model_with_data_sort_key(self):
-        """Test providing LMFIT model with legacy 'data_sort_key' option."""
-
-        class _DeprecatedAnalysis(CurveAnalysis):
-            def __init__(self):
-                super().__init__(
-                    models=[
-                        ExpressionModel(
-                            expr="x + a",
-                            name="experiment1",
-                            data_sort_key={"tag": 1},
-                        ),
-                        ExpressionModel(
-                            expr="x + b",
-                            name="experiment2",
-                            data_sort_key={"tag": 2},
-                        ),
-                    ]
-                )
-
-        instance = _DeprecatedAnalysis()
-        experiment_data = ExperimentData()
-
-        with self.assertWarns(DeprecationWarning):
-            instance._initialize(experiment_data)
-
-        self.assertDictEqual(
-            instance.options.data_subfit_map,
-            {"experiment1": {"tag": 1}, "experiment2": {"tag": 2}},
-        )
