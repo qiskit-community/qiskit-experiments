@@ -16,7 +16,6 @@ DecayAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: DecayAnalysis.drawer
    .. autoattribute:: DecayAnalysis.models
    .. autoattribute:: DecayAnalysis.name
    .. autoattribute:: DecayAnalysis.options

@@ -16,7 +16,6 @@ DragCalAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: DragCalAnalysis.drawer
    .. autoattribute:: DragCalAnalysis.models
    .. autoattribute:: DragCalAnalysis.name
    .. autoattribute:: DragCalAnalysis.options

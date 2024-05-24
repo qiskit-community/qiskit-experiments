@@ -16,7 +16,6 @@ BlochTrajectoryAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: BlochTrajectoryAnalysis.drawer
    .. autoattribute:: BlochTrajectoryAnalysis.models
    .. autoattribute:: BlochTrajectoryAnalysis.name
    .. autoattribute:: BlochTrajectoryAnalysis.options

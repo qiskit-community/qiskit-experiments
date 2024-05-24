@@ -16,7 +16,6 @@ StarkRamseyXYAmpScanAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: StarkRamseyXYAmpScanAnalysis.drawer
    .. autoattribute:: StarkRamseyXYAmpScanAnalysis.models
    .. autoattribute:: StarkRamseyXYAmpScanAnalysis.name
    .. autoattribute:: StarkRamseyXYAmpScanAnalysis.options

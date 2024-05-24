@@ -6,14 +6,14 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ScatterTable" href="qiskit_experiments.curve_analysis.ScatterTable.html" /><link rel="prev" title="CurveAnalysis" href="qiskit_experiments.curve_analysis.CurveAnalysis.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>CompositeCurveAnalysis - Qiskit Experiments 0.6.0-24-gbc0b89e0</title>
+        <title>CompositeCurveAnalysis - Qiskit Experiments 0.6.0-25-gce485f84</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
     <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-24-gbc0b89e0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.0-25-gce485f84</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-24-gbc0b89e0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.0-25-gce485f84</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -327,13 +327,9 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">CompositeCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.BaseCurveDrawer.html">BaseCurveDrawer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.MplCurveDrawer.html">MplCurveDrawer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
@@ -612,7 +608,6 @@ This is a typical procedure to measure the thermal population of the qubit.</p>
 <span class="k">for</span> <span class="n">qi</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
     <span class="n">analysis</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">OscillationAnalysis</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;init</span><span class="si">{</span><span class="n">qi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
-        <span class="n">return_fit_parameters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">],</span>
         <span class="n">filter_data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;init_state&quot;</span><span class="p">:</span> <span class="n">qi</span><span class="p">},</span>
     <span class="p">)</span>
 <span class="n">analysis</span> <span class="o">=</span> <span class="n">CompositeCurveAnalysis</span><span class="p">(</span><span class="n">analyses</span><span class="o">=</span><span class="n">analyses</span><span class="p">)</span>
@@ -639,15 +634,6 @@ Figures are created when the analysis option <code class="docutils literal notra
 <p class="rubric">Attributes</p>
 <dl class="field-list simple">
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qiskit_experiments.curve_analysis.CompositeCurveAnalysis.drawer">
-<span class="sig-name descname"><span class="pre">drawer</span></span><a class="headerlink" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.drawer" title="Link to this definition">¶</a></dt>
-<dd><p>A short-cut for curve drawer instance, if set. <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.5: </span>The method <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis.composite_curve_analysis.CompositeCurveAnalysis.drawer()</span></code> is deprecated as of qiskit-experiments 0.5. It will be removed after 0.6. Use <cite>plotter</cite> from the new visualization module instead.</p>
-</div>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.curve_analysis.CompositeCurveAnalysis.models">
 <span class="sig-name descname"><span class="pre">models</span></span><a class="headerlink" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.models" title="Link to this definition">¶</a></dt>
@@ -818,7 +804,7 @@ This data can then be saved as its own experiment to a database service.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/05/21</div>
+              Last updated on 2024/05/24</div>
           </div>
           <div class="right-details">
             
@@ -841,7 +827,6 @@ This data can then be saved as its own experiment to a database service.</p>
             <ul>
 <li><a class="reference internal" href="#">CompositeCurveAnalysis</a><ul>
 <li><a class="reference internal" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a><ul>
-<li><a class="reference internal" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.drawer"><code class="docutils literal notranslate"><span class="pre">CompositeCurveAnalysis.drawer</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.models"><code class="docutils literal notranslate"><span class="pre">CompositeCurveAnalysis.models</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.name"><code class="docutils literal notranslate"><span class="pre">CompositeCurveAnalysis.name</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.options"><code class="docutils literal notranslate"><span class="pre">CompositeCurveAnalysis.options</span></code></a></li>
@@ -868,7 +853,7 @@ This data can then be saved as its own experiment to a database service.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=98d18b07"></script>
+    <script src="../_static/documentation_options.js?v=d5d78968"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -876,7 +861,7 @@ This data can then be saved as its own experiment to a database service.</p>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>

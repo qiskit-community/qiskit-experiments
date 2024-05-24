@@ -158,7 +158,7 @@ Extracting the maximum Quantum Volume.
 .. jupyter-execute::
 
     qv_values = [
-        batch_expdata.child_data(i).analysis_results("quantum_volume").value
+        batch_expdata.analysis_results("quantum_volume")[i].value
         for i in range(batch_exp.num_experiments)
     ]
     
@@ -169,10 +169,9 @@ Extracting the maximum Quantum Volume.
 
     for i in range(batch_exp.num_experiments):
         print(f"\nComponent experiment {i}")
-        sub_data = batch_expdata.child_data(i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
+        display(batch_expdata.figure(i))
+    for result in batch_expdata.analysis_results():
+        print(result)
 
 References
 ----------

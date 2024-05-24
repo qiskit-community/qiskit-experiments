@@ -19,12 +19,10 @@ BaseCurveAnalysis
          
          
          
-         
 
    
    .. rubric:: Attributes
       
-   .. autoattribute:: BaseCurveAnalysis.drawer
    .. autoattribute:: BaseCurveAnalysis.models
    .. autoattribute:: BaseCurveAnalysis.name
    .. autoattribute:: BaseCurveAnalysis.options

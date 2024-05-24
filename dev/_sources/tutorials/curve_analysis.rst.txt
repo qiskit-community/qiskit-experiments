@@ -343,7 +343,7 @@ For example, :class:`.StarkRamseyXYAmpScanAnalysis` defines four `series`
 labels in its ``data_subfit_map`` option (``Xpos``, ``Ypos``, ``Xneg``,
 ``Yneg``) but only two models (``FREQpos``, ``FREQneg``) whose names do not
 match the series labels.
-It does this by overriding the ``CurveData._format_data()`` method and adding
+It does this by overriding the ``CurveAnalysis._format_data()`` method and adding
 its own series to the :class:`.ScatterTable` with series labels to match its
 fit model names (by combining ``Xpos``  and ``Ypos`` series data into a
 ``FREQpos`` series and similary for the series with names ending with ``neg``).
@@ -399,11 +399,6 @@ See the :doc:`Artifacts how-to </howtos/artifacts>` for more information.
 
 Curve Analysis workflow
 -----------------------
-
-.. warning::
-
-    :class:`CurveData` dataclass is replaced with :class:`.ScatterTable` dataframe.
-    This class will be deprecated and removed in the future release.
 
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
@@ -534,9 +529,9 @@ one can get the list of parameters with the :attr:`CurveAnalysis.parameters`. Ea
 boundary value can be a tuple of floats representing minimum and maximum values.
 
 Apart from user provided guesses, the analysis can systematically generate those values
-with the method :meth:`_generate_fit_guesses`, which is called with the :class:`CurveData`
-dataclass. If the analysis contains multiple model definitions, we can get the subset
-of curve data with :meth:`.CurveData.get_subset_of` using the name of the series. A
+with the method :meth:`_generate_fit_guesses`, which is called with the :class:`.ScatterTable`
+class. If the analysis contains multiple model definitions, we can get the subset
+of curve data with :meth:`.ScatterTable.get_subset_of` using the name of the series. A
 developer can implement the algorithm to generate initial guesses and boundaries by
 using this curve data object, which will be provided to the fitter. Note that there are
 several common initial guess estimators available in :mod:`curve_analysis.guess`.

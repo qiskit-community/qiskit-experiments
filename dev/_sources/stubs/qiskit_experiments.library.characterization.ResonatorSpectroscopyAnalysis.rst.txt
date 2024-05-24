@@ -16,7 +16,6 @@ ResonatorSpectroscopyAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: ResonatorSpectroscopyAnalysis.drawer
    .. autoattribute:: ResonatorSpectroscopyAnalysis.models
    .. autoattribute:: ResonatorSpectroscopyAnalysis.name
    .. autoattribute:: ResonatorSpectroscopyAnalysis.options
