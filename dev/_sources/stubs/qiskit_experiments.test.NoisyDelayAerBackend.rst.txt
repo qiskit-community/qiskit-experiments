@@ -77,7 +77,6 @@ NoisyDelayAerBackend
          
          
          
-         
 
    
    .. rubric:: Methods
@@ -90,7 +89,6 @@ NoisyDelayAerBackend
    .. automethod:: NoisyDelayAerBackend.control_channel
    .. automethod:: NoisyDelayAerBackend.drive_channel
    .. automethod:: NoisyDelayAerBackend.from_backend
-   .. automethod:: NoisyDelayAerBackend.get_translation_stage_plugin
    .. automethod:: NoisyDelayAerBackend.measure_channel
    .. automethod:: NoisyDelayAerBackend.properties
    .. automethod:: NoisyDelayAerBackend.qubit_properties
