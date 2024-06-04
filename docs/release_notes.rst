@@ -5,6 +5,11 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.6.0
 
+.. _Release Notes_0.6.0:
+
+0.6.0
+=====
+
 .. _Release Notes_0.6.0_New Features:
 
 New Features
