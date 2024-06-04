@@ -5,6 +5,60 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.6.0
 
+0.6.1
+=====
+
+.. _Release Notes_0.6.1_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/0.6/0_6_1_release-9ccfd5dba7190c77.yaml @ b'5c6f4b2c8226bca2276c5eecfab5193748a8e524'
+
+Qiskit Experiments 0.6.1 is a minor bug fixes release.
+
+.. _Release Notes_0.6.1_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/dynamics-0.5-0da56d1ef7d93e77.yaml @ b'1b416add73d70c58dfbd87042d7b75775305717a'
+
+- :class:`.SingleTransmonTestBackend` was updated to be compatible with
+  :mod:`qiskit_dynamics` version 0.5.0. The updates accounted for changes in
+  the expected arguments to Dynamics API's and did not change behavior. See
+  `#1427
+  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1427>`__.
+
+.. releasenotes/notes/figure-names-inconsistency-afca1ac8e00fabac.yaml @ b'32813b86b04b956bb7b1334759a79af6ce9068df'
+
+- :class:`.ExperimentData` was updated so that running analysis a second time
+  with ``replace_results=True`` does not result in the ``figure_names``
+  property having incorrect data (both old and new figure names if the names
+  changed). See `#1430
+  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430>`__.
+
+.. releasenotes/notes/figure-names-inconsistency-afca1ac8e00fabac.yaml @ b'32813b86b04b956bb7b1334759a79af6ce9068df'
+
+- :class:`.BaseAnalysis` was updated to respect ``figure_names`` as a keyword
+  argument to the ``run()`` method. Previously, this argument was ignored and
+  ``figure_names`` could only be set as an analysis option prior to calling
+  ``run()``. See `#1430
+  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430>`__.
+
+.. releasenotes/notes/mock-iq-backend-without-qiskit-runtime-20d2bf9edb48312d.yaml @ b'2045689df74b74a94f1f5e5a8d4598354c4e5385'
+
+- :class:`.MockIQBackend` was refactored so that it does not import
+  ``qiskit_ibm_runtime`` since
+  :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` is not a
+  required dependency of Qiskit Experiments.
+
+.. releasenotes/notes/remove_backendv2-b608a2f380698710.yaml @ b'5c6f4b2c8226bca2276c5eecfab5193748a8e524'
+
+- Removed a ``FakeBackendV2`` import path which would have been incompatible with Qiskit 1.1 and above. See 
+  `#1420 <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1420>`_.
+
+
 .. _Release Notes_0.6.0:
 
 0.6.0
