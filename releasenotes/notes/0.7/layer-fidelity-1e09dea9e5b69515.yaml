@@ -9,7 +9,7 @@ features:
     exceptionally returns circuits on physical qubits (not virtual qubits as usual).
     Its analysis class :class:`.LayerFidelityAnalysis` returns :class:`.AnalysisResultData`
     which contains several ``extra`` entries to help additional analyses: e.g.
-    ``qubits`` to ease the query of subanalysis results and
+    ``qubits`` to ease the query of sub-analysis results and
     ``reason`` to tell users why the ``quality`` of the analysis was ``"bad"``.
 
     For example, the syntax for pulling out the individual fidelities looks like below.

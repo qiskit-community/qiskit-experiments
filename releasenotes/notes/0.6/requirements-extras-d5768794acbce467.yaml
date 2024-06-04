@@ -1,7 +1,0 @@
----
-other:
-  - |
-    A new set of optional dependencies have been split off from the developer dependencies and
-    can be installed separately as ``qiskit-experiments[extras]``. These are packages that enable
-    optional experiment features such as ``scikit-learn``-based discriminators. Qiskit Dynamics and
-    Qiskit Aer have also been marked as optional in this manner.

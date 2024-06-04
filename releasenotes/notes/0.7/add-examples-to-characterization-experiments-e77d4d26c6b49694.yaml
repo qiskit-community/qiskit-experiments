@@ -1,0 +1,8 @@
+---
+other:
+  - |
+    Added minimal working code examples to many experiment API pages,
+    especially characterization experiments. The minimal working code example
+    is a code snippet which users can copy and paste to run the experiment.
+    Users are required to specify a backend to use the code example. By default,
+    the backend used in the examples is a simulator such as ``FakeManilaV2``.

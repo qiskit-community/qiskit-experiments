@@ -1,7 +1,0 @@
----
-features_analysis:
-  - |
-    Added a ``broadcast`` option to :class:`.CompositeAnalysis`. When ``broadcast=True`` is passed, 
-    this option will be applied to child experiment analyses within the class. This means it will iterate
-    through the child analysis classes and apply the given option to each of 
-    them.
