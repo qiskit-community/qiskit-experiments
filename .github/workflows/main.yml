@@ -81,6 +81,7 @@ jobs:
       - name: Run lint
         run: tox -elint
   docs:
+    if: github.repository_owner == 'Qiskit-Extensions'
     name: docs
     runs-on: ubuntu-latest
     steps:
