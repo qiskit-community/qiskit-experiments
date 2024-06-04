@@ -5,6 +5,8 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.6.0
 
+.. _Release Notes_0.6.1:
+
 0.6.1
 =====
 
