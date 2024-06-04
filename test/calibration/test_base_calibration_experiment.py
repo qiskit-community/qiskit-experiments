@@ -349,7 +349,6 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
         # Build a circuit to be passed through transpilation pipeline
         qc = QuantumCircuit(1, 1)
-        qc.x(0)
         qc.measure(0, 0)
 
         exp = MockCalExperiment(

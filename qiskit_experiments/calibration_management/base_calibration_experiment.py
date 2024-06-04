@@ -21,19 +21,13 @@ import warnings
 from qiskit import QuantumCircuit
 from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
-from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
-from qiskit.transpiler.passes import (
-    EnlargeWithAncilla,
-    FullAncillaAllocation,
-    ApplyLayout,
-    SetLayout,
-)
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.transpilation import map_qubits, minimal_transpile
 from qiskit_experiments.exceptions import CalibrationError
 
 LOG = logging.getLogger(__name__)
@@ -198,20 +192,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         options.update_options(result_index=-1, group="default")
         return options
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Return empty default transpile options as optimization_level is not used."""
-        return Options()
-
-    def set_transpile_options(self, **fields):
-        r"""Add a warning message.
-
-        .. note::
-            If your experiment has overridden `_transpiled_circuits` and needs
-            transpile options then please also override `set_transpile_options`.
-        """
-        warnings.warn(f"Transpile options are not used in {self.__class__.__name__ }.")
-
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`.Calibrations` instance.
 
@@ -295,41 +275,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         Returns:
             A list of transpiled circuits.
         """
-        transpiled = []
-        for circ in self.circuits():
-            circ = self._map_to_physical_qubits(circ)
+        circuits = [map_qubits(c, self.physical_qubits) for c in self.circuits()]
+        for circ in circuits:
             self._attach_calibrations(circ)
-
-            transpiled.append(circ)
+        transpiled = minimal_transpile(circuits, self.backend, self.transpile_options)
 
         return transpiled
-
-    def _map_to_physical_qubits(self, circuit: QuantumCircuit) -> QuantumCircuit:
-        """Map program qubits to physical qubits.
-
-        Args:
-            circuit: The quantum circuit to map to device qubits.
-
-        Returns:
-            A quantum circuit that has the same number of qubits as the backend and where
-            the physical qubits of the experiment have been properly mapped.
-        """
-        initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
-
-        coupling_map = self._backend_data.coupling_map
-        if coupling_map is not None:
-            coupling_map = CouplingMap(self._backend_data.coupling_map)
-
-        layout = PassManager(
-            [
-                SetLayout(initial_layout),
-                FullAncillaAllocation(coupling_map),
-                EnlargeWithAncilla(),
-                ApplyLayout(),
-            ]
-        )
-
-        return StagedPassManager(["layout"], layout=layout).run(circuit)
 
     @abstractmethod
     def _attach_calibrations(self, circuit: QuantumCircuit):
