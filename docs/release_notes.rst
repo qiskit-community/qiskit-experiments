@@ -17,13 +17,19 @@ Prelude
 
 .. releasenotes/notes/0.6/0.6_release-4d766733941ad57a.yaml @ b'3b039c5df784748597261d38599c1c7cb2074377'
 
-Qiskit Experiments 0.6 introduces numerous features and improvements. It is compatible with Qiskit 1.0. Notable changes include: refactoring th
-e analysis results to a pandas :class:`~pandas:pandas.DataFrame`-based :class:`.AnalysisResultTable`, the ability to add artifacts of serializa
-ble data to :class:`.ExperimentData`, and refactoring curve fit data into a new :class:`~pandas:pandas.DataFrame`-based :class:`.ScatterTable` 
-container that is stored by default as an artifact in :class:`.ExperimentData` along with the summary of fit results. New experiments include :
-class:`.StarkP1Spectroscopy`, :class:`.StarkRamseyXY`, and :class:`.StarkRamseyXYAmpScan`. :class:`.StandardRB` and :class:`.InterleavedRB` wer
-e significantly improved. The supported provider for running jobs on IBM backends is now :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <
-index>`. Using  ``qiskit-ibm-provider`` is still supported but its use is deprecated.
+Qiskit Experiments 0.6 introduces numerous features and improvements. It is
+compatible with Qiskit 1.0. Notable changes include: refactoring the analysis
+results to a pandas :class:`~pandas:pandas.DataFrame`-based
+:class:`.AnalysisResultTable`, the ability to add artifacts of serializable data
+to :class:`.ExperimentData`, and refactoring curve fit data into a new
+:class:`~pandas:pandas.DataFrame`-based :class:`.ScatterTable` container that is
+stored by default as an artifact in :class:`.ExperimentData` along with the
+summary of fit results. New experiments include :class:`.StarkP1Spectroscopy`,
+:class:`.StarkRamseyXY`, and :class:`.StarkRamseyXYAmpScan`.
+:class:`.StandardRB` and :class:`.InterleavedRB` were significantly improved.
+The supported provider for running jobs on IBM backends is now
+:external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`. Using
+``qiskit-ibm-provider`` is still supported but its use is deprecated.
 
 .. _Release Notes_0.6.0_New Features:
 
