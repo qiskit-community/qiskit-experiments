@@ -24,6 +24,6 @@ deprecations:
     deprecated. Use the name or ID of the artifact instead.
 issues:
   - |
-    Fit parameters are not populated in composite analysis results and are
+    Fit parameters are not populated in composite curve analysis results and are
     found only in the fit summary artifact. In a future release, they will be 
     removed from all analysis result objects and live in the artifacts only.

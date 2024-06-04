@@ -1,7 +1,0 @@
----
-features:
-  - |
-    Added residual plot option for single-figure experiments. Enable by setting plot_residuals to True. 
-    Introducing sub_plot_heights_list and sub_plot_widths_list attributes in PlotStyle for customizable 
-    subplot sizes, each list needs to sum up to 1. This feature currently works only for experiments with
-    no subplots.
