@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Getting Started - Qiskit Experiments 0.7.0</title>
+        <title>Getting Started - Qiskit Experiments 0.6.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.6.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.1</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -327,9 +327,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html">BaseCurveDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.MplCurveDrawer.html">MplCurveDrawer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
@@ -480,10 +484,8 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
@@ -536,8 +538,6 @@
     </div>
     <div class="qiskit-previous-releases-list-container">
         <ul>
-        
-            <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
@@ -831,7 +831,7 @@ results will be retrieved in the pandas <a class="reference external" href="http
   </thead>
   <tbody>
     <tr>
-      <th>d6497f7d</th>
+      <th>754d5750</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -843,15 +843,15 @@ results will be retrieved in the pandas <a class="reference external" href="http
       <td>None</td>
     </tr>
     <tr>
-      <th>77f19533</th>
+      <th>0b1d0a86</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000195+/-0.000006</td>
+      <td>0.000197+/-0.000006</td>
       <td>good</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
-      <td>0.51736</td>
+      <td>0.744354</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -874,32 +874,32 @@ results will be retrieved in the pandas <a class="reference external" href="http
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 9.312479091539682
- - reduced chi-square: 0.5173599495299823
- - Akaike info crit.: -11.076509083705218
- - Bayesian info crit.: -7.942941770534949
+ - chi-square: 13.398369144660402
+ - reduced chi-square: 0.7443538413700224
+ - Akaike info crit.: -3.4371783197085577
+ - Bayesian info crit.: -0.3036110065382882
  - init params:
-  * amp = 0.9004878048780488
-  * tau = 0.00023299435510790815
-  * base = 0.07073170731707316
+  * amp = 0.8936585365853659
+  * tau = 0.0002338883777351919
+  * base = 0.0775609756097561
  - fit params:
-  * amp = 0.9410757359379339 ± 0.008643617715751525
-  * tau = 0.00019465217060896794 ± 5.5919593402408025e-06
-  * base = 0.034042766014230945 ± 0.007564203308189753
+  * amp = 0.9459315352546438 ± 0.008542863218586653
+  * tau = 0.0001969116492965353 ± 5.58636534644681e-06
+  * base = 0.0325026074196877 ± 0.0075828395022758685
  - correlations:
-  * (tau, base) = -0.8918975047974825
-  * (amp, base) = -0.5803190948051022
-  * (amp, tau) = 0.32222497676726813
+  * (tau, base) = -0.8933936501675642
+  * (amp, base) = -0.6034019330337271
+  * (amp, tau) = 0.3518159674277148
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000195+/-0.000006
-- χ²: 0.5173599495299823
+- value: 0.000197+/-0.000006
+- χ²: 0.7443538413700224
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -913,8 +913,8 @@ return the corresponding <code class="xref py py-class docutils literal notransl
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>exp_data.analysis_results(&quot;T1&quot;)
-exp_data.analysis_results(&quot;77f19533-ef1f-4a97-a721-53cabdf20b08&quot;)
-exp_data.analysis_results(&quot;77f19533&quot;)
+exp_data.analysis_results(&quot;0b1d0a86-a60e-4974-93a4-9ffa635287f7&quot;)
+exp_data.analysis_results(&quot;0b1d0a86&quot;)
 </pre></div>
 </div>
 </div>
@@ -935,8 +935,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019465217060896794
-5.5919593402408025e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.0001969116492965353
+5.58636534644681e-06
 </pre></div>
 </div>
 </div>
@@ -962,24 +962,24 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 23
+ - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 9.312479091539682
- - reduced chi-square: 0.5173599495299823
- - Akaike info crit.: -11.076509083705218
- - Bayesian info crit.: -7.942941770534949
+ - chi-square: 13.398369144660402
+ - reduced chi-square: 0.7443538413700224
+ - Akaike info crit.: -3.4371783197085577
+ - Bayesian info crit.: -0.3036110065382882
  - init params:
-  * amp = 0.9004878048780488
-  * tau = 0.00023299435510790815
-  * base = 0.07073170731707316
+  * amp = 0.8936585365853659
+  * tau = 0.0002338883777351919
+  * base = 0.0775609756097561
  - fit params:
-  * amp = 0.9410757359379339 ± 0.008643617715751525
-  * tau = 0.00019465217060896794 ± 5.5919593402408025e-06
-  * base = 0.034042766014230945 ± 0.007564203308189753
+  * amp = 0.9459315352546438 ± 0.008542863218586653
+  * tau = 0.0001969116492965353 ± 5.58636534644681e-06
+  * base = 0.0325026074196877 ± 0.0075828395022758685
  - correlations:
-  * (tau, base) = -0.8918975047974825
-  * (amp, base) = -0.5803190948051022
-  * (amp, tau) = 0.32222497676726813
+  * (tau, base) = -0.8933936501675642
+  * (amp, base) = -0.6034019330337271
+  * (amp, tau) = 0.3518159674277148
 </pre></div>
 </div>
 </div>
@@ -1010,7 +1010,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 29, &#39;1&#39;: 995}, &#39;job_id&#39;: &#39;aa5ee7d6-5451-4a35-a7e5-5067adc2a0ef&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 29, &#39;1&#39;: 995}, &#39;job_id&#39;: &#39;f86d7f72-8d91-4782-9cb6-ec1f751fa8de&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1024,7 +1024,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;physical_qubits&#39;: [0], &#39;device_components&#39;: [&lt;Qubit(Q0)&gt;], &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;, &#39;_source&#39;: {&#39;class&#39;: &#39;qiskit_experiments.framework.experiment_data.ExperimentData&#39;, &#39;metadata_version&#39;: 1, &#39;qiskit_version&#39;: {&#39;qiskit&#39;: &#39;1.1.0&#39;, &#39;qiskit-experiments&#39;: &#39;0.7.0&#39;}}}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;physical_qubits&#39;: [0], &#39;device_components&#39;: [&lt;Qubit(Q0)&gt;], &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;, &#39;_source&#39;: {&#39;class&#39;: &#39;qiskit_experiments.framework.experiment_data.ExperimentData&#39;, &#39;metadata_version&#39;: 1, &#39;qiskit_version&#39;: {&#39;qiskit&#39;: &#39;1.1.0&#39;, &#39;qiskit-experiments&#39;: &#39;0.6.1&#39;}}}
 </pre></div>
 </div>
 </div>
@@ -1069,7 +1069,7 @@ supports can be set:</p>
 </div>
 <p>Consult the documentation of the run method of your
 specific backend type for valid options.
-For example, see <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.IBMBackend#run" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.IBMBackend.run()</span></code></a> for IBM backends.</p>
+For example, see <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-provider/qiskit_ibm_provider.IBMBackend#run" title="(in Qiskit IBM Quantum Provider)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_provider.IBMBackend.run()</span></code></a> for IBM backends.</p>
 </section>
 <section id="transpile-options">
 <h3>Transpile options<a class="headerlink" href="#transpile-options" title="Link to this heading">¶</a></h3>
@@ -1164,7 +1164,7 @@ simultaneously on the same device:</p>
 
 <span class="n">child_exp1</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
 <span class="n">child_exp2</span> <span class="o">=</span> <span class="n">StandardRB</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">lengths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">parallel_exp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">([</span><span class="n">child_exp1</span><span class="p">,</span> <span class="n">child_exp2</span><span class="p">])</span>
+<span class="n">parallel_exp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">([</span><span class="n">child_exp1</span><span class="p">,</span> <span class="n">child_exp2</span><span class="p">],</span> <span class="n">flatten_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1248,18 +1248,134 @@ arbitrarily to make complex composite experiments.</p>
 </figure>
 <section id="viewing-child-experiment-data">
 <h3>Viewing child experiment data<a class="headerlink" href="#viewing-child-experiment-data" title="Link to this heading">¶</a></h3>
-<p>The experiment data returned from a composite experiment contains analysis
-results for each child experiment in the parent experiment.</p>
+<p>The experiment data returned from a composite experiment contains individual analysis
+results for each child experiment that can be accessed using
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.child_data" title="qiskit_experiments.framework.ExperimentData.child_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">child_data()</span></code></a>. By default, the parent data object does not contain
+analysis results.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>By default, all analysis results will be stored in the parent data object,
-and you need to explicitly set <code class="docutils literal notranslate"><span class="pre">flatten_results=False</span></code> to generate child
-data objects in the legacy format.</p>
+<p>This behavior will be updated in Qiskit Experiments 0.7.
+By default, all analysis results will be stored in the parent data object,
+and you need to explicitly set <code class="docutils literal notranslate"><span class="pre">flatten_results=False</span></code> to generate child data objects.</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_data</span> <span class="o">=</span> <span class="n">parallel_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parallel_data</span><span class="o">.</span><span class="n">child_data</span><span class="p">()):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Component experiment&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">sub_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Component experiment 0
+</pre></div>
+</div>
+<img alt="../_images/getting_started_26_1.png" src="../_images/getting_started_26_1.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_T1Analysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_exp_decay(x) = amp * exp(-x/tau) + base
+ - success: True
+ - number of function evals: 21
+ - degree of freedom: 18
+ - chi-square: 16.00277417066352
+ - reduced chi-square: 0.8890430094813068
+ - Akaike info crit.: 0.2930327582186898
+ - Bayesian info crit.: 3.4266000713889593
+ - init params:
+  * amp = 0.8624390243902439
+  * tau = 0.0002725561036858383
+  * base = 0.11365853658536586
+ - fit params:
+  * amp = 0.9898417872644028 ± 0.013468069961770548
+  * tau = 0.00027527232314180955 ± 1.0862236058551221e-05
+  * base = -0.0041390061590898695 ± 0.015082771273917857
+ - correlations:
+  * (tau, base) = -0.9506938147527594
+  * (amp, base) = -0.8599371104384796
+  * (amp, tau) = 0.7213685064715625
+- quality: good
+- extra: &lt;3 items&gt;
+- device_components: [&#39;Q2&#39;]
+- verified: False
+AnalysisResult
+- name: T1
+- value: 0.000275+/-0.000011
+- χ²: 0.8890430094813068
+- quality: good
+- extra: &lt;3 items&gt;
+- device_components: [&#39;Q2&#39;]
+- verified: False
+Component experiment 1
+</pre></div>
+</div>
+<img alt="../_images/getting_started_26_3.png" src="../_images/getting_started_26_3.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
+- name: @Parameters_RBAnalysis
+- value: CurveFitResult:
+ - fitting method: least_squares
+ - number of sub-models: 1
+  * F_rb_decay(x) = a * alpha ** x + b
+ - success: True
+ - number of function evals: 20
+ - degree of freedom: 7
+ - chi-square: 22.986308795067927
+ - reduced chi-square: 3.2837583992954182
+ - Akaike info crit.: 14.323136759120516
+ - Bayesian info crit.: 15.230892038102652
+ - init params:
+  * a = 0.7147613907095469
+  * alpha = 0.982418931797851
+  * b = 0.25
+ - fit params:
+  * a = 0.7141977431035332
+  * alpha = 0.9816442144079427
+  * b = 0.2498028546262631
+- quality: bad
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: alpha
+- value: 0.9816442144079427+/-nan
+- χ²: 3.2837583992954182
+- quality: bad
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: EPC
+- value: 0.013766839194042979+/-nan
+- χ²: 3.2837583992954182
+- quality: bad
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+AnalysisResult
+- name: EPG_cx
+- value: 0.009063333958515597+/-nan
+- χ²: 3.2837583992954182
+- quality: bad
+- extra: &lt;2 items&gt;
+- device_components: [&#39;Q3&#39;, &#39;Q1&#39;]
+- verified: False
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you want the parent data object to contain the analysis results instead, you can set
+the <code class="docutils literal notranslate"><span class="pre">flatten_results</span></code> flag to true to flatten the results of all component experiments
+into one level:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_exp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="p">[</span><span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)],</span> <span class="n">flatten_results</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 <span class="n">parallel_data</span> <span class="o">=</span> <span class="n">parallel_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
@@ -1299,7 +1415,7 @@ data objects in the legacy format.</p>
   </thead>
   <tbody>
     <tr>
-      <th>dcd867e0</th>
+      <th>3c21ae2f</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1311,7 +1427,7 @@ data objects in the legacy format.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>a0f14b2e</th>
+      <th>cd0fdb60</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1323,7 +1439,7 @@ data objects in the legacy format.</p>
       <td>0.932191</td>
     </tr>
     <tr>
-      <th>c174ec26</th>
+      <th>bfca0641</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1335,7 +1451,7 @@ data objects in the legacy format.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>efa6c3c8</th>
+      <th>d8520afb</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1464,7 +1580,7 @@ In this instance, the analysis will not generate a figure for the child experime
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

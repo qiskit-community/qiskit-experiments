@@ -16,6 +16,7 @@ ErrorAmplificationAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: ErrorAmplificationAnalysis.drawer
    .. autoattribute:: ErrorAmplificationAnalysis.models
    .. autoattribute:: ErrorAmplificationAnalysis.name
    .. autoattribute:: ErrorAmplificationAnalysis.options

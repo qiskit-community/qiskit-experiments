@@ -16,6 +16,7 @@ ResonanceAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: ResonanceAnalysis.drawer
    .. autoattribute:: ResonanceAnalysis.models
    .. autoattribute:: ResonanceAnalysis.name
    .. autoattribute:: ResonanceAnalysis.options

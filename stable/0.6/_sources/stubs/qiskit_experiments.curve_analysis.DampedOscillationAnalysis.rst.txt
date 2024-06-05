@@ -16,6 +16,7 @@ DampedOscillationAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: DampedOscillationAnalysis.drawer
    .. autoattribute:: DampedOscillationAnalysis.models
    .. autoattribute:: DampedOscillationAnalysis.name
    .. autoattribute:: DampedOscillationAnalysis.options

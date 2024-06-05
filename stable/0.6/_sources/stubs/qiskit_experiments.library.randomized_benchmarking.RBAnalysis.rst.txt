@@ -16,6 +16,7 @@ RBAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: RBAnalysis.drawer
    .. autoattribute:: RBAnalysis.models
    .. autoattribute:: RBAnalysis.name
    .. autoattribute:: RBAnalysis.options

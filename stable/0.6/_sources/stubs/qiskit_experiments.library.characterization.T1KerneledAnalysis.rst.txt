@@ -16,6 +16,7 @@ T1KerneledAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: T1KerneledAnalysis.drawer
    .. autoattribute:: T1KerneledAnalysis.models
    .. autoattribute:: T1KerneledAnalysis.name
    .. autoattribute:: T1KerneledAnalysis.options

@@ -37,6 +37,8 @@ CliffordUtils
          
          
          
+         
+         
 
    
    .. rubric:: Methods
@@ -45,5 +47,7 @@ CliffordUtils
    .. automethod:: CliffordUtils.clifford_1_qubit_circuit
    .. automethod:: CliffordUtils.clifford_2_qubit
    .. automethod:: CliffordUtils.clifford_2_qubit_circuit
+   .. automethod:: CliffordUtils.random_clifford_circuits
+   .. automethod:: CliffordUtils.random_cliffords
 
    

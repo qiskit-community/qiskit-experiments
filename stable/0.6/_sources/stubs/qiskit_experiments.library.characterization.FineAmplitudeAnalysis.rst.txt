@@ -16,6 +16,7 @@ FineAmplitudeAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: FineAmplitudeAnalysis.drawer
    .. autoattribute:: FineAmplitudeAnalysis.models
    .. autoattribute:: FineAmplitudeAnalysis.name
    .. autoattribute:: FineAmplitudeAnalysis.options

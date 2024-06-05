@@ -16,6 +16,7 @@ T1Analysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: T1Analysis.drawer
    .. autoattribute:: T1Analysis.models
    .. autoattribute:: T1Analysis.name
    .. autoattribute:: T1Analysis.options

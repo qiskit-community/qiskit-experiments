@@ -19,10 +19,12 @@ CompositeCurveAnalysis
          
          
          
+         
 
    
    .. rubric:: Attributes
       
+   .. autoattribute:: CompositeCurveAnalysis.drawer
    .. autoattribute:: CompositeCurveAnalysis.models
    .. autoattribute:: CompositeCurveAnalysis.name
    .. autoattribute:: CompositeCurveAnalysis.options

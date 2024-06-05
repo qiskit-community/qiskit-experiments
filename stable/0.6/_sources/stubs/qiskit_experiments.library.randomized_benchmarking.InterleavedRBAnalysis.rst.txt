@@ -16,6 +16,7 @@ InterleavedRBAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: InterleavedRBAnalysis.drawer
    .. autoattribute:: InterleavedRBAnalysis.models
    .. autoattribute:: InterleavedRBAnalysis.name
    .. autoattribute:: InterleavedRBAnalysis.options

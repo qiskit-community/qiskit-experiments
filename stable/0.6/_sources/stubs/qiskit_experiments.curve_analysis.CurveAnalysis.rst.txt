@@ -19,10 +19,12 @@ CurveAnalysis
          
          
          
+         
 
    
    .. rubric:: Attributes
       
+   .. autoattribute:: CurveAnalysis.drawer
    .. autoattribute:: CurveAnalysis.models
    .. autoattribute:: CurveAnalysis.name
    .. autoattribute:: CurveAnalysis.options

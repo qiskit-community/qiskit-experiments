@@ -16,6 +16,7 @@ CrossResonanceHamiltonianAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: CrossResonanceHamiltonianAnalysis.drawer
    .. autoattribute:: CrossResonanceHamiltonianAnalysis.models
    .. autoattribute:: CrossResonanceHamiltonianAnalysis.name
    .. autoattribute:: CrossResonanceHamiltonianAnalysis.options

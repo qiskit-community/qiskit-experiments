@@ -16,6 +16,7 @@ GaussianAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: GaussianAnalysis.drawer
    .. autoattribute:: GaussianAnalysis.models
    .. autoattribute:: GaussianAnalysis.name
    .. autoattribute:: GaussianAnalysis.options

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.7.0</title>
+        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.6.1</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.7.0</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.6.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.1</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -327,9 +327,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html">BaseCurveDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.MplCurveDrawer.html">MplCurveDrawer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
@@ -480,10 +484,8 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
@@ -536,8 +538,6 @@
     </div>
     <div class="qiskit-previous-releases-list-container">
         <ul>
-        
-            <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
@@ -626,8 +626,6 @@
 <span class="sd">            y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.</span>
 <span class="sd">            y_interp_err: The standard deviations of the fit for each X-value in</span>
 <span class="sd">                ``y_interp``. This data key relates to the option ``plot_sigma``.</span>
-<span class="sd">            x_residuals: The X-values for the residual plot.</span>
-<span class="sd">            y_residuals: The residual from the fitting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;x&quot;</span><span class="p">,</span>
@@ -638,8 +636,6 @@
             <span class="s2">&quot;x_interp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;y_interp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;y_interp_err&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_residuals&quot;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
@@ -751,14 +747,6 @@
                         <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                     <span class="p">)</span>
 
-            <span class="c1"># Plot residuals</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">]):</span>
-                <span class="c1"># check if we cancel residuals plotting</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;canceled_residuals&quot;</span><span class="p">:</span>
-                    <span class="n">series_name</span> <span class="o">=</span> <span class="n">ser</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span>
-                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">])</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">series_name</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
             <span class="c1"># Fit report</span>
             <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_report</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -842,7 +830,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../../../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.7.0</title>
+        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.6.1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.7.0</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.6.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.6.1</span>
 </div><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -327,9 +327,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.SeriesDef.html">SeriesDef</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveData.html">CurveData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveDrawer.html">BaseCurveDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.MplCurveDrawer.html">MplCurveDrawer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
@@ -480,10 +484,8 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
@@ -537,8 +539,6 @@
     <div class="qiskit-previous-releases-list-container">
         <ul>
         
-            <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
-        
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
         </ul>
@@ -590,10 +590,13 @@
 <span class="sd">Base class of curve analysis.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">lmfit</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.utils.deprecation</span> <span class="kn">import</span> <span class="n">deprecate_func</span>
 
 <span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing</span> <span class="kn">import</span> <span class="n">DataProcessor</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.processor_library</span> <span class="kn">import</span> <span class="n">get_processor</span>
@@ -604,8 +607,10 @@
     <span class="n">Options</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseDrawer</span><span class="p">,</span>
     <span class="n">BasePlotter</span><span class="p">,</span>
     <span class="n">CurvePlotter</span><span class="p">,</span>
+    <span class="n">LegacyCurveCompatDrawer</span><span class="p">,</span>
     <span class="n">MplDrawer</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -703,6 +708,20 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut to the curve plotter instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">plotter</span>
 
+    <span class="nd">@property</span>
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
+        <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span>
+        <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;Use `plotter` from the new visualization module.&quot;</span><span class="p">,</span>
+        <span class="n">removal_timeline</span><span class="o">=</span><span class="s2">&quot;after 0.6&quot;</span><span class="p">,</span>
+        <span class="n">package_name</span><span class="o">=</span><span class="s2">&quot;qiskit-experiments&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">drawer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseDrawer</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut for curve drawer instance, if set. ``None`` otherwise.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span><span class="p">,</span> <span class="n">LegacyCurveCompatDrawer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">_curve_drawer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
@@ -712,12 +731,12 @@
 <span class="sd">                the analysis result.</span>
 <span class="sd">            plot_raw_data (bool): Set ``True`` to draw processed data points,</span>
 <span class="sd">                dataset without formatting, on canvas. This is ``False`` by default.</span>
-<span class="sd">            plot_residuals (bool): Set ``True`` to draw the residuals data for the</span>
-<span class="sd">                fitting model. This is ``False`` by default.</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result or ``False`` to</span>
 <span class="sd">                not create a figure. This overrides the behavior of ``generate_figures``.</span>
 <span class="sd">            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters</span>
 <span class="sd">                with details of the fit outcome. Default to ``False``.</span>
+<span class="sd">            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result</span>
+<span class="sd">                the formatted data points given to the fitter. Default to ``False``.</span>
 <span class="sd">            data_processor (Callable): A callback function to format experiment data.</span>
 <span class="sd">                This can be a :class:`.DataProcessor`</span>
 <span class="sd">                instance that defines the `self.__call__` method.</span>
@@ -766,8 +785,8 @@
 
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">CurvePlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plot_raw_data</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">plot_residuals</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">options</span><span class="o">.</span><span class="n">return_fit_parameters</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">return_data_points</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">options</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">options</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">&quot;shots_weighted&quot;</span>
@@ -912,7 +931,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;model_name&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;model_name&quot;</span><span class="p">)):</span>
             <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">DATA_ENTRY_PREFIX</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="p">{</span>
@@ -960,7 +979,24 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">data_processor</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
             <span class="n">data_processor</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">data_processor</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">data_processor</span><span class="p">)</span>
+
+        <span class="c1"># Check if a model contains legacy data mapping option.</span>
+        <span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;data_sort_key&quot;</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">opts</span><span class="p">:</span>
+                <span class="n">data_subfit_map</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;data_sort_key&quot;</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;data_sort_key&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">data_subfit_map</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Setting &#39;data_sort_key&#39; to an LMFIT model constructor is no longer &quot;</span>
+                <span class="s2">&quot;valid configuration of the model. &quot;</span>
+                <span class="s2">&quot;Use &#39;data_subfit_map&#39; option in the analysis options. &quot;</span>
+                <span class="s2">&quot;This warning will be dropped in v0.6 along with the support for the &quot;</span>
+                <span class="s2">&quot;&#39;data_sort_key&#39; in the LMFIT model options.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_subfit_map</span><span class="o">=</span><span class="n">data_subfit_map</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -996,7 +1032,7 @@
   </div>
 </div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>

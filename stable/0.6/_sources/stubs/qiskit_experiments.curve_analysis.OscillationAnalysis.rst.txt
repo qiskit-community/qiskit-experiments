@@ -16,6 +16,7 @@ OscillationAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: OscillationAnalysis.drawer
    .. autoattribute:: OscillationAnalysis.models
    .. autoattribute:: OscillationAnalysis.name
    .. autoattribute:: OscillationAnalysis.options
