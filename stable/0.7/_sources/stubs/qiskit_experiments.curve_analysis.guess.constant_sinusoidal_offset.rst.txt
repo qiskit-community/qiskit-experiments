@@ -1,0 +1,8 @@
+﻿
+
+constant_sinusoidal_offset
+==================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: constant_sinusoidal_offset

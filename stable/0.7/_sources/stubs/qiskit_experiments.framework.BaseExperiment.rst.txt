@@ -1,0 +1,67 @@
+﻿
+
+BaseExperiment
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BaseExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: BaseExperiment.analysis
+   .. autoattribute:: BaseExperiment.backend
+   .. autoattribute:: BaseExperiment.experiment_options
+   .. autoattribute:: BaseExperiment.experiment_type
+   .. autoattribute:: BaseExperiment.num_qubits
+   .. autoattribute:: BaseExperiment.physical_qubits
+   .. autoattribute:: BaseExperiment.run_options
+   .. autoattribute:: BaseExperiment.transpile_options
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseExperiment.circuits
+   .. automethod:: BaseExperiment.config
+   .. automethod:: BaseExperiment.copy
+   .. automethod:: BaseExperiment.from_config
+   .. automethod:: BaseExperiment.job_info
+   .. automethod:: BaseExperiment.run
+   .. automethod:: BaseExperiment.set_experiment_options
+   .. automethod:: BaseExperiment.set_run_options
+   .. automethod:: BaseExperiment.set_transpile_options
+
+   

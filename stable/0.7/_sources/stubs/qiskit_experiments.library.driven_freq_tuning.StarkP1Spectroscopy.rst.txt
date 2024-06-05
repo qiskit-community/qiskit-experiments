@@ -1,0 +1,50 @@
+﻿
+
+StarkP1Spectroscopy
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
+
+.. autoexperiment:: StarkP1Spectroscopy
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StarkP1Spectroscopy.analysis
+   .. autoattribute:: StarkP1Spectroscopy.backend
+   .. autoattribute:: StarkP1Spectroscopy.experiment_options
+   .. autoattribute:: StarkP1Spectroscopy.experiment_type
+   .. autoattribute:: StarkP1Spectroscopy.num_qubits
+   .. autoattribute:: StarkP1Spectroscopy.physical_qubits
+   .. autoattribute:: StarkP1Spectroscopy.run_options
+   .. autoattribute:: StarkP1Spectroscopy.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StarkP1Spectroscopy.circuits
+   .. automethod:: StarkP1Spectroscopy.config
+   .. automethod:: StarkP1Spectroscopy.copy
+   .. automethod:: StarkP1Spectroscopy.from_config
+   .. automethod:: StarkP1Spectroscopy.job_info
+   .. automethod:: StarkP1Spectroscopy.parameterized_circuits
+   .. automethod:: StarkP1Spectroscopy.parameters
+   .. automethod:: StarkP1Spectroscopy.run
+   .. automethod:: StarkP1Spectroscopy.set_experiment_options
+   .. automethod:: StarkP1Spectroscopy.set_run_options
+   .. automethod:: StarkP1Spectroscopy.set_transpile_options
+   
+
+   
+   

@@ -1,0 +1,42 @@
+﻿
+
+BlochTrajectoryAnalysis
+=========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: BlochTrajectoryAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: BlochTrajectoryAnalysis.models
+   .. autoattribute:: BlochTrajectoryAnalysis.name
+   .. autoattribute:: BlochTrajectoryAnalysis.options
+   .. autoattribute:: BlochTrajectoryAnalysis.parameters
+   .. autoattribute:: BlochTrajectoryAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: BlochTrajectoryAnalysis.config
+   .. automethod:: BlochTrajectoryAnalysis.copy
+   .. automethod:: BlochTrajectoryAnalysis.from_config
+   .. automethod:: BlochTrajectoryAnalysis.model_names
+   .. automethod:: BlochTrajectoryAnalysis.run
+   .. automethod:: BlochTrajectoryAnalysis.set_options
+   
+
+   
+   

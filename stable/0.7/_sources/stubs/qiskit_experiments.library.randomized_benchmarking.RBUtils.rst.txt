@@ -1,0 +1,32 @@
+﻿
+
+RBUtils
+==========================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoclass:: RBUtils
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: RBUtils.coherence_limit
+
+   

@@ -1,0 +1,101 @@
+﻿
+
+NoisyDelayAerBackend
+============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: NoisyDelayAerBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: NoisyDelayAerBackend.coupling_map
+   .. autoattribute:: NoisyDelayAerBackend.dt
+   .. autoattribute:: NoisyDelayAerBackend.dtm
+   .. autoattribute:: NoisyDelayAerBackend.instruction_durations
+   .. autoattribute:: NoisyDelayAerBackend.instruction_schedule_map
+   .. autoattribute:: NoisyDelayAerBackend.instructions
+   .. autoattribute:: NoisyDelayAerBackend.max_circuits
+   .. autoattribute:: NoisyDelayAerBackend.meas_map
+   .. autoattribute:: NoisyDelayAerBackend.num_qubits
+   .. autoattribute:: NoisyDelayAerBackend.operation_names
+   .. autoattribute:: NoisyDelayAerBackend.operations
+   .. autoattribute:: NoisyDelayAerBackend.options
+   .. autoattribute:: NoisyDelayAerBackend.provider
+   .. autoattribute:: NoisyDelayAerBackend.target
+   .. autoattribute:: NoisyDelayAerBackend.version
+   .. autoattribute:: NoisyDelayAerBackend.description
+   .. autoattribute:: NoisyDelayAerBackend.online_date
+   .. autoattribute:: NoisyDelayAerBackend.backend_version
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: NoisyDelayAerBackend.acquire_channel
+   .. automethod:: NoisyDelayAerBackend.available_devices
+   .. automethod:: NoisyDelayAerBackend.available_methods
+   .. automethod:: NoisyDelayAerBackend.clear_options
+   .. automethod:: NoisyDelayAerBackend.configuration
+   .. automethod:: NoisyDelayAerBackend.control_channel
+   .. automethod:: NoisyDelayAerBackend.drive_channel
+   .. automethod:: NoisyDelayAerBackend.from_backend
+   .. automethod:: NoisyDelayAerBackend.measure_channel
+   .. automethod:: NoisyDelayAerBackend.properties
+   .. automethod:: NoisyDelayAerBackend.qubit_properties
+   .. automethod:: NoisyDelayAerBackend.run
+   .. automethod:: NoisyDelayAerBackend.set_max_qubits
+   .. automethod:: NoisyDelayAerBackend.set_option
+   .. automethod:: NoisyDelayAerBackend.set_options
+   .. automethod:: NoisyDelayAerBackend.status
+
+   
