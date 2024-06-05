@@ -16,7 +16,6 @@ T2HahnAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: T2HahnAnalysis.drawer
    .. autoattribute:: T2HahnAnalysis.models
    .. autoattribute:: T2HahnAnalysis.name
    .. autoattribute:: T2HahnAnalysis.options

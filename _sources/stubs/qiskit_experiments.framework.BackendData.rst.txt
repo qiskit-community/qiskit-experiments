@@ -27,7 +27,6 @@ BackendData
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -37,7 +36,6 @@ BackendData
    .. autoattribute:: BackendData.drive_freqs
    .. autoattribute:: BackendData.dt
    .. autoattribute:: BackendData.granularity
-   .. autoattribute:: BackendData.is_simulator
    .. autoattribute:: BackendData.max_circuits
    .. autoattribute:: BackendData.meas_freqs
    .. autoattribute:: BackendData.min_length
