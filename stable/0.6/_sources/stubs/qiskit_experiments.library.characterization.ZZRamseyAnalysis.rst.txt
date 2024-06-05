@@ -16,7 +16,6 @@ ZZRamseyAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: ZZRamseyAnalysis.drawer
    .. autoattribute:: ZZRamseyAnalysis.models
    .. autoattribute:: ZZRamseyAnalysis.name
    .. autoattribute:: ZZRamseyAnalysis.options

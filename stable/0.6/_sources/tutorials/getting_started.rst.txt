@@ -306,7 +306,7 @@ supports can be set:
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
-For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
+For example, see :meth:`qiskit_ibm_runtime.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
@@ -384,7 +384,7 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine
@@ -437,35 +437,19 @@ arbitrarily to make complex composite experiments.
 Viewing child experiment data
 -----------------------------
 
-The experiment data returned from a composite experiment contains individual analysis
-results for each child experiment that can be accessed using
-:meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
-analysis results.
+The experiment data returned from a composite experiment contains analysis
+results for each child experiment in the parent experiment.
 
 .. note::
 
-    This behavior will be updated in Qiskit Experiments 0.7.
     By default, all analysis results will be stored in the parent data object,
-    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
-
-.. jupyter-execute::
-
-    parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
-
-    for i, sub_data in enumerate(parallel_data.child_data()):
-        print("Component experiment",i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
-
-If you want the parent data object to contain the analysis results instead, you can set
-the ``flatten_results`` flag to true to flatten the results of all component experiments
-into one level:
+    and you need to explicitly set ``flatten_results=False`` to generate child
+    data objects in the legacy format.
 
 .. jupyter-execute::
 
     parallel_exp = ParallelExperiment(
-        [T1(physical_qubits=(i,), delays=delays) for i in range(2)], flatten_results=True
+        [T1(physical_qubits=(i,), delays=delays) for i in range(2)]
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 

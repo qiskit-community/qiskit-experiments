@@ -16,7 +16,6 @@ RamseyXYAnalysis
    .. rubric:: Attributes
 
    
-   .. autoattribute:: RamseyXYAnalysis.drawer
    .. autoattribute:: RamseyXYAnalysis.models
    .. autoattribute:: RamseyXYAnalysis.name
    .. autoattribute:: RamseyXYAnalysis.options

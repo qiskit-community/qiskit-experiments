@@ -182,8 +182,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
         [
             StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
-        ],
-        flatten_results=True,
+        ]
     )
     expdata_1q = single_exps.run(backend).block_for_results()
 
@@ -208,6 +207,8 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 Note that ``EPC_corrected`` value is smaller than one of raw ``EPC``, which indicates
 contribution of depolarization from single-qubit error channels.
+If you don't need ``EPG`` value, you can skip its computation by
+``exp_2q.analysis.set_options(gate_error_ratio=False)``.
 
 
 Displaying the RB circuits
