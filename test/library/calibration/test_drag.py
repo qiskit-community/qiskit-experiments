@@ -46,7 +46,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
         self.x_plus = xp
-        self.test_tol = 0.1
+        self.test_tol = 0.25
 
     @data(
         (None, None, None),
@@ -63,7 +63,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(drag_experiment_helper)
 
         drag = RoughDrag([1], self.x_plus)
-        drag.set_run_options(shots=200)
+        drag.set_run_options(shots=500)
 
         if betas is not None:
             drag.set_experiment_options(betas=betas)

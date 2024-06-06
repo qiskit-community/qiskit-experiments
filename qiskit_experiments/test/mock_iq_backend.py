@@ -11,17 +11,14 @@
 # that they have been altered from the originals.
 
 """A mock IQ backend for testing."""
-import datetime
 from abc import abstractmethod
 from typing import Sequence, List, Tuple, Dict, Union, Any
 
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
-from qiskit.providers import BackendV2, Provider, convert_to_target
-from qiskit.providers.fake_provider import FakeOpenPulse2Q
+from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.exceptions import QiskitError
@@ -35,59 +32,16 @@ from qiskit_experiments.test.mock_iq_helpers import (
 )
 
 
-class FakeOpenPulse2QV2(BackendV2):
-    """BackendV2 conversion of qiskit.providers.fake_provider.FakeOpenPulse2Q"""
-
-    def __init__(
-        self,
-        provider: Provider = None,
-        name: str = None,
-        description: str = None,
-        online_date: datetime.datetime = None,
-        backend_version: str = None,
-        **fields,
-    ):
-        super().__init__(provider, name, description, online_date, backend_version, **fields)
-
-        backend_v1 = FakeOpenPulse2Q()
-        # convert_to_target requires the description attribute
-        backend_v1._configuration.description = "A fake test backend with pulse defaults"
-
-        self._target = convert_to_target(
-            backend_v1.configuration(),
-            backend_v1.properties(),
-            backend_v1.defaults(),
-            add_delay=True,
-        )
-        # See commented out defaults() method below
-        self._defaults = backend_v1._defaults
-
-    # This method is not defined in the base class as we would like to avoid
-    # relying on it as much as necessary. Individual tests should add it when
-    # necessary.
-    # def defaults(self):
-    #     """Pulse defaults"""
-    #     return self._defaults
-
-    @property
-    def max_circuits(self):
-        return 300
-
-    @property
-    def target(self):
-        return self._target
-
-
-class MockRestlessBackend(FakeOpenPulse2QV2):
+class MockRestlessBackend(GenericBackendV2):
     """An abstract backend for testing that can mock restless data."""
 
     def __init__(self, rng_seed: int = 0):
         """
         Initialize the backend.
         """
-        self._rng = np.random.default_rng(rng_seed)
+        self.__rng = np.random.default_rng(rng_seed)
         self._precomputed_probabilities = None
-        super().__init__()
+        super().__init__(num_qubits=2, calibrate_instructions=True, seed=rng_seed)
 
     @classmethod
     def _default_options(cls):
@@ -147,7 +101,7 @@ class MockRestlessBackend(FakeOpenPulse2QV2):
             for circ_idx, _ in enumerate(run_input):
                 probs = self._precomputed_probabilities[(circ_idx, prev_outcome)]
                 # Generate the next shot dependent on the pre-computed probabilities.
-                outcome = self._rng.choice(state_strings, p=probs)
+                outcome = self.__rng.choice(state_strings, p=probs)
                 # Append the single shot to the memory of the corresponding circuit.
                 sorted_memory[circ_idx]["memory"].append(hex(int(outcome, 2)))
 
@@ -192,9 +146,6 @@ class MockRestlessFineAmp(MockRestlessBackend):
         self._angle_per_gate = angle_per_gate
         super().__init__(rng_seed=rng_seed)
 
-        self.target.add_instruction(SXGate(), properties={(0,): None})
-        self.target.add_instruction(XGate(), properties={(0,): None})
-
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
         """Compute the probabilities of being in the excited state or
         ground state for all circuits."""
@@ -219,7 +170,7 @@ class MockRestlessFineAmp(MockRestlessBackend):
             self._precomputed_probabilities[(idx, "1")] = [prob_1, prob_0]
 
 
-class MockIQBackend(FakeOpenPulse2QV2):
+class MockIQBackend(GenericBackendV2):
     """A mock backend for testing with IQ data."""
 
     def __init__(
@@ -238,9 +189,10 @@ class MockIQBackend(FakeOpenPulse2QV2):
         """
 
         self._experiment_helper = experiment_helper
-        self._rng = np.random.default_rng(rng_seed)
+        # Can not be called _rng because GenericBackendV2 sets a _rng attribute
+        self.__rng = np.random.default_rng(rng_seed)
 
-        super().__init__()
+        super().__init__(num_qubits=2, calibrate_instructions=True, seed=rng_seed)
 
     @classmethod
     def _default_options(cls):
@@ -323,7 +275,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.
         """
-        samples = [self._rng.normal(0, 1, size=1) for qubit in qubits]
+        samples = [self.__rng.normal(0, 1, size=1) for qubit in qubits]
         # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
         # and we want to change it to be List[qubit_number][0\1]
         return np.squeeze(np.array(samples), axis=1)
@@ -396,7 +348,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
         shot_num = 0
 
         for output_number, number_of_occurrences in enumerate(
-            self._rng.multinomial(shots, prob, size=1)[0]
+            self.__rng.multinomial(shots, prob, size=1)[0]
         ):
             state_str = str(format(output_number, "b").zfill(len(circ_qubits)))
             for _ in range(number_of_occurrences):
@@ -451,7 +403,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
 
         if meas_level == MeasLevel.CLASSIFIED:
             counts = {}
-            results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+            results = self.__rng.multinomial(shots, prob_arr, size=1)[0]
             for result, num_occurrences in enumerate(results):
                 result_in_str = str(format(result, "b").zfill(output_length))
                 counts[result_in_str] = num_occurrences
@@ -551,6 +503,7 @@ class MockIQParallelBackend(MockIQBackend):
                 helper classes for each experiment.
             rng_seed: The random seed value.
         """
+        self.__rng = np.random.default_rng(rng_seed)
         super().__init__(experiment_helper, rng_seed)
 
     @property
@@ -634,7 +587,7 @@ class MockIQParallelBackend(MockIQBackend):
             shot_num = 0
 
             for output_number, number_of_occurrences in enumerate(
-                self._rng.multinomial(shots, prob, size=1)[0]
+                self.__rng.multinomial(shots, prob, size=1)[0]
             ):
                 state_str = str(format(output_number, "b").zfill(len(qubits)))
                 for _ in range(number_of_occurrences):

@@ -46,10 +46,9 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         error = -np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
-        backend.target.add_instruction(XGate(), properties={(0,): None})
-        backend.target.add_instruction(SXGate(), properties={(0,): None})
 
-        expdata = amp_exp.run(backend)
+        # Needs extra shots to avoid chisq > 3
+        expdata = amp_exp.run(backend, shots=1600)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
@@ -67,8 +66,6 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         error = np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
-        backend.target.add_instruction(XGate(), properties={(0,): None})
-        backend.target.add_instruction(SXGate(), properties={(0,): None})
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("d_theta")
@@ -99,7 +96,8 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(FineAmpHelper(error, np.pi / 2, "szx"))
         backend.target.add_instruction(Gate("szx", 2, []), properties={(0, 1): None})
 
-        expdata = amp_exp.run(backend)
+        # Needs extra shots to avoid chisq > 3
+        expdata = amp_exp.run(backend, shots=1600)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
@@ -218,8 +216,6 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi, "xp"))
-        self.backend.target.add_instruction(SXGate(), properties={(0,): None})
-        self.backend.target.add_instruction(XGate(), properties={(0,): None})
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):

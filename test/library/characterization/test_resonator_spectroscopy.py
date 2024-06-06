@@ -12,6 +12,8 @@
 
 """Spectroscopy tests for resonator spectroscopy experiment."""
 
+from __future__ import annotations
+
 from test.base import QiskitExperimentsTestCase
 from typing import Any, List, Tuple
 
@@ -34,6 +36,13 @@ from qiskit_experiments.test.mock_iq_helpers import (
 )
 
 
+class MockDefaults:
+    """Just enough qiskit.providers.models.PulseDefaults for ResonatorSpectroscpy"""
+
+    def __init__(self, meas_freq_est: list[float]):
+        self.meas_freq_est = meas_freq_est
+
+
 class MockIQBackendDefaults(MockIQBackend):
     """MockIQBackend with defaults() method"""
 
@@ -45,7 +54,7 @@ class MockIQBackendDefaults(MockIQBackend):
         to Backend classes outside of this test module so that we do not
         introduce new dependencies on it.
         """
-        return self._defaults
+        return MockDefaults(meas_freq_est=[7e9] * self.num_qubits)
 
 
 class MockIQParallelBackendDefaults(MockIQParallelBackend):
@@ -59,7 +68,7 @@ class MockIQParallelBackendDefaults(MockIQParallelBackend):
         to Backend classes outside of this test module so that we do not
         introduce new dependencies on it.
         """
-        return self._defaults
+        return MockDefaults(meas_freq_est=[7e9] * self.num_qubits)
 
 
 def data_valid_initial_circuits() -> List[Tuple[Any, str]]:

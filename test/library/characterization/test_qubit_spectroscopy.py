@@ -15,7 +15,6 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
-from qiskit.circuit.library import XGate
 from qiskit_ibm_runtime.fake_provider import FakeWashingtonV2
 from qiskit_experiments.framework import ParallelExperiment
 
@@ -42,7 +41,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
         freq01 = BackendData(backend).drive_freqs[qubit]
@@ -82,7 +80,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 0
         freq01 = BackendData(backend).drive_freqs[qubit]
@@ -128,7 +125,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
         qubit = 0
         freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
@@ -174,7 +170,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
         freq01 = BackendData(backend).drive_freqs[qubit]
@@ -201,7 +196,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
         freq01 = BackendData(backend).drive_freqs[qubit]
@@ -230,10 +224,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         parallel_backend = MockIQParallelBackend(
             experiment_helper=None,
             rng_seed=0,
-        )
-        parallel_backend.target.add_instruction(
-            XGate(),
-            properties={(0,): None, (1,): None},
         )
 
         # experiment hyper parameters
