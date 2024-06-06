@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tutorials" href="index.html" /><link rel="prev" title="Qiskit Experiments Documentation" href="../index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Getting Started - Qiskit Experiments 0.7.0-1-gf38b973b</title>
+        <title>Getting Started - Qiskit Experiments 0.7.0-2-gb07645f0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-1-gf38b973b</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-2-gb07645f0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-1-gf38b973b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-2-gb07645f0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -837,7 +837,7 @@ results will be retrieved in the pandas <a class="reference external" href="http
   </thead>
   <tbody>
     <tr>
-      <th>b7628f2a</th>
+      <th>477e0aff</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -849,15 +849,15 @@ results will be retrieved in the pandas <a class="reference external" href="http
       <td>None</td>
     </tr>
     <tr>
-      <th>16b79ec3</th>
+      <th>081a6e3d</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000197+/-0.000006</td>
+      <td>0.000199+/-0.000006</td>
       <td>good</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
-      <td>1.047281</td>
+      <td>1.081007</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -882,30 +882,30 @@ results will be retrieved in the pandas <a class="reference external" href="http
  - success: True
  - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 18.85105135473959
- - reduced chi-square: 1.047280630818866
- - Akaike info crit.: 3.732971237452233
- - Bayesian info crit.: 6.8665385506225025
+ - chi-square: 19.458129612035258
+ - reduced chi-square: 1.0810072006686253
+ - Akaike info crit.: 4.398592918439492
+ - Bayesian info crit.: 7.532160231609762
  - init params:
-  * amp = 0.9248780487804877
-  * tau = 0.0002265989010939892
-  * base = 0.05317073170731707
+  * amp = 0.9102439024390243
+  * tau = 0.00022772714735633953
+  * base = 0.06487804878048781
  - fit params:
-  * amp = 0.9566059546664234 ± 0.00871663688446932
-  * tau = 0.00019714692573598292 ± 5.6020637249581495e-06
-  * base = 0.027691258727108634 ± 0.0077415403202991725
+  * amp = 0.955536064458566 ± 0.008714384476455901
+  * tau = 0.00019907840261942887 ± 5.7030567439872355e-06
+  * base = 0.025509616978547287 ± 0.007819744530304035
  - correlations:
-  * (tau, base) = -0.8948373717042499
-  * (amp, base) = -0.5940241402583866
-  * (amp, tau) = 0.33957305218173417
+  * (tau, base) = -0.8984551041745408
+  * (amp, base) = -0.6016973699557421
+  * (amp, tau) = 0.35366726620353284
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000197+/-0.000006
-- χ²: 1.047280630818866
+- value: 0.000199+/-0.000006
+- χ²: 1.0810072006686253
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -919,8 +919,8 @@ return the corresponding <code class="xref py py-class docutils literal notransl
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>exp_data.analysis_results(&quot;T1&quot;)
-exp_data.analysis_results(&quot;16b79ec3-3b6e-478f-9627-2703b1ffa29e&quot;)
-exp_data.analysis_results(&quot;16b79ec3&quot;)
+exp_data.analysis_results(&quot;081a6e3d-864d-4cdd-9431-01c2d4a07cba&quot;)
+exp_data.analysis_results(&quot;081a6e3d&quot;)
 </pre></div>
 </div>
 </div>
@@ -941,8 +941,8 @@ value and standard deviation of each value can be accessed as follows:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019714692573598292
-5.6020637249581495e-06
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>0.00019907840261942887
+5.7030567439872355e-06
 </pre></div>
 </div>
 </div>
@@ -970,22 +970,22 @@ Use the <code class="docutils literal notranslate"><span class="pre">data</span>
  - success: True
  - number of function evals: 20
  - degree of freedom: 18
- - chi-square: 18.85105135473959
- - reduced chi-square: 1.047280630818866
- - Akaike info crit.: 3.732971237452233
- - Bayesian info crit.: 6.8665385506225025
+ - chi-square: 19.458129612035258
+ - reduced chi-square: 1.0810072006686253
+ - Akaike info crit.: 4.398592918439492
+ - Bayesian info crit.: 7.532160231609762
  - init params:
-  * amp = 0.9248780487804877
-  * tau = 0.0002265989010939892
-  * base = 0.05317073170731707
+  * amp = 0.9102439024390243
+  * tau = 0.00022772714735633953
+  * base = 0.06487804878048781
  - fit params:
-  * amp = 0.9566059546664234 ± 0.00871663688446932
-  * tau = 0.00019714692573598292 ± 5.6020637249581495e-06
-  * base = 0.027691258727108634 ± 0.0077415403202991725
+  * amp = 0.955536064458566 ± 0.008714384476455901
+  * tau = 0.00019907840261942887 ± 5.7030567439872355e-06
+  * base = 0.025509616978547287 ± 0.007819744530304035
  - correlations:
-  * (tau, base) = -0.8948373717042499
-  * (amp, base) = -0.5940241402583866
-  * (amp, tau) = 0.33957305218173417
+  * (tau, base) = -0.8984551041745408
+  * (amp, base) = -0.6016973699557421
+  * (amp, tau) = 0.35366726620353284
 </pre></div>
 </div>
 </div>
@@ -1016,7 +1016,7 @@ fitting the data.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 22, &#39;1&#39;: 1002}, &#39;job_id&#39;: &#39;c4d59f26-b5b7-4a85-b3b8-f9fa3f0519da&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;counts&#39;: {&#39;0&#39;: 25, &#39;1&#39;: 999}, &#39;job_id&#39;: &#39;a8c29a58-639b-47da-8781-b1e4928f8d49&#39;, &#39;metadata&#39;: {&#39;xval&#39;: 9.99111111111111e-07}, &#39;shots&#39;: 1024, &#39;meas_level&#39;: &lt;MeasLevel.CLASSIFIED: 2&gt;}
 </pre></div>
 </div>
 </div>
@@ -1305,7 +1305,7 @@ data objects in the legacy format.</p>
   </thead>
   <tbody>
     <tr>
-      <th>8df9b810</th>
+      <th>694b9bc9</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1317,7 +1317,7 @@ data objects in the legacy format.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>f8edac0e</th>
+      <th>3d880668</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -1329,7 +1329,7 @@ data objects in the legacy format.</p>
       <td>0.932191</td>
     </tr>
     <tr>
-      <th>d14a7c1c</th>
+      <th>476d34a5</th>
       <td>@Parameters_T1Analysis</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1341,7 +1341,7 @@ data objects in the legacy format.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>cb07ecc0</th>
+      <th>acb87585</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q1]</td>
@@ -1410,7 +1410,7 @@ In this instance, the analysis will not generate a figure for the child experime
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/06/05</div>
+              Last updated on 2024/06/06</div>
           </div>
           <div class="right-details">
             
@@ -1470,7 +1470,7 @@ In this instance, the analysis will not generate a figure for the child experime
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=68c09b0e"></script>
+    <script src="../_static/documentation_options.js?v=8474392f"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
