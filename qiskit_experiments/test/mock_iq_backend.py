@@ -135,10 +135,10 @@ class MockRestlessBackend(FakeOpenPulse2QV2):
 
         self._compute_outcome_probabilities(run_input)
 
-        if run_input[0].num_qubits != 2:
+        if run_input[0].num_qubits != 1:
             raise DataProcessorError(f"{self.__class__.__name__} is a two qubit mock device.")
 
-        prev_outcome, state_strings = "00", self._get_state_strings(2)
+        prev_outcome, state_strings = "0", self._get_state_strings(1)
 
         # Setup the list of dicts where each dict corresponds to a circuit.
         sorted_memory = [{"memory": [], "metadata": circ.metadata} for circ in run_input]
@@ -155,7 +155,7 @@ class MockRestlessBackend(FakeOpenPulse2QV2):
 
         for idx, circ in enumerate(run_input):
             counts = {}
-            for key1, key2 in zip(["00", "01", "10", "11"], ["0x0", "0x1", "0x2", "0x3"]):
+            for key1, key2 in zip(["0", "1"], ["0x0", "0x1"]):
                 counts[key1] = sorted_memory[idx]["memory"].count(key2)
             run_result = {
                 "shots": shots,
@@ -215,8 +215,8 @@ class MockRestlessFineAmp(MockRestlessBackend):
             prob_1 = np.sin(angle / 2) ** 2
             prob_0 = 1 - prob_1
 
-            self._precomputed_probabilities[(idx, "00")] = [prob_0, prob_1, 0, 0]
-            self._precomputed_probabilities[(idx, "01")] = [prob_1, prob_0, 0, 0]
+            self._precomputed_probabilities[(idx, "0")] = [prob_0, prob_1]
+            self._precomputed_probabilities[(idx, "1")] = [prob_1, prob_0]
 
 
 class MockIQBackend(FakeOpenPulse2QV2):

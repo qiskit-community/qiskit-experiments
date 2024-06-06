@@ -66,7 +66,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         self.assertEqual(par_exp.experiment_options, par_exp._default_experiment_options())
         self.assertEqual(par_exp.run_options, Options(meas_level=2))
-        self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
+        self.assertEqual(par_exp.transpile_options, par_exp._default_transpile_options())
         self.assertEqual(par_exp.analysis.options, par_exp.analysis._default_options())
 
         with self.assertWarns(UserWarning):

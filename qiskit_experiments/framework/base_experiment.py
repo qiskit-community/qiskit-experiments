@@ -13,18 +13,23 @@
 Base Experiment class.
 """
 
-from abc import ABC, abstractmethod
 import copy
+from abc import ABC, abstractmethod
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
+from qiskit_experiments.framework.transpilation import (
+    DEFAULT_TRANSPILE_OPTIONS,
+    map_qubits,
+    minimal_transpile,
+)
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
@@ -373,9 +378,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         This function can be overridden to define custom transpilation.
         """
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self.physical_qubits)
-        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
+        circuits = [map_qubits(c, self.physical_qubits) for c in self.circuits()]
+        transpiled = minimal_transpile(circuits, self.backend, self.transpile_options)
 
         return transpiled
 
@@ -418,11 +422,36 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
-        """Default transpiler options for transpilation of circuits"""
+        """Default transpiler options for transpilation of circuits
+
+        Transpile Options:
+            optimization_level (int): Optimization level to pass to
+                :func:`qiskit.transpile`.
+            num_processes (int): Number of processes to use during
+                transpilation on Qiskit >= 1.0.
+            full_transpile (bool): If ``True``,
+                ``BaseExperiment._transpiled_circuits`` (called by
+                :meth:`BaseExperiment.run` if not overridden by a subclass)
+                will call :func:`qiskit.transpile` on the output of
+                :meth:`BaseExperiment.circuits` before executing the circuits.
+                If ``False``, ``BaseExperiment._transpiled_circuits`` will
+                reindex the qubits in the output of
+                :meth:`BaseExperiment.circuits` using the experiments'
+                :meth:`BaseExperiment.physical_qubits`.  Then it will check if
+                the circuit operations are all defined in the
+                :class:`qiskit.transpiler.Target` of the experiment's backend
+                or in the indiivdual circuit calibrations. If not, it will use
+                :class:`qiskit.transpiler.passes.BasisTranslator` to map the
+                circuit instructions to the backend. Additionally,
+                the :class:`qiskit.transpiler.passes.PulseGates` transpiler
+                pass will be run if the :class:`qiskit.transpiler.Target`
+                contains any custom pulse gate calibrations.
+
+        """
         # Experiment subclasses can override this method if they need
         # to set specific default transpiler options to transpile the
         # experiment circuits.
-        return Options(optimization_level=0)
+        return copy.copy(DEFAULT_TRANSPILE_OPTIONS)
 
     @property
     def transpile_options(self) -> Options:

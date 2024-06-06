@@ -13,9 +13,8 @@
 """Test the half angle experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import copy
 
-from qiskit import pulse, transpile
+from qiskit import pulse
 from qiskit.pulse import InstructionScheduleMap
 from qiskit_ibm_runtime.fake_provider import FakeAthens
 
@@ -52,13 +51,11 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         for inst in ["sx", "x"]:
             inst_map.add(inst, (qubit,), pulse.Schedule(name=inst))
 
-        hac = HalfAngle([qubit])
+        hac = HalfAngle([qubit], backend=FakeAthens())
         hac.set_transpile_options(inst_map=inst_map)
 
         # mimic what will happen in the experiment.
-        transpile_opts = copy.copy(hac.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(hac._physical_qubits)
-        circuits = transpile(hac.circuits(), FakeAthens(), **transpile_opts)
+        circuits = hac._transpiled_circuits()
 
         for idx, circ in enumerate(circuits):
             self.assertEqual(circ.count_ops()["sx"], idx * 2 + 2)

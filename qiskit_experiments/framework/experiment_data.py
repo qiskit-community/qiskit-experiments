@@ -866,11 +866,10 @@ class ExperimentData:
                 LOG.warning("Job was cancelled before completion [Job ID: %s]", jid)
                 return jid, False
             if status == JobStatus.ERROR:
-                LOG.error(
-                    "Job data not added for errored job [Job ID: %s]\nError message: %s",
-                    jid,
-                    job.error_message(),
-                )
+                msg = f"Job data not added for errored job [Job ID: {jid}]"
+                if hasattr(job, "error_message"):
+                    msg += f"\nError message: {job.error_message()}"
+                LOG.error(msg)
                 return jid, False
             LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
             raise ex
