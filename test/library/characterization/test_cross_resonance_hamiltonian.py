@@ -275,7 +275,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         backend = FakeBogotaV2()
 
         with patch.object(
-            cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate, 
+            cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate,
             "base_class",
             Gate,
         ):
@@ -313,5 +313,5 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
                 buff.write(serialized_data)
                 buff.seek(0)
                 decoded = qpy.load(buff)
-            
+
             self.assertListEqual(circuits, decoded)

@@ -33,7 +33,7 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         cls.granularity = 16
         cls.min_length = 64
         cls.pulse_alignment = 1
-    
+
     def setUp(self):
         super().setUp()
         # Creating a complete fake backend is difficult so we use one from
