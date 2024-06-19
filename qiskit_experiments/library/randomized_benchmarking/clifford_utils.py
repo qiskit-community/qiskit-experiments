@@ -15,7 +15,6 @@ Utilities for using the Clifford group in randomized benchmarking.
 
 import itertools
 import os
-import warnings
 from functools import lru_cache
 from numbers import Integral
 from typing import Optional, Union, Tuple, Sequence, Iterable
@@ -53,21 +52,14 @@ def _transpile_clifford_circuit(
     circuit: QuantumCircuit, physical_qubits: Sequence[int]
 ) -> QuantumCircuit:
     # Simplified transpile that only decomposes Clifford circuits and creates the layout.
-    if circuit.num_parameters > 0:
-        warnings.warn(
-            f"Input circuit {circuit.name} contains some parameterized instructions. "
-            "The custom transpile code being used assumes non-parameterized circuit as an input, "
-            "and the parameter table is not carried over to the transpiled circuit. "
-            "This indicates the transpiled circuit doesn't work normally when "
-            "the .assign_parameters method is called to bind instruction parameters.",
-            RuntimeWarning,
-        )
     return _apply_qubit_layout(_decompose_clifford_ops(circuit), physical_qubits=physical_qubits)
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
     # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
     res = circuit.copy_empty_like()
+    if hasattr(circuit, "_parameter_table"):
+        res._parameter_table = circuit._parameter_table
     for inst in circuit:
         if inst.operation.name.startswith("Clifford"):  # Decompose
             rule = inst.operation.definition.data
@@ -95,6 +87,8 @@ def _apply_qubit_layout(circuit: QuantumCircuit, physical_qubits: Sequence[int])
     for reg in circuit.cregs:
         res.add_register(reg)
     _circuit_compose(res, circuit, qubits=physical_qubits)
+    if hasattr(circuit, "_parameter_table"):
+        res._parameter_table = circuit._parameter_table
     return res
 
 

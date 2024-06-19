@@ -1,8 +1,0 @@
----
-fixes:
-  - |
-    Custom transpile code used in the :mod:`.randomized_benchmark` module
-    was upgraded to support change in the :class:`.QuantumCircuit` data model
-    made in the qiskit >= 1.2. 
-    After this code fix, transpile of Clifford circuits including
-    parameters will no longer work.
