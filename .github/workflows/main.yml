@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tests:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -62,7 +62,7 @@ jobs:
         run: stestr history remove all
 
   lint:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +81,7 @@ jobs:
       - name: Run lint
         run: tox -elint
   docs:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: docs
     runs-on: ubuntu-latest
     steps:

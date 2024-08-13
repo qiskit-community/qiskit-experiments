@@ -30,7 +30,7 @@ Bug Fixes
   :mod:`qiskit_dynamics` version 0.5.0. The updates accounted for changes in
   the expected arguments to Dynamics API's and did not change behavior. See
   `#1427
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1427>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1427>`__.
 
 .. releasenotes/notes/figure-names-inconsistency-afca1ac8e00fabac.yaml @ b'32813b86b04b956bb7b1334759a79af6ce9068df'
 
@@ -38,7 +38,7 @@ Bug Fixes
   with ``replace_results=True`` does not result in the ``figure_names``
   property having incorrect data (both old and new figure names if the names
   changed). See `#1430
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1430>`__.
 
 .. releasenotes/notes/figure-names-inconsistency-afca1ac8e00fabac.yaml @ b'32813b86b04b956bb7b1334759a79af6ce9068df'
 
@@ -46,7 +46,7 @@ Bug Fixes
   argument to the ``run()`` method. Previously, this argument was ignored and
   ``figure_names`` could only be set as an analysis option prior to calling
   ``run()``. See `#1430
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1430>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1430>`__.
 
 .. releasenotes/notes/mock-iq-backend-without-qiskit-runtime-20d2bf9edb48312d.yaml @ b'2045689df74b74a94f1f5e5a8d4598354c4e5385'
 
@@ -58,7 +58,7 @@ Bug Fixes
 .. releasenotes/notes/remove_backendv2-b608a2f380698710.yaml @ b'5c6f4b2c8226bca2276c5eecfab5193748a8e524'
 
 - Removed a ``FakeBackendV2`` import path which would have been incompatible with Qiskit 1.1 and above. See 
-  `#1420 <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1420>`_.
+  `#1420 <https://github.com/Qiskit-Community/qiskit-experiments/pull/1420>`_.
 
 
 .. _Release Notes_0.6.0:
@@ -155,7 +155,7 @@ Experiment Class Features
 - A new method :meth:`.BaseExperiment.job_info` has been added that will
   output the number of jobs the experiment is expected to be split into
   based on the provided backend. Refer to issue
-  `#1247 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1247>`_
+  `#1247 <https://github.com/Qiskit-Community/qiskit-experiments/issues/1247>`_
   for more details.
 
 .. releasenotes/notes/0.6/setter-methods-for-experiment-099074e59faffb49.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -338,7 +338,7 @@ Visualization Features
 
 - An :meth:`~.BaseDrawer.hline` method was added to :class:`.BaseDrawer` for
   generating horizontal lines. See `#1348
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1348>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1348>`__.
 
 .. releasenotes/notes/0.6/qvplotter-04efe280aaa9d555.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
@@ -350,7 +350,7 @@ Visualization Features
   as in previous
   releases, but now it is easier to customize the figure by setting options
   on the plotter object. See `#1348
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1348>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1348>`__.
 
 .. releasenotes/notes/0.6/scale_options-745ee6f8e560043f.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
@@ -369,7 +369,7 @@ Known Issues
 
 - Copied :class:`.ExperimentData` objects don't save their analysis results to the cloud service.
   See `#1396
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1396>`_.
+  <https://github.com/Qiskit-Community/qiskit-experiments/issues/1396>`_.
 
 
 .. _Release Notes_0.6.0_Upgrade Notes:
@@ -606,7 +606,7 @@ Experiment Library Fixes
   Previously, it could only be run through the :class:`.HalfAngleCal`
   subclass in combination with a :class:`.Calibrations` instance containing a
   custom calibration for the ``y`` gate.
-  Fixes issue `#1233 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1233>`_.
+  Fixes issue `#1233 <https://github.com/Qiskit-Community/qiskit-experiments/issues/1233>`_.
 
 .. releasenotes/notes/0.6/plugable-rb-clifford-synthesis-0e66c62fa3088fba.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
@@ -614,7 +614,7 @@ Experiment Library Fixes
   sampled Cliffords may be changed during their circuits synthesis
   (in the worst case, the resulting circuits may use qubits not in
   ``physical_qubits``). See issue
-  `#1279 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1279>`_
+  `#1279 <https://github.com/Qiskit-Community/qiskit-experiments/issues/1279>`_
   for additional details.
 
 .. releasenotes/notes/0.6/rabi-and-qv-bugfix-34636baee6651af1.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -648,7 +648,7 @@ Experiment Data Fixes
   deserialized using Python's ``pickle`` module, but deserialized objects
   were not completely restored and an exception would be raised when doing
   some operations like running analysis on the restored object. See `#1326
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1326/files>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1326/files>`__.
 
 .. releasenotes/notes/0.6/experiment_data_fixes-f69c3569a8ba1342.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
@@ -815,7 +815,7 @@ Bug Fixes
   ``qiskit-aer`` 0.13.0. Version 0.13.0 of ``qiskit-aer`` changed
   the default :class:`qiskit_aer.AerSimulator` to have such a
   :class:`qiskit.transpiler.Target` without specific coupled pairs.
-  See `#1292 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1292>`__.
+  See `#1292 <https://github.com/Qiskit-Community/qiskit-experiments/issues/1292>`__.
 
 
 .. _Release Notes_0.5.4_Other Notes:
@@ -829,7 +829,7 @@ Other Notes
   Since qubits are usually reset between circuits, this change should have no
   impact on tomography experiments, but it should allow backends that do not
   provide a reset instruction to run tomography experiments. See `#1250
-  <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/881>`__.
+  <https://github.com/Qiskit-Community/qiskit-experiments/issues/881>`__.
 
 
 .. _Release Notes_0.5.3:
