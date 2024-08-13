@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tφ Characterization" href="tphi.html" /><link rel="prev" title="T2 Hahn Characterization" href="t2hahn.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
         <title>T2* Ramsey Characterization - Qiskit Experiments 0.7.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-gallery.css?v=da7c71e1" />
     <link rel="stylesheet" type="text/css" href="../../_static/customstyles.css?v=5690b376" />
@@ -520,8 +520,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-extensions.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div><div class="qiskit-previous-releases-container">
@@ -716,33 +716,33 @@ frequency.</p>
  - success: True
  - number of function evals: 55
  - degree of freedom: 20
- - chi-square: 12.823450300966433
- - reduced chi-square: 0.6411725150483216
- - Akaike info crit.: -6.690006883626211
- - Bayesian info crit.: -0.5956277592852075
+ - chi-square: 12.920802539385589
+ - reduced chi-square: 0.6460401269692795
+ - Akaike info crit.: -6.500930309783772
+ - Bayesian info crit.: -0.406551185442769
  - init params:
   * amp = 0.5
-  * tau = 0.0001128424076839831
+  * tau = 0.00011350694107279987
   * freq = 120071.20598218754
   * phi = -1.5707963267948966
-  * base = 0.4766116941529235
+  * base = 0.4761619190404797
  - fit params:
-  * amp = 0.491368728646375 ± 0.004916006342544435
-  * tau = 0.0001020165082319563 ± 4.464271894146877e-06
-  * freq = 99947.5512727167 ± 82.7343978625094
-  * phi = 0.004163082478029033 ± 0.012641175702185295
-  * base = 0.501137727889661 ± 0.0018216496206444265
+  * amp = 0.4909535980577468 ± 0.004917675368751884
+  * tau = 0.00010246327619765823 ± 4.5024424121587285e-06
+  * freq = 99952.75284201081 ± 82.7276550564961
+  * phi = 0.003658666993158401 ± 0.012651839512890825
+  * base = 0.5009230629507393 ± 0.0018222013166011644
  - correlations:
-  * (freq, phi) = -0.8232512482515973
-  * (amp, tau) = -0.8137656484569767
-  * (freq, base) = -0.17127251168225768
-  * (amp, freq) = -0.11530229927895952
-  * (tau, phi) = -0.1124312557427985
-  * (amp, base) = -0.019555140905848853
-  * (tau, base) = 0.03653816712062805
-  * (tau, freq) = 0.06145064025302784
-  * (amp, phi) = 0.16161922673992699
-  * (phi, base) = 0.16371035036138787
+  * (freq, phi) = -0.8234936909699664
+  * (amp, tau) = -0.8140065430399878
+  * (freq, base) = -0.1713510143156256
+  * (amp, freq) = -0.11491601026425052
+  * (tau, phi) = -0.11201742411658946
+  * (amp, base) = -0.019330623607693696
+  * (tau, base) = 0.03640770514308672
+  * (tau, freq) = 0.06109075429281112
+  * (amp, phi) = 0.16116721298707007
+  * (phi, base) = 0.1637380874598672
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -750,15 +750,15 @@ frequency.</p>
 AnalysisResult
 - name: Frequency
 - value: (9.995+/-0.008)e+04
-- χ²: 0.6411725150483216
+- χ²: 0.6460401269692795
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T2star
-- value: 0.000102+/-0.000004
-- χ²: 0.6411725150483216
+- value: 0.000102+/-0.000005
+- χ²: 0.6460401269692795
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -818,35 +818,35 @@ computed for other qubits.</p>
  - number of sub-models: 1
   * F_cos_decay(x) = amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base
  - success: True
- - number of function evals: 74
+ - number of function evals: 30
  - degree of freedom: 20
- - chi-square: 12.823450300967393
- - reduced chi-square: 0.6411725150483696
- - Akaike info crit.: -6.690006883624335
- - Bayesian info crit.: -0.5956277592833317
+ - chi-square: 12.920802539387553
+ - reduced chi-square: 0.6460401269693776
+ - Akaike info crit.: -6.500930309779967
+ - Bayesian info crit.: -0.40655118543896407
  - init params:
   * amp = 0.5
-  * tau = 0.0001128424076839831
-  * freq = 80106.72996087316
+  * tau = 0.00011350694107279987
+  * freq = 100088.96797153035
   * phi = 0.0
-  * base = 0.4766116941529235
+  * base = 0.4761619190404797
  - fit params:
-  * amp = 0.49136873033031153 ± 0.004916006360304091
-  * tau = 0.0001020165068145614 ± 4.4642717842585194e-06
-  * freq = 99947.55117665333 ± 82.7343993349782
-  * phi = 0.004163094706704786 ± 0.012641175763416525
-  * base = 0.5011377282284685 ± 0.0018216496199839913
+  * amp = 0.49095359392905114 ± 0.004917675333125186
+  * tau = 0.00010246328072257995 ± 4.502442770448915e-06
+  * freq = 99952.75286512234 ± 82.72765553370662
+  * phi = 0.0036586633504925546 ± 0.012651839431507947
+  * base = 0.5009230629493264 ± 0.0018222013158092263
  - correlations:
-  * (freq, phi) = -0.823251250482674
-  * (amp, tau) = -0.8137656489368544
-  * (freq, base) = -0.17127251032704133
-  * (amp, freq) = -0.11530230066487511
-  * (tau, phi) = -0.11243125938387093
-  * (amp, base) = -0.019555140018146396
-  * (tau, base) = 0.03653816660984814
-  * (tau, freq) = 0.061450642595947895
-  * (amp, phi) = 0.16161922789886046
-  * (phi, base) = 0.16371034794195535
+  * (freq, phi) = -0.8234936908975428
+  * (amp, tau) = -0.814006541969214
+  * (freq, base) = -0.1713510116625593
+  * (amp, freq) = -0.11491600400581126
+  * (tau, phi) = -0.11201741490831482
+  * (amp, base) = -0.019330626803089217
+  * (tau, base) = 0.036407708240404874
+  * (tau, freq) = 0.06109074531017117
+  * (amp, phi) = 0.16116720649724417
+  * (phi, base) = 0.16373808501693632
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -854,15 +854,15 @@ computed for other qubits.</p>
 AnalysisResult
 - name: Frequency
 - value: (9.995+/-0.008)e+04
-- χ²: 0.6411725150483696
+- χ²: 0.6460401269693776
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T2star
-- value: 0.000102+/-0.000004
-- χ²: 0.6411725150483696
+- value: 0.000102+/-0.000005
+- χ²: 0.6460401269693776
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -914,7 +914,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/06/05</div>
+              Last updated on 2024/08/13</div>
           </div>
           <div class="right-details">
             

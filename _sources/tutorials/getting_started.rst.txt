@@ -28,14 +28,14 @@ install the latest main branch:
 
 .. code-block::
 
-    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Community/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. code-block::
 
-    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Community/qiskit-experiments.git
     python -m pip install -e "qiskit-experiments[extras]"
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
