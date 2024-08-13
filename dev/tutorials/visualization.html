@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Writing your own experiment" href="custom_experiment.html" /><link rel="prev" title="Curve Analysis: Fitting your data" href="curve_analysis.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>Visualization: Creating figures - Qiskit Experiments 0.7.0-2-gb07645f0</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>Visualization: Creating figures - Qiskit Experiments 0.7.0-4-g7a0924c2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=da7c71e1" />
     <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-2-gb07645f0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-4-g7a0924c2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-2-gb07645f0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-4-g7a0924c2</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -520,8 +520,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-extensions.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div><div class="qiskit-previous-releases-container">
@@ -576,7 +576,7 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main">development branch</a>
+<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments/tree/main">development branch</a>
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
@@ -610,7 +610,7 @@ generate figures with the alternative backend.</p>
 <p>First, we display the default figure from a <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Rabi.html#qiskit_experiments.library.characterization.Rabi" title="qiskit_experiments.library.characterization.Rabi"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rabi</span></code></a> experiment as a starting point:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit-extensions.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a>, <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.14.2)"><span class="xref std std-doc">qiskit-aer</span></a>, and
+<p>This tutorial requires the <a class="reference external" href="https://qiskit-community.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a>, <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.14.2)"><span class="xref std std-doc">qiskit-aer</span></a>, and
 <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> packages to run simulations.  You can install them
 with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-dynamics</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
@@ -836,7 +836,7 @@ arbitrary analysis class.</p>
 <p>To ensure that we have an interface similar to existing analysis classes, we make our plotter
 accessible as an <code class="docutils literal notranslate"><span class="pre">analysis.plotter</span></code> property and analysis.options.plotter option.
 The code below accomplishes this for our example <code class="docutils literal notranslate"><span class="pre">MyIQAnalysis</span></code> analysis class. We
-set the drawer to <a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer" title="qiskit_experiments.visualization.MplDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MplDrawer</span></code></a> to use <a class="reference external" href="https://matplotlib.org/stable/index.html#module-matplotlib" title="(in Matplotlib v3.9.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code></a> by default. The plotter property of our
+set the drawer to <a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer" title="qiskit_experiments.visualization.MplDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MplDrawer</span></code></a> to use <a class="reference external" href="https://matplotlib.org/stable/index.html#module-matplotlib" title="(in Matplotlib v3.9.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code></a> by default. The plotter property of our
 analysis class makes it easier to access the plotter instance; i.e., using <code class="docutils literal notranslate"><span class="pre">self.plotter</span></code>
 and <code class="docutils literal notranslate"><span class="pre">analysis.plotter</span></code>. We set default options and figure options in
 <code class="docutils literal notranslate"><span class="pre">_default_options</span></code>, but you can still override them as we did above.</p>
@@ -979,7 +979,7 @@ overriding the <code class="xref py py-meth docutils literal notranslate"><span 
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/06/06</div>
+              Last updated on 2024/08/13</div>
           </div>
           <div class="right-details">
             
@@ -1018,7 +1018,7 @@ overriding the <code class="xref py py-meth docutils literal notranslate"><span 
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../_static/documentation_options.js?v=8474392f"></script>
+    <script src="../_static/documentation_options.js?v=a7532ec7"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

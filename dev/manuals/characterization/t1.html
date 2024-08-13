@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2 Hahn Characterization" href="t2hahn.html" /><link rel="prev" title="AC Stark Effect" href="stark_experiment.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>T1 Characterization - Qiskit Experiments 0.7.0-2-gb07645f0</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>T1 Characterization - Qiskit Experiments 0.7.0-4-g7a0924c2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-gallery.css?v=da7c71e1" />
     <link rel="stylesheet" type="text/css" href="../../_static/customstyles.css?v=5690b376" />
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-2-gb07645f0</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-4-g7a0924c2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-2-gb07645f0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-4-g7a0924c2</span>
 </div><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -520,8 +520,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-extensions.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div><div class="qiskit-previous-releases-container">
@@ -576,7 +576,7 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main">development branch</a>
+<p>This is the documentation for the current state of the <a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments/tree/main">development branch</a>
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
@@ -667,32 +667,32 @@ packages to run simulations.  You can install them with <code class="docutils li
  - number of sub-models: 1
   * F_exp_decay(x) = amp * exp(-x/tau) + base
  - success: True
- - number of function evals: 16
- - degree of freedom: 18
- - chi-square: 20.507940980385257
- - reduced chi-square: 1.1393300544658476
- - Akaike info crit.: 5.502084504538747
- - Bayesian info crit.: 8.635651817709016
+ - number of function evals: 20
+ - degree of freedom: 3
+ - chi-square: 2.0093912890351855
+ - reduced chi-square: 0.6697970963450618
+ - Akaike info crit.: -0.5635658057926642
+ - Bayesian info crit.: -1.188287398108499
  - init params:
-  * amp = 0.9512195121951219
-  * tau = 0.00019768172598987
-  * base = 0.04341463414634146
+  * amp = 0.9170731707317072
+  * tau = 5.607702037182498e-05
+  * base = 0.06585365853658537
  - fit params:
-  * amp = 1.0032519355220268 ± 0.007783313537707187
-  * tau = 0.00020330212844709507 ± 5.0701643000542294e-06
-  * base = -0.004961836734312509 ± 0.007030412159827144
+  * amp = 1.0086868600245593 ± 0.015516360599905375
+  * tau = 5.857050868543882e-05 ± 2.8452247868322258e-06
+  * base = -0.008900903447908065 ± 0.015635835560472412
  - correlations:
-  * (tau, base) = -0.9018531751179741
-  * (amp, base) = -0.6626453599693406
-  * (amp, tau) = 0.44437884133464983
+  * (amp, base) = -0.9367372951891404
+  * (tau, base) = -0.9216265221283944
+  * (amp, tau) = 0.825232199013559
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: T1
-- value: 0.000203+/-0.000005
-- χ²: 1.1393300544658476
+- value: (5.86+/-0.28)e-05
+- χ²: 0.6697970963450618
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -846,7 +846,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/06/06</div>
+              Last updated on 2024/08/13</div>
           </div>
           <div class="right-details">
             
@@ -884,7 +884,7 @@ AnalysisResult
   </div>
 </div><script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../_static/documentation_options.js?v=8474392f"></script>
+    <script src="../../_static/documentation_options.js?v=a7532ec7"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2024.01.29 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.7.0-2-gb07645f0</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.7.0-4-g7a0924c2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
@@ -13,9 +13,9 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/thebelab.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=36a5483c" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-gallery.css?v=26227f6e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-gallery.css?v=da7c71e1" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/customstyles.css?v=5690b376" />
     
     
@@ -147,7 +147,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-2-gb07645f0</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-4-g7a0924c2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,7 +174,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-2-gb07645f0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-4-g7a0924c2</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -520,8 +520,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Extensions/qiskit-experiments">GitHub</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://qiskit-extensions.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
 </ul>
 
 </div><div class="qiskit-previous-releases-container">
@@ -633,11 +633,9 @@
 
 <span class="k">def</span> <span class="nf">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
     <span class="c1"># Simplified QuantumCircuit.decompose, which decomposes only Clifford ops</span>
-    <span class="c1"># Note that the resulting circuit depends on the input circuit,</span>
-    <span class="c1"># that means the changes on the input circuit may affect the resulting circuit.</span>
-    <span class="c1"># For example, the resulting circuit shares the parameter_table of the input circuit,</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">copy_empty_like</span><span class="p">()</span>
-    <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="s2">&quot;_parameter_table&quot;</span><span class="p">):</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
     <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">circuit</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Clifford&quot;</span><span class="p">):</span>  <span class="c1"># Decompose</span>
             <span class="n">rule</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">data</span>
@@ -665,7 +663,8 @@
     <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">:</span>
         <span class="n">res</span><span class="o">.</span><span class="n">add_register</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
     <span class="n">_circuit_compose</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">)</span>
-    <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="s2">&quot;_parameter_table&quot;</span><span class="p">):</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
     <span class="k">return</span> <span class="n">res</span>
 
 
@@ -1303,7 +1302,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/06/06</div>
+              Last updated on 2024/08/13</div>
           </div>
           <div class="right-details">
             
@@ -1320,7 +1319,7 @@
   </div>
 </div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script src="../../../../_static/documentation_options.js?v=8474392f"></script>
+    <script src="../../../../_static/documentation_options.js?v=a7532ec7"></script>
     <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
