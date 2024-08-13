@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

@@ -6,7 +6,7 @@ on:
 
 jobs:
   qiskit-main-tests:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -46,7 +46,7 @@ jobs:
         env:
           TEST_TIMEOUT: 120
   docs:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: docs
     runs-on: ubuntu-latest
     steps:
