@@ -182,20 +182,6 @@ class FineXAmplitudeCal(FineAmplitudeCal):
             }
         )
 
-    @classmethod
-    def _default_transpile_options(cls):
-        """Default transpile options.
-
-        Transpile Options:
-            basis_gates (list(str)): A list of basis gates needed for this experiment.
-                The schedules for these basis gates will be provided by the instruction
-                schedule map from the calibrations.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["x", "sx"]
-
-        return options
-
     def _pre_circuit(self, num_clbits: int) -> QuantumCircuit:
         """The preparation circuit is an sx gate to move to the equator of the Bloch sphere."""
         circuit = QuantumCircuit(self.num_qubits, num_clbits)

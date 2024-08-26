@@ -209,6 +209,14 @@ def minimal_transpile(
     if not full_transpile:
         full_transpile = check_transpilation_needed(circuits, backend)
 
+    import inspect
+    import unittest
+    try:
+        test_frame = next(f[0] for f in inspect.stack() if any(isinstance(l, unittest.TestCase) for n, l in f[0].f_locals.items()))
+        test = next(v for v in test_frame.f_locals.values())
+        print(f"full_transpile={full_transpile} for {test.id()}")
+    except StopIteration:
+        pass
     if full_transpile:
         transpiled = transpile(circuits, backend, **options)
     else:
