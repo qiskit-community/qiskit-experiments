@@ -68,6 +68,8 @@ from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
 
 from .containers.figure_data import FigureData, FigureType
 
+from qiskit.primitives import BitArray, SamplerPubResult
+
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
@@ -985,27 +987,58 @@ class ExperimentData:
             job_id: The id of the job the result came from. If `None`, the
             job id in `result` is used.
         """
-        if job_id is None:
-            job_id = result.job_id
-        if job_id not in self._jobs:
-            self._jobs[job_id] = None
-            self.job_ids.append(job_id)
-        with self._result_data.lock:
-            # Lock data while adding all result data
-            for i, _ in enumerate(result.results):
-                data = result.data(i)
-                data["job_id"] = job_id
-                if "counts" in data:
-                    # Format to Counts object rather than hex dict
-                    data["counts"] = result.get_counts(i)
-                expr_result = result.results[i]
-                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                    data["metadata"] = expr_result.header.metadata
-                data["shots"] = expr_result.shots
-                data["meas_level"] = expr_result.meas_level
-                if hasattr(expr_result, "meas_return"):
-                    data["meas_return"] = expr_result.meas_return
-                self._result_data.append(data)
+        if hasattr(result, 'results'):
+            #backend run results
+            if job_id is None:
+                job_id = result.job_id
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                for i, _ in enumerate(result.results):
+                    data = result.data(i)
+                    data["job_id"] = job_id
+                    if "counts" in data:
+                        # Format to Counts object rather than hex dict
+                        data["counts"] = result.get_counts(i)
+                    expr_result = result.results[i]
+                    if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                        data["metadata"] = expr_result.header.metadata
+                    data["shots"] = expr_result.shots
+                    data["meas_level"] = expr_result.meas_level
+                    if hasattr(expr_result, "meas_return"):
+                        data["meas_return"] = expr_result.meas_return
+                    self._result_data.append(data)
+        else:
+            #sampler results
+            if job_id is None:
+                raise QiskitError('job_id must be provided, not available in the sampler result')
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                # Sampler results are a list
+                for i, _ in enumerate(result):
+                    data = {}
+                    #convert to a Sampler Pub Result (can remove this later when the bug is fixed)
+                    testres = SamplerPubResult(result[i].data, result[i].metadata)
+                    data["job_id"] = job_id
+                    if type(testres.data[next(iter(testres.data))]) is BitArray:
+                        #bit results so has counts
+                        data["meas_level"] = 2
+                        data["meas_return"] = 'avg'
+                        #join the data
+                        data["counts"] = testres.join_data(testres.data.keys()).get_counts()
+                        #number of shots
+                        data["shots"] = testres.data[next(iter(testres.data))].num_shots
+                    else:
+                        raise QiskitError("Sampler with meas level 1 support TBD") 
+                    
+                    data["metadata"] = testres.metadata['circuit_metadata']
+                    
+                    self._result_data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
