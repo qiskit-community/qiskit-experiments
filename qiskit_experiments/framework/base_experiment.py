@@ -30,6 +30,8 @@ from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.database_service import Qubit
 
+from qiskit_ibm_runtime import SamplerV2 as Sampler
+
 
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
@@ -40,6 +42,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        use_sampler: Options[bool] = False
     ):
         """Initialize the experiment object.
 
@@ -82,6 +85,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # attributes created during initialization
         self._backend = None
         self._backend_data = None
+        self._use_sampler = use_sampler
         if isinstance(backend, Backend):
             self._set_backend(backend)
 
@@ -199,6 +203,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
+        use_sampler: Optional[bool] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -234,6 +239,9 @@ class BaseExperiment(ABC, StoreInitArgs):
                 experiment.set_run_options(**run_options)
         else:
             experiment = self
+
+        if use_sampler is not None:
+            self._use_sampler = use_sampler
 
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
@@ -348,7 +356,34 @@ class BaseExperiment(ABC, StoreInitArgs):
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+        if self._use_sampler:
+            sampler = Sampler(self.backend)
+
+            #have to hand set some of these options
+            #see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
+            if 'init_qubits' in run_options:
+                sampler.options.execution.init_qubits = run_options['init_qubits']
+            if 'rep_delay' in run_options:
+                sampler.options.execution.rep_delay = run_options['rep_delay']
+            if 'meas_level' in run_options:
+                if run_options['meas_level'] == 2:
+                    sampler.options.execution.meas_type = "classified"
+                elif run_options['meas_level'] == 1:
+                    if 'meas_return' in run_options:
+                        if run_options['meas_return'] == 'avg':
+                            sampler.options.execution.meas_type = "avg_kerneled"
+                        else:
+                            sampler.options.execution.meas_type = "kerneled"
+                    else:
+                        #assume this is what is wanted if no  meas return specified
+                        sampler.options.execution.meas_type = "kerneled"
+                else:
+                    raise QiskitError('Only meas level 1 + 2 supported by sampler')
+
+
+            jobs = [sampler.run(circs, shots=run_options.get('shots', None)) for circs in job_circuits]
+        else:
+            jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
         return jobs
 
