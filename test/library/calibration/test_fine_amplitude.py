@@ -204,8 +204,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
         fine_amp = FineZXAmplitude(qubits)
         for circuit in fine_amp.circuits():
             self.assertEqual(circuit.num_qubits, 2)
-            self.assertEqual(circuit.data[-1][0].name, "measure")
-            self.assertEqual(circuit.data[-1][1][0], circuit.qregs[0][1])
+            self.assertEqual(circuit.data[-1].operation.name, "measure")
+            self.assertEqual(circuit.data[-1].qubits[0], circuit.qregs[0][1])
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):
