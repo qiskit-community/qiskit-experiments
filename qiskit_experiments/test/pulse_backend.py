@@ -544,7 +544,7 @@ class SingleTransmonTestBackend(PulseBackend):
             **kwargs,
         )
 
-        self._defaults = PulseDefaults.from_dict(
+        self._defaults = PulseDefaults.from_dict(  # pylint: disable=no-member
             {
                 "qubit_freq_est": [qubit_frequency / 1e9],
                 "meas_freq_est": [0],

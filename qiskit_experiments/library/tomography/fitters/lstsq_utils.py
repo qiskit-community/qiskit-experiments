@@ -48,6 +48,7 @@ def lstsq_data(
     cdim = 1
     num_meas_cond = 0
     num_prep_cond = 0
+    bsize = None
 
     # Get full and conditional measurement basis dimensions
     if measurement_basis:

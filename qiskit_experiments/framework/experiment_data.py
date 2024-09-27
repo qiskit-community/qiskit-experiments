@@ -38,6 +38,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.utils.deprecation import deprecate_arg
+from qiskit.primitives import BitArray, SamplerPubResult
 
 from qiskit_ibm_experiment import (
     IBMExperimentService,
@@ -45,6 +46,7 @@ from qiskit_ibm_experiment import (
     AnalysisResultData as AnalysisResultDataclass,
     ResultQuality,
 )
+
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
     plot_to_svg_bytes,
@@ -67,8 +69,6 @@ from qiskit_experiments.database_service.exceptions import (
 from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
 
 from .containers.figure_data import FigureData, FigureType
-
-from qiskit.primitives import BitArray, SamplerPubResult
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -604,7 +604,7 @@ class ExperimentData:
                         self.hgp = hgp_string
                         break
         except (AttributeError, IndexError, QiskitError):
-            return
+            pass
 
     @property
     def hgp(self) -> str:
@@ -987,8 +987,8 @@ class ExperimentData:
             job_id: The id of the job the result came from. If `None`, the
             job id in `result` is used.
         """
-        if hasattr(result, 'results'):
-            #backend run results
+        if hasattr(result, "results"):
+            # backend run results
             if job_id is None:
                 job_id = result.job_id
             if job_id not in self._jobs:
@@ -1011,9 +1011,9 @@ class ExperimentData:
                         data["meas_return"] = expr_result.meas_return
                     self._result_data.append(data)
         else:
-            #sampler results
+            # sampler results
             if job_id is None:
-                raise QiskitError('job_id must be provided, not available in the sampler result')
+                raise QiskitError("job_id must be provided, not available in the sampler result")
             if job_id not in self._jobs:
                 self._jobs[job_id] = None
                 self.job_ids.append(job_id)
@@ -1022,22 +1022,22 @@ class ExperimentData:
                 # Sampler results are a list
                 for i, _ in enumerate(result):
                     data = {}
-                    #convert to a Sampler Pub Result (can remove this later when the bug is fixed)
+                    # convert to a Sampler Pub Result (can remove this later when the bug is fixed)
                     testres = SamplerPubResult(result[i].data, result[i].metadata)
                     data["job_id"] = job_id
-                    if type(testres.data[next(iter(testres.data))]) is BitArray:
-                        #bit results so has counts
+                    if isinstance(testres.data[next(iter(testres.data))], BitArray):
+                        # bit results so has counts
                         data["meas_level"] = 2
-                        data["meas_return"] = 'avg'
-                        #join the data
+                        data["meas_return"] = "avg"
+                        # join the data
                         data["counts"] = testres.join_data(testres.data.keys()).get_counts()
-                        #number of shots
+                        # number of shots
                         data["shots"] = testres.data[next(iter(testres.data))].num_shots
                     else:
-                        raise QiskitError("Sampler with meas level 1 support TBD") 
-                    
-                    data["metadata"] = testres.metadata['circuit_metadata']
-                    
+                        raise QiskitError("Sampler with meas level 1 support TBD")
+
+                    data["metadata"] = testres.metadata["circuit_metadata"]
+
                     self._result_data.append(data)
 
     def _retrieve_data(self):
