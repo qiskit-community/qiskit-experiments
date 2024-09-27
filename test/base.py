@@ -143,6 +143,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 ".*qiskit.qobj.common.QobjDictField.*",
                 ".*qiskit.providers.models.backendproperties.BackendProperties.*",
                 ".*qiskit.providers.fake_provider.fake_backend.FakeBackend.*",
+                ".*qiskit.providers.backend.BackendV1.*",
             ]
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
