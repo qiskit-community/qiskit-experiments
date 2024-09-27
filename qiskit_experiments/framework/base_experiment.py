@@ -23,14 +23,13 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.database_service import Qubit
-
-from qiskit_ibm_runtime import SamplerV2 as Sampler
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -42,7 +41,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
-        use_sampler: Options[bool] = False
+        use_sampler: Options[bool] = False,
     ):
         """Initialize the experiment object.
 
@@ -218,6 +217,7 @@ class BaseExperiment(ABC, StoreInitArgs):
                       it contains one.
             timeout: Time to wait for experiment jobs to finish running before
                      cancelling.
+            use_sampler: Use the SamplerV2 to run the experiment
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -359,29 +359,31 @@ class BaseExperiment(ABC, StoreInitArgs):
         if self._use_sampler:
             sampler = Sampler(self.backend)
 
-            #have to hand set some of these options
-            #see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
-            if 'init_qubits' in run_options:
-                sampler.options.execution.init_qubits = run_options['init_qubits']
-            if 'rep_delay' in run_options:
-                sampler.options.execution.rep_delay = run_options['rep_delay']
-            if 'meas_level' in run_options:
-                if run_options['meas_level'] == 2:
+            # have to hand set some of these options
+            # see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime
+            # /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
+            if "init_qubits" in run_options:
+                sampler.options.execution.init_qubits = run_options["init_qubits"]
+            if "rep_delay" in run_options:
+                sampler.options.execution.rep_delay = run_options["rep_delay"]
+            if "meas_level" in run_options:
+                if run_options["meas_level"] == 2:
                     sampler.options.execution.meas_type = "classified"
-                elif run_options['meas_level'] == 1:
-                    if 'meas_return' in run_options:
-                        if run_options['meas_return'] == 'avg':
+                elif run_options["meas_level"] == 1:
+                    if "meas_return" in run_options:
+                        if run_options["meas_return"] == "avg":
                             sampler.options.execution.meas_type = "avg_kerneled"
                         else:
                             sampler.options.execution.meas_type = "kerneled"
                     else:
-                        #assume this is what is wanted if no  meas return specified
+                        # assume this is what is wanted if no  meas return specified
                         sampler.options.execution.meas_type = "kerneled"
                 else:
-                    raise QiskitError('Only meas level 1 + 2 supported by sampler')
+                    raise QiskitError("Only meas level 1 + 2 supported by sampler")
 
-
-            jobs = [sampler.run(circs, shots=run_options.get('shots', None)) for circs in job_circuits]
+            jobs = [
+                sampler.run(circs, shots=run_options.get("shots", None)) for circs in job_circuits
+            ]
         else:
             jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
