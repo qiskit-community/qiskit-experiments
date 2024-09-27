@@ -566,7 +566,7 @@ class ExperimentDecoder(json.JSONDecoder):
                 return load_obj
             if obj_type == "Instruction":
                 circuit = _decode_and_deserialize(obj_val, qpy.load, name="QuantumCircuit")[0]
-                return circuit.data[0][0]
+                return circuit.data[0].operation
             if obj_type == "QuantumCircuit":
                 return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
             if obj_type == "ScheduleBlock":

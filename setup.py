@@ -51,7 +51,6 @@ setup(
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -63,7 +62,7 @@ setup(
     install_requires=REQUIREMENTS,
     extras_require={"extras": EXTRAS},
     include_package_data=True,
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit-Community/qiskit-experiments/issues",
         "Documentation": "https://qiskit-community.github.io/qiskit-experiments",
