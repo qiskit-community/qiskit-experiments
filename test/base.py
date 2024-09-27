@@ -137,6 +137,8 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 ".*qiskit.providers.models.backendconfiguration.GateConfig.*",
                 ".*qiskit.qobj.pulse_qobj.PulseLibraryItem.*",
                 ".*qiskit.providers.models.backendconfiguration.UchannelLO.*",
+                ".*qiskit.providers.models.backendconfiguration.PulseBackendConfiguration.*",
+                ".*qiskit.qobj.pulse_qobj.PulseQobjInstruction.*",
             ]
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
