@@ -602,8 +602,8 @@ class MockIQFineFreqHelper(MockIQExperimentHelper):
             probability_output_dict = {}
             delay = None
             for instruction in circuit.data:
-                if instruction[0].name == "delay":
-                    delay = instruction[0].duration
+                if instruction.operation.name == "delay":
+                    delay = instruction.operation.duration
 
             if delay is None:
                 probability_output_dict = {"1": 1, "0": 0}

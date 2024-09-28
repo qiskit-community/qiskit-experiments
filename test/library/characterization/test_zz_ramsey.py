@@ -49,7 +49,8 @@ class ZZRamseyHelper(MockIQExperimentHelper):
                 freq = (-1 * self.zz_freq) / 2
             else:
                 freq = self.zz_freq / 2
-            rz, _, _ = next(i for i in circuit.data if i.operation.name == "u1")
+            circdata = next(i for i in circuit.data if i.operation.name == "u1")
+            rz = circdata.operation
             phase = float(rz.params[0])
 
             prob1 = 0.5 - 0.5 * np.cos(2 * np.pi * freq * delay + phase)
