@@ -143,7 +143,7 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
         self.assertTrue(circs[1].data[0].operation.name == "x")
 
         for idx, circ in enumerate(circs[2:]):
-            self.assertTrue(circ.data[0][0].name == "sx")
+            self.assertTrue(circ.data[0].operation.name == "sx")
             self.assertEqual(circ.count_ops().get("x", 0), idx + 1)
 
     def test_x90p(self):
