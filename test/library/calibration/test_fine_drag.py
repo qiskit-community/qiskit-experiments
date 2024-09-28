@@ -46,7 +46,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag.backend = FakeArmonkV2()
         for circuit in drag.circuits()[1:]:
             for idx, name in enumerate(["Drag", "rz", "Drag", "rz"]):
-                self.assertEqual(circuit.data[idx][0].name, name)
+                self.assertEqual(circuit.data[idx].operation.name, name)
 
     def test_end_to_end(self):
         """A simple test to check if the experiment will run and fit data."""
