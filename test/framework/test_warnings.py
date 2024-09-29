@@ -41,7 +41,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         disallowed_imports = {"sklearn"}
         old_import = builtins.__import__
         def guarded_import(name, *args, **kwargs):
-            if name in disallowed_imports:
+            if name == "sklearn" or name.startswith("sklearn."):
                 raise import_error(f"Import of {name} not allowed!")
             return old_import(name, *args, **kwargs)
         builtins.__import__ = guarded_import
@@ -59,6 +59,8 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         proc = subprocess.run(
             [sys.executable, "-c", script], check=False, text=True, capture_output=True
         )
+        print(proc.stdout)
+        print(proc.stderr)
 
         self.assertTrue(
             proc.stdout.startswith("qiskit_experiments imported!"),
