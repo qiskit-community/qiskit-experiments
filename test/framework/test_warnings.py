@@ -59,8 +59,6 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         proc = subprocess.run(
             [sys.executable, "-c", script], check=False, text=True, capture_output=True
         )
-        print(proc.stdout)
-        print(proc.stderr)
 
         self.assertTrue(
             proc.stdout.startswith("qiskit_experiments imported!"),

@@ -15,8 +15,7 @@ Backend data access helper class
 Since `BackendV1` and `BackendV2` do not share the same interface, this
 class unifies data access for various data fields.
 """
-# pylint: disable=no-name-in-module
-from qiskit.providers.models import PulseBackendConfiguration
+from qiskit.providers.models import PulseBackendConfiguration  # pylint: disable=no-name-in-module
 from qiskit.providers import BackendV1, BackendV2
 
 
