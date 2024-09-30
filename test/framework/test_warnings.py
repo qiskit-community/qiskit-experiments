@@ -41,7 +41,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         disallowed_imports = {"sklearn"}
         old_import = builtins.__import__
         def guarded_import(name, *args, **kwargs):
-            if name in disallowed_imports:
+            if name == "sklearn" or name.startswith("sklearn."):
                 raise import_error(f"Import of {name} not allowed!")
             return old_import(name, *args, **kwargs)
         builtins.__import__ = guarded_import

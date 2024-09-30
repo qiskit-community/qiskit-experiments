@@ -602,7 +602,7 @@ class ExperimentData:
                         self.hgp = hgp_string
                         break
         except (AttributeError, IndexError, QiskitError):
-            return
+            pass
 
     @property
     def hgp(self) -> str:

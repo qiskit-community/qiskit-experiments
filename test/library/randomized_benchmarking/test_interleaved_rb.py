@@ -149,11 +149,11 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             # clifford
             self.assertEqual(c_std[std_idx], c_int[int_idx])
             # barrier
-            self.assertEqual(c_std[std_idx + 1][0].name, "barrier")
-            self.assertEqual(c_int[std_idx + 1][0].name, "barrier")
+            self.assertEqual(c_std[std_idx + 1].operation.name, "barrier")
+            self.assertEqual(c_int[std_idx + 1].operation.name, "barrier")
             # for interleaved circuit: interleaved element + barrier
-            self.assertEqual(c_int[int_idx + 2][0].name, interleaved_element.name)
-            self.assertEqual(c_int[int_idx + 3][0].name, "barrier")
+            self.assertEqual(c_int[int_idx + 2].operation.name, interleaved_element.name)
+            self.assertEqual(c_int[int_idx + 3].operation.name, "barrier")
             std_idx += 2
             int_idx += 4
 

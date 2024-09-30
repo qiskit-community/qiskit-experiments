@@ -70,6 +70,7 @@ class QubitDrift(TransformationPass):
 
             if node.name == "delay":
                 q0 = qubit_indices[node.qargs[0]]
+                duration = 0
                 if self.qubit_frequencies[q0] is None:
                     continue
                 if node.op.unit == "dt":

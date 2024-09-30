@@ -411,7 +411,10 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
             # sorting instructions by qubits indexes and inserting them into a circuit of the relevant
             # experiment
-            for inst, qarg, carg in qc.data:
+            for data in qc.data:
+                inst = data.operation
+                qarg = data.qubits
+                carg = data.clbits
                 qubit_indices = set(qc.find_bit(qr).index for qr in qarg)
                 for qubits, exp_idx in qubits_expid_map.items():
                     if qubit_indices.issubset(qubits):
@@ -599,8 +602,8 @@ class MockIQFineFreqHelper(MockIQExperimentHelper):
             probability_output_dict = {}
             delay = None
             for instruction in circuit.data:
-                if instruction[0].name == "delay":
-                    delay = instruction[0].duration
+                if instruction.operation.name == "delay":
+                    delay = instruction.operation.duration
 
             if delay is None:
                 probability_output_dict = {"1": 1, "0": 0}

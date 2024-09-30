@@ -121,6 +121,8 @@ class InterleavedRB(StandardRB):
             delay_ops = [delay.operation for delay in interleaved_element.get_instructions("delay")]
         if delay_ops:
             timing = BackendTiming(backend)
+        else:
+            timing = None
         for delay_op in delay_ops:
             if delay_op.unit != timing.delay_unit:
                 raise QiskitError(

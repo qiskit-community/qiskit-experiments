@@ -139,11 +139,11 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
         amp_cal = FineXAmplitude([0])
         circs = amp_cal.circuits()
 
-        self.assertTrue(circs[0].data[0][0].name == "measure")
-        self.assertTrue(circs[1].data[0][0].name == "x")
+        self.assertTrue(circs[0].data[0].operation.name == "measure")
+        self.assertTrue(circs[1].data[0].operation.name == "x")
 
         for idx, circ in enumerate(circs[2:]):
-            self.assertTrue(circ.data[0][0].name == "sx")
+            self.assertTrue(circ.data[0].operation.name == "sx")
             self.assertEqual(circ.count_ops().get("x", 0), idx + 1)
 
     def test_x90p(self):
@@ -204,8 +204,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
         fine_amp = FineZXAmplitude(qubits)
         for circuit in fine_amp.circuits():
             self.assertEqual(circuit.num_qubits, 2)
-            self.assertEqual(circuit.data[-1][0].name, "measure")
-            self.assertEqual(circuit.data[-1][1][0], circuit.qregs[0][1])
+            self.assertEqual(circuit.data[-1].operation.name, "measure")
+            self.assertEqual(circuit.data[-1].qubits[0], circuit.qregs[0][1])
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):

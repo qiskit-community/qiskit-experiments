@@ -1,7 +1,7 @@
 # Linters
 black~=22.0
-pylint~=3.0.2
-astroid~=3.0.1  # Must be kept aligned to what pylint wants
+pylint~=3.3.1
+astroid~=3.3.4  # Must be kept aligned to what pylint wants
 
 # Test runner tools
 coverage>=5.5

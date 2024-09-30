@@ -501,6 +501,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         .. ref_arxiv:: 1 2007.02925
 
     """
+
     num_pulses = 2
 
     def _build_cr_circuit(self, pulse_gate: circuit.Gate) -> QuantumCircuit:

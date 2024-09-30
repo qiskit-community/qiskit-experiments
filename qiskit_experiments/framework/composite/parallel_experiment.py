@@ -142,7 +142,10 @@ class ParallelExperiment(CompositeExperiment):
                 # Apply transpiled subcircuit
                 # Note that this assumes the circuit was not expanded to use
                 # any qubits outside the specified physical qubits
-                for inst, qargs, cargs in sub_circ.data:
+                for data in sub_circ.data:
+                    inst = data.operation
+                    qargs = data.qubits
+                    cargs = data.clbits
                     mapped_cargs = [sub_cargs[sub_circ.find_bit(i).index] for i in cargs]
                     try:
                         mapped_qargs = [

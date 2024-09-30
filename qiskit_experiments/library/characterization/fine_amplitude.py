@@ -160,7 +160,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits, meas_circuit.num_clbits)
 
             if add_x:
-                qubits = meas_circuit.get_instructions("measure")[0][1]
+                qubits = meas_circuit.get_instructions("measure")[0].qubits
                 circ.x(qubits)
 
             circ.compose(meas_circuit, inplace=True)
