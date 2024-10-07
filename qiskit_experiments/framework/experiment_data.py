@@ -785,8 +785,6 @@ class ExperimentData:
                             self.backend,
                         )
                 self.backend = job.backend()
-            else:
-                self.backend = None
 
             jid = job.job_id()
             if jid in self._jobs:

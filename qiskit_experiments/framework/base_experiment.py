@@ -231,12 +231,17 @@ class BaseExperiment(ABC, StoreInitArgs):
                          ExperimentData container.
         """
 
-        if backend_run is not None:
-            self._backend_run = backend_run
-
-        if (backend is not None) or (sampler is not None) or analysis != "default" or run_options:
+        if (
+            (backend is not None)
+            or (sampler is not None)
+            or analysis != "default"
+            or run_options
+            or (backend_run is not None)
+        ):
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
+            if backend_run is not None:
+                experiment._backend_run = backend_run
             # we specified a backend OR a sampler
             if (backend is not None) or (sampler is not None):
                 if sampler is None:
