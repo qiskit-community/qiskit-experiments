@@ -200,7 +200,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def run(
         self,
-        run_obj: Optional[Union[Backend, BaseSamplerV2]] = None,
+        backend: Optional[Backend] = None,
+        sampler: Optional[BaseSamplerV2] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
         backend_run: Optional[bool] = None,
@@ -209,9 +210,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Run an experiment and perform analysis.
 
         Args:
-            run_obj: Optional, the element to run the experiment on. Either a
-                      backend or a session. Will override existing backend settings.
-                      If None then a session will be invoked from previously
+            backend: Optional, the backend to run on. Will override existing backend settings.
+            sampler: Optional, the sampler to run the experiment on.
+                      If None then a sampler will be invoked from previously
                       set backend
             analysis: Optional, a custom analysis instance to use for performing
                       analysis. If None analysis will not be run. If ``"default"``
@@ -233,11 +234,23 @@ class BaseExperiment(ABC, StoreInitArgs):
         if backend_run is not None:
             self._backend_run = backend_run
 
-        if isinstance(run_obj, Backend) or analysis != "default" or run_options:
+        if (backend is not None) or (sampler is not None) or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
-            if isinstance(run_obj, Backend):
-                experiment._set_backend(run_obj)
+            # we specified a backend OR a sampler
+            if (backend is not None) or (sampler is not None):
+                if sampler is None:
+                    # backend only specified
+                    experiment._set_backend(backend)
+                elif backend is None:
+                    # sampler only specifid
+                    experiment._set_backend(sampler._backend)
+                else:
+                    # we specified both a sampler and a backend
+                    if self._backend_run:
+                        experiment._set_backend(backend)
+                    else:
+                        experiment._set_backend(sampler._backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
             if run_options:
@@ -259,12 +272,6 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Run options
         run_opts = experiment.run_options.__dict__
-
-        # see if sampler was sent in
-        if isinstance(run_obj, BaseSamplerV2):
-            sampler = run_obj
-        else:
-            sampler = None
 
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, sampler=sampler, **run_opts)
