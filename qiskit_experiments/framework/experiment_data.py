@@ -38,7 +38,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.utils.deprecation import deprecate_arg
-from qiskit.primitives import BitArray, SamplerPubResult
+from qiskit.primitives import BitArray, SamplerPubResult, BasePrimitiveJob
 
 from qiskit_ibm_experiment import (
     IBMExperimentService,
@@ -740,7 +740,7 @@ class ExperimentData:
 
     def add_jobs(
         self,
-        jobs: Union[Job, List[Job]],
+        jobs: Union[Job, List[Job], BasePrimitiveJob, List[BasePrimitiveJob]],
         timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
@@ -771,19 +771,22 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            if self.backend is not None:
-                backend_name = BackendData(self.backend).name
-                job_backend_name = BackendData(job.backend()).name
-                if self.backend and backend_name != job_backend_name:
-                    LOG.warning(
-                        "Adding a job from a backend (%s) that is different "
-                        "than the current backend (%s). "
-                        "The new backend will be used, but "
-                        "service is not changed if one already exists.",
-                        job.backend(),
-                        self.backend,
-                    )
-            self.backend = job.backend()
+            if hasattr(job, "backend"):
+                if self.backend is not None:
+                    backend_name = BackendData(self.backend).name
+                    job_backend_name = BackendData(job.backend()).name
+                    if self.backend and backend_name != job_backend_name:
+                        LOG.warning(
+                            "Adding a job from a backend (%s) that is different "
+                            "than the current backend (%s). "
+                            "The new backend will be used, but "
+                            "service is not changed if one already exists.",
+                            job.backend(),
+                            self.backend,
+                        )
+                self.backend = job.backend()
+            else:
+                self.backend = None
 
             jid = job.job_id()
             if jid in self._jobs:

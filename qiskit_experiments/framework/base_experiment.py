@@ -23,6 +23,7 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit.primitives.base import BaseSamplerV2
 from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
@@ -199,7 +200,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def run(
         self,
-        run_obj: Optional[Union[Backend, Sampler]] = None,
+        run_obj: Optional[Union[Backend, BaseSamplerV2]] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
         backend_run: Optional[bool] = None,
@@ -229,6 +230,9 @@ class BaseExperiment(ABC, StoreInitArgs):
                          ExperimentData container.
         """
 
+        if backend_run is not None:
+            self._backend_run = backend_run
+
         if isinstance(run_obj, Backend) or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
@@ -240,9 +244,6 @@ class BaseExperiment(ABC, StoreInitArgs):
                 experiment.set_run_options(**run_options)
         else:
             experiment = self
-
-        if backend_run is not None:
-            self._backend_run = backend_run
 
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
@@ -260,7 +261,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = experiment.run_options.__dict__
 
         # see if sampler was sent in
-        if isinstance(run_obj, Sampler):
+        if isinstance(run_obj, BaseSamplerV2):
             sampler = run_obj
         else:
             sampler = None
@@ -349,7 +350,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         }
 
     def _run_jobs(
-        self, circuits: List[QuantumCircuit], sampler: Sampler = None, **run_options
+        self, circuits: List[QuantumCircuit], sampler: BaseSamplerV2 = None, **run_options
     ) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         max_circuits = self._max_circuits(self.backend)
