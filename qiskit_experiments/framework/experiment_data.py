@@ -38,6 +38,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.utils.deprecation import deprecate_arg
+from qiskit.primitives import BitArray, SamplerPubResult, BasePrimitiveJob
 
 from qiskit_ibm_experiment import (
     IBMExperimentService,
@@ -45,6 +46,7 @@ from qiskit_ibm_experiment import (
     AnalysisResultData as AnalysisResultDataclass,
     ResultQuality,
 )
+
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
     plot_to_svg_bytes,
@@ -738,7 +740,7 @@ class ExperimentData:
 
     def add_jobs(
         self,
-        jobs: Union[Job, List[Job]],
+        jobs: Union[Job, List[Job], BasePrimitiveJob, List[BasePrimitiveJob]],
         timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
@@ -769,19 +771,20 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            if self.backend is not None:
-                backend_name = BackendData(self.backend).name
-                job_backend_name = BackendData(job.backend()).name
-                if self.backend and backend_name != job_backend_name:
-                    LOG.warning(
-                        "Adding a job from a backend (%s) that is different "
-                        "than the current backend (%s). "
-                        "The new backend will be used, but "
-                        "service is not changed if one already exists.",
-                        job.backend(),
-                        self.backend,
-                    )
-            self.backend = job.backend()
+            if hasattr(job, "backend"):
+                if self.backend is not None:
+                    backend_name = BackendData(self.backend).name
+                    job_backend_name = BackendData(job.backend()).name
+                    if self.backend and backend_name != job_backend_name:
+                        LOG.warning(
+                            "Adding a job from a backend (%s) that is different "
+                            "than the current backend (%s). "
+                            "The new backend will be used, but "
+                            "service is not changed if one already exists.",
+                            job.backend(),
+                            self.backend,
+                        )
+                self.backend = job.backend()
 
             jid = job.job_id()
             if jid in self._jobs:
@@ -985,27 +988,58 @@ class ExperimentData:
             job_id: The id of the job the result came from. If `None`, the
             job id in `result` is used.
         """
-        if job_id is None:
-            job_id = result.job_id
-        if job_id not in self._jobs:
-            self._jobs[job_id] = None
-            self.job_ids.append(job_id)
-        with self._result_data.lock:
-            # Lock data while adding all result data
-            for i, _ in enumerate(result.results):
-                data = result.data(i)
-                data["job_id"] = job_id
-                if "counts" in data:
-                    # Format to Counts object rather than hex dict
-                    data["counts"] = result.get_counts(i)
-                expr_result = result.results[i]
-                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                    data["metadata"] = expr_result.header.metadata
-                data["shots"] = expr_result.shots
-                data["meas_level"] = expr_result.meas_level
-                if hasattr(expr_result, "meas_return"):
-                    data["meas_return"] = expr_result.meas_return
-                self._result_data.append(data)
+        if hasattr(result, "results"):
+            # backend run results
+            if job_id is None:
+                job_id = result.job_id
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                for i, _ in enumerate(result.results):
+                    data = result.data(i)
+                    data["job_id"] = job_id
+                    if "counts" in data:
+                        # Format to Counts object rather than hex dict
+                        data["counts"] = result.get_counts(i)
+                    expr_result = result.results[i]
+                    if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                        data["metadata"] = expr_result.header.metadata
+                    data["shots"] = expr_result.shots
+                    data["meas_level"] = expr_result.meas_level
+                    if hasattr(expr_result, "meas_return"):
+                        data["meas_return"] = expr_result.meas_return
+                    self._result_data.append(data)
+        else:
+            # sampler results
+            if job_id is None:
+                raise QiskitError("job_id must be provided, not available in the sampler result")
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                # Sampler results are a list
+                for i, _ in enumerate(result):
+                    data = {}
+                    # convert to a Sampler Pub Result (can remove this later when the bug is fixed)
+                    testres = SamplerPubResult(result[i].data, result[i].metadata)
+                    data["job_id"] = job_id
+                    if isinstance(testres.data[next(iter(testres.data))], BitArray):
+                        # bit results so has counts
+                        data["meas_level"] = 2
+                        data["meas_return"] = "avg"
+                        # join the data
+                        data["counts"] = testres.join_data(testres.data.keys()).get_counts()
+                        # number of shots
+                        data["shots"] = testres.data[next(iter(testres.data))].num_shots
+                    else:
+                        raise QiskitError("Sampler with meas level 1 support TBD")
+
+                    data["metadata"] = testres.metadata["circuit_metadata"]
+
+                    self._result_data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
