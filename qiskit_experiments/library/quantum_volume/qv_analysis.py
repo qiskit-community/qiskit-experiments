@@ -214,7 +214,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         format_spec = f"{{0:0{depth}b}}"
         # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
-            format_spec.format(b): float(np.real(probabilities_vector[b])) for b in range(2**depth)
+            format_spec.format(b): float(np.real(probabilities_vector[b]))
+            for b in range(2**depth)
         }
 
         median_probabilities = float(np.real(np.median(probabilities_vector)))
