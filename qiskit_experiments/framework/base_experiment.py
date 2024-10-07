@@ -392,7 +392,8 @@ class BaseExperiment(ABC, StoreInitArgs):
                     else:
                         raise QiskitError("Only meas level 1 + 2 supported by sampler")
 
-                sampler.options.default_shots = run_options.get("shots", None)
+                if run_options.get("shots") is not None:
+                    sampler.options.default_shots = run_options.get("shots")
 
             jobs = [sampler.run(circs) for circs in job_circuits]
         else:
