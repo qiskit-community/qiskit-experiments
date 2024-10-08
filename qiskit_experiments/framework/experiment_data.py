@@ -872,7 +872,7 @@ class ExperimentData:
                 LOG.error(
                     "Job data not added for errored job [Job ID: %s]\nError message: %s",
                     jid,
-                    job.error_message(),
+                    job.error_message() if hasattr(job, "error_message") else "n/a",
                 )
                 return jid, False
             LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
