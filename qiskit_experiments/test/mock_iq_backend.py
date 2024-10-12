@@ -239,6 +239,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
 
         self._experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
+        self.simulator = True
 
         super().__init__()
 
@@ -456,6 +457,12 @@ class MockIQBackend(FakeOpenPulse2QV2):
                 result_in_str = str(format(result, "b").zfill(output_length))
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
+            if meas_return == "single" or self.options.get("memory"):
+                run_result["memory"] = [
+                    format(result, "x")
+                    for result, num in enumerate(results)
+                    for _ in range(num)
+                ]
         else:
             # Phase has meaning only for IQ shot, so we calculate it here
             phase = self.experiment_helper.iq_phase([circuit])[0]

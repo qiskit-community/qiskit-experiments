@@ -319,7 +319,7 @@ class PulseBackend(BackendV2):
             centers = self._iq_cluster_centers(circuit=circuit)
             measurement_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
             if meas_return == "avg":
-                measurement_data = np.average(np.array(measurement_data), axis=0)
+                measurement_data = np.average(np.array(measurement_data), axis=0).tolist()
         else:
             raise QiskitError(f"Unsupported measurement level {meas_level}.")
 

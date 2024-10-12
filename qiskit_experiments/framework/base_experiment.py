@@ -404,6 +404,8 @@ class BaseExperiment(ABC, StoreInitArgs):
                             sampler.options.execution.meas_type = "kerneled"
                     else:
                         raise QiskitError("Only meas level 1 + 2 supported by sampler")
+                if "noise_model" in run_options:
+                    sampler.options.simulator.noise_model = run_options["noise_model"]
 
                 if run_options.get("shots") is not None:
                     sampler.options.default_shots = run_options.get("shots")

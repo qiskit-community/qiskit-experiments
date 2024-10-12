@@ -43,6 +43,7 @@ class FakeBackend(BackendV2):
         num_qubits=1,
         max_experiments=100,
     ):
+        self.simulator = True
         super().__init__(provider=provider, name=backend_name)
         self._target = Target(num_qubits=num_qubits)
         # Add a measure for each qubit so a simple measure circuit works
@@ -62,13 +63,13 @@ class FakeBackend(BackendV2):
     def target(self) -> Target:
         return self._target
 
-    def run(self, run_input, **options):
+    def run(self, run_input, shots=100, **options):
         if not isinstance(run_input, list):
             run_input = [run_input]
         results = [
             {
-                "data": {"0": 100},
-                "shots": 100,
+                "data": {"0": shots},
+                "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
                 "meas_level": 2,

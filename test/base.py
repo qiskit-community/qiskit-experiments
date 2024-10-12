@@ -25,6 +25,11 @@ import testtools
 import uncertainties
 from qiskit.utils.deprecation import deprecate_func
 import qiskit_aer.backends.aerbackend
+# The following imports are just for _patched_run_circuits
+import qiskit.primitives.backend_sampler_v2
+from qiskit.circuit import QuantumCircuit
+from qiskit.providers import BackendV1, BackendV2
+from qiskit.result import Result
 
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -106,6 +111,9 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             """Set-up test class."""
             super().setUpClass()
 
+            # Hack to pass metadata through to test backends
+            qiskit.primitives.backend_sampler_v2._run_circuits = _patched_run_circuits
+
             warnings.filterwarnings("error", category=DeprecationWarning)
             # Tests should not generate any warnings unless testing those
             # warnings. In that case, the test should catch the warning
@@ -127,6 +135,13 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*The curve data representation has been replaced by the `DataFrame` format.*",
                 category=PendingDeprecationWarning,
             )
+            warnings.filterwarnings(
+                "default",
+                module="qiskit_experiments",
+                message=".*Could not determine job completion time.*",
+                category=UserWarning,
+            )
+
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
@@ -161,7 +176,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 timeout: The maximum time in seconds to wait for executor to
                     complete. Defaults to the value of ``TEST_TIMEOUT``.
             """
-            if timeout is None:
+            if timeout is None and TEST_TIMEOUT != 0:
                 timeout = TEST_TIMEOUT
             experiment_data.block_for_results(timeout=timeout)
 
@@ -321,3 +336,41 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
 
 
 QiskitExperimentsTestCase = create_base_test_case(USE_TESTTOOLS)
+
+
+def _patched_run_circuits(
+    circuits: QuantumCircuit | list[QuantumCircuit],
+    backend: BackendV1 | BackendV2,
+    **run_options,
+) -> tuple[list[Result], list[dict]]:
+    """Remove metadata of circuits and run the circuits on a backend.
+    Args:
+        circuits: The circuits
+        backend: The backend
+        monitor: Enable job minotor if True
+        **run_options: run_options
+    Returns:
+        The result and the metadata of the circuits
+    """
+    if isinstance(circuits, QuantumCircuit):
+        circuits = [circuits]
+    metadata = []
+    for circ in circuits:
+        metadata.append(circ.metadata)
+        # Commenting out this line is only change from qiskit.primitives.backend_estimator._run_circuits
+        # circ.metadata = {}
+    if isinstance(backend, BackendV1):
+        max_circuits = getattr(backend.configuration(), "max_experiments", None)
+    elif isinstance(backend, BackendV2):
+        max_circuits = backend.max_circuits
+    else:
+        raise RuntimeError("Backend version not supported")
+    if max_circuits:
+        jobs = [
+            backend.run(circuits[pos : pos + max_circuits], **run_options)
+            for pos in range(0, len(circuits), max_circuits)
+        ]
+        result = [x.result() for x in jobs]
+    else:
+        result = [backend.run(circuits, **run_options).result()]
+    return result, metadata
