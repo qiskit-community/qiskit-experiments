@@ -316,8 +316,22 @@ class ExperimentData:
         """Returns the completion times of the jobs."""
         job_times = {}
         for job_id, job in self._jobs.items():
-            if job is not None and "COMPLETED" in job.time_per_step():
-                job_times[job_id] = job.time_per_step().get("COMPLETED")
+            if job is not None:
+                if hasattr(job, "time_per_step") and "COMPLETED" in job.time_per_step():
+                    job_times[job_id] = job.time_per_step().get("COMPLETED")
+                elif (execution := job.result().metadata.get("execution")) and "execution_spans" in execution:
+                    job_times[job_id] = execution["execution_spans"].stop
+                elif (client := getattr(job, "_api_client", None)) and hasattr(client, "job_metadata"):
+                    metadata = client.job_metadata(job.job_id())
+                    finished = metadata.get("timestamps", {}).get("finished", {})
+                    if finished:
+                        job_times[job_id] = datetime.fromisoformat(finished)
+                if job_id not in job_times:
+                    warnings.warn(
+                        "Could not determine job completion time. Using current timestamp.",
+                        UserWarning,
+                    )
+                    job_times[job_id] = datetime.now()
 
         return job_times
 
@@ -872,7 +886,7 @@ class ExperimentData:
                 LOG.error(
                     "Job data not added for errored job [Job ID: %s]\nError message: %s",
                     jid,
-                    job.error_message(),
+                    job.error_message() if hasattr(job, "error_message") else "n/a",
                 )
                 return jid, False
             LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
@@ -1026,18 +1040,62 @@ class ExperimentData:
                     # convert to a Sampler Pub Result (can remove this later when the bug is fixed)
                     testres = SamplerPubResult(result[i].data, result[i].metadata)
                     data["job_id"] = job_id
-                    if isinstance(testres.data[next(iter(testres.data))], BitArray):
+                    if testres.data:
+                        inner_data = testres.data[next(iter(testres.data))]
+                    if not testres.data:
+                        # No data, usually this only happens in tests
+                        pass
+                    elif isinstance(inner_data, BitArray):
                         # bit results so has counts
                         data["meas_level"] = 2
-                        data["meas_return"] = "avg"
+                        # The sampler result always contains bitstrings. At
+                        # this point, we have lost track of whether the job
+                        # requested memory/meas_return=single. Here we just
+                        # hope that nothing breaks if we always return single
+                        # shot results since the counts dict is also returned
+                        # any way.
+                        data["meas_return"] = "single"
                         # join the data
                         data["counts"] = testres.join_data(testres.data.keys()).get_counts()
+                        data["memory"] = testres.join_data(testres.data.keys()).get_bitstrings()
                         # number of shots
-                        data["shots"] = testres.data[next(iter(testres.data))].num_shots
+                        data["shots"] = inner_data.num_shots
+                    elif isinstance(inner_data, np.ndarray):
+                        data["meas_level"] = 1
+                        joined_data = testres.join_data(testres.data.keys())
+                        # Need to split off the pub dimension representing
+                        # different parameter binds which is trivial because
+                        # qiskit-experiments does not support parameter binding
+                        # to pubs currently.
+                        joined_data = joined_data[0]
+                        if joined_data.ndim == 1:
+                            data["meas_return"] = "avg"
+                            # TODO: we either need to track shots in the
+                            # circuit metadata and pull it out here or get
+                            # upstream to report the number of shots in the
+                            # sampler result for level 1 avg data.
+                            data["shots"] = 1
+                            data["memory"] = np.zeros((len(joined_data), 2), dtype=float)
+                            data["memory"][:, 0] = np.real(joined_data)
+                            data["memory"][:, 1] = np.imag(joined_data)
+                        else:
+                            data["meas_return"] = "single"
+                            data["shots"] = joined_data.shape[0]
+                            data["memory"] = np.zeros((*joined_data.shape, 2), dtype=float)
+                            data["memory"][:, :, 0] = np.real(joined_data)
+                            data["memory"][:, :, 1] = np.imag(joined_data)
                     else:
-                        raise QiskitError("Sampler with meas level 1 support TBD")
+                        raise QiskitError(f"Unexpected result format: {type(inner_data)}")
 
-                    data["metadata"] = testres.metadata["circuit_metadata"]
+                    # Some Sampler implementations remove the circuit metadata
+                    # which some experiment Analysis classes need. Here we try
+                    # to put it back from the circuits themselves.
+                    if "circuit_metadata" in testres.metadata:
+                        data["metadata"] = testres.metadata["circuit_metadata"]
+                    else:
+                        corresponding_pub = job.inputs["pubs"][i]
+                        circuit = corresponding_pub[0]
+                        data["metadata"] = circuit.metadata
 
                     self._result_data.append(data)
 

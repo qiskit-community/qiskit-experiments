@@ -55,7 +55,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=seed, shots=shots)
         target = qi.random_statevector(2**num_qubits, seed=seed)
         exp = StateTomography(target)
-        expdata = exp.run(backend, analysis=None)
+        expdata = exp.run(backend, analysis=None, shots=shots)
         self.assertExperimentDone(expdata)
 
         # Run each tomography fitter analysis as a subtest so

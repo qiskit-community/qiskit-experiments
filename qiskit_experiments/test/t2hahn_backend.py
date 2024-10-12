@@ -198,6 +198,6 @@ class T2HahnBackend(BackendV2):
 
         sim = AerSimulator(noise_model=noise_model, seed_simulator=self._seed)
 
-        job = sim.run(new_circuits, shots=shots)
+        job = sim.run(new_circuits, shots=shots, **options)
 
         return FakeJob(self, job.result())
