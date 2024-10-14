@@ -28,8 +28,17 @@ import uncertainties
 from qiskit.utils.deprecation import deprecate_func
 import qiskit_aer.backends.aerbackend
 
+from qiskit_experiments.framework import (
+    ExperimentDecoder,
+    ExperimentEncoder,
+    ExperimentData,
+)
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
+from .extended_equality import is_equivalent
+
 # The imports from here to the next blank line are just for the monkey-patching
 # at the end of the file.
+# pylint: disable=wrong-import-order,ungrouped-imports
 import copy
 import math
 from dataclasses import dataclass
@@ -37,6 +46,7 @@ from typing import Literal
 import numpy as np
 import qiskit.primitives.backend_sampler_v2
 from qiskit.circuit import QuantumCircuit
+from qiskit.exceptions import QiskitError
 from qiskit.primitives import (
     BackendEstimatorV2,
     BackendSamplerV2,
@@ -52,13 +62,7 @@ from qiskit.providers.backend import BackendV1, BackendV2
 from qiskit.result import Result
 from qiskit_ibm_runtime.fake_provider.local_service import QiskitRuntimeLocalService
 
-from qiskit_experiments.framework import (
-    ExperimentDecoder,
-    ExperimentEncoder,
-    ExperimentData,
-)
-from qiskit_experiments.framework.experiment_data import ExperimentStatus
-from .extended_equality import is_equivalent
+# pylint: enable=wrong-import-order,ungrouped-imports
 
 
 # Workaround until https://github.com/Qiskit/qiskit-aer/pull/2142 is released
@@ -166,7 +170,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
             )
-
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
@@ -404,7 +407,7 @@ def _patched_run_circuits(
 
 
 def _patched_run_backend_primitive_v2(
-    self,
+    self,  # pylint: disable=unused-argument
     backend: BackendV1 | BackendV2,
     primitive: Literal["sampler", "estimator"],
     options: dict,
@@ -503,7 +506,7 @@ def _patched_run_pubs(self, pubs: list[SamplerPub], shots: int) -> list[SamplerP
         memory=True,
         shots=shots,
         seed_simulator=self._options.seed_simulator,
-        **run_opts
+        **run_opts,
     )
     result_memory = qiskit.primitives.backend_sampler_v2._prepare_memory(results)
 
@@ -511,7 +514,9 @@ def _patched_run_pubs(self, pubs: list[SamplerPub], shots: int) -> list[SamplerP
     results = []
     start = 0
     for pub, bound in zip(pubs, bound_circuits):
-        meas_info, max_num_bytes = qiskit.primitives.backend_sampler_v2._analyze_circuit(pub.circuit)
+        meas_info, max_num_bytes = qiskit.primitives.backend_sampler_v2._analyze_circuit(
+            pub.circuit
+        )
         end = start + bound.size
         results.append(
             self._postprocess_pub(
@@ -522,15 +527,15 @@ def _patched_run_pubs(self, pubs: list[SamplerPub], shots: int) -> list[SamplerP
                 max_num_bytes,
                 pub.circuit.metadata,
                 meas_level=self._options.meas_level,
-                meas_return=self._options.meas_return,
             )
         )
         start = end
 
     return results
 
+
 def _patched_postprocess_pub(
-    self,
+    self,  # pylint: disable=unused-argument
     result_memory: list[list[str]],
     shots: int,
     shape: tuple[int, ...],
@@ -538,7 +543,6 @@ def _patched_postprocess_pub(
     max_num_bytes: int,
     circuit_metadata: dict,
     meas_level: int | None = None,
-    meas_return: str | None = None,
 ) -> SamplerPubResult:
     """Converts the memory data into an array of bit arrays with the shape of the pub."""
     if meas_level == 2 or meas_level is None:
@@ -546,11 +550,15 @@ def _patched_postprocess_pub(
             item.creg_name: np.zeros(shape + (shots, item.num_bytes), dtype=np.uint8)
             for item in meas_info
         }
-        memory_array = qiskit.primitives.backend_sampler_v2._memory_array(result_memory, max_num_bytes)
+        memory_array = qiskit.primitives.backend_sampler_v2._memory_array(
+            result_memory, max_num_bytes
+        )
 
         for samples, index in zip(memory_array, np.ndindex(*shape)):
             for item in meas_info:
-                ary = qiskit.primitives.backend_sampler_v2._samples_to_packed_array(samples, item.num_bits, item.start)
+                ary = qiskit.primitives.backend_sampler_v2._samples_to_packed_array(
+                    samples, item.num_bits, item.start
+                )
                 arrays[item.creg_name][index] = ary
 
         meas = {
@@ -560,9 +568,7 @@ def _patched_postprocess_pub(
         raw = np.array(result_memory)
         cplx = raw[..., 0] + 1j * raw[..., 1]
         cplx = np.reshape(cplx, (*shape, *cplx.shape[1:]))
-        meas = {
-            item.creg_name: cplx for item in meas_info
-        }
+        meas = {item.creg_name: cplx for item in meas_info}
     else:
         raise QiskitError(f"Unsupported meas_level: {meas_level}")
     return SamplerPubResult(

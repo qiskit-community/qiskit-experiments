@@ -319,9 +319,13 @@ class ExperimentData:
             if job is not None:
                 if hasattr(job, "time_per_step") and "COMPLETED" in job.time_per_step():
                     job_times[job_id] = job.time_per_step().get("COMPLETED")
-                elif (execution := job.result().metadata.get("execution")) and "execution_spans" in execution:
+                elif (
+                    execution := job.result().metadata.get("execution")
+                ) and "execution_spans" in execution:
                     job_times[job_id] = execution["execution_spans"].stop
-                elif (client := getattr(job, "_api_client", None)) and hasattr(client, "job_metadata"):
+                elif (client := getattr(job, "_api_client", None)) and hasattr(
+                    client, "job_metadata"
+                ):
                     metadata = client.job_metadata(job.job_id())
                     finished = metadata.get("timestamps", {}).get("finished", {})
                     if finished:
@@ -1095,8 +1099,8 @@ class ExperimentData:
                     # to put it back from the circuits themselves.
                     if "circuit_metadata" in testres.metadata:
                         data["metadata"] = testres.metadata["circuit_metadata"]
-                    else:
-                        corresponding_pub = job.inputs["pubs"][i]
+                    elif self._jobs[job_id] is not None:
+                        corresponding_pub = self._jobs[job_id].inputs["pubs"][i]
                         circuit = corresponding_pub[0]
                         data["metadata"] = circuit.metadata
 

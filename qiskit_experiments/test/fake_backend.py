@@ -63,7 +63,8 @@ class FakeBackend(BackendV2):
     def target(self) -> Target:
         return self._target
 
-    def run(self, run_input, shots=100, **options):
+    def run(self, run_input, **options):
+        shots = options.get("shots", 100)
         if not isinstance(run_input, list):
             run_input = [run_input]
         results = [

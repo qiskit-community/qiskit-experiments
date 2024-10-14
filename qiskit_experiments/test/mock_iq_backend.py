@@ -459,9 +459,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
             run_result["counts"] = counts
             if meas_return == "single" or self.options.get("memory"):
                 run_result["memory"] = [
-                    format(result, "x")
-                    for result, num in enumerate(results)
-                    for _ in range(num)
+                    format(result, "x") for result, num in enumerate(results) for _ in range(num)
                 ]
         else:
             # Phase has meaning only for IQ shot, so we calculate it here
