@@ -559,6 +559,7 @@ def _patched_postprocess_pub(
     elif meas_level == 1:
         raw = np.array(result_memory)
         cplx = raw[..., 0] + 1j * raw[..., 1]
+        cplx = np.reshape(cplx, (*shape, *cplx.shape[1:]))
         meas = {
             item.creg_name: cplx for item in meas_info
         }
