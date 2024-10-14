@@ -1067,7 +1067,6 @@ class ExperimentData:
                         # different parameter binds which is trivial because
                         # qiskit-experiments does not support parameter binding
                         # to pubs currently.
-                        joined_data = joined_data[0]
                         if joined_data.ndim == 1:
                             data["meas_return"] = "avg"
                             # TODO: we either need to track shots in the
