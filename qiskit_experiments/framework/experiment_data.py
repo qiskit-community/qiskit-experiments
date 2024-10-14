@@ -1041,11 +1041,20 @@ class ExperimentData:
                     testres = SamplerPubResult(result[i].data, result[i].metadata)
                     data["job_id"] = job_id
                     if testres.data:
-                        inner_data = testres.data[next(iter(testres.data))]
-                    if not testres.data:
+                        joined_data = testres.join_data()
+                        outer_shape = testres.data.shape
+                        if outer_shape:
+                            raise QiskitError(
+                                f"Outer PUB dimensions {outer_shape} found in result. "
+                                "Only unparameterized PUBs are currently supported by "
+                                "qiskit-experiments."
+                            )
+                    else:
+                        joined_data = None
+                    if joined_data is None:
                         # No data, usually this only happens in tests
                         pass
-                    elif isinstance(inner_data, BitArray):
+                    elif isinstance(joined_data, BitArray):
                         # bit results so has counts
                         data["meas_level"] = 2
                         # The sampler result always contains bitstrings. At
@@ -1059,15 +1068,9 @@ class ExperimentData:
                         data["counts"] = testres.join_data(testres.data.keys()).get_counts()
                         data["memory"] = testres.join_data(testres.data.keys()).get_bitstrings()
                         # number of shots
-                        data["shots"] = inner_data.num_shots
-                    elif isinstance(inner_data, np.ndarray):
+                        data["shots"] = joined_data.num_shots
+                    elif isinstance(joined_data, np.ndarray):
                         data["meas_level"] = 1
-                        joined_data = testres.join_data(testres.data.keys())
-                        # Need to split off the pub dimension representing
-                        # different parameter binds which is trivial because
-                        # qiskit-experiments does not support parameter binding
-                        # to pubs currently.
-                        joined_data = joined_data[0]
                         if joined_data.ndim == 1:
                             data["meas_return"] = "avg"
                             # TODO: we either need to track shots in the
@@ -1085,7 +1088,7 @@ class ExperimentData:
                             data["memory"][:, :, 0] = np.real(joined_data)
                             data["memory"][:, :, 1] = np.imag(joined_data)
                     else:
-                        raise QiskitError(f"Unexpected result format: {type(inner_data)}")
+                        raise QiskitError(f"Unexpected result format: {type(joined_data)}")
 
                     # Some Sampler implementations remove the circuit metadata
                     # which some experiment Analysis classes need. Here we try
