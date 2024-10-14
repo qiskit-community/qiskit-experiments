@@ -1063,10 +1063,6 @@ class ExperimentData:
                     elif isinstance(inner_data, np.ndarray):
                         data["meas_level"] = 1
                         joined_data = testres.join_data(testres.data.keys())
-                        # Need to split off the pub dimension representing
-                        # different parameter binds which is trivial because
-                        # qiskit-experiments does not support parameter binding
-                        # to pubs currently.
                         if joined_data.ndim == 1:
                             data["meas_return"] = "avg"
                             # TODO: we either need to track shots in the
