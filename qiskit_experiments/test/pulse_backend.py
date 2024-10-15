@@ -90,6 +90,11 @@ class PulseBackend(BackendV2):
             atol: Absolute tolerance during solving.
             rtol: Relative tolerance during solving.
         """
+        # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+        from qiskit_experiments.test.patching import patch_sampler_test_support
+
+        patch_sampler_test_support()
+
         from qiskit_dynamics import Solver
 
         super().__init__(
@@ -307,6 +312,7 @@ class PulseBackend(BackendV2):
                 if memory:
                     memory_data = state.sample_memory(shots)
                     measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
+                    memory_data = memory_data.tolist()
                 else:
                     measurement_data = state.sample_counts(shots)
             else:
