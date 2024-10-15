@@ -151,7 +151,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         dt = 0.222e-9
         sigma = 64
-        shots=2000
+        shots = 2000
 
         backend = AerSimulator(seed_simulator=123, shots=shots)
         backend._configuration.dt = dt

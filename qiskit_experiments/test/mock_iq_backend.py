@@ -47,6 +47,11 @@ class FakeOpenPulse2QV2(BackendV2):
         backend_version: str = None,
         **fields,
     ):
+        # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+        from qiskit_experiments.test.patching import patch_sampler_test_support
+
+        patch_sampler_test_support()
+
         super().__init__(provider, name, description, online_date, backend_version, **fields)
 
         backend_v1 = FakeOpenPulse2Q()
@@ -459,9 +464,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
             run_result["counts"] = counts
             if meas_return == "single" or self.options.get("memory"):
                 run_result["memory"] = [
-                    format(result, "x")
-                    for result, num in enumerate(results)
-                    for _ in range(num)
+                    format(result, "x") for result, num in enumerate(results) for _ in range(num)
                 ]
         else:
             # Phase has meaning only for IQ shot, so we calculate it here

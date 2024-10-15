@@ -530,7 +530,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                             "header": {"metadata": circ.metadata},
                             "data": {
                                 "counts": cnt,
-                                "memory": [format(int(f"0b{s}", 2), "x") for s, n in cnt.items() for _ in range(n)]
+                                "memory": [
+                                    format(int(f"0b{s}", 2), "x")
+                                    for s, n in cnt.items()
+                                    for _ in range(n)
+                                ],
                             },
                         }
                     )

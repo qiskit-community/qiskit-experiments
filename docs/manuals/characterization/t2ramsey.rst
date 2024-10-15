@@ -63,6 +63,13 @@ pure T1/T2 relaxation noise model.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
+    :hide-code:
+
+    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+    from qiskit_experiments.test.patching import patch_sampler_test_support
+    patch_sampler_test_support()
+
+.. jupyter-execute::
 
     # A T1 simulator
     from qiskit_ibm_runtime.fake_provider import FakePerth
