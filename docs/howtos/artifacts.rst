@@ -26,6 +26,13 @@ Here we run a parallel experiment consisting of two :class:`.T1` experiments in 
 artifacts as a list of :class:`.ArtifactData` objects accessed by :meth:`.ExperimentData.artifacts`:
 
 .. jupyter-execute::
+    :hide-code:
+
+    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+    from qiskit_experiments.test.patching import patch_sampler_test_support
+    patch_sampler_test_support()
+
+.. jupyter-execute::
 
     from qiskit_ibm_runtime.fake_provider import FakePerth
     from qiskit_aer import AerSimulator

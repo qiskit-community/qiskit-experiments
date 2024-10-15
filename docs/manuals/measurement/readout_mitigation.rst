@@ -36,6 +36,13 @@ experiments to generate the corresponding mitigators.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
+    :hide-code:
+
+    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+    from qiskit_experiments.test.patching import patch_sampler_test_support
+    patch_sampler_test_support()
+
+.. jupyter-execute::
 
     import numpy as np
     import matplotlib.pyplot as plt

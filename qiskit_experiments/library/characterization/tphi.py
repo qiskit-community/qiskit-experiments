@@ -54,6 +54,10 @@ class Tphi(BatchExperiment):
         .. jupyter-execute::
             :hide-code:
 
+            # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+            from qiskit_experiments.test.patching import patch_sampler_test_support
+            patch_sampler_test_support()
+
             # backend
             from qiskit_ibm_runtime.fake_provider import FakeManilaV2
             from qiskit_aer import AerSimulator

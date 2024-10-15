@@ -23,6 +23,8 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit.primitives.base import BaseSamplerV2
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
@@ -40,6 +42,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        backend_run: Options[bool] = False,
     ):
         """Initialize the experiment object.
 
@@ -48,7 +51,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
-
+            backend_run: Optional, use backend run vs the sampler (temporary)
         Raises:
             QiskitError: If qubits contains duplicates.
         """
@@ -82,6 +85,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # attributes created during initialization
         self._backend = None
         self._backend_data = None
+        self._backend_run = backend_run
         if isinstance(backend, Backend):
             self._set_backend(backend)
 
@@ -197,22 +201,26 @@ class BaseExperiment(ABC, StoreInitArgs):
     def run(
         self,
         backend: Optional[Backend] = None,
+        sampler: Optional[BaseSamplerV2] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
+        backend_run: Optional[bool] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
         Args:
-            backend: Optional, the backend to run the experiment on. This
-                     will override any currently set backends for the single
-                     execution.
+            backend: Optional, the backend to run on. Will override existing backend settings.
+            sampler: Optional, the sampler to run the experiment on.
+                      If None then a sampler will be invoked from previously
+                      set backend
             analysis: Optional, a custom analysis instance to use for performing
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
             timeout: Time to wait for experiment jobs to finish running before
                      cancelling.
+            backend_run: Use backend run (temp option for testing)
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -223,11 +231,31 @@ class BaseExperiment(ABC, StoreInitArgs):
                          ExperimentData container.
         """
 
-        if backend is not None or analysis != "default" or run_options:
+        if (
+            (backend is not None)
+            or (sampler is not None)
+            or analysis != "default"
+            or run_options
+            or (backend_run is not None)
+        ):
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
-            if backend:
-                experiment._set_backend(backend)
+            if backend_run is not None:
+                experiment._backend_run = backend_run
+            # we specified a backend OR a sampler
+            if (backend is not None) or (sampler is not None):
+                if sampler is None:
+                    # backend only specified
+                    experiment._set_backend(backend)
+                elif backend is None:
+                    # sampler only specifid
+                    experiment._set_backend(sampler._backend)
+                else:
+                    # we specified both a sampler and a backend
+                    if self._backend_run:
+                        experiment._set_backend(backend)
+                    else:
+                        experiment._set_backend(sampler._backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
             if run_options:
@@ -251,7 +279,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = experiment.run_options.__dict__
 
         # Run jobs
-        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
+        jobs = experiment._run_jobs(transpiled_circuits, sampler=sampler, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
 
         # Optionally run analysis
@@ -333,7 +361,9 @@ class BaseExperiment(ABC, StoreInitArgs):
             "Total number of jobs": num_jobs,
         }
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+    def _run_jobs(
+        self, circuits: List[QuantumCircuit], sampler: BaseSamplerV2 = None, **run_options
+    ) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         max_circuits = self._max_circuits(self.backend)
 
@@ -348,7 +378,43 @@ class BaseExperiment(ABC, StoreInitArgs):
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+        if not self._backend_run:
+            if sampler is None:
+                # instantiate a sampler from the backend
+                sampler = Sampler(self.backend)
+
+                # have to hand set some of these options
+                # see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime
+                # /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
+                if "init_qubits" in run_options:
+                    sampler.options.execution.init_qubits = run_options["init_qubits"]
+                if "rep_delay" in run_options:
+                    sampler.options.execution.rep_delay = run_options["rep_delay"]
+                if "meas_level" in run_options:
+                    if run_options["meas_level"] == 2:
+                        sampler.options.execution.meas_type = "classified"
+                    elif run_options["meas_level"] == 1:
+                        if "meas_return" in run_options:
+                            if run_options["meas_return"] == "avg":
+                                sampler.options.execution.meas_type = "avg_kerneled"
+                            else:
+                                sampler.options.execution.meas_type = "kerneled"
+                        else:
+                            # assume this is what is wanted if no  meas return specified
+                            sampler.options.execution.meas_type = "kerneled"
+                    else:
+                        raise QiskitError("Only meas level 1 + 2 supported by sampler")
+                if "noise_model" in run_options:
+                    sampler.options.simulator.noise_model = run_options["noise_model"]
+                if "seed_simulator" in run_options:
+                    sampler.options.simulator.seed_simulator = run_options["seed_simulator"]
+
+                if run_options.get("shots") is not None:
+                    sampler.options.default_shots = run_options.get("shots")
+
+            jobs = [sampler.run(circs) for circs in job_circuits]
+        else:
+            jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
         return jobs
 

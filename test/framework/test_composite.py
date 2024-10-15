@@ -454,6 +454,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 "1111": 5,
             },
             {
+                "0000": 6,
                 "0001": 3,
                 "0010": 4,
                 "0011": 5,
@@ -499,7 +500,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 "1111": 3,
             },
             {
-                "0000": 3,
+                "0000": 12,
                 "0001": 6,
                 "0010": 7,
                 "0011": 1,
@@ -524,10 +525,17 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 for circ, cnt in zip(run_input, counts):
                     results.append(
                         {
-                            "shots": -1,
+                            "shots": sum(cnt.values()),
                             "success": True,
                             "header": {"metadata": circ.metadata},
-                            "data": {"counts": cnt},
+                            "data": {
+                                "counts": cnt,
+                                "memory": [
+                                    format(int(f"0b{s}", 2), "x")
+                                    for s, n in cnt.items()
+                                    for _ in range(n)
+                                ],
+                            },
                         }
                     )
 
@@ -573,7 +581,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
             flatten_results=False,
         )
-        expdata = par_exp.run(Backend(num_qubits=4))
+        expdata = par_exp.run(Backend(num_qubits=4), shots=sum(counts[0].values()))
         self.assertExperimentDone(expdata)
 
         self.assertEqual(len(expdata.data()), len(counts))
@@ -583,17 +591,17 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         counts1 = [
             [
                 {"00": 14, "10": 19, "11": 11, "01": 8},
-                {"01": 14, "10": 7, "11": 13, "00": 12},
+                {"01": 14, "10": 7, "11": 13, "00": 18},
                 {"00": 14, "01": 5, "10": 16, "11": 17},
                 {"00": 4, "01": 16, "10": 19, "11": 13},
-                {"00": 12, "01": 15, "10": 11, "11": 5},
+                {"00": 21, "01": 15, "10": 11, "11": 5},
             ],
             [
                 {"00": 10, "01": 10, "10": 12, "11": 20},
-                {"00": 12, "01": 10, "10": 7, "11": 17},
+                {"00": 18, "01": 10, "10": 7, "11": 17},
                 {"00": 17, "01": 7, "10": 14, "11": 14},
                 {"00": 9, "01": 14, "10": 22, "11": 7},
-                {"00": 17, "01": 10, "10": 9, "11": 7},
+                {"00": 26, "01": 10, "10": 9, "11": 7},
             ],
         ]
 
@@ -604,11 +612,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
 
         counts2 = [
-            [{"00": 10, "01": 10, "10": 12, "11": 20}, {"00": 12, "01": 10, "10": 7, "11": 17}],
+            [{"00": 10, "01": 10, "10": 12, "11": 20}, {"00": 18, "01": 10, "10": 7, "11": 17}],
             [
                 {"00": 17, "01": 7, "10": 14, "11": 14},
                 {"00": 9, "01": 14, "10": 22, "11": 7},
-                {"00": 17, "01": 10, "10": 9, "11": 7},
+                {"00": 26, "01": 10, "10": 9, "11": 7},
             ],
         ]
 
@@ -618,8 +626,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
 
         counts3 = [
-            [{"0": 22, "1": 30}, {"0": 19, "1": 27}],
-            [{"0": 20, "1": 32}, {"0": 22, "1": 24}],
+            [{"0": 22, "1": 30}, {"0": 25, "1": 27}],
+            [{"0": 20, "1": 32}, {"0": 28, "1": 24}],
         ]
 
         self.assertEqual(len(expdata.child_data(1).child_data(0).child_data()), len(counts3))
@@ -947,7 +955,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         noise_model = noise.NoiseModel()
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
 
-        expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
+        expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000, memory=True)
         self.assertExperimentDone(expdata)
 
         self.assertEqual(expdata.child_data(0).analysis_results("non-zero counts").value, 8)
