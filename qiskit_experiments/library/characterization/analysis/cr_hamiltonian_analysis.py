@@ -15,6 +15,8 @@
 from typing import List, Dict
 import numpy as np
 
+from qiskit.utils.deprecation import deprecate_func
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.visualization import PlotStyle
@@ -44,6 +46,14 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
 
     """
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments and related classses "
+            "involving pulse gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(self):
         analyses = []
         for control_state in (0, 1):

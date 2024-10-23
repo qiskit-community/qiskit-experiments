@@ -49,6 +49,14 @@ class QubitSpectroscopy(Spectroscopy):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
+
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Due to the deprecation of Qiskit Pulse.*",
+                category=DeprecationWarning,
+            )
+
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
             backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)

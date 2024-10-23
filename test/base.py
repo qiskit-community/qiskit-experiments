@@ -145,6 +145,20 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*have no effect in local testing mode.*",
                 category=UserWarning,
             )
+            # All of the pulse related code is going to be removed, so we just
+            # ignore its warnings for now.
+            warnings.filterwarnings(
+                "default",
+                message=".*Due to the deprecation of Qiskit Pulse.*",
+                category=DeprecationWarning,
+            )
+            # All of the restless related code is going to be removed, so we just
+            # ignore its warnings for now.
+            warnings.filterwarnings(
+                "default",
+                message=".*Support for restless experiments has been deprecated.*",
+                category=DeprecationWarning,
+            )
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
