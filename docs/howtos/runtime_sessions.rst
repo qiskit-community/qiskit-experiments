@@ -1,5 +1,45 @@
-Use Experiments with Runtime sessions
-=====================================
+Use Experiments with Runtime sessions and sampler
+=================================================
+
+Problem
+-------
+
+You want to run experiments with a custom `SamplerV2
+<https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2>`_ service. 
+
+.. note::
+    All jobs, by default, run using the ``SamplerV2`` service. When calling ``exp.run`` a 
+    ``SamplerV2`` object will be automatically generated from the specified backend.
+
+Solution
+--------
+
+In this example, we will pass in a ``SamplerV2`` object to a tomography experiment.
+
+.. note::
+    If a sampler object is passed to ``exp.run`` then the `run options 
+    <https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2>`_ of the 
+    sampler object are used. The execution options set by the experiment are ignored.
+
+.. jupyter-input::
+
+    from qiskit_ibm_runtime import SamplerV2 as Sampler
+    from qiskit_experiments.library.tomography import ProcessTomography
+    from qiskit import QuantumCircuit
+
+    service = QiskitRuntimeService(channel="ibm_quantum")
+    backend = service.backend("ibm_osaka")
+    qc = QuantumCircuit(1)
+    qc.x(0)
+
+    sampler = Sampler(backed)
+    # set the shots in the sampler object
+    sampler.options.default_shots = 300
+    exp = ProcessTomography(qc)
+    # Artificially lower circuits per job, adjust value for your own application
+    exp.set_experiment_options(max_circuits=3)
+    # pass the sampler into the experiment
+    exp_data = exp.run(sampler)
 
 Problem
 -------
@@ -40,5 +80,4 @@ large number of circuits that can't fit in a single job, it may be helpful to fo
     # This will prevent further jobs from being submitted without terminating current jobs
     backend.close_session()
 
-Note that runtime primitives are not currently supported natively in Qiskit Experiments, so  
-the ``backend.run()`` path is required to run experiments.
+

@@ -1,0 +1,10 @@
+---
+prelude: >
+    In this release we added support for the qiskit primitives so that 
+    qiskit-experiments will use the SamplerV2 run path.
+upgrade:
+  - |
+    Upgrade qiskit-experiments to use the SamplerV2 path. An option is 
+    left in to use the old backend.run path, however, this is scheduled
+    to be deprecated by ibm-runtime in the near future. 
+
