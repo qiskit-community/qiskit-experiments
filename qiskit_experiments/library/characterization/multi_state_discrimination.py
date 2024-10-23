@@ -12,6 +12,7 @@
 
 """Multi state discrimination experiment."""
 
+import warnings
 from typing import Dict, List, Optional, Sequence
 
 from qiskit import QuantumCircuit
@@ -141,6 +142,14 @@ class MultiStateDiscrimination(BaseExperiment):
         Returns:
             A list of circuits preparing the different energy states.
         """
+        warnings.warn(
+            (
+                "Setting pulse schedules for x gates is deprecated  as of "
+                "version 0.8 due to the deprecation of Qiskit Pulse. It will be "
+                "removed in a future release."
+            ),
+            DeprecationWarning,
+        )
         circuits = []
         for level in range(self.experiment_options.n_states):
             circuit = QuantumCircuit(1)

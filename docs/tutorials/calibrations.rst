@@ -34,6 +34,17 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
     You can install it with ``python -m pip install qiskit-dynamics``.
 
 .. jupyter-execute::
+    :hide-code:
+
+    import warnings
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*Due to the deprecation of Qiskit Pulse.*",
+        category=DeprecationWarning,
+    )
+
+.. jupyter-execute::
 
     import pandas as pd
     import numpy as np

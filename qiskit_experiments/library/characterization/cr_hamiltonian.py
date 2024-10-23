@@ -20,6 +20,7 @@ from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
+from qiskit.utils.deprecation import deprecate_func
 from qiskit_experiments.framework import (
     BaseExperiment,
     BackendTiming,
@@ -134,6 +135,14 @@ class CrossResonanceHamiltonian(BaseExperiment):
         def __init__(self, width: ParameterValueType):
             super().__init__("cr_gate", 2, [width])
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments involving pulse "
+            "gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(
         self,
         physical_qubits: Tuple[int, int],

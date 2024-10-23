@@ -145,6 +145,14 @@ by a variant of the Hahn-echo pulse sequence [5]_.
 
     %matplotlib inline
 
+    import warnings
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*Due to the deprecation of Qiskit Pulse.*",
+        category=DeprecationWarning,
+    )
+
     from qiskit_experiments.library import StarkRamseyXY
     from qiskit import schedule, pulse
     from qiskit_ibm_runtime.fake_provider import FakeHanoiV2

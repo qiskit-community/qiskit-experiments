@@ -20,6 +20,7 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BaseAnalysis, BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
@@ -60,6 +61,14 @@ class Spectroscopy(BaseExperiment, ABC):
 
         return options
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments involving pulse "
+            "gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(
         self,
         physical_qubits: Sequence[int],

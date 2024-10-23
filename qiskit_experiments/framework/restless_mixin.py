@@ -15,6 +15,7 @@
 import logging
 from typing import Callable, Sequence, Optional
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit.providers import Backend
 from qiskit_experiments.framework import Options
@@ -66,6 +67,11 @@ class RestlessMixin:
     _physical_qubits: Sequence[int]
     _num_qubits: int
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=("Support for restless experiments has been deprecated."),
+    )
     def enable_restless(
         self,
         rep_delay: Optional[float] = None,

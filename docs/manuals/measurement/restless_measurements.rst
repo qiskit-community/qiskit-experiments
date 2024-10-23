@@ -65,6 +65,14 @@ they use always starts with the qubits in the ground state.
 .. jupyter-execute::
     :hide-code:
 
+    import warnings
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*Support for restless.*",
+        category=DeprecationWarning,
+    )
+
     # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
     from qiskit_experiments.test.patching import patch_sampler_test_support
     patch_sampler_test_support()

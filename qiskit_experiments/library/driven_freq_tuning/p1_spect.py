@@ -20,6 +20,7 @@ from qiskit import pulse
 from qiskit.circuit import QuantumCircuit, Gate, Parameter, ParameterExpression
 from qiskit.providers.backend import Backend
 from qiskit.utils import optionals as _optional
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from .p1_spect_analysis import StarkP1SpectAnalysis
@@ -72,6 +73,14 @@ class StarkP1Spectroscopy(BaseExperiment):
 
     """
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments involving pulse "
+            "gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(
         self,
         physical_qubits: Sequence[int],
