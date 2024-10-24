@@ -1,23 +1,24 @@
-Use Experiments with Runtime sessions and sampler
-=================================================
+Use Experiments with Sampler
+=============================
 
 Problem
 -------
 
-You want to run experiments with a custom `SamplerV2
-<https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2>`_ service. 
+You want to run experiments with a custom :class:`qiskit.primitives.BaseSamplerV2` service. 
+A sampler can be instantiated with a backend, session or batch, which allows one to 
+run an experiment in different execution modes.
 
 .. note::
-    All jobs, by default, run using the ``SamplerV2`` service. When calling ``exp.run`` a 
-    ``SamplerV2`` object will be automatically generated from the specified backend.
+    All jobs, by default, run using the :class:`qiskit_ibm_runtime.SamplerV2` class. When calling ``exp.run`` a 
+    :class:`qiskit_ibm_runtime.SamplerV2` object will be automatically generated to wrap the specified backend.
 
 Solution
 --------
 
-In this example, we will pass in a ``SamplerV2`` object to a tomography experiment.
+In this example, we will pass in a :class:`qiskit_ibm_runtime.SamplerV2` object to a tomography experiment.
 
 .. note::
-    If a sampler object is passed to ``exp.run`` then the `run options 
+    If a sampler object is passed to :meth:`qiskit_experiments.framework.BaseExperiment.run` then the `run options 
     <https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2>`_ of the 
     sampler object are used. The execution options set by the experiment are ignored.
 
@@ -39,45 +40,7 @@ In this example, we will pass in a ``SamplerV2`` object to a tomography experime
     # Artificially lower circuits per job, adjust value for your own application
     exp.set_experiment_options(max_circuits=3)
     # pass the sampler into the experiment
-    exp_data = exp.run(sampler)
+    exp_data = exp.run(sampler=sampler)
 
-Problem
--------
-
-You want to run experiments in a `Runtime session
-<https://docs.quantum.ibm.com/run/sessions>`_ so that jobs can run in close temporal proximity.
-
-Solution
---------
-
-.. note::
-    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
-    For how to migrate from the older ``qiskit-ibm-provider`` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
-    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
-
-Use the :class:`~qiskit_ibm_runtime.IBMBackend` object in :external+qiskit_ibm_runtime:doc:`index`, which supports sessions.
-
-In this example, we will set the ``max_circuits`` property to an artificially low value so that the experiment will be
-split into multiple jobs that run sequentially in a single session. When running real experiments with a
-large number of circuits that can't fit in a single job, it may be helpful to follow this usage pattern:
-
-.. jupyter-input::
-
-    from qiskit_ibm_runtime import QiskitRuntimeService
-    from qiskit_experiments.library.tomography import ProcessTomography
-    from qiskit import QuantumCircuit
-
-    service = QiskitRuntimeService(channel="ibm_quantum")
-    backend = service.backend("ibm_osaka")
-    qc = QuantumCircuit(1)
-    qc.x(0)
-
-    backend.open_session()
-    exp = ProcessTomography(qc)
-    # Artificially lower circuits per job, adjust value for your own application
-    exp.set_experiment_options(max_circuits=3)
-    exp_data = exp.run(backend)
-    # This will prevent further jobs from being submitted without terminating current jobs
-    backend.close_session()
 
 
