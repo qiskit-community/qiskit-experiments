@@ -18,6 +18,7 @@ class unifies data access for various data fields.
 import warnings
 from qiskit.providers.models import PulseBackendConfiguration  # pylint: disable=no-name-in-module
 from qiskit.providers import BackendV1, BackendV2
+from qiskit.utils.deprecation import deprecate_func
 
 
 class BackendData:
@@ -53,6 +54,14 @@ class BackendData:
             return self._backend.name
         return str(self._backend)
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def control_channel(self, qubits):
         """Returns the backend control channel for the given qubits"""
         try:
@@ -67,6 +76,14 @@ class BackendData:
             return []
         return []
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def drive_channel(self, qubit):
         """Returns the backend drive channel for the given qubit"""
         try:
@@ -81,6 +98,14 @@ class BackendData:
             return None
         return None
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def measure_channel(self, qubit):
         """Returns the backend measure channel for the given qubit"""
         try:
@@ -95,6 +120,14 @@ class BackendData:
             return None
         return None
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def acquire_channel(self, qubit):
         """Returns the backend acquire channel for the given qubit"""
         try:
@@ -122,6 +155,15 @@ class BackendData:
         return 1
 
     @property
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        is_property=True,
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def min_length(self):
         """Returns the backend's time constraint minimum duration"""
         try:
@@ -134,6 +176,15 @@ class BackendData:
         return 0
 
     @property
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        is_property=True,
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def pulse_alignment(self):
         """Returns the backend's time constraint pulse alignment"""
         try:
@@ -146,6 +197,15 @@ class BackendData:
         return 1
 
     @property
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        is_property=True,
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def acquire_alignment(self):
         """Returns the backend's time constraint acquire alignment"""
         try:
@@ -212,6 +272,15 @@ class BackendData:
         return None
 
     @property
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        is_property=True,
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def drive_freqs(self):
         """Returns the backend's qubit drive frequencies"""
         if self._v1:
@@ -223,6 +292,15 @@ class BackendData:
         return []
 
     @property
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        is_property=True,
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def meas_freqs(self):
         """Returns the backend's measurement stimulus frequencies.
 

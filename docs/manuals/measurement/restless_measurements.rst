@@ -1,6 +1,11 @@
 Restless Measurements
 =====================
 
+.. caution::
+
+   Support for restless measurements is deprecated as of Qiskit Experiments 0.8
+   and will be removed in a future version.
+
 When running circuits, the qubits are typically reset to the ground state after
 each measurement to ensure that the next circuit has a well-defined initial state.
 This can be done passively by waiting several :math:`T_1`-times so that qubits in

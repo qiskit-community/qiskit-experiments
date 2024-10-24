@@ -1,6 +1,14 @@
 AC Stark Effect
 ===============
 
+.. caution::
+
+   The experiments described in this manual are deprecated as of Qiskit
+   Experiments 0.8 and will be removed in a future release. They rely on Qiskit
+   Pulse, which is `deprecated in Qiskit SDK
+   <https://github.com/Qiskit/qiskit/issues/13063>`_, with planned removal in
+   Qiskit 2.0.
+
 When a qubit is driven with an off-resonant tone,
 the qubit frequency :math:`f_0` is slightly shifted through what is known as the (AC) Stark effect.
 This technique is sometimes used to characterize qubit properties in the vicinity of

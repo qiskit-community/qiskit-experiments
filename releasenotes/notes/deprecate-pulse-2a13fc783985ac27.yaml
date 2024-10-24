@@ -17,7 +17,7 @@ deprecations:
   - |
     Also due to the deprecation of Qiskit Pulse, support for providing pulse
     gate calibrations to excite higher levels has been deprecated from
-    :class:`qiskit_experiments.library.MultiStateDiscrimination`.
+    :class:`.MultiStateDiscrimination`.
   - |
     The ``Calibrations`` class and all of Qiskit Experiments' calibration
     support is deprecated. The calibrations features were based on adjusting
