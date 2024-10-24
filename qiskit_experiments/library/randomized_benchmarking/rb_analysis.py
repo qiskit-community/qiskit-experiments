@@ -244,7 +244,7 @@ class RBAnalysis(curve.CurveAnalysis):
                         "This analysis cannot compute error per gates. "
                         "Please disable this with 'gate_error_ratio=False'."
                     ) from ex
-                nclif = circ_result["metadata"]["xval"]
+                nclif = circ_result["metadata"]["xval"] + 1
                 for (qinds, gate), count in count_ops:
                     formatted_key = tuple(sorted(qinds)), gate
                     avg_gpc[formatted_key] += count / nclif / n_circs
@@ -324,6 +324,7 @@ def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:
         "cy": 1.0,
         "cz": 1.0,
         "ch": 1.0,
+        "ecr": 1.0,
         "crx": 2.0,
         "cry": 2.0,
         "crz": 2.0,

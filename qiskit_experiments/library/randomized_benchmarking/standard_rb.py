@@ -429,7 +429,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         for circ in transpiled:
             count_ops_result = defaultdict(int)
             # This is physical circuits, i.e. qargs is physical index
-            for inst, qargs, _ in circ.data:
+            for cdata in circ.data:
+                inst = cdata.operation
+                qargs = cdata.qubits
                 if inst.name in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
                 qinds = [qubit_indices[q] for q in qargs]

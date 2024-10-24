@@ -24,6 +24,7 @@ import fixtures
 import testtools
 import uncertainties
 from qiskit.utils.deprecation import deprecate_func
+import qiskit_aer.backends.aerbackend
 
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -32,6 +33,13 @@ from qiskit_experiments.framework import (
 )
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
+
+
+# Workaround until https://github.com/Qiskit/qiskit-aer/pull/2142 is released
+try:
+    del qiskit_aer.backends.aerbackend.AerBackend.get_translation_stage_plugin
+except AttributeError:
+    pass
 
 # Fail tests that take longer than this
 TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
@@ -125,7 +133,18 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # ``QiskitTestCase`` sets all warnings to be treated as an error by
             # default.
             # pylint: disable=invalid-name
-            allow_deprecationwarning_message = []
+            allow_deprecationwarning_message = [
+                ".*qiskit.providers.models.backendconfiguration.GateConfig.*",
+                ".*qiskit.qobj.pulse_qobj.PulseLibraryItem.*",
+                ".*qiskit.providers.models.backendconfiguration.UchannelLO.*",
+                ".*qiskit.providers.models.backendconfiguration.PulseBackendConfiguration.*",
+                ".*qiskit.qobj.pulse_qobj.PulseQobjInstruction.*",
+                ".*qiskit.providers.models.backendconfiguration.QasmBackendConfiguration.*",
+                ".*qiskit.qobj.common.QobjDictField.*",
+                ".*qiskit.providers.models.backendproperties.BackendProperties.*",
+                ".*qiskit.providers.fake_provider.fake_backend.FakeBackend.*",
+                ".*qiskit.providers.backend.BackendV1.*",
+            ]
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 

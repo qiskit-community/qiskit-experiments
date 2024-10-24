@@ -1,4 +1,0 @@
----
-other:
-  - |
-    Display a warning when running an analysis on :class:`.ExperimentData` objects which do not contain data.

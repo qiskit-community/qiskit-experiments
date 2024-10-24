@@ -24,7 +24,7 @@ from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, QubitProperties
-from qiskit.providers.models import PulseDefaults
+from qiskit.providers.models import PulseDefaults  # pylint: disable=no-name-in-module
 from qiskit.providers.models.pulsedefaults import Command
 from qiskit.providers.options import Options
 from qiskit.pulse import Schedule, ScheduleBlock
@@ -544,7 +544,7 @@ class SingleTransmonTestBackend(PulseBackend):
             **kwargs,
         )
 
-        self._defaults = PulseDefaults.from_dict(
+        self._defaults = PulseDefaults.from_dict(  # pylint: disable=no-member
             {
                 "qubit_freq_est": [qubit_frequency / 1e9],
                 "meas_freq_est": [0],

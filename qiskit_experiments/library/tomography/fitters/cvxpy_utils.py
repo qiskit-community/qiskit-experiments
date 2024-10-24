@@ -281,7 +281,7 @@ def trace_preserving_constaint(
 
     # If not hermitian add imaginary partial trace constraint
     if isinstance(mat_i, (tuple, list)):
-        arg_r = cvxpy.sum(mat_i)
+        arg_i = cvxpy.sum(mat_i)
     elif isinstance(mat_i, Variable):
         arg_i = mat_i
     else:

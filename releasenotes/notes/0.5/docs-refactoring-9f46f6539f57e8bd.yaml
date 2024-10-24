@@ -1,9 +1,0 @@
----
-other:
-  - |
-    The package documentation has been updated with introductory tutorials and how-tos
-    for solving specific problems. It is now refactored into four sections: learning
-    tutorials, how-to guides, experiment manuals, and the API references.
-  - |
-    The internal curve analysis helper functions in ``curve_analysis.data_processing``
-    have been moved to ``curve_analysis.utils``.

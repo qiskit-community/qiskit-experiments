@@ -14,13 +14,10 @@
 Base class of curve analysis.
 """
 
-import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union
 
 import lmfit
-
-from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -31,10 +28,8 @@ from qiskit_experiments.framework import (
     Options,
 )
 from qiskit_experiments.visualization import (
-    BaseDrawer,
     BasePlotter,
     CurvePlotter,
-    LegacyCurveCompatDrawer,
     MplDrawer,
 )
 
@@ -130,20 +125,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """A short-cut to the curve plotter instance."""
         return self._options.plotter
 
-    @property
-    @deprecate_func(
-        since="0.5",
-        additional_msg="Use `plotter` from the new visualization module.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def drawer(self) -> BaseDrawer:
-        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
-        if isinstance(self.plotter.drawer, LegacyCurveCompatDrawer):
-            return self.plotter.drawer._curve_drawer
-        else:
-            return None
-
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
@@ -159,8 +140,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 not create a figure. This overrides the behavior of ``generate_figures``.
             return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``False``.
-            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
-                the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
@@ -211,7 +190,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.plot_raw_data = False
         options.plot_residuals = False
         options.return_fit_parameters = True
-        options.return_data_points = False
         options.data_processor = None
         options.normalization = False
         options.average_method = "shots_weighted"
@@ -356,7 +334,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         samples = []
 
-        for model_name, sub_data in list(curve_data.groupby("model_name")):
+        for model_name, sub_data in list(curve_data.dataframe.groupby("model_name")):
             raw_datum = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value={
@@ -405,20 +383,3 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
-
-        # Check if a model contains legacy data mapping option.
-        data_subfit_map = {}
-        for model in self.models:
-            if "data_sort_key" in model.opts:
-                data_subfit_map[model._name] = model.opts["data_sort_key"]
-                del model.opts["data_sort_key"]
-        if data_subfit_map:
-            warnings.warn(
-                "Setting 'data_sort_key' to an LMFIT model constructor is no longer "
-                "valid configuration of the model. "
-                "Use 'data_subfit_map' option in the analysis options. "
-                "This warning will be dropped in v0.6 along with the support for the "
-                "'data_sort_key' in the LMFIT model options.",
-                DeprecationWarning,
-            )
-            self.set_options(data_subfit_map=data_subfit_map)

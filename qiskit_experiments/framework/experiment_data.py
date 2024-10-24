@@ -587,7 +587,7 @@ class ExperimentData:
         if provider is not None:
             self._set_hgp_from_provider(provider)
         # qiskit-ibm-runtime style
-        elif hasattr(self._backend, "_instance"):
+        elif hasattr(self._backend, "_instance") and self._backend._instance:
             self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
@@ -602,7 +602,7 @@ class ExperimentData:
                         self.hgp = hgp_string
                         break
         except (AttributeError, IndexError, QiskitError):
-            return
+            pass
 
     @property
     def hgp(self) -> str:
@@ -2674,11 +2674,18 @@ class ExperimentData:
         """Delete specified artifact data.
 
         Args:
-            artifact_key: UID, name or index of the figure.
+            artifact_key: UID or name of the artifact. Deleting by index is deprecated.
 
         Returns:
             Deleted artifact ids.
         """
+        if isinstance(artifact_key, int):
+            warnings.warn(
+                "Accessing artifacts via a numerical index is deprecated and will be "
+                "removed in a future release. Use the ID or name of the artifact "
+                "instead.",
+                DeprecationWarning,
+            )
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         for key in artifact_keys:
@@ -2696,14 +2703,21 @@ class ExperimentData:
         """Return specified artifact data.
 
         Args:
-            artifact_key: UID, name or index of the figure.
+            artifact_key: UID or name of the artifact. Supplying a numerical index
+            is deprecated.
 
         Returns:
             A list of specified artifact data.
         """
         if artifact_key is None:
             return self._artifacts.values()
-
+        elif isinstance(artifact_key, int):
+            warnings.warn(
+                "Accessing artifacts via a numerical index is deprecated and will be "
+                "removed in a future release. Use the ID or name of the artifact "
+                "instead.",
+                DeprecationWarning,
+            )
         artifact_keys = self._find_artifact_keys(artifact_key)
 
         out = []

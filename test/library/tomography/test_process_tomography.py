@@ -547,6 +547,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             targets = [4 * i.expand(j) for j in [proj0, proj1] for i in [proj0, proj1]]
         elif circuit_clbits == [1, 0]:
             targets = [4 * i.expand(j) for j in [proj0, proj1] for i in [proj0, proj1]]
+        else:
+            targets = None
         num_cond = len(circuit_clbits)
         prob_target = 0.5**num_cond
         for fitter in FITTERS:

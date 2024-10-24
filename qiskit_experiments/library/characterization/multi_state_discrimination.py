@@ -53,6 +53,24 @@ class MultiStateDiscrimination(BaseExperiment):
     # section: analysis_ref
         :class:`MultiStateDiscriminationAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import MultiStateDiscrimination
+
+            exp=MultiStateDiscrimination((0,), backend=backend)
+
+            exp_data=exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         `Qiskit Textbook\
         <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/accessing_higher_energy_states.ipynb>`_

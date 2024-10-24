@@ -1,7 +1,0 @@
----
-features_visualization:
-  - |
-    New figure options were added to the visualization module: ``xscale`` and ``yscale``. They
-    represent parameters to the Matplotlib functions ``set_xscale`` and ``set_yscale``: ``log``,
-    ``linear``, ``symlog``, ``logit``, and ``quadratic`` (the latter is an additional support
-    for quadratic scaling).

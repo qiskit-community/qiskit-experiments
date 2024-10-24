@@ -56,6 +56,33 @@ class Rabi(BaseExperiment, RestlessMixin):
 
     # section: analysis_ref
         :class:`~qiskit_experiments.curve_analysis.OscillationAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=199)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.library import Rabi
+
+            with pulse.build() as build_sched:
+                pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(0))
+
+            exp = Rabi(physical_qubits=(0,),
+                       schedule=build_sched,
+                       amplitudes=np.linspace(-0.1, 0.1, 21),
+                       backend=backend,)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     __gate_name__ = "Rabi"
@@ -199,7 +226,32 @@ class EFRabi(Rabi):
                        └───┘└───────────┘ ░ └╥┘
             measure: 1/══════════════════════╩═
                                              0
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
 
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.library import EFRabi
+
+            with pulse.build() as build_sched:
+                pulse.play(pulse.Gaussian(160, Parameter("amp"), sigma=40), pulse.DriveChannel(0))
+
+            exp = EFRabi(physical_qubits=(0,),
+                         backend=backend,
+                         schedule=build_sched,
+                         amplitudes=np.linspace(-0.1, 0.1, 21),)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     __outcome__ = "rabi_rate_12"

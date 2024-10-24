@@ -1,0 +1,7 @@
+---
+prelude: >
+    The Qiskit Experiments 0.7 release adds the Layer Fidelity experiment and makes some fixes and improvements.
+upgrade:
+  - |
+    Changes in behavior that users should be aware of when upgrading Qiskit Experiments
+    to this version are listed below in subsections by functional area.
