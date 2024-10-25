@@ -3,7 +3,159 @@ Release Notes
 =============
 
 .. release-notes::
-   :earliest-version: 0.6.0
+   :earliest-version: 0.7.0
+
+.. _Release Notes_0.7.0:
+
+0.7.0
+=====
+
+.. _Release Notes_0.7.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/0.7/0_7_release-96efcec2c45dcf74.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+The Qiskit Experiments 0.7 release adds the Layer Fidelity experiment and makes some fixes and improvements.
+
+
+.. _Release Notes_0.7.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/0.7/layer-fidelity-1e09dea9e5b69515.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Add a new experiment class :class:`.LayerFidelity` to measure
+  `layer fidelity and EPLG (error per layered gate) <https://arxiv.org/abs/2311.05933>`_,
+  which is a holistic benchmark to characterize the full quality of the devices at scale.
+  
+  It has an experimental feature: its :meth:`circuits`
+  exceptionally returns circuits on physical qubits (not virtual qubits as usual).
+  Its analysis class :class:`.LayerFidelityAnalysis` returns :class:`.AnalysisResultData`
+  which contains several ``extra`` entries to help additional analyses: e.g.
+  ``qubits`` to ease the query of sub-analysis results and
+  ``reason`` to tell users why the ``quality`` of the analysis was ``"bad"``.
+  
+  For example, the syntax for pulling out the individual fidelities looks like below.
+  
+  .. code-block:: python
+  
+    df = exp_data.analysis_results(dataframe=True)
+    df[(df.name=="ProcessFidelity") & (df.qubits==(59, 60))].value
+  
+  See `an example notebook
+  <https://github.com/qiskit-community/qiskit-device-benchmarking/blob/main/notebooks/layer_fidelity.ipynb>`_
+  for more examples such as how to select a best possible qubit chain to measure and
+  how to plot EPLG as a function of (sub)chain length.
+
+.. releasenotes/notes/0.7/residuals_plot-377aabb9193a5a98.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Added an option to plot residuals for single-figure experiments, which is enable by setting ``plot_residuals`` to ``True``. 
+
+.. releasenotes/notes/0.7/residuals_plot-377aabb9193a5a98.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Introduced ``sub_plot_heights_list`` and ``sub_plot_widths_list`` attributes in :class:`.PlotStyle` for customizable 
+  subplot sizes where each list needs to sum up to 1. This feature currently works only for experiments with
+  no subplots.
+
+
+.. _Release Notes_0.7.0_Known Issues:
+
+Known Issues
+------------
+
+.. releasenotes/notes/0.7/0_6_deprecations-9a399c48c2d461f1.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Fit parameters are not populated in composite curve analysis results and are
+  found only in the fit summary artifact. In a future release, they will be 
+  removed from all analysis result objects and live in the artifacts only.
+
+
+.. _Release Notes_0.7.0_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/0.7/0_7_release-96efcec2c45dcf74.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Changes in behavior that users should be aware of when upgrading Qiskit Experiments
+  to this version are listed below in subsections by functional area.
+
+
+.. _Release Notes_0.7.0_Package Upgrades:
+
+Package Upgrades
+^^^^^^^^^^^^^^^^
+
+.. releasenotes/notes/0.7/0_6_deprecations-9a399c48c2d461f1.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Several deprecated modules, methods, functions, and options have been removed and will no longer work:
+  
+  * The visualization module of :mod:`.CurveAnalysis` has been replaced by the
+    standalone :mod:`.visualization` module. The ``LegacyCurveCompatDrawer`` has
+    been removed from :mod:`.visualization`.
+  * The ``curve_drawer`` option to :class:`.CompositeCurveAnalysis` has been
+    replaced by the plotter in the visualization module.
+  * The ``SeriesDef`` dataclass has been removed and replaced by the ``LMFIT`` module.
+  * The ``CurveData`` dataclass has been removed and replaced by :class:`.ScatterTable`'s DataFrame representation.
+  * ``random_cliffords()`` and ``random_clifford_circuits()`` have been
+    removed from :class:`.CliffordUtils` and replaced by :meth:`.StandardRB.__sample_sequence`.
+  * ``beta`` has been renamed to ``outcome_prior`` in the tomography utility
+    function ``binomial_weights()``.
+  * The ``return_data_points`` option has been removed from curve analysis.
+    Data points are now automatically provided in :class:`.ExperimentData` objects via the ``curve_data``
+    artifact.
+  * The default value of ``flatten_results`` in composite experiments has changed to ``True``.
+
+
+.. _Release Notes_0.7.0_Deprecation Notes:
+
+Deprecation Notes
+-----------------
+
+.. releasenotes/notes/0.7/0_6_deprecations-9a399c48c2d461f1.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Accessing experiment data artifacts by numerical index has been
+  deprecated. Use the name or ID of the artifact instead.
+
+
+.. _Release Notes_0.7.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/0.7/fix-ecr-epg-59c8db98494966b0.yaml @ b'7a0924c24549ab4f38819a86c0ac49214d819ba2'
+
+- Fixed a bug in EPG (error per gate) computation in :class:`~.RBAnalysis`
+  where it fails with a ``TypeError`` for backends with ECR gate
+  as a 2-qubit basis gate (e.g. IBM Eagle processors).
+  See
+  `#1419
+  <https://github.com/Qiskit-Community/qiskit-experiments/pull/1419>`_.
+  for the details of the bug.
+
+.. releasenotes/notes/0.7/fix-epg-gatecount-60777f7a3f3566bc.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- The gate counting for EPG in the RB analysis code was not including the 
+  inverse, so that the total number of operations per Clifford was incorrect,
+  leading to incorrect reporting of EPG from EPC. Fixed by adding +1 for the
+  inverse gate.
+
+
+.. _Release Notes_0.7.0_Other Notes:
+
+Other Notes
+-----------
+
+.. releasenotes/notes/0.7/add-examples-to-characterization-experiments-e77d4d26c6b49694.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
+
+- Added minimal working code examples to many experiment API pages,
+  especially characterization experiments. The minimal working code example
+  is a code snippet which users can copy and paste to run the experiment.
+  Users are required to specify a backend to use the code example. By default,
+  the backend used in the examples is a simulator such as ``FakeManilaV2``.
 
 .. _Release Notes_0.6.1:
 
