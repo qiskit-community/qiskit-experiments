@@ -148,8 +148,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         # Test the circuits
         circ = spec.circuits()[0]
-        self.assertEqual(circ.data[0][0].name, "x")
-        self.assertEqual(circ.data[1][0].name, "Spec")
+        self.assertEqual(circ.data[0].operation.name, "x")
+        self.assertEqual(circ.data[1].operation.name, "Spec")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

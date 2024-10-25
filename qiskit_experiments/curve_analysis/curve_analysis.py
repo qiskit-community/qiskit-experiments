@@ -34,7 +34,7 @@ from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import PlotStyle
 
-from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX, PARAMS_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
@@ -62,7 +62,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the
     circuit metadata. The series classification is also performed based upon the
-    matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.
+    matching of circuit metadata.
 
     .. rubric:: _format_data
 
@@ -703,16 +703,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                     **self.options.extra.copy(),
                 )
             )
-
-        if self.options.return_data_points:
-            # Add raw data points
-            warnings.warn(
-                f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
-                "Saving this result with 'return_data_points'=True will be disabled in "
-                "Qiskit Experiments 0.7.",
-                DeprecationWarning,
-            )
-            result_data.extend(self._create_curve_data(curve_data=formatted_subset))
 
         artifacts.append(
             ArtifactData(

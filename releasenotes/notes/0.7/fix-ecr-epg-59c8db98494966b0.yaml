@@ -6,5 +6,5 @@ fixes:
     as a 2-qubit basis gate (e.g. IBM Eagle processors).
     See
     `#1419
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1419>`_.
+    <https://github.com/Qiskit-Community/qiskit-experiments/pull/1419>`_.
     for the details of the bug.

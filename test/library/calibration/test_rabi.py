@@ -151,8 +151,8 @@ class TestEFRabi(QiskitExperimentsTestCase):
             pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
 
         self.assertEqual(circ.calibrations["Rabi"][((2,), (0.5,))], expected)
-        self.assertEqual(circ.data[0][0].name, "x")
-        self.assertEqual(circ.data[1][0].name, "Rabi")
+        self.assertEqual(circ.data[0].operation.name, "x")
+        self.assertEqual(circ.data[1].operation.name, "Rabi")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

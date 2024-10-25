@@ -20,7 +20,6 @@ from numbers import Integral
 from typing import Optional, Union, Tuple, Sequence, Iterable
 
 import numpy as np
-from numpy.random import Generator, default_rng
 
 from qiskit.circuit import CircuitInstruction, Qubit
 from qiskit.circuit import Gate, Instruction
@@ -28,10 +27,9 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.passes.synthesis.high_level_synthesis import HLSConfig, HighLevelSynthesis
-from qiskit.utils.deprecation import deprecate_func
 
 DEFAULT_SYNTHESIS_METHOD = "rb_default"
 
@@ -46,6 +44,8 @@ _CLIFFORD_COMPOSE_2Q_DENSE = _clifford_compose_2q_data["table"]
 _valid_sparse_indices = _clifford_compose_2q_data["valid_sparse_indices"]
 # map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE
 _clifford_num_to_dense_index = {idx: ii for ii, idx in enumerate(_valid_sparse_indices)}
+_CLIFFORD_TENSOR_1Q = np.load(f"{_DATA_FOLDER}/clifford_tensor_1q.npz")["table"]
+
 
 # Transpilation utilities
 def _transpile_clifford_circuit(
@@ -57,11 +57,9 @@ def _transpile_clifford_circuit(
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
     # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
-    # Note that the resulting circuit depends on the input circuit,
-    # that means the changes on the input circuit may affect the resulting circuit.
-    # For example, the resulting circuit shares the parameter_table of the input circuit,
     res = circuit.copy_empty_like()
-    res._parameter_table = circuit._parameter_table
+    if hasattr(circuit, "_parameter_table"):
+        res._parameter_table = circuit._parameter_table
     for inst in circuit:
         if inst.operation.name.startswith("Clifford"):  # Decompose
             rule = inst.operation.definition.data
@@ -89,7 +87,8 @@ def _apply_qubit_layout(circuit: QuantumCircuit, physical_qubits: Sequence[int])
     for reg in circuit.cregs:
         res.add_register(reg)
     _circuit_compose(res, circuit, qubits=physical_qubits)
-    res._parameter_table = circuit._parameter_table
+    if hasattr(circuit, "_parameter_table"):
+        res._parameter_table = circuit._parameter_table
     return res
 
 
@@ -313,54 +312,6 @@ class CliffordUtils:
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
     @classmethod
-    @deprecate_func(
-        since="0.5",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def random_cliffords(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford elements"""
-        if rng is None:
-            rng = default_rng()
-        elif isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
-        if num_qubits == 2:
-            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [Clifford(cls.clifford_2_qubit_circuit(i), validate=False) for i in samples]
-
-        return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
-
-    @classmethod
-    @deprecate_func(
-        since="0.5",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def random_clifford_circuits(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford circuits"""
-        if rng is None:
-            rng = default_rng()
-        elif isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [cls.clifford_1_qubit_circuit(i) for i in samples]
-        if num_qubits == 2:
-            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [cls.clifford_2_qubit_circuit(i) for i in samples]
-
-        return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
-
-    @classmethod
     @lru_cache(maxsize=24)
     def clifford_1_qubit_circuit(
         cls,
@@ -486,7 +437,11 @@ def inverse_1q(num: Integral) -> Integral:
 
 
 def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
-    """Convert a given 1-qubit Clifford circuit to the corresponding integer."""
+    """Convert a given 1-qubit Clifford circuit to the corresponding integer.
+
+    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_1Q`,
+    RZGate, Delay and Barrier.
+    """
     num = 0
     for inst in qc:
         rhs = _num_from_1q_gate(op=inst.operation)
@@ -497,7 +452,7 @@ def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
 def _num_from_1q_gate(op: Instruction) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
-    Note that supported operations are limited to ones in :const:`CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
+    Note that supported operations are limited to ones in :const:`_CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
 
     Args:
         op: operation to be converted.
@@ -556,7 +511,11 @@ def inverse_2q(num: Integral) -> Integral:
 
 
 def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
-    """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
+    """Convert a given 2-qubit Clifford circuit to the corresponding integer.
+
+    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_2Q`,
+    RZGate, Delay and Barrier.
+    """
     lhs = 0
     for rhs in _clifford_2q_nums_from_2q_circuit(qc):
         lhs = _CLIFFORD_COMPOSE_2Q_DENSE[lhs, _clifford_num_to_dense_index[rhs]]
@@ -568,7 +527,7 @@ def _num_from_2q_gate(
 ) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
-    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.
+    Note that supported operations are limited to ones in `_CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.
 
     Args:
         op: operation of instruction to be converted.
@@ -730,3 +689,8 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
+
+
+def _tensor_1q_nums(first: Integral, second: Integral) -> Integral:
+    """Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords."""
+    return _CLIFFORD_TENSOR_1Q[first, second]

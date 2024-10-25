@@ -35,10 +35,10 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = os.getenv("VERSION_STRING", "0.7")
+version = os.getenv("VERSION_STRING", "0.8")
 
 # The full version, including alpha/beta/rc tags
-release = os.getenv("RELEASE_STRING", "0.7.0")
+release = os.getenv("RELEASE_STRING", "0.8.0")
 
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
@@ -165,7 +165,7 @@ intersphinx_mapping = {
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "pandas": ("http://pandas.pydata.org/docs/", None),
     "qiskit_aer": ("https://qiskit.github.io/qiskit-aer/", None),
-    "qiskit_dynamics": ("https://qiskit-extensions.github.io/qiskit-dynamics/", None),
+    "qiskit_dynamics": ("https://qiskit-community.github.io/qiskit-dynamics/", None),
     "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
 }
 
@@ -176,7 +176,7 @@ if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. note::
     This is the documentation for the current state of the `development branch 
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main>`_
+    <https://github.com/Qiskit-Community/qiskit-experiments/tree/main>`_
     of Qiskit Experiments. The documentation or APIs here can change prior to being
     released.
 """
@@ -213,7 +213,6 @@ def setup(app):
 # Should come up with better way to address this
 
 from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.curve_analysis import SeriesDef
 
 
 def maybe_skip_member(app, what, name, obj, skip, options):
@@ -227,9 +226,6 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "y",
         "y_err",
         "name",
-        "filter_kwargs",
-        "fit_func",
-        "signature",
         "artifact_id",
         "artifact_data",
         "device_components",
@@ -239,10 +235,6 @@ def maybe_skip_member(app, what, name, obj, skip, options):
     skip_members = [
         ParameterRepr.repr,
         ParameterRepr.unit,
-        SeriesDef.plot_color,
-        SeriesDef.plot_symbol,
-        SeriesDef.model_description,
-        SeriesDef.canvas,
     ]
     if not skip:
         return (name in skip_names or obj in skip_members) and what == "attribute"

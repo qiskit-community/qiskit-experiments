@@ -15,7 +15,6 @@ Batch Experiment class.
 
 from typing import List, Optional, Dict
 from collections import OrderedDict, defaultdict
-import warnings
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Job, Backend, Options
@@ -47,7 +46,7 @@ class BatchExperiment(CompositeExperiment):
         self,
         experiments: List[BaseExperiment],
         backend: Optional[Backend] = None,
-        flatten_results: bool = None,
+        flatten_results: bool = True,
         analysis: Optional[CompositeAnalysis] = None,
         experiment_type: Optional[str] = None,
     ):
@@ -66,17 +65,6 @@ class BatchExperiment(CompositeExperiment):
                       provided this will be initialized automatically from the
                       supplied experiments.
         """
-        if flatten_results is None:
-            # Backward compatibility for 0.6
-            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
-            warnings.warn(
-                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
-                "If you want child experiment data for each subset experiment, "
-                "set 'flatten_results=False' explicitly.",
-                DeprecationWarning,
-            )
-            flatten_results = False
-
         # Generate qubit map
         self._qubit_map = OrderedDict()
         logical_qubit = 0

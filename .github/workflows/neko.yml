@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   neko:
-    if: github.repository_owner == 'Qiskit-Extensions'
+    if: github.repository_owner == 'Qiskit-Community'
     name: Qiskit Neko Integration Tests
     runs-on: ubuntu-latest
     steps:

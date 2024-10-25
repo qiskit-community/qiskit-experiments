@@ -37,6 +37,27 @@ class T1(BaseExperiment):
     # section: analysis_ref
         :class:`.T1Analysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+            from qiskit_aer import AerSimulator
+            backend = AerSimulator.from_backend(FakeManilaV2())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import T1
+
+            delays = np.arange(1.e-6, 300.e-6, 30.e-6)
+            exp = T1(physical_qubits=(0, ), delays=delays, backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: manual
         :doc:`/manuals/characterization/t1`
 

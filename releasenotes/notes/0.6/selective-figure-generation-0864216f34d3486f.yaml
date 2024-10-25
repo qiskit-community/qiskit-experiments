@@ -1,9 +1,0 @@
----
-features_analysis:
-  - |
-    The ``generate_figures`` parameter has been added to :class:`.CompositeAnalysis` to control figure
-    generation. By default, ``generate_figures`` is ``always``, meaning figures will always be generated.
-    If ``generate_figures`` is set to ``selective``, then only figures for analysis results of bad
-    quality will be generated. If ``generate_figures`` is set to ``never``, then figures will never be
-    generated. This behavior can be overridden for individual analyses by setting the analysis option
-    ``plot`` for :class:`.CurveAnalysis`.
