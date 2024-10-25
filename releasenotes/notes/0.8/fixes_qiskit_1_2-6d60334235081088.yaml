@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Qiskit Experiments was updated to be compatible with Qiskit 1.2, 
+    including removing references to ``QuantumCircuit._parameter_table``
+    which prevented randomized benchmarking and layer fidelity 
+    experiments from running.
