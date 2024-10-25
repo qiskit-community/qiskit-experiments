@@ -25,14 +25,17 @@ class BackendData:
 
     def __init__(self, backend):
         """Inits the backend and verifies version"""
-        warnings.filterwarnings(
-            "ignore", message=".*qiskit.qobj.pulse_qobj.*", category=DeprecationWarning
-        )
+
         self._backend = backend
         self._v1 = isinstance(backend, BackendV1)
         self._v2 = isinstance(backend, BackendV2)
+
         if self._v2:
-            self._parse_additional_data()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore", message=".*qiskit.qobj.pulse_qobj.*", category=DeprecationWarning
+                )
+                self._parse_additional_data()
 
     def _parse_additional_data(self):
         # data specific parsing not done yet in upstream qiskit
