@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="RoughXSXAmplitudeCal" href="qiskit_experiments.library.calibration.RoughXSXAmplitudeCal.html" /><link rel="prev" title="HalfAngleCal" href="qiskit_experiments.library.calibration.HalfAngleCal.html" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>RoughAmplitudeCal - Qiskit Experiments 0.7.0-5-g02572a38</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>RoughAmplitudeCal - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-5-g02572a38</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-5-g02572a38</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -217,7 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtos/runtime_sessions.html">Use Experiments with Runtime sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -872,20 +872,22 @@ experiment on the currently set backend.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.calibration.RoughAmplitudeCal.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">run_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.calibration.RoughAmplitudeCal.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">run_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.calibration.RoughAmplitudeCal.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run an experiment and perform analysis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on. This
-will override any currently set backends for the single
-execution.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.2)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+If None then a sampler will be invoked from previously
+set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
 analysis. If None analysis will not be run. If <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>
 the experiments <a class="reference internal" href="#qiskit_experiments.library.calibration.RoughAmplitudeCal.analysis" title="qiskit_experiments.library.calibration.RoughAmplitudeCal.analysis"><code class="xref py py-meth docutils literal notranslate"><span class="pre">analysis()</span></code></a> instance will be used if
 it contains one.</p></li>
 <li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Time to wait for experiment jobs to finish running before
 cancelling.</p></li>
+<li><p><strong>backend_run</strong> (<em>bool</em><em> | </em><em>None</em>) – Use backend run (temp option for testing)</p></li>
 <li><p><strong>run_options</strong> – backend runtime options used for circuit execution.</p></li>
 </ul>
 </dd>
@@ -1005,7 +1007,7 @@ for “x” and “sx” gates, respectively) and <span class="math notranslate 
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/09/30</div>
+              Last updated on 2024/10/25</div>
           </div>
           <div class="right-details">
             
@@ -1061,8 +1063,8 @@ for “x” and “sx” gates, respectively) and <span class="math notranslate 
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=7975d3a3"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../_static/documentation_options.js?v=b3eed256"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

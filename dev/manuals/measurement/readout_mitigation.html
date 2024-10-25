@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Restless Measurements" href="restless_measurements.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.7.0-5-g02572a38</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Readout Mitigation - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-5-g02572a38</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-5-g02572a38</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -217,7 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../howtos/runtime_sessions.html">Use Experiments with Runtime sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Experiment Manuals</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -634,6 +634,10 @@ experiments to generate the corresponding mitigators.</p>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -729,7 +733,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/readout_mitigation_4_0.png" src="../../_images/readout_mitigation_4_0.png" />
+<img alt="../../_images/readout_mitigation_5_0.png" src="../../_images/readout_mitigation_5_0.png" />
 </div>
 </div>
 </section>
@@ -745,17 +749,17 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.02489627 -0.0373444 ]
- [-0.02489627  1.0373444 ]]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[[ 1.02795031 -0.0320911 ]
+ [-0.02795031  1.0320911 ]]
 
-[[ 1.02057613 -0.03292181]
- [-0.02057613  1.03292181]]
+[[ 1.01430031 -0.03166496]
+ [-0.01430031  1.03166496]]
 
-[[ 1.02901554 -0.03212435]
- [-0.02901554  1.03212435]]
+[[ 1.04837014 -0.02839117]
+ [-0.04837014  1.02839117]]
 
-[[ 1.02572016 -0.02777778]
- [-0.02572016  1.02777778]]
+[[ 1.0354536  -0.03232534]
+ [-0.0354536   1.03232534]]
 
 </pre></div>
 </div>
@@ -808,7 +812,7 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/readout_mitigation_9_0.png" src="../../_images/readout_mitigation_9_0.png" />
+<img alt="../../_images/readout_mitigation_10_0.png" src="../../_images/readout_mitigation_10_0.png" />
 </div>
 </div>
 </section>
@@ -846,10 +850,10 @@ the identity.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f5221c4f4a0&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f99ecf229f0&gt;
 </pre></div>
 </div>
-<img alt="../../_images/readout_mitigation_11_1.png" src="../../_images/readout_mitigation_11_1.png" />
+<img alt="../../_images/readout_mitigation_12_1.png" src="../../_images/readout_mitigation_12_1.png" />
 </div>
 </div>
 </section>
@@ -950,7 +954,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/09/30</div>
+              Last updated on 2024/10/25</div>
           </div>
           <div class="right-details">
             
@@ -992,8 +996,8 @@ meas: 2/═════════╩══╩═
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=7975d3a3"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../../_static/documentation_options.js?v=b3eed256"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

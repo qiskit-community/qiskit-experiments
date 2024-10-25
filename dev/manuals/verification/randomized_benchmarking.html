@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.7.0-5-g02572a38</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Randomized Benchmarking - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-5-g02572a38</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-5-g02572a38</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -217,7 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../howtos/runtime_sessions.html">Use Experiments with Runtime sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Experiment Manuals</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -618,6 +618,10 @@ explanation on the RB method, which is based on Refs. <a class="footnote-referen
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -717,7 +721,7 @@ interleaved RB experiment will always give you accurate error value <span class=
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {&#39;x&#39;: 1.0, &#39;rz&#39;: 0.0, &#39;sx&#39;: 1.0}
 </pre></div>
 </div>
-<img alt="../../_images/randomized_benchmarking_1_1.png" src="../../_images/randomized_benchmarking_1_1.png" />
+<img alt="../../_images/randomized_benchmarking_2_1.png" src="../../_images/randomized_benchmarking_2_1.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: @Parameters_RBAnalysis
 - value: CurveFitResult:
@@ -725,48 +729,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 135
+ - number of function evals: 88
  - degree of freedom: 1
- - chi-square: 1.6637727119088639
- - reduced chi-square: 1.6637727119088639
- - Akaike info crit.: 2.4911735221949924
- - Bayesian info crit.: 0.6500566055546639
+ - chi-square: 0.07900439416128924
+ - reduced chi-square: 0.07900439416128924
+ - Akaike info crit.: -9.698184667548272
+ - Bayesian info crit.: -11.5393015841886
  - init params:
-  * a = 0.46985974867033287
-  * alpha = 0.9995717613914864
+  * a = 0.4714025588166619
+  * alpha = 0.9996116978618029
   * b = 0.5
  - fit params:
-  * a = 0.9706463984720736 ± 1.5479384685514104
-  * alpha = 0.999806814104327 ± 0.00032251695568461246
-  * b = 1.6122337133310382e-13 ± 1.5485893835334519
+  * a = 0.31940658482376466 ± 0.16243536594303778
+  * alpha = 0.999391672624667 ± 0.0003644099023263068
+  * b = 0.6519405864088723 ± 0.1629851548256982
  - correlations:
-  * (a, b) = -0.9999995959146286
-  * (alpha, b) = -0.9998168907852247
-  * (a, alpha) = 0.9998044532559635
+  * (a, b) = -0.9999527396263692
+  * (alpha, b) = -0.9986500561677166
+  * (a, alpha) = 0.9982837151311008
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.99981+/-0.00032
-- χ²: 1.6637727119088639
+- value: 0.9994+/-0.0004
+- χ²: 0.07900439416128924
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00010+/-0.00016
-- χ²: 1.6637727119088639
+- value: 0.00030+/-0.00018
+- χ²: 0.07900439416128924
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00012+/-0.00021
-- χ²: 1.6637727119088639
+- value: 0.00039+/-0.00024
+- χ²: 0.07900439416128924
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -774,15 +778,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 1.6637727119088639
+- χ²: 0.07900439416128924
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00012+/-0.00021
-- χ²: 1.6637727119088639
+- value: 0.00039+/-0.00024
+- χ²: 0.07900439416128924
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -880,7 +884,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {&#39;cx&#39;: 1.0}
 </pre></div>
 </div>
-<img alt="../../_images/randomized_benchmarking_3_1.png" src="../../_images/randomized_benchmarking_3_1.png" />
+<img alt="../../_images/randomized_benchmarking_4_1.png" src="../../_images/randomized_benchmarking_4_1.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: @Parameters_RBAnalysis
 - value: CurveFitResult:
@@ -888,56 +892,56 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 16
+ - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 0.8361989237803363
- - reduced chi-square: 0.20904973094508408
- - Akaike info crit.: -8.87359227306404
- - Bayesian info crit.: -9.035861825898099
+ - chi-square: 2.86466159602895
+ - reduced chi-square: 0.7161653990072375
+ - Akaike info crit.: -0.2542194570395653
+ - Bayesian info crit.: -0.4164890098736258
  - init params:
-  * a = 0.688905278680655
-  * alpha = 0.9760979414732515
+  * a = 0.6921900422288797
+  * alpha = 0.9741438648201002
   * b = 0.25
  - fit params:
-  * a = 0.6887402138923753 ± 0.00541946990228488
-  * alpha = 0.9761464122938929 ± 0.0006977240849852938
-  * b = 0.2498871280312365 ± 0.003505514192252431
+  * a = 0.6893409274078948 ± 0.0047980952499960434
+  * alpha = 0.9759149244771056 ± 0.0007158751064366773
+  * b = 0.2513915531201706 ± 0.0032917245571984
  - correlations:
-  * (alpha, b) = -0.781890300069769
-  * (a, b) = -0.527972700128681
-  * (a, alpha) = 0.26566663703857235
+  * (alpha, b) = -0.7588023548346473
+  * (a, b) = -0.5599244216633221
+  * (a, alpha) = 0.2788881315485188
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9761+/-0.0007
-- χ²: 0.20904973094508408
+- value: 0.9759+/-0.0007
+- χ²: 0.7161653990072375
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0179+/-0.0005
-- χ²: 0.20904973094508408
+- value: 0.0181+/-0.0005
+- χ²: 0.7161653990072375
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0169+/-0.0008
-- χ²: 0.20904973094508408
+- value: 0.0164+/-0.0007
+- χ²: 0.7161653990072375
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0120+/-0.0005
-- χ²: 0.20904973094508408
+- value: 0.0116+/-0.0005
+- χ²: 0.7161653990072375
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -964,7 +968,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/randomized_benchmarking_4_0.png" src="../../_images/randomized_benchmarking_4_0.png" />
+<img alt="../../_images/randomized_benchmarking_5_0.png" src="../../_images/randomized_benchmarking_5_0.png" />
 </div>
 </div>
 <p>You can decompose the circuit into underlying gates:</p>
@@ -975,7 +979,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/randomized_benchmarking_5_0.png" src="../../_images/randomized_benchmarking_5_0.png" />
+<img alt="../../_images/randomized_benchmarking_6_0.png" src="../../_images/randomized_benchmarking_6_0.png" />
 </div>
 </div>
 <p>And see the transpiled circuit using the basis gate set of the backend:</p>
@@ -987,7 +991,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/randomized_benchmarking_6_0.png" src="../../_images/randomized_benchmarking_6_0.png" />
+<img alt="../../_images/randomized_benchmarking_7_0.png" src="../../_images/randomized_benchmarking_7_0.png" />
 </div>
 </div>
 <div class="admonition note">
@@ -1048,7 +1052,7 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/randomized_benchmarking_8_0.png" src="../../_images/randomized_benchmarking_8_0.png" />
+<img alt="../../_images/randomized_benchmarking_9_0.png" src="../../_images/randomized_benchmarking_9_0.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: @Parameters_InterleavedRBAnalysis
 - value: CurveFitResult:
@@ -1057,53 +1061,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 20
+ - number of function evals: 25
  - degree of freedom: 10
- - chi-square: 15.127717506898327
- - reduced chi-square: 1.5127717506898326
- - Akaike info crit.: 9.084598592567316
- - Bayesian info crit.: 11.64082791102835
+ - chi-square: 3.7915412907443007
+ - reduced chi-square: 0.3791541290744301
+ - Akaike info crit.: -10.287986082385316
+ - Bayesian info crit.: -7.731756763924283
  - init params:
-  * a = 0.689057740859343
-  * alpha = 0.9767290678206808
+  * a = 0.6903036360330962
+  * alpha = 0.9750576293000655
   * b = 0.25
-  * alpha_c = 0.9853576447802687
+  * alpha_c = 0.9919455782152937
  - fit params:
-  * a = 0.6913365203996458 ± 0.004541945061353145
-  * alpha = 0.9764464627076629 ± 0.0005071724864643519
-  * b = 0.24719107687555808 ± 0.0016903951454781058
-  * alpha_c = 0.9853518640536534 ± 0.0008769239526140299
+  * a = 0.6909498890213854 ± 0.004013894104863283
+  * alpha = 0.9762959538069708 ± 0.00044742079243928755
+  * b = 0.2511285363960596 ± 0.0023070237415827905
+  * alpha_c = 0.9832368617182349 ± 0.0010259534736410298
  - correlations:
-  * (alpha, b) = -0.5424097498631727
-  * (alpha, alpha_c) = -0.25803560874171827
-  * (a, b) = -0.2508862492417495
-  * (b, alpha_c) = -0.19984629302438034
-  * (a, alpha) = -0.09048326741841978
-  * (a, alpha_c) = -0.005756621394289847
+  * (alpha, b) = -0.6168103896099701
+  * (a, b) = -0.469999643376159
+  * (b, alpha_c) = -0.24526475754190316
+  * (alpha, alpha_c) = -0.07771833157954333
+  * (a, alpha_c) = 0.027163411075587878
+  * (a, alpha) = 0.09605416276265052
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9764+/-0.0005
-- χ²: 1.5127717506898326
+- value: 0.9763+/-0.0004
+- χ²: 0.3791541290744301
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9854+/-0.0009
-- χ²: 1.5127717506898326
+- value: 0.9832+/-0.0010
+- χ²: 0.3791541290744301
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0110+/-0.0007
-- χ²: 1.5127717506898326
+- value: 0.0126+/-0.0008
+- χ²: 0.3791541290744301
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1190,7 +1194,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/09/30</div>
+              Last updated on 2024/10/25</div>
           </div>
           <div class="right-details">
             
@@ -1230,8 +1234,8 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=7975d3a3"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../../_static/documentation_options.js?v=b3eed256"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

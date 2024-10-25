@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.7.0-5-g02572a38</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-5-g02572a38</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-5-g02572a38</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -217,7 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../howtos/runtime_sessions.html">Use Experiments with Runtime sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../manuals/index.html">Experiment Manuals</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -616,6 +616,8 @@
 <span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
 <span class="kn">from</span> <span class="nn">qiskit.qobj.utils</span> <span class="kn">import</span> <span class="n">MeasLevel</span>
 <span class="kn">from</span> <span class="nn">qiskit.providers.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">qiskit.primitives.base</span> <span class="kn">import</span> <span class="n">BaseSamplerV2</span>
+<span class="kn">from</span> <span class="nn">qiskit_ibm_runtime</span> <span class="kn">import</span> <span class="n">SamplerV2</span> <span class="k">as</span> <span class="n">Sampler</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework.store_init_args</span> <span class="kn">import</span> <span class="n">StoreInitArgs</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework.base_analysis</span> <span class="kn">import</span> <span class="n">BaseAnalysis</span>
@@ -635,6 +637,7 @@
         <span class="n">analysis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">experiment_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend_run</span><span class="p">:</span> <span class="n">Options</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment object.</span>
 
@@ -643,7 +646,7 @@
 <span class="sd">            analysis: Optional, the analysis to use for the experiment.</span>
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
 <span class="sd">            experiment_type: Optional, the experiment type string.</span>
-
+<span class="sd">            backend_run: Optional, use backend run vs the sampler (temporary)</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If qubits contains duplicates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -677,6 +680,7 @@
         <span class="c1"># attributes created during initialization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_run</span> <span class="o">=</span> <span class="n">backend_run</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">Backend</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
 
@@ -803,22 +807,26 @@
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseSamplerV2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">analysis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend_run</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">run_options</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentData</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run an experiment and perform analysis.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            backend: Optional, the backend to run the experiment on. This</span>
-<span class="sd">                     will override any currently set backends for the single</span>
-<span class="sd">                     execution.</span>
+<span class="sd">            backend: Optional, the backend to run on. Will override existing backend settings.</span>
+<span class="sd">            sampler: Optional, the sampler to run the experiment on.</span>
+<span class="sd">                      If None then a sampler will be invoked from previously</span>
+<span class="sd">                      set backend</span>
 <span class="sd">            analysis: Optional, a custom analysis instance to use for performing</span>
 <span class="sd">                      analysis. If None analysis will not be run. If ``&quot;default&quot;``</span>
 <span class="sd">                      the experiments :meth:`analysis` instance will be used if</span>
 <span class="sd">                      it contains one.</span>
 <span class="sd">            timeout: Time to wait for experiment jobs to finish running before</span>
 <span class="sd">                     cancelling.</span>
+<span class="sd">            backend_run: Use backend run (temp option for testing)</span>
 <span class="sd">            run_options: backend runtime options used for circuit execution.</span>
 
 <span class="sd">        Returns:</span>
@@ -829,11 +837,31 @@
 <span class="sd">                         ExperimentData container.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">analysis</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span> <span class="ow">or</span> <span class="n">run_options</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="n">sampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">analysis</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span>
+            <span class="ow">or</span> <span class="n">run_options</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="n">backend_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="c1"># Make a copy to update analysis or backend if one is provided at runtime</span>
             <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
-                <span class="n">experiment</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">backend_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">experiment</span><span class="o">.</span><span class="n">_backend_run</span> <span class="o">=</span> <span class="n">backend_run</span>
+            <span class="c1"># we specified a backend OR a sampler</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># backend only specified</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># sampler only specifid</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">_backend</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># we specified both a sampler and a backend</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_run</span><span class="p">:</span>
+                        <span class="n">experiment</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">experiment</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">_backend</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">BaseAnalysis</span><span class="p">):</span>
                 <span class="n">experiment</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">analysis</span>
             <span class="k">if</span> <span class="n">run_options</span><span class="p">:</span>
@@ -857,7 +885,7 @@
         <span class="n">run_opts</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">run_options</span><span class="o">.</span><span class="vm">__dict__</span>
 
         <span class="c1"># Run jobs</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_run_jobs</span><span class="p">(</span><span class="n">transpiled_circuits</span><span class="p">,</span> <span class="o">**</span><span class="n">run_opts</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_run_jobs</span><span class="p">(</span><span class="n">transpiled_circuits</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span> <span class="o">**</span><span class="n">run_opts</span><span class="p">)</span>
         <span class="n">experiment_data</span><span class="o">.</span><span class="n">add_jobs</span><span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
         <span class="c1"># Optionally run analysis</span>
@@ -943,7 +971,9 @@
         <span class="p">}</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_run_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Job</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_run_jobs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="n">sampler</span><span class="p">:</span> <span class="n">BaseSamplerV2</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Job</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run circuits on backend as 1 or more jobs.&quot;&quot;&quot;</span>
         <span class="n">max_circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
 
@@ -958,7 +988,43 @@
             <span class="n">job_circuits</span> <span class="o">=</span> <span class="p">[</span><span class="n">circuits</span><span class="p">]</span>
 
         <span class="c1"># Run jobs</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_run</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># instantiate a sampler from the backend</span>
+                <span class="n">sampler</span> <span class="o">=</span> <span class="n">Sampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+
+                <span class="c1"># have to hand set some of these options</span>
+                <span class="c1"># see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime</span>
+                <span class="c1"># /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2</span>
+                <span class="k">if</span> <span class="s2">&quot;init_qubits&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">init_qubits</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;init_qubits&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;rep_delay&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">rep_delay</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;rep_delay&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;meas_level&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;classified&quot;</span>
+                    <span class="k">elif</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">&quot;meas_return&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_return&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;avg_kerneled&quot;</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;kerneled&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># assume this is what is wanted if no  meas return specified</span>
+                            <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;kerneled&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Only meas level 1 + 2 supported by sampler&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;noise_model&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">noise_model</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;noise_model&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;seed_simulator&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;seed_simulator&quot;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_shots</span> <span class="o">=</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
+
+            <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">jobs</span>
 
@@ -1130,7 +1196,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/09/30</div>
+              Last updated on 2024/10/25</div>
           </div>
           <div class="right-details">
             
@@ -1145,8 +1211,8 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=7975d3a3"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../../../_static/documentation_options.js?v=b3eed256"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
