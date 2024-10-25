@@ -1,0 +1,15 @@
+---
+prelude: >
+    In this release we added support for the Qiskit primitives.
+    Qiskit Experiments will execute circuits using :class:`qiskit_ibm_runtime.SamplerV2` by default. 
+upgrade:
+  - |
+    When only a ``backend`` is set on an experiment, :meth:`qiskit_experiments.framework.BaseExperiment.run`
+    now defaults to wrapping the ``backend`` in a :class:`qiskit_ibm_runtime.SamplerV2` and
+    using that to execute the circuits. A new ``sampler`` argument is also
+    accepted by ``run()`` to allow for a custom :class:`qiskit.primitives.BaseSamplerV2`
+    instance to be used for circuit execution. ``run()`` also accepts a ``backend_run``
+    option which will cause the old ``backend.run`` path to be used for circuit execution.
+    However, the ``backend.run()`` method is scheduled to be removed from
+    qiskit-ibm-runtime in the near future.  
+

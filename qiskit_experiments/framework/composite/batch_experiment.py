@@ -18,6 +18,7 @@ from collections import OrderedDict, defaultdict
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Job, Backend, Options
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
@@ -134,7 +135,11 @@ class BatchExperiment(CompositeExperiment):
         return new_circuit
 
     def _run_jobs_recursive(
-        self, circuits: List[QuantumCircuit], truncated_metadata: List[Dict], **run_options
+        self,
+        circuits: List[QuantumCircuit],
+        truncated_metadata: List[Dict],
+        sampler: Sampler = None,
+        **run_options,
     ) -> List[Job]:
         # The truncated metadata is a truncation of the original composite metadata.
         # During the recursion, the current experiment (self) will be at the head of the truncated
@@ -161,19 +166,21 @@ class BatchExperiment(CompositeExperiment):
                 # even if they run in different jobs
                 if isinstance(exp, BatchExperiment):
                     new_jobs = exp._run_jobs_recursive(
-                        circs_by_subexps[index], truncated_metadata, **run_options
+                        circs_by_subexps[index], truncated_metadata, sampler, **run_options
                     )
                 else:
-                    new_jobs = exp._run_jobs(circs_by_subexps[index], **run_options)
+                    new_jobs = exp._run_jobs(circs_by_subexps[index], sampler, **run_options)
                 jobs.extend(new_jobs)
         else:
-            jobs = super()._run_jobs(circuits, **run_options)
+            jobs = super()._run_jobs(circuits, sampler, **run_options)
 
         return jobs
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+    def _run_jobs(
+        self, circuits: List[QuantumCircuit], sampler: Sampler = None, **run_options
+    ) -> List[Job]:
         truncated_metadata = [circ.metadata for circ in circuits]
-        jobs = self._run_jobs_recursive(circuits, truncated_metadata, **run_options)
+        jobs = self._run_jobs_recursive(circuits, truncated_metadata, sampler, **run_options)
         return jobs
 
     @classmethod
