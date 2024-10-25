@@ -1,6 +1,14 @@
 Calibrations: Schedules and gate parameters from experiments 
 ============================================================
 
+.. caution::
+
+   Support for calibrating pulses is deprecated as of Qiskit Experiments 0.8
+   and will be removed in a future version. There is no alternative support
+   path because Qiskit Pulse is `deprecated in Qiskit SDK
+   <https://github.com/Qiskit/qiskit/issues/13063>`_ with planned removal in
+   Qiskit 2.0.
+
 To produce high fidelity quantum operations, we want to be able to run good gates. The
 calibration module in Qiskit Experiments allows users to run experiments to find the
 pulse shapes and parameter values that maximize the fidelity of the resulting quantum
@@ -32,6 +40,17 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
 .. note::
     This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
     You can install it with ``python -m pip install qiskit-dynamics``.
+
+.. jupyter-execute::
+    :hide-code:
+
+    import warnings
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*Due to the deprecation of Qiskit Pulse.*",
+        category=DeprecationWarning,
+    )
 
 .. jupyter-execute::
 

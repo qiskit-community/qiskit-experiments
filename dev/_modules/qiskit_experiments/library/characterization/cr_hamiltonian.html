@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.characterization.cr_hamiltonian - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
+        <title>qiskit_experiments.library.characterization.cr_hamiltonian - Qiskit Experiments 0.7.0-7-g8e50bec7</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.7.0-7-g8e50bec7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-7-g8e50bec7</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -606,6 +606,7 @@
 <span class="sd">Cross resonance Hamiltonian tomography.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -613,6 +614,7 @@
 <span class="kn">from</span> <span class="nn">qiskit.circuit.parameterexpression</span> <span class="kn">import</span> <span class="n">ParameterValueType</span>
 <span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
 <span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span> <span class="nn">qiskit.utils.deprecation</span> <span class="kn">import</span> <span class="n">deprecate_func</span>
 <span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BaseExperiment</span><span class="p">,</span>
     <span class="n">BackendTiming</span><span class="p">,</span>
@@ -729,6 +731,14 @@
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="n">ParameterValueType</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;cr_gate&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span><span class="p">])</span>
 
+    <span class="nd">@deprecate_func</span><span class="p">(</span>
+        <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.8&quot;</span><span class="p">,</span>
+        <span class="n">package_name</span><span class="o">=</span><span class="s2">&quot;qiskit-experiments&quot;</span><span class="p">,</span>
+        <span class="n">additional_msg</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Due to the deprecation of Qiskit Pulse, experiments involving pulse &quot;</span>
+            <span class="s2">&quot;gate calibrations like this one have been deprecated.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
@@ -771,9 +781,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_gate_cls</span> <span class="o">=</span> <span class="n">cr_gate</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRPulseGate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend_timing</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">CrossResonanceHamiltonianAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
-        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+                <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;deprecation of Qiskit Pulse&quot;</span><span class="p">,</span>
+                <span class="n">module</span><span class="o">=</span><span class="s2">&quot;qiskit_experiments&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">analysis</span> <span class="o">=</span> <span class="n">CrossResonanceHamiltonianAnalysis</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">durations</span><span class="o">=</span><span class="n">durations</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
@@ -1156,7 +1172,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=b3eed256"></script>
+</div><script src="../../../../_static/documentation_options.js?v=46081464"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

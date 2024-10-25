@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Data Processor: Wrangling data" href="data_processor.html" /><link rel="prev" title="Introduction" href="intro.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.7.0-6-gbd05f2ac</title>
+        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.7.0-7-g8e50bec7</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-6-gbd05f2ac</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.7.0-7-g8e50bec7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-6-gbd05f2ac</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.7.0-7-g8e50bec7</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -604,6 +604,13 @@ released.</p>
 </div>
 <section id="calibrations-schedules-and-gate-parameters-from-experiments">
 <h1>Calibrations: Schedules and gate parameters from experiments<a class="headerlink" href="#calibrations-schedules-and-gate-parameters-from-experiments" title="Link to this heading">¶</a></h1>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Support for calibrating pulses is deprecated as of Qiskit Experiments 0.8
+and will be removed in a future version. There is no alternative support
+path because Qiskit Pulse is <a class="reference external" href="https://github.com/Qiskit/qiskit/issues/13063">deprecated in Qiskit SDK</a> with planned removal in
+Qiskit 2.0.</p>
+</div>
 <p>To produce high fidelity quantum operations, we want to be able to run good gates. The
 calibration module in Qiskit Experiments allows users to run experiments to find the
 pulse shapes and parameter values that maximize the fidelity of the resulting quantum
@@ -632,6 +639,10 @@ This automatic updating can also be disabled using the <code class="docutils lit
 <p class="admonition-title">Note</p>
 <p>This tutorial requires the <a class="reference external" href="https://qiskit-community.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a> package to run simulations.
 You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-dynamics</span></code>.</p>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -750,9 +761,9 @@ we change the default value of the pulse duration to 320 samples</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
 &lt;InstructionScheduleMap(1Q instructions:
-  q0: {&#39;y&#39;, &#39;sy&#39;, &#39;x&#39;, &#39;sx&#39;}
+  q0: {&#39;y&#39;, &#39;sy&#39;, &#39;sx&#39;, &#39;x&#39;}
 Multi qubit instructions:
 )&gt;
 ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.5, angle=0), DriveChannel(0)), name=&quot;x&quot;, transform=AlignLeft())
@@ -823,97 +834,97 @@ Observe that the parameter values of <code class="docutils literal notranslate">
       <th>0</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>2.50000e-01</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>x</td>
+      <td>5.00000e-01</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>meas_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>σ</td>
+      <td>()</td>
+      <td>x</td>
+      <td>8.00000e+01</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>β</td>
       <td>()</td>
-      <td>x</td>
+      <td>sx</td>
       <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>duration</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>3.20000e+02</td>
-      <td>2024-10-25 17:07:08....</td>
-    </tr>
-    <tr>
-      <th>4</th>
       <td>angle</td>
       <td>()</td>
       <td>sx</td>
       <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>2024-10-25 18:32:58....</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>meas_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>0.00000e+00</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>σ</td>
+      <td>β</td>
       <td>()</td>
       <td>x</td>
-      <td>8.00000e+01</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>0.00000e+00</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>β</td>
+      <td>angle</td>
       <td>()</td>
-      <td>sx</td>
+      <td>x</td>
       <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>duration</td>
-      <td>()</td>
-      <td>x</td>
-      <td>3.20000e+02</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>drive_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>5.20000e+09</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>σ</td>
+      <td>duration</td>
       <td>()</td>
       <td>sx</td>
-      <td>8.00000e+01</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>3.20000e+02</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>9</th>
       <td>amp</td>
       <td>()</td>
-      <td>x</td>
-      <td>5.00000e-01</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>sx</td>
+      <td>2.50000e-01</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>drive_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>5.20000e+09</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>duration</td>
+      <td>()</td>
+      <td>x</td>
+      <td>3.20000e+02</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>angle</td>
+      <td>σ</td>
       <td>()</td>
-      <td>x</td>
-      <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>sx</td>
+      <td>8.00000e+01</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
   </tbody>
 </table>
@@ -940,7 +951,7 @@ Observe that the parameter values of <code class="docutils literal notranslate">
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_9_0.png" src="../_images/calibrations_9_0.png" />
+<img alt="../_images/calibrations_10_0.png" src="../_images/calibrations_10_0.png" />
 </div>
 </div>
 <p>We can also visualize the pulse schedule for the circuit:</p>
@@ -967,7 +978,7 @@ Observe that the parameter values of <code class="docutils literal notranslate">
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_11_0.png" src="../_images/calibrations_11_0.png" />
+<img alt="../_images/calibrations_12_0.png" src="../_images/calibrations_12_0.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1028,19 +1039,19 @@ experiment id that produced a value.</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>meas_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>0.00000e+00</td>
-      <td>2024-10-25 17:07:08....</td>
-    </tr>
-    <tr>
-      <th>1</th>
       <td>drive_freq</td>
       <td>(0,)</td>
       <td>None</td>
       <td>5.20002e+09</td>
-      <td>2024-10-25 17:07:34....</td>
+      <td>2024-10-25 18:33:25....</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>meas_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>0.00000e+00</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
   </tbody>
 </table>
@@ -1074,7 +1085,7 @@ with different amplitudes.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_15_0.png" src="../_images/calibrations_15_0.png" />
+<img alt="../_images/calibrations_16_0.png" src="../_images/calibrations_16_0.png" />
 </div>
 </div>
 <p>After the experiment completes the value of the amplitudes in the calibrations
@@ -1088,7 +1099,7 @@ argument given to the calibration experiment at initialization.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_16_0.png" src="../_images/calibrations_16_0.png" />
+<img alt="../_images/calibrations_17_0.png" src="../_images/calibrations_17_0.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1147,33 +1158,33 @@ argument given to the calibration experiment at initialization.</p>
       <th>0</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01460</td>
-      <td>2024-10-25 17:07:43....</td>
+      <td>x</td>
+      <td>0.02919</td>
+      <td>2024-10-25 18:33:33....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
       <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2024-10-25 17:07:43....</td>
+      <td>sx</td>
+      <td>0.01460</td>
+      <td>2024-10-25 18:33:33....</td>
     </tr>
   </tbody>
 </table>
@@ -1288,33 +1299,33 @@ By contrast, the value of the parameters will be recovered from the file.</p>
       <th>0</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01460</td>
-      <td>2024-10-25 17:07:43....</td>
+      <td>x</td>
+      <td>0.02919</td>
+      <td>2024-10-25 18:33:33....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
       <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2024-10-25 17:07:43....</td>
+      <td>sx</td>
+      <td>0.01460</td>
+      <td>2024-10-25 18:33:33....</td>
     </tr>
   </tbody>
 </table>
@@ -1349,7 +1360,7 @@ negative amplitude.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_25_0.png" src="../_images/calibrations_25_0.png" />
+<img alt="../_images/calibrations_26_0.png" src="../_images/calibrations_26_0.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1360,7 +1371,7 @@ negative amplitude.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_26_0.png" src="../_images/calibrations_26_0.png" />
+<img alt="../_images/calibrations_27_0.png" src="../_images/calibrations_27_0.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1372,8 +1383,8 @@ negative amplitude.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: beta
-- value: -1.521+/-0.017
-- χ²: 1.1038481840308012
+- value: -1.540+/-0.017
+- χ²: 0.895776812665132
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -1419,25 +1430,25 @@ negative amplitude.</p>
       <th>0</th>
       <td>β</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.00000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>x</td>
+      <td>0.0000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>β</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.00000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>-1.5397</td>
+      <td>2024-10-25 18:33:37....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>β</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>-1.52133</td>
-      <td>2024-10-25 17:07:47....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.0000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
   </tbody>
 </table>
@@ -1521,7 +1532,7 @@ over/under rotations is the highest.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_32_0.png" src="../_images/calibrations_32_0.png" />
+<img alt="../_images/calibrations_33_0.png" src="../_images/calibrations_33_0.png" />
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -1533,7 +1544,7 @@ over/under rotations is the highest.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_33_0.png" src="../_images/calibrations_33_0.png" />
+<img alt="../_images/calibrations_34_0.png" src="../_images/calibrations_34_0.png" />
 </div>
 </div>
 <p>The ping-pong pattern on the figure indicates an over-rotation which makes the initial
@@ -1557,7 +1568,7 @@ experiment detects this error. We will compare the results to the over-rotation 
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_34_0.png" src="../_images/calibrations_34_0.png" />
+<img alt="../_images/calibrations_35_0.png" src="../_images/calibrations_35_0.png" />
 </div>
 </div>
 <p>Similarly to the over-rotation, the under-rotated pulse creates qubit populations that
@@ -1581,8 +1592,8 @@ error but also its sign.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The ideal angle is 3.14 rad. We measured a deviation of 0.067 rad in over-rotated pulse case.
-Thus, scale the 0.0594 pulse amplitude by 0.979 to obtain 0.05814.
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The ideal angle is 3.14 rad. We measured a deviation of 0.065 rad in over-rotated pulse case.
+Thus, scale the 0.0594 pulse amplitude by 0.980 to obtain 0.05817.
 On the other hand, we measured a deviation of -0.062 rad in under-rotated pulse case.
 Thus, scale the 0.0570 pulse amplitude by 1.020 to obtain 0.05820.
 </pre></div>
@@ -1612,7 +1623,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_36_0.png" src="../_images/calibrations_36_0.png" />
+<img alt="../_images/calibrations_37_0.png" src="../_images/calibrations_37_0.png" />
 </div>
 </div>
 <p>Let’s run the calibration experiment:</p>
@@ -1624,7 +1635,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_37_0.png" src="../_images/calibrations_37_0.png" />
+<img alt="../_images/calibrations_38_0.png" src="../_images/calibrations_38_0.png" />
 </div>
 </div>
 <p>Observe, once again, that the calibrations have automatically been updated.</p>
@@ -1665,33 +1676,33 @@ error which we want to correct.</p>
       <th>0</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>sx</td>
-      <td>0.01454</td>
-      <td>2024-10-25 17:07:49....</td>
+      <td>x</td>
+      <td>0.02919</td>
+      <td>2024-10-25 18:33:33....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
       <td>()</td>
-      <td>x</td>
-      <td>0.50000</td>
-      <td>2024-10-25 17:07:08....</td>
+      <td>sx</td>
+      <td>0.25000</td>
+      <td>2024-10-25 18:32:58....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2024-10-25 17:07:43....</td>
+      <td>sx</td>
+      <td>0.01455</td>
+      <td>2024-10-25 18:33:40....</td>
     </tr>
   </tbody>
 </table>
@@ -1704,7 +1715,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145417861, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145452703, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
 </pre></div>
 </div>
 </div>
@@ -1719,7 +1730,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/calibrations_40_0.png" src="../_images/calibrations_40_0.png" />
+<img alt="../_images/calibrations_41_0.png" src="../_images/calibrations_41_0.png" />
 </div>
 </div>
 </section>
@@ -1811,7 +1822,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=b3eed256"></script>
+</div><script src="../_static/documentation_options.js?v=46081464"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
