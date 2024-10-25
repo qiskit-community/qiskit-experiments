@@ -12,6 +12,7 @@
 
 """Rough drag experiment."""
 
+import warnings
 from typing import Iterable, List, Optional, Sequence
 import numpy as np
 
@@ -159,8 +160,15 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             QiskitError: If the schedule does not have a free parameter.
         """
 
-        # Create analysis in finalize to reflect user change to reps
-        super().__init__(physical_qubits, analysis=DragCalAnalysis(), backend=backend)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = DragCalAnalysis()
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)

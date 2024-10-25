@@ -13,6 +13,7 @@
 Cross resonance Hamiltonian tomography.
 """
 
+import warnings
 from typing import List, Tuple, Sequence, Optional, Type
 
 import numpy as np
@@ -185,9 +186,15 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self._gate_cls = cr_gate or self.CRPulseGate
         self._backend_timing = None
 
-        super().__init__(
-            physical_qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = CrossResonanceHamiltonianAnalysis()
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
         self.set_experiment_options(durations=durations, **kwargs)
 
     @classmethod

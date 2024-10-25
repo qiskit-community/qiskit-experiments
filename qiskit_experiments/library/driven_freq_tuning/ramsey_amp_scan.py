@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 
 import numpy as np
@@ -118,9 +119,18 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         """
         self._timing = None
 
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = StarkRamseyXYAmpScanAnalysis()
+
         super().__init__(
             physical_qubits=physical_qubits,
-            analysis=StarkRamseyXYAmpScanAnalysis(),
+            analysis=analysis,
             backend=backend,
         )
         self.set_experiment_options(**experiment_options)

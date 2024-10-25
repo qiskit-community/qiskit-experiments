@@ -12,6 +12,7 @@
 
 """Abstract spectroscopy experiment base class."""
 
+import warnings
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Sequence
 
@@ -93,7 +94,14 @@ class Spectroscopy(BaseExperiment, ABC):
             QiskitError: If there are less than three frequency shifts.
 
         """
-        analysis = analysis or ResonanceAnalysis()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = analysis or ResonanceAnalysis()
 
         super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
