@@ -15,6 +15,7 @@ Backend data access helper class
 Since `BackendV1` and `BackendV2` do not share the same interface, this
 class unifies data access for various data fields.
 """
+import warnings
 from qiskit.providers.models import PulseBackendConfiguration  # pylint: disable=no-name-in-module
 from qiskit.providers import BackendV1, BackendV2
 
@@ -24,11 +25,17 @@ class BackendData:
 
     def __init__(self, backend):
         """Inits the backend and verifies version"""
+
         self._backend = backend
         self._v1 = isinstance(backend, BackendV1)
         self._v2 = isinstance(backend, BackendV2)
+
         if self._v2:
-            self._parse_additional_data()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore", message=".*qiskit.qobj.pulse_qobj.*", category=DeprecationWarning
+                )
+                self._parse_additional_data()
 
     def _parse_additional_data(self):
         # data specific parsing not done yet in upstream qiskit

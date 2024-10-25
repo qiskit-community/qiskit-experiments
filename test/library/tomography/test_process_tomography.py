@@ -55,7 +55,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=seed, shots=shots)
         target = qi.random_unitary(2**num_qubits, seed=seed)
         exp = ProcessTomography(target)
-        expdata = exp.run(backend, analysis=None)
+        expdata = exp.run(backend, analysis=None, shots=shots)
         self.assertExperimentDone(expdata)
 
         # Run each tomography fitter analysis as a subtest so

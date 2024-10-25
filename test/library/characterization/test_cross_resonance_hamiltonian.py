@@ -151,8 +151,9 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         dt = 0.222e-9
         sigma = 64
+        shots = 2000
 
-        backend = AerSimulator(seed_simulator=123, shots=2000)
+        backend = AerSimulator(seed_simulator=123, shots=shots)
         backend._configuration.dt = dt
 
         # Note that Qiskit is Little endian, i.e. [q1, q0]
@@ -179,7 +180,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
         expr.backend = backend
 
-        exp_data = expr.run()
+        exp_data = expr.run(shots=shots)
         self.assertExperimentDone(exp_data, timeout=1000)
 
         self.assertEqual(exp_data.analysis_results("omega_ix").quality, "good")

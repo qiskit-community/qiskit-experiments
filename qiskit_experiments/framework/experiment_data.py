@@ -38,6 +38,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.utils.deprecation import deprecate_arg
+from qiskit.primitives import BitArray, SamplerPubResult, BasePrimitiveJob
 
 from qiskit_ibm_experiment import (
     IBMExperimentService,
@@ -45,6 +46,7 @@ from qiskit_ibm_experiment import (
     AnalysisResultData as AnalysisResultDataclass,
     ResultQuality,
 )
+
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
     plot_to_svg_bytes,
@@ -314,8 +316,26 @@ class ExperimentData:
         """Returns the completion times of the jobs."""
         job_times = {}
         for job_id, job in self._jobs.items():
-            if job is not None and "COMPLETED" in job.time_per_step():
-                job_times[job_id] = job.time_per_step().get("COMPLETED")
+            if job is not None:
+                if hasattr(job, "time_per_step") and "COMPLETED" in job.time_per_step():
+                    job_times[job_id] = job.time_per_step().get("COMPLETED")
+                elif (
+                    execution := job.result().metadata.get("execution")
+                ) and "execution_spans" in execution:
+                    job_times[job_id] = execution["execution_spans"].stop
+                elif (client := getattr(job, "_api_client", None)) and hasattr(
+                    client, "job_metadata"
+                ):
+                    metadata = client.job_metadata(job.job_id())
+                    finished = metadata.get("timestamps", {}).get("finished", {})
+                    if finished:
+                        job_times[job_id] = datetime.fromisoformat(finished)
+                if job_id not in job_times:
+                    warnings.warn(
+                        "Could not determine job completion time. Using current timestamp.",
+                        UserWarning,
+                    )
+                    job_times[job_id] = datetime.now()
 
         return job_times
 
@@ -738,7 +758,7 @@ class ExperimentData:
 
     def add_jobs(
         self,
-        jobs: Union[Job, List[Job]],
+        jobs: Union[Job, List[Job], BasePrimitiveJob, List[BasePrimitiveJob]],
         timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
@@ -769,19 +789,20 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            if self.backend is not None:
-                backend_name = BackendData(self.backend).name
-                job_backend_name = BackendData(job.backend()).name
-                if self.backend and backend_name != job_backend_name:
-                    LOG.warning(
-                        "Adding a job from a backend (%s) that is different "
-                        "than the current backend (%s). "
-                        "The new backend will be used, but "
-                        "service is not changed if one already exists.",
-                        job.backend(),
-                        self.backend,
-                    )
-            self.backend = job.backend()
+            if hasattr(job, "backend"):
+                if self.backend is not None:
+                    backend_name = BackendData(self.backend).name
+                    job_backend_name = BackendData(job.backend()).name
+                    if self.backend and backend_name != job_backend_name:
+                        LOG.warning(
+                            "Adding a job from a backend (%s) that is different "
+                            "than the current backend (%s). "
+                            "The new backend will be used, but "
+                            "service is not changed if one already exists.",
+                            job.backend(),
+                            self.backend,
+                        )
+                self.backend = job.backend()
 
             jid = job.job_id()
             if jid in self._jobs:
@@ -869,7 +890,7 @@ class ExperimentData:
                 LOG.error(
                     "Job data not added for errored job [Job ID: %s]\nError message: %s",
                     jid,
-                    job.error_message(),
+                    job.error_message() if hasattr(job, "error_message") else "n/a",
                 )
                 return jid, False
             LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
@@ -985,27 +1006,105 @@ class ExperimentData:
             job_id: The id of the job the result came from. If `None`, the
             job id in `result` is used.
         """
-        if job_id is None:
-            job_id = result.job_id
-        if job_id not in self._jobs:
-            self._jobs[job_id] = None
-            self.job_ids.append(job_id)
-        with self._result_data.lock:
-            # Lock data while adding all result data
-            for i, _ in enumerate(result.results):
-                data = result.data(i)
-                data["job_id"] = job_id
-                if "counts" in data:
-                    # Format to Counts object rather than hex dict
-                    data["counts"] = result.get_counts(i)
-                expr_result = result.results[i]
-                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                    data["metadata"] = expr_result.header.metadata
-                data["shots"] = expr_result.shots
-                data["meas_level"] = expr_result.meas_level
-                if hasattr(expr_result, "meas_return"):
-                    data["meas_return"] = expr_result.meas_return
-                self._result_data.append(data)
+        if hasattr(result, "results"):
+            # backend run results
+            if job_id is None:
+                job_id = result.job_id
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                for i, _ in enumerate(result.results):
+                    data = result.data(i)
+                    data["job_id"] = job_id
+                    if "counts" in data:
+                        # Format to Counts object rather than hex dict
+                        data["counts"] = result.get_counts(i)
+                    expr_result = result.results[i]
+                    if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                        data["metadata"] = expr_result.header.metadata
+                    data["shots"] = expr_result.shots
+                    data["meas_level"] = expr_result.meas_level
+                    if hasattr(expr_result, "meas_return"):
+                        data["meas_return"] = expr_result.meas_return
+                    self._result_data.append(data)
+        else:
+            # sampler results
+            if job_id is None:
+                raise QiskitError("job_id must be provided, not available in the sampler result")
+            if job_id not in self._jobs:
+                self._jobs[job_id] = None
+                self.job_ids.append(job_id)
+            with self._result_data.lock:
+                # Lock data while adding all result data
+                # Sampler results are a list
+                for i, _ in enumerate(result):
+                    data = {}
+                    # convert to a Sampler Pub Result (can remove this later when the bug is fixed)
+                    testres = SamplerPubResult(result[i].data, result[i].metadata)
+                    data["job_id"] = job_id
+                    if testres.data:
+                        joined_data = testres.join_data()
+                        outer_shape = testres.data.shape
+                        if outer_shape:
+                            raise QiskitError(
+                                f"Outer PUB dimensions {outer_shape} found in result. "
+                                "Only unparameterized PUBs are currently supported by "
+                                "qiskit-experiments."
+                            )
+                    else:
+                        joined_data = None
+                    if joined_data is None:
+                        # No data, usually this only happens in tests
+                        pass
+                    elif isinstance(joined_data, BitArray):
+                        # bit results so has counts
+                        data["meas_level"] = 2
+                        # The sampler result always contains bitstrings. At
+                        # this point, we have lost track of whether the job
+                        # requested memory/meas_return=single. Here we just
+                        # hope that nothing breaks if we always return single
+                        # shot results since the counts dict is also returned
+                        # any way.
+                        data["meas_return"] = "single"
+                        # join the data
+                        data["counts"] = testres.join_data(testres.data.keys()).get_counts()
+                        data["memory"] = testres.join_data(testres.data.keys()).get_bitstrings()
+                        # number of shots
+                        data["shots"] = joined_data.num_shots
+                    elif isinstance(joined_data, np.ndarray):
+                        data["meas_level"] = 1
+                        if joined_data.ndim == 1:
+                            data["meas_return"] = "avg"
+                            # TODO: we either need to track shots in the
+                            # circuit metadata and pull it out here or get
+                            # upstream to report the number of shots in the
+                            # sampler result for level 1 avg data.
+                            data["shots"] = 1
+                            data["memory"] = np.zeros((len(joined_data), 2), dtype=float)
+                            data["memory"][:, 0] = np.real(joined_data)
+                            data["memory"][:, 1] = np.imag(joined_data)
+                        else:
+                            data["meas_return"] = "single"
+                            data["shots"] = joined_data.shape[0]
+                            data["memory"] = np.zeros((*joined_data.shape, 2), dtype=float)
+                            data["memory"][:, :, 0] = np.real(joined_data)
+                            data["memory"][:, :, 1] = np.imag(joined_data)
+                    else:
+                        raise QiskitError(f"Unexpected result format: {type(joined_data)}")
+
+                    # Some Sampler implementations remove the circuit metadata
+                    # which some experiment Analysis classes need. Here we try
+                    # to put it back from the circuits themselves.
+                    if "circuit_metadata" in testres.metadata:
+                        data["metadata"] = testres.metadata["circuit_metadata"]
+                    elif self._jobs[job_id] is not None:
+                        corresponding_pub = self._jobs[job_id].inputs["pubs"][i]
+                        circuit = corresponding_pub[0]
+                        data["metadata"] = circuit.metadata
+
+                    self._result_data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
