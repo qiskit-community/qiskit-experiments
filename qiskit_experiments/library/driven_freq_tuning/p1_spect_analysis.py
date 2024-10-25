@@ -16,6 +16,8 @@ from __future__ import annotations
 import numpy as np
 from uncertainties import unumpy as unp
 
+from qiskit.utils.deprecation import deprecate_func
+
 import qiskit_experiments.data_processing as dp
 import qiskit_experiments.visualization as vis
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -47,6 +49,20 @@ class StarkP1SpectAnalysis(BaseAnalysis):
         :class:`qiskit_experiments.library.driven_freq_tuning.StarkRamseyXYAmpScan`
 
     """
+
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments and related classses "
+            "involving pulse gate calibrations like this one have been deprecated."
+        ),
+    )
+    def __init__(self):
+        """Initialize the analysis object."""
+        # Pass through to parent. This method is only here to be decorated by
+        # deprecate_func
+        super().__init__()
 
     @property
     def plotter(self) -> vis.CurvePlotter:

@@ -63,6 +63,14 @@ class Calibrations:
     ScheduleBlock are supported.
     """
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, support for pulse "
+            "gate calibrations has been deprecated."
+        ),
+    )
     def __init__(
         self,
         coupling_map: Optional[List[List[int]]] = None,

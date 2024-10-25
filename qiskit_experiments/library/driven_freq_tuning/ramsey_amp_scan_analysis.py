@@ -19,6 +19,8 @@ import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
 
+from qiskit.utils.deprecation import deprecate_func
+
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.visualization as vis
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
@@ -154,6 +156,14 @@ class StarkRamseyXYAmpScanAnalysis(curve.CurveAnalysis):
 
     """
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments and related classses "
+            "involving pulse gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(self):
 
         models = [

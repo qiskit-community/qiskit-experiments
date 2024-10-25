@@ -16,6 +16,7 @@ from typing import Optional, Union
 
 from qiskit import QiskitError
 from qiskit.providers.backend import Backend
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BackendData
 
@@ -283,6 +284,14 @@ class BackendTiming:
 
         return samples_out
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def round_pulse(
         self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
     ) -> int:
@@ -363,6 +372,14 @@ class BackendTiming:
 
         return self.dt * self.round_delay(time=time, samples=samples)
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, utility functions involving "
+            "pulse like this one have been deprecated."
+        ),
+    )
     def pulse_time(
         self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
     ) -> float:
