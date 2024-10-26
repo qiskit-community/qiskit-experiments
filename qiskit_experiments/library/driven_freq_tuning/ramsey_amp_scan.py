@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 
 import numpy as np
@@ -20,6 +21,7 @@ from qiskit import pulse
 from qiskit.circuit import QuantumCircuit, Gate, ParameterExpression, Parameter
 from qiskit.providers.backend import Backend
 from qiskit.utils import optionals as _optional
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
 from .ramsey_amp_scan_analysis import StarkRamseyXYAmpScanAnalysis
@@ -93,6 +95,14 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
     """
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments involving pulse "
+            "gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -109,9 +119,18 @@ class StarkRamseyXYAmpScan(BaseExperiment):
         """
         self._timing = None
 
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = StarkRamseyXYAmpScanAnalysis()
+
         super().__init__(
             physical_qubits=physical_qubits,
-            analysis=StarkRamseyXYAmpScanAnalysis(),
+            analysis=analysis,
             backend=backend,
         )
         self.set_experiment_options(**experiment_options)

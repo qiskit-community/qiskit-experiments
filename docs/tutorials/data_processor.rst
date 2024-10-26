@@ -69,6 +69,17 @@ The code below sets up the Rabi experiment.
     You can install it with ``python -m pip install qiskit-dynamics``.
 
 .. jupyter-execute::
+    :hide-code:
+
+    import warnings
+
+    warnings.filterwarnings(
+        "ignore",
+        message=".*Due to the deprecation of Qiskit Pulse.*",
+        category=DeprecationWarning,
+    )
+
+.. jupyter-execute::
 
     import numpy as np
 

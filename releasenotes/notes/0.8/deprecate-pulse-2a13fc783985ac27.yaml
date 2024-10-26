@@ -1,0 +1,32 @@
+---
+deprecations:
+  - |
+    Experiments involving pulse gate calibrations have been deprecated, due to
+    the upcoming `deprecation of Qiskit Pulse in Qiskit 2.0
+    <https://github.com/Qiskit/qiskit/issues/13063>`_. These experiments
+    include ``QubitSpectroscopy``, ``EFSpectroscopy``, ``Rabi``, ``EFRabi``,
+    ``ResonatorSpectroscopy``, ``RoughDrag``, ``StarkRamseyXY``,
+    ``StarkRamseyXYAmpScan``, ``StarkP1Spectroscopy``,
+    ``CrossResonanceHamiltonian``, ``EchoedCrossResonanceHamiltonian``,
+    ``RoughFrequencyCal``, ``RoughEFFrequencyCal``, ``FrequencyCal``,
+    ``FineFrequencyCal``, ``RoughDragCal``, ``FineXDragCal``,
+    ``FineSXDragCal``, ``FineDragCal``, ``FineAmplitudeCal``,
+    ``FineXAmplitudeCal``, ``FineSXAmplitudeCal``, ``HalfAngleCal``,
+    ``RoughAmplitudeCal``, ``RoughXSXAmplitudeCal``, and
+    ``EFRoughXSXAmplitudeCal``.
+  - |
+    Also due to the deprecation of Qiskit Pulse, support for providing pulse
+    gate calibrations to excite higher levels has been deprecated from
+    :class:`.MultiStateDiscrimination`.
+  - |
+    The ``Calibrations`` class and all of Qiskit Experiments' calibration
+    support is deprecated. The calibrations features were based on adjusting
+    parameters of pulses used in gates. With the deprecation of Qiskit Pulse,
+    these features are now also deprecated.
+  - |
+    Support for running experiments in restless mode using the
+    ``RestlessMixin`` is deprecated. With improvements in the reliability of
+    IBM Quantum's qubit initialization, circuit exectuion has already become
+    reasonably fast and restless measurements do not add much performance
+    improvement. It is expected that the restless features are little used as
+    there has been no recent user feedback about them.

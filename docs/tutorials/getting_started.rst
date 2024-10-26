@@ -87,6 +87,13 @@ backend, real or simulated, that you can access through Qiskit.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
+    :hide-code:
+
+    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
+    from qiskit_experiments.test.patching import patch_sampler_test_support
+    patch_sampler_test_support()
+
+.. jupyter-execute::
 
     from qiskit_ibm_runtime.fake_provider import FakePerth
     from qiskit_aer import AerSimulator

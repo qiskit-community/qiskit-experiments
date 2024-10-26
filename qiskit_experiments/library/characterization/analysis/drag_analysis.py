@@ -13,10 +13,12 @@
 """DRAG pulse calibration experiment."""
 
 import warnings
-from typing import List, Union
+from typing import List, Optional, Union
 
 import lmfit
 import numpy as np
+
+from qiskit.utils.deprecation import deprecate_func
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import ExperimentData
@@ -253,3 +255,33 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self._options.data_subfit_map = data_subfit_map
 
         super()._initialize(experiment_data)
+
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments and related classses "
+            "involving pulse gate calibrations like this one have been deprecated."
+        ),
+    )
+    def __init__(
+        self,
+        models: Optional[List[lmfit.Model]] = None,
+        name: Optional[str] = None,
+    ):
+        """Initialize data fields that are privately accessed by methods.
+
+        Args:
+            models: List of LMFIT ``Model`` class to define fitting functions and
+                parameters. If multiple models are provided, the analysis performs
+                multi-objective optimization where the parameters with the same name
+                are shared among provided models. When multiple models are provided,
+                user must specify the ``data_subfit_map`` value in the analysis options
+                to allocate experimental results to a particular fit model.
+            name: Optional. Name of this analysis.
+        """
+        super().__init__()
+
+        self._models = models or []
+        self._name = name or self.__class__.__name__
+        self._plot_config_cache = {}
