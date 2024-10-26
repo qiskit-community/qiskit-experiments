@@ -25,6 +25,7 @@ import numpy as np
 from qiskit.circuit import Parameter
 from qiskit import pulse
 from qiskit.pulse import ScheduleBlock
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.exceptions import CalibrationError
@@ -39,6 +40,14 @@ class BasisGateLibrary(ABC, Mapping):
     # Parameters that do not belong to a schedule, a set of names
     __parameters_without_schedule__ = set()
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, support for pulse "
+            "gate calibrations has been deprecated."
+        ),
+    )
     def __init__(
         self,
         basis_gates: Optional[List[str]] = None,

@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    The gate counting for EPG in the RB analysis code was not including the 
-    inverse, so that the total number of operations per Clifford was incorrect,
-    leading to incorrect reporting of EPG from EPC. Fixed by adding +1 for the
-    inverse gate.

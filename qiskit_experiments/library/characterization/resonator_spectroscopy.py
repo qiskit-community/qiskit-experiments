@@ -12,6 +12,7 @@
 
 """Spectroscopy experiment class for resonators."""
 
+import warnings
 from typing import Iterable, Optional, Sequence, Tuple
 import numpy as np
 
@@ -176,7 +177,14 @@ class ResonatorSpectroscopy(Spectroscopy):
             QiskitError: If no frequencies are given and absolute frequencies are desired and
                 no backend is given or the backend does not have default measurement frequencies.
         """
-        analysis = ResonatorSpectroscopyAnalysis()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = ResonatorSpectroscopyAnalysis()
 
         if frequencies is None:
             frequencies = np.linspace(-20.0e6, 20.0e6, 51)

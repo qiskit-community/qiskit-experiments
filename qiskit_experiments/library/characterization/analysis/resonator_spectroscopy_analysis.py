@@ -12,8 +12,10 @@
 
 """Spectroscopy analysis class for resonators."""
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 import numpy as np
+
+from qiskit.utils.deprecation import deprecate_func
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
@@ -24,6 +26,20 @@ from qiskit_experiments.database_service.device_component import Resonator
 
 class ResonatorSpectroscopyAnalysis(curve.ResonanceAnalysis):
     """Class to analysis resonator spectroscopy."""
+
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments and related classses "
+            "involving pulse gate calibrations like this one have been deprecated."
+        ),
+    )
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
+        super().__init__(name=name)
 
     @classmethod
     def _default_options(cls):

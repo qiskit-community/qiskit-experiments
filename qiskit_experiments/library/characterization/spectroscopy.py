@@ -12,6 +12,7 @@
 
 """Abstract spectroscopy experiment base class."""
 
+import warnings
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Sequence
 
@@ -20,6 +21,7 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
+from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BaseAnalysis, BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
@@ -60,6 +62,14 @@ class Spectroscopy(BaseExperiment, ABC):
 
         return options
 
+    @deprecate_func(
+        since="0.8",
+        package_name="qiskit-experiments",
+        additional_msg=(
+            "Due to the deprecation of Qiskit Pulse, experiments involving pulse "
+            "gate calibrations like this one have been deprecated."
+        ),
+    )
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -84,7 +94,14 @@ class Spectroscopy(BaseExperiment, ABC):
             QiskitError: If there are less than three frequency shifts.
 
         """
-        analysis = analysis or ResonanceAnalysis()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="deprecation of Qiskit Pulse",
+                module="qiskit_experiments",
+                category=DeprecationWarning,
+            )
+            analysis = analysis or ResonanceAnalysis()
 
         super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
