@@ -60,7 +60,7 @@ class MitigatedProcessTomography(BatchExperiment):
 
             backend = AerSimulator.from_backend(FakePerth())
 
-        ..jupyter-execute::
+        .. jupyter-execute::
 
             import numpy as np
             from qiskit import QuantumCircuit
