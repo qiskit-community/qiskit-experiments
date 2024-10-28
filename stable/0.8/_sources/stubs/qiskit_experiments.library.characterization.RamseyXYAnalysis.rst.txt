@@ -1,0 +1,42 @@
+﻿
+
+RamseyXYAnalysis
+============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: RamseyXYAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: RamseyXYAnalysis.models
+   .. autoattribute:: RamseyXYAnalysis.name
+   .. autoattribute:: RamseyXYAnalysis.options
+   .. autoattribute:: RamseyXYAnalysis.parameters
+   .. autoattribute:: RamseyXYAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: RamseyXYAnalysis.config
+   .. automethod:: RamseyXYAnalysis.copy
+   .. automethod:: RamseyXYAnalysis.from_config
+   .. automethod:: RamseyXYAnalysis.model_names
+   .. automethod:: RamseyXYAnalysis.run
+   .. automethod:: RamseyXYAnalysis.set_options
+   
+
+   
+   

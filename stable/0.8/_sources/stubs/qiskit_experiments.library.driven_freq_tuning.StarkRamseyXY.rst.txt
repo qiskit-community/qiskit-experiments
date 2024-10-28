@@ -1,0 +1,50 @@
+﻿
+
+StarkRamseyXY
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.driven_freq_tuning
+
+.. autoexperiment:: StarkRamseyXY
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StarkRamseyXY.analysis
+   .. autoattribute:: StarkRamseyXY.backend
+   .. autoattribute:: StarkRamseyXY.experiment_options
+   .. autoattribute:: StarkRamseyXY.experiment_type
+   .. autoattribute:: StarkRamseyXY.num_qubits
+   .. autoattribute:: StarkRamseyXY.physical_qubits
+   .. autoattribute:: StarkRamseyXY.run_options
+   .. autoattribute:: StarkRamseyXY.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StarkRamseyXY.circuits
+   .. automethod:: StarkRamseyXY.config
+   .. automethod:: StarkRamseyXY.copy
+   .. automethod:: StarkRamseyXY.from_config
+   .. automethod:: StarkRamseyXY.job_info
+   .. automethod:: StarkRamseyXY.parameterized_circuits
+   .. automethod:: StarkRamseyXY.parameters
+   .. automethod:: StarkRamseyXY.run
+   .. automethod:: StarkRamseyXY.set_experiment_options
+   .. automethod:: StarkRamseyXY.set_run_options
+   .. automethod:: StarkRamseyXY.set_transpile_options
+   
+
+   
+   

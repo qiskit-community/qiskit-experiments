@@ -1,0 +1,45 @@
+﻿
+
+SkQDA
+========================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: SkQDA
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: SkQDA.discriminator
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SkQDA.config
+   .. automethod:: SkQDA.fit
+   .. automethod:: SkQDA.from_config
+   .. automethod:: SkQDA.is_trained
+   .. automethod:: SkQDA.predict
+
+   

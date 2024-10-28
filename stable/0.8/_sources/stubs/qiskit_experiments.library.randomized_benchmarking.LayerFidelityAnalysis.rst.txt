@@ -1,0 +1,38 @@
+﻿
+
+LayerFidelityAnalysis
+========================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoanalysis:: LayerFidelityAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: LayerFidelityAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: LayerFidelityAnalysis.component_analysis
+   .. automethod:: LayerFidelityAnalysis.config
+   .. automethod:: LayerFidelityAnalysis.copy
+   .. automethod:: LayerFidelityAnalysis.from_config
+   .. automethod:: LayerFidelityAnalysis.run
+   .. automethod:: LayerFidelityAnalysis.set_options
+   
+
+   
+   

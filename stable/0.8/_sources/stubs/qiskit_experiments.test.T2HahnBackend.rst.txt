@@ -1,0 +1,83 @@
+﻿
+
+T2HahnBackend
+=====================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: T2HahnBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: T2HahnBackend.coupling_map
+   .. autoattribute:: T2HahnBackend.dt
+   .. autoattribute:: T2HahnBackend.dtm
+   .. autoattribute:: T2HahnBackend.instruction_durations
+   .. autoattribute:: T2HahnBackend.instruction_schedule_map
+   .. autoattribute:: T2HahnBackend.instructions
+   .. autoattribute:: T2HahnBackend.max_circuits
+   .. autoattribute:: T2HahnBackend.meas_map
+   .. autoattribute:: T2HahnBackend.num_qubits
+   .. autoattribute:: T2HahnBackend.operation_names
+   .. autoattribute:: T2HahnBackend.operations
+   .. autoattribute:: T2HahnBackend.options
+   .. autoattribute:: T2HahnBackend.provider
+   .. autoattribute:: T2HahnBackend.target
+   .. autoattribute:: T2HahnBackend.version
+   .. autoattribute:: T2HahnBackend.description
+   .. autoattribute:: T2HahnBackend.online_date
+   .. autoattribute:: T2HahnBackend.backend_version
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: T2HahnBackend.acquire_channel
+   .. automethod:: T2HahnBackend.control_channel
+   .. automethod:: T2HahnBackend.drive_channel
+   .. automethod:: T2HahnBackend.measure_channel
+   .. automethod:: T2HahnBackend.qubit_properties
+   .. automethod:: T2HahnBackend.run
+   .. automethod:: T2HahnBackend.set_options
+
+   

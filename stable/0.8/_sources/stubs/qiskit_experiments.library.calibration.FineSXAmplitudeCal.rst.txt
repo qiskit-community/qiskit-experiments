@@ -1,0 +1,51 @@
+﻿
+
+FineSXAmplitudeCal
+=========================================================
+
+.. currentmodule:: qiskit_experiments.library.calibration
+
+.. autoexperiment:: FineSXAmplitudeCal
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: FineSXAmplitudeCal.analysis
+   .. autoattribute:: FineSXAmplitudeCal.backend
+   .. autoattribute:: FineSXAmplitudeCal.calibrations
+   .. autoattribute:: FineSXAmplitudeCal.experiment_options
+   .. autoattribute:: FineSXAmplitudeCal.experiment_type
+   .. autoattribute:: FineSXAmplitudeCal.num_qubits
+   .. autoattribute:: FineSXAmplitudeCal.physical_qubits
+   .. autoattribute:: FineSXAmplitudeCal.run_options
+   .. autoattribute:: FineSXAmplitudeCal.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: FineSXAmplitudeCal.circuits
+   .. automethod:: FineSXAmplitudeCal.config
+   .. automethod:: FineSXAmplitudeCal.copy
+   .. automethod:: FineSXAmplitudeCal.enable_restless
+   .. automethod:: FineSXAmplitudeCal.from_config
+   .. automethod:: FineSXAmplitudeCal.job_info
+   .. automethod:: FineSXAmplitudeCal.run
+   .. automethod:: FineSXAmplitudeCal.set_experiment_options
+   .. automethod:: FineSXAmplitudeCal.set_run_options
+   .. automethod:: FineSXAmplitudeCal.set_transpile_options
+   .. automethod:: FineSXAmplitudeCal.update_calibrations
+   
+
+   
+   

@@ -1,0 +1,49 @@
+﻿
+
+CliffordUtils
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoclass:: CliffordUtils
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: CliffordUtils.CLIFFORD_1_QUBIT_SIG
+   .. autoattribute:: CliffordUtils.CLIFFORD_2_QUBIT_SIGS
+   .. autoattribute:: CliffordUtils.NUM_CLIFFORD_1_QUBIT
+   .. autoattribute:: CliffordUtils.NUM_CLIFFORD_2_QUBIT
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: CliffordUtils.clifford_1_qubit
+   .. automethod:: CliffordUtils.clifford_1_qubit_circuit
+   .. automethod:: CliffordUtils.clifford_2_qubit
+   .. automethod:: CliffordUtils.clifford_2_qubit_circuit
+
+   

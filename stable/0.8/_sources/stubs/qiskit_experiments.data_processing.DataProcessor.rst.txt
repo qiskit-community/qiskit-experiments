@@ -1,0 +1,43 @@
+﻿
+
+DataProcessor
+================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: DataProcessor
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: DataProcessor.is_trained
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: DataProcessor.__call__
+   .. automethod:: DataProcessor.append
+   .. automethod:: DataProcessor.call_with_history
+   .. automethod:: DataProcessor.train
+
+   
