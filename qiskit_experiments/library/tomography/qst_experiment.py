@@ -51,7 +51,7 @@ class StateTomography(TomographyExperiment):
         .. jupyter-execute::
             :hide-code:
 
-            # backend
+            # backend 
             from qiskit_aer import AerSimulator
             from qiskit_ibm_runtime.fake_provider import FakePerth
 
@@ -60,8 +60,7 @@ class StateTomography(TomographyExperiment):
         .. jupyter-execute::
 
             from qiskit import QuantumCircuit
-            from qiskit_experiments.library import TomographyExperiment
-            from qiskit_experiments.library.tomography.basis import PauliMeasurementBasis
+            from qiskit_experiments.library import StateTomography
             from qiskit.visualization import plot_state_city
 
             nq = 2
@@ -72,17 +71,11 @@ class StateTomography(TomographyExperiment):
             for i in range(1, nq):
                 qc_ghz.cx(0, i)
 
-            qstexp = TomographyExperiment(
-                circuit=qc_ghz,
-                backend=backend,
-                physical_qubits=(0,1),
-                measurement_basis=PauliMeasurementBasis(),
-            )
-
+            qstexp = StateTomography(qc_ghz)
             qstdata = qstexp.run(backend=backend, shots=1000, seed_simulator=100).block_for_results()
             state_result = qstdata.analysis_results("state")
             plot_state_city(state_result.value, title="Density Matrix")
-    """
+     """
 
     def __init__(
         self,
