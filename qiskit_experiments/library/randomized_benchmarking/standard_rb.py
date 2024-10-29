@@ -54,7 +54,7 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
-    """An experiment to characterize the error rate of a gate set on a device.
+    r"""An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
 
