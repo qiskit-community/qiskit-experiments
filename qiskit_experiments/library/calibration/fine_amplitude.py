@@ -49,7 +49,8 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             import numpy as np
             from qiskit.circuit.library import XGate
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.calibration_management.basis_gate_library
+	    import FixedFrequencyTransmon
             from qiskit_experiments.library import FineAmplitudeCal
 
             library = FixedFrequencyTransmon()
@@ -63,7 +64,8 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
                                        gate=XGate(),
                                        measurement_qubits=(0,))
             # This option is necessary!
-            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi/2})
+            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
+							   "phase_offset" : np.pi/2})
 
             print(exp_cal.circuits()[5])
 
@@ -203,7 +205,8 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         .. jupyter-execute::
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.calibration_management.basis_gate_library
+	    import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXAmplitudeCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
@@ -285,7 +288,8 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
             from qiskit import schedule
             from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.calibration_management.basis_gate_library
+	    import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXAmplitudeCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
