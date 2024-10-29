@@ -111,7 +111,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
 
 
 
-    
+
     """
 
     __updater__ = Frequency
