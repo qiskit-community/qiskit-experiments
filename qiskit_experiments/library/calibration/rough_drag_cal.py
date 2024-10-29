@@ -47,7 +47,8 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             from qiskit import schedule
             from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.calibration_management.basis_gate_library
+	    import FixedFrequencyTransmon
             from qiskit_experiments.library import RoughDragCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.03})
