@@ -51,7 +51,7 @@ class StateTomography(TomographyExperiment):
         .. jupyter-execute::
             :hide-code:
 
-            # backend 
+            # backend
             from qiskit_aer import AerSimulator
             from qiskit_ibm_runtime.fake_provider import FakePerth
 
@@ -75,7 +75,7 @@ class StateTomography(TomographyExperiment):
             qstdata = qstexp.run(backend=backend, shots=1000, seed_simulator=100).block_for_results()
             state_result = qstdata.analysis_results("state")
             plot_state_city(state_result.value, title="Density Matrix")
-     """
+    """
 
     def __init__(
         self,
