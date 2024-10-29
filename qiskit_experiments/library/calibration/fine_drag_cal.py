@@ -45,7 +45,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineDragCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
@@ -194,7 +194,7 @@ class FineXDragCal(FineDragCal):
             import pandas as pd
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXDragCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.4})
@@ -263,7 +263,7 @@ class FineSXDragCal(FineDragCal):
             import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXDragCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
