@@ -46,7 +46,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration import RoughAmplitudeCal
 
             library = FixedFrequencyTransmon()
@@ -238,16 +238,16 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
             import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration import RoughXSXAmplitudeCal
 
             library = FixedFrequencyTransmon()
             cals = Calibrations.from_backend(backend, libraries=[library])
             exp_cal = RoughXSXAmplitudeCal((0,),
-					   cals,
-					   backend=backend,
-					   amplitudes=np.linspace(-0.1, 0.1, 51)
-					  )
+                                           cals,
+                                           backend=backend,
+                                           amplitudes=np.linspace(-0.1, 0.1, 51)
+                                          )
 
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
@@ -301,7 +301,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration import EFRoughXSXAmplitudeCal
 
             library = FixedFrequencyTransmon()
