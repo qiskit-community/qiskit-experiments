@@ -82,7 +82,7 @@ class MitigatedStateTomography(BatchExperiment):
                 qc_ghz.cx(0, i)
 
             mitqstexp = MitigatedStateTomography(qc_ghz)
-	    mitqstexp.set_run_options(shots=1000)
+            mitqstexp.set_run_options(shots=1000)
             mitqstdata = mitqstexp.run(backend=backend, seed_simulator=100).block_for_results()
             state_result = mitqstdata.analysis_results("state")
             plot_state_city(state_result.value, title="mitigated Density Matrix")
