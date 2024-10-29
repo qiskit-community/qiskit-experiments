@@ -42,7 +42,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
             from qiskit import pulse
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.calibration_management.basis_gate_library
+	    import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration.half_angle_cal import HalfAngleCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 640})
