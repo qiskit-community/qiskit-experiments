@@ -28,7 +28,7 @@ from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
-    """An experiment to measure the largest random square circuit that can be run on a processor.
+    r"""An experiment to measure the largest random square circuit that can be run on a processor.
 
     # section: overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
@@ -66,6 +66,31 @@ class QuantumVolume(BaseExperiment):
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
+            backend = AerSimulator.from_backend(FakeSydneyV2())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.framework import BatchExperiment
+            from qiskit_experiments.library import QuantumVolume
+
+            qubits = tuple(range(4)) # Can use specific qubits. for example [2, 4, 7, 10]
+            qv_exp = QuantumVolume(qubits, seed=42)
+            qv_exp.set_transpile_options(optimization_level=3)
+            qv_exp.set_run_options(shots=1000)
+
+            expdata = qv_exp.run(backend).block_for_results()
+
+            display(expdata.figure(0))
+
+            for result in expdata.analysis_results():
+                print(result)
     """
 
     def __init__(

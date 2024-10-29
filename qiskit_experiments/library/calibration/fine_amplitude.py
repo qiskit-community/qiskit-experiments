@@ -36,6 +36,40 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=101)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit.circuit.library import XGate
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineAmplitudeCal
+
+            library = FixedFrequencyTransmon()
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+            exp_cal = FineAmplitudeCal(physical_qubits=(0,),
+                                       calibrations=cals,
+                                       schedule_name="x",
+                                       backend=backend,
+                                       cal_parameter_name="amp",
+                                       auto_update=True,
+                                       gate=XGate(),
+                                       measurement_qubits=(0,))
+            # This option is necessary!
+            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi/2})
+
+            print(exp_cal.circuits()[5])
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
     """
 
     def __init__(
@@ -156,8 +190,38 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the X schedule."""
+    r"""A calibration experiment to calibrate the amplitude of the X schedule.
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=111)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineXAmplitudeCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            cals = Calibrations.from_backend(backend, libraries=[library])
+
+            exp_cal = FineXAmplitudeCal((0,),
+                                         cals,
+                                         schedule_name="x",
+                                         backend=backend,
+                                         cal_parameter_name="amp",
+                                         auto_update=True,
+                                         )
+
+            exp_data = exp_cal.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+        """
+    
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -204,7 +268,41 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the SX schedule."""
+    r"""A calibration experiment to calibrate the amplitude of the SX schedule.
+    
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=105)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            import qiskit.pulse as pulse
+            from qiskit import schedule
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineSXAmplitudeCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            cals = Calibrations.from_backend(backend, libraries=[library])
+
+            exp_cal = FineSXAmplitudeCal((0,),
+                                         cals,
+                                         schedule_name="sx",
+                                         backend=backend,
+                                         cal_parameter_name="amp",
+                                         auto_update=True,
+                                         )
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
