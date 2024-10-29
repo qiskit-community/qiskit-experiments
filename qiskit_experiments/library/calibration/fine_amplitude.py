@@ -50,7 +50,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             from qiskit.circuit.library import XGate
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineAmplitudeCal
 
             library = FixedFrequencyTransmon()
@@ -65,7 +65,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
                                        measurement_qubits=(0,))
             # This option is necessary!
             exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
-							   "phase_offset" : np.pi/2})
+                                                           "phase_offset" : np.pi/2})
 
             print(exp_cal.circuits()[5])
 
@@ -206,7 +206,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXAmplitudeCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
@@ -289,7 +289,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
             from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXAmplitudeCal
 
             library = FixedFrequencyTransmon(default_values={"duration": 320})
