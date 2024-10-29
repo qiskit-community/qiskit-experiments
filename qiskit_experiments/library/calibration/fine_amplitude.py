@@ -220,8 +220,8 @@ class FineXAmplitudeCal(FineAmplitudeCal):
             exp_data = exp_cal.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
-        """
-    
+    """
+
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -269,7 +269,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
     r"""A calibration experiment to calibrate the amplitude of the SX schedule.
-    
+
     # section: example
         .. jupyter-execute::
             :hide-code:
