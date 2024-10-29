@@ -43,7 +43,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
 
             qubit=0
