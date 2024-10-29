@@ -43,7 +43,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
-	    import FixedFrequencyTransmon
+            import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration.frequency_cal import FrequencyCal
 
             cals = Calibrations.from_backend(backend=backend, libraries=[FixedFrequencyTransmon()])
