@@ -22,7 +22,7 @@ from qiskit_experiments.library.characterization.qubit_spectroscopy import Qubit
 
 
 class EFSpectroscopy(QubitSpectroscopy):
-    """A spectroscopy experiment to obtain a frequency sweep of the qubit's e-f transition.
+    r"""A spectroscopy experiment to obtain a frequency sweep of the qubit's e-f transition.
 
     # section: overview
         The circuits produced by spectroscopy, i.e.
@@ -49,12 +49,15 @@ class EFSpectroscopy(QubitSpectroscopy):
 
             qubit = 0
             freq01_estimate = backend.defaults().qubit_freq_est[qubit]
-            frequencies = np.linspace(freq01_estimate-15e6, freq01_estimate+15e6, 51)
+            freq12_estimate = freq01_estimate + (-.25e9)
+            frequencies = np.linspace(freq12_estimate-15e6, freq12_estimate+15e6, 51)
 
-            exp = EFSpectroscopy(physical_qubits = (0,),
-                                     frequencies = frequencies,
-                                     backend = backend,
-                                    )
+            exp = EFSpectroscopy(
+                        physical_qubits = (0,),
+                        frequencies = frequencies,
+                        backend = backend,
+                        absolute = True,
+            )
             exp.set_experiment_options(amp=0.005)
 
             exp_data = exp.run().block_for_results()
