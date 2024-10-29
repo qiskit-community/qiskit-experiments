@@ -87,7 +87,7 @@ class ProcessTomography(TomographyExperiment):
                 for j in range(4):
                     _rho_exp_00[i][j] = choi_out.data[i][j]
 
-            rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)       
+            rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)
             display(plot_state_city(rho_exp_00, title="Density Matrix"))
     """
 
