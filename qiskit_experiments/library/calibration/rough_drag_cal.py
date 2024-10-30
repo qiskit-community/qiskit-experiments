@@ -29,9 +29,6 @@ from qiskit_experiments.library.characterization.drag import RoughDrag
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the :class:`.RoughDrag` experiment.
 
-    # section: manual
-        :ref:`DRAG Calibration`
-
     # section: example
         .. jupyter-execute::
             :hide-code:
@@ -59,6 +56,9 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
             cal_data.analysis_results(dataframe=True)
+
+    # section: manual
+        :ref:`DRAG Calibration`
     """
 
     def __init__(
