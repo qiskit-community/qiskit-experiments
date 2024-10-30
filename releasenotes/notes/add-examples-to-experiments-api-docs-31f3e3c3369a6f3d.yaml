@@ -1,0 +1,13 @@
+---
+other:
+  - |
+    Added minimal working code examples to experiments in API pages except
+    the following experiments which need two qubits gate operations with
+    a forth coming pulse test simulator,
+    CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian, FineZXAmplitude.
+    By default, the backend used in the code examples, are simulators such as
+    SingleTransmonTestBackend(), AerSimulator(FakePerth()). It is noted that,
+    because of the deprecation policy of the Qiskit Pulse in Qiskit 2.0, some
+    experiments which need pulse level programs are deprecated for the real
+    devices in the IBM Quantum platform. See also the Deprecation Notes in
+    the Release Notes 0.8.0.
