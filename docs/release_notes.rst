@@ -1344,18 +1344,6 @@ New Features
 - A new experiment :class:`.ZZRamsey` has been added to measure the ZZ
   coefficient between a pair of qubits.
 
-.. releasenotes/notes/mirror-rb-ec4d695a9a923971.yaml @ b'09fe450c18bf2bb706b664416e34cb26b770a9ff'
-
-- Added a new experiment class :class:`.MirrorRB`. This class implements
-  mirror randomized benchmarking, a variant of randomized benchmarking that measures
-  the fidelity of user-defined ensembles of randomized mirror circuits.
-
-.. releasenotes/notes/mirror-rb-ec4d695a9a923971.yaml @ b'09fe450c18bf2bb706b664416e34cb26b770a9ff'
-
-- Added a base class that samples circuit layers for randomized benchmarking experiments,
-  :class:`.BaseSampler`. The edge grab sampler :class:`.EdgeGrabSampler` and a single
-  qubit gate sampler :class:`.SingleQubitSampler` are implemented.
-
 
 .. _Release Notes_0.5.0_Known Issues:
 
