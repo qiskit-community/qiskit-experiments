@@ -67,8 +67,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
                                                            "phase_offset" : np.pi/2})
 
-            print(exp_cal.circuits()[5])
-
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
             cal_data.analysis_results(dataframe=True)
@@ -283,10 +281,6 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
 
         .. jupyter-execute::
 
-            import numpy as np
-            import qiskit.pulse as pulse
-            from qiskit import schedule
-            from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
             import FixedFrequencyTransmon
