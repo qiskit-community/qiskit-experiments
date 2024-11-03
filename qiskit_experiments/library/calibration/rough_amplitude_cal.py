@@ -295,7 +295,6 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         .. jupyter-execute::
 
             import numpy as np
-            import pandas as pd
             import qiskit.pulse as pulse
             from qiskit.compiler import schedule
             from qiskit.circuit import Parameter
@@ -340,18 +339,11 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             for sched in ["sx", "sx12"]:
                 cals.add_parameter_value(0.25, "amp", (0,), schedule=sched)
 
-            columns_to_show = ["parameter", "qubits", "schedule", "value", "date_time"]
-            pd.DataFrame(**cals.parameters_table(qubit_list=[0, ()]))[columns_to_show]
-
             exp_cal = EFRoughXSXAmplitudeCal(physical_qubits=(0,),
                                              calibrations=cals,
                                              amplitudes=np.linspace(-0.1, 0.1, 51),
                                              backend=backend,
                                              ef_pulse_label="12",)
-
-            print(exp_cal.calibrations)
-            print(exp_cal.circuits()[0])
-            print(exp_cal.circuits()[0].calibrations)
 
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
