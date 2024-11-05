@@ -603,6 +603,7 @@ class SingleTransmonTestBackend(PulseBackend):
             }
         )
         self._target = Target(
+            num_qubits=1,
             qubit_properties=[QubitProperties(frequency=qubit_frequency)],
             dt=self.dt,
             granularity=16,

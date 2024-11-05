@@ -160,6 +160,11 @@ by a variant of the Hahn-echo pulse sequence [5]_.
         message=".*Due to the deprecation of Qiskit Pulse.*",
         category=DeprecationWarning,
     )
+    warnings.filterwarnings(
+        "ignore",
+        message=".*The entire Qiskit Pulse package is being deprecated.*",
+        category=DeprecationWarning,
+    )
 
     from qiskit_experiments.library import StarkRamseyXY
     from qiskit import schedule, pulse
