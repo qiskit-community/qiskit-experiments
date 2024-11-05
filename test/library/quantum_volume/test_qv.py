@@ -89,7 +89,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         )
         # compare to pre-calculated probabilities
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        if version_is_at_least("qiskit", 1.1):
+        if version_is_at_least("qiskit", 1.3):
+            probabilities_json_file = "qv_ideal_probabilities_qiskit_1_3.json"
+        elif version_is_at_least("qiskit", 1.1):
             probabilities_json_file = "qv_ideal_probabilities_qiskit_1_1.json"
         else:
             probabilities_json_file = "qv_ideal_probabilities.json"

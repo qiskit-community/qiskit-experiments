@@ -20,6 +20,7 @@ from qiskit import pulse
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.transpiler import InstructionProperties
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
@@ -268,14 +269,14 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_interleaving_cnot_gate_with_non_supported_direction(self):
         """Test if fails to interleave cx(1, 2) for backend that support only cx(2, 1)."""
-        del self.backend.target["cx"][(1, 2)]  # make support only cx(2, 1)
+        backend = GenericBackendV2(3, coupling_map=[[0, 1], [2, 1]])
 
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
             physical_qubits=(1, 2),
             lengths=[3],
             num_samples=4,
-            backend=self.backend,
+            backend=backend,
             seed=1234,
         )
         with self.assertRaises(QiskitError):
