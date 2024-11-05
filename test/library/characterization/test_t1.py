@@ -15,7 +15,10 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+from qiskit.circuit import Delay, Parameter
+from qiskit.circuit.library import CXGate, Measure, RXGate
 from qiskit.qobj.utils import MeasLevel
+from qiskit.transpiler import InstructionProperties, Target
 from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
@@ -249,22 +252,33 @@ class TestT1(QiskitExperimentsTestCase):
     def test_t1_parallel_exp_transpile(self):
         """Test parallel transpile options for T1 experiment"""
         num_qubits = 5
-        instruction_durations = []
-        for i in range(num_qubits):
-            instruction_durations += [
-                ("rx", [i], (i + 1) * 10, "ns"),
-                ("measure", [i], (i + 1) * 1000, "ns"),
-            ]
-        coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
-        basis_gates = ["rx", "delay"]
+        target = Target(num_qubits=num_qubits)
+        target.add_instruction(
+            RXGate(Parameter("t")),
+            properties={
+                (i,): InstructionProperties(duration=(i + 1) * 10e-9) for i in range(num_qubits)
+            },
+        )
+        target.add_instruction(
+            Measure(),
+            properties={
+                (i,): InstructionProperties(duration=(i + 1) * 1e-6) for i in range(num_qubits)
+            },
+        )
+        target.add_instruction(
+            Delay(Parameter("t")),
+            properties={(i,): None for i in range(num_qubits)},
+        )
+        target.add_instruction(
+            CXGate(),
+            properties={(i - 1, i): None for i in range(1, num_qubits)},
+        )
 
         exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
         exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
         parexp = ParallelExperiment([exp1, exp2], flatten_results=False)
         parexp.set_transpile_options(
-            basis_gates=basis_gates,
-            instruction_durations=instruction_durations,
-            coupling_map=coupling_map,
+            target=target,
             scheduling_method="alap",
         )
 
