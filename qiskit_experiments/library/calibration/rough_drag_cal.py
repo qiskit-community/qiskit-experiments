@@ -40,9 +40,6 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         .. jupyter-execute::
 
             import numpy as np
-            import qiskit.pulse as pulse
-            from qiskit import schedule
-            from qiskit.circuit import Parameter
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library
             import FixedFrequencyTransmon
