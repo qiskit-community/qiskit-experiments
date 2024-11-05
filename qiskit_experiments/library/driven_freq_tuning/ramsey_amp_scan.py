@@ -103,10 +103,7 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
 	.. jupyter-execute::
 
-	    import numpy as np
 	    from qiskit import pulse
-	    from qiskit.pulse.channels import PulseChannel, DriveChannel
-	    from qiskit_experiments.library.driven_freq_tuning.p1_spect import StarkP1Spectroscopy
 	    from qiskit_experiments.library.driven_freq_tuning import StarkRamseyXYAmpScan
 
 	    qubit = 0
@@ -127,7 +124,6 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 	    exp.set_run_options(shots=10000)
 	    exp_data = exp.run().block_for_results()
 	    result = exp_data.analysis_results()
-	    print(result)
 	    display(exp_data.figure(0))
     """
 
