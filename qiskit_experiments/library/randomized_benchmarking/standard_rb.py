@@ -94,7 +94,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             from qiskit_ibm_runtime.fake_provider import FakePerth
 
             backend = AerSimulator.from_backend(FakePerth())
-            print(backend.coupling_map)
 
         .. jupyter-execute::
 
