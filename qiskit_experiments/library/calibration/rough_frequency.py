@@ -109,10 +109,6 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     r"""A calibration experiment that runs :class:`.QubitSpectroscopy` for the
     :math:`|1\rangle` <-> :math:`|2\rangle` transition.
 
-
-
-
-
     """
 
     __updater__ = Frequency
