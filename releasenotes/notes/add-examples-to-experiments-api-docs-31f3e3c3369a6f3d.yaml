@@ -5,6 +5,7 @@ other:
     EFSpectroscopy,
     EFRabi,
     StarkRamseyXYAmpScan,
+    StarkP1Spectroscopy,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
