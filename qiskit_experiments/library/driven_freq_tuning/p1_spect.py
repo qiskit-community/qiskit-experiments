@@ -82,14 +82,11 @@ class StarkP1Spectroscopy(BaseExperiment):
 
         .. jupyter-execute::
 
-            import numpy as np
             from qiskit import pulse
-            from qiskit.pulse.channels import PulseChannel, DriveChannel
             from qiskit_experiments.library.driven_freq_tuning.p1_spect import StarkP1Spectroscopy
             from qiskit_experiments.library.driven_freq_tuning import StarkRamseyXYAmpScan
 
             qubit = 0
-
             exp = StarkRamseyXYAmpScan((qubit,), backend=backend)
             exp.set_experiment_options(
                         stark_channel=pulse.ControlChannel(qubit),
@@ -105,10 +102,6 @@ class StarkP1Spectroscopy(BaseExperiment):
 
             exp.set_run_options(shots=10000)
             exp_data = exp.run().block_for_results()
-            result = exp_data.analysis_results()
-            print(result)
-            display(exp_data.figure(0))
-
             ret_coeffs = exp_data.analysis_results("stark_coefficients").value
 
             # encode and decode the stark_coefficients
@@ -136,15 +129,9 @@ class StarkP1Spectroscopy(BaseExperiment):
                 spacing="linear",
                 stark_coefficients=coefficients,
             )
-
             exp.set_run_options(shots=100)
-            display(exp.circuits()[0].draw("mpl"))
 
             exp_data = exp.run().block_for_results()
-            result=exp_data.analysis_results()
-            for _ in result:
-                print(_)
-
             display(exp_data.figure(0))
     """
 
