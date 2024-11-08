@@ -77,6 +77,16 @@ they use always starts with the qubits in the ground state.
         message=".*Support for restless.*",
         category=DeprecationWarning,
     )
+    warnings.filterwarnings(
+        "ignore",
+        message=".*The entire Qiskit Pulse package is being deprecated.*",
+        category=DeprecationWarning,
+    )
+    warnings.filterwarnings(
+        "ignore",
+        message=".*QuantumCircuit.duration.*",
+        category=DeprecationWarning,
+    )
 
     # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
     from qiskit_experiments.test.patching import patch_sampler_test_support

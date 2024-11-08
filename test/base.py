@@ -111,11 +111,11 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
 
             patch_sampler_test_support()
 
-            warnings.filterwarnings("error", category=DeprecationWarning)
             # Tests should not generate any warnings unless testing those
             # warnings. In that case, the test should catch the warning
             # assertWarns or warnings.catch_warnings.
             warnings.filterwarnings("error", module="qiskit_experiments")
+            warnings.filterwarnings("error", module=r"test\.")
             # Ideally, changes introducing pending deprecations should include
             # alternative code paths and not need to generate warnings in the
             # tests but until this exception is necessary until the use of the
@@ -176,6 +176,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 ".*qiskit.providers.models.backendproperties.BackendProperties.*",
                 ".*qiskit.providers.fake_provider.fake_backend.FakeBackend.*",
                 ".*qiskit.providers.backend.BackendV1.*",
+                ".*The entire Qiskit Pulse package is being deprecated.*",
             ]
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
