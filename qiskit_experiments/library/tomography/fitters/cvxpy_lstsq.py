@@ -300,8 +300,8 @@ def cvxpy_linear_lstsq(
             idx = 0
             for i in range(num_circ_components):
                 for j in range(num_tomo_components):
-                    model = bms_r[idx] @ cvxpy.vec(rhos_r[idx]) - bms_i[idx] @ cvxpy.vec(
-                        rhos_i[idx]
+                    model = bms_r[idx] @ cvxpy.vec(rhos_r[idx], order="F") - bms_i[idx] @ cvxpy.vec(
+                        rhos_i[idx], order="F"
                     )
                     data = probability_data[i, j]
                     args.append(model - data)
