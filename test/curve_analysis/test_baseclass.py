@@ -13,6 +13,8 @@
 # pylint: disable=invalid-name
 
 """Test curve fitting base class."""
+import warnings
+
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
@@ -139,22 +141,26 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             },
         )
 
-        curve_data = analysis._run_data_processing(raw_data=expdata1.data() + expdata2.data())
-        self.assertListEqual(curve_data.labels, ["s1", "s2"])
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*ScatterTable.labels.*")
+            warnings.filterwarnings("ignore", message=".*ScatterTable.get_subset_of.*")
+            warnings.filterwarnings("ignore", message=".*ScatterTable.data_allocation.*")
+            curve_data = analysis._run_data_processing(raw_data=expdata1.data() + expdata2.data())
+            self.assertListEqual(curve_data.labels, ["s1", "s2"])
 
-        # check data of series1
-        sub1 = curve_data.get_subset_of("s1")
-        self.assertListEqual(sub1.labels, ["s1"])
-        np.testing.assert_array_equal(sub1.x, x)
-        np.testing.assert_array_almost_equal(sub1.y, y1, decimal=3)
-        np.testing.assert_array_equal(sub1.data_allocation, np.full(x.size, 0))
+            # check data of series1
+            sub1 = curve_data.get_subset_of("s1")
+            self.assertListEqual(sub1.labels, ["s1"])
+            np.testing.assert_array_equal(sub1.x, x)
+            np.testing.assert_array_almost_equal(sub1.y, y1, decimal=3)
+            np.testing.assert_array_equal(sub1.data_allocation, np.full(x.size, 0))
 
-        # check data of series2
-        sub2 = curve_data.get_subset_of("s2")
-        self.assertListEqual(sub2.labels, ["s2"])
-        np.testing.assert_array_equal(sub2.x, x)
-        np.testing.assert_array_almost_equal(sub2.y, y2, decimal=3)
-        np.testing.assert_array_equal(sub2.data_allocation, np.full(x.size, 1))
+            # check data of series2
+            sub2 = curve_data.get_subset_of("s2")
+            self.assertListEqual(sub2.labels, ["s2"])
+            np.testing.assert_array_equal(sub2.x, x)
+            np.testing.assert_array_almost_equal(sub2.y, y2, decimal=3)
+            np.testing.assert_array_equal(sub2.data_allocation, np.full(x.size, 1))
 
     def test_create_result(self):
         """A testcase for creating analysis result data from fit data."""

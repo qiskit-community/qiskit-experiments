@@ -69,6 +69,11 @@ class Rabi(BaseExperiment, RestlessMixin):
                 message=".*Due to the deprecation of Qiskit Pulse.*",
                 category=DeprecationWarning,
             )
+            warnings.filterwarnings(
+                "ignore",
+                message=".*The entire Qiskit Pulse package is being deprecated.*",
+                category=DeprecationWarning,
+            )
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
@@ -252,6 +257,11 @@ class EFRabi(Rabi):
             warnings.filterwarnings(
                 "ignore",
                 message=".*Due to the deprecation of Qiskit Pulse.*",
+                category=DeprecationWarning,
+            )
+            warnings.filterwarnings(
+                "ignore",
+                message=".*The entire Qiskit Pulse package is being deprecated.*",
                 category=DeprecationWarning,
             )
 
