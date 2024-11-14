@@ -47,6 +47,7 @@ experiments to generate the corresponding mitigators.
     import numpy as np
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Operator
     from qiskit.visualization import plot_distribution
     from qiskit_experiments.data_processing import LocalReadoutMitigator
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
@@ -130,21 +131,11 @@ Expectation value
 
 .. jupyter-execute::
 
-    def str2diag(string):
-        """Transform diagonal from a string to a numpy array"""
-        chars = {
-            "I": np.array([1, 1], dtype=float),
-            "Z": np.array([1, -1], dtype=float),
-            "0": np.array([1, 0], dtype=float),
-            "1": np.array([0, 1], dtype=float),
-        }
-        ret = np.array([1], dtype=float)
-        for i in reversed(string):
-            ret = np.kron(chars[i], ret)
-        return ret
-
     diagonal_labels = ["ZZZZ", "ZIZI", "IZII", "1ZZ0"]
-    diagonals = [str2diag(d) for d in diagonal_labels]
+    diagonals = [
+        np.diag(np.real(Operator.from_label(d).to_matrix()))
+        for d in diagonal_labels
+    ]
 
     # Create a mitigator with no mitigation so that we can use its
     # expectation_values method to generate an unmitigated expectation value to
