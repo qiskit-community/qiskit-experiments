@@ -234,8 +234,8 @@ def partial_trace_constaint(
     ptr = partial_trace_super(input_dim, output_dim)
     vec_cons = np.ravel(constraint, order="F")
     return [
-        ptr @ cvxpy.vec(mat_r) == vec_cons.real.round(12),
-        ptr @ cvxpy.vec(mat_i) == vec_cons.imag.round(12),
+        ptr @ cvxpy.vec(mat_r, order="F") == vec_cons.real.round(12),
+        ptr @ cvxpy.vec(mat_i, order="F") == vec_cons.imag.round(12),
     ]
 
 
@@ -274,7 +274,7 @@ def trace_preserving_constaint(
     output_dim = sdim // input_dim
 
     ptr = partial_trace_super(input_dim, output_dim)
-    cons = [ptr @ cvxpy.vec(arg_r) == np.identity(input_dim).ravel()]
+    cons = [ptr @ cvxpy.vec(arg_r, order="F") == np.identity(input_dim).ravel()]
 
     if hermitian:
         return cons
@@ -286,7 +286,7 @@ def trace_preserving_constaint(
         arg_i = mat_i
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
-    cons.append(ptr @ cvxpy.vec(arg_i) == np.zeros(input_dim**2))
+    cons.append(ptr @ cvxpy.vec(arg_i, order="F") == np.zeros(input_dim**2))
     return cons
 
 
