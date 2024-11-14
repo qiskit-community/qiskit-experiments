@@ -89,14 +89,23 @@ class ParallelExperiment(CompositeExperiment):
             # Num qubits will be computed from sub experiments
             num_qubits = len(self.physical_qubits)
         else:
-            # Work around for backend coupling map circuit inflation
+            # Expand the number of qubits similar to how qiskit.transpile does
+            # Here we progress from most to least specific way of specifying
+            # the number of qubits: coupling_map->target->backend
+            #
+            # TODO: Behave more like a layout transpiler pass and set the
+            # _layout property on the circuits. Doing this requires accessing
+            # private attributes of Qiskit or possibly running a layout pass of
+            # the transpiler if that can be done without too much overhead.
+            num_qubits = 1 + max(self.physical_qubits)
             coupling_map = getattr(self.transpile_options, "coupling_map", None)
-            if coupling_map is None and self.backend:
-                coupling_map = self._backend_data.coupling_map
+            target = getattr(self.transpile_options, "target", None)
             if coupling_map is not None:
-                num_qubits = 1 + max(*self.physical_qubits, np.max(coupling_map))
-            else:
-                num_qubits = 1 + max(self.physical_qubits)
+                num_qubits = max(num_qubits, 1 + np.max(coupling_map))
+            elif target is not None:
+                num_qubits = max(num_qubits, target.num_qubits)
+            elif self.backend:
+                num_qubits = max(num_qubits, self._backend_data.num_qubits)
 
         joint_circuits = []
         sub_qubits = 0
