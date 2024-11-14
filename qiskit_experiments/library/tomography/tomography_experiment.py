@@ -16,7 +16,7 @@ Quantum Tomography experiment
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
-from qiskit.circuit.library import Permutation
+from qiskit.circuit.library import PermutationGate
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
@@ -314,7 +314,7 @@ class TomographyExperiment(BaseExperiment):
             prep_qargs = list(self._prep_indices)
             if len(self._prep_indices) != total_qubits:
                 prep_qargs += [i for i in range(total_qubits) if i not in self._prep_indices]
-            perm_circ.append(Permutation(total_qubits, prep_qargs).inverse(), range(total_qubits))
+            perm_circ.append(PermutationGate(prep_qargs).inverse(), range(total_qubits))
 
         # Apply original circuit
         if total_clbits:
@@ -327,6 +327,6 @@ class TomographyExperiment(BaseExperiment):
             meas_qargs = list(self._meas_indices)
             if len(self._meas_indices) != total_qubits:
                 meas_qargs += [i for i in range(total_qubits) if i not in self._meas_indices]
-            perm_circ.append(Permutation(total_qubits, meas_qargs), range(total_qubits))
+            perm_circ.append(PermutationGate(meas_qargs), range(total_qubits))
 
         return perm_circ
