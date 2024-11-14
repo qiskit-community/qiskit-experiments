@@ -54,7 +54,7 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
-    """An experiment to characterize the error rate of a gate set on a device.
+    r"""An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
 
@@ -84,6 +84,50 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import StandardRB, InterleavedRB
+            from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
+            import qiskit.circuit.library as circuits
+
+            lengths_2_qubit = np.arange(1, 200, 30)
+            lengths_1_qubit = np.arange(1, 800, 200)
+            num_samples = 10
+            seed = 1010
+            qubits = (1, 2)
+
+            # Run a 1-qubit RB experiment on qubits 1, 2 to determine the error-per-gate of 1-qubit gates
+            single_exps = BatchExperiment(
+                [
+                    StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
+                    for qubit in qubits
+                ]
+            )
+            expdata_1q = single_exps.run(backend).block_for_results()
+
+            exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
+
+            # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
+            exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
+
+            expdata_2q = exp_2q.run(backend).block_for_results()
+
+            print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
+            display(expdata_2q.figure(0))
+            for result in expdata_2q.analysis_results():
+                print(result)
     """
 
     def __init__(
