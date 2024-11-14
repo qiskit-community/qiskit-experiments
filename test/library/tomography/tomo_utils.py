@@ -52,8 +52,10 @@ def teleport_circuit(flatten_creg=True):
     teleport.measure(0, creg[0])
     teleport.measure(1, creg[1])
     # Conditionals
-    teleport.z(2).c_if(creg[0], 1)
-    teleport.x(2).c_if(creg[1], 1)
+    with teleport.if_test((creg[0], True)):
+        teleport.z(2)
+    with teleport.if_test((creg[1], True)):
+        teleport.x(2)
     return teleport
 
 
@@ -76,8 +78,10 @@ def teleport_bell_circuit(flatten_creg=True):
     teleport.h(0)
     teleport.measure(0, creg[0])
     teleport.measure(1, creg[1])
-    teleport.z(2).c_if(creg[0], 1)
-    teleport.x(2).c_if(creg[1], 1)
+    with teleport.if_test((creg[0], True)):
+        teleport.z(2)
+    with teleport.if_test((creg[1], True)):
+        teleport.x(2)
     return teleport
 
 
