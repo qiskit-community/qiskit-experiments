@@ -15,8 +15,8 @@ Analysis class to characterize local readout error
 from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
-from qiskit.result import LocalReadoutMitigator
 from qiskit.result import marginal_distribution
+from qiskit_experiments.data_processing import LocalReadoutMitigator
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options

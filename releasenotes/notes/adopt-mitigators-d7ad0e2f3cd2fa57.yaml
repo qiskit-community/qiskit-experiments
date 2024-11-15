@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    New :class:`~.LocalReadoutMitigator` and
+    :class:`~.CorrelatedReadoutMitigator` classes have been added. These
+    classes were moved directly from Qiskit which deprecated them in Qiskit
+    1.3. They provide utility methods for applying readout error mitigation and
+    integrate with the readout error mitigation experiments
+    :class:`~.LocalReadoutError` and :class:`~.CorrelatedReadoutError`.
+upgrade:
+  - |
+    The readout error mitigation experiments :class:`~.LocalReadoutError` and
+    :class:`~.CorrelatedReadoutError` have been updated to generate instances
+    of the new :class:`~.LocalReadoutMitigator` and
+    :class:`~.CorrelatedReadoutMitigator` classes. The experiments should
+    continue to work as before, but any code that was using, for example,
+    ``isinstance()`` to check object type would need to be updated to check
+    against the Qiskit Experiments classes instead of the old Qiskit classes.
