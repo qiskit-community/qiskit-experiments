@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.8.0-3-g05d74879</title>
+        <title>Release Notes - Qiskit Experiments 0.8.0-5-g940b94d6</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-3-g05d74879</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-5-g940b94d6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-3-g05d74879</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-5-g940b94d6</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -336,6 +336,9 @@
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.BaseReadoutMitigator.html">BaseReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html">LocalReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html">CorrelatedReadoutMitigator</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -606,14 +609,45 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
+<section id="relnotes-0-8-0-5">
+<span id="id1"></span><h2>0.8.0-5<a class="headerlink" href="#relnotes-0-8-0-5" title="Link to this heading">¶</a></h2>
+<section id="new-features">
+<span id="relnotes-0-8-0-5-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>New <a class="reference internal" href="stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html#qiskit_experiments.data_processing.LocalReadoutMitigator" title="qiskit_experiments.data_processing.LocalReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> and
+<a class="reference internal" href="stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator" title="qiskit_experiments.data_processing.CorrelatedReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> classes have been added. These
+classes were moved directly from Qiskit which deprecated them in Qiskit
+1.3. They provide utility methods for applying readout error mitigation and
+integrate with the readout error mitigation experiments
+<a class="reference internal" href="stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a>.</p></li>
+</ul>
+</section>
+<section id="upgrade-notes">
+<span id="relnotes-0-8-0-5-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The readout error mitigation experiments <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a> and
+<a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a> have been updated to generate instances
+of the new <a class="reference internal" href="stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html#qiskit_experiments.data_processing.LocalReadoutMitigator" title="qiskit_experiments.data_processing.LocalReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> and
+<a class="reference internal" href="stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator" title="qiskit_experiments.data_processing.CorrelatedReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> classes. The experiments should
+continue to work as before, but any code that was using, for example,
+<code class="docutils literal notranslate"><span class="pre">isinstance()</span></code> to check object type would need to be updated to check
+against the Qiskit Experiments classes instead of the old Qiskit classes.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Minor adjustments were made to Qiskit Experiments internals to avoid
+deprecation warnings when using Qiskit 1.3. See <cite>#1482
+&lt;https://github.com/qiskit-community/qiskit-experiments/pull/1482&gt;_</cite>.</p></li>
+</ul>
+</section>
+</section>
 <section id="relnotes-0-8-0">
-<span id="id1"></span><h2>0.8.0<a class="headerlink" href="#relnotes-0-8-0" title="Link to this heading">¶</a></h2>
+<span id="id2"></span><h2>0.8.0<a class="headerlink" href="#relnotes-0-8-0" title="Link to this heading">¶</a></h2>
 <section id="prelude">
 <span id="relnotes-0-8-0-prelude"></span><h3>Prelude<a class="headerlink" href="#prelude" title="Link to this heading">¶</a></h3>
 <p>In this release we added support for the Qiskit primitives. Qiskit Experiments will execute circuits using <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> by default.</p>
 </section>
-<section id="upgrade-notes">
-<span id="relnotes-0-8-0-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<section id="relnotes-0-8-0-upgrade-notes">
+<span id="id3"></span><h3>Upgrade Notes<a class="headerlink" href="#relnotes-0-8-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>When only a <code class="docutils literal notranslate"><span class="pre">backend</span></code> is set on an experiment, <a class="reference internal" href="stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.framework.BaseExperiment.run()</span></code></a>
 now defaults to wrapping the <code class="docutils literal notranslate"><span class="pre">backend</span></code> in a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> and
@@ -672,13 +706,13 @@ experiments from running.</p></li>
 </section>
 </section>
 <section id="release-notes-0-7-0">
-<span id="id2"></span><h2>0.7.0<a class="headerlink" href="#release-notes-0-7-0" title="Link to this heading">¶</a></h2>
+<span id="id4"></span><h2>0.7.0<a class="headerlink" href="#release-notes-0-7-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-7-0-prelude">
-<span id="id3"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-7-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id5"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-7-0-prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.7 release adds the Layer Fidelity experiment and makes some fixes and improvements.</p>
 </section>
-<section id="new-features">
-<span id="release-notes-0-7-0-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<section id="release-notes-0-7-0-new-features">
+<span id="id6"></span><h3>New Features<a class="headerlink" href="#release-notes-0-7-0-new-features" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p>Add a new experiment class <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelity"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelity</span></code></a> to measure
 <a class="reference external" href="https://arxiv.org/abs/2311.05933">layer fidelity and EPLG (error per layered gate)</a>,
@@ -717,7 +751,7 @@ removed from all analysis result objects and live in the artifacts only.</p></li
 </ul>
 </section>
 <section id="release-notes-0-7-0-upgrade-notes">
-<span id="id4"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-7-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id7"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-7-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Changes in behavior that users should be aware of when upgrading Qiskit Experiments
 to this version are listed below in subsections by functional area.</p></li>
@@ -748,14 +782,14 @@ artifact.</p></li>
 </section>
 </section>
 <section id="release-notes-0-7-0-deprecation-notes">
-<span id="id5"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-7-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id8"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-7-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Accessing experiment data artifacts by numerical index has been
 deprecated. Use the name or ID of the artifact instead.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-7-0-bug-fixes">
-<span id="id6"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-7-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id9"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-7-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug in EPG (error per gate) computation in <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html#qiskit_experiments.library.randomized_benchmarking.RBAnalysis" title="qiskit_experiments.library.randomized_benchmarking.RBAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBAnalysis</span></code></a>
 where it fails with a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> for backends with ECR gate
@@ -783,13 +817,13 @@ the backend used in the examples is a simulator such as <code class="docutils li
 </section>
 </section>
 <section id="release-notes-0-6-1">
-<span id="id8"></span><h2>0.6.1<a class="headerlink" href="#release-notes-0-6-1" title="Link to this heading">¶</a></h2>
+<span id="id11"></span><h2>0.6.1<a class="headerlink" href="#release-notes-0-6-1" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-6-1-prelude">
-<span id="id9"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-1-prelude" title="Link to this heading">¶</a></h3>
+<span id="id12"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-1-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.6.1 is a minor bug fixes release.</p>
 </section>
 <section id="release-notes-0-6-1-bug-fixes">
-<span id="id10"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-6-1-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id13"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-6-1-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.test.SingleTransmonTestBackend.html#qiskit_experiments.test.SingleTransmonTestBackend" title="qiskit_experiments.test.SingleTransmonTestBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingleTransmonTestBackend</span></code></a> was updated to be compatible with
 <a class="reference external" href="https://qiskit-community.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a> version 0.5.0. The updates accounted for changes in
@@ -821,9 +855,9 @@ required dependency of Qiskit Experiments.</p></li>
 </section>
 </section>
 <section id="release-notes-0-6-0">
-<span id="id12"></span><h2>0.6.0<a class="headerlink" href="#release-notes-0-6-0" title="Link to this heading">¶</a></h2>
+<span id="id15"></span><h2>0.6.0<a class="headerlink" href="#release-notes-0-6-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-6-0-prelude">
-<span id="id13"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id16"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-0-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.6 introduces numerous features and improvements. It is
 compatible with Qiskit 1.0. Notable changes include: refactoring the analysis
 results to a pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based
@@ -839,7 +873,7 @@ The supported provider for running jobs on IBM backends is now
 <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> is still supported but its use is deprecated.</p>
 </section>
 <section id="release-notes-0-6-0-new-features">
-<span id="id14"></span><h3>New Features<a class="headerlink" href="#release-notes-0-6-0-new-features" title="Link to this heading">¶</a></h3>
+<span id="id17"></span><h3>New Features<a class="headerlink" href="#release-notes-0-6-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>New features are listed below in subsections by functional area.</p></li>
 </ul>
@@ -1051,20 +1085,20 @@ for quadratic scaling).</p></li>
 </section>
 </section>
 <section id="release-notes-0-6-0-known-issues">
-<span id="id16"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-6-0-known-issues" title="Link to this heading">¶</a></h3>
+<span id="id19"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-6-0-known-issues" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Copied <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> objects don’t save their analysis results to the cloud service.
 See <a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments/issues/1396">#1396</a>.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-6-0-upgrade-notes">
-<span id="id18"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-6-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id21"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-6-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Changes in behavior that users should be aware of when upgrading Qiskit Experiments
 to this version are listed below in subsections by functional area.</p></li>
 </ul>
 <section id="release-notes-0-6-0-package-upgrades">
-<span id="id19"></span><h4>Package Upgrades<a class="headerlink" href="#release-notes-0-6-0-package-upgrades" title="Link to this heading">¶</a></h4>
+<span id="id22"></span><h4>Package Upgrades<a class="headerlink" href="#release-notes-0-6-0-package-upgrades" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p>Several deprecated methods and options have been removed and will no longer work:</p>
 <ul>
@@ -1163,7 +1197,7 @@ attached to a schedule in a meaningful way.</p></li>
 </section>
 </section>
 <section id="release-notes-0-6-0-deprecation-notes">
-<span id="id20"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-6-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id23"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-6-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Executing composite experiment and composite analysis with <code class="docutils literal notranslate"><span class="pre">flatten_results=False</span></code>
 by default was deprecated. To create child experiment data, please explicitly
@@ -1223,7 +1257,7 @@ and the legacy configuration dictionary is no longer used for JSON encoding.</p>
 </ul>
 </section>
 <section id="release-notes-0-6-0-bug-fixes">
-<span id="id21"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-6-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id24"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-6-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Bug fixes are listed below in subsections by functional area.</p></li>
 </ul>
@@ -1342,7 +1376,7 @@ default value of all qubit components. See the <a class="reference internal" hre
 </ul>
 </section>
 <section id="release-notes-0-6-0-other-notes">
-<span id="id24"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-6-0-other-notes" title="Link to this heading">¶</a></h3>
+<span id="id27"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-6-0-other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Display a warning when running an analysis on <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> objects which do not contain data.</p></li>
 </ul>
@@ -1382,13 +1416,13 @@ appending a numerical suffix to the figure name like <code class="docutils liter
 </section>
 </section>
 <section id="release-notes-0-5-4">
-<span id="id25"></span><h2>0.5.4<a class="headerlink" href="#release-notes-0-5-4" title="Link to this heading">¶</a></h2>
+<span id="id28"></span><h2>0.5.4<a class="headerlink" href="#release-notes-0-5-4" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-5-4-prelude">
-<span id="id26"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-4-prelude" title="Link to this heading">¶</a></h3>
+<span id="id29"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-4-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.5.4 is a minor improvement and fixes release.</p>
 </section>
 <section id="release-notes-0-5-4-bug-fixes">
-<span id="id27"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-4-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id30"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-4-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed calculation of weight for curve fitting. Previously the weights of data points to obtain
 the residual of fit curve were computed by the inverse of the error bars of y data.
@@ -1410,7 +1444,7 @@ See <a class="reference external" href="https://github.com/Qiskit-Community/qisk
 </ul>
 </section>
 <section id="release-notes-0-5-4-other-notes">
-<span id="id28"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-4-other-notes" title="Link to this heading">¶</a></h3>
+<span id="id31"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-4-other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Removed the reset instruction from the beginning of tomography experiments.
 Since qubits are usually reset between circuits, this change should have no
@@ -1420,13 +1454,13 @@ provide a reset instruction to run tomography experiments. See <a class="referen
 </section>
 </section>
 <section id="release-notes-0-5-3">
-<span id="id29"></span><h2>0.5.3<a class="headerlink" href="#release-notes-0-5-3" title="Link to this heading">¶</a></h2>
+<span id="id32"></span><h2>0.5.3<a class="headerlink" href="#release-notes-0-5-3" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-5-3-prelude">
-<span id="id30"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-3-prelude" title="Link to this heading">¶</a></h3>
+<span id="id33"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-3-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.5.3 is a minor improvement and fixes release.</p>
 </section>
 <section id="release-notes-0-5-3-new-features">
-<span id="id31"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-3-new-features" title="Link to this heading">¶</a></h3>
+<span id="id34"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-3-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>A new experiment option <code class="docutils literal notranslate"><span class="pre">circuit_order</span></code> was added to <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB" title="qiskit_experiments.library.randomized_benchmarking.InterleavedRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterleavedRB</span></code></a>.
 It allows to change the order of the reference and the interleaved circuits
@@ -1436,7 +1470,7 @@ an interleaved circuit.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-5-3-bug-fixes">
-<span id="id32"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-3-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id35"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-3-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Changed the ordering of circuits generated by <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB" title="qiskit_experiments.library.randomized_benchmarking.InterleavedRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterleavedRB</span></code></a> back to
 RIRIRI (R: Reference, I: Interleaved) order.
@@ -1447,13 +1481,13 @@ Before that, it had been RIRIRI order.</p></li>
 </section>
 </section>
 <section id="release-notes-0-5-2">
-<span id="id34"></span><h2>0.5.2<a class="headerlink" href="#release-notes-0-5-2" title="Link to this heading">¶</a></h2>
+<span id="id37"></span><h2>0.5.2<a class="headerlink" href="#release-notes-0-5-2" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-5-2-prelude">
-<span id="id35"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-2-prelude" title="Link to this heading">¶</a></h3>
+<span id="id38"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-2-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.5.2 is a minor bug fix and performance improvement release.</p>
 </section>
 <section id="release-notes-0-5-2-new-features">
-<span id="id36"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-2-new-features" title="Link to this heading">¶</a></h3>
+<span id="id39"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-2-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>A new method <a class="reference internal" href="stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations.has_template" title="qiskit_experiments.calibration_management.Calibrations.has_template"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.calibration_management.Calibrations.has_template()</span></code></a>
 has been added to <a class="reference internal" href="stubs/qiskit_experiments.calibration_management.Calibrations.html#qiskit_experiments.calibration_management.Calibrations" title="qiskit_experiments.calibration_management.Calibrations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrations</span></code></a>
@@ -1461,7 +1495,7 @@ to check if a template schedule exists for a particular set of qubits.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-5-2-bug-fixes">
-<span id="id37"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-2-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id40"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-2-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.library.calibration.FineXDragCal.html#qiskit_experiments.library.calibration.FineXDragCal" title="qiskit_experiments.library.calibration.FineXDragCal"><code class="xref py py-class docutils literal notranslate"><span class="pre">FineXDragCal</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal.html#qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal" title="qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal"><code class="xref py py-class docutils literal notranslate"><span class="pre">EFRoughXSXAmplitudeCal</span></code></a> were updated to
 attach <code class="docutils literal notranslate"><span class="pre">sx</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code> calibrations to their circuits, respectively.
@@ -1470,7 +1504,7 @@ were calibrating. See issue <a class="reference external" href="https://github.c
 </ul>
 </section>
 <section id="release-notes-0-5-2-other-notes">
-<span id="id39"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-2-other-notes" title="Link to this heading">¶</a></h3>
+<span id="id42"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-2-other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The performance of experiment analysis for parallel experiments has been improved
 significantly due to improved results marginalization. See PR
@@ -1479,13 +1513,13 @@ significantly due to improved results marginalization. See PR
 </section>
 </section>
 <section id="release-notes-0-5-1">
-<span id="id41"></span><h2>0.5.1<a class="headerlink" href="#release-notes-0-5-1" title="Link to this heading">¶</a></h2>
+<span id="id44"></span><h2>0.5.1<a class="headerlink" href="#release-notes-0-5-1" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-5-1-prelude">
-<span id="id42"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-1-prelude" title="Link to this heading">¶</a></h3>
+<span id="id45"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-1-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.5.1 is a minor bug fix release.</p>
 </section>
 <section id="release-notes-0-5-1-bug-fixes">
-<span id="id43"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-1-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id46"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-1-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added a missing <code class="docutils literal notranslate"><span class="pre">backend</span></code> parameter to <a class="reference internal" href="stubs/qiskit_experiments.library.calibration.RoughEFFrequencyCal.html#qiskit_experiments.library.calibration.RoughEFFrequencyCal" title="qiskit_experiments.library.calibration.RoughEFFrequencyCal"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoughEFFrequencyCal</span></code></a> and
 exposed it in the experiment library.</p></li>
@@ -1500,13 +1534,13 @@ subclasses when the backend instance had no coupling map. Fixed <a class="refere
 </section>
 </section>
 <section id="release-notes-0-5-0">
-<span id="id45"></span><h2>0.5.0<a class="headerlink" href="#release-notes-0-5-0" title="Link to this heading">¶</a></h2>
+<span id="id48"></span><h2>0.5.0<a class="headerlink" href="#release-notes-0-5-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-5-0-prelude">
-<span id="id46"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id49"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-5-0-prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.5 release brings various improvements and bug fixes. Notable changes include the visualization module for drawing figures, which replaces the previous plotting functionality. The speed of randomized benchmarking experiments has been significantly improved. The <code class="docutils literal notranslate"><span class="pre">qubit</span></code> and <code class="docutils literal notranslate"><span class="pre">qubits</span></code> input to experiments has been regularized to <code class="docutils literal notranslate"><span class="pre">physical_qubits</span></code>, and support for <code class="docutils literal notranslate"><span class="pre">qiskit-ibmq-provider</span></code> has been deprecated in favor of <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code>. New experiments added include <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html#qiskit_experiments.library.characterization.MultiStateDiscrimination" title="qiskit_experiments.library.characterization.MultiStateDiscrimination"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiStateDiscrimination</span></code></a>, <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey" title="qiskit_experiments.library.characterization.ZZRamsey"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZZRamsey</span></code></a>, <a class="reference internal" href="stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html#qiskit_experiments.library.tomography.MitigatedStateTomography" title="qiskit_experiments.library.tomography.MitigatedStateTomography"><code class="xref py py-class docutils literal notranslate"><span class="pre">MitigatedStateTomography</span></code></a>, and <a class="reference internal" href="stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html#qiskit_experiments.library.tomography.MitigatedProcessTomography" title="qiskit_experiments.library.tomography.MitigatedProcessTomography"><code class="xref py py-class docutils literal notranslate"><span class="pre">MitigatedProcessTomography</span></code></a>, along with significant improvements to other tomography experiments. The documentation has been significantly refactored and introductory tutorials have been added.</p>
 </section>
 <section id="release-notes-0-5-0-new-features">
-<span id="id47"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-0-new-features" title="Link to this heading">¶</a></h3>
+<span id="id50"></span><h3>New Features<a class="headerlink" href="#release-notes-0-5-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added new class <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html#qiskit_experiments.library.characterization.T1KerneledAnalysis" title="qiskit_experiments.library.characterization.T1KerneledAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1KerneledAnalysis</span></code></a>. This class is used for the <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a>
 experiment with the option <code class="docutils literal notranslate"><span class="pre">meas_level=MeasLevel.KERNELED</span></code>. The analysis
@@ -1691,13 +1725,13 @@ coefficient between a pair of qubits.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-5-0-known-issues">
-<span id="id48"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-5-0-known-issues" title="Link to this heading">¶</a></h3>
+<span id="id51"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-5-0-known-issues" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference internal" href="stubs/qiskit_experiments.test.PulseBackend.html#qiskit_experiments.test.PulseBackend" title="qiskit_experiments.test.PulseBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">PulseBackend</span></code></a> only supports single qubit operations and will be upgraded in the future.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-5-0-upgrade-notes">
-<span id="id49"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-5-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id52"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-5-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Several deprecated methods and options have been removed and will no longer work:</p>
 <ul>
@@ -1801,7 +1835,7 @@ from <a class="reference internal" href="stubs/qiskit_experiments.library.charac
 </ul>
 </section>
 <section id="release-notes-0-5-0-deprecation-notes">
-<span id="id50"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-5-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id53"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-5-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Deprecated the <code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis.visualization</span></code> submodule and replaced it with the new
 <a class="reference internal" href="apidocs/visualization.html#module-qiskit_experiments.visualization" title="qiskit_experiments.visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.visualization</span></code></a> submodule.</p></li>
@@ -1842,7 +1876,7 @@ are now incorporated into <code class="xref py py-meth docutils literal notransl
 </ul>
 </section>
 <section id="release-notes-0-5-0-bug-fixes">
-<span id="id51"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id54"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-5-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug where old analysis results were saved in the case of a failed analysis. Now analysis
 results will be cleared before running <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_analysis()</span></code>. As a result, when analysis fails, an
@@ -1919,7 +1953,7 @@ overestimated Hamiltonian coefficients by a factor of 2.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-5-0-api-changes-for-experiment-authors">
-<span id="id56"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-5-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="id59"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-5-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul>
 <li><p>To map experiment result data to a particular LMFIT model in <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>,
 an author must provide the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> analysis option rather than directly binding
@@ -1948,7 +1982,7 @@ is now moved to the <code class="docutils literal notranslate"><span class="pre"
 </ul>
 </section>
 <section id="release-notes-0-5-0-other-notes">
-<span id="id57"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-0-other-notes" title="Link to this heading">¶</a></h3>
+<span id="id60"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-5-0-other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The package documentation has been updated with introductory tutorials and how-tos
 for solving specific problems. It is now refactored into four sections: learning
@@ -1999,13 +2033,13 @@ even if exactly the same arguments are used for their construction.</p></li>
 </section>
 </section>
 <section id="release-notes-0-4-0">
-<span id="id58"></span><h2>0.4.0<a class="headerlink" href="#release-notes-0-4-0" title="Link to this heading">¶</a></h2>
+<span id="id61"></span><h2>0.4.0<a class="headerlink" href="#release-notes-0-4-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-4-0-prelude">
-<span id="id59"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-4-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id62"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-4-0-prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.4 release includes major improvements to the <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> class and other bug fixes and improvements. The database service has switched to the <a class="reference external" href="https://github.com/Qiskit/qiskit-ibm-experiment">qiskit-ibm-experiment</a> provider. Several new data processing nodes have been added.</p>
 </section>
 <section id="release-notes-0-4-0-new-features">
-<span id="id60"></span><h3>New Features<a class="headerlink" href="#release-notes-0-4-0-new-features" title="Link to this heading">¶</a></h3>
+<span id="id63"></span><h3>New Features<a class="headerlink" href="#release-notes-0-4-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added a new class, <a class="reference internal" href="stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData" title="qiskit_experiments.framework.BackendData"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendData</span></code></a>, which provides a common access inferface
 for both <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.BackendV1" title="(in Qiskit v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV1</span></code></a> and
@@ -2095,7 +2129,7 @@ for processing restless counts.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-4-0-upgrade-notes">
-<span id="id61"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-4-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id64"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-4-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Several deprecated methods and options have been removed and will no longer work:</p>
 <ul>
@@ -2181,7 +2215,7 @@ the <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.
 </ul>
 </section>
 <section id="release-notes-0-4-0-deprecation-notes">
-<span id="id63"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-4-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id66"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-4-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Multiple methods, classes and functions in curve analysis have been deprecated and
 replaced with using functionality of the LMFIT library. These include:</p>
@@ -2209,7 +2243,7 @@ support support PSD and CPTP constraints, should be used instead.</p>
 </ul>
 </section>
 <section id="release-notes-0-4-0-bug-fixes">
-<span id="id64"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-4-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id67"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-4-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug that caused analysis to sometimes run after job or previous analysis failure.</p></li>
 </ul>
@@ -2253,9 +2287,9 @@ IBM backends but is not needed now and can lead to problems (see <a class="refer
 </section>
 </section>
 <section id="release-notes-0-3-1">
-<span id="id66"></span><h2>0.3.1<a class="headerlink" href="#release-notes-0-3-1" title="Link to this heading">¶</a></h2>
-<section id="id67">
-<h3>New Features<a class="headerlink" href="#id67" title="Link to this heading">¶</a></h3>
+<span id="id69"></span><h2>0.3.1<a class="headerlink" href="#release-notes-0-3-1" title="Link to this heading">¶</a></h2>
+<section id="id70">
+<h3>New Features<a class="headerlink" href="#id70" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">MockIQBackend</span></code> for testing has been updated to support
 multiple qubits. It now takes lists of IQ cluster centers and widths as input,
@@ -2264,7 +2298,7 @@ and specific backends are now defined as subclasses of
 </ul>
 </section>
 <section id="release-notes-0-3-1-stable-0-3-bug-fixes">
-<span id="id68"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-3-1-stable-0-3-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id71"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-3-1-stable-0-3-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixes a bug where instantiating the
 <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian" title="qiskit_experiments.library.characterization.CrossResonanceHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrossResonanceHamiltonian</span></code></a> experiment without specifying the
@@ -2288,14 +2322,14 @@ properties are now set to <code class="docutils literal notranslate"><span class
 </section>
 </section>
 <section id="release-notes-0-3-0">
-<span id="id69"></span><h2>0.3.0<a class="headerlink" href="#release-notes-0-3-0" title="Link to this heading">¶</a></h2>
+<span id="id72"></span><h2>0.3.0<a class="headerlink" href="#release-notes-0-3-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-3-0-prelude">
-<span id="id70"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-3-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id73"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-3-0-prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.3 release includes several bug fixes and improvements and several new experiments added to the <a class="reference internal" href="apidocs/library.html#module-qiskit_experiments.library" title="qiskit_experiments.library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a>. Added experiments include readout error, resonator spectroscopy,  two-qubit fine amplitude, and several characterization experiments. Experiments can  now be run restlessly without resetting.
 There are also numerous changes and improvements to the <a class="reference internal" href="stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a>,   <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>, <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>, and composite experiment classes to improve JSON serialization,  handling of metadata, accessing the status of jobs and experiments, and the  storing and loading of experiments to and from the IBM experiment database service.</p>
 </section>
 <section id="release-notes-0-3-0-new-features">
-<span id="id71"></span><h3>New Features<a class="headerlink" href="#release-notes-0-3-0-new-features" title="Link to this heading">¶</a></h3>
+<span id="id74"></span><h3>New Features<a class="headerlink" href="#release-notes-0-3-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added an <code class="docutils literal notranslate"><span class="pre">analysis</span></code> kwarg to <a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment" title="qiskit_experiments.framework.CompositeExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeExperiment</span></code></a>, <a class="reference internal" href="stubs/qiskit_experiments.framework.BatchExperiment.html#qiskit_experiments.framework.BatchExperiment" title="qiskit_experiments.framework.BatchExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchExperiment</span></code></a>
 and <a class="reference internal" href="stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment" title="qiskit_experiments.framework.ParallelExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelExperiment</span></code></a> to allow a user to supply a custom
@@ -2487,7 +2521,7 @@ accquired parameters so that the loaded processor can continue to process new da
 </ul>
 </section>
 <section id="release-notes-0-3-0-upgrade-notes">
-<span id="id72"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-3-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id75"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-3-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Experiment <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CrossResonanceHamiltonian.html#qiskit_experiments.library.characterization.CrossResonanceHamiltonian" title="qiskit_experiments.library.characterization.CrossResonanceHamiltonian"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrossResonanceHamiltonian</span></code></a>
 and its subclasses have been upgraded. Now its instance can generate circuits without
@@ -2672,7 +2706,7 @@ The functions supporting error propagation is also available in <code class="doc
 </ul>
 </section>
 <section id="release-notes-0-3-0-deprecation-notes">
-<span id="id73"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-3-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id76"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-3-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Several protected methods of <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> intended to be overriden
 or directly be used by subclass have been deprecated.
@@ -2751,7 +2785,7 @@ to ensure these experiments can be reloaded in the future.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-3-0-bug-fixes">
-<span id="id74"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-3-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id77"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-3-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug in the <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB" title="qiskit_experiments.library.randomized_benchmarking.InterleavedRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterleavedRB</span></code></a> experiment where a <code class="xref py py-class docutils literal notranslate"><span class="pre">Delay</span></code> instruction,
 or a Clifford circuit containing delay instructions, could not be used as the interleaved element.</p></li>
@@ -2876,7 +2910,7 @@ has been upgraded to show all information contained in the class instance.</p></
 </ul>
 </section>
 <section id="release-notes-0-3-0-api-changes-for-experiment-authors">
-<span id="id75"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-3-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="id78"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-3-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Refactored some of the internal CVXPY code in
 <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography.fitters.cvxpy_utils</span></code> used by the
@@ -2914,7 +2948,7 @@ to automatically populate the JSON configuration dictionary.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-3-0-other-notes">
-<span id="id76"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-3-0-other-notes" title="Link to this heading">¶</a></h3>
+<span id="id79"></span><h3>Other Notes<a class="headerlink" href="#release-notes-0-3-0-other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Default fit bounds for <code class="docutils literal notranslate"><span class="pre">d_theta</span></code> parameter of
 <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis.html#qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis" title="qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis</span></code></a>
@@ -2928,14 +2962,14 @@ the amplification analysis is applied to experiments in the small error regime
 </section>
 </section>
 <section id="release-notes-0-2-0">
-<span id="id77"></span><h2>0.2.0<a class="headerlink" href="#release-notes-0-2-0" title="Link to this heading">¶</a></h2>
+<span id="id80"></span><h2>0.2.0<a class="headerlink" href="#release-notes-0-2-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-2-0-prelude">
-<span id="id78"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-2-0-prelude" title="Link to this heading">¶</a></h3>
+<span id="id81"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-2-0-prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 2.0 release includes several bug fixes and improvements and many new experiments added to the <a class="reference internal" href="apidocs/library.html#module-qiskit_experiments.library" title="qiskit_experiments.library"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a>. Added experiments include a full suite of single-qubit gate calibration and characterization experiments, and two-qubit Cross-resonance Hamiltonian characterization experiments.
 There are also numerous changes and improvements to the base classes in <a class="reference internal" href="apidocs/framework.html#module-qiskit_experiments.framework" title="qiskit_experiments.framework"><code class="xref py py-mod docutils literal notranslate"><span class="pre">framework</span></code></a> and <a class="reference internal" href="apidocs/calibration_management.html#module-qiskit_experiments.calibration_management" title="qiskit_experiments.calibration_management"><code class="xref py py-mod docutils literal notranslate"><span class="pre">calibration_management</span></code></a> to make developing new experiments easier, to improve JSON serialization, and to  improve storing and loading experiments for the IBM experiment database service.</p>
 </section>
 <section id="release-notes-0-2-0-new-features">
-<span id="id79"></span><h3>New Features<a class="headerlink" href="#release-notes-0-2-0-new-features" title="Link to this heading">¶</a></h3>
+<span id="id82"></span><h3>New Features<a class="headerlink" href="#release-notes-0-2-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>You can now change the default <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> backend used for generated
 figures by setting
@@ -3201,7 +3235,7 @@ compute error as part of the error-per-gate computation.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-2-0-known-issues">
-<span id="id80"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-2-0-known-issues" title="Link to this heading">¶</a></h3>
+<span id="id83"></span><h3>Known Issues<a class="headerlink" href="#release-notes-0-2-0-known-issues" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Curve analysis may have imperfection in the uncertainty propagation computation.
 Fit paramters consist of the nominal part and standard error, however,
@@ -3214,7 +3248,7 @@ for details.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-2-0-upgrade-notes">
-<span id="id81"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-2-0-upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="id84"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-0-2-0-upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The default <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> backend used for generated figures was changed
 from <cite>AGG</cite> to <cite>SVG</cite>.</p></li>
@@ -3335,7 +3369,7 @@ using <code class="docutils literal notranslate"><span class="pre">experiment.se
 </ul>
 </section>
 <section id="release-notes-0-2-0-deprecation-notes">
-<span id="id82"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-2-0-deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="id85"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-2-0-deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.framework.BaseExperiment.set_analysis_options()</span></code>
 method has been deprecated, use the
@@ -3379,7 +3413,7 @@ the initialization method of
 </ul>
 </section>
 <section id="release-notes-0-2-0-bug-fixes">
-<span id="id83"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-2-0-bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="id86"></span><h3>Bug Fixes<a class="headerlink" href="#release-notes-0-2-0-bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference internal" href="stubs/qiskit_experiments.data_processing.Probability.html#qiskit_experiments.data_processing.Probability" title="qiskit_experiments.data_processing.Probability"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_experiments.data_processing.Probability</span></code></a> data processing
 node will no longer return exactly 0 or 1 for a probability estimate. This
@@ -3409,7 +3443,7 @@ for details.</p>
 </ul>
 </section>
 <section id="release-notes-0-2-0-api-changes-for-experiment-authors">
-<span id="id84"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-2-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="id87"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-2-0-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added hooks for serialization and deserialization of custom classes to
 the JSON <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_experiments.framework.ExperimentEncoder</span></code></a>
@@ -3534,7 +3568,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/11/05</div>
+              Last updated on 2024/11/15</div>
           </div>
           <div class="right-details">
             
@@ -3556,16 +3590,21 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
+<li><a class="reference internal" href="#relnotes-0-8-0-5">0.8.0-5</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#relnotes-0-8-0">0.8.0</a><ul>
 <li><a class="reference internal" href="#prelude">Prelude</a></li>
-<li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
+<li><a class="reference internal" href="#relnotes-0-8-0-upgrade-notes">Upgrade Notes</a></li>
 <li><a class="reference internal" href="#deprecation-notes">Deprecation Notes</a></li>
 <li><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#release-notes-0-7-0">0.7.0</a><ul>
 <li><a class="reference internal" href="#release-notes-0-7-0-prelude">Prelude</a></li>
-<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#release-notes-0-7-0-new-features">New Features</a></li>
 <li><a class="reference internal" href="#known-issues">Known Issues</a></li>
 <li><a class="reference internal" href="#release-notes-0-7-0-upgrade-notes">Upgrade Notes</a><ul>
 <li><a class="reference internal" href="#package-upgrades">Package Upgrades</a></li>
@@ -3658,7 +3697,7 @@ stored in the experiments analysis result extra field.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#release-notes-0-3-1">0.3.1</a><ul>
-<li><a class="reference internal" href="#id67">New Features</a></li>
+<li><a class="reference internal" href="#id70">New Features</a></li>
 <li><a class="reference internal" href="#release-notes-0-3-1-stable-0-3-bug-fixes">Bug Fixes</a></li>
 </ul>
 </li>
@@ -3693,7 +3732,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=babb99f7"></script>
+</div><script src="_static/documentation_options.js?v=64a606af"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
