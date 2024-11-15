@@ -20,7 +20,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
-from qiskit.providers import BackendV2, Provider, convert_to_target
+from qiskit.providers import BackendV2, convert_to_target
 from qiskit.providers.fake_provider import FakeOpenPulse2Q
 from qiskit.qobj.utils import MeasLevel
 
@@ -40,7 +40,7 @@ class FakeOpenPulse2QV2(BackendV2):
 
     def __init__(
         self,
-        provider: Provider = None,
+        provider=None,
         name: str = None,
         description: str = None,
         online_date: datetime.datetime = None,

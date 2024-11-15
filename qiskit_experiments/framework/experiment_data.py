@@ -76,7 +76,6 @@ if TYPE_CHECKING:
     # `TYPE_CHECKING` means that the import will never be resolved by an actual
     # interpreter, only static analysis.
     from . import BaseExperiment
-    from qiskit.providers import Provider
 
 LOG = logging.getLogger(__name__)
 
@@ -173,7 +172,7 @@ class ExperimentData:
         experiment: Optional["BaseExperiment"] = None,
         backend: Optional[Backend] = None,
         service: Optional[IBMExperimentService] = None,
-        provider: Optional[Provider] = None,
+        provider=None,
         parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         child_data: Optional[List[ExperimentData]] = None,
@@ -261,7 +260,7 @@ class ExperimentData:
             self._set_backend(backend, recursive=False)
         self.provider = provider
         if provider is None and backend is not None:
-            self.provider = backend.provider
+            self.provider = getattr(backend, "provider", None)
         self._service = service
         if self._service is None and self.provider is not None:
             self._service = self.get_service_from_provider(self.provider)
@@ -675,7 +674,7 @@ class ExperimentData:
         self._set_service(service)
 
     @property
-    def provider(self) -> Optional[Provider]:
+    def provider(self) -> Any:
         """Return the backend provider.
 
         Returns:
@@ -684,7 +683,7 @@ class ExperimentData:
         return self._provider
 
     @provider.setter
-    def provider(self, provider: Provider) -> None:
+    def provider(self, provider: Any) -> None:
         """Set the provider to be used for obtaining job data
 
         Args:
@@ -2369,7 +2368,7 @@ class ExperimentData:
         cls,
         experiment_id: str,
         service: Optional[IBMExperimentService] = None,
-        provider: Optional[Provider] = None,
+        provider: Any = None,
     ) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
