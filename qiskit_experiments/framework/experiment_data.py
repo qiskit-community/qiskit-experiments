@@ -36,7 +36,7 @@ from matplotlib import pyplot
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, Backend, Provider
+from qiskit.providers import Job, Backend
 from qiskit.utils.deprecation import deprecate_arg
 from qiskit.primitives import BitArray, SamplerPubResult, BasePrimitiveJob
 
@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     # `TYPE_CHECKING` means that the import will never be resolved by an actual
     # interpreter, only static analysis.
     from . import BaseExperiment
+    from qiskit.providers import Provider
 
 LOG = logging.getLogger(__name__)
 
