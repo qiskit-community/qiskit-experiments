@@ -1132,16 +1132,6 @@ class ExperimentData:
             try:  # qiskit-ibm-runtime syntax
                 job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
-            except AttributeError:  # TODO: remove this path for qiskit-ibm-provider
-                try:
-                    job = self.provider.retrieve_job(jid)
-                    retrieved_jobs[jid] = job
-                except Exception:  # pylint: disable=broad-except
-                    LOG.warning(
-                        "Unable to retrieve data from job [Job ID: %s]: %s",
-                        jid,
-                        traceback.format_exc(),
-                    )
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
                     "Unable to retrieve data from job [Job ID: %s]: %s", jid, traceback.format_exc()
