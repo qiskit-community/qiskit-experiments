@@ -23,11 +23,11 @@ from uncertainties import UFloat
 import qiskit.quantum_info as qi
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate
-from qiskit.result import LocalReadoutMitigator
 
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel
 
+from qiskit_experiments.data_processing import LocalReadoutMitigator
 from qiskit_experiments.database_service import ExperimentEntryNotFound
 from qiskit_experiments.library import StateTomography, MitigatedStateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis, basis

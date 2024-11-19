@@ -16,9 +16,9 @@ from typing import Optional
 import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
-from qiskit.result import LocalReadoutMitigator
 from qiskit.quantum_info import DensityMatrix
 from qiskit.exceptions import QiskitError
+from qiskit_experiments.data_processing import LocalReadoutMitigator
 from .local_basis import LocalMeasurementBasis, LocalPreparationBasis
 
 
