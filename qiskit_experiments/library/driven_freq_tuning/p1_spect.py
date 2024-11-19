@@ -71,68 +71,6 @@ class StarkP1Spectroscopy(BaseExperiment):
 
     # section: manual
         :doc:`/manuals/characterization/stark_experiment`
-
-    # section: example
-        .. jupyter-execute::
-            :hide-code:
-
-            # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=198)
-
-        .. jupyter-execute::
-
-            from qiskit import pulse
-            from qiskit_experiments.library.driven_freq_tuning.p1_spect import StarkP1Spectroscopy
-            from qiskit_experiments.library.driven_freq_tuning import StarkRamseyXYAmpScan
-
-            qubit = 0
-            exp = StarkRamseyXYAmpScan((qubit,), backend=backend)
-            exp.set_experiment_options(
-                        stark_channel=pulse.ControlChannel(qubit),
-                        stark_freq_offset=80e6,
-                        stark_sigma=15e-9,
-                        stark_risefall=2,
-                        stark_length=50e-9,
-                        min_stark_amp=-1.0,
-                        max_stark_amp=1.0,
-                        num_stark_amps=51,
-                        stark_amps=None,
-                    )
-
-            exp.set_run_options(shots=10000)
-            exp_data = exp.run().block_for_results()
-            ret_coeffs = exp_data.analysis_results("stark_coefficients").value
-
-            # encode and decode the stark_coefficients
-            import json
-            from qiskit_experiments.framework import ExperimentEncoder
-
-            with open("coefficients.json", "w") as fp:
-                json.dump(ret_coeffs, fp, cls=ExperimentEncoder)
-
-            from qiskit_experiments.framework import ExperimentDecoder
-
-            with open("coefficients.json", "r") as fp:
-                coefficients = json.load(fp, cls=ExperimentDecoder)
-
-            # StarkP1Spectroscopy
-            exp = StarkP1Spectroscopy(physical_qubits=(qubit,),
-                                      backend=backend,
-                                      stark_channel=pulse.DriveChannel(qubit),
-                                     )
-            exp.set_experiment_options(
-                t1_delay=20e-6,
-                min_xval=-20e6,
-                max_xval=20e6,
-                xval_type="frequency",
-                spacing="linear",
-                stark_coefficients=coefficients,
-            )
-            exp.set_run_options(shots=100)
-
-            exp_data = exp.run().block_for_results()
-            display(exp_data.figure(0))
     """
 
     @deprecate_func(
