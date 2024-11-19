@@ -286,8 +286,6 @@ class EFRabi(Rabi):
                          amplitudes=np.linspace(-0.1, 0.1, 21),
                          backend=backend,)
 
-            display(exp.circuits()[1].draw())
-
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
