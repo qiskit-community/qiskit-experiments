@@ -43,7 +43,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         .. jupyter-execute::
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library
+            from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineDragCal
 
@@ -190,7 +190,7 @@ class FineXDragCal(FineDragCal):
         .. jupyter-execute::
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library
+            from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXDragCal
 
@@ -252,7 +252,7 @@ class FineSXDragCal(FineDragCal):
         .. jupyter-execute::
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library
+            from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXDragCal
 
