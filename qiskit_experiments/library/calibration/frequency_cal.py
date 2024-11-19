@@ -42,7 +42,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         .. jupyter-execute::
 
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library
+            from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
             from qiskit_experiments.library.calibration.frequency_cal import FrequencyCal
 
