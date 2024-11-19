@@ -5,7 +5,6 @@ other:
     EFSpectroscopy,
     EFRabi,
     StarkRamseyXYAmpScan,
-    StarkP1Spectroscopy,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
@@ -26,8 +25,9 @@ other:
     StandardRB,
     MitigatedProcessTomography,
     MitigatedStateTomography,
-    ProcessTomography and
-    StateTomography.
+    ProcessTomography,
+    StateTomography and
+    TomographyExperiment.
     By default, the backend used in the code examples, are simulators 
     such as, SingleTransmonTestBackend() and
     AerSimulator(FakePerth()).
