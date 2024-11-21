@@ -4,7 +4,6 @@ other:
     Added minimal working code examples to the API pages for Experiments,
     EFSpectroscopy,
     EFRabi,
-    StarkRamseyXYAmpScan,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
