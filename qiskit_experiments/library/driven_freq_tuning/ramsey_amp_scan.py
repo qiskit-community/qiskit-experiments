@@ -92,39 +92,6 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
     # section: manual
         :doc:`/manuals/characterization/stark_experiment`
-
-    # section: example
-        .. jupyter-execute::
-            :hide-code:
-
-	    # backend
-	    from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-	    backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=198)
-
-	.. jupyter-execute::
-
-	    from qiskit import pulse
-	    from qiskit_experiments.library.driven_freq_tuning import StarkRamseyXYAmpScan
-
-	    qubit = 0
-
-	    exp = StarkRamseyXYAmpScan((qubit,), backend=backend)
-	    exp.set_experiment_options(
-	                stark_channel=pulse.ControlChannel(qubit),
-	                stark_freq_offset=80e6,
- 	                stark_sigma=15e-9,
-	                stark_risefall=2,
-	                stark_length=50e-9,
-	                min_stark_amp=-1.0,
-	                max_stark_amp=1.0,
-	                num_stark_amps=51,
-	                stark_amps=None,
-	            )
-
-	    exp.set_run_options(shots=10000)
-	    exp_data = exp.run().block_for_results()
-	    result = exp_data.analysis_results()
-	    display(exp_data.figure(0))
     """
 
     @deprecate_func(
