@@ -25,7 +25,7 @@ from . import basis
 
 
 class MitigatedProcessTomography(BatchExperiment):
-    r"""A batched experiment to characterize readout error then perform process tomography
+    """A batched experiment to characterize readout error then perform process tomography
     for doing readout error mitigated process tomography.
 
     # section: overview
