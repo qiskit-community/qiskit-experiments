@@ -27,7 +27,7 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
-    r"""A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
+    """A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
     transition frequency.
 
     # section: example
