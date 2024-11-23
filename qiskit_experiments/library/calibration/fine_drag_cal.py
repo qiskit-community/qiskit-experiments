@@ -30,7 +30,7 @@ from qiskit_experiments.library.characterization.fine_drag import FineDrag
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
-    r"""A calibration version of the fine DRAG experiment.
+    """A calibration version of the fine DRAG experiment.
 
     # section: example
         .. jupyter-execute::
@@ -177,7 +177,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
 
 class FineXDragCal(FineDragCal):
-    r"""Fine DRAG calibration of X gate.
+    """Fine DRAG calibration of X gate.
 
     # section: example
         .. jupyter-execute::
@@ -239,7 +239,7 @@ class FineXDragCal(FineDragCal):
 
 
 class FineSXDragCal(FineDragCal):
-    r"""Fine DRAG calibration of X gate.
+    """Fine DRAG calibration of X gate.
 
     # section: example
         .. jupyter-execute::
