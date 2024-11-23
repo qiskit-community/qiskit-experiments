@@ -27,7 +27,7 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
-    r"""A qubit frequency calibration experiment based on the Ramsey XY experiment.
+    """A qubit frequency calibration experiment based on the Ramsey XY experiment.
 
     # section: example
         .. jupyter-execute::
