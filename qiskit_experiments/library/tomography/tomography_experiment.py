@@ -27,7 +27,7 @@ from .tomography_analysis import TomographyAnalysis
 
 
 class TomographyExperiment(BaseExperiment):
-    r"""Base experiment for quantum state and process tomography.
+    """Base experiment for quantum state and process tomography.
 
     # section: analysis_ref
         :class:`TomographyAnalysis`
