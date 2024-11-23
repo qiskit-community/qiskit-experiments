@@ -32,7 +32,7 @@ from .standard_rb import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
-    r"""An experiment to characterize the error rate of a specific gate on a device.
+    """An experiment to characterize the error rate of a specific gate on a device.
 
     # section: overview
         Interleaved Randomized Benchmarking (RB) is a method
