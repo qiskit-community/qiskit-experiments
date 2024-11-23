@@ -190,7 +190,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
-    r"""A calibration experiment to calibrate the amplitude of the X schedule.
+    """A calibration experiment to calibrate the amplitude of the X schedule.
 
     # section: example
         .. jupyter-execute::
@@ -269,7 +269,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
-    r"""A calibration experiment to calibrate the amplitude of the SX schedule.
+    """A calibration experiment to calibrate the amplitude of the SX schedule.
 
     # section: example
         .. jupyter-execute::
