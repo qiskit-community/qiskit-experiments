@@ -31,7 +31,7 @@ AnglesSchedules = namedtuple(
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    r"""A calibration version of the Rabi experiment.
+    """A calibration version of the Rabi experiment.
 
     # section: example
         .. jupyter-execute::
@@ -223,7 +223,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    r"""A rough amplitude calibration of x and sx gates.
+    """A rough amplitude calibration of x and sx gates.
 
     # section: example
         .. jupyter-execute::
