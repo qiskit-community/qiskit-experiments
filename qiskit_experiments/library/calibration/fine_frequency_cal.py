@@ -28,7 +28,7 @@ from qiskit_experiments.library.characterization.fine_frequency import FineFrequ
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
-    r"""A calibration version of the fine frequency experiment.
+    """A calibration version of the fine frequency experiment.
 
     # section: example
         .. jupyter-execute::
