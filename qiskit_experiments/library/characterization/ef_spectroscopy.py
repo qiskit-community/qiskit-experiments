@@ -22,7 +22,7 @@ from qiskit_experiments.library.characterization.qubit_spectroscopy import Qubit
 
 
 class EFSpectroscopy(QubitSpectroscopy):
-    r"""A spectroscopy experiment to obtain a frequency sweep of the qubit's e-f transition.
+    """A spectroscopy experiment to obtain a frequency sweep of the qubit's e-f transition.
 
     # section: overview
         The circuits produced by spectroscopy, i.e.
