@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    All references to ``qiskit.providers.Provider`` have been removed the code
+    base. The provider base classes were deprecated in Qiskit 1.1 with planned
+    removal in Qiskit 2.0. Qiskit Experiments has some support code for working
+    with providers to retrieve job data, but it takes the provider object as
+    input. The only explicit references to the provider classes were in type
+    annotations and test support code under ``qiskit_experiments.test``. The
+    type annotations have been removed and the test code now uses its own class
+    without a parent.

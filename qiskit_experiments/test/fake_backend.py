@@ -13,7 +13,7 @@
 """Fake backend class for tests."""
 import uuid
 from qiskit.circuit.library import Measure
-from qiskit.providers import ProviderV1
+from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import BackendV2
 from qiskit.providers.options import Options
 from qiskit.transpiler import Target
@@ -23,12 +23,28 @@ from qiskit.result import Result
 from qiskit_experiments.test.utils import FakeJob
 
 
-class FakeProvider(ProviderV1):
+class FakeProvider:
     """Fake provider with no backends for testing"""
 
-    def backends(self, name=None, **kwargs):
+    def backends(self, name=None, **kwargs):  # pylint: disable=unused-argument
         """List of available backends. Empty in this case"""
         return []
+
+    def get_backend(self, name=None, **kwargs):
+        """Return a single backend matching the specified filtering.
+
+        Args:
+            name (str): name of the backend.
+            **kwargs: dict used for filtering.
+
+        Returns:
+            Backend: a backend matching the filtering.
+
+        Raises:
+            QiskitError: if no backend could be found or more than one backend
+                matches the filtering criteria.
+        """
+        raise QiskitError("No backend matches the criteria")
 
 
 class FakeBackend(BackendV2):
