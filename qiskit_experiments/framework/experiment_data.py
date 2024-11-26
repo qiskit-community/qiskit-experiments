@@ -263,10 +263,6 @@ class ExperimentData:
         if provider is None and backend is not None:
             self.provider = backend.provider
         self._service = service
-        if self._service is None and self.provider is not None:
-            self._service = self.get_service_from_provider(self.provider)
-        if self._service is None and self.provider is None and self.backend is not None:
-            self._service = self.get_service_from_backend(self.backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -1133,16 +1129,6 @@ class ExperimentData:
             try:  # qiskit-ibm-runtime syntax
                 job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
-            except AttributeError:  # TODO: remove this path for qiskit-ibm-provider
-                try:
-                    job = self.provider.retrieve_job(jid)
-                    retrieved_jobs[jid] = job
-                except Exception:  # pylint: disable=broad-except
-                    LOG.warning(
-                        "Unable to retrieve data from job [Job ID: %s]: %s",
-                        jid,
-                        traceback.format_exc(),
-                    )
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
                     "Unable to retrieve data from job [Job ID: %s]: %s", jid, traceback.format_exc()
@@ -2388,12 +2374,6 @@ class ExperimentData:
         Raises:
             ExperimentDataError: If not service nor provider were given.
         """
-        if service is None:
-            if provider is None:
-                raise ExperimentDataError(
-                    "Loading an experiment requires a valid Qiskit provider or experiment service."
-                )
-            service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
             metadata = service.file_download(
@@ -2693,25 +2673,6 @@ class ExperimentData:
                 token = backend.service._account.token
                 return IBMExperimentService(token=token, url=backend.service._account.url)
             return ExperimentData.get_service_from_provider(backend.provider)
-        except Exception:  # pylint: disable=broad-except
-            return None
-
-    @staticmethod
-    def get_service_from_provider(provider):
-        """Initializes the service from the provider data"""
-        try:
-            # qiskit-ibm-provider style
-            if hasattr(provider, "_account"):
-                warnings.warn(
-                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
-                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.7.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return IBMExperimentService(
-                    token=provider._account.token, url=provider._account.url
-                )
-            return None
         except Exception:  # pylint: disable=broad-except
             return None
 
