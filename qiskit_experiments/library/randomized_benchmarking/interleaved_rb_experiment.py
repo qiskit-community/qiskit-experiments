@@ -78,7 +78,7 @@ class InterleavedRB(StandardRB):
             int_exp2 = InterleavedRB(
                 circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
 
-            int_expdata2 = int_exp2.run(backend).block_for_results()
+            int_expdata2 = int_exp2.run(backend=backend, backend_run=True).block_for_results()
             int_results2 = int_expdata2.analysis_results()
 
             display(int_expdata2.figure(0))
