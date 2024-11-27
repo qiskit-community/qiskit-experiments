@@ -115,7 +115,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             )
 
             exp.set_run_options(shots=5000)
-            expdata = exp.run().block_for_results()
+            expdata = exp.run(backend_run=True).block_for_results()
             results = expdata.analysis_results()
 
             for i in range(4):
