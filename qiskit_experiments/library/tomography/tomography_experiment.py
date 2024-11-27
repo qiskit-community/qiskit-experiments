@@ -64,7 +64,8 @@ class TomographyExperiment(BaseExperiment):
                 measurement_basis=PauliMeasurementBasis(),
             )
 
-            qstdata = qstexp.run(backend=backend, shots=1000, seed_simulator=100, backend_run=True).block_for_results()
+            qstdata = qstexp.run(backend=backend, shots=1000, seed_simulator=100,\
+					backend_run=True).block_for_results()
             state_result = qstdata.analysis_results("state")
             plot_state_city(state_result.value, title="Density Matrix")
     """
