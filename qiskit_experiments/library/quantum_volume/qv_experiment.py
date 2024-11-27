@@ -85,7 +85,7 @@ class QuantumVolume(BaseExperiment):
             qv_exp.set_transpile_options(optimization_level=3)
             qv_exp.set_run_options(shots=1000)
 
-            expdata = qv_exp.run(backend).block_for_results()
+            expdata = qv_exp.run(backend=backend, backend_run=True).block_for_results()
             display(expdata.figure(0))
 
             for result in expdata.analysis_results():
