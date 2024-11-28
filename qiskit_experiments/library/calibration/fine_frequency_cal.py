@@ -48,7 +48,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             from qiskit_experiments.library.calibration.fine_frequency_cal import FineFrequencyCal
 
             cals = Calibrations.from_backend(backend=backend, libraries=[FixedFrequencyTransmon()])
-            exp_cal = FineFrequencyCal((0,), cals, backend=backend, auto_update=True, gate_name="sx")
+            exp_cal = FineFrequencyCal((0,), cals, backend=backend, auto_update=False, gate_name="sx")
 
             cal_data=exp_cal.run(backend_run=True).block_for_results()
             display(cal_data.figure(0))
