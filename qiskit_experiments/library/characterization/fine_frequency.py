@@ -74,7 +74,7 @@ class FineFrequency(BaseExperiment):
                                 repetitions=repetitions)
             exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
 
-            exp_data = exp.run().block_for_results()
+            exp_data = exp.run(backend_run=True).block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
     """
