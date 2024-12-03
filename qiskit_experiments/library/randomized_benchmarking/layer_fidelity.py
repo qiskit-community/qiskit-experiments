@@ -95,13 +95,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             lengths = np.arange(1, 800, 200)
             two_qubit_layers=[[(0, 1), (3, 5)], [(1, 3), (5, 6)]]
 
-            for qpair in two_qubit_layers:
-                for qpair_ in backend.coupling_map:
-                    if qpair_ == qpair:
-                        pass
-
             num_samples = 6
-            seed = 1010
+            seed = 106
 
             exp = LayerFidelity(
                     physical_qubits=[0, 1, 3, 5, 6],
@@ -114,12 +109,12 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     one_qubit_basis_gates=None,
             )
 
-            exp.set_run_options(shots=5000)
-            expdata = exp.run(backend_run=True).block_for_results()
-            results = expdata.analysis_results()
+            exp_data = exp.run(backend_run=True).block_for_results()
+            results = exp_data.analysis_results()
+            for i in range(num_samples):
+                display(exp_data.figure(i))
 
-            for i in range(4):
-                display(expdata.figure(i))
+	    display(exp_data.analysis_results(dataframe=True))
     """
 
     def __init__(
