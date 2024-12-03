@@ -114,7 +114,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             for i in range(num_samples):
                 display(exp_data.figure(i))
 
-	    display(exp_data.analysis_results(dataframe=True))
+            display(exp_data.analysis_results(dataframe=True))
     """
 
     def __init__(
