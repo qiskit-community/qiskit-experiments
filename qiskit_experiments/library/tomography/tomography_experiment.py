@@ -32,42 +32,6 @@ class TomographyExperiment(BaseExperiment):
     # section: analysis_ref
         :class:`TomographyAnalysis`
 
-    # section: example
-        .. jupyter-execute::
-            :hide-code:
-
-            # backend
-            from qiskit_aer import AerSimulator
-            from qiskit_ibm_runtime.fake_provider import FakePerth
-
-            backend = AerSimulator.from_backend(FakePerth())
-
-        .. jupyter-execute::
-
-            from qiskit import QuantumCircuit
-            from qiskit_experiments.library import TomographyExperiment
-            from qiskit_experiments.library.tomography.basis import PauliMeasurementBasis
-            from qiskit.visualization import plot_state_city
-
-            nq = 2
-            qc_ghz = QuantumCircuit(nq)
-            qc_ghz.h(0)
-            qc_ghz.s(0)
-
-            for i in range(1, nq):
-                qc_ghz.cx(0, i)
-
-            qstexp = TomographyExperiment(
-                circuit=qc_ghz,
-                backend=backend,
-                physical_qubits=(0,1),
-                measurement_basis=PauliMeasurementBasis(),
-            )
-
-            qstdata = qstexp.run(backend=backend, shots=1000, seed_simulator=100,\
-					backend_run=True).block_for_results()
-            state_result = qstdata.analysis_results("state")
-            plot_state_city(state_result.value, title="Density Matrix")
     """
 
     @classmethod
