@@ -76,8 +76,9 @@ class MitigatedProcessTomography(BatchExperiment):
 
             mitqptexp = MitigatedProcessTomography(qc_ghz)
             mitqptexp.set_run_options(shots=1000)
-            mitqptdata = mitqptexp.run(backend=backend, seed_simulator=100,\
-						backend_run=True).block_for_results()
+            mitqptdata = mitqptexp.run(backend=backend,
+                                       seed_simulator=100,
+				       backend_run=True).block_for_results()
             mitigated_choi_out = mitqptdata.analysis_results("state").value
 
             # extracting a densitymatrix from mitigated_choi_out
