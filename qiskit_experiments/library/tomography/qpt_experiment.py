@@ -71,8 +71,10 @@ class ProcessTomography(TomographyExperiment):
                 qc_ghz.cx(0, i)
 
             qptexp = ProcessTomography(qc_ghz)
-            qptdata = qptexp.run(backend=backend, shots=1000, seed_simulator=100,\
-					backend_run=True).block_for_results()
+            qptdata = qptexp.run(backend=backend,
+                                 shots=1000,
+                                 seed_simulator=100,
+                                 backend_run=True).block_for_results()
             choi_out = qptdata.analysis_results("state").value
 
             # extracting a densitymatrix from choi_out
