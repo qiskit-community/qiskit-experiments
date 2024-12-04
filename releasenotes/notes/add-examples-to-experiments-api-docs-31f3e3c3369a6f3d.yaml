@@ -1,32 +1,31 @@
 ---
 other:
   - |
-    Added minimal working code examples to the API pages for Experiments,
-    EFSpectroscopy,
-    EFRabi,
-    FineAmplitudeCal,
-    FineXAmplitudeCal,
-    FineSXAmplitudeCal,
-    FineDragCal,
-    FineXDragCal,
-    FineSXDragCal,
-    FineFrequencyCal,
-    FrequencyCal,
-    HalfAngleCal,
-    RoughAmplitudeCal,
-    RoughXSXAmplitudeCal,
-    EFRoughXSXAmplitudeCal,
-    RoughDragCal,
-    RoughFrequencyCal,
-    QuantumVolume,
-    InterleavedRB,
-    LayerFidelity,
-    StandardRB,
-    MitigatedProcessTomography,
-    MitigatedStateTomography,
-    ProcessTomography,
-    StateTomography and
-    TomographyExperiment.
-    By default, the backend used in the code examples, are simulators 
-    such as, SingleTransmonTestBackend() and
-    AerSimulator(FakePerth()).
+    Added minimal working code examples to the API pages for the experiments,
+    :class:`~.EFSpectroscopy`,
+    :class:`~.EFRabi`,
+    :class:`~.FineAmplitudeCal`,
+    :class:`~.FineXAmplitudeCal`,
+    :class:`~.FineSXAmplitudeCal`,
+    :class:`~.FineDragCal`,
+    :class:`~.FineXDragCal`,
+    :class:`~.FineSXDragCal`,
+    :class:`~.FineFrequencyCal`,
+    :class:`~.FrequencyCal`,
+    :class:`~.HalfAngleCal`,
+    :class:`~.RoughAmplitudeCal`,
+    :class:`~.RoughXSXAmplitudeCal`,
+    :class:`~.EFRoughXSXAmplitudeCal`,
+    :class:`~.RoughDragCal`,
+    :class:`~.RoughFrequencyCal`,
+    :class:`~.QuantumVolume`,
+    :class:`~.InterleavedRB`,
+    :class:`~.LayerFidelity`,
+    :class:`~.StandardRB`,
+    :class:`~.MitigatedProcessTomography`,
+    :class:`~.MitigatedStateTomography`,
+    :class:`~.ProcessTomography` and
+    :class:`~.StateTomography`.
+    The backend used in the code examples are simulators 
+    such as, ``SingleTransmonTestBackend()`` and
+    ``AerSimulator(FakePerth())``.
