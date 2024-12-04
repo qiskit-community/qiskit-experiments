@@ -49,7 +49,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             import numpy as np
             from qiskit.circuit.library import XGate
             from qiskit_experiments.calibration_management.calibrations import Calibrations
-            from qiskit_experiments.calibration_management.basis_gate_library \\
+            from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineAmplitudeCal
 
