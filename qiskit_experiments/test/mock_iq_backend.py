@@ -47,11 +47,6 @@ class FakeOpenPulse2QV2(BackendV2):
         backend_version: str = None,
         **fields,
     ):
-        # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-        from qiskit_experiments.test.patching import patch_sampler_test_support
-
-        patch_sampler_test_support()
-
         super().__init__(provider, name, description, online_date, backend_version, **fields)
 
         backend_v1 = FakeOpenPulse2Q()

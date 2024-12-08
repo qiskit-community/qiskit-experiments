@@ -77,10 +77,6 @@ class CorrelatedReadoutError(BaseExperiment):
         .. jupyter-execute::
             :hide-code:
 
-            # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-            from qiskit_experiments.test.patching import patch_sampler_test_support
-            patch_sampler_test_support()
-
             from qiskit.providers.fake_provider import GenericBackendV2
             from qiskit_aer import AerSimulator
 
