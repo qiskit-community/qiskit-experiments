@@ -17,13 +17,6 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
-    :hide-code:
-
-    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-    from qiskit_experiments.test.patching import patch_sampler_test_support
-    patch_sampler_test_support()
-
-.. jupyter-execute::
 
     import numpy as np
     from qiskit_experiments.library import StandardRB, InterleavedRB

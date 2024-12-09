@@ -106,11 +106,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             """Set-up test class."""
             super().setUpClass()
 
-            # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-            from qiskit_experiments.test.patching import patch_sampler_test_support
-
-            patch_sampler_test_support()
-
             # Tests should not generate any warnings unless testing those
             # warnings. In that case, the test should catch the warning
             # assertWarns or warnings.catch_warnings.

@@ -12,7 +12,12 @@ testtools
 
 # Extra dependencies for tests/documentation code
 multimethod
-qiskit-ibm-runtime>=0.19
+# qiskit-ibm-runtime 0.34 and qiskit 1.3 are needed to pass run options through
+# qiskit_ibm_runtime.SamplerV2 to test backends' backend.run calls.
+# Earlier versions work okay when using physical backends or not passing run
+# options.
+qiskit-ibm-runtime>=0.34  # see above
+qiskit>=1.3  # see above
 
 # Documentation tools
 arxiv

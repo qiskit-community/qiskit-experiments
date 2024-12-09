@@ -103,12 +103,6 @@ class T2HahnBackend(BackendV2):
         """
         Initialize the T2Hahn backend
         """
-
-        # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-        from qiskit_experiments.test.patching import patch_sampler_test_support
-
-        patch_sampler_test_support()
-
         super().__init__(
             name="T2Hahn_simulator",
             backend_version="0",
