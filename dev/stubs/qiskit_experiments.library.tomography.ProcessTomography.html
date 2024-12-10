@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="MitigatedStateTomography" href="qiskit_experiments.library.tomography.MitigatedStateTomography.html" /><link rel="prev" title="StateTomography" href="qiskit_experiments.library.tomography.StateTomography.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ProcessTomography - Qiskit Experiments 0.8.0-7-gfc7acf0c</title>
+        <title>ProcessTomography - Qiskit Experiments 0.8.0-8-g9bf2848d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-7-gfc7acf0c</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-8-g9bf2848d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-7-gfc7acf0c</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-8-g9bf2848d</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -664,9 +664,9 @@ preparation and measurement bases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>circuit</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.2)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.2)"><em>Instruction</em></a><em> | </em><em>BaseOperator</em>) – the quantum process circuit. If not a quantum circuit
+<li><p><strong>circuit</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.3)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.3)"><em>Instruction</em></a><em> | </em><em>BaseOperator</em>) – the quantum process circuit. If not a quantum circuit
 it must be a class that can be appended to a quantum circuit.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
 <li><p><strong>physical_qubits</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – Optional, the physical qubits for the initial state circuit.
 If None this will be qubits [0, N) for an N-qubit circuit.</p></li>
 <li><p><strong>measurement_basis</strong> (<a class="reference internal" href="qiskit_experiments.library.tomography.basis.MeasurementBasis.html#qiskit_experiments.library.tomography.basis.MeasurementBasis" title="qiskit_experiments.library.tomography.basis.base_basis.MeasurementBasis"><em>MeasurementBasis</em></a>) – Tomography basis for measurements. If not specified the
@@ -684,7 +684,7 @@ lists of preparation and measurement basis configurations
 preparation basis index, and <code class="docutils literal notranslate"><span class="pre">m[i]</span></code> is the measurement basis index
 for qubit-i. If not specified full tomography for all indices of the
 preparation and measurement bases will be performed.</p></li>
-<li><p><strong>conditional_circuit_clbits</strong> (<em>bool</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/circuit#qiskit.circuit.Clbit" title="(in Qiskit v1.2)"><em>Clbit</em></a><em>]</em>) – Optional, the clbits in the source circuit to
+<li><p><strong>conditional_circuit_clbits</strong> (<em>bool</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/circuit#qiskit.circuit.Clbit" title="(in Qiskit v1.3)"><em>Clbit</em></a><em>]</em>) – Optional, the clbits in the source circuit to
 be conditioned on when reconstructing the channel. If True all circuit
 clbits will be conditioned on. Enabling this will return a list of
 reconstructed channel components conditional on the values of these clbit
@@ -692,7 +692,7 @@ values.</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em><em> | </em><em>str</em>) – Optional, a custom analysis instance to use. If <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>
 <a class="reference internal" href="qiskit_experiments.library.tomography.ProcessTomographyAnalysis.html#qiskit_experiments.library.tomography.ProcessTomographyAnalysis" title="qiskit_experiments.library.tomography.ProcessTomographyAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessTomographyAnalysis</span></code></a> will be used. If None no analysis
 instance will be set.</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.2)"><em>Statevector</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.2)"><em>DensityMatrix</em></a><em> | </em><em>None</em><em> | </em><em>str</em>) – Optional, a custom quantum state target for computing the
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.3)"><em>Statevector</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.3)"><em>DensityMatrix</em></a><em> | </em><em>None</em><em> | </em><em>str</em>) – Optional, a custom quantum state target for computing the
 state fidelity of the fitted density matrix during analysis.
 If “default” the state will be inferred from the input circuit
 if it contains no classical instructions.</p></li>
@@ -755,7 +755,7 @@ if it contains no classical instructions.</p></li>
 <dd><p>Return a list of experiment circuits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
+<dd class="field-odd"><p>A list of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -806,7 +806,7 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -840,8 +840,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.2)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.3)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -953,7 +953,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/11/25</div>
+              Last updated on 2024/12/10</div>
           </div>
           <div class="right-details">
             
@@ -1006,7 +1006,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=ca641541"></script>
+</div><script src="../_static/documentation_options.js?v=134dbc5a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
