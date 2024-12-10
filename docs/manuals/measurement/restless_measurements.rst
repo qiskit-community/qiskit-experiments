@@ -88,10 +88,6 @@ they use always starts with the qubits in the ground state.
         category=DeprecationWarning,
     )
 
-    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-    from qiskit_experiments.test.patching import patch_sampler_test_support
-    patch_sampler_test_support()
-
 .. jupyter-execute::
 
     from qiskit_ibm_runtime.fake_provider import FakePerth

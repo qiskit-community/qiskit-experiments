@@ -15,13 +15,6 @@ complete basis of measurement operators.
 We first initialize a simulator to run the experiments on.
 
 .. jupyter-execute::
-    :hide-code:
-
-    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-    from qiskit_experiments.test.patching import patch_sampler_test_support
-    patch_sampler_test_support()
-
-.. jupyter-execute::
 
     from qiskit_aer import AerSimulator
     from qiskit_ibm_runtime.fake_provider import FakePerth
