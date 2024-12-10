@@ -58,10 +58,6 @@ class MultiStateDiscrimination(BaseExperiment):
         .. jupyter-execute::
             :hide-code:
 
-            # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-            from qiskit_experiments.test.patching import patch_sampler_test_support
-            patch_sampler_test_support()
-
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
             backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
