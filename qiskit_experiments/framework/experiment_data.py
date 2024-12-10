@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from concurrent import futures
 from functools import wraps
 from collections import deque, defaultdict
+from collections.abc import Iterable
 import contextlib
 import copy
 import uuid
@@ -31,14 +32,14 @@ import traceback
 import warnings
 import numpy as np
 import pandas as pd
-from dateutil import tz
 from matplotlib import pyplot
 from qiskit.result import Result
+from qiskit.primitives import PrimitiveResult
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, Backend
+from qiskit.providers import Backend
 from qiskit.utils.deprecation import deprecate_arg
-from qiskit.primitives import BitArray, SamplerPubResult, BasePrimitiveJob
+from qiskit.primitives import BitArray, SamplerPubResult
 
 from qiskit_ibm_experiment import (
     IBMExperimentService,
@@ -69,6 +70,8 @@ from qiskit_experiments.database_service.exceptions import (
 from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
 
 from .containers.figure_data import FigureData, FigureType
+from .provider_interfaces import Job, Provider
+
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -76,7 +79,6 @@ if TYPE_CHECKING:
     # `TYPE_CHECKING` means that the import will never be resolved by an actual
     # interpreter, only static analysis.
     from . import BaseExperiment
-    from qiskit.providers import Provider
 
 LOG = logging.getLogger(__name__)
 
@@ -92,36 +94,6 @@ def do_auto_save(func: Callable):
         return return_val
 
     return _wrapped
-
-
-def utc_to_local(utc_dt: datetime) -> datetime:
-    """Convert input UTC timestamp to local timezone.
-
-    Args:
-        utc_dt: Input UTC timestamp.
-
-    Returns:
-        A ``datetime`` with the local timezone.
-    """
-    if utc_dt is None:
-        return None
-    local_dt = utc_dt.astimezone(tz.tzlocal())
-    return local_dt
-
-
-def local_to_utc(local_dt: datetime) -> datetime:
-    """Convert input local timezone timestamp to UTC timezone.
-
-    Args:
-        local_dt: Input local timestamp.
-
-    Returns:
-        A ``datetime`` with the UTC timezone.
-    """
-    if local_dt is None:
-        return None
-    utc_dt = local_dt.astimezone(tz.UTC)
-    return utc_dt
 
 
 def parse_utc_datetime(dt_str: str) -> datetime:
@@ -259,14 +231,17 @@ class ExperimentData:
         self._backend = None
         if backend is not None:
             self._set_backend(backend, recursive=False)
-        self.provider = provider
+        self._provider = provider
         if provider is None and backend is not None:
-            self.provider = backend.provider
+            # BackendV2 has a provider attribute but BackendV3 probably will not
+            self._provider = getattr(backend, "provider", None)
+        if self.provider is None and hasattr(backend, "service"):
+            # qiskit_ibm_runtime.IBMBackend stores its Provider-like object in
+            # the "service" attribute
+            self._provider = backend.service
+        # Experiment service like qiskit_ibm_experiment.IBMExperimentService,
+        # not to be confused with qiskit_ibm_runtime.QiskitRuntimeService
         self._service = service
-        if self._service is None and self.provider is not None:
-            self._service = self.get_service_from_provider(self.provider)
-        if self._service is None and self.provider is None and self.backend is not None:
-            self._service = self.get_service_from_backend(self.backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -321,7 +296,7 @@ class ExperimentData:
                 if hasattr(job, "time_per_step") and "COMPLETED" in job.time_per_step():
                     job_times[job_id] = job.time_per_step().get("COMPLETED")
                 elif (
-                    execution := job.result().metadata.get("execution")
+                    execution := getattr(job.result(), "metadata", {}).get("execution")
                 ) and "execution_spans" in execution:
                     job_times[job_id] = execution["execution_spans"].stop
                 elif (client := getattr(job, "_api_client", None)) and hasattr(
@@ -405,12 +380,16 @@ class ExperimentData:
         return self._db_data.updated_datetime
 
     @property
-    def running_time(self) -> datetime:
+    def running_time(self) -> datetime | None:
         """Return the running time of this experiment data.
 
         The running time is the time the latest successful job started running on
         the remote quantum machine. This can change as more jobs finish.
 
+        .. note::
+
+            In practice, this property is not currently set automatically by
+            Qiskit Experiments.
         """
         return self._running_time
 
@@ -604,26 +583,11 @@ class ExperimentData:
         self._db_data.backend = self._backend_data.name
         if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        provider = self._backend_data.provider
-        if provider is not None:
-            self._set_hgp_from_provider(provider)
-        # qiskit-ibm-runtime style
-        elif hasattr(self._backend, "_instance") and self._backend._instance:
+        if hasattr(self._backend, "_instance") and self._backend._instance:
             self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
-
-    def _set_hgp_from_provider(self, provider):
-        try:
-            # qiskit-ibm-provider style
-            if hasattr(provider, "_hgps"):
-                for hgp_string, hgp in provider._hgps.items():
-                    if self.backend.name in hgp.backends:
-                        self.hgp = hgp_string
-                        break
-        except (AttributeError, IndexError, QiskitError):
-            pass
 
     @property
     def hgp(self) -> str:
@@ -673,6 +637,73 @@ class ExperimentData:
             ExperimentDataError: If an experiment service is already being used.
         """
         self._set_service(service)
+
+    def _infer_service(self, warn: bool):
+        """Try to configure service if it has not been configured
+
+        This method should be called before any method that needs to work with
+        the experiment service.
+
+        Args:
+            warn: Warn if the service could not be set up from the backend or
+                provider attributes.
+
+        Returns:
+            True if a service instance has been set up
+        """
+        if self.service is None:
+            self.service = self.get_service_from_backend(self.backend)
+        if self.service is None:
+            self.service = self.get_service_from_provider(self.provider)
+
+        if warn and self.service is None:
+            LOG.warning("Experiment service has not been configured. Can not save!")
+
+        return self.service is not None
+
+    def _set_service(self, service: IBMExperimentService) -> None:
+        """Set the service to be used for storing experiment data,
+           to this experiment itself and its descendants.
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            ExperimentDataError: If an experiment service is already being used and `replace==False`.
+        """
+        if self._service is not None:
+            raise ExperimentDataError("An experiment service is already being used.")
+        self._service = service
+        with contextlib.suppress(Exception):
+            self.auto_save = self.service.options.get("auto_save", False)
+        for data in self.child_data():
+            data._set_service(service)
+
+    @staticmethod
+    def get_service_from_backend(backend) -> IBMExperimentService | None:
+        """Initializes the service from the backend data"""
+        # backend.provider is not checked since currently the only viable way
+        # to set up the experiment service is using the credentials from
+        # QiskitRuntimeService on a qiskit_ibm_runtime.IBMBackend.
+        provider = getattr(backend, "service", None)
+        return ExperimentData.get_service_from_provider(provider)
+
+    @staticmethod
+    def get_service_from_provider(provider) -> IBMExperimentService | None:
+        """Initializes the service from the provider data"""
+        if not hasattr(provider, "active_account"):
+            return None
+
+        account = provider.active_account()
+        url = account.get("url")
+        token = account.get("token")
+        try:
+            if url is not None and token is not None:
+                return IBMExperimentService(token=token, url=url)
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning("Failed to connect to experiment service", exc_info=True)
+
+        return None
 
     @property
     def provider(self) -> Optional[Provider]:
@@ -724,7 +755,7 @@ class ExperimentData:
 
     def add_data(
         self,
-        data: Union[Result, List[Result], Dict, List[Dict]],
+        data: Union[Result, PrimitiveResult, List[Result | PrimitiveResult], Dict, List[Dict]],
     ) -> None:
         """Add experiment data.
 
@@ -752,14 +783,14 @@ class ExperimentData:
             for datum in data:
                 if isinstance(datum, dict):
                     self._result_data.append(datum)
-                elif isinstance(datum, Result):
+                elif isinstance(datum, (Result, PrimitiveResult)):
                     self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
     def add_jobs(
         self,
-        jobs: Union[Job, List[Job], BasePrimitiveJob, List[BasePrimitiveJob]],
+        jobs: Union[Job, List[Job]],
         timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
@@ -784,7 +815,7 @@ class ExperimentData:
                 "Not all analysis has finished running. Adding new jobs may "
                 "create unexpected analysis results."
             )
-        if isinstance(jobs, Job):
+        if not isinstance(jobs, Iterable):
             jobs = [jobs]
 
         # Add futures for extracting finished job data
@@ -872,10 +903,6 @@ class ExperimentData:
         jid = job.job_id()
         try:
             job_result = job.result()
-            try:
-                self._running_time = job.time_per_step().get("running", None)
-            except AttributeError:
-                pass
             self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
             # sets the endtime to be the time the last successful job was added
@@ -999,7 +1026,11 @@ class ExperimentData:
             LOG.warning(error_msg)
             return callback_id, False
 
-    def _add_result_data(self, result: Result, job_id: Optional[str] = None) -> None:
+    def _add_result_data(
+        self,
+        result: Result | PrimitiveResult,
+        job_id: Optional[str] = None,
+    ) -> None:
         """Add data from a Result object
 
         Args:
@@ -1133,16 +1164,6 @@ class ExperimentData:
             try:  # qiskit-ibm-runtime syntax
                 job = self.provider.job(jid)
                 retrieved_jobs[jid] = job
-            except AttributeError:  # TODO: remove this path for qiskit-ibm-provider
-                try:
-                    job = self.provider.retrieve_job(jid)
-                    retrieved_jobs[jid] = job
-                except Exception:  # pylint: disable=broad-except
-                    LOG.warning(
-                        "Unable to retrieve data from job [Job ID: %s]: %s",
-                        jid,
-                        traceback.format_exc(),
-                    )
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
                     "Unable to retrieve data from job [Job ID: %s]: %s", jid, traceback.format_exc()
@@ -1299,10 +1320,10 @@ class ExperimentData:
             self._db_data.figure_names.append(fig_name)
 
             save = save_figure if save_figure is not None else self.auto_save
-            if save and self._service:
+            if save and self._infer_service(warn=True):
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                self._service.create_or_update_figure(
+                self.service.create_or_update_figure(
                     experiment_id=self.experiment_id,
                     figure=figure,
                     figure_name=fig_name,
@@ -1333,7 +1354,7 @@ class ExperimentData:
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
 
-        if self._service and self.auto_save:
+        if self.auto_save and self._infer_service(warn=True):
             with service_exception_to_warning():
                 self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
             self._deleted_figures.remove(figure_key)
@@ -1382,7 +1403,7 @@ class ExperimentData:
         figure_key = self._find_figure_key(figure_key)
 
         figure_data = self._figures.get(figure_key, None)
-        if figure_data is None and self.service:
+        if figure_data is None and self._infer_service(warn=False):
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
             figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
@@ -1489,10 +1510,10 @@ class ExperimentData:
                 created_time=created_time,
                 **extra_values,
             )
-            if self.auto_save:
+            if self.auto_save and self._infer_service(warn=True):
                 service_result = _series_to_service_result(
                     series=self._analysis_results.get_data(uid, columns="all").iloc[0],
-                    service=self._service,
+                    service=self.service,
                     auto_save=False,
                 )
                 service_result.save()
@@ -1515,7 +1536,7 @@ class ExperimentData:
         """
         uids = self._analysis_results.del_data(result_key)
 
-        if self._service and self.auto_save:
+        if self.auto_save and self._infer_service(warn=True):
             with service_exception_to_warning():
                 for uid in uids:
                     self.service.delete_analysis_result(result_id=uid)
@@ -1662,7 +1683,7 @@ class ExperimentData:
             service_results.append(
                 _series_to_service_result(
                     series=series,
-                    service=self._service,
+                    service=self.service,
                     auto_save=self._auto_save,
                 )
             )
@@ -1696,6 +1717,7 @@ class ExperimentData:
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
+        self._infer_service(warn=False)
         self._save_experiment_metadata()
         for data in self.child_data():
             data.save_metadata()
@@ -1714,7 +1736,7 @@ class ExperimentData:
             See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
-        if not self._service:
+        if not self.service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
                 "An experiment service is available, for example, "
@@ -1792,7 +1814,8 @@ class ExperimentData:
             additional tags or notes) use :meth:`save_metadata`.
         """
         # TODO - track changes
-        if not self._service:
+        self._infer_service(warn=False)
+        if not self.service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
                 "An experiment service is available, for example, "
@@ -1828,7 +1851,7 @@ class ExperimentData:
             #  Calling API per entry takes huge amount of time.
             legacy_result = _series_to_service_result(
                 series=series,
-                service=self._service,
+                service=self.service,
                 auto_save=False,
             )
             analysis_results_to_create.append(legacy_result._db_data)
@@ -1849,7 +1872,7 @@ class ExperimentData:
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
-                self._service.delete_analysis_result(result_id=result)
+                self.service.delete_analysis_result(result_id=result)
             self._deleted_analysis_results.remove(result)
 
         if save_figures:
@@ -1874,7 +1897,7 @@ class ExperimentData:
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
-                self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
+                self.service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
         # save artifacts
@@ -2518,26 +2541,6 @@ class ExperimentData:
             self.add_child_data(data)
         self._db_data.metadata["child_data_ids"] = self._child_data.keys()
 
-    def _set_service(self, service: IBMExperimentService, replace: bool = None) -> None:
-        """Set the service to be used for storing experiment data,
-           to this experiment itself and its descendants.
-
-        Args:
-            service: Service to be used.
-            replace: Should an existing service be replaced?
-            If not, and a current service exists, exception is raised
-
-        Raises:
-            ExperimentDataError: If an experiment service is already being used and `replace==False`.
-        """
-        if self._service and not replace:
-            raise ExperimentDataError("An experiment service is already being used.")
-        self._service = service
-        with contextlib.suppress(Exception):
-            self.auto_save = self._service.options.get("auto_save", False)
-        for data in self.child_data():
-            data._set_service(service)
-
     def add_tags_recursive(self, tags2add: List[str]) -> None:
         """Add tags to this experiment itself and its descendants
 
@@ -2683,37 +2686,6 @@ class ExperimentData:
         state["_jobs"] = self._safe_serialize_jobs()
 
         return state
-
-    @staticmethod
-    def get_service_from_backend(backend):
-        """Initializes the service from the backend data"""
-        # qiskit-ibm-runtime style
-        try:
-            if hasattr(backend, "service"):
-                token = backend.service._account.token
-                return IBMExperimentService(token=token, url=backend.service._account.url)
-            return ExperimentData.get_service_from_provider(backend.provider)
-        except Exception:  # pylint: disable=broad-except
-            return None
-
-    @staticmethod
-    def get_service_from_provider(provider):
-        """Initializes the service from the provider data"""
-        try:
-            # qiskit-ibm-provider style
-            if hasattr(provider, "_account"):
-                warnings.warn(
-                    "qiskit-ibm-provider has been deprecated in favor of qiskit-ibm-runtime. Support"
-                    "for qiskit-ibm-provider backends will be removed in Qiskit Experiments 0.7.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return IBMExperimentService(
-                    token=provider._account.token, url=provider._account.url
-                )
-            return None
-        except Exception:  # pylint: disable=broad-except
-            return None
 
     def __setstate__(self, state):
         self.__dict__.update(state)
