@@ -56,6 +56,7 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
         message=".*The entire Qiskit Pulse package is being deprecated.*",
         category=DeprecationWarning,
     )
+    warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
 .. jupyter-execute::
 
