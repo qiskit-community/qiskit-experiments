@@ -202,6 +202,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
         .. jupyter-execute::
 
+            import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
@@ -283,6 +284,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
 
         .. jupyter-execute::
 
+            import numpy as np
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
