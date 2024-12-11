@@ -47,11 +47,11 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineDragCal
 
-            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
             cals = Calibrations.from_backend(backend, libraries=[library])
 
             exp_cal = FineDragCal((0,),
-                              cals,
+                              calibrations=cals,
                               backend=backend,
                               schedule_name="sx",
                               cal_parameter_name="β",
@@ -194,11 +194,11 @@ class FineXDragCal(FineDragCal):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXDragCal
 
-            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.4})
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
             cals = Calibrations.from_backend(backend, libraries=[library])
 
             exp_cal = FineXDragCal((0,),
-                              cals,
+                              calibrations=cals,
                               backend=backend,
                               cal_parameter_name="β",
                               auto_update=True,
@@ -256,11 +256,11 @@ class FineSXDragCal(FineDragCal):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXDragCal
 
-            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
             cals = Calibrations.from_backend(backend=backend, libraries=[library])
 
             exp_cal = FineSXDragCal((0,),
-                              cals,
+                              calibrations=cals,
                               backend=backend,
                               cal_parameter_name="β",
                               auto_update=True,
