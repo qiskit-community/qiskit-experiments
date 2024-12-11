@@ -42,7 +42,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=101)
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=101)
 
         .. jupyter-execute::
 
@@ -53,7 +53,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineAmplitudeCal
 
-            library = FixedFrequencyTransmon()
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030})
             cals = Calibrations.from_backend(backend=backend, libraries=[library])
             exp_cal = FineAmplitudeCal(physical_qubits=(0,),
                                        calibrations=cals,
@@ -65,7 +65,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
                                        measurement_qubits=(0,))
             # This option is necessary!
             exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
-                                                           "phase_offset" : np.pi/2})
+                                                           "phase_offset" : np.pi})
 
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
@@ -207,7 +207,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineXAmplitudeCal
 
-            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030})
             cals = Calibrations.from_backend(backend, libraries=[library])
 
             exp_cal = FineXAmplitudeCal((0,),
@@ -217,6 +217,8 @@ class FineXAmplitudeCal(FineAmplitudeCal):
                                          cal_parameter_name="amp",
                                          auto_update=True,
                                          )
+
+            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi / 2})
 
             exp_data = exp_cal.run().block_for_results()
             display(exp_data.figure(0))
@@ -286,7 +288,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
             import FixedFrequencyTransmon
             from qiskit_experiments.library import FineSXAmplitudeCal
 
-            library = FixedFrequencyTransmon(default_values={"duration": 320})
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.015})
             cals = Calibrations.from_backend(backend, libraries=[library])
 
             exp_cal = FineSXAmplitudeCal((0,),
@@ -296,6 +298,8 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
                                          cal_parameter_name="amp",
                                          auto_update=True,
                                          )
+
+            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi / 2, "phase_offset" : np.pi})
 
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
