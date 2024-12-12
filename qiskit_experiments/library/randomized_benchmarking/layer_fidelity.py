@@ -76,6 +76,45 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
 
     # section: reference
         .. ref_arxiv:: 1 2311.05933
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import StandardRB
+            from qiskit_experiments.library.randomized_benchmarking import LayerFidelity
+
+            lengths = np.arange(1, 800, 200)
+            two_qubit_layers=[[(0, 1), (3, 5)], [(1, 3), (5, 6)]]
+
+            num_samples = 6
+            seed = 106
+
+            exp = LayerFidelity(
+                    physical_qubits=[0, 1, 3, 5, 6],
+                    two_qubit_layers=two_qubit_layers,
+                    lengths=lengths,
+                    backend=backend,
+                    num_samples=num_samples,
+                    seed=seed,
+                    two_qubit_gate=None,
+                    one_qubit_basis_gates=None,
+            )
+
+            exp_data = exp.run(backend_run=True).block_for_results()
+            results = exp_data.analysis_results()
+            for i in range(num_samples):
+                display(exp_data.figure(i))
+
+            display(exp_data.analysis_results(dataframe=True))
     """
 
     def __init__(
