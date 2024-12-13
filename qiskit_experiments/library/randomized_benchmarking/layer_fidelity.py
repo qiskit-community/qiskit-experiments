@@ -109,7 +109,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                     one_qubit_basis_gates=None,
             )
 
-            exp_data = exp.run(backend_run=True).block_for_results()
+            exp_data = exp.run().block_for_results()
             results = exp_data.analysis_results()
             for i in range(num_samples):
                 display(exp_data.figure(i))
