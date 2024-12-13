@@ -49,7 +49,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             cals = Calibrations.from_backend(backend=backend, libraries=[FixedFrequencyTransmon()])
             exp_cal = FrequencyCal((0,), cals, backend=backend, auto_update=False)
 
-            cal_data=exp_cal.run(backend_run=True).block_for_results()
+            cal_data=exp_cal.run().block_for_results()
             display(cal_data.figure(0))
             cal_data.analysis_results(dataframe=True)
     """
