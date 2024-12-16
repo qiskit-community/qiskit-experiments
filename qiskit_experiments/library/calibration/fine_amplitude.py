@@ -219,9 +219,6 @@ class FineXAmplitudeCal(FineAmplitudeCal):
                                          auto_update=True,
                                          )
 
-            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
-                                                           "phase_offset" : np.pi / 2})
-
             exp_data = exp_cal.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)
@@ -301,9 +298,6 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
                                          cal_parameter_name="amp",
                                          auto_update=True,
                                          )
-
-            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi / 2,
-                                                           "phase_offset" : np.pi})
 
             cal_data = exp_cal.run().block_for_results()
             display(cal_data.figure(0))
