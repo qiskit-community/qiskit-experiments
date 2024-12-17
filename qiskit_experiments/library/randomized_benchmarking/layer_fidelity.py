@@ -110,11 +110,9 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             )
 
             exp_data = exp.run().block_for_results()
-            results = exp_data.analysis_results()
-            for i in range(num_samples):
-                display(exp_data.figure(i))
-
-            display(exp_data.analysis_results(dataframe=True))
+ 
+            display(exp_data.figure(0)) # one of 6 figures
+            display(exp_data.analysis_results("EPLG", dataframe=True))
     """
 
     def __init__(
