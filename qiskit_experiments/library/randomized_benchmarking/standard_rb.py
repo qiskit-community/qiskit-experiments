@@ -126,8 +126,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
             print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
             display(expdata_2q.figure(0))
-            for result in expdata_2q.analysis_results():
-                print(result)
+
+            print(expdata_2q.analysis_results()[0].name)
     """
 
     def __init__(
