@@ -82,7 +82,7 @@ class InterleavedRB(StandardRB):
             int_results2 = int_expdata2.analysis_results()
             display(int_expdata2.figure(0))
 
-            names = {int_results2[i].name for i in range(len(int_results2))}
+            names = {result.name for result in int_results2}
             print(f"Available results: {names}")
     """
 
