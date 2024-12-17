@@ -34,6 +34,9 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
             # backend
             from qiskit_ibm_runtime.fake_provider import FakePerth
             from qiskit_aer import AerSimulator
