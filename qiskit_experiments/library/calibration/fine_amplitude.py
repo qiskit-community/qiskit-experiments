@@ -47,7 +47,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         .. jupyter-execute::
 
             import numpy as np
-            from qiskit.circuit.library import XGate
+            from qiskit.circuit.library import SXGate
             from qiskit_experiments.calibration_management.calibrations import Calibrations
             from qiskit_experiments.calibration_management.basis_gate_library \
             import FixedFrequencyTransmon
@@ -57,14 +57,14 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             cals = Calibrations.from_backend(backend=backend, libraries=[library])
             exp_cal = FineAmplitudeCal(physical_qubits=(0,),
                                        calibrations=cals,
-                                       schedule_name="x",
+                                       schedule_name="sx",
                                        backend=backend,
                                        cal_parameter_name="amp",
                                        auto_update=True,
-                                       gate=XGate(),
+                                       gate=SXGate(),
                                        measurement_qubits=(0,))
             # This option is necessary!
-            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi,
+            exp_cal.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi / 2,
                                                            "phase_offset" : np.pi})
 
             cal_data = exp_cal.run().block_for_results()
