@@ -40,6 +40,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
             warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
             # backend
@@ -198,6 +199,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
             warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
             # backend
@@ -280,6 +282,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
             warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
             # backend
