@@ -38,8 +38,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
             warnings.filterwarnings("ignore",
-                                    ".*entire Qiskit Pulse package is being deprecated.*",
-                                    UserWarning
+                                    message=".*entire Qiskit Pulse package is being deprecated.*",
+                                    category=DeprecationWarning,
             )
 
             # backend
