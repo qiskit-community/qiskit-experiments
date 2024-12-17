@@ -110,7 +110,7 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             )
 
             exp_data = exp.run().block_for_results()
- 
+
             display(exp_data.figure(0)) # one of 6 figures
             display(exp_data.analysis_results("EPLG", dataframe=True))
     """
