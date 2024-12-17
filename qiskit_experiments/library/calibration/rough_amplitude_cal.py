@@ -297,7 +297,10 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             import warnings
             warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
 
-            warnings.filterwarnings("ignore", ".*entire Qiskit Pulse package is being deprecated.*", UserWarning)
+            warnings.filterwarnings("ignore",
+                                    ".*entire Qiskit Pulse package is being deprecated.*",
+                                    UserWarning
+            )
 
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
