@@ -26,6 +26,6 @@ other:
     :class:`~.MitigatedStateTomography`,
     :class:`~.ProcessTomography` and
     :class:`~.StateTomography`.
-    The backend used in the code examples are simulators 
+    The backends used in the code examples are simulators 
     such as, ``SingleTransmonTestBackend()`` and
     ``AerSimulator(FakePerth())``.
