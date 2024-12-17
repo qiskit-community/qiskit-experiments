@@ -34,6 +34,9 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         .. jupyter-execute::
             :hide-code:
 
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
             # backend
             from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
             backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
