@@ -80,10 +80,9 @@ class InterleavedRB(StandardRB):
 
             int_expdata2 = int_exp2.run(backend=backend).block_for_results()
             int_results2 = int_expdata2.analysis_results()
-
             display(int_expdata2.figure(0))
-            for result in int_results2:
-                print(result)
+
+            print(int_results2[0].name)
     """
 
     def __init__(
