@@ -123,9 +123,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
             exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
 
             expdata_2q = exp_2q.run(backend=backend).block_for_results()
+            results_2q = expdata_2q.analysis_results()
 
             print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
             display(expdata_2q.figure(0))
+
+            names = {result.name for result in results_2q}
+            print(f"Available results: {names}")
     """
 
     def __init__(
