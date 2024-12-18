@@ -27,7 +27,35 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
-    """A qubit frequency calibration experiment based on the Ramsey XY experiment."""
+    """A qubit frequency calibration experiment based on the Ramsey XY experiment.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer import AerSimulator
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration.frequency_cal import FrequencyCal
+
+            cals = Calibrations.from_backend(backend=backend, libraries=[FixedFrequencyTransmon()])
+            exp_cal = FrequencyCal((0,), cals, backend=backend, auto_update=False)
+
+            cal_data=exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,

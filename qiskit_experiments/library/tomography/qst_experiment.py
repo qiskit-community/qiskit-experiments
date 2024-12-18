@@ -47,6 +47,36 @@ class StateTomography(TomographyExperiment):
     # section: manual
         :doc:`/manuals/verification/state_tomography`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import StateTomography
+            from qiskit.visualization import plot_state_city
+
+            nq = 2
+            qc_ghz = QuantumCircuit(nq)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, nq):
+                qc_ghz.cx(0, i)
+
+            qstexp = StateTomography(qc_ghz)
+            qstdata = qstexp.run(backend=backend,
+                                 shots=1000,
+                                 seed_simulator=100,).block_for_results()
+            state_result = qstdata.analysis_results("state")
+            plot_state_city(state_result.value, title="Density Matrix")
     """
 
     def __init__(

@@ -31,7 +31,44 @@ AnglesSchedules = namedtuple(
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    """A calibration version of the Rabi experiment."""
+    """A calibration version of the Rabi experiment.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=106)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration import RoughAmplitudeCal
+
+            library = FixedFrequencyTransmon()
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+
+            exp_cal = RoughAmplitudeCal(physical_qubits=(0,),
+                                           calibrations=cals,
+                                           schedule_name="x",
+                                           amplitudes=np.linspace(-0.1, 0.1, 51),
+                                           cal_parameter_name="amp",
+                                           target_angle=np.pi,
+                                           auto_update=True,
+                                           group="default",
+                                           backend=backend)
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
@@ -189,7 +226,39 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates."""
+    """A rough amplitude calibration of x and sx gates.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=180)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration import RoughXSXAmplitudeCal
+
+            library = FixedFrequencyTransmon()
+            cals = Calibrations.from_backend(backend, libraries=[library])
+            exp_cal = RoughXSXAmplitudeCal((0,),
+                                           cals,
+                                           backend=backend,
+                                           amplitudes=np.linspace(-0.1, 0.1, 51)
+                                          )
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
@@ -220,6 +289,78 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     r"""A rough amplitude calibration of :math:`X` and :math:`SX` gates on the
     :math:`|1\rangle` <-> :math:`|2\rangle` transition.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            warnings.filterwarnings("ignore",
+                                    message=".*entire Qiskit Pulse package is being deprecated.*",
+                                    category=DeprecationWarning,
+            )
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=180)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            import qiskit.pulse as pulse
+            from qiskit.circuit import Parameter
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+	    import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration import EFRoughXSXAmplitudeCal
+
+            library = FixedFrequencyTransmon()
+            cals = Calibrations.from_backend(
+                                            backend=backend,
+                                            libraries=[library]
+                )
+
+            amp = Parameter("amp")
+
+            with pulse.build(name="x12") as build_x12:
+                with pulse.align_left():
+                    pulse.shift_frequency(-.25e9, pulse.DriveChannel(0))
+                    pulse.play(pulse.Drag(160,
+                                          amp,
+                                          40,
+                                          0.,
+                                          0.,
+                                         ), pulse.DriveChannel(0))
+
+            with pulse.build(name="sx12") as build_sx12:
+                with pulse.align_left():
+                    pulse.shift_frequency(-.25e9, pulse.DriveChannel(0))
+                    pulse.play(pulse.Drag(160,
+                                          amp / 2,
+                                          40,
+                                          0.,
+                                          0.,
+                                         ), pulse.DriveChannel(0))
+
+            cals.add_schedule(build_x12, qubits=(0,), num_qubits=1)
+            cals.add_schedule(build_sx12, qubits=(0,), num_qubits=1)
+            for sched in ["x", "x12"]:
+                cals.add_parameter_value(0.5, "amp", (0,), schedule=sched)
+
+            for sched in ["sx", "sx12"]:
+                cals.add_parameter_value(0.25, "amp", (0,), schedule=sched)
+
+            exp_cal = EFRoughXSXAmplitudeCal(physical_qubits=(0,),
+                                             calibrations=cals,
+                                             amplitudes=np.linspace(-0.1, 0.1, 51),
+                                             backend=backend,
+                                             ef_pulse_label="12",)
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
     """
 
     __outcome__ = "rabi_rate_12"
