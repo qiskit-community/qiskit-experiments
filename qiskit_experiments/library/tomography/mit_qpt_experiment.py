@@ -50,6 +50,51 @@ class MitigatedProcessTomography(BatchExperiment):
         * :py:class:`qiskit_experiments.library.tomography.ProcessTomography`
         * :py:class:`qiskit_experiments.library.characterization.LocalReadoutError`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import MitigatedProcessTomography
+
+            num_qubits = 2
+            qc_ghz = QuantumCircuit(num_qubits)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, num_qubits):
+                qc_ghz.cx(0, i)
+
+            mitqptexp = MitigatedProcessTomography(qc_ghz)
+            mitqptexp.set_run_options(shots=1000)
+            mitqptdata = mitqptexp.run(backend=backend,
+                                       seed_simulator=100,).block_for_results()
+            mitigated_choi_out = mitqptdata.analysis_results("state").value
+
+            # extracting a densitymatrix from mitigated_choi_out
+            from qiskit.visualization import plot_state_city
+            import qiskit.quantum_info as qinfo
+
+            _rho_exp_00 = np.array([[None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None]])
+
+            for i in range(4):
+                for j in range(4):
+                    _rho_exp_00[i][j] = mitigated_choi_out.data[i][j]
+
+            mitigated_rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)
+            display(plot_state_city(mitigated_rho_exp_00, title="mitigated Density Matrix"))
     """
 
     def __init__(

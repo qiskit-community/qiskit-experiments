@@ -46,6 +46,51 @@ class ProcessTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`ProcessTomographyAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import ProcessTomography
+
+            num_qubits = 2
+            qc_ghz = QuantumCircuit(num_qubits)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, num_qubits):
+                qc_ghz.cx(0, i)
+
+            qptexp = ProcessTomography(qc_ghz)
+            qptdata = qptexp.run(backend=backend,
+                                 shots=1000,
+                                 seed_simulator=100,).block_for_results()
+            choi_out = qptdata.analysis_results("state").value
+
+            # extracting a densitymatrix from choi_out
+            from qiskit.visualization import plot_state_city
+            import qiskit.quantum_info as qinfo
+
+            _rho_exp_00 = np.array([[None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None]])
+
+            for i in range(4):
+                for j in range(4):
+                    _rho_exp_00[i][j] = choi_out.data[i][j]
+
+            rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)
+            display(plot_state_city(rho_exp_00, title="Density Matrix"))
     """
 
     def __init__(

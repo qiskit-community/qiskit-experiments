@@ -29,9 +29,36 @@ from qiskit_experiments.library.characterization.drag import RoughDrag
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the :class:`.RoughDrag` experiment.
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            #backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=161)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library import RoughDragCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.03})
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+            exp_cal = RoughDragCal((0,), cals, backend=backend, betas=np.linspace(-20, 20, 25))
+            exp_cal.set_experiment_options(reps=[3, 5, 7])
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+
     # section: manual
         :ref:`DRAG Calibration`
-
     """
 
     def __init__(

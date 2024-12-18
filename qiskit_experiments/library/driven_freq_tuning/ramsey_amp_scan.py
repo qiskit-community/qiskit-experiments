@@ -92,7 +92,6 @@ class StarkRamseyXYAmpScan(BaseExperiment):
 
     # section: manual
         :doc:`/manuals/characterization/stark_experiment`
-
     """
 
     @deprecate_func(

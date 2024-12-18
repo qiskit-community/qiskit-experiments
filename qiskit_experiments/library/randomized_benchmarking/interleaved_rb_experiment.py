@@ -53,6 +53,37 @@ class InterleavedRB(StandardRB):
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import StandardRB, InterleavedRB
+            from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
+            import qiskit.circuit.library as circuits
+
+            lengths = np.arange(1, 200, 30)
+            num_samples = 10
+            seed = 1010
+            qubits = (1, 2)
+
+            int_exp2 = InterleavedRB(
+                circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
+
+            int_expdata2 = int_exp2.run(backend=backend).block_for_results()
+            int_results2 = int_expdata2.analysis_results()
+            display(int_expdata2.figure(0))
+
+            names = {result.name for result in int_results2}
+            print(f"Available results: {names}")
     """
 
     def __init__(
