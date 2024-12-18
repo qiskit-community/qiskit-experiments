@@ -28,7 +28,49 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
-    """Calibration version of the :class:`.HalfAngle` experiment."""
+    """Calibration version of the :class:`.HalfAngle` experiment.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            warnings.filterwarnings("ignore",
+                                    message=".*entire Qiskit Pulse package is being deprecated.*",
+                                    category=DeprecationWarning,
+            )
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+
+        .. jupyter-execute::
+
+            from qiskit import pulse
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration.half_angle_cal import HalfAngleCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 640})
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+            exp_cal = HalfAngleCal((0,), cals, backend=backend)
+
+            inst_map = backend.defaults().instruction_schedule_map
+            with pulse.build(backend=backend, name="y") as sched_build:
+                pulse.play(pulse.Drag(duration=160,
+                                      sigma=40,
+                                      beta=5,
+                                      amp=0.05821399464431249,
+                                      angle=0.0,), pulse.DriveChannel(0),)
+            inst_map.add("y", (0,), sched_build)
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,

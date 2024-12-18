@@ -30,7 +30,41 @@ from qiskit_experiments.library.characterization.fine_drag import FineDrag
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
-    """A calibration version of the fine DRAG experiment."""
+    """A calibration version of the fine DRAG experiment.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            #backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=108)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineDragCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
+            cals = Calibrations.from_backend(backend, libraries=[library])
+
+            exp_cal = FineDragCal((0,),
+                              calibrations=cals,
+                              backend=backend,
+                              schedule_name="sx",
+                              cal_parameter_name="β",
+                              auto_update=True,
+                              )
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
@@ -146,7 +180,40 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
 
 class FineXDragCal(FineDragCal):
-    """Fine DRAG calibration of X gate."""
+    """Fine DRAG calibration of X gate.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            #backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=118)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineXDragCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
+            cals = Calibrations.from_backend(backend, libraries=[library])
+
+            exp_cal = FineXDragCal((0,),
+                              calibrations=cals,
+                              backend=backend,
+                              cal_parameter_name="β",
+                              auto_update=True,
+                              )
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
@@ -178,7 +245,40 @@ class FineXDragCal(FineDragCal):
 
 
 class FineSXDragCal(FineDragCal):
-    """Fine DRAG calibration of X gate."""
+    """Fine DRAG calibration of X gate.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            #backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=118)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library import FineSXDragCal
+
+            library = FixedFrequencyTransmon(default_values={"duration": 320, "amp": 0.030, "beta": 0.0})
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+
+            exp_cal = FineSXDragCal((0,),
+                              calibrations=cals,
+                              backend=backend,
+                              cal_parameter_name="β",
+                              auto_update=True,
+                              )
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,

@@ -71,7 +71,6 @@ class StarkP1Spectroscopy(BaseExperiment):
 
     # section: manual
         :doc:`/manuals/characterization/stark_experiment`
-
     """
 
     @deprecate_func(

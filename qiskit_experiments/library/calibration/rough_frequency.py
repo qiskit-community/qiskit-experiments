@@ -28,7 +28,40 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
-    transition frequency."""
+    transition frequency.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            import warnings
+            warnings.filterwarnings("ignore", ".*Could not determine job completion time.*", UserWarning)
+
+            # backend
+            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=100)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.calibration_management.calibrations import Calibrations
+            from qiskit_experiments.calibration_management.basis_gate_library \
+            import FixedFrequencyTransmon
+            from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
+
+            qubit=0
+            library = FixedFrequencyTransmon()
+            cals = Calibrations.from_backend(backend=backend, libraries=[library])
+
+            freq_est = backend.defaults().qubit_freq_est[qubit]
+            frequencies = np.linspace(freq_est-15e6, freq_est+15e6, 51)
+            exp_cal = RoughFrequencyCal((qubit,), cals, frequencies, backend=backend)
+            exp_cal.set_experiment_options(amp=0.005)
+
+            cal_data = exp_cal.run().block_for_results()
+            display(cal_data.figure(0))
+            cal_data.analysis_results(dataframe=True)
+    """
 
     def __init__(
         self,
@@ -78,6 +111,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     r"""A calibration experiment that runs :class:`.QubitSpectroscopy` for the
     :math:`|1\rangle` <-> :math:`|2\rangle` transition.
+
     """
 
     __updater__ = Frequency
