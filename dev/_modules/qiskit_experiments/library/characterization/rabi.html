@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.characterization.rabi - Qiskit Experiments 0.8.0-9-g840a231e</title>
+        <title>qiskit_experiments.library.characterization.rabi - Qiskit Experiments 0.8.0-10-gcc258d76</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-9-g840a231e</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-10-gcc258d76</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-9-g840a231e</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-10-gcc258d76</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -262,6 +262,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -872,8 +873,8 @@
 <span class="sd">            )</span>
 
 <span class="sd">            # backend</span>
-<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
-<span class="sd">            backend = SingleTransmonTestBackend(5.2e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)</span>
+<span class="sd">            from qiskit_experiments.test import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5e9, -0.25e9, 1e9, 0.8e9, 1e4, noise=True)</span>
 
 <span class="sd">        .. jupyter-execute::</span>
 
@@ -883,12 +884,14 @@
 <span class="sd">            from qiskit_experiments.library import EFRabi</span>
 
 <span class="sd">            with pulse.build() as build_sched:</span>
-<span class="sd">                pulse.play(pulse.Gaussian(160, Parameter(&quot;amp&quot;), sigma=40), pulse.DriveChannel(0))</span>
+<span class="sd">                with pulse.align_left():</span>
+<span class="sd">                    pulse.shift_frequency(-0.25e9, pulse.DriveChannel(0))</span>
+<span class="sd">                    pulse.play(pulse.Gaussian(160, Parameter(&quot;amp&quot;), 40), pulse.DriveChannel(0))</span>
 
 <span class="sd">            exp = EFRabi(physical_qubits=(0,),</span>
-<span class="sd">                         backend=backend,</span>
 <span class="sd">                         schedule=build_sched,</span>
-<span class="sd">                         amplitudes=np.linspace(-0.1, 0.1, 21),)</span>
+<span class="sd">                         amplitudes=np.linspace(-0.1, 0.1, 21),</span>
+<span class="sd">                         backend=backend,)</span>
 
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
@@ -921,7 +924,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/14</div>
+              Last updated on 2024/12/18</div>
           </div>
           <div class="right-details">
             
@@ -936,7 +939,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=dd350f3d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=229649e2"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

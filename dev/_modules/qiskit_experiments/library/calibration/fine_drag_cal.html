@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.calibration.fine_drag_cal - Qiskit Experiments 0.8.0-9-g840a231e</title>
+        <title>qiskit_experiments.library.calibration.fine_drag_cal - Qiskit Experiments 0.8.0-10-gcc258d76</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-9-g840a231e</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-10-gcc258d76</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-9-g840a231e</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-10-gcc258d76</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -262,6 +262,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -630,7 +631,41 @@
 <div class="viewcode-block" id="FineDragCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.FineDragCal.html#qiskit_experiments.library.calibration.FineDragCal">[docs]</a>
 <span class="k">class</span> <span class="nc">FineDragCal</span><span class="p">(</span><span class="n">BaseCalibrationExperiment</span><span class="p">,</span> <span class="n">FineDrag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A calibration version of the fine DRAG experiment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A calibration version of the fine DRAG experiment.</span>
+
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            import warnings</span>
+<span class="sd">            warnings.filterwarnings(&quot;ignore&quot;, &quot;.*Could not determine job completion time.*&quot;, UserWarning)</span>
+
+<span class="sd">            #backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=108)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            from qiskit_experiments.calibration_management.calibrations import Calibrations</span>
+<span class="sd">            from qiskit_experiments.calibration_management.basis_gate_library \</span>
+<span class="sd">            import FixedFrequencyTransmon</span>
+<span class="sd">            from qiskit_experiments.library import FineDragCal</span>
+
+<span class="sd">            library = FixedFrequencyTransmon(default_values={&quot;duration&quot;: 320, &quot;amp&quot;: 0.030, &quot;beta&quot;: 0.0})</span>
+<span class="sd">            cals = Calibrations.from_backend(backend, libraries=[library])</span>
+
+<span class="sd">            exp_cal = FineDragCal((0,),</span>
+<span class="sd">                              calibrations=cals,</span>
+<span class="sd">                              backend=backend,</span>
+<span class="sd">                              schedule_name=&quot;sx&quot;,</span>
+<span class="sd">                              cal_parameter_name=&quot;β&quot;,</span>
+<span class="sd">                              auto_update=True,</span>
+<span class="sd">                              )</span>
+
+<span class="sd">            cal_data = exp_cal.run().block_for_results()</span>
+<span class="sd">            display(cal_data.figure(0))</span>
+<span class="sd">            cal_data.analysis_results(dataframe=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -752,7 +787,40 @@
 <div class="viewcode-block" id="FineXDragCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.FineXDragCal.html#qiskit_experiments.library.calibration.FineXDragCal">[docs]</a>
 <span class="k">class</span> <span class="nc">FineXDragCal</span><span class="p">(</span><span class="n">FineDragCal</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fine DRAG calibration of X gate.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fine DRAG calibration of X gate.</span>
+
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            import warnings</span>
+<span class="sd">            warnings.filterwarnings(&quot;ignore&quot;, &quot;.*Could not determine job completion time.*&quot;, UserWarning)</span>
+
+<span class="sd">            #backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=118)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            from qiskit_experiments.calibration_management.calibrations import Calibrations</span>
+<span class="sd">            from qiskit_experiments.calibration_management.basis_gate_library \</span>
+<span class="sd">            import FixedFrequencyTransmon</span>
+<span class="sd">            from qiskit_experiments.library import FineXDragCal</span>
+
+<span class="sd">            library = FixedFrequencyTransmon(default_values={&quot;duration&quot;: 320, &quot;amp&quot;: 0.030, &quot;beta&quot;: 0.0})</span>
+<span class="sd">            cals = Calibrations.from_backend(backend, libraries=[library])</span>
+
+<span class="sd">            exp_cal = FineXDragCal((0,),</span>
+<span class="sd">                              calibrations=cals,</span>
+<span class="sd">                              backend=backend,</span>
+<span class="sd">                              cal_parameter_name=&quot;β&quot;,</span>
+<span class="sd">                              auto_update=True,</span>
+<span class="sd">                              )</span>
+
+<span class="sd">            cal_data = exp_cal.run().block_for_results()</span>
+<span class="sd">            display(cal_data.figure(0))</span>
+<span class="sd">            cal_data.analysis_results(dataframe=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -787,7 +855,40 @@
 <div class="viewcode-block" id="FineSXDragCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.FineSXDragCal.html#qiskit_experiments.library.calibration.FineSXDragCal">[docs]</a>
 <span class="k">class</span> <span class="nc">FineSXDragCal</span><span class="p">(</span><span class="n">FineDragCal</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fine DRAG calibration of X gate.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fine DRAG calibration of X gate.</span>
+
+<span class="sd">    # section: example</span>
+<span class="sd">        .. jupyter-execute::</span>
+<span class="sd">            :hide-code:</span>
+
+<span class="sd">            import warnings</span>
+<span class="sd">            warnings.filterwarnings(&quot;ignore&quot;, &quot;.*Could not determine job completion time.*&quot;, UserWarning)</span>
+
+<span class="sd">            #backend</span>
+<span class="sd">            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend</span>
+<span class="sd">            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=118)</span>
+
+<span class="sd">        .. jupyter-execute::</span>
+
+<span class="sd">            from qiskit_experiments.calibration_management.calibrations import Calibrations</span>
+<span class="sd">            from qiskit_experiments.calibration_management.basis_gate_library \</span>
+<span class="sd">            import FixedFrequencyTransmon</span>
+<span class="sd">            from qiskit_experiments.library import FineSXDragCal</span>
+
+<span class="sd">            library = FixedFrequencyTransmon(default_values={&quot;duration&quot;: 320, &quot;amp&quot;: 0.030, &quot;beta&quot;: 0.0})</span>
+<span class="sd">            cals = Calibrations.from_backend(backend=backend, libraries=[library])</span>
+
+<span class="sd">            exp_cal = FineSXDragCal((0,),</span>
+<span class="sd">                              calibrations=cals,</span>
+<span class="sd">                              backend=backend,</span>
+<span class="sd">                              cal_parameter_name=&quot;β&quot;,</span>
+<span class="sd">                              auto_update=True,</span>
+<span class="sd">                              )</span>
+
+<span class="sd">            cal_data = exp_cal.run().block_for_results()</span>
+<span class="sd">            display(cal_data.figure(0))</span>
+<span class="sd">            cal_data.analysis_results(dataframe=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -842,7 +943,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/14</div>
+              Last updated on 2024/12/18</div>
           </div>
           <div class="right-details">
             
@@ -857,7 +958,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=dd350f3d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=229649e2"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
