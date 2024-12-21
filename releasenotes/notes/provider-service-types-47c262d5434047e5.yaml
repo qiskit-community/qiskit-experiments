@@ -1,0 +1,23 @@
+---
+fixes:
+  - |
+    Fixed  :class:`~.ExperimentData` not inferring the  credentials for the IBM
+    experiment service from a :class:`~qiskit_ibm_runtime.QiskitRuntimeService`
+    instance as it used to do for ``qiskit-ibm-provider``. Previously, the IBM
+    experiment service was set up in the :class:`~.ExperimentData` constructor,
+    but now it is done on first attempt to use the service, allowing more time
+    for the service to be set explicitly or for other attributes to be set that
+    help with inferring the credentials.
+  - |
+    Fixed a bug where :meth:`.ExperimentData.add_data` would not work when
+    passed a single :class:`qiskit.primitives.PrimitiveResult` object.
+developer:
+  - |
+    Added classes
+    :class:`~qiskit_experiments.framework.BaseJob`,
+    :class:`~qiskit_experiments.framework.ExtendedJob`,
+    :class:`~qiskit_experiments.framework.Job`,
+    :class:`~qiskit_experiments.framework.BaseProvider`,
+    :class:`~qiskit_experiments.framework.IBMProvider`, and
+    :class:`~qiskit_experiments.framework.Provider` to document the interfaces
+    needed by :class:`~.ExperimentData` to work with jobs and results.
