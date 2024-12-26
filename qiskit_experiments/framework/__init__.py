@@ -93,6 +93,12 @@ Experiment Data Classes
     ExperimentDecoder
     ArtifactData
     FigureData
+    Provider
+    BaseProvider
+    IBMProvider
+    Job
+    BaseJob
+    ExtendedJob
 
 .. _composite-experiment:
 
@@ -154,4 +160,5 @@ from .composite import (
     CompositeAnalysis,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
+from .provider_interfaces import BaseJob, BaseProvider, ExtendedJob, IBMProvider, Job, Provider
 from .restless_mixin import RestlessMixin
