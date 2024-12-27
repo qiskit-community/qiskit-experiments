@@ -158,12 +158,10 @@ class FineDrag(BaseExperiment, RestlessMixin):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
-            schedule (ScheduleBlock): The schedule for the plus rotation.
             gate (Gate): This is the gate such as XGate() that will be in the circuits.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
-        options.schedule = None
         options.gate = None
 
         return options
@@ -211,10 +209,9 @@ class FineDrag(BaseExperiment, RestlessMixin):
         """Create the circuits for the fine DRAG calibration experiment.
 
         Returns:
-            A list of circuits with a variable number of gates. Each gate has the same
-            pulse schedule.
+            A list of circuits with a variable number of gates.
         """
-        schedule, circuits = self.experiment_options.schedule, []
+        circuits = []
 
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
@@ -228,14 +225,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuit.compose(self._post_circuit(), inplace=True)
 
             circuit.measure_all()
-
-            if schedule is not None:
-                circuit.add_calibration(
-                    self.experiment_options.gate.name,
-                    self.physical_qubits,
-                    schedule,
-                    params=[],
-                )
 
             circuit.metadata = {"xval": repetition}
 

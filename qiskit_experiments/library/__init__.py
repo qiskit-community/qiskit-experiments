@@ -60,26 +60,17 @@ Some experiments also have a calibration experiment version.
     ~characterization.T2Hahn
     ~characterization.T2Ramsey
     ~characterization.Tphi
-    ~characterization.QubitSpectroscopy
-    ~characterization.EFSpectroscopy
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
-    ~characterization.Rabi
-    ~characterization.EFRabi
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
-    ~characterization.ResonatorSpectroscopy
-    ~characterization.RoughDrag
     ~characterization.FineDrag
     ~characterization.FineXDrag
     ~characterization.FineSXDrag
     ~characterization.MultiStateDiscrimination
-    ~driven_freq_tuning.StarkRamseyXY
-    ~driven_freq_tuning.StarkRamseyXYAmpScan
-    ~driven_freq_tuning.StarkP1Spectroscopy
 
 .. _characterization two qubits:
 
@@ -92,8 +83,6 @@ Experiments for characterization of properties of two qubit interactions.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    ~characterization.CrossResonanceHamiltonian
-    ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.ZZRamsey
     ~characterization.FineZXAmplitude
 
@@ -111,70 +100,15 @@ Experiments for characterizing and mitigating readout error.
     ~characterization.LocalReadoutError
     ~characterization.CorrelatedReadoutError
 
-.. _calibration:
-
-Calibration Experiments
-=======================
-
-Experiments for pulse level calibration of quantum gates. These experiments
-are usually run with a
-:class:`~qiskit_experiments.calibration_management.Calibrations`
-class instance to manage parameters and pulse schedules.
-See :doc:`/tutorials/calibrations` for examples.
-
-.. autosummary::
-    :toctree: ../stubs/
-    :template: autosummary/experiment.rst
-
-    ~calibration.RoughFrequencyCal
-    ~calibration.RoughEFFrequencyCal
-    ~calibration.FrequencyCal
-    ~calibration.FineFrequencyCal
-    ~calibration.RoughDragCal
-    ~calibration.FineXDragCal
-    ~calibration.FineSXDragCal
-    ~calibration.FineDragCal
-    ~calibration.FineAmplitudeCal
-    ~calibration.FineXAmplitudeCal
-    ~calibration.FineSXAmplitudeCal
-    ~calibration.HalfAngleCal
-    ~calibration.RoughAmplitudeCal
-    ~calibration.RoughXSXAmplitudeCal
-    ~calibration.EFRoughXSXAmplitudeCal
-
 """
-from .calibration import (
-    RoughDragCal,
-    FineDragCal,
-    FineXDragCal,
-    FineSXDragCal,
-    RoughAmplitudeCal,
-    RoughXSXAmplitudeCal,
-    EFRoughXSXAmplitudeCal,
-    FineAmplitudeCal,
-    FineXAmplitudeCal,
-    FineSXAmplitudeCal,
-    RoughFrequencyCal,
-    RoughEFFrequencyCal,
-    FrequencyCal,
-    FineFrequencyCal,
-    HalfAngleCal,
-)
 from .characterization import (
     T1,
     T2Hahn,
     T2Ramsey,
     Tphi,
-    QubitSpectroscopy,
-    EFSpectroscopy,
-    CrossResonanceHamiltonian,
-    EchoedCrossResonanceHamiltonian,
-    RoughDrag,
     FineDrag,
     FineXDrag,
     FineSXDrag,
-    Rabi,
-    EFRabi,
     HalfAngle,
     FineAmplitude,
     FineXAmplitude,
@@ -183,7 +117,6 @@ from .characterization import (
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
-    ResonatorSpectroscopy,
     LocalReadoutError,
     CorrelatedReadoutError,
     ZZRamsey,
@@ -198,14 +131,8 @@ from .tomography import (
     MitigatedProcessTomography,
 )
 from .quantum_volume import QuantumVolume
-from .driven_freq_tuning import (
-    StarkRamseyXY,
-    StarkRamseyXYAmpScan,
-    StarkP1Spectroscopy,
-)
 
 # Experiment Sub-modules
-from . import calibration
 from . import characterization
 from . import randomized_benchmarking
 from . import tomography

@@ -16,7 +16,6 @@ from typing import Optional, Union
 
 from qiskit import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.framework import BackendData
 
@@ -284,69 +283,6 @@ class BackendTiming:
 
         return samples_out
 
-    @deprecate_func(
-        since="0.8",
-        package_name="qiskit-experiments",
-        additional_msg=(
-            "Due to the deprecation of Qiskit Pulse, utility functions involving "
-            "pulse like this one have been deprecated."
-        ),
-    )
-    def round_pulse(
-        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
-    ) -> int:
-        """The number of samples giving the valid pulse duration closest to the input
-
-        The multiple of the pulse granularity giving the time closest to the
-        input (either ``time`` or ``samples``) is used. The returned value is
-        always at least the backend's ``min_length``.
-
-        Args:
-            time: Nominal pulse duration in seconds
-            samples: Nominal pulse duration in samples
-
-        Returns:
-            The number of samples corresponding to the input
-
-        Raises:
-            QiskitError: If either both ``time`` and ``samples`` are passed or
-                neither is passed.
-            QiskitError: The backend does not include a dt value.
-            QiskitError: If the algorithm used to calculate the pulse length
-                produces a length that is not commensurate with the pulse or
-                acquire alignment values. This should not happen unless the
-                alignment constraints provided by the backend do not fit the
-                assumptions that the algorithm makes.
-        """
-        if time is None and samples is None:
-            raise QiskitError("Either time or samples must be a numerical value.")
-        if time is not None and samples is not None:
-            raise QiskitError("Only one of time and samples can be a numerical value.")
-
-        if self.dt is None:
-            raise QiskitError("Backend has no dt value.")
-
-        if samples is None:
-            samples = time / self.dt
-
-        samples = int(round(samples / self._granularity)) * self._granularity
-        samples = max(samples, self._min_length)
-
-        pulse_alignment = self._pulse_alignment
-        acquire_alignment = self._acquire_alignment
-
-        if samples % pulse_alignment != 0:
-            raise QiskitError(
-                "Pulse duration calculation does not match pulse alignment constraints!"
-            )
-
-        if samples % acquire_alignment != 0:
-            raise QiskitError(
-                "Pulse duration calculation does not match acquire alignment constraints!"
-            )
-
-        return samples
-
     def delay_time(
         self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
     ) -> float:
@@ -371,38 +307,3 @@ class BackendTiming:
             return time
 
         return self.dt * self.round_delay(time=time, samples=samples)
-
-    @deprecate_func(
-        since="0.8",
-        package_name="qiskit-experiments",
-        additional_msg=(
-            "Due to the deprecation of Qiskit Pulse, utility functions involving "
-            "pulse like this one have been deprecated."
-        ),
-    )
-    def pulse_time(
-        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
-    ) -> float:
-        """The closest valid pulse duration to the input in seconds
-
-        This method uses :meth:`.BackendTiming.round_pulse` and then
-        converts back into seconds.
-
-        Args:
-            time: Nominal pulse duration in seconds
-            samples: Nominal pulse duration in samples
-
-        Returns:
-            The realizable pulse time in seconds
-
-        Raises:
-            QiskitError: If either both ``time`` and ``samples`` are passed or
-                neither is passed.
-            QiskitError: The backend does not include a dt value.
-            QiskitError: If the algorithm used to calculate the pulse length
-                produces a length that is not commensurate with the pulse or
-                acquire alignment values. This should not happen unless the
-                alignment constraints provided by the backend do not fit the
-                assumptions that the algorithm makes.
-        """
-        return self.dt * self.round_pulse(time=time, samples=samples)
