@@ -90,7 +90,7 @@ restore it later with the following lines of code:
     from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
 
     serialized_exp = json.dumps(Experiment.config(), cls=ExperimentEncoder)
-    Experiment.from_config(json.loads(serialized_exp), cls=ExperimentDecoder)
+    Experiment.from_config(json.loads(serialized_exp, cls=ExperimentDecoder))
 
 Rerunning with different analysis options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -36,36 +36,20 @@ experiments to generate the corresponding mitigators.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
-    :hide-code:
-
-    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-    from qiskit_experiments.test.patching import patch_sampler_test_support
-    patch_sampler_test_support()
-
-.. jupyter-execute::
 
     import numpy as np
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Operator
     from qiskit.visualization import plot_distribution
+    from qiskit_experiments.data_processing import LocalReadoutMitigator
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
 
     from qiskit_aer import AerSimulator
     from qiskit_ibm_runtime.fake_provider import FakePerth
 
-    from qiskit.result.mitigation.utils import (
-        expval_with_stddev,
-        str2diag,
-        counts_probability_vector
-    )
-
     backend = AerSimulator.from_backend(FakePerth())
 
-.. jupyter-execute::
-
-    shots = 1024
-    qubits = [0,1,2,3]
-    num_qubits = len(qubits)
 
 Standard mitigation experiment
 ------------------------------
@@ -76,12 +60,13 @@ circuits, one for all “0” and one for all “1” results.
 
 .. jupyter-execute::
 
+    shots = 1024
+    qubits = [0,1,2,3]
+    num_qubits = len(qubits)
+
     exp = LocalReadoutError(qubits)
     for c in exp.circuits():
         print(c)
-
-
-.. jupyter-execute::
 
     exp.analysis.set_options(plot=True)
     result = exp.run(backend)
@@ -102,9 +87,9 @@ The individual mitigation matrices can be read off the mitigator.
 
 .. jupyter-execute::
 
-    for m in mitigator._mitigation_mats:
-        print(m)
-        print()
+    for qubit in mitigator.qubits:
+        print(f"Qubit: {qubit}")
+        print(mitigator.mitigation_matrix(qubits=qubit))
 
 
 Mitigation example
@@ -118,12 +103,8 @@ Mitigation example
         qc.cx(i - 1, i)
     qc.measure_all()
 
-.. jupyter-execute::
-
     counts = backend.run(qc, shots=shots, seed_simulator=42, method="density_matrix").result().get_counts()
     unmitigated_probs = {label: count / shots for label, count in counts.items()}
-
-.. jupyter-execute::
 
     mitigated_quasi_probs = mitigator.quasi_probabilities(counts)
     mitigated_stddev = mitigated_quasi_probs._stddev_upper_bound
@@ -144,14 +125,19 @@ Expectation value
 .. jupyter-execute::
 
     diagonal_labels = ["ZZZZ", "ZIZI", "IZII", "1ZZ0"]
-    ideal_expectation = []
-    diagonals = [str2diag(d) for d in diagonal_labels]
-    qubit_index = {i: i for i in range(num_qubits)}
-    unmitigated_probs_vector, _ = counts_probability_vector(unmitigated_probs, qubit_index=qubit_index)
-    unmitigated_expectation = [expval_with_stddev(d, unmitigated_probs_vector, shots) for d in diagonals]
-    mitigated_expectation = [mitigator.expectation_value(counts, d) for d in diagonals]
+    diagonals = [
+        np.diag(np.real(Operator.from_label(d).to_matrix()))
+        for d in diagonal_labels
+    ]
 
-.. jupyter-execute::
+    # Create a mitigator with no mitigation so that we can use its
+    # expectation_values method to generate an unmitigated expectation value to
+    # compare to the mitigated one.
+    identity_mitigator = LocalReadoutMitigator([np.eye(2) for _ in range(4)])
+
+    qubit_index = {i: i for i in range(num_qubits)}
+    unmitigated_expectation = [identity_mitigator.expectation_value(counts, d) for d in diagonals]
+    mitigated_expectation = [mitigator.expectation_value(counts, d) for d in diagonals]
 
     mitigated_expectation_values, mitigated_stddev = zip(*mitigated_expectation)
     unmitigated_expectation_values, unmitigated_stddev = zip(*unmitigated_expectation)
