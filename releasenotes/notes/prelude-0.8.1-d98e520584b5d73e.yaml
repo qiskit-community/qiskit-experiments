@@ -2,7 +2,7 @@
 prelude: >
     Qiskit Experiments 0.8.1 is a minor update to 0.8.0 to improve
     compatibility with dependencies Qiskit and CVXPY. References to code in
-    these dependencies was updated to avoid triggering deprecation warnings, so
-    that it will continue to work as new versions of Qiskit and CVXPY are
+    these dependencies were updated to avoid triggering deprecation warnings, so
+    that the code will continue to work as new versions of Qiskit and CVXPY are
     released. Additional examples were added to the documentation, and some
     typos were corrected.
