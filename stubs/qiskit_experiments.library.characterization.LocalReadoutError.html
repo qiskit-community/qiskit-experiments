@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CorrelatedReadoutError" href="qiskit_experiments.library.characterization.CorrelatedReadoutError.html" /><link rel="prev" title="FineZXAmplitude" href="qiskit_experiments.library.characterization.FineZXAmplitude.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>LocalReadoutError - Qiskit Experiments 0.8.0</title>
+        <title>LocalReadoutError - Qiskit Experiments 0.8.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -248,6 +248,12 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -262,6 +268,7 @@
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -336,6 +343,9 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.BaseReadoutMitigator.html">BaseReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.LocalReadoutMitigator.html">LocalReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html">CorrelatedReadoutMitigator</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -605,10 +615,10 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LocalReadoutError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/characterization/local_readout_error.html#LocalReadoutError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.characterization.LocalReadoutError" title="Link to this definition">¶</a></dt>
 <dd><p>An experiment for characterizing local readout error.</p>
 <p class="rubric">Overview</p>
-<p>This class constructs a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> containing a sequence
+<p>This class constructs a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> containing a sequence
 of assignment matrices <span class="math notranslate nohighlight">\(A\)</span> characterizing the readout error for the given qubits
 from the experiment results. The full assignment matrix is accessible via the
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator#assignment_matrix" title="(in Qiskit v1.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assignment_matrix()</span></code></a> method.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator#assignment_matrix" title="(in Qiskit v1.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">assignment_matrix()</span></code></a> method.</p>
 <p>Readout errors affect quantum computation during the measurement
 of the qubits in a quantum device. By characterizing the readout errors,
 it is possible to construct a <em>readout error mitigator</em> that is used both
@@ -623,8 +633,8 @@ to compute the <em>mitigation matrix</em> used in the readout error mitigation p
 In this case, the assignment matrix is the tensor product of <span class="math notranslate nohighlight">\(n\)</span> <span class="math notranslate nohighlight">\(2 \times 2\)</span>
 matrices, one for each qubit, making it practical to store the assignment matrix in implicit
 form, by storing the individual <span class="math notranslate nohighlight">\(2 \times 2\)</span> assignment matrices.
-The corresponding class in Qiskit is the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>
-in <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/result#module-qiskit.result" title="(in Qiskit v1.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.result</span></code></a>.</p>
+The corresponding class in Qiskit is the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.LocalReadoutMitigator" title="(in Qiskit v1.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a>
+in <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/result#module-qiskit.result" title="(in Qiskit v1.3)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.result</span></code></a>.</p>
 <p>The experiment generates 2 circuits, corresponding to the states
 <span class="math notranslate nohighlight">\(|0^n\rangle\)</span> and <span class="math notranslate nohighlight">\(|1^n\rangle\)</span>, measuring the error in all
 the qubits at once, and constructs the assignment matrix and local mitigator from the results.</p>
@@ -704,11 +714,11 @@ documentation for additional information on local readout error experiment analy
   </thead>
   <tbody>
     <tr>
-      <th>58ff9f85</th>
+      <th>e243a921</th>
       <td>Local Readout Mitigator</td>
       <td>LocalReadoutError</td>
       <td>[Q0, Q1, Q2, Q3]</td>
-      <td>&lt;qiskit.result.mitigation.local_readout_mitiga...</td>
+      <td>&lt;qiskit_experiments.data_processing.mitigation...</td>
       <td>None</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -725,7 +735,7 @@ documentation for additional information on local readout error experiment analy
 <li><p><strong>physical_qubits</strong> (<em>Iterable</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – Optional, the backend qubits being characterized
 for readout error. If None all qubits on the provided backend
 will be characterized.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to characterize.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to characterize.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -788,7 +798,7 @@ will be characterized.</p></li>
 <dd><p>Returns the experiment’s circuits</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.2)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.3)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -833,7 +843,7 @@ will be characterized.</p></li>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -867,8 +877,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.2)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.3)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -974,13 +984,13 @@ cancelling.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/11/01</div>
+              Last updated on 2025/01/03</div>
           </div>
           <div class="right-details">
             
@@ -1033,7 +1043,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=486e5634"></script>
+</div><script src="../_static/documentation_options.js?v=ec16d22d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -1,0 +1,34 @@
+﻿
+
+BaseReadoutMitigator
+=======================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: BaseReadoutMitigator
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseReadoutMitigator.expectation_value
+   .. automethod:: BaseReadoutMitigator.quasi_probabilities
+
+   

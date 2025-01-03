@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="TomographyExperiment" href="qiskit_experiments.library.tomography.TomographyExperiment.html" /><link rel="prev" title="StandardRB" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LayerFidelity" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html" /><link rel="prev" title="StandardRB" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>InterleavedRB - Qiskit Experiments 0.8.0</title>
+        <title>InterleavedRB - Qiskit Experiments 0.8.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -248,6 +248,12 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -262,6 +268,7 @@
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -336,6 +343,9 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.BaseReadoutMitigator.html">BaseReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.LocalReadoutMitigator.html">LocalReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html">CorrelatedReadoutMitigator</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -679,6 +689,42 @@ the interleaved gate error. See Ref. [1] for details.</p>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">StandardRB</span><span class="p">,</span> <span class="n">InterleavedRB</span>
+<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ParallelExperiment</span><span class="p">,</span> <span class="n">BatchExperiment</span>
+<span class="kn">import</span> <span class="nn">qiskit.circuit.library</span> <span class="k">as</span> <span class="nn">circuits</span>
+
+<span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">1010</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">int_exp2</span> <span class="o">=</span> <span class="n">InterleavedRB</span><span class="p">(</span>
+    <span class="n">circuits</span><span class="o">.</span><span class="n">CXGate</span><span class="p">(),</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="n">int_expdata2</span> <span class="o">=</span> <span class="n">int_exp2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">int_results2</span> <span class="o">=</span> <span class="n">int_expdata2</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">()</span>
+<span class="n">display</span><span class="p">(</span><span class="n">int_expdata2</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">int_results2</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available results: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/qiskit_experiments.library.randomized_benchmarking.InterleavedRB_1_0.png" src="../_images/qiskit_experiments.library.randomized_benchmarking.InterleavedRB_1_0.png" />
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Available results: {&#39;alpha&#39;, &#39;@Parameters_InterleavedRBAnalysis&#39;, &#39;alpha_c&#39;, &#39;EPC&#39;}
+</pre></div>
+</div>
+</div>
+</div>
 <p class="rubric">See also</p>
 <ul class="simple">
 <li><p>Superclass <a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.standard_rb.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking.standard_rb.StandardRB</span></code></a></p></li>
@@ -688,7 +734,7 @@ the interleaved gate error. See Ref. [1] for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>interleaved_element</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.2)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v1.2)"><em>Gate</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/circuit#qiskit.circuit.Delay" title="(in Qiskit v1.2)"><em>Delay</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford" title="(in Qiskit v1.2)"><em>Clifford</em></a>) – The element to interleave,
+<li><p><strong>interleaved_element</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.3)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v1.3)"><em>Gate</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/circuit#qiskit.circuit.Delay" title="(in Qiskit v1.3)"><em>Delay</em></a><em> | </em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Clifford" title="(in Qiskit v1.3)"><em>Clifford</em></a>) – The element to interleave,
 given either as a Clifford element, gate, delay or circuit.
 All instructions in the element must be supported in the <code class="docutils literal notranslate"><span class="pre">backend``(``target</span></code>).
 If it is/contains a delay, its duration and unit must comply with
@@ -698,7 +744,7 @@ is useful to obtain valid delays).
 Parameterized circuits/instructions are not allowed.</p></li>
 <li><p><strong>physical_qubits</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>) – list of physical qubits for the experiment.</p></li>
 <li><p><strong>lengths</strong> (<em>Iterable</em><em>[</em><em>int</em><em>]</em>) – A list of RB sequences lengths.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
 <li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to generate for each sequence length.</p></li>
 <li><p><strong>seed</strong> (<em>int</em><em> | </em><em>SeedSequence</em><em> | </em><em>BitGenerator</em><em> | </em><em>Generator</em><em> | </em><em>None</em>) – Optional, seed used to initialize <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code>.
 when generating circuits. The <code class="docutils literal notranslate"><span class="pre">default_rng</span></code> will be initialized
@@ -784,7 +830,7 @@ Clifford samples to shorter sequences.</p></li>
 <dd class="field-even"><p><strong>QiskitError</strong> – If interleaved_element has non-supported instruction in the backend.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.2)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.3)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -868,7 +914,7 @@ be logged as restless measurements may have a large amount of noise.</p></li>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -902,8 +948,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.2)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.2)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v1.3)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.3)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -985,12 +1031,12 @@ cancelling.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="qiskit_experiments.library.tomography.TomographyExperiment.html">
+          <a class="next-page" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">TomographyExperiment</div>
+                <div class="title">LayerFidelity</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -1009,13 +1055,13 @@ cancelling.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/11/01</div>
+              Last updated on 2025/01/03</div>
           </div>
           <div class="right-details">
             
@@ -1069,7 +1115,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=486e5634"></script>
+</div><script src="../_static/documentation_options.js?v=ec16d22d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

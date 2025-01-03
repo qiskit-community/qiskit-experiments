@@ -1,0 +1,47 @@
+﻿
+
+LocalReadoutMitigator
+========================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: LocalReadoutMitigator
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: LocalReadoutMitigator.qubits
+   .. autoattribute:: LocalReadoutMitigator.settings
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LocalReadoutMitigator.assignment_matrix
+   .. automethod:: LocalReadoutMitigator.expectation_value
+   .. automethod:: LocalReadoutMitigator.mitigation_matrix
+   .. automethod:: LocalReadoutMitigator.quasi_probabilities
+   .. automethod:: LocalReadoutMitigator.stddev_upper_bound
+
+   

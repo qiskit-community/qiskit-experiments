@@ -63,13 +63,6 @@ pure T1/T2 relaxation noise model.
     install qiskit-aer qiskit-ibm-runtime``.
 
 .. jupyter-execute::
-    :hide-code:
-
-    # Temporary workaround for missing support in Qiskit and qiskit-ibm-runtime
-    from qiskit_experiments.test.patching import patch_sampler_test_support
-    patch_sampler_test_support()
-
-.. jupyter-execute::
 
     # A T1 simulator
     from qiskit_ibm_runtime.fake_provider import FakePerth
@@ -85,7 +78,7 @@ pure T1/T2 relaxation noise model.
     backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 The resulting graph will have the form:
-:math:`f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
+:math:`f(t) = a e^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
 the delay, :math:`T_2^\ast` is the decay factor, and *f* is the detuning
 frequency.
 
