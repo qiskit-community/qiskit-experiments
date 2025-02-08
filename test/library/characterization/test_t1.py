@@ -18,6 +18,7 @@ import numpy as np
 from qiskit.circuit import Delay, Parameter
 from qiskit.circuit.library import CXGate, Measure, RXGate
 from qiskit.qobj.utils import MeasLevel
+from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.transpiler import InstructionProperties, Target
 from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
@@ -310,7 +311,8 @@ class TestT1(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test circuit round trip JSON serialization"""
-        exp = T1([0], [1, 2, 3, 4, 5])
+        backend = GenericBackendV2(num_qubits=2)
+        exp = T1([0], [1, 2, 3, 4, 5], backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
