@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.tomography.tomography_experiment - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.library.tomography.tomography_experiment - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -618,22 +618,22 @@
 <span class="sd">Quantum Tomography experiment</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">ClassicalRegister</span><span class="p">,</span> <span class="n">Clbit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">PermutationGate</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
-<span class="kn">from</span> <span class="nn">qiskit.quantum_info.operators.base_operator</span> <span class="kn">import</span> <span class="n">BaseOperator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">ClassicalRegister</span><span class="p">,</span> <span class="n">Clbit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">PermutationGate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info.operators.base_operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseOperator</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">Options</span>
-<span class="kn">from</span> <span class="nn">.basis</span> <span class="kn">import</span> <span class="n">PreparationBasis</span><span class="p">,</span> <span class="n">MeasurementBasis</span>
-<span class="kn">from</span> <span class="nn">.tomography_analysis</span> <span class="kn">import</span> <span class="n">TomographyAnalysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.basis</span><span class="w"> </span><span class="kn">import</span> <span class="n">PreparationBasis</span><span class="p">,</span> <span class="n">MeasurementBasis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tomography_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">TomographyAnalysis</span>
 
 
 <div class="viewcode-block" id="TomographyExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html#qiskit_experiments.library.tomography.TomographyExperiment">[docs]</a>
-<span class="k">class</span> <span class="nc">TomographyExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TomographyExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base experiment for quantum state and process tomography.</span>
 
 <span class="sd">    # section: analysis_ref</span>
@@ -642,7 +642,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
@@ -654,7 +654,7 @@
         <span class="n">options</span><span class="o">.</span><span class="n">basis_indices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">options</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">circuit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">BaseOperator</span><span class="p">],</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -787,7 +787,7 @@
 
 <div class="viewcode-block" id="TomographyExperiment.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html#qiskit_experiments.library.tomography.TomographyExperiment.circuits">[docs]</a>
-    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">circ_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">qubits</span>
         <span class="n">circ_clbits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">clbits</span>
         <span class="n">meas_creg</span> <span class="o">=</span> <span class="n">ClassicalRegister</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_tomo&quot;</span><span class="p">)</span>
@@ -837,7 +837,7 @@
         <span class="k">return</span> <span class="n">circuits</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span><span class="p">:</span>
             <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;m_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span><span class="p">)</span>
@@ -845,7 +845,7 @@
             <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;p_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span>
 
-    <span class="k">def</span> <span class="nf">_basis_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_basis_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of basis element indices&quot;&quot;&quot;</span>
         <span class="n">basis_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">basis_indices</span>
         <span class="k">if</span> <span class="n">basis_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -864,7 +864,7 @@
             <span class="n">prep_elements</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">product</span><span class="p">(</span><span class="n">prep_elements</span><span class="p">,</span> <span class="n">meas_elements</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_permute_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_permute_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Permute circuit qubits.</span>
 
 <span class="sd">        This permutes the circuit so that the specified preparation and measurement</span>
@@ -918,13 +918,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -939,7 +939,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -619,27 +619,27 @@
 <span class="sd">Base class of curve analysis.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">lmfit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing</span> <span class="kn">import</span> <span class="n">DataProcessor</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.data_processing.processor_library</span> <span class="kn">import</span> <span class="n">get_processor</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing.processor_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_processor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnalysisResultData</span><span class="p">,</span>
     <span class="n">BaseAnalysis</span><span class="p">,</span>
     <span class="n">ExperimentData</span><span class="p">,</span>
     <span class="n">Options</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BasePlotter</span><span class="p">,</span>
     <span class="n">CurvePlotter</span><span class="p">,</span>
     <span class="n">MplDrawer</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.curve_data</span> <span class="kn">import</span> <span class="n">CurveFitResult</span><span class="p">,</span> <span class="n">ParameterRepr</span>
-<span class="kn">from</span> <span class="nn">.scatter_table</span> <span class="kn">import</span> <span class="n">ScatterTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.curve_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">CurveFitResult</span><span class="p">,</span> <span class="n">ParameterRepr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.scatter_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScatterTable</span>
 
 <span class="n">PARAMS_ENTRY_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;@Parameters_&quot;</span>
 <span class="n">DATA_ENTRY_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;@Data_&quot;</span>
@@ -647,7 +647,7 @@
 
 <div class="viewcode-block" id="BaseCurveAnalysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html#qiskit_experiments.curve_analysis.BaseCurveAnalysis">[docs]</a>
-<span class="k">class</span> <span class="nc">BaseCurveAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseCurveAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract superclass of curve analysis base classes.</span>
 
 <span class="sd">    Note that this class doesn&#39;t define the :meth:`_run_analysis` method,</span>
@@ -714,26 +714,26 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters estimated by this analysis.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of this analysis.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut to the curve plotter instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">plotter</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
@@ -819,7 +819,7 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_run_data_processing</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_data_processing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span>
@@ -835,7 +835,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_format_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formatted&quot;</span><span class="p">,</span>
@@ -851,7 +851,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_run_curve_fit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_curve_fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
@@ -864,7 +864,7 @@
 <span class="sd">            The best fitting outcome with minimum reduced chi-squared value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_evaluate_quality</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fit_data</span><span class="p">:</span> <span class="n">CurveFitResult</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
@@ -880,7 +880,7 @@
             <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;bad&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_create_analysis_results</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fit_data</span><span class="p">:</span> <span class="n">CurveFitResult</span><span class="p">,</span>
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -926,7 +926,7 @@
         <span class="k">return</span> <span class="n">outcomes</span>
 
     <span class="c1"># pylint: disable=unused-argument</span>
-    <span class="k">def</span> <span class="nf">_create_curve_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_curve_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
@@ -958,7 +958,7 @@
 
         <span class="k">return</span> <span class="n">samples</span>
 
-    <span class="k">def</span> <span class="nf">_create_figures</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
@@ -972,7 +972,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1003,13 +1003,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -1024,7 +1024,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

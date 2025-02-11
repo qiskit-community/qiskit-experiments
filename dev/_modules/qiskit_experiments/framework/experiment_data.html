@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -618,64 +618,64 @@
 <span class="sd">Experiment Data class</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">concurrent</span> <span class="kn">import</span> <span class="n">futures</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span><span class="p">,</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
-<span class="kn">from</span> <span class="nn">qiskit.result</span> <span class="kn">import</span> <span class="n">Result</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">PrimitiveResult</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.jobstatus</span> <span class="kn">import</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="n">JOB_FINAL_STATES</span>
-<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">Backend</span>
-<span class="kn">from</span> <span class="nn">qiskit.utils.deprecation</span> <span class="kn">import</span> <span class="n">deprecate_arg</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">BitArray</span><span class="p">,</span> <span class="n">SamplerPubResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent</span><span class="w"> </span><span class="kn">import</span> <span class="n">futures</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrimitiveResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.jobstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="n">JOB_FINAL_STATES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecate_arg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">BitArray</span><span class="p">,</span> <span class="n">SamplerPubResult</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_ibm_experiment</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_experiment</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">IBMExperimentService</span><span class="p">,</span>
     <span class="n">ExperimentData</span> <span class="k">as</span> <span class="n">ExperimentDataclass</span><span class="p">,</span>
     <span class="n">AnalysisResultData</span> <span class="k">as</span> <span class="n">AnalysisResultDataclass</span><span class="p">,</span>
     <span class="n">ResultQuality</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.json</span> <span class="kn">import</span> <span class="n">ExperimentEncoder</span><span class="p">,</span> <span class="n">ExperimentDecoder</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentEncoder</span><span class="p">,</span> <span class="n">ExperimentDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_to_svg_bytes</span><span class="p">,</span>
     <span class="n">ThreadSafeOrderedDict</span><span class="p">,</span>
     <span class="n">ThreadSafeList</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.device_component</span> <span class="kn">import</span> <span class="n">to_component</span><span class="p">,</span> <span class="n">DeviceComponent</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result</span> <span class="kn">import</span> <span class="n">AnalysisResult</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result_data</span> <span class="kn">import</span> <span class="n">AnalysisResultData</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.analysis_result_table</span> <span class="kn">import</span> <span class="n">AnalysisResultTable</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendData</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.containers</span> <span class="kn">import</span> <span class="n">ArtifactData</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentStatus</span><span class="p">,</span> <span class="n">AnalysisStatus</span><span class="p">,</span> <span class="n">AnalysisCallback</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.package_deps</span> <span class="kn">import</span> <span class="n">qiskit_version</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.device_component</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_component</span><span class="p">,</span> <span class="n">DeviceComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.analysis_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.analysis_result_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisResultData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.analysis_result_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisResultTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentStatus</span><span class="p">,</span> <span class="n">AnalysisStatus</span><span class="p">,</span> <span class="n">AnalysisCallback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.package_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">qiskit_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExperimentDataError</span><span class="p">,</span>
     <span class="n">ExperimentEntryNotFound</span><span class="p">,</span>
     <span class="n">ExperimentDataSaveFailed</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.database_service.utils</span> <span class="kn">import</span> <span class="n">objs_to_zip</span><span class="p">,</span> <span class="n">zip_to_objs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">objs_to_zip</span><span class="p">,</span> <span class="n">zip_to_objs</span>
 
-<span class="kn">from</span> <span class="nn">.containers.figure_data</span> <span class="kn">import</span> <span class="n">FigureData</span><span class="p">,</span> <span class="n">FigureType</span>
-<span class="kn">from</span> <span class="nn">.provider_interfaces</span> <span class="kn">import</span> <span class="n">Job</span><span class="p">,</span> <span class="n">Provider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.containers.figure_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">FigureData</span><span class="p">,</span> <span class="n">FigureType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.provider_interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Job</span><span class="p">,</span> <span class="n">Provider</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -683,16 +683,16 @@
     <span class="c1"># Sphinx on Python 3.9+ to link type hints correctly.  The gating on</span>
     <span class="c1"># `TYPE_CHECKING` means that the import will never be resolved by an actual</span>
     <span class="c1"># interpreter, only static analysis.</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">BaseExperiment</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">do_auto_save</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">do_auto_save</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorate the input function to auto save data.&quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_wrapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">return_val</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span>
@@ -701,7 +701,7 @@
     <span class="k">return</span> <span class="n">_wrapped</span>
 
 
-<span class="k">def</span> <span class="nf">parse_utc_datetime</span><span class="p">(</span><span class="n">dt_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_utc_datetime</span><span class="p">(</span><span class="n">dt_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parses UTC datetime from a string&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dt_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -714,7 +714,7 @@
 
 <div class="viewcode-block" id="ExperimentData">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData">[docs]</a>
-<span class="k">class</span> <span class="nc">ExperimentData</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExperimentData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Experiment data container class.</span>
 
 <span class="sd">    .. note::</span>
@@ -747,7 +747,7 @@
     <span class="n">_metadata_filename</span> <span class="o">=</span> <span class="s2">&quot;metadata.json&quot;</span>
     <span class="n">_max_workers_cap</span> <span class="o">=</span> <span class="mi">10</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;BaseExperiment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -886,7 +886,7 @@
     <span class="c1"># Getters/setters for experiment metadata</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the experiment for this data.</span>
 
 <span class="sd">        Returns:</span>
@@ -895,7 +895,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">completion_times</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">completion_times</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the completion times of the jobs.&quot;&quot;&quot;</span>
         <span class="n">job_times</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">job_id</span><span class="p">,</span> <span class="n">job</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -923,7 +923,7 @@
         <span class="k">return</span> <span class="n">job_times</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return tags assigned to this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -933,7 +933,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">tags</span>
 
     <span class="nd">@tags</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set tags for this experiment.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_tags</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ExperimentDataError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The `tags` field of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a list.&quot;</span><span class="p">)</span>
@@ -942,7 +942,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment metadata.</span>
 
 <span class="sd">        Returns:</span>
@@ -951,7 +951,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">metadata</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">creation_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">creation_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the creation datetime of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -962,7 +962,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">creation_datetime</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">start_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the start datetime of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -972,11 +972,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">start_datetime</span>
 
     <span class="nd">@start_datetime</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">start_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_start_datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_start_datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">start_datetime</span> <span class="o">=</span> <span class="n">new_start_datetime</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">updated_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the update datetime of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -987,7 +987,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">updated_datetime</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">running_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">running_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the running time of this experiment data.</span>
 
 <span class="sd">        The running time is the time the latest successful job started running on</span>
@@ -1001,7 +1001,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running_time</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">end_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the end datetime of this experiment data.</span>
 
 <span class="sd">        The end datetime is the time the latest job data was</span>
@@ -1015,11 +1015,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">end_datetime</span>
 
     <span class="nd">@end_datetime</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">end_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_end_datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">end_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_end_datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">end_datetime</span> <span class="o">=</span> <span class="n">new_end_datetime</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hub</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hub</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the hub of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -1029,7 +1029,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">hub</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the group of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -1039,7 +1039,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">group</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the project of this experiment data.</span>
 
 <span class="sd">        Returns:</span>
@@ -1049,7 +1049,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">project</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment ID</span>
 
 <span class="sd">        Returns:</span>
@@ -1059,7 +1059,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_id</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment type</span>
 
 <span class="sd">        Returns:</span>
@@ -1069,12 +1069,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_type</span>
 
     <span class="nd">@experiment_type</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the parent id&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">experiment_type</span> <span class="o">=</span> <span class="n">new_type</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">parent_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parent_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parent experiment ID</span>
 
 <span class="sd">        Returns:</span>
@@ -1083,12 +1083,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">parent_id</span>
 
     <span class="nd">@parent_id</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">parent_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parent_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the parent id&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">parent_id</span> <span class="o">=</span> <span class="n">new_id</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">job_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">job_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment job IDs.</span>
 
 <span class="sd">        Returns: IDs of jobs submitted for this experiment.</span>
@@ -1096,7 +1096,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">job_ids</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">figure_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return names of the figures associated with this experiment.</span>
 
 <span class="sd">        Returns:</span>
@@ -1105,7 +1105,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">figure_names</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">share_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">share_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the share level for this experiment</span>
 
 <span class="sd">        Returns:</span>
@@ -1114,7 +1114,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">share_level</span>
 
     <span class="nd">@share_level</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">share_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_level</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">share_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_level</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment share level,</span>
 <span class="sd">           to this experiment itself and its descendants.</span>
 
@@ -1133,7 +1133,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment notes.</span>
 
 <span class="sd">        Returns:</span>
@@ -1142,7 +1142,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">notes</span>
 
     <span class="nd">@notes</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_notes</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_notes</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update experiment notes.</span>
 
 <span class="sd">        Args:</span>
@@ -1153,12 +1153,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">backend_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">backend_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backend&#39;s name&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">backend</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Backend</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Backend</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return backend.</span>
 
 <span class="sd">        Returns:</span>
@@ -1167,7 +1167,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span>
 
     <span class="nd">@backend</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update backend.</span>
 
 <span class="sd">        Args:</span>
@@ -1177,7 +1177,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_save</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set backend.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            new_backend: New backend.</span>
@@ -1197,18 +1197,18 @@
                 <span class="n">data</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">new_backend</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hgp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hgp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns Hub/Group/Project data as a formatted string&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hub</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="nd">@hgp</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">hgp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_hgp</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hgp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_hgp</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the Hub/Group/Project data from a formatted string&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^/]*/[^/]*/[^/]*$&quot;</span><span class="p">,</span> <span class="n">new_hgp</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;hgp can be only given in a &lt;hub&gt;/&lt;group&gt;/&lt;project&gt; format&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">hub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">new_hgp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_clear_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clear_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all currently stored analysis results and figures&quot;&quot;&quot;</span>
         <span class="c1"># Schedule existing analysis results for deletion next save call</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">result_ids</span><span class="p">))</span>
@@ -1225,7 +1225,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">figure_names</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database service.</span>
 
 <span class="sd">        Returns:</span>
@@ -1234,7 +1234,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
     <span class="nd">@service</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the service to be used for storing experiment data</span>
 
 <span class="sd">        Args:</span>
@@ -1245,7 +1245,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_infer_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warn</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warn</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Try to configure service if it has not been configured</span>
 
 <span class="sd">        This method should be called before any method that needs to work with</span>
@@ -1268,7 +1268,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_set_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the service to be used for storing experiment data,</span>
 <span class="sd">           to this experiment itself and its descendants.</span>
 
@@ -1289,7 +1289,7 @@
 <div class="viewcode-block" id="ExperimentData.get_service_from_backend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.get_service_from_backend">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_service_from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_service_from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the service from the backend data&quot;&quot;&quot;</span>
         <span class="c1"># backend.provider is not checked since currently the only viable way</span>
         <span class="c1"># to set up the experiment service is using the credentials from</span>
@@ -1301,7 +1301,7 @@
 <div class="viewcode-block" id="ExperimentData.get_service_from_provider">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.get_service_from_provider">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_service_from_provider</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_service_from_provider</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the service from the provider data&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="s2">&quot;active_account&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -1319,7 +1319,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">provider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Provider</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">provider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Provider</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backend provider.</span>
 
 <span class="sd">        Returns:</span>
@@ -1328,7 +1328,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provider</span>
 
     <span class="nd">@provider</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="n">Provider</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="n">Provider</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the provider to be used for obtaining job data</span>
 
 <span class="sd">        Args:</span>
@@ -1337,7 +1337,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_provider</span> <span class="o">=</span> <span class="n">provider</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return current auto-save option.</span>
 
 <span class="sd">        Returns:</span>
@@ -1346,7 +1346,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_save</span>
 
     <span class="nd">@auto_save</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set auto save preference.</span>
 
 <span class="sd">        Args:</span>
@@ -1360,7 +1360,7 @@
             <span class="n">data</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="n">save_val</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the class name and version.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;_source&quot;</span><span class="p">]</span>
 
@@ -1368,7 +1368,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_data">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Result</span><span class="p">,</span> <span class="n">PrimitiveResult</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Result</span> <span class="o">|</span> <span class="n">PrimitiveResult</span><span class="p">],</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1406,7 +1406,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_jobs">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_jobs</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_jobs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">jobs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Job</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Job</span><span class="p">]],</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1477,7 +1477,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_timeout_running_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_timeout_running_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Function for cancelling jobs after timeout length.</span>
 
 <span class="sd">        This function should be submitted to an executor to run as a future.</span>
@@ -1496,7 +1496,7 @@
             <span class="n">notdone_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">jid</span> <span class="k">for</span> <span class="n">jid</span> <span class="ow">in</span> <span class="n">job_ids</span> <span class="k">if</span> <span class="n">jid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">done_ids</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cancel_jobs</span><span class="p">(</span><span class="n">notdone_ids</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_job_future</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_job_future</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Submit new _add_job_data job to executor&quot;&quot;&quot;</span>
         <span class="n">jid</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">jid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_futures</span><span class="p">:</span>
@@ -1504,7 +1504,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_job_futures</span><span class="p">[</span><span class="n">jid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_add_job_data</span><span class="p">,</span> <span class="n">job</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_job_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_job_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">job</span><span class="p">:</span> <span class="n">Job</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
@@ -1545,7 +1545,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_analysis_callback">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_callback">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_analysis_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_analysis_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add analysis callback for running after experiment data jobs are finished.</span>
 
 <span class="sd">        This method adds the `callback` function to a queue to be run</span>
@@ -1577,7 +1577,7 @@
             <span class="p">)</span>
 
             <span class="c1"># Create a future to monitor event for calls to cancel_analysis</span>
-            <span class="k">def</span> <span class="nf">_monitor_cancel</span><span class="p">():</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_monitor_cancel</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_callbacks</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
@@ -1589,7 +1589,7 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_run_analysis_callback</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis_callback</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">callback_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">wait_future</span><span class="p">:</span> <span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">,</span>
@@ -1648,7 +1648,7 @@
             <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback_id</span><span class="p">,</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_add_result_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_result_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">Result</span> <span class="o">|</span> <span class="n">PrimitiveResult</span><span class="p">,</span>
         <span class="n">job_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1760,7 +1760,7 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">_result_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_retrieve_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve job data if missing experiment data.&quot;&quot;&quot;</span>
         <span class="c1"># Get job results if missing in experiment data.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1802,7 +1802,7 @@
 
 <div class="viewcode-block" id="ExperimentData.data">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.data">[docs]</a>
-    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
@@ -1836,7 +1836,7 @@
 <div class="viewcode-block" id="ExperimentData.add_figures">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_figures">[docs]</a>
     <span class="nd">@do_auto_save</span>
-    <span class="k">def</span> <span class="nf">add_figures</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">figures</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FigureType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]],</span>
         <span class="n">figure_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1964,7 +1964,7 @@
 <div class="viewcode-block" id="ExperimentData.delete_figure">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_figure">[docs]</a>
     <span class="nd">@do_auto_save</span>
-    <span class="k">def</span> <span class="nf">delete_figure</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_figure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">figure_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1992,7 +1992,7 @@
         <span class="k">return</span> <span class="n">figure_key</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_find_figure_key</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_figure_key</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">figure_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2014,7 +2014,7 @@
 
 <div class="viewcode-block" id="ExperimentData.figure">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.figure">[docs]</a>
-    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">figure_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2061,7 +2061,7 @@
         <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="nd">@do_auto_save</span>
-    <span class="k">def</span> <span class="nf">add_analysis_results</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -2158,7 +2158,7 @@
 <div class="viewcode-block" id="ExperimentData.delete_analysis_result">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_analysis_result">[docs]</a>
     <span class="nd">@do_auto_save</span>
-    <span class="k">def</span> <span class="nf">delete_analysis_result</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_analysis_result</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">result_key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -2185,7 +2185,7 @@
         <span class="k">return</span> <span class="n">uids</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_retrieve_analysis_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_analysis_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve service analysis results.</span>
 
 <span class="sd">        Args:</span>
@@ -2228,7 +2228,7 @@
         <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">predicate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">dataframe</span><span class="p">:</span> <span class="ow">not</span> <span class="n">dataframe</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">analysis_results</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2352,7 +2352,7 @@
 
 <div class="viewcode-block" id="ExperimentData.save_metadata">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save this experiments metadata to a database service.</span>
 
 <span class="sd">        .. note::</span>
@@ -2368,7 +2368,7 @@
             <span class="n">data</span><span class="o">.</span><span class="n">save_metadata</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_save_experiment_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suppress_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_experiment_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suppress_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save this experiments metadata to a database service.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            suppress_errors: should the method catch exceptions (true) or</span>
@@ -2419,9 +2419,9 @@
             <span class="c1"># Don&#39;t automatically fail the experiment just because its data cannot be saved.</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to save the experiment data: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_errors</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment data save failed</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment data save failed</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
-    <span class="k">def</span> <span class="nf">_metadata_too_large</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metadata_too_large</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines whether the metadata should be stored in a separate file&quot;&quot;&quot;</span>
         <span class="c1"># currently the entire POST JSON request body is limited by default to 100kb</span>
         <span class="n">total_metadata_size</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_encoder</span><span class="p">))</span>
@@ -2431,7 +2431,7 @@
 
 <div class="viewcode-block" id="ExperimentData.save">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save">[docs]</a>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">suppress_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
@@ -2516,7 +2516,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_errors</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ExperimentDataSaveFailed</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Analysis result save failed</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deleted_analysis_results</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
             <span class="k">with</span> <span class="n">service_exception_to_warning</span><span class="p">():</span>
@@ -2607,14 +2607,14 @@
 
 <div class="viewcode-block" id="ExperimentData.jobs">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.jobs">[docs]</a>
-    <span class="k">def</span> <span class="nf">jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Job</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Job</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of jobs for the experiment&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ExperimentData.cancel_jobs">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_jobs">[docs]</a>
-    <span class="k">def</span> <span class="nf">cancel_jobs</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel_jobs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -2654,7 +2654,7 @@
 
 <div class="viewcode-block" id="ExperimentData.cancel_analysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel_analysis">[docs]</a>
-    <span class="k">def</span> <span class="nf">cancel_analysis</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -2712,7 +2712,7 @@
 
 <div class="viewcode-block" id="ExperimentData.cancel">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.cancel">[docs]</a>
-    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Attempt to cancel any running jobs and queued analysis callbacks.</span>
 
 <span class="sd">        .. note::</span>
@@ -2731,7 +2731,7 @@
 
 <div class="viewcode-block" id="ExperimentData.block_for_results">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.block_for_results">[docs]</a>
-    <span class="k">def</span> <span class="nf">block_for_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExperimentData&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">block_for_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExperimentData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Block until all pending jobs and analysis callbacks finish.</span>
 
 <span class="sd">        Args:</span>
@@ -2779,7 +2779,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_wait_for_futures</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_futures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">futs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">Future</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;futures&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait for jobs to finish running.</span>
@@ -2833,7 +2833,7 @@
 
 <div class="viewcode-block" id="ExperimentData.status">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.status">[docs]</a>
-    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentStatus</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentStatus</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the experiment status.</span>
 
 <span class="sd">        Possible return values for :class:`.ExperimentStatus` are</span>
@@ -2897,7 +2897,7 @@
 
 <div class="viewcode-block" id="ExperimentData.job_status">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.job_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the experiment job execution status.</span>
 
 <span class="sd">        Possible return values for :class:`qiskit.providers.jobstatus.JobStatus` are</span>
@@ -2947,7 +2947,7 @@
 
 <div class="viewcode-block" id="ExperimentData.analysis_status">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">analysis_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisStatus</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analysis_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisStatus</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data analysis post-processing status.</span>
 
 <span class="sd">        Possible return values for :class:`.AnalysisStatus` are</span>
@@ -2979,7 +2979,7 @@
 
 <div class="viewcode-block" id="ExperimentData.job_errors">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.job_errors">[docs]</a>
-    <span class="k">def</span> <span class="nf">job_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">job_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return any errors encountered in job execution.&quot;&quot;&quot;</span>
         <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -3005,7 +3005,7 @@
 
 <div class="viewcode-block" id="ExperimentData.analysis_errors">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_errors">[docs]</a>
-    <span class="k">def</span> <span class="nf">analysis_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analysis_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return any errors encountered during analysis callbacks.&quot;&quot;&quot;</span>
         <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -3019,7 +3019,7 @@
 
 <div class="viewcode-block" id="ExperimentData.errors">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.errors">[docs]</a>
-    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return errors encountered during job and analysis execution.</span>
 
 <span class="sd">        .. note::</span>
@@ -3036,7 +3036,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_child_data">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_child_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_child_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_child_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add child experiment data to the current experiment data&quot;&quot;&quot;</span>
         <span class="n">experiment_data</span><span class="o">.</span><span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_child_data</span><span class="p">[</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment_data</span>
@@ -3045,7 +3045,7 @@
 
 <div class="viewcode-block" id="ExperimentData.child_data">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.child_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">child_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">child_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return child experiment data.</span>
@@ -3078,7 +3078,7 @@
 <div class="viewcode-block" id="ExperimentData.load">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.load">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IBMExperimentService</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3147,7 +3147,7 @@
 
 <div class="viewcode-block" id="ExperimentData.copy">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.copy">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExperimentData&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExperimentData&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a copy of the experiment data with a new experiment ID.</span>
 
 <span class="sd">        Args:</span>
@@ -3228,7 +3228,7 @@
         <span class="k">return</span> <span class="n">new_instance</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_set_child_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_child_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExperimentData</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set child experiment data for the current experiment.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_child_data</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">child_data</span><span class="p">:</span>
@@ -3237,7 +3237,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_tags_recursive">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_tags_recursive">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_tags_recursive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags2add</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tags_recursive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags2add</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add tags to this experiment itself and its descendants</span>
 
 <span class="sd">        Args:</span>
@@ -3250,7 +3250,7 @@
 
 <div class="viewcode-block" id="ExperimentData.remove_tags_recursive">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.remove_tags_recursive">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_tags_recursive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags2remove</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_tags_recursive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags2remove</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove tags from this experiment itself and its descendants</span>
 
 <span class="sd">        Args:</span>
@@ -3263,7 +3263,7 @@
 
     <span class="c1"># representation and serialization</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_type</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_id</span><span class="p">:</span>
@@ -3286,14 +3286,14 @@
         <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
         <span class="k">return</span> <span class="n">out</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="c1"># pylint: disable=raise-missing-from</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not defined&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_safe_serialize_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_safe_serialize_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return serializable object for stored jobs&quot;&quot;&quot;</span>
         <span class="c1"># Since Job objects are not serializable this removes</span>
         <span class="c1"># them from the jobs dict and returns {job_id: None}</span>
@@ -3304,7 +3304,7 @@
                 <span class="n">jobs</span><span class="p">[</span><span class="n">jid</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">jobs</span>
 
-    <span class="k">def</span> <span class="nf">_safe_serialize_figures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_safe_serialize_figures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return serializable object for stored figures&quot;&quot;&quot;</span>
         <span class="c1"># Convert any MPL figures into SVG images before serializing</span>
         <span class="n">figures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
@@ -3316,7 +3316,7 @@
                     <span class="n">figures</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">figure</span>
         <span class="k">return</span> <span class="n">figures</span>
 
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">fut</span><span class="o">.</span><span class="n">done</span><span class="p">()</span> <span class="k">for</span> <span class="n">fut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_futures</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
                 <span class="s2">&quot;Not all experiment jobs have finished. Jobs must be &quot;</span>
@@ -3355,13 +3355,13 @@
         <span class="k">return</span> <span class="n">json_value</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">att</span><span class="p">,</span> <span class="n">att_val</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">att_val</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
-    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">fut</span><span class="o">.</span><span class="n">done</span><span class="p">()</span> <span class="k">for</span> <span class="n">fut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_futures</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Not all job futures have finished.&quot;</span>
@@ -3387,7 +3387,7 @@
 
         <span class="k">return</span> <span class="n">state</span>
 
-    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
         <span class="c1"># Initialize non-pickled attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_job_futures</span> <span class="o">=</span> <span class="n">ThreadSafeOrderedDict</span><span class="p">()</span>
@@ -3395,7 +3395,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_executor</span> <span class="o">=</span> <span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_executor</span> <span class="o">=</span> <span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">line</span> <span class="o">=</span> <span class="mi">51</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span>
         <span class="n">n_res</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="p">)</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
@@ -3422,7 +3422,7 @@
 
 <div class="viewcode-block" id="ExperimentData.add_artifacts">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_artifacts">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">:</span> <span class="n">ArtifactData</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">],</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">:</span> <span class="n">ArtifactData</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">],</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add artifacts to experiment. The artifact ID must be unique.</span>
 
 <span class="sd">        Args:</span>
@@ -3444,7 +3444,7 @@
 
 <div class="viewcode-block" id="ExperimentData.delete_artifact">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_artifact">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete_artifact</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_artifact</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -3476,7 +3476,7 @@
 
 <div class="viewcode-block" id="ExperimentData.artifacts">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.artifacts">[docs]</a>
-    <span class="k">def</span> <span class="nf">artifacts</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">artifacts</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArtifactData</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">]:</span>
@@ -3510,7 +3510,7 @@
         <span class="k">return</span> <span class="n">out</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_find_artifact_keys</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_artifact_keys</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">artifact_key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -3530,7 +3530,7 @@
 
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span> <span class="nf">service_exception_to_warning</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">service_exception_to_warning</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an exception raised by experiment service to a warning.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
@@ -3538,7 +3538,7 @@
         <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Experiment service operation failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
 
 
-<span class="k">def</span> <span class="nf">_series_to_service_result</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_series_to_service_result</span><span class="p">(</span>
     <span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">,</span>
     <span class="n">auto_save</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -3623,13 +3623,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -3644,7 +3644,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -617,27 +617,27 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Layer Fidelity RB Experiment class.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">default_rng</span>
-<span class="kn">from</span> <span class="nn">numpy.random.bit_generator</span> <span class="kn">import</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">SeedSequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">default_rng</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random.bit_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">SeedSequence</span>
 
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Barrier</span><span class="p">,</span> <span class="n">Gate</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">get_standard_gate_name_mapping</span>
-<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">BackendV2Converter</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">,</span> <span class="n">BackendV2</span>
-<span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">Clifford</span>
-<span class="kn">from</span> <span class="nn">qiskit.pulse.instruction_schedule_map</span> <span class="kn">import</span> <span class="n">CalibrationPublisher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Barrier</span><span class="p">,</span> <span class="n">Gate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_standard_gate_name_mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2Converter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">,</span> <span class="n">BackendV2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">Clifford</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.pulse.instruction_schedule_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalibrationPublisher</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.configs</span> <span class="kn">import</span> <span class="n">ExperimentConfig</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.restless_mixin</span> <span class="kn">import</span> <span class="n">RestlessMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.configs</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.restless_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">RestlessMixin</span>
 
-<span class="kn">from</span> <span class="nn">.clifford_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.clifford_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CliffordUtils</span><span class="p">,</span>
     <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
     <span class="n">compose_1q</span><span class="p">,</span>
@@ -650,7 +650,7 @@
     <span class="n">_clifford_2q_int_to_instruction</span><span class="p">,</span>
     <span class="n">_decompose_clifford_ops</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.layer_fidelity_analysis</span> <span class="kn">import</span> <span class="n">LayerFidelityAnalysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.layer_fidelity_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayerFidelityAnalysis</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -661,7 +661,7 @@
 
 <div class="viewcode-block" id="LayerFidelity">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity">[docs]</a>
-<span class="k">class</span> <span class="nc">LayerFidelity</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">RestlessMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayerFidelity</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">RestlessMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A holistic benchmarking experiment to characterize the full quality of the devices at scale.</span>
 
 <span class="sd">    # section: overview</span>
@@ -726,7 +726,7 @@
 <span class="sd">            print(f&quot;Available results: {names}&quot;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">two_qubit_layers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
@@ -833,7 +833,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__validate_basis_gates</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
@@ -865,7 +865,7 @@
 
 <div class="viewcode-block" id="LayerFidelity.set_experiment_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.set_experiment_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment options.</span>
 
 <span class="sd">        Args:</span>
@@ -885,13 +885,13 @@
 
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpiler options for transpiling RB circuits.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="n">optimization_level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LayerFidelity.set_transpile_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.set_transpile_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Transpile options is not supported for LayerFidelity experiments.</span>
 
 <span class="sd">        Raises:</span>
@@ -902,7 +902,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend V2 for RB experiments since RB experiments only support BackendV2.</span>
 <span class="sd">        If BackendV1 is provided, it is converted to V2 and stored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -912,7 +912,7 @@
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__validate_basis_gates</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__validate_basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__validate_basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span>
@@ -933,13 +933,13 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">instruction_supported</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="p">,)):</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">) is not in backend.target&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__residual_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">two_qubit_layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__residual_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">two_qubit_layer</span><span class="p">):</span>
         <span class="n">qubits_in_layer</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="n">two_qubit_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpair</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">qubits_in_layer</span><span class="p">]</span>
 
 <div class="viewcode-block" id="LayerFidelity.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.circuits">[docs]</a>
-    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a list of physical circuits to measure layer fidelity.</span>
 
 <span class="sd">        Returns:</span>
@@ -950,7 +950,7 @@
 
 <div class="viewcode-block" id="LayerFidelity.circuits_generator">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.circuits_generator">[docs]</a>
-    <span class="k">def</span> <span class="nf">circuits_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuits_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a generator of physical circuits to measure layer fidelity.</span>
 
 <span class="sd">        Returns:</span>
@@ -1043,7 +1043,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">__circuit_body</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__circuit_body</span><span class="p">(</span>
         <span class="n">circ</span><span class="p">,</span>
         <span class="n">length</span><span class="p">,</span>
         <span class="n">two_qubit_layer</span><span class="p">,</span>
@@ -1092,7 +1092,7 @@
             <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">_to_gate_1q</span><span class="p">(</span><span class="n">inv</span><span class="p">),</span> <span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">q</span><span class="p">],),</span> <span class="p">())</span>
         <span class="k">return</span> <span class="n">circ</span>
 
-    <span class="k">def</span> <span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits, transpiled.&quot;&quot;&quot;</span>
         <span class="n">transpiled</span> <span class="o">=</span> <span class="p">[</span><span class="n">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span> <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">()]</span>
         <span class="c1"># Set custom calibrations provided in backend</span>
@@ -1122,7 +1122,7 @@
 
         <span class="k">return</span> <span class="n">transpiled</span>
 
-    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;two_qubit_layers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">two_qubit_layers</span>
         <span class="k">return</span> <span class="n">metadata</span>
@@ -1130,7 +1130,7 @@
 <div class="viewcode-block" id="LayerFidelity.from_config">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExperimentConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;LayerFidelity&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExperimentConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;LayerFidelity&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an experiment from experiment config&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">ExperimentConfig</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">)</span>
@@ -1152,13 +1152,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -1173,7 +1173,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

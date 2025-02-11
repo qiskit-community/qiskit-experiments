@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.visualization.plotters.base_plotter - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.visualization.plotters.base_plotter - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -616,19 +616,19 @@
 <span class="c1"># that they have been altered from the originals.</span>
 <span class="sd">&quot;&quot;&quot;Base plotter abstract class&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">Options</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.visualization.drawers</span> <span class="kn">import</span> <span class="n">BaseDrawer</span><span class="p">,</span> <span class="n">SeriesName</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.visualization.drawers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDrawer</span><span class="p">,</span> <span class="n">SeriesName</span>
 
-<span class="kn">from</span> <span class="nn">..style</span> <span class="kn">import</span> <span class="n">PlotStyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..style</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlotStyle</span>
 
 
 <div class="viewcode-block" id="BasePlotter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter">[docs]</a>
-<span class="k">class</span> <span class="nc">BasePlotter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BasePlotter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract class for the serializable figure plotters.</span>
 
 <span class="sd">    # section: overview</span>
@@ -734,7 +734,7 @@
 <span class="sd">        drawer (BaseDrawer): The drawer to use when plotting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drawer</span><span class="p">:</span> <span class="n">BaseDrawer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drawer</span><span class="p">:</span> <span class="n">BaseDrawer</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new plotter instance.</span>
 
 <span class="sd">        Args:</span>
@@ -758,7 +758,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="p">:</span> <span class="n">BaseDrawer</span> <span class="o">=</span> <span class="n">drawer</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Additional data for the figure being plotted, that isn&#39;t associated with a</span>
 <span class="sd">        series.</span>
 
@@ -769,7 +769,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Data for series being plotted.</span>
 
 <span class="sd">        Series data includes data such as scatter points, interpolated fit values, and</span>
@@ -785,13 +785,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Series names that have been added to this plotter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 <div class="viewcode-block" id="BasePlotter.data_keys_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_keys_for">[docs]</a>
-    <span class="k">def</span> <span class="nf">data_keys_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_keys_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of data keys for the given series.</span>
 
 <span class="sd">        Args:</span>
@@ -808,7 +808,7 @@
 
 <div class="viewcode-block" id="BasePlotter.data_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_for">[docs]</a>
-    <span class="k">def</span> <span class="nf">data_for</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_for</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="n">data_keys</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns data associated with the given series.</span>
@@ -854,7 +854,7 @@
 
 <div class="viewcode-block" id="BasePlotter.set_series_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_series_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets data for the given series.</span>
 
 <span class="sd">        Note that if data has already been assigned for the given series and data key,</span>
@@ -884,7 +884,7 @@
 
 <div class="viewcode-block" id="BasePlotter.clear_series_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.clear_series_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear series data for this plotter.</span>
 
 <span class="sd">        Args:</span>
@@ -899,7 +899,7 @@
 
 <div class="viewcode-block" id="BasePlotter.set_supplementary_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_supplementary_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets supplementary data for the plotter.</span>
 
 <span class="sd">        Supplementary data differs from series data in that it is not associate with a</span>
@@ -930,14 +930,14 @@
 
 <div class="viewcode-block" id="BasePlotter.clear_supplementary_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.clear_supplementary_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clears supplementary data.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span> <span class="o">=</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="BasePlotter.data_exists_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_exists_for">[docs]</a>
-    <span class="k">def</span> <span class="nf">data_exists_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="n">data_keys</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_exists_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="n">data_keys</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the given data keys exist for the given series.</span>
 
 <span class="sd">        Args:</span>
@@ -959,7 +959,7 @@
 
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a figure using :attr:`drawer` and :meth:`data`.</span>
 
 <span class="sd">        Sub-classes must override this function to plot data using the drawer. This</span>
@@ -969,7 +969,7 @@
 
 <div class="viewcode-block" id="BasePlotter.figure">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.figure">[docs]</a>
-    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns a figure for the already provided series and</span>
 <span class="sd">        supplementary data.</span>
 
@@ -1001,7 +1001,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.expected_series_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected series data keys supported by this plotter.&quot;&quot;&quot;</span></div>
 
 
@@ -1009,12 +1009,12 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.expected_supplementary_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected supplementary data keys supported by this plotter.&quot;&quot;&quot;</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Options for the plotter.</span>
 
 <span class="sd">        Options for a plotter modify how the class generates a figure. This includes an</span>
@@ -1024,7 +1024,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Figure options for the plotter and its drawer.</span>
 
 <span class="sd">        Figure options differ from normal options (:attr:`options`) in that the plotter</span>
@@ -1035,7 +1035,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default plotter options.</span>
 
 <span class="sd">        Options:</span>
@@ -1054,7 +1054,7 @@
         <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default figure options.</span>
 
 <span class="sd">        Figure Options:</span>
@@ -1125,7 +1125,7 @@
 
 <div class="viewcode-block" id="BasePlotter.set_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the plotter options.</span>
 
 <span class="sd">        Args:</span>
@@ -1145,7 +1145,7 @@
 
 <div class="viewcode-block" id="BasePlotter.set_figure_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_figure_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the figure options.</span>
 
 <span class="sd">        Args:</span>
@@ -1160,7 +1160,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_configure_drawer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configure_drawer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Configures :attr:`drawer` before plotting.</span>
 
 <span class="sd">        The following actions are taken:</span>
@@ -1198,7 +1198,7 @@
 
 <div class="viewcode-block" id="BasePlotter.config">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.config">[docs]</a>
-    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dictionary for this drawing.&quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="p">)</span>
         <span class="n">figure_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -1214,11 +1214,11 @@
         <span class="p">}</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="c1">## Process drawer as it&#39;s needed to create a plotter</span>
         <span class="n">drawer_values</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;drawer&quot;</span><span class="p">]</span>
         <span class="c1"># We expect a subclass of BaseDrawer</span>
@@ -1245,13 +1245,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -1266,7 +1266,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

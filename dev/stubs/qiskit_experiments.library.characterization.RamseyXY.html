@@ -6,9 +6,9 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FineFrequency" href="qiskit_experiments.library.characterization.FineFrequency.html" /><link rel="prev" title="EFRabi" href="qiskit_experiments.library.characterization.EFRabi.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>RamseyXY - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>RamseyXY - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -707,8 +707,8 @@ circuit above it appears as the delay-dependent angle θ(τ).</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization</span> <span class="kn">import</span> <span class="n">RamseyXY</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization</span><span class="w"> </span><span class="kn">import</span> <span class="n">RamseyXY</span>
 
 <span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.e-7</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">RamseyXY</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">2.0e6</span><span class="p">)</span>
@@ -751,7 +751,7 @@ circuit above it appears as the delay-dependent angle θ(τ).</p>
   </thead>
   <tbody>
     <tr>
-      <th>d554cd63</th>
+      <th>e10bce7f</th>
       <td>@Parameters_RamseyXYAnalysis</td>
       <td>RamseyXY</td>
       <td>[Q0]</td>
@@ -762,15 +762,15 @@ circuit above it appears as the delay-dependent angle θ(τ).</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>59a8a575</th>
+      <th>6eb35e4d</th>
       <td>freq</td>
       <td>RamseyXY</td>
       <td>[Q0]</td>
-      <td>(2.0018+/-0.0015)e+06</td>
+      <td>(1.9978+/-0.0015)e+06</td>
       <td>good</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
-      <td>0.943428</td>
+      <td>1.044607</td>
     </tr>
   </tbody>
 </table>
@@ -1074,13 +1074,13 @@ cancelling.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -1134,7 +1134,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

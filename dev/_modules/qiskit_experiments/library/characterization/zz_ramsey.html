@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.characterization.zz_ramsey - Qiskit Experiments 0.8.0-11-g2d485476</title>
+        <title>qiskit_experiments.library.characterization.zz_ramsey - Qiskit Experiments 0.8.0-12-gf16978d0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-11-g2d485476</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-12-gf16978d0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-11-g2d485476</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-12-gf16978d0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -618,21 +618,21 @@
 <span class="sd">ZZ Ramsey experiment</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParameterExpression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParameterExpression</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BackendTiming</span><span class="p">,</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
-<span class="kn">from</span> <span class="nn">.analysis.zz_ramsey_analysis</span> <span class="kn">import</span> <span class="n">ZZRamseyAnalysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendTiming</span><span class="p">,</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.analysis.zz_ramsey_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZZRamseyAnalysis</span>
 
 
 <div class="viewcode-block" id="ZZRamsey">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey">[docs]</a>
-<span class="k">class</span> <span class="nc">ZZRamsey</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZZRamsey</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to characterize the static :math:`ZZ` interaction for a qubit pair.</span>
 
 <span class="sd">    # section: overview</span>
@@ -760,7 +760,7 @@
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Backend</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -780,7 +780,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">experiment_options</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for the :math:`ZZ` Ramsey experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
@@ -808,7 +808,7 @@
 
 <div class="viewcode-block" id="ZZRamsey.delays">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey.delays">[docs]</a>
-    <span class="k">def</span> <span class="nf">delays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delay values to use in circuits</span>
 
 <span class="sd">        Returns:</span>
@@ -827,7 +827,7 @@
 
 <div class="viewcode-block" id="ZZRamsey.frequency">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey.frequency">[docs]</a>
-    <span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Frequency of qubit rotation when ZZ is 0</span>
 
 <span class="sd">        This method calculates the simulated frequency applied to both sets of</span>
@@ -844,7 +844,7 @@
         <span class="k">return</span> <span class="n">freq</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_template_circuits</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_template_circuits</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">frequency</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ParameterExpression</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
@@ -934,7 +934,7 @@
 
 <div class="viewcode-block" id="ZZRamsey.parametrized_circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey.parametrized_circuits">[docs]</a>
-    <span class="k">def</span> <span class="nf">parametrized_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parametrized_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create circuits with parameters for numerical quantities</span>
 
 <span class="sd">        This method is primarily intended for generating template circuits that</span>
@@ -962,7 +962,7 @@
 
 <div class="viewcode-block" id="ZZRamsey.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html#qiskit_experiments.library.characterization.ZZRamsey.circuits">[docs]</a>
-    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create circuits</span>
 
 <span class="sd">        Returns:</span>
@@ -996,13 +996,13 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, Qiskit Development Team
+                Copyright &#169; 2021-2025, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2024/12/26</div>
+              Last updated on 2025/02/11</div>
           </div>
           <div class="right-details">
             
@@ -1017,7 +1017,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=20438dc8"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0e07a6ab"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
