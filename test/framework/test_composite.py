@@ -200,7 +200,30 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Recursively traverse the tree to verify attributes
         """
-        self.assertEqual(expdata.backend, self.backend)
+        # qiskit-ibm-runtime deepcopies the backend and BackendV2 does not
+        # define a custom __eq__ so we just check the important properties
+        backend_attrs = (
+            "name",
+            "options",
+            "instructions",
+            "operations",
+            "operation_names",
+            "num_qubits",
+            "coupling_map",
+            "dt",
+        )
+        for attr in backend_attrs:
+            self.assertEqual(getattr(expdata.backend, attr), getattr(self.backend, attr))
+        try:
+            self.backend.qubit_properties(list(range(self.backend.num_qubits)))
+        except NotImplementedError:
+            # qubit properties not set
+            pass
+        else:
+            self.assertEqual(
+                expdata.backend.qubit_properties(list(range(self.backend.num_qubits))),
+                self.backend.qubit_properties(list(range(self.backend.num_qubits))),
+            )
         self.assertEqual(expdata.share_level, self.share_level)
 
         components = expdata.child_data()
