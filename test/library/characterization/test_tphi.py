@@ -14,6 +14,7 @@ Test Tphi experiment.
 """
 from test.base import QiskitExperimentsTestCase
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit_experiments.library import Tphi, T2Hahn, T2Ramsey
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.library.characterization.analysis import (
@@ -146,11 +147,12 @@ class TestTphi(QiskitExperimentsTestCase):
 
     def test_circuits_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Tphi([0], [1], [2])
+        backend = GenericBackendV2(num_qubits=2)
+        exp = Tphi([0], [1e-6], [2e-6], backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
-        exp = Tphi([0], [1], [2], "hahn", 3)
+        exp = Tphi([0], [1e-6], [2e-6], "hahn", 3, backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
-        exp = Tphi([0], [1], [2], "ramsey", 0)
+        exp = Tphi([0], [1e-6], [2e-6], "ramsey", 0, backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):
