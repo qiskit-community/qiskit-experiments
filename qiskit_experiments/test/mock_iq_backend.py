@@ -819,7 +819,6 @@ class MockMultiStateBackend(FakeOpenPulse2QV2):
         self.target.add_instruction(Gate("x12", 1, []))
         self.target.add_instruction(Gate("x23", 1, []))
 
-
     @classmethod
     def _default_options(cls):
         """Default options of the test backend."""
@@ -851,7 +850,7 @@ class MockMultiStateBackend(FakeOpenPulse2QV2):
             else:
                 probability_outputs = self.state_noise * probability_outputs / prob_sum
 
-            probability_outputs[idx] = 1 -self.state_noise
+            probability_outputs[idx] = 1 - self.state_noise
 
             output_dict_list.append(probability_outputs.tolist())
 
@@ -860,7 +859,9 @@ class MockMultiStateBackend(FakeOpenPulse2QV2):
     @staticmethod
     def _verify_parameters(output_length: int, prob_list: List[float]):
         if output_length != 1:
-            raise ValueError(f"The output length {output_length} is not 1 (only one measurement supported).")
+            raise ValueError(
+                f"The output length {output_length} is not 1 (only one measurement supported)."
+            )
 
         if not np.allclose(1, sum(prob_list)):
             raise ValueError("The probabilities given don't sum up to 1.")

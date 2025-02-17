@@ -30,7 +30,7 @@ class BackendTiming:
     deal with precise timing of delays. The fact that physical backends (i.e.
     not simulators) only support sampling time at intervals of ``dt``
     complicates this process as times must be rounded. Besides the
-    sampling time, there can be additional constraints like a 
+    sampling time, there can be additional constraints like a
     granularity, which specifies the allowed increments of a
     delay length in samples (i.e., for a granularity of 16, delay lengths of 64
     and 80 samples are valid but not any number in between).
