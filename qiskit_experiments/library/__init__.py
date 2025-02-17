@@ -50,7 +50,6 @@ Characterization Experiments: Single Qubit
 ==========================================
 
 Experiments for characterization of properties of individual qubits.
-Some experiments also have a calibration experiment version.
 
 .. autosummary::
     :toctree: ../stubs/

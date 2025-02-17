@@ -214,9 +214,6 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         Returns:
             A list of circuits with a variable number of gates.
-
-        Raises:
-            CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
         repetitions = self.experiment_options.get("repetitions")
 
