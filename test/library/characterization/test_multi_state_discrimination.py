@@ -53,14 +53,11 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         # Build x12 schedule
         self.qubit = 0
 
-
     @data(2, 3)
     @requires_sklearn
     def test_circuit_generation(self, n_states):
         """Test the experiment circuit generation"""
-        exp = MultiStateDiscrimination(
-            [self.qubit], n_states=n_states, backend=self.backend
-        )
+        exp = MultiStateDiscrimination([self.qubit], n_states=n_states, backend=self.backend)
         self.assertEqual(len(exp.circuits()), n_states)
 
         # check the metadata
@@ -70,9 +67,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
     @requires_sklearn
     def test_discrimination_analysis(self, n_states):
         """Test the discrimination analysis"""
-        exp = MultiStateDiscrimination(
-            [self.qubit], n_states=n_states, backend=self.backend
-        )
+        exp = MultiStateDiscrimination([self.qubit], n_states=n_states, backend=self.backend)
 
         exp_data = exp.run()
 
@@ -88,7 +83,5 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization for the experiment circuits."""
-        exp = MultiStateDiscrimination(
-            [self.qubit], n_states=3, backend=self.backend
-        )
+        exp = MultiStateDiscrimination([self.qubit], n_states=3, backend=self.backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
