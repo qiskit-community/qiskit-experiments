@@ -335,21 +335,16 @@ analysis classes can be distinguished.
 
 Note that :meth:`.ScatterTable.add_row` allows for curve analysis subclasses to
 set arbitrary values for `series_name`, `series_id`, and `category` as
-appropriate.
-An analysis class may override some of the default curve analysis methods and
-add additional `category` labels or define other `series` not named after a
-model.
-For example, :class:`.StarkRamseyXYAmpScanAnalysis` defines four `series`
-labels in its ``data_subfit_map`` option (``Xpos``, ``Ypos``, ``Xneg``,
-``Yneg``) but only two models (``FREQpos``, ``FREQneg``) whose names do not
-match the series labels.
-It does this by overriding the ``CurveAnalysis._format_data()`` method and adding
-its own series to the :class:`.ScatterTable` with series labels to match its
-fit model names (by combining ``Xpos``  and ``Ypos`` series data into a
-``FREQpos`` series and similary for the series with names ending with ``neg``).
-It sets a custom category, `"freq"`, for its series but also sets the
-``fit_category`` analysis option to `"freq"` so that normal curve fitting is
-performed on this custom ``"freq"`` series data.
+appropriate.  An analysis class may override some of the default curve analysis
+methods and add additional `category` labels or define other `series` not named
+after a model.  For example, an analysis class can define define some `series`
+labels in its ``data_subfit_map`` option  that differ from the names of the
+``models`` passed to ``CurveAnalysis.__init__()`` by overriding the
+``CurveAnalysis._format_data()`` method and adding its own series to the
+:class:`.ScatterTable` with series labels to match its fit model names.  These
+added series  can be given a custom ``category`` which matches what is set for
+the ``fit_category`` analysis option so that normal curve fitting is performed
+on this custom series data instead of the series in ``data_subfit_map``.
 
 The (`series`, `category`, `analysis`) triplet can be used to extract data
 points that belong to a particular categorized series. For example,
