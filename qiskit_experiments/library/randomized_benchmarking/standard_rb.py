@@ -27,7 +27,6 @@ from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barr
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
 from qiskit.providers.backend import Backend, BackendV1, BackendV2
-from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit.transpiler import CouplingMap
@@ -428,7 +427,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 _transpile_clifford_circuit(circ, physical_qubits=self.physical_qubits)
                 for circ in self.circuits()
             ]
-            # Set custom calibrations provided in backend (excluding simulators)
             if isinstance(self.backend, BackendV2) and "simulator" not in self.backend.name:
                 qargs_patterns = [self.physical_qubits]  # for 1q or 3q+ case
                 if self.num_qubits == 2:
@@ -445,24 +443,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     if qargs in qargs_supported:
                         for op_name in self.backend.target.operation_names_for_qargs(qargs):
                             instructions.append((op_name, qargs))
-
-                common_calibrations = defaultdict(dict)
-                for op_name, qargs in instructions:
-                    inst_prop = self.backend.target[op_name].get(qargs, None)
-                    if inst_prop is None:
-                        continue
-                    schedule = inst_prop.calibration
-                    if schedule is None:
-                        continue
-                    publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
-                    if publisher != CalibrationPublisher.BACKEND_PROVIDER:
-                        common_calibrations[op_name][(qargs, tuple())] = schedule
-
-                for circ in transpiled:
-                    # This logic is inefficient in terms of payload size and backend compilation
-                    # because this binds every custom pulse to a circuit regardless of
-                    # its existence. It works but redundant calibration must be removed -- NK.
-                    circ.calibrations = common_calibrations
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.

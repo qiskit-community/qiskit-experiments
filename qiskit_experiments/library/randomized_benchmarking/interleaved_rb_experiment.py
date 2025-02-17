@@ -168,9 +168,6 @@ class InterleavedRB(StandardRB):
                         f" constraints of the backend {backend}. It could be {valid_duration}[dt]."
                         " Use BackendTiming to set valid duration for delays."
                     )
-        # Warnings
-        if isinstance(interleaved_element, QuantumCircuit) and interleaved_element.calibrations:
-            warnings.warn("Calibrations in interleaved circuit are ignored", UserWarning)
 
         super().__init__(
             physical_qubits,

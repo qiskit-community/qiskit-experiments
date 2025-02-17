@@ -26,7 +26,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
 from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit.quantum_info import Clifford
-from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
@@ -485,21 +484,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 for q in self.physical_qubits:
                     for gate_1q in self.experiment_options.one_qubit_basis_gates:
                         instructions.append((gate_1q, (q,)))
-
-            common_calibrations = defaultdict(dict)
-            for op_name, qargs in instructions:
-                inst_prop = self.backend.target[op_name].get(qargs, None)
-                if inst_prop is None:
-                    continue
-                schedule = inst_prop.calibration
-                if schedule is None:
-                    continue
-                publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
-                if publisher != CalibrationPublisher.BACKEND_PROVIDER:
-                    common_calibrations[op_name][(qargs, tuple())] = schedule
-
-            for circ in transpiled:
-                circ.calibrations = common_calibrations
 
         return transpiled
 
