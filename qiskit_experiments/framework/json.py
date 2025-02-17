@@ -34,7 +34,6 @@ import scipy.sparse as sps
 import uncertainties
 from qiskit import qpy
 from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
-from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.version import __version__
 
 
@@ -508,11 +507,6 @@ class ExperimentEncoder(json.JSONEncoder):
                 data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
             )
             return {"__type__": "QuantumCircuit", "__value__": value}
-        if isinstance(obj, ScheduleBlock):
-            value = _serialize_and_encode(
-                data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
-            )
-            return {"__type__": "ScheduleBlock", "__value__": value}
         if isinstance(obj, ParameterExpression):
             value = _serialize_and_encode(
                 data=obj,
@@ -568,8 +562,6 @@ class ExperimentDecoder(json.JSONDecoder):
                 circuit = _decode_and_deserialize(obj_val, qpy.load, name="QuantumCircuit")[0]
                 return circuit.data[0].operation
             if obj_type == "QuantumCircuit":
-                return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
-            if obj_type == "ScheduleBlock":
                 return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":
                 return _decode_and_deserialize(
