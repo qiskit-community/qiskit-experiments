@@ -409,22 +409,11 @@ class FineZXAmplitude(FineAmplitude):
         :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
 
-    # section: example
+        .. note::
 
-        To run this experiment, the user will have to provide the instruction schedule
-        map in the transpile options that contains the schedule for the experiment.
+            This experiment assumes a gate named ``szx`` which is not standard.
+            It was written work with a custom pulse calibration.
 
-        .. code-block:: python
-
-            qubits = (1, 2)
-            inst_map = InstructionScheduleMap()
-            inst_map.add("szx", qubits, my_schedule)
-
-            fine_amp = FineZXAmplitude(qubits, backend)
-            fine_amp.set_transpile_options(inst_map=inst_map)
-
-        Here, :code:`my_schedule` is the pulse schedule that will implement the
-        :code:`RZXGate(np.pi / 2)` rotation.
     """
 
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
