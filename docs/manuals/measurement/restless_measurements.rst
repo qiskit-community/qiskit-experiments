@@ -120,7 +120,7 @@ in a restless mode. With a hardware backend, this would be done by calling the
 
 .. jupyter-input::
 
-    drag_data_restless = cal_drag.run()
+    drag_data_restless = exp.run()
 
 As shown by the example, the code is identical to running a normal experiment aside
 from a call to the method :meth:`~.RestlessMixin.enable_restless`. Note that you can also choose to keep
@@ -204,9 +204,9 @@ using the code below.
     )
     durations = [c.duration for c in executed_circs]
 
-    tau = sum(durations) * dt / (len(durations))
+    tau = sum(durations) * backend.dt / (len(durations))
 
-    n_circs = len(cal_drag.circuits())
+    n_circs = len(exp.circuits())
     # can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-runtime
 
     delay_s = 0.0025

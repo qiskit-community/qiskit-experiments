@@ -14,7 +14,6 @@ Layer Fidelity RB Experiment class.
 """
 import functools
 import logging
-from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
 from numpy.random import Generator, default_rng

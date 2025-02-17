@@ -13,10 +13,6 @@
 """Test the half angle experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import copy
-
-from qiskit import transpile
-from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQHalfAngleHelper as HalfAngleHelper

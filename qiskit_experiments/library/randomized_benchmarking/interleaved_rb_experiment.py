@@ -13,7 +13,6 @@
 Interleaved RB Experiment class.
 """
 import itertools
-import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
 
 from numpy.random import Generator
