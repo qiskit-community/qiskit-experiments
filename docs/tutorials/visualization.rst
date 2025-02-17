@@ -132,13 +132,14 @@ to see what the default figure looks like:
 
 .. jupyter-execute::
 
+    import numpy as np
+
     from qiskit_experiments.library import RamseyXY
-    from qiskit_experiments.test.mock_iq_helpers import MockIQDragHelper as MockIQRamseyXYHelper
-    from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+    from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
 
 
-    experiment_helper = MockIQRamseyXYHelper(freq_shift=1e5)
-    backend = MockIQBackend(drag_experiment_helper, rng_seed=seed)
+    seed = 100
+    backend = T2HahnBackend(frequency=1e5, seed=seed)
 
     delays = np.linspace(0, 10.e-7, 101)
     exp = RamseyXY((0,), backend=backend, delays=delays, osc_freq=2.0e6)
