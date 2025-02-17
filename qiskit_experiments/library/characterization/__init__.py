@@ -40,7 +40,6 @@ Experiments
     FineSXDrag
     LocalReadoutError
     CorrelatedReadoutError
-    ResonatorSpectroscopy
     MultiStateDiscrimination
     ZZRamsey
 

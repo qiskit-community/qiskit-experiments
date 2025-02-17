@@ -46,7 +46,6 @@ Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
 
 - :mod:`qiskit_experiments.library.characterization`
-- :mod:`qiskit_experiments.library.driven_freq_tuning`
 - :mod:`qiskit_experiments.library.randomized_benchmarking`
 - :mod:`qiskit_experiments.library.tomography`
 """
