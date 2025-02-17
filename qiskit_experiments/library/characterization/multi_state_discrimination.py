@@ -59,8 +59,10 @@ class MultiStateDiscrimination(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from qiskit_experiments.test.mock_iq_backend import MockMultiStateBackend
+
+
+            backend = MockMultiStateBackend([1, 1j, -1 + 1j], iq_noise=0.2, state_noise=0.2)
 
         .. jupyter-execute::
 

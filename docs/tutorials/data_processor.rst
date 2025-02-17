@@ -88,26 +88,18 @@ The code below sets up the Rabi experiment.
 
     import numpy as np
 
-    from qiskit import pulse
-    from qiskit.circuit import Parameter
-
-    from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+    from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+    from qiskit_experiments.test.mock_iq_helpers import MockIQT1Helper
     from qiskit_experiments.data_processing import DataProcessor, nodes
-    from qiskit_experiments.library import Rabi
+    from qiskit_experiments.library import T1
 
-    with pulse.build() as sched:
-        pulse.play(
-            pulse.Gaussian(160, Parameter("amp"), sigma=40),
-            pulse.DriveChannel(0)
-        )
 
-    backend = SingleTransmonTestBackend(seed=100)
+    backend = MockIQBackend(MockIQT1Helper(t1=90e-6, iq_cluster_centers=[((-1, 1), (1, 1))]))
 
-    exp = Rabi(
+    exp = T1(
         physical_qubits=(0,),
         backend=backend,
-        schedule=sched,
-        amplitudes=np.linspace(-0.1, 0.1, 21)
+        delays=np.linspace(0, 400e-6, 21),
     )
 
 We now run the Rabi experiment twice, once with level 1 data and
@@ -154,7 +146,6 @@ in the code block below.
             f"Circuit {idx}",
             points=np.array(exp_data.data(idx)["memory"]).squeeze(),
         )
-
     plotter.figure()
 
 Now we turn to counts data and see how the

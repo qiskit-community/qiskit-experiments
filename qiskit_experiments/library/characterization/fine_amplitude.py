@@ -66,8 +66,20 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e6, noise=True, seed=185)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -261,8 +273,20 @@ class FineXAmplitude(FineAmplitude):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -317,8 +341,20 @@ class FineSXAmplitude(FineAmplitude):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            sx_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(sx_error, ["sx"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
