@@ -92,26 +92,21 @@ they use always starts with the qubits in the ground state.
 
     from qiskit_ibm_runtime.fake_provider import FakePerth
 
-    from qiskit_experiments.library import RoughDragCal
-    from qiskit_experiments.calibration_management import (
-        Calibrations,
-        FixedFrequencyTransmon,
-    )
+    from qiskit_experiments.library import FineSXDrag
     from qiskit_experiments.data_processing.data_processor import DataProcessor
 
     # replace this lines with an IBM Quantum backend to run the experiment.
     backend = FakePerth()
-    cals = Calibrations.from_backend(backend, libraries=[FixedFrequencyTransmon()])
 
     # Define the experiment
     qubit = 2
-    cal_drag = RoughDragCal((qubit,), cals, schedule_name='sx', backend=backend)
+    exp = FineSXDrag((qubit,), backend=backend)
 
     # Enable restless measurements by setting the run options and data processor
-    cal_drag.enable_restless(rep_delay=1e-6)
+    exp.enable_restless(rep_delay=1e-6)
 
-    print(cal_drag.analysis.options.data_processor)
-    print(cal_drag.run_options)
+    print(exp.analysis.options.data_processor)
+    print(exp.run_options)
 
 As you can see, a restless data processor is automatically chosen for the experiment. This
 data processor post-processes the restless measured shots according to the order in which
@@ -142,11 +137,11 @@ the standard data processor by providing it to the analysis options and telling
     # define a standard data processor.
     standard_processor = DataProcessor("counts", [Probability("1")])
 
-    cal_drag = RoughDragCal((qubit,), cals, schedule_name='sx', backend=backend)
-    cal_drag.analysis.set_options(data_processor=standard_processor)
+    exp = FineSXDrag((qubit,), backend=backend)
+    exp.analysis.set_options(data_processor=standard_processor)
 
     # enable restless mode and set override_processor_by_restless to False.
-    cal_drag.enable_restless(rep_delay=1e-6, override_processor_by_restless=False)
+    exp.enable_restless(rep_delay=1e-6, override_processor_by_restless=False)
 
 If you run the experiment in this setting you will see that the data is often
 unusable which illustrates the importance of the data processing. As detailed
@@ -188,17 +183,14 @@ using the code below.
 
 .. jupyter-execute::
 
-    from qiskit import schedule, transpile
-    from qiskit_experiments.framework import BackendData
+    from qiskit import transpile
 
-    dt = BackendData(backend).dt
-    inst_map = backend.instruction_schedule_map
-    meas_length = inst_map.get("measure", (qubit,)).duration * dt
+    meas_length = backend.target["measure"][(qubit,)].duration
 
     # Compute the average duration of all circuits
     # Remove measurement instructions
     circuits = []
-    for qc in cal_drag.circuits():
+    for qc in exp.circuits():
         qc.remove_final_measurements(inplace=True)
         circuits.append(qc)
 
@@ -208,7 +200,7 @@ using the code below.
         backend,
         initial_layout=[qubit],
         scheduling_method="alap",
-        **cal_drag.transpile_options.__dict__,
+        **exp.transpile_options.__dict__,
     )
     durations = [c.duration for c in executed_circs]
 
