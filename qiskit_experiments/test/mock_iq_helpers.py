@@ -14,7 +14,6 @@
 
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
-import warnings
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError

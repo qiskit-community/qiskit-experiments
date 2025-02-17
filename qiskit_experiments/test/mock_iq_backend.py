@@ -910,7 +910,6 @@ class MockMultiStateBackend(FakeOpenPulse2QV2):
         output_length = int(np.sum([creg.size for creg in circuit.cregs]))
         self._verify_parameters(output_length, prob_list)
         shots = self.options.get("shots")
-        meas_level = self.options.get("meas_level")
         meas_return = self.options.get("meas_return")
         run_result = {}
 
@@ -951,6 +950,7 @@ class MockMultiStateBackend(FakeOpenPulse2QV2):
 
         Raises:
             QiskitError: Raised if the user try to run the experiment without setting a helper.
+            ValueError: Raised if ``meas_level`` in ``run_options`` is not 1.
         """
 
         self.options.update_options(**run_options)
