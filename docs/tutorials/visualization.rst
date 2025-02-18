@@ -85,6 +85,12 @@ and customizing the figure can be done by setting the plotter's options. We now 
 the color, symbols, and size of our plot, as well as change the axis labels for the amplitude units:
 
 .. jupyter-execute::
+    :hide-code:
+    :hide-output:
+
+    %matplotlib inline
+
+.. jupyter-execute::
 
     # Retrieve the plotter from the analysis instance
     plotter = exp.analysis.plotter
@@ -290,7 +296,7 @@ series over the axis area. For a similar working example, see
         raise NotImplementedError
 
     def _train_discriminator(self, data: list[dict]) -> BaseDiscriminator:
-        # Analysis result calculation can be done here
+        # Discriminator training can be done here
         raise NotImplementedError
 
     def _run_analysis(self, experiment_data):

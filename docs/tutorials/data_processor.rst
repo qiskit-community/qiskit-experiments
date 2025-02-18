@@ -61,12 +61,8 @@ of the data processor. Crucially, the output of one node in the
 list is the input to the next node in the list.
 
 To illustrate the data processing module, we consider an example
-in which we measure a rabi oscillation with different data levels.
-The code below sets up the Rabi experiment.
-
-.. note::
-    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
-    You can install it with ``python -m pip install qiskit-dynamics``.
+in which we measure qubit relaxation with different data levels.
+The code below sets up the :class:`.T1` experiment.
 
 .. jupyter-execute::
     :hide-code:
@@ -102,7 +98,7 @@ The code below sets up the Rabi experiment.
         delays=np.linspace(0, 400e-6, 21),
     )
 
-We now run the Rabi experiment twice, once with level 1 data and
+We now run the T1 experiment twice, once with level 1 data and
 once with level 2 data. Here, we manually configure two data
 processors but note that typically you do not need to do this
 yourself. We begin with single-shot IQ data.
