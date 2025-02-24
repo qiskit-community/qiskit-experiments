@@ -2,6 +2,53 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "qiskit-experiments"
+dynamic = ["dependencies", "optional-dependencies", "version"]
+description = "Software for developing quantum computing programs"
+keywords = ["qiskit sdk quantum"]
+readme = "README.md"
+authors = [
+    {name = "Qiskit Development Team", email = "qiskit@us.ibm.com"},
+]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.9"
+license = {text = "Apache 2.0"}
+
+[project.urls]
+Homepage = "https://github.com/Qiskit-Community/qiskit-experiments"
+"Bug Tracker" = "https://github.com/Qiskit-Community/qiskit-experiments/issues"
+Documentation = "https://qiskit-community.github.io/qiskit-experiments"
+"Source Code" = "https://github.com/Qiskit-Community/qiskit-experiments"
+
+
+[project.entry-points."qiskit.synthesis"]
+"clifford.rb_default" = "qiskit_experiments.library.randomized_benchmarking.clifford_synthesis:RBDefaultCliffordSynthesis"
+
+[tool.setuptools.packages.find]
+include = ["qiskit_experiments*"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+version = {file = ["qiskit_experiments/VERSION.txt"]}
+
+[tool.setuptools.dynamic.optional-dependencies]
+extras = {file = ["requirements-extras.txt"]}
+
 [tool.black]
 line-length = 100
 target-version = ['py38', 'py39', 'py310', 'py311']
