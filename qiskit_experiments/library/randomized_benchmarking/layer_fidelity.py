@@ -390,6 +390,11 @@ class LayerFidelity(BaseExperiment):
                 composite_clbits.extend(
                     [(c,) for c in range(2 * num_2q_gates, 2 * num_2q_gates + num_1q_gates)]
                 )
+
+                if self.min_delay is None:
+                    min_delay = None
+                else:
+                    min_delay = self.min_delay[i_set]
                 
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
@@ -415,7 +420,7 @@ class LayerFidelity(BaseExperiment):
                         gate2q,
                         gate2q_cliff,
                         barrier_inst_gate,
-                        self.min_delay[i_set]
+                        min_delay
                     )
                     # add the measurements
                     circ._append(barrier_inst)
