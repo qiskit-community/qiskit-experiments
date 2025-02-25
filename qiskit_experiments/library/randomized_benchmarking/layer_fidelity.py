@@ -474,15 +474,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = [_decompose_clifford_ops(circ) for circ in self.circuits()]
-        # Set custom calibrations provided in backend
-        if isinstance(self.backend, BackendV2):
-            instructions = []  # (op_name, qargs) for each element where qargs mean qubit tuple
-            for two_qubit_layer in self.experiment_options.two_qubit_layers:
-                for qpair in two_qubit_layer:
-                    instructions.append((self.experiment_options.two_qubit_gate, tuple(qpair)))
-                for q in self.physical_qubits:
-                    for gate_1q in self.experiment_options.one_qubit_basis_gates:
-                        instructions.append((gate_1q, (q,)))
 
         return transpiled
 

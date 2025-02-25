@@ -427,22 +427,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 _transpile_clifford_circuit(circ, physical_qubits=self.physical_qubits)
                 for circ in self.circuits()
             ]
-            if isinstance(self.backend, BackendV2) and "simulator" not in self.backend.name:
-                qargs_patterns = [self.physical_qubits]  # for 1q or 3q+ case
-                if self.num_qubits == 2:
-                    qargs_patterns = [
-                        (self.physical_qubits[0],),
-                        (self.physical_qubits[1],),
-                        self.physical_qubits,
-                        (self.physical_qubits[1], self.physical_qubits[0]),
-                    ]
-
-                qargs_supported = self.backend.target.qargs
-                instructions = []  # (op_name, qargs) for each element where qargs means qubit tuple
-                for qargs in qargs_patterns:
-                    if qargs in qargs_supported:
-                        for op_name in self.backend.target.operation_names_for_qargs(qargs):
-                            instructions.append((op_name, qargs))
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
