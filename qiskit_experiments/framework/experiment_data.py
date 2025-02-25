@@ -118,8 +118,7 @@ def get_job_status(job: Job) -> JobStatus:
                 f"The status of job {job.job_id()} is {status} "
                 "which is not supported by qiskit-experiments."
             )
-        else:
-            status = qe_job_status
+        status = qe_job_status
     return status
 
 
