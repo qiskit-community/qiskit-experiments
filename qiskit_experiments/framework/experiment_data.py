@@ -112,7 +112,14 @@ def get_job_status(job: Job) -> JobStatus:
     `from qiskit.providers.jobstatus import JobStatus`"""
     status = job.status()
     if isinstance(status, str):
-        status = getattr(JobStatus, status, JobStatus.DONE)
+        qe_job_status = getattr(JobStatus, status, None)
+        if qe_job_status is None:
+            raise QiskitError(
+                f"The status of job {job.job_id()} is {status} "
+                "which is not supported by qiskit-experiments."
+            )
+        else:
+            status = qe_job_status
     return status
 
 
