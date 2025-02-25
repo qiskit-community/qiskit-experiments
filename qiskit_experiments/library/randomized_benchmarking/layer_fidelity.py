@@ -129,6 +129,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
+        layer_barrier: Optional[bool] = True,
+        min_delay: Optional[Sequence[int]] = None
     ):
         """Initialize a layer fidelity experiment.
 
@@ -150,6 +152,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
             one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
                             If not specified (but ``backend`` is supplied),
                             all 1q-gates supported in the backend are automatically set.
+            layer_barrier: Optional, enforce a barrier across the whole layer. Default is True
+            which is the defined protocol for layer. But can be set to false for testing.
+            min_delay: Option. Define a minimum delay in each layer in units of dt. This 
+            delay operation will be applied in any 1Q edge of the layer.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -224,6 +230,10 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
 
         # Verify two_qubit_gate and one_qubit_basis_gates
         self.__validate_basis_gates()
+
+        #optional items for the circuit generation
+        self.layer_barrier = layer_barrier
+        self.min_delay = min_delay
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -371,9 +381,25 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 composite_clbits.extend(
                     [(c,) for c in range(2 * num_2q_gates, 2 * num_2q_gates + num_1q_gates)]
                 )
+
+                if self.min_delay is None:
+                    min_delay = None
+                else:
+                    min_delay = self.min_delay[i_set]
+                
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
+                    #define the barrier instruction
                     barrier_inst = CircuitInstruction(Barrier(num_qubits), circ.qubits)
+                    if not self.layer_barrier:
+                        #we want separate barriers for each qubit so define them individually
+                        barrier_inst_gate = []
+                        for two_q_gate in two_qubit_layer:
+                            barrier_inst_gate.append(CircuitInstruction(Barrier(2), [circ.qubits[two_q_gate[0]],circ.qubits[two_q_gate[1]]]))
+                        for one_q in one_qubits:
+                            barrier_inst_gate.append(CircuitInstruction(Barrier(1), [circ.qubits[one_q]]))
+                    else:
+                        barrier_inst_gate = [barrier_inst]
                     self.__circuit_body(
                         circ,
                         length,
@@ -384,7 +410,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                         _to_gate_2q,
                         gate2q,
                         gate2q_cliff,
-                        barrier_inst,
+                        barrier_inst_gate,
+                        min_delay
                     )
                     # add the measurements
                     circ._append(barrier_inst)
@@ -434,7 +461,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
         _to_gate_2q,
         gate2q,
         gate2q_cliff,
-        barrier_inst,
+        barrier_inst_lst,
+        min_delay=None
     ):
         # initialize cliffords and a ciruit (0: identity clifford)
         cliffs_2q = [0] * len(two_qubit_layer)
@@ -454,7 +482,8 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
                 cliffs_1q[k] = compose_1q(cliffs_1q[k], sample)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-            circ._append(barrier_inst)
+            for barrier_inst in barrier_inst_lst:
+                circ._append(barrier_inst)
             # add two qubit gates
             for j, qpair in enumerate(two_qubit_layer):
                 circ._append(gate2q, tuple(circ.qubits[q] for q in qpair), ())
@@ -462,8 +491,12 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
                 # TODO: add dd if necessary
             for k, q in enumerate(one_qubits):
                 # TODO: add dd if necessary
-                pass
-            circ._append(barrier_inst)
+                #if there is a min_delay, just need
+                #to add to one of the qubits 
+                if min_delay is not None and k==0:
+                    circ.delay(min_delay,q)
+            for barrier_inst in barrier_inst_lst:
+                circ._append(barrier_inst)
         # add the last inverse
         for j, qpair in enumerate(two_qubit_layer):
             inv = inverse_2q(cliffs_2q[j])
