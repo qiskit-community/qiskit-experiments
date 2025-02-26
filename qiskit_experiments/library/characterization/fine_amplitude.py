@@ -19,6 +19,8 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
+from qiskit.utils import deprecate_func
+
 from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -410,6 +412,15 @@ class FineZXAmplitude(FineAmplitude):
 
     """
 
+    @deprecate_func(
+        since="0.9",
+        additional_msg=(
+            "This experiment requires an RZXGate which is not standard and had "
+            "previously been implemented using Qiskit Pulse which was removed "
+            "in Qiskit 2.0."
+        ),
+        package_name="qiskit-experiments",
+    )
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
 
