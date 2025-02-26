@@ -18,11 +18,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
+import qiskit.version
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
 from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
+from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
@@ -95,6 +97,10 @@ class PulseBackend(BackendV2):
             rtol: Relative tolerance during solving.
         """
         from qiskit_dynamics import Solver
+
+        qiskit_version = qiskit.version.get_version_info()
+        if qiskit_version.partition(".") not in ("0", "1"):
+            raise QiskitError(f"Pulse backends are not compatible with Qiskit {qiskit_version}")
 
         super().__init__(
             None,
