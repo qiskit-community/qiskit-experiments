@@ -563,6 +563,44 @@ class MockIQFineAmpHelper(MockIQExperimentHelper):
         return output_dict_list
 
 
+class MockIQRamseyXYHelper(MockIQExperimentHelper):
+    """Functions needed for Ramsey XY experiment on mock IQ backend"""
+
+    def __init__(
+        self,
+        t2ramsey: float = 100e-6,
+        freq_shift: float = 0,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+        self.t2ramsey = t2ramsey
+        self.freq_shift = freq_shift
+
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+        """Return the probability of being in the excited state."""
+        t2ramsey = self.t2ramsey
+        freq_shift = self.freq_shift
+        output_dict_list = []
+        for circuit in circuits:
+            probability_output_dict = {}
+            series = circuit.metadata["series"]
+            delay = circuit.metadata["xval"]
+
+            if series == "X":
+                phase_offset = 0.0
+            else:
+                phase_offset = np.pi / 2
+
+            probability_output_dict["1"] = (
+                0.5
+                * np.exp(-delay / t2ramsey)
+                * np.cos(2 * np.pi * delay * freq_shift - phase_offset)
+                + 0.5
+            )
+            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+            output_dict_list.append(probability_output_dict)
+        return output_dict_list
 class MockIQReadoutAngleHelper(MockIQExperimentHelper):
     """Functions needed for Readout angle experiment on mock IQ backend"""
 
