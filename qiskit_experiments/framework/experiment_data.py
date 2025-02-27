@@ -108,7 +108,7 @@ def parse_utc_datetime(dt_str: str) -> datetime:
 
 
 def get_job_status(job: Job) -> JobStatus:
-    """Get job status in JobStatus format which defined in:
+    """Get job status in JobStatus format defined in:
     `from qiskit.providers.jobstatus import JobStatus`"""
     status = job.status()
     if isinstance(status, str):
