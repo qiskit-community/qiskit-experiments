@@ -6,9 +6,9 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.8.1</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -620,20 +620,20 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. <a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#id9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.15.0)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">StandardRB</span><span class="p">,</span> <span class="n">InterleavedRB</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ParallelExperiment</span><span class="p">,</span> <span class="n">BatchExperiment</span>
-<span class="kn">import</span> <span class="nn">qiskit.circuit.library</span> <span class="k">as</span> <span class="nn">circuits</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardRB</span><span class="p">,</span> <span class="n">InterleavedRB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelExperiment</span><span class="p">,</span> <span class="n">BatchExperiment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">circuits</span>
 
 <span class="c1"># For simulation</span>
-<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span> <span class="nn">qiskit_ibm_runtime.fake_provider</span> <span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakePerth</span>
 
 <span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
 </pre></div>
@@ -731,48 +731,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 100
+ - number of function evals: 159
  - degree of freedom: 1
- - chi-square: 1.071490647859905
- - reduced chi-square: 1.071490647859905
- - Akaike info crit.: 0.7310257867651906
- - Bayesian info crit.: -1.110091129875138
+ - chi-square: 1.5022273818023124
+ - reduced chi-square: 1.5022273818023124
+ - Akaike info crit.: 2.082618267138106
+ - Bayesian info crit.: 0.24150135049777743
  - init params:
-  * a = 0.47148971162577036
-  * alpha = 0.999633844703751
+  * a = 0.4697441037137767
+  * alpha = 0.9996101534802188
   * b = 0.5
  - fit params:
-  * a = 0.2716105311338348 ± 0.1334640549071903
-  * alpha = 0.9993071245485269 ± 0.00041775404384831024
-  * b = 0.6997110393921955 ± 0.13399531739258003
+  * a = 0.9705361958066892 ± 2.180068882071186
+  * alpha = 0.9998183552978248 ± 0.000426414896884229
+  * b = 5.949370474999627e-13 ± 2.1809802307818424
  - correlations:
-  * (a, b) = -0.9999277805585227
-  * (alpha, b) = -0.9985975974262132
-  * (a, alpha) = 0.9981604349561806
+  * (a, b) = -0.9999996450308205
+  * (alpha, b) = -0.9998583540904505
+  * (a, alpha) = 0.9998474152774922
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9993+/-0.0004
-- χ²: 1.071490647859905
+- value: 0.9998+/-0.0004
+- χ²: 1.5022273818023124
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00035+/-0.00021
-- χ²: 1.071490647859905
+- value: 0.00009+/-0.00021
+- χ²: 1.5022273818023124
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00045+/-0.00027
-- χ²: 1.071490647859905
+- value: 0.00012+/-0.00028
+- χ²: 1.5022273818023124
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -780,15 +780,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 1.071490647859905
+- χ²: 1.5022273818023124
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00045+/-0.00027
-- χ²: 1.071490647859905
+- value: 0.00012+/-0.00028
+- χ²: 1.5022273818023124
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -894,56 +894,56 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 24
+ - number of function evals: 20
  - degree of freedom: 4
- - chi-square: 2.562971202113221
- - reduced chi-square: 0.6407428005283052
- - Akaike info crit.: -1.0332005642068145
- - Bayesian info crit.: -1.195470117040875
+ - chi-square: 1.687696971309062
+ - reduced chi-square: 0.4219242428272655
+ - Akaike info crit.: -3.9578170185462334
+ - Bayesian info crit.: -4.120086571380294
  - init params:
-  * a = 0.701157355763217
-  * alpha = 0.9708686669572049
+  * a = 0.6913935630864457
+  * alpha = 0.9789348707142334
   * b = 0.25
  - fit params:
-  * a = 0.6961873813075804 ± 0.005478407167151605
-  * alpha = 0.9760156898059444 ± 0.0007956009454934381
-  * b = 0.25078860872807085 ± 0.004153386647994834
+  * a = 0.6892476287480229 ± 0.005157932777431494
+  * alpha = 0.9755215581759831 ± 0.0006593707271693958
+  * b = 0.25446421964423815 ± 0.003980555721539622
  - correlations:
-  * (alpha, b) = -0.8034154655740825
-  * (a, b) = -0.6337476151853865
-  * (a, alpha) = 0.38623591090137543
+  * (alpha, b) = -0.8011063824069382
+  * (a, b) = -0.6606460923801288
+  * (a, alpha) = 0.3967750657568932
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9760+/-0.0008
-- χ²: 0.6407428005283052
+- value: 0.9755+/-0.0007
+- χ²: 0.4219242428272655
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0180+/-0.0006
-- χ²: 0.6407428005283052
+- value: 0.0184+/-0.0005
+- χ²: 0.4219242428272655
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0167+/-0.0008
-- χ²: 0.6407428005283052
+- value: 0.0175+/-0.0007
+- χ²: 0.4219242428272655
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0119+/-0.0006
-- χ²: 0.6407428005283052
+- value: 0.0124+/-0.0005
+- χ²: 0.4219242428272655
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -987,7 +987,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 <p>And see the transpiled circuit using the basis gate set of the backend:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">transpile</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">transpile</span>
 <span class="n">transpile</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">transpile_options</span><span class="p">))</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">,</span> <span class="n">idle_wires</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1063,53 +1063,53 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   * F_standard(x) = a * alpha ** x + b
   * F_interleaved(x) = a * (alpha_c * alpha) ** x + b
  - success: True
- - number of function evals: 25
+ - number of function evals: 35
  - degree of freedom: 10
- - chi-square: 6.27777285741015
- - reduced chi-square: 0.627777285741015
- - Akaike info crit.: -3.2285887360466994
- - Bayesian info crit.: -0.6723594175856658
+ - chi-square: 14.790477782342302
+ - reduced chi-square: 1.4790477782342302
+ - Akaike info crit.: 8.768967514051504
+ - Bayesian info crit.: 11.325196832512537
  - init params:
-  * a = 0.6887583621212174
-  * alpha = 0.9771651795984942
+  * a = 0.7007618169960643
+  * alpha = 0.9502000624768802
   * b = 0.25
-  * alpha_c = 0.9867074027486038
+  * alpha_c = 1.0
  - fit params:
-  * a = 0.6879111273227835 ± 0.003578244418350432
-  * alpha = 0.9765341910875829 ± 0.0004517585101323163
-  * b = 0.2514956191856458 ± 0.002047809040097904
-  * alpha_c = 0.9841852054264479 ± 0.0008058844624547276
+  * a = 0.6957212786774739 ± 0.0034635080861083437
+  * alpha = 0.9765991718823327 ± 0.0004479219857661601
+  * b = 0.2485688511259326 ± 0.0019863949281912546
+  * alpha_c = 0.9831307319734391 ± 0.0008650604972702678
  - correlations:
-  * (alpha, b) = -0.6365756609984304
-  * (a, b) = -0.471936527107861
-  * (b, alpha_c) = -0.2037400408374109
-  * (alpha, alpha_c) = -0.17205480902567
-  * (a, alpha_c) = -0.00543705237847595
-  * (a, alpha) = 0.15530082491444108
+  * (alpha, b) = -0.6188388906921242
+  * (a, b) = -0.46035033619026894
+  * (b, alpha_c) = -0.25870371483462845
+  * (alpha, alpha_c) = -0.12759561194576222
+  * (a, alpha_c) = 0.04193713396224453
+  * (a, alpha) = 0.12057476765398446
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9765+/-0.0005
-- χ²: 0.627777285741015
+- value: 0.9766+/-0.0004
+- χ²: 1.4790477782342302
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9842+/-0.0008
-- χ²: 0.627777285741015
+- value: 0.9831+/-0.0009
+- χ²: 1.4790477782342302
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0119+/-0.0006
-- χ²: 0.627777285741015
+- value: 0.0127+/-0.0006
+- χ²: 1.4790477782342302
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1196,7 +1196,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1236,7 +1236,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

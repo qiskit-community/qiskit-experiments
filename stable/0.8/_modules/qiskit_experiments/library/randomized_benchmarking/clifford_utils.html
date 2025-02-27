@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -618,23 +618,23 @@
 <span class="sd">Utilities for using the Clifford group in randomized benchmarking.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
-<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Integral</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Integral</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Qubit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">Instruction</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">SdgGate</span><span class="p">,</span> <span class="n">HGate</span><span class="p">,</span> <span class="n">SGate</span><span class="p">,</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">YGate</span><span class="p">,</span> <span class="n">ZGate</span>
-<span class="kn">from</span> <span class="nn">qiskit.compiler</span> <span class="kn">import</span> <span class="n">transpile</span>
-<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">Clifford</span>
-<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">CouplingMap</span><span class="p">,</span> <span class="n">PassManager</span>
-<span class="kn">from</span> <span class="nn">qiskit.transpiler.passes.synthesis.high_level_synthesis</span> <span class="kn">import</span> <span class="n">HLSConfig</span><span class="p">,</span> <span class="n">HighLevelSynthesis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Qubit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">Instruction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">SdgGate</span><span class="p">,</span> <span class="n">HGate</span><span class="p">,</span> <span class="n">SGate</span><span class="p">,</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">YGate</span><span class="p">,</span> <span class="n">ZGate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.compiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">transpile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">Clifford</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CouplingMap</span><span class="p">,</span> <span class="n">PassManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.passes.synthesis.high_level_synthesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">HLSConfig</span><span class="p">,</span> <span class="n">HighLevelSynthesis</span>
 
 <span class="n">DEFAULT_SYNTHESIS_METHOD</span> <span class="o">=</span> <span class="s2">&quot;rb_default&quot;</span>
 
@@ -653,14 +653,14 @@
 
 
 <span class="c1"># Transpilation utilities</span>
-<span class="k">def</span> <span class="nf">_transpile_clifford_circuit</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transpile_clifford_circuit</span><span class="p">(</span>
     <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
     <span class="c1"># Simplified transpile that only decomposes Clifford circuits and creates the layout.</span>
     <span class="k">return</span> <span class="n">_apply_qubit_layout</span><span class="p">(</span><span class="n">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">),</span> <span class="n">physical_qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
     <span class="c1"># Simplified QuantumCircuit.decompose, which decomposes only Clifford ops</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">copy_empty_like</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="s2">&quot;_parameter_table&quot;</span><span class="p">):</span>
@@ -685,7 +685,7 @@
     <span class="k">return</span> <span class="n">res</span>
 
 
-<span class="k">def</span> <span class="nf">_apply_qubit_layout</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_qubit_layout</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
     <span class="c1"># Mapping qubits in circuit to physical qubits (layout)</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
     <span class="n">res</span><span class="o">.</span><span class="n">add_bits</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">clbits</span><span class="p">)</span>
@@ -697,7 +697,7 @@
     <span class="k">return</span> <span class="n">res</span>
 
 
-<span class="k">def</span> <span class="nf">_circuit_compose</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_circuit_compose</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Qubit</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
     <span class="c1"># Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False</span>
@@ -718,7 +718,7 @@
     <span class="k">return</span> <span class="bp">self</span>
 
 
-<span class="k">def</span> <span class="nf">_synthesize_clifford</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_synthesize_clifford</span><span class="p">(</span>
     <span class="n">clifford</span><span class="p">:</span> <span class="n">Clifford</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -746,7 +746,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_synthesize_clifford_circuit</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_synthesize_clifford_circuit</span><span class="p">(</span>
     <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -792,7 +792,7 @@
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_clifford_1q_int_to_instruction</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_1q_int_to_instruction</span><span class="p">(</span>
     <span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
@@ -803,7 +803,7 @@
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_clifford_2q_int_to_instruction</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_2q_int_to_instruction</span><span class="p">(</span>
     <span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
@@ -817,16 +817,16 @@
     <span class="p">)</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_hash_cliff</span><span class="p">(</span><span class="n">cliff</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hash_cliff</span><span class="p">(</span><span class="n">cliff</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">cliff</span><span class="o">.</span><span class="n">tableau</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span> <span class="n">cliff</span><span class="o">.</span><span class="n">tableau</span><span class="o">.</span><span class="n">shape</span>
 
 
-<span class="k">def</span> <span class="nf">_dehash_cliff</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_dehash_cliff</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">):</span>
     <span class="n">tableau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Clifford</span><span class="p">(</span><span class="n">tableau</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_clifford_to_instruction</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_to_instruction</span><span class="p">(</span>
     <span class="n">clifford</span><span class="p">:</span> <span class="n">Clifford</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
@@ -841,7 +841,7 @@
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_cached_clifford_to_instruction</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cached_clifford_to_instruction</span><span class="p">(</span>
     <span class="n">cliff_hash</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
@@ -857,14 +857,14 @@
 
 <span class="c1"># The classes VGate and WGate are not actually used in the code - we leave them here to give</span>
 <span class="c1"># a better understanding of the composition of the layers for 2-qubit Cliffords.</span>
-<span class="k">class</span> <span class="nc">VGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;V Gate used in Clifford synthesis.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new V Gate.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;V Gate definition.&quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">)</span>
         <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
@@ -872,14 +872,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">qc</span>
 
 
-<span class="k">class</span> <span class="nc">WGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;W Gate used in Clifford synthesis.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new W Gate.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
 
-    <span class="k">def</span> <span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;W Gate definition.&quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">)</span>
         <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
@@ -889,7 +889,7 @@
 
 <div class="viewcode-block" id="CliffordUtils">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils">[docs]</a>
-<span class="k">class</span> <span class="nc">CliffordUtils</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CliffordUtils</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utilities for generating one- and two-qubit Clifford circuits and elements.&quot;&quot;&quot;</span>
 
     <span class="n">NUM_CLIFFORD_1_QUBIT</span> <span class="o">=</span> <span class="mi">24</span>
@@ -906,7 +906,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_1_qubit">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">clifford_1_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_1_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 1-qubit clifford element corresponding to `num`</span>
 <span class="sd">        where `num` is between 0 and 23.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -917,7 +917,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_2_qubit">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">clifford_2_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_2_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit clifford element corresponding to ``num``,</span>
 <span class="sd">        where ``num`` is between 0 and 11519.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -928,7 +928,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_1_qubit_circuit">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">clifford_1_qubit_circuit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_1_qubit_circuit</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">num</span><span class="p">,</span>
         <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -963,7 +963,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_2_qubit_circuit">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">clifford_2_qubit_circuit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_2_qubit_circuit</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">num</span><span class="p">,</span>
         <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -987,7 +987,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_unpack_num</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unpack_num</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns a tuple :math:`(a_1, \ldots, a_n)` where</span>
 <span class="sd">        :math:`0 \le a_i \le \sigma_i` where</span>
 <span class="sd">        sig=:math:`(\sigma_1, \ldots, \sigma_n)` and num is the sequential</span>
@@ -1046,17 +1046,17 @@
 
 <span class="c1">########</span>
 <span class="c1"># Functions for 1-qubit integer Clifford operations</span>
-<span class="k">def</span> <span class="nf">compose_1q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_1q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the composition of 1-qubit clifford integers.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CLIFFORD_COMPOSE_1Q</span><span class="p">[</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">inverse_1q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">inverse_1q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the inverse of a 1-qubit clifford integer.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CLIFFORD_INVERSE_1Q</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">num_from_1q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">num_from_1q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 1-qubit Clifford circuit to the corresponding integer.</span>
 
 <span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_1Q`,</span>
@@ -1069,7 +1069,7 @@
     <span class="k">return</span> <span class="n">num</span>
 
 
-<span class="k">def</span> <span class="nf">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a given 1-qubit clifford operation to the corresponding integer.</span>
 <span class="sd">    Note that supported operations are limited to ones in :const:`_CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.</span>
@@ -1092,14 +1092,14 @@
     <span class="k">except</span> <span class="n">QiskitError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Parameterized instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
     <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
 
 
-<span class="k">def</span> <span class="nf">_deparameterized_name</span><span class="p">(</span><span class="n">inst</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deparameterized_name</span><span class="p">(</span><span class="n">inst</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rz&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;z&quot;</span>
@@ -1115,7 +1115,7 @@
 
 <span class="c1">########</span>
 <span class="c1"># Functions for 2-qubit integer Clifford operations</span>
-<span class="k">def</span> <span class="nf">compose_2q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_2q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the composition of 2-qubit clifford integers.&quot;&quot;&quot;</span>
     <span class="n">num</span> <span class="o">=</span> <span class="n">lhs</span>
     <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_layer_indices_from_num</span><span class="p">(</span><span class="n">rhs</span><span class="p">)):</span>
@@ -1125,12 +1125,12 @@
     <span class="k">return</span> <span class="n">num</span>
 
 
-<span class="k">def</span> <span class="nf">inverse_2q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">inverse_2q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the inverse of a 2-qubit clifford integer.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CLIFFORD_INVERSE_2Q</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">num_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">num_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 2-qubit Clifford circuit to the corresponding integer.</span>
 
 <span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_2Q`,</span>
@@ -1142,7 +1142,7 @@
     <span class="k">return</span> <span class="n">lhs</span>
 
 
-<span class="k">def</span> <span class="nf">_num_from_2q_gate</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_2q_gate</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1170,14 +1170,14 @@
     <span class="k">except</span> <span class="n">QiskitError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Parameterized instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
     <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">qubits</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
 
 
-<span class="k">def</span> <span class="nf">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">vw0</span><span class="p">,</span> <span class="n">vw1</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">vw0</span><span class="p">,</span> <span class="n">vw1</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">vw0</span> <span class="o">==</span> <span class="s2">&quot;v&quot;</span><span class="p">:</span>
         <span class="n">qc</span><span class="o">.</span><span class="n">sdg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1192,7 +1192,7 @@
         <span class="n">qc</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_create_cliff_2q_layer_0</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_0</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.</span>
 <span class="sd">    Number of Cliffords == 36.&quot;&quot;&quot;</span>
     <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1209,7 +1209,7 @@
     <span class="k">return</span> <span class="n">circuits</span>
 
 
-<span class="k">def</span> <span class="nf">_create_cliff_2q_layer_1</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_1</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 1 consists of one of the following:</span>
 <span class="sd">    - nothing</span>
 <span class="sd">    - cx(0,1) followed by 0/1/2 V gates on each qubit</span>
@@ -1240,7 +1240,7 @@
     <span class="k">return</span> <span class="n">circuits</span>
 
 
-<span class="k">def</span> <span class="nf">_create_cliff_2q_layer_2</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_2</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.</span>
 <span class="sd">    Number of Cliffords == 16.&quot;&quot;&quot;</span>
     <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1264,7 +1264,7 @@
 <span class="n">_NUM_LAYER_2</span> <span class="o">=</span> <span class="mi">16</span>
 
 
-<span class="k">def</span> <span class="nf">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Integral</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Integral</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield Clifford numbers that represents the 2Q Clifford circuit.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">qc</span><span class="p">:</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">qc</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">inst</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
@@ -1279,7 +1279,7 @@
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_transformed_clifford_layer</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transformed_clifford_layer</span><span class="p">(</span>
     <span class="n">layer</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">index</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
     <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
@@ -1296,13 +1296,13 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_num_from_layer_indices</span><span class="p">(</span><span class="n">triplet</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_layer_indices</span><span class="p">(</span><span class="n">triplet</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the clifford number corresponding to the input triplet.&quot;&quot;&quot;</span>
     <span class="n">num</span> <span class="o">=</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_NUM_LAYER_1</span> <span class="o">*</span> <span class="n">_NUM_LAYER_2</span> <span class="o">+</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">_NUM_LAYER_2</span> <span class="o">+</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">num</span>
 
 
-<span class="k">def</span> <span class="nf">_layer_indices_from_num</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_layer_indices_from_num</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the triplet of layer indices corresponding to the input number.&quot;&quot;&quot;</span>
     <span class="n">idx2</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="n">_NUM_LAYER_2</span>
     <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">//</span> <span class="n">_NUM_LAYER_2</span>
@@ -1311,7 +1311,7 @@
     <span class="k">return</span> <span class="n">idx0</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span>
 
 
-<span class="k">def</span> <span class="nf">_tensor_1q_nums</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_tensor_1q_nums</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CLIFFORD_TENSOR_1Q</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">]</span>
 </pre></div>
@@ -1332,7 +1332,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1347,7 +1347,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

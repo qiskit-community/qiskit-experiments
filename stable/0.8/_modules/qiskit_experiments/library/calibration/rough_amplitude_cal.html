@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.calibration.rough_amplitude_cal - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.library.calibration.rough_amplitude_cal - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -617,18 +617,18 @@
 
 <span class="sd">&quot;&quot;&quot;Rough amplitude calibration using Rabi.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentData</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management</span> <span class="kn">import</span> <span class="n">BaseCalibrationExperiment</span><span class="p">,</span> <span class="n">Calibrations</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library.characterization</span> <span class="kn">import</span> <span class="n">Rabi</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.update_library</span> <span class="kn">import</span> <span class="n">BaseUpdater</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.calibration_management</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCalibrationExperiment</span><span class="p">,</span> <span class="n">Calibrations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rabi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.calibration_management.update_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseUpdater</span>
 
 <span class="n">AnglesSchedules</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
     <span class="s2">&quot;AnglesSchedules&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;target_angle&quot;</span><span class="p">,</span> <span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="s2">&quot;previous_value&quot;</span><span class="p">]</span>
@@ -637,7 +637,7 @@
 
 <div class="viewcode-block" id="RoughAmplitudeCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.RoughAmplitudeCal.html#qiskit_experiments.library.calibration.RoughAmplitudeCal">[docs]</a>
-<span class="k">class</span> <span class="nc">RoughAmplitudeCal</span><span class="p">(</span><span class="n">BaseCalibrationExperiment</span><span class="p">,</span> <span class="n">Rabi</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RoughAmplitudeCal</span><span class="p">(</span><span class="n">BaseCalibrationExperiment</span><span class="p">,</span> <span class="n">Rabi</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A calibration version of the Rabi experiment.</span>
 
 <span class="sd">    # section: example</span>
@@ -677,7 +677,7 @@
 <span class="sd">            cal_data.analysis_results(dataframe=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">calibrations</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">,</span>
@@ -738,7 +738,7 @@
         <span class="p">]</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for the rough amplitude calibration experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
@@ -760,7 +760,7 @@
 
         <span class="k">return</span> <span class="n">options</span>
 
-    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add metadata to the experiment data making it more self contained.</span>
 
 <span class="sd">        The following keys are added to each circuit&#39;s metadata:</span>
@@ -793,13 +793,13 @@
 
         <span class="k">return</span> <span class="n">metadata</span>
 
-    <span class="k">def</span> <span class="nf">_attach_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rabi already has the schedules attached in the program circuits.&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="RoughAmplitudeCal.update_calibrations">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.RoughAmplitudeCal.html#qiskit_experiments.library.calibration.RoughAmplitudeCal.update_calibrations">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update the amplitude of one or several schedules.</span>
 
 <span class="sd">        The update rule extracts the rate of the oscillation from the fit to the cosine function.</span>
@@ -838,7 +838,7 @@
 
 <div class="viewcode-block" id="RoughXSXAmplitudeCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.RoughXSXAmplitudeCal.html#qiskit_experiments.library.calibration.RoughXSXAmplitudeCal">[docs]</a>
-<span class="k">class</span> <span class="nc">RoughXSXAmplitudeCal</span><span class="p">(</span><span class="n">RoughAmplitudeCal</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RoughXSXAmplitudeCal</span><span class="p">(</span><span class="n">RoughAmplitudeCal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A rough amplitude calibration of x and sx gates.</span>
 
 <span class="sd">    # section: example</span>
@@ -873,7 +873,7 @@
 <span class="sd">            cal_data.analysis_results(dataframe=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">calibrations</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">,</span>
@@ -902,7 +902,7 @@
 
 <div class="viewcode-block" id="EFRoughXSXAmplitudeCal">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal.html#qiskit_experiments.library.calibration.EFRoughXSXAmplitudeCal">[docs]</a>
-<span class="k">class</span> <span class="nc">EFRoughXSXAmplitudeCal</span><span class="p">(</span><span class="n">RoughAmplitudeCal</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EFRoughXSXAmplitudeCal</span><span class="p">(</span><span class="n">RoughAmplitudeCal</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A rough amplitude calibration of :math:`X` and :math:`SX` gates on the</span>
 <span class="sd">    :math:`|1\rangle` &lt;-&gt; :math:`|2\rangle` transition.</span>
 
@@ -981,7 +981,7 @@
 
     <span class="n">__outcome__</span> <span class="o">=</span> <span class="s2">&quot;rabi_rate_12&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">calibrations</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">,</span>
@@ -1027,13 +1027,13 @@
             <span class="p">),</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_pre_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A circuit with operations to perform before the Rabi.&quot;&quot;&quot;</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">circ</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">circ</span>
 
-    <span class="k">def</span> <span class="nf">_attach_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach_calibrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach an x calibration if it is defined.&quot;&quot;&quot;</span>
         <span class="c1"># Attach the x calibration as well if it is in self._cals. We allow for</span>
         <span class="c1"># it not to be present in case a user wants to rely on the default x</span>
@@ -1060,7 +1060,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1075,7 +1075,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

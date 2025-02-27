@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.test.t2hahn_backend - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.test.t2hahn_backend - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -618,32 +618,32 @@
 <span class="sd">T2HahnBackend class.</span>
 <span class="sd">Temporary backend to be used for t2hahn experiment</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QiskitError</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Delay</span><span class="p">,</span> <span class="n">Reset</span><span class="p">,</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">Measure</span><span class="p">,</span> <span class="n">RZGate</span><span class="p">,</span> <span class="n">SXGate</span><span class="p">,</span> <span class="n">XGate</span>
-<span class="kn">from</span> <span class="nn">qiskit.dagcircuit</span> <span class="kn">import</span> <span class="n">DAGCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers</span> <span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">Job</span><span class="p">,</span> <span class="n">Options</span>
-<span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">InstructionProperties</span><span class="p">,</span> <span class="n">PassManager</span><span class="p">,</span> <span class="n">Target</span><span class="p">,</span> <span class="n">TransformationPass</span>
-<span class="kn">from</span> <span class="nn">qiskit.utils.units</span> <span class="kn">import</span> <span class="n">apply_prefix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span><span class="p">,</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Delay</span><span class="p">,</span> <span class="n">Reset</span><span class="p">,</span> <span class="n">Parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">Measure</span><span class="p">,</span> <span class="n">RZGate</span><span class="p">,</span> <span class="n">SXGate</span><span class="p">,</span> <span class="n">XGate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.dagcircuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAGCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">Job</span><span class="p">,</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">InstructionProperties</span><span class="p">,</span> <span class="n">PassManager</span><span class="p">,</span> <span class="n">Target</span><span class="p">,</span> <span class="n">TransformationPass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_prefix</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span> <span class="nn">qiskit_aer.noise</span> <span class="kn">import</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">ReadoutError</span><span class="p">,</span> <span class="n">RelaxationNoisePass</span><span class="p">,</span> <span class="n">reset_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer.noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">ReadoutError</span><span class="p">,</span> <span class="n">RelaxationNoisePass</span><span class="p">,</span> <span class="n">reset_error</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.test.utils</span> <span class="kn">import</span> <span class="n">FakeJob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeJob</span>
 
 
-<span class="k">class</span> <span class="nc">ResetQubits</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResetQubits</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pass to inject reset instructions for each qubit</span>
 
 <span class="sd">    The resets are used to add qubit initialization error.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">):</span>
         <span class="n">new_dag</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">dag</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">qreg</span> <span class="ow">in</span> <span class="n">new_dag</span><span class="o">.</span><span class="n">qregs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -652,7 +652,7 @@
         <span class="k">return</span> <span class="n">new_dag</span>
 
 
-<span class="k">class</span> <span class="nc">QubitDrift</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QubitDrift</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pass to rotate qubits during delays</span>
 
 <span class="sd">    This pass adds rotations that mimic the qubit being detuned from the drive</span>
@@ -660,12 +660,12 @@
 <span class="sd">    only added for delays).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_frequencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_frequencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qubit_frequencies</span> <span class="o">=</span> <span class="n">qubit_frequencies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">):</span>
         <span class="n">qubit_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">bit</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dag</span><span class="o">.</span><span class="n">qubits</span><span class="p">)}</span>
 
         <span class="n">new_dag</span> <span class="o">=</span> <span class="n">dag</span><span class="o">.</span><span class="n">copy_empty_like</span><span class="p">()</span>
@@ -691,12 +691,12 @@
 
 <div class="viewcode-block" id="T2HahnBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.T2HahnBackend.html#qiskit_experiments.test.T2HahnBackend">[docs]</a>
-<span class="k">class</span> <span class="nc">T2HahnBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">T2HahnBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A simple and primitive backend, to be run by the T2Hahn tests</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">t2hahn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
         <span class="n">frequency</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -751,20 +751,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Delay</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">()</span>
 
 <div class="viewcode-block" id="T2HahnBackend.run">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.T2HahnBackend.html#qiskit_experiments.test.T2HahnBackend.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]],</span> <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Job</span><span class="p">:</span>
         <span class="n">passes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -829,7 +829,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -844,7 +844,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,9 +6,9 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Experiment Manuals" href="../manuals/index.html" /><link rel="prev" title="Rerun analysis for an existing experiment" href="rerun_analysis.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Use Experiments with Sampler - Qiskit Experiments 0.8.1</title>
+        <title>Use Experiments with Sampler - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -617,13 +617,13 @@ A sampler can be instantiated with a backend, session or batch, which allows one
 run an experiment in different execution modes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>All jobs, by default, run using the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> class. When calling <code class="docutils literal notranslate"><span class="pre">exp.run</span></code> a
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> object will be automatically generated to wrap the specified backend.</p>
+<p>All jobs, by default, run using the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/sampler-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> class. When calling <code class="docutils literal notranslate"><span class="pre">exp.run</span></code> a
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/sampler-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> object will be automatically generated to wrap the specified backend.</p>
 </div>
 </section>
 <section id="solution">
 <h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">¶</a></h2>
-<p>In this example, we will pass in a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.SamplerV2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> object to a tomography experiment.</p>
+<p>In this example, we will pass in a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/sampler-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> object to a tomography experiment.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If a sampler object is passed to <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.framework.BaseExperiment.run()</span></code></a> then the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2">run options</a> of the
@@ -631,9 +631,9 @@ sampler object are used. The execution options set by the experiment are ignored
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_runtime</span> <span class="kn">import</span> <span class="n">SamplerV2</span> <span class="k">as</span> <span class="n">Sampler</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library.tomography</span> <span class="kn">import</span> <span class="n">ProcessTomography</span>
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplerV2</span> <span class="k">as</span> <span class="n">Sampler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.tomography</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessTomography</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
 
 <span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;ibm_quantum&quot;</span><span class="p">)</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">&quot;ibm_osaka&quot;</span><span class="p">)</span>
@@ -692,7 +692,7 @@ sampler object are used. The execution options set by the experiment are ignored
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -727,7 +727,7 @@ sampler object are used. The execution options set by the experiment are ignored
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
