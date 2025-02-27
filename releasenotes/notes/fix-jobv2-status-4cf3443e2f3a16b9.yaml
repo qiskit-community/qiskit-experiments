@@ -1,0 +1,9 @@
+---
+fixes_expdata:
+  - |
+    Fixed :class:`~.ExperimentData` not reporting the correct job status when
+    the job is of type :class:`~qiskit_ibm_runtime.RuntimeJobV2`.
+developer:
+  - |
+    Added a function that returns the job status as :class:`qiskit.providers.jobstatus.JobStatus`:
+    :func:`~qiskit_experiments.framework.experiment_data.get_job_status`.
