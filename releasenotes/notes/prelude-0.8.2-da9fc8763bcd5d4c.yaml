@@ -1,0 +1,4 @@
+---
+prelude: >
+    Qiskit Experiments 0.8.2 is a minor update to 0.8.1 to fix an issue with
+    tracking the job status of Qiskit IBM Runtime jobs.
