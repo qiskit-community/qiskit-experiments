@@ -130,17 +130,9 @@ class ZZRamsey(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_ibm_runtime.fake_provider import FakePerth
-            from qiskit_aer import AerSimulator
-            from qiskit_aer.noise import NoiseModel
+            from qiskit_experiments.test.zzramsey_test_backend import ZZRamseyTestBackend
 
-            noise_model = NoiseModel.from_backend(FakePerth(),
-                                                  thermal_relaxation=True,
-                                                  gate_error=False,
-                                                  readout_error=False,
-            )
-
-            backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+            backend = ZZRamseyTestBackend(zz_frequency=50e3)
 
         .. jupyter-execute::
 
