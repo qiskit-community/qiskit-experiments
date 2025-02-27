@@ -39,17 +39,13 @@ Modules
         measurement data.
     * - :mod:`~qiskit_experiments.curve_analysis`
       - Utility functions for curve fitting and analysis.
-    * - :mod:`~qiskit_experiments.calibration_management`
-      - Classes for managing calibration experiment result data.
     * - :mod:`~qiskit_experiments.visualization`
       - Classes for creating figures from experiment results.
 
 Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
 
-- :mod:`qiskit_experiments.library.calibration`
 - :mod:`qiskit_experiments.library.characterization`
-- :mod:`qiskit_experiments.library.driven_freq_tuning`
 - :mod:`qiskit_experiments.library.randomized_benchmarking`
 - :mod:`qiskit_experiments.library.tomography`
 """
@@ -60,7 +56,6 @@ from .version import __version__
 from . import framework
 from . import library
 from . import curve_analysis
-from . import calibration_management
 from . import data_processing
 from . import database_service
 from . import visualization

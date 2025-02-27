@@ -132,8 +132,28 @@ class FineDrag(BaseExperiment, RestlessMixin):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01 * pi / 4
+            x_with_err = expm(-1j * 1 / 2 * (pi / 2 * XGate().to_matrix() + err * ZGate().to_matrix()))
+
+            err_mat = x_with_err @ RXGate(-pi/2).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -158,12 +178,10 @@ class FineDrag(BaseExperiment, RestlessMixin):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
-            schedule (ScheduleBlock): The schedule for the plus rotation.
             gate (Gate): This is the gate such as XGate() that will be in the circuits.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
-        options.schedule = None
         options.gate = None
 
         return options
@@ -211,10 +229,9 @@ class FineDrag(BaseExperiment, RestlessMixin):
         """Create the circuits for the fine DRAG calibration experiment.
 
         Returns:
-            A list of circuits with a variable number of gates. Each gate has the same
-            pulse schedule.
+            A list of circuits with a variable number of gates.
         """
-        schedule, circuits = self.experiment_options.schedule, []
+        circuits = []
 
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
@@ -228,14 +245,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuit.compose(self._post_circuit(), inplace=True)
 
             circuit.measure_all()
-
-            if schedule is not None:
-                circuit.add_calibration(
-                    self.experiment_options.gate.name,
-                    self.physical_qubits,
-                    schedule,
-                    params=[],
-                )
 
             circuit.metadata = {"xval": repetition}
 
@@ -261,8 +270,40 @@ class FineXDrag(FineDrag):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+            from qiskit_experiments.library import FineXDrag
+
+
+            err = 0.01 * pi / 4
+
+            # To first order in err this can be just
+            # x_with_err = expm(1j * 1/2 * (pi * XGate().to_matrix() - err * ZGate().to_matrix()))
+            # The (pi**2 - err**2)**0.5 is to keep the total rotation exactly pi, but
+            # keeping the full `X` gate might be more correct.
+            # The question is what matches best with the way the qubit is
+            # measured when `X` is calibrated first by Rabi drives
+            # that are being applied with some `Z` component. What `X` component
+            # matches the observed periodicity?
+            rot_matrix = ((pi**2 - err**2)**0.5 * XGate().to_matrix() + err * ZGate().to_matrix())
+            x_with_err = expm(-1j * 1/2 * rot_matrix)
+
+            err_mat = x_with_err @ RXGate(-pi).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -305,8 +346,28 @@ class FineSXDrag(FineDrag):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01 * pi / 4
+            x_with_err = expm(-1j * 1 / 2 * (pi / 2 * XGate().to_matrix() + err * ZGate().to_matrix()))
+
+            err_mat = x_with_err @ RXGate(-pi/2).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["sx"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -314,14 +375,6 @@ class FineSXDrag(FineDrag):
             from qiskit_experiments.library.characterization import FineSXDrag
 
             exp = FineSXDrag(physical_qubits=(0,), backend=backend)
-            exp.analysis.set_options(normalization= True,
-                                     fixed_parameters={
-                                         "angle_per_gate" : 0.0,
-                                         "phase_offset" : np.pi/2,
-                                         "amp" : 0.6
-                                         },
-                                    )
-
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)

@@ -86,10 +86,10 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             :hide-code:
 
             # backend
-            from qiskit_aer import AerSimulator
-            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_experiments.test import T2HahnBackend
 
-            backend = AerSimulator.from_backend(FakePerth())
+            # AerSimulator can not mimic a freqeuncy offset
+            backend = T2HahnBackend(frequency=1e5)
 
         .. jupyter-execute::
 

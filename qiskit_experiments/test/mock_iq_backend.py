@@ -18,6 +18,7 @@ from typing import Sequence, List, Tuple, Dict, Union, Any
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
 from qiskit.providers import BackendV2, Provider, convert_to_target
@@ -767,6 +768,215 @@ class MockIQParallelBackend(MockIQBackend):
             }
 
             run_result["data"] = self._parallel_generate_data(experiment_data_list, circ_idx)
+            result["results"].append(run_result)
+
+        return FakeJob(self, Result.from_dict(result))
+
+
+class MockMultiStateBackend(FakeOpenPulse2QV2):
+    """A mock backend for testing with multi-state IQ data.
+
+    .. note::
+
+        This backend does no simulation. It just looks for gates x, x12, and
+        x23 and sets the qubit state to the highest possible based on the
+        presence of these gates.
+    """
+
+    def __init__(
+        self,
+        iq_centers: list[complex],
+        iq_noise: float = 0.1,
+        state_noise: float = 0.0,
+        rng_seed: int = 0,
+    ):
+        """
+        Initialize the backend.
+
+        Args:
+            iq_centers: list of points in the complex plane corresponding to
+                different qubit levels.
+            iq_noise: Standard deviation of the normally distributed variation in
+                output around the IQ centers.
+            state_noise: Noise in the probability of the output state. For
+                example, 0.2 for a circuit with an x would mean 0.8 probability
+                of 1 and 0.2 probability 0 when iq_centers has length 2.
+            rng_seed(int): The random seed value.
+        """
+
+        if len(iq_centers) > 4:
+            raise ValueError("Only 4 qubit levels supported!")
+        self.iq_centers = iq_centers
+        self.iq_noise = iq_noise
+        self.state_noise = state_noise
+        self._rng = np.random.default_rng(rng_seed)
+        self.simulator = True
+
+        super().__init__()
+
+        if "x" not in self.target:
+            self.target.add_instruction(Gate("x", 1, []))
+        self.target.add_instruction(Gate("x12", 1, []))
+        self.target.add_instruction(Gate("x23", 1, []))
+
+    @classmethod
+    def _default_options(cls):
+        """Default options of the test backend."""
+        return Options(
+            shots=1024,
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+        )
+
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[List[float]]:
+        """Return the probability of being in the various states for each circuit"""
+        output_dict_list = []
+        for circuit in circuits:
+            ops = circuit.count_ops()
+            if "x23" in ops:
+                idx = 3
+            elif "x12" in ops:
+                idx = 2
+            elif "x" in ops:
+                idx = 1
+            else:
+                idx = 0
+
+            probability_outputs = self._rng.random(len(self.iq_centers))
+            probability_outputs[idx] = 0.0
+            prob_sum = sum(probability_outputs)
+            if prob_sum == 0:
+                probability_outputs[(idx + 1) % 2] = self.state_noise
+            else:
+                probability_outputs = self.state_noise * probability_outputs / prob_sum
+
+            probability_outputs[idx] = 1 - self.state_noise
+
+            output_dict_list.append(probability_outputs.tolist())
+
+        return output_dict_list
+
+    @staticmethod
+    def _verify_parameters(output_length: int, prob_list: List[float]):
+        if output_length != 1:
+            raise ValueError(
+                f"The output length {output_length} is not 1 (only one measurement supported)."
+            )
+
+        if not np.allclose(1, sum(prob_list)):
+            raise ValueError("The probabilities given don't sum up to 1.")
+
+    def _draw_iq_shots(
+        self,
+        prob: List[float],
+        shots: int,
+    ) -> List[List[float]]:
+        """
+        Produce an IQ shot.
+
+        Args:
+            prob: A list of probabilities for each output.
+            shots: The number of times the circuit will run.
+        Returns:
+            List[List[List[float]]]: A list of shots. Each shot consists of a
+            list of qubits (with 1 qubit only). The qubits are lists with two
+            values [I,Q]. The output structure is
+
+                List[shot index][qubit index][I,Q]
+        """
+        # Randomize samples (width=1)
+        samples = self.iq_noise * self._rng.normal(0, 1, size=(shots, 2))
+        samples = samples[:, 0] + 1j * samples[:, 1]
+        samples = samples + self._rng.choice(self.iq_centers, size=(shots,), p=prob)
+        memory = [[[np.real(s), np.imag(s)]] for s in samples]
+
+        return memory
+
+    def _generate_data(
+        self, prob_list: Dict[str, float], circuit: QuantumCircuit
+    ) -> Dict[str, Any]:
+        """
+        Generate data for the circuit.
+
+        Args:
+            prob_list: A list with probabilities for different qubit states
+            circuit: The circuit that needs to be simulated.
+
+        Returns:
+            A dictionary that's filled with the simulated data. The output format is different between
+            measurement level 1 and measurement level 2.
+        """
+        # The output is proportional to the number of classical bit.
+        output_length = int(np.sum([creg.size for creg in circuit.cregs]))
+        self._verify_parameters(output_length, prob_list)
+        shots = self.options.get("shots")
+        meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        memory = self._draw_iq_shots(
+            prob_list,
+            shots,
+        )
+        if meas_return == "avg":
+            memory = np.average(np.array(memory), axis=0).tolist()
+
+        run_result["memory"] = memory
+        return run_result
+
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+        """
+        Run the IQ backend.
+
+        Args:
+            run_input: A list of QuantumCircuit for which the backend will generate
+                data.
+            **run_options: Experiment running options. The options that are supported
+                in this backend are `meas_level`, `meas_return` and `shots`:
+
+                * meas_level: To generate data in the IQ plane, `meas_level` should be
+                  assigned 1 or ``MeasLevel.KERNELED``. If `meas_level` is 2 or
+                  ``MeasLevel.CLASSIFIED``, the generated data will be in the form
+                  of `counts`.
+                * meas_return: This option will only take effect if `meas_level` =
+                  ``MeasLevel.CLASSIFIED``. It can get either
+                  ``MeasReturnType.AVERAGE`` or ``MeasReturnType.SINGLE``. For
+                  ``MeasReturnType.SINGLE``, the data of each shot will be stored in
+                  the result. For ``MeasReturnType.AVERAGE``, an average of all the
+                  shots will be calculated and stored in the result.
+                * shots: The number of times the circuit will run.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
+            ValueError: Raised if ``meas_level`` in ``run_options`` is not 1.
+        """
+
+        self.options.update_options(**run_options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level", 1)
+        if meas_level != 1:
+            raise ValueError("Only level 1 data supported!")
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": "0",
+            "qobj_id": "0",
+            "job_id": "0",
+            "success": True,
+            "results": [],
+        }
+        prob_list = self.compute_probabilities(run_input)
+        for prob, circ in zip(prob_list, run_input):
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
+            }
+
+            run_result["data"] = self._generate_data(prob, circ)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))

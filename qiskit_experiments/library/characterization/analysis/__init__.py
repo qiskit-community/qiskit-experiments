@@ -12,17 +12,14 @@
 
 """Analysis Classes"""
 
-from .drag_analysis import DragCalAnalysis
 from .fine_amplitude_analysis import FineAmplitudeAnalysis
 from .ramsey_xy_analysis import RamseyXYAnalysis
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .t2hahn_analysis import T2HahnAnalysis
 from .t1_analysis import T1Analysis, T1KerneledAnalysis
 from .tphi_analysis import TphiAnalysis
-from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .readout_angle_analysis import ReadoutAngleAnalysis
 from .local_readout_error_analysis import LocalReadoutErrorAnalysis
 from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis
-from .resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 from .zz_ramsey_analysis import ZZRamseyAnalysis
 from .multi_state_discrimination_analysis import MultiStateDiscriminationAnalysis

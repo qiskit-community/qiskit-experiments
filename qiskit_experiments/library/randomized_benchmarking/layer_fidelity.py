@@ -14,7 +14,6 @@ Layer Fidelity RB Experiment class.
 """
 import functools
 import logging
-from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
 from numpy.random import Generator, default_rng
@@ -24,9 +23,8 @@ from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
-from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.providers.backend import Backend, BackendV1
 from qiskit.quantum_info import Clifford
-from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
@@ -476,30 +474,6 @@ class LayerFidelity(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = [_decompose_clifford_ops(circ) for circ in self.circuits()]
-        # Set custom calibrations provided in backend
-        if isinstance(self.backend, BackendV2):
-            instructions = []  # (op_name, qargs) for each element where qargs mean qubit tuple
-            for two_qubit_layer in self.experiment_options.two_qubit_layers:
-                for qpair in two_qubit_layer:
-                    instructions.append((self.experiment_options.two_qubit_gate, tuple(qpair)))
-                for q in self.physical_qubits:
-                    for gate_1q in self.experiment_options.one_qubit_basis_gates:
-                        instructions.append((gate_1q, (q,)))
-
-            common_calibrations = defaultdict(dict)
-            for op_name, qargs in instructions:
-                inst_prop = self.backend.target[op_name].get(qargs, None)
-                if inst_prop is None:
-                    continue
-                schedule = inst_prop.calibration
-                if schedule is None:
-                    continue
-                publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
-                if publisher != CalibrationPublisher.BACKEND_PROVIDER:
-                    common_calibrations[op_name][(qargs, tuple())] = schedule
-
-            for circ in transpiled:
-                circ.calibrations = common_calibrations
 
         return transpiled
 

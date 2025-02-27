@@ -55,7 +55,6 @@ Standard Analysis Library
     DecayAnalysis
     DampedOscillationAnalysis
     OscillationAnalysis
-    ResonanceAnalysis
     GaussianAnalysis
     ErrorAmplificationAnalysis
 
@@ -126,7 +125,6 @@ from .standard_analysis import (
     DecayAnalysis,
     DampedOscillationAnalysis,
     OscillationAnalysis,
-    ResonanceAnalysis,
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
     BlochTrajectoryAnalysis,

@@ -1,4 +1,3 @@
 cvxpy>=1.3.2 # for tomography
 scikit-learn # for discriminators
 qiskit-aer>=0.13.2
-qiskit-dynamics>=0.4.0 # for the PulseBackend

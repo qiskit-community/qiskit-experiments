@@ -17,9 +17,7 @@ from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
-from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
-from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
@@ -155,38 +153,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # fully sampled circuits are regenerated while other is just built on top of previous length
         self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
-
-    # ### Tests for transpiled circuit generation ###
-    def test_calibrations_via_transpile_options(self):
-        """Test if calibrations given as transpile_options show up in transpiled circuits."""
-        qubits = (2,)
-        my_sched = Schedule(name="custom_sx_gate")
-        my_inst_map = InstructionScheduleMap()
-        my_inst_map.add(SXGate(), qubits, my_sched)
-
-        exp = rb.StandardRB(
-            physical_qubits=qubits, lengths=[3], num_samples=4, backend=self.backend, seed=123
-        )
-        exp.set_transpile_options(inst_map=my_inst_map)
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
-
-    def test_calibrations_via_custom_backend(self):
-        """Test if calibrations given as custom backend show up in transpiled circuits."""
-        qubits = (2,)
-        my_sched = Schedule(name="custom_sx_gate")
-        my_backend = copy.deepcopy(self.backend)
-        my_backend.target["sx"][qubits].calibration = my_sched
-
-        exp = rb.StandardRB(physical_qubits=qubits, lengths=[3], num_samples=4, backend=my_backend)
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
 
     def test_backend_with_directed_basis_gates(self):
         """Test if correct circuits are generated from backend with directed basis gates."""

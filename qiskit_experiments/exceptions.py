@@ -17,7 +17,3 @@ from qiskit.exceptions import QiskitError
 
 class AnalysisError(QiskitError):
     """Class for errors raised by experiment analysis."""
-
-
-class CalibrationError(QiskitError):
-    """Errors raised by the calibration module."""

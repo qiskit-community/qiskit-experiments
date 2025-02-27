@@ -19,6 +19,8 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
+from qiskit.utils import deprecate_func
+
 from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -66,8 +68,20 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e6, noise=True, seed=185)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -87,9 +101,6 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
-
-    # section: manual
-        :ref:`fine-amplitude-cal`
 
     """
 
@@ -202,9 +213,6 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         Returns:
             A list of circuits with a variable number of gates.
-
-        Raises:
-            CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
         repetitions = self.experiment_options.get("repetitions")
 
@@ -261,8 +269,20 @@ class FineXAmplitude(FineAmplitude):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -317,8 +337,20 @@ class FineSXAmplitude(FineAmplitude):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=True, seed=198)
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            sx_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(sx_error, ["sx"])
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -373,24 +405,22 @@ class FineZXAmplitude(FineAmplitude):
         :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
 
-    # section: example
+        .. note::
 
-        To run this experiment, the user will have to provide the instruction schedule
-        map in the transpile options that contains the schedule for the experiment.
+            This experiment assumes a gate named ``szx`` which is not standard.
+            It was written work with a custom pulse calibration.
 
-        .. code-block:: python
-
-            qubits = (1, 2)
-            inst_map = InstructionScheduleMap()
-            inst_map.add("szx", qubits, my_schedule)
-
-            fine_amp = FineZXAmplitude(qubits, backend)
-            fine_amp.set_transpile_options(inst_map=inst_map)
-
-        Here, :code:`my_schedule` is the pulse schedule that will implement the
-        :code:`RZXGate(np.pi / 2)` rotation.
     """
 
+    @deprecate_func(
+        since="0.9",
+        additional_msg=(
+            "This experiment requires an RZXGate which is not standard and had "
+            "previously been implemented using Qiskit Pulse which was removed "
+            "in Qiskit 2.0."
+        ),
+        package_name="qiskit-experiments",
+    )
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
 
