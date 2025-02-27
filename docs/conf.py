@@ -38,7 +38,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 version = os.getenv("VERSION_STRING", "0.8")
 
 # The full version, including alpha/beta/rc tags
-release = os.getenv("RELEASE_STRING", "0.8.1")
+release = os.getenv("RELEASE_STRING", "0.8.2")
 
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
