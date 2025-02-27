@@ -6,9 +6,9 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Data Processor: Wrangling data" href="data_processor.html" /><link rel="prev" title="Introduction" href="intro.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.8.1</title>
+        <title>Calibrations: Schedules and gate parameters from experiments - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -652,13 +652,13 @@ You can install it with <code class="docutils literal notranslate"><span class="
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">qiskit.pulse</span> <span class="k">as</span> <span class="nn">pulse</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.calibrations</span> <span class="kn">import</span> <span class="n">Calibrations</span>
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">schedule</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.test.pulse_backend</span> <span class="kn">import</span> <span class="n">SingleTransmonTestBackend</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">qiskit.pulse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pulse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.calibration_management.calibrations</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">schedule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.pulse_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleTransmonTestBackend</span>
 </pre></div>
 </div>
 </div>
@@ -692,7 +692,7 @@ are automatically mapped to the channel index when <a class="reference internal"
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A function to instantiate calibrations and add a couple of template schedules.</span>
-<span class="k">def</span> <span class="nf">setup_cals</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibrations</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_cals</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibrations</span><span class="p">:</span>
 
     <span class="n">cals</span> <span class="o">=</span> <span class="n">Calibrations</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
 
@@ -719,7 +719,7 @@ are automatically mapped to the channel index when <a class="reference internal"
     <span class="k">return</span> <span class="n">cals</span>
 
 <span class="c1"># Add guesses for the parameter values to the calibrations.</span>
-<span class="k">def</span> <span class="nf">add_parameter_guesses</span><span class="p">(</span><span class="n">cals</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_parameter_guesses</span><span class="p">(</span><span class="n">cals</span><span class="p">:</span> <span class="n">Calibrations</span><span class="p">):</span>
 
     <span class="k">for</span> <span class="n">sched</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">,</span> <span class="s2">&quot;x90p&quot;</span><span class="p">]:</span>
         <span class="n">cals</span><span class="o">.</span><span class="n">add_parameter_value</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="s2">&quot;σ&quot;</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="n">sched</span><span class="p">)</span>
@@ -756,7 +756,7 @@ This is shown below using the <code class="docutils literal notranslate"><span c
 we change the default value of the pulse duration to 320 samples</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.calibration_management.basis_gate_library</span> <span class="kn">import</span> <span class="n">FixedFrequencyTransmon</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.calibration_management.basis_gate_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedFrequencyTransmon</span>
 
 <span class="n">library</span> <span class="o">=</span> <span class="n">FixedFrequencyTransmon</span><span class="p">(</span><span class="n">default_values</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">320</span><span class="p">})</span>
 <span class="n">cals</span> <span class="o">=</span> <span class="n">Calibrations</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">libraries</span><span class="o">=</span><span class="p">[</span><span class="n">library</span><span class="p">])</span>
@@ -767,9 +767,9 @@ we change the default value of the pulse duration to 320 samples</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.5, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;x&#39;), DefaultCalValue(value=0.0, parameter=&#39;β&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.0, parameter=&#39;angle&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=80.0, parameter=&#39;σ&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=0.25, parameter=&#39;amp&#39;, qubits=(), schedule_name=&#39;sx&#39;), DefaultCalValue(value=320, parameter=&#39;duration&#39;, qubits=(), schedule_name=&#39;sx&#39;)]
 &lt;InstructionScheduleMap(1Q instructions:
-  q0: {&#39;x&#39;, &#39;y&#39;, &#39;sx&#39;, &#39;sy&#39;}
+  q0: {&#39;y&#39;, &#39;x&#39;, &#39;sy&#39;, &#39;sx&#39;}
 Multi qubit instructions:
 )&gt;
 ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.5, angle=0), DriveChannel(0)), name=&quot;x&quot;, transform=AlignLeft())
@@ -787,7 +787,7 @@ We will therefore use the spectroscopy experiment to confirm that
 there is a resonance at the qubit frequency reported by the backend.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library.calibration.rough_frequency</span> <span class="kn">import</span> <span class="n">RoughFrequencyCal</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.calibration.rough_frequency</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoughFrequencyCal</span>
 </pre></div>
 </div>
 </div>
@@ -838,75 +838,75 @@ Observe that the parameter values of <code class="docutils literal notranslate">
   <tbody>
     <tr>
       <th>0</th>
-      <td>amp</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>2.50000e-01</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>β</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>amp</td>
-      <td>()</td>
-      <td>x</td>
-      <td>5.00000e-01</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>3</th>
       <td>meas_freq</td>
       <td>(0,)</td>
       <td>None</td>
       <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
-      <th>4</th>
+      <th>1</th>
+      <td>angle</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.00000e+00</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>β</td>
+      <td>()</td>
+      <td>x</td>
+      <td>0.00000e+00</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>3</th>
       <td>β</td>
       <td>()</td>
       <td>sx</td>
       <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>angle</td>
-      <td>()</td>
-      <td>x</td>
-      <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>angle</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>σ</td>
-      <td>()</td>
-      <td>sx</td>
-      <td>8.00000e+01</td>
-      <td>2025-01-03 20:23:25....</td>
-    </tr>
-    <tr>
-      <th>8</th>
+      <th>4</th>
       <td>drive_freq</td>
       <td>(0,)</td>
       <td>None</td>
       <td>5.20000e+09</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>duration</td>
+      <td>()</td>
+      <td>x</td>
+      <td>3.20000e+02</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>amp</td>
+      <td>()</td>
+      <td>x</td>
+      <td>5.00000e-01</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>duration</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>3.20000e+02</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>amp</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>2.50000e-01</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>9</th>
@@ -914,23 +914,23 @@ Observe that the parameter values of <code class="docutils literal notranslate">
       <td>()</td>
       <td>x</td>
       <td>8.00000e+01</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>duration</td>
+      <td>σ</td>
       <td>()</td>
       <td>sx</td>
-      <td>3.20000e+02</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>8.00000e+01</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>duration</td>
+      <td>angle</td>
       <td>()</td>
       <td>x</td>
-      <td>3.20000e+02</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>0.00000e+00</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
   </tbody>
 </table>
@@ -1045,19 +1045,19 @@ experiment id that produced a value.</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>drive_freq</td>
-      <td>(0,)</td>
-      <td>None</td>
-      <td>5.20002e+09</td>
-      <td>2025-01-03 20:23:50....</td>
-    </tr>
-    <tr>
-      <th>1</th>
       <td>meas_freq</td>
       <td>(0,)</td>
       <td>None</td>
       <td>0.00000e+00</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>drive_freq</td>
+      <td>(0,)</td>
+      <td>None</td>
+      <td>5.20002e+09</td>
+      <td>2025-02-27 21:08:34....</td>
     </tr>
   </tbody>
 </table>
@@ -1073,7 +1073,7 @@ This is a specialization of the <a class="reference internal" href="../stubs/qis
 for both the <span class="math notranslate nohighlight">\(X\)</span> pulse and the <span class="math notranslate nohighlight">\(SX\)</span> pulse using a single experiment.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library.calibration</span> <span class="kn">import</span> <span class="n">RoughXSXAmplitudeCal</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoughXSXAmplitudeCal</span>
 <span class="n">rabi</span> <span class="o">=</span> <span class="n">RoughXSXAmplitudeCal</span><span class="p">((</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">cals</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">amplitudes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">51</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -1164,33 +1164,33 @@ argument given to the calibration experiment at initialization.</p>
       <th>0</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2025-01-03 20:23:59....</td>
+      <td>sx</td>
+      <td>0.01460</td>
+      <td>2025-02-27 21:08:42....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01460</td>
-      <td>2025-01-03 20:23:59....</td>
+      <td>0.25000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.50000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>0.02919</td>
+      <td>2025-02-27 21:08:42....</td>
     </tr>
   </tbody>
 </table>
@@ -1305,33 +1305,33 @@ By contrast, the value of the parameters will be recovered from the file.</p>
       <th>0</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2025-01-03 20:23:59....</td>
+      <td>sx</td>
+      <td>0.01460</td>
+      <td>2025-02-27 21:08:42....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01460</td>
-      <td>2025-01-03 20:23:59....</td>
+      <td>0.25000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.50000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>0.02919</td>
+      <td>2025-02-27 21:08:42....</td>
     </tr>
   </tbody>
 </table>
@@ -1358,7 +1358,7 @@ with a positive angle and Rm is the same rotation with a
 negative amplitude.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">RoughDragCal</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoughDragCal</span>
 <span class="n">cal_drag</span> <span class="o">=</span> <span class="n">RoughDragCal</span><span class="p">([</span><span class="n">qubit</span><span class="p">],</span> <span class="n">cals</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">betas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">))</span>
 <span class="n">cal_drag</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">reps</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
 <span class="n">cal_drag</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
@@ -1389,8 +1389,8 @@ negative amplitude.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: beta
-- value: -1.531+/-0.017
-- χ²: 0.8392648322586989
+- value: -1.516+/-0.017
+- χ²: 1.156105292471077
 - quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -1436,25 +1436,25 @@ negative amplitude.</p>
       <th>0</th>
       <td>β</td>
       <td>()</td>
-      <td>sx</td>
+      <td>x</td>
       <td>0.00000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>β</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.00000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>-1.51636</td>
+      <td>2025-02-27 21:08:47....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>β</td>
-      <td>(0,)</td>
-      <td>x</td>
-      <td>-1.53064</td>
-      <td>2025-01-03 20:24:03....</td>
+      <td>()</td>
+      <td>sx</td>
+      <td>0.00000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
   </tbody>
 </table>
@@ -1473,8 +1473,8 @@ to detect imperfect pulses using the characterization version of these experimen
 update calibrations with a calibration experiment.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.pulse</span> <span class="kn">import</span> <span class="n">InstructionScheduleMap</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">FineXAmplitude</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.pulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">InstructionScheduleMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">FineXAmplitude</span>
 </pre></div>
 </div>
 </div>
@@ -1598,10 +1598,10 @@ error but also its sign.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The ideal angle is 3.14 rad. We measured a deviation of 0.064 rad in over-rotated pulse case.
-Thus, scale the 0.0594 pulse amplitude by 0.980 to obtain 0.05819.
-On the other hand, we measured a deviation of -0.061 rad in under-rotated pulse case.
-Thus, scale the 0.0570 pulse amplitude by 1.020 to obtain 0.05818.
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The ideal angle is 3.14 rad. We measured a deviation of 0.067 rad in over-rotated pulse case.
+Thus, scale the 0.0594 pulse amplitude by 0.979 to obtain 0.05814.
+On the other hand, we measured a deviation of -0.063 rad in under-rotated pulse case.
+Thus, scale the 0.0570 pulse amplitude by 1.021 to obtain 0.05822.
 </pre></div>
 </div>
 </div>
@@ -1621,7 +1621,7 @@ amplitude of the X pulse by two. We expect that this pulse might have a small ro
 error which we want to correct.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library</span> <span class="kn">import</span> <span class="n">FineSXAmplitudeCal</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">FineSXAmplitudeCal</span>
 
 <span class="n">amp_cal</span> <span class="o">=</span> <span class="n">FineSXAmplitudeCal</span><span class="p">((</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">cals</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">schedule_name</span><span class="o">=</span><span class="s2">&quot;sx&quot;</span><span class="p">)</span>
 <span class="n">amp_cal</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
@@ -1682,33 +1682,33 @@ error which we want to correct.</p>
       <th>0</th>
       <td>amp</td>
       <td>(0,)</td>
-      <td>x</td>
-      <td>0.02919</td>
-      <td>2025-01-03 20:23:59....</td>
+      <td>sx</td>
+      <td>0.01455</td>
+      <td>2025-02-27 21:08:50....</td>
     </tr>
     <tr>
       <th>1</th>
       <td>amp</td>
       <td>()</td>
-      <td>sx</td>
-      <td>0.25000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>x</td>
+      <td>0.50000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>2</th>
       <td>amp</td>
-      <td>(0,)</td>
+      <td>()</td>
       <td>sx</td>
-      <td>0.01455</td>
-      <td>2025-01-03 20:24:06....</td>
+      <td>0.25000</td>
+      <td>2025-02-27 21:08:07....</td>
     </tr>
     <tr>
       <th>3</th>
       <td>amp</td>
-      <td>()</td>
+      <td>(0,)</td>
       <td>x</td>
-      <td>0.50000</td>
-      <td>2025-01-03 20:23:25....</td>
+      <td>0.02919</td>
+      <td>2025-02-27 21:08:42....</td>
     </tr>
   </tbody>
 </table>
@@ -1721,7 +1721,7 @@ error which we want to correct.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145509643, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ScheduleBlock(Play(Drag(duration=320, sigma=80, beta=0, amp=0.0145461587, angle=0), DriveChannel(0)), name=&quot;sx&quot;, transform=AlignLeft())
 </pre></div>
 </div>
 </div>
@@ -1785,7 +1785,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1828,7 +1828,7 @@ have a smaller <span class="math notranslate nohighlight">\(d\theta\)</span> err
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

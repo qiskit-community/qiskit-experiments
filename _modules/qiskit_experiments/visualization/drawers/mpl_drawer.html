@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -617,34 +617,34 @@
 
 <span class="sd">&quot;&quot;&quot;Curve drawer for matplotlib backend.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numbers</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
-<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">tab10</span>
-<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">Colormap</span><span class="p">,</span> <span class="n">LinearSegmentedColormap</span>
-<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
-<span class="kn">from</span> <span class="nn">matplotlib.markers</span> <span class="kn">import</span> <span class="n">MarkerStyle</span>
-<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">Formatter</span><span class="p">,</span> <span class="n">ScalarFormatter</span>
-<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit.utils</span> <span class="kn">import</span> <span class="n">detach_prefix</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.cm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tab10</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Colormap</span><span class="p">,</span> <span class="n">LinearSegmentedColormap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.markers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MarkerStyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Formatter</span><span class="p">,</span> <span class="n">ScalarFormatter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">detach_prefix</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework.matplotlib</span> <span class="kn">import</span> <span class="n">get_non_gui_ax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_non_gui_ax</span>
 
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">ExtentTuple</span>
-<span class="kn">from</span> <span class="nn">.base_drawer</span> <span class="kn">import</span> <span class="n">BaseDrawer</span><span class="p">,</span> <span class="n">SeriesName</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExtentTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_drawer</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDrawer</span><span class="p">,</span> <span class="n">SeriesName</span>
 
 
 <div class="viewcode-block" id="MplDrawer">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer">[docs]</a>
-<span class="k">class</span> <span class="nc">MplDrawer</span><span class="p">(</span><span class="n">BaseDrawer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MplDrawer</span><span class="p">(</span><span class="n">BaseDrawer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drawer for MatplotLib backend.&quot;&quot;&quot;</span>
 
     <span class="n">DefaultMarkers</span> <span class="o">=</span> <span class="n">MarkerStyle</span><span class="o">.</span><span class="n">filled_markers</span>
     <span class="n">DefaultColors</span> <span class="o">=</span> <span class="n">tab10</span><span class="o">.</span><span class="n">colors</span>
 
-    <span class="k">class</span> <span class="nc">PrefixFormatter</span><span class="p">(</span><span class="n">Formatter</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">PrefixFormatter</span><span class="p">(</span><span class="n">Formatter</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Matplotlib axis formatter to detach prefix.</span>
 
 <span class="sd">        If a value is, e.g., x=1000.0 and the factor is 1000, then it will be shown</span>
@@ -652,7 +652,7 @@
 <span class="sd">        in the axis label.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Create a PrefixFormatter instance.</span>
 
 <span class="sd">            Args:</span>
@@ -660,7 +660,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">factor</span>
 
-        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Returns the formatted string for tick position ``pos`` and value ``x``.</span>
 
 <span class="sd">            Args:</span>
@@ -672,7 +672,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_minus</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># Used to track which series have already been plotted. Needed for _get_default_marker and</span>
         <span class="c1"># _get_default_color.</span>
@@ -680,7 +680,7 @@
 
 <div class="viewcode-block" id="MplDrawer.initialize_canvas">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.initialize_canvas">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create axis if empty</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span><span class="p">:</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="n">get_non_gui_ax</span><span class="p">()</span>
@@ -793,7 +793,7 @@
 
 <div class="viewcode-block" id="MplDrawer.format_canvas">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.format_canvas">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">:</span>
             <span class="c1"># Multi canvas mode</span>
             <span class="n">all_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span>
@@ -804,10 +804,10 @@
         <span class="c1"># the axis limits because if no limits or data are set explicitly the</span>
         <span class="c1"># default limits depend on the scale method (for example, the minimum</span>
         <span class="c1"># value is 0 for linear scaling but not for log scaling).</span>
-        <span class="k">def</span> <span class="nf">signed_sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">signed_sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
-        <span class="k">def</span> <span class="nf">signed_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">signed_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
 
         <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
@@ -937,7 +937,7 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get inset axis.</span>
 
 <span class="sd">        Args:</span>
@@ -957,11 +957,11 @@
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Canvas index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> is out of range. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">)</span><span class="si">}</span><span class="s2"> subplots are initialized.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span>
 
-    <span class="k">def</span> <span class="nf">_get_default_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get default color for the series.</span>
 
 <span class="sd">        Args:</span>
@@ -980,7 +980,7 @@
         <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DefaultColors</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">DefaultColors</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_get_default_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get default marker for the scatter plot.</span>
 
 <span class="sd">        Args:</span>
@@ -995,7 +995,7 @@
         <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DefaultMarkers</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">DefaultMarkers</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_update_label_in_options</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_label_in_options</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">],</span>
@@ -1026,7 +1026,7 @@
 
 <div class="viewcode-block" id="MplDrawer.scatter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.scatter">[docs]</a>
-    <span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scatter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1084,7 +1084,7 @@
 
 <div class="viewcode-block" id="MplDrawer.line">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.line">[docs]</a>
-    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">line</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1109,7 +1109,7 @@
 
 <div class="viewcode-block" id="MplDrawer.hline">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.hline">[docs]</a>
-    <span class="k">def</span> <span class="nf">hline</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1133,7 +1133,7 @@
 
 <div class="viewcode-block" id="MplDrawer.filled_y_area">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_y_area">[docs]</a>
-    <span class="k">def</span> <span class="nf">filled_y_area</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filled_y_area</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">y_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1158,7 +1158,7 @@
 
 <div class="viewcode-block" id="MplDrawer.filled_x_area">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.filled_x_area">[docs]</a>
-    <span class="k">def</span> <span class="nf">filled_x_area</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filled_x_area</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x_ub</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">x_lb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1183,7 +1183,7 @@
 
 <div class="viewcode-block" id="MplDrawer.textbox">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.textbox">[docs]</a>
-    <span class="k">def</span> <span class="nf">textbox</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">textbox</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">rel_pos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1213,7 +1213,7 @@
         <span class="n">text_box_handler</span><span class="o">.</span><span class="n">set_bbox</span><span class="p">(</span><span class="n">bbox_props</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_series_names_to_cmap</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_series_names_to_cmap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">series_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Colormap</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a :class:`Colormap` instance of series colours.</span>
@@ -1277,7 +1277,7 @@
 
 <div class="viewcode-block" id="MplDrawer.image">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.image">[docs]</a>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">image</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">extent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExtentTuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1323,7 +1323,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Figure</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Figure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.</span>
 
 <span class="sd">        In the MatplotLib the ``Figure`` and ``Axes`` are different object. User can</span>
@@ -1357,7 +1357,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1372,7 +1372,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

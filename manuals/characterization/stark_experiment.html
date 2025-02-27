@@ -6,9 +6,9 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T1 Characterization" href="t1.html" /><link rel="prev" title="Quantum State Tomography" href="../verification/state_tomography.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>AC Stark Effect - Qiskit Experiments 0.8.1</title>
+        <title>AC Stark Effect - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -712,7 +712,7 @@ backend.  You can install it with <code class="docutils literal notranslate"><sp
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_ibm_runtime.fake_provider</span> <span class="kn">import</span> <span class="n">FakeHanoiV2</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeHanoiV2</span>
 
 <span class="n">backend</span> <span class="o">=</span> <span class="n">FakeHanoiV2</span><span class="p">()</span>
 <span class="n">qubit</span> <span class="o">=</span> <span class="mi">0</span>
@@ -792,7 +792,7 @@ and the workflow starts from characterizing the amount of the Stark shift agains
 the Stark amplitude <span class="math notranslate nohighlight">\(\bar{\Omega}\)</span> that you can experimentally control.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library.driven_freq_tuning</span> <span class="kn">import</span> <span class="n">StarkRamseyXYAmpScan</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.driven_freq_tuning</span><span class="w"> </span><span class="kn">import</span> <span class="n">StarkRamseyXYAmpScan</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">StarkRamseyXYAmpScan</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 <span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
@@ -827,8 +827,8 @@ If you have an access to the Experiment service, you can just save the experimen
 <p>Otherwise, you can dump the coefficient object into a file with JSON format.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentEncoder</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentEncoder</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;coefficients.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
     <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ret_coeffs</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">ExperimentEncoder</span><span class="p">)</span>
@@ -842,12 +842,12 @@ If you have an access to the Experiment service, you can just save the experimen
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># When you have access to Experiment service</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.library.driven_freq_tuning</span> <span class="kn">import</span> <span class="n">retrieve_coefficients_from_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.driven_freq_tuning</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieve_coefficients_from_backend</span>
 
 <span class="n">coefficients</span> <span class="o">=</span> <span class="n">retrieve_coefficients_from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># Alternatively you can load from file</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">ExperimentDecoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentDecoder</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;coefficients.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
     <span class="n">coefficients</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">ExperimentDecoder</span><span class="p">)</span>
@@ -865,7 +865,7 @@ You can scan the <span class="math notranslate nohighlight">\(\bar{\Omega}\)</sp
 but the <code class="code docutils literal notranslate"><span class="pre">stark_coefficients</span></code> option must be set to perform the frequency sweep.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_experiments.library.driven_freq_tuning</span> <span class="kn">import</span> <span class="n">StarkP1Spectroscopy</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.driven_freq_tuning</span><span class="w"> </span><span class="kn">import</span> <span class="n">StarkP1Spectroscopy</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">StarkP1Spectroscopy</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
@@ -977,7 +977,7 @@ Phys. Rev. Lett. 127, 080505 (2021).
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1016,7 +1016,7 @@ Phys. Rev. Lett. 127, 080505 (2021).
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

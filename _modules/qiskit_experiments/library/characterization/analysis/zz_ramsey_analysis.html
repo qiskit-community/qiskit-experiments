@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.characterization.analysis.zz_ramsey_analysis - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.library.characterization.analysis.zz_ramsey_analysis - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
@@ -618,26 +618,26 @@
 <span class="sd">Analysis class for ZZ Ramsey experiment</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">lmfit</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit.providers.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
 
-<span class="kn">import</span> <span class="nn">qiskit_experiments.curve_analysis</span> <span class="k">as</span> <span class="nn">curve</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.curve_analysis</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">qiskit_experiments.curve_analysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">curve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.curve_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CurveAnalysis</span><span class="p">,</span>
     <span class="n">ScatterTable</span><span class="p">,</span>
     <span class="n">CurveFitResult</span><span class="p">,</span>
     <span class="n">FitOptions</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.curve_analysis.utils</span> <span class="kn">import</span> <span class="n">is_error_not_significant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.curve_analysis.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_error_not_significant</span>
 
 
 <div class="viewcode-block" id="ZZRamseyAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.ZZRamseyAnalysis.html#qiskit_experiments.library.characterization.ZZRamseyAnalysis">[docs]</a>
-<span class="k">class</span> <span class="nc">ZZRamseyAnalysis</span><span class="p">(</span><span class="n">CurveAnalysis</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZZRamseyAnalysis</span><span class="p">(</span><span class="n">CurveAnalysis</span><span class="p">):</span>
     <span class="c1"># Disable long line check because we can&#39;t break the long math lines</span>
     <span class="c1"># pylint: disable=line-too-long</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze a :math:`ZZ` Ramsey experiment.</span>
@@ -694,7 +694,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: enable=line-too-long</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
@@ -709,7 +709,7 @@
         <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default analysis options.</span>
 
 <span class="sd">        See</span>
@@ -730,7 +730,7 @@
 
         <span class="k">return</span> <span class="n">default_options</span>
 
-    <span class="k">def</span> <span class="nf">_generate_fit_guesses</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_fit_guesses</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
@@ -752,7 +752,7 @@
         <span class="n">data_0</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
         <span class="n">data_1</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">typical_step</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">typical_step</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Find the typical step size of an array&quot;&quot;&quot;</span>
             <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
             <span class="c1"># If points are not unique, there will be 0&#39;s that don&#39;t count as</span>
@@ -779,7 +779,7 @@
             <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">constant_sinusoidal_offset</span><span class="p">(</span><span class="n">data_1</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
         <span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">rough_sinusoidal_decay_constant</span><span class="p">(</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">rough_sinusoidal_decay_constant</span><span class="p">(</span>
             <span class="n">x_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Estimate the decay constant of y_data vs x_data</span>
@@ -829,7 +829,7 @@
 
         <span class="k">return</span> <span class="n">user_opt</span>
 
-    <span class="k">def</span> <span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
@@ -879,7 +879,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -894,7 +894,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

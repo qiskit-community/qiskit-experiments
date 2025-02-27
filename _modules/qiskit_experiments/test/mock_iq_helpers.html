@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.test.mock_iq_helpers - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.test.mock_iq_helpers - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -617,14 +617,14 @@
 
 <span class="sd">&quot;&quot;&quot;Probability and phase functions for the mock IQ backend.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">qiskit_aer</span> <span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.framework</span> <span class="kn">import</span> <span class="n">BaseExperiment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span>
 
 <span class="c1"># Define an IQ point typing class.</span>
 <span class="n">IQPoint</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -632,14 +632,14 @@
 
 <div class="viewcode-block" id="MockIQExperimentHelper">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html#qiskit_experiments.test.MockIQExperimentHelper">[docs]</a>
-<span class="k">class</span> <span class="nc">MockIQExperimentHelper</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQExperimentHelper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for the MockIQ helper classes.</span>
 
 <span class="sd">    Different tests will use experiment specific helper classes which define the pattern</span>
 <span class="sd">    of the IQ data that is then analyzed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">iq_cluster_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -689,29 +689,29 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The base cluster centers in the IQ plane.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span>
 
     <span class="nd">@iq_cluster_centers</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_cluster_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the base cluster centers in the IQ plane.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_centers</span> <span class="o">=</span> <span class="n">iq_cluster_centers</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">iq_cluster_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_cluster_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The base cluster widths in the IQ plane.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_width</span>
 
     <span class="nd">@iq_cluster_width</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">iq_cluster_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_cluster_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the base cluster widths.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iq_cluster_width</span> <span class="o">=</span> <span class="n">iq_cluster_width</span>
 
 <div class="viewcode-block" id="MockIQExperimentHelper.compute_probabilities">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html#qiskit_experiments.test.MockIQExperimentHelper.compute_probabilities">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function provided by the user which is used to determine the probability of each output of the</span>
 <span class="sd">        circuit. The function returns a list of dictionaries, each containing output binary strings and</span>
@@ -787,7 +787,7 @@
     <span class="c1"># pylint: disable=unused-argument</span>
 <div class="viewcode-block" id="MockIQExperimentHelper.iq_phase">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html#qiskit_experiments.test.MockIQExperimentHelper.iq_phase">[docs]</a>
-    <span class="k">def</span> <span class="nf">iq_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sub-classes can override this method to introduce a phase in the IQ plane.</span>
 
 <span class="sd">        This is needed, to test the resonator spectroscopy where the point in the IQ</span>
@@ -798,7 +798,7 @@
 
 <div class="viewcode-block" id="MockIQExperimentHelper.iq_clusters">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html#qiskit_experiments.test.MockIQExperimentHelper.iq_clusters">[docs]</a>
-    <span class="k">def</span> <span class="nf">iq_clusters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_clusters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
@@ -831,10 +831,10 @@
 
 <div class="viewcode-block" id="MockIQParallelExperimentHelper">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQParallelExperimentHelper.html#qiskit_experiments.test.MockIQParallelExperimentHelper">[docs]</a>
-<span class="k">class</span> <span class="nc">MockIQParallelExperimentHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQParallelExperimentHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper for Parallel experiment.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">exp_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">],</span>
         <span class="n">exp_helper_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MockIQExperimentHelper</span><span class="p">],</span>
@@ -924,7 +924,7 @@
 
 <div class="viewcode-block" id="MockIQParallelExperimentHelper.compute_probabilities">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQParallelExperimentHelper.html#qiskit_experiments.test.MockIQParallelExperimentHelper.compute_probabilities">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
@@ -966,7 +966,7 @@
         <span class="k">return</span> <span class="n">prob_help_list</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_verify_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_verify_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">exp_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exp_helper_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MockIQExperimentHelper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -996,7 +996,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">helper</span><span class="p">,</span> <span class="n">MockIQParallelExperimentHelper</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Nested parallel experiments aren&#39;t currently supported.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_parallel_exp_circ_splitter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qc_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parallel_exp_circ_splitter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qc_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Splits quantum circuits to their parallel components.</span>
 <span class="sd">        Args:</span>
@@ -1057,10 +1057,10 @@
 
 
 
-<span class="k">class</span> <span class="nc">MockIQDragHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQDragHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for test_drag&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gate_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Rp&quot;</span><span class="p">,</span>
         <span class="n">ideal_beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -1096,7 +1096,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_probability</span> <span class="o">=</span> <span class="n">max_probability</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_probability</span> <span class="o">=</span> <span class="n">offset_probability</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the probability based on the beta, number of gates, and leakage.&quot;&quot;&quot;</span>
 
         <span class="n">gate_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate_name</span>
@@ -1122,10 +1122,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQFineDragHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQFineDragHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Fine Drag Experiment&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span>
         <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1134,7 +1134,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iq_cluster_centers</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the probability based on error per gate.&quot;&quot;&quot;</span>
 
         <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span>
@@ -1150,10 +1150,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQRabiHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQRabiHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Rabi experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">amplitude_to_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
         <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1173,7 +1173,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iq_cluster_centers</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_to_angle</span> <span class="o">=</span> <span class="n">amplitude_to_angle</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the probability based on the rotation angle and amplitude_to_angle.&quot;&quot;&quot;</span>
         <span class="n">amplitude_to_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_to_angle</span>
         <span class="n">output_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1187,15 +1187,15 @@
             <span class="n">output_dict_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">probability_output_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
-    <span class="k">def</span> <span class="nf">rabi_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rabi_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the rabi rate.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">amplitude_to_angle</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQFineFreqHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQFineFreqHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Fine Frequency experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sx_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">160</span><span class="p">,</span>
         <span class="n">freq_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -1214,7 +1214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">freq_shift</span> <span class="o">=</span> <span class="n">freq_shift</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">sx_duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sx_duration</span>
         <span class="n">freq_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_shift</span>
@@ -1247,10 +1247,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQFineAmpHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQFineAmpHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Fine Amplitude experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">angle_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">angle_per_gate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -1269,7 +1269,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">angle_per_gate</span> <span class="o">=</span> <span class="n">angle_per_gate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gate_name</span> <span class="o">=</span> <span class="n">gate_name</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">angle_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_error</span>
         <span class="n">angle_per_gate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_per_gate</span>
@@ -1294,10 +1294,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQRamseyXYHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQRamseyXYHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Ramsey XY experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">t2ramsey</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100e-6</span><span class="p">,</span>
         <span class="n">freq_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -1308,7 +1308,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">t2ramsey</span> <span class="o">=</span> <span class="n">t2ramsey</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">freq_shift</span> <span class="o">=</span> <span class="n">freq_shift</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">t2ramsey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t2ramsey</span>
         <span class="n">freq_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_shift</span>
@@ -1334,10 +1334,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQSpectroscopyHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQSpectroscopyHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Spectroscopy experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gate_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Spec&quot;</span><span class="p">,</span>
         <span class="n">freq_offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -1356,7 +1356,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">line_width</span> <span class="o">=</span> <span class="n">line_width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gate_name</span> <span class="o">=</span> <span class="n">gate_name</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the probability based on the parameters provided.&quot;&quot;&quot;</span>
         <span class="n">freq_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_offset</span>
         <span class="n">line_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_width</span>
@@ -1378,7 +1378,7 @@
             <span class="n">output_dict_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">probability_output_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
-    <span class="k">def</span> <span class="nf">iq_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iq_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a phase to the IQ point depending on how far we are from the resonance.</span>
 <span class="sd">        This will cause the IQ points to rotate around in the IQ plane when we approach the</span>
 <span class="sd">        resonance, introducing extra complication that the data processor has to</span>
@@ -1394,10 +1394,10 @@
         <span class="k">return</span> <span class="n">phase</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQReadoutAngleHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQReadoutAngleHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Readout angle experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">output_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">circuits</span><span class="p">:</span>
@@ -1408,10 +1408,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQHalfAngleHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQHalfAngleHelper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for Half Angle experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1420,7 +1420,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iq_cluster_centers</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span>
         <span class="n">output_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1438,10 +1438,10 @@
         <span class="k">return</span> <span class="n">output_dict_list</span>
 
 
-<span class="k">class</span> <span class="nc">MockIQT1Helper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQT1Helper</span><span class="p">(</span><span class="n">MockIQExperimentHelper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Functions needed for T1 experiment on mock IQ backend&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">iq_cluster_centers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">IQPoint</span><span class="p">,</span> <span class="n">IQPoint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1450,7 +1450,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iq_cluster_centers</span><span class="p">,</span> <span class="n">iq_cluster_width</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_t1</span> <span class="o">=</span> <span class="n">t1</span> <span class="ow">or</span> <span class="mf">90e-6</span>
 
-    <span class="k">def</span> <span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the excited state.&quot;&quot;&quot;</span>
         <span class="n">output_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">circuits</span><span class="p">:</span>
@@ -1483,7 +1483,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -1498,7 +1498,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

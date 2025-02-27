@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.composite.parallel_experiment - Qiskit Experiments 0.8.1</title>
+        <title>qiskit_experiments.framework.composite.parallel_experiment - Qiskit Experiments 0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -617,20 +617,20 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parallel Experiment class.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">ClassicalRegister</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">Clbit</span>
-<span class="kn">from</span> <span class="nn">qiskit.providers.backend</span> <span class="kn">import</span> <span class="n">Backend</span>
-<span class="kn">from</span> <span class="nn">qiskit_experiments.exceptions</span> <span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span> <span class="nn">.composite_experiment</span> <span class="kn">import</span> <span class="n">CompositeExperiment</span><span class="p">,</span> <span class="n">BaseExperiment</span>
-<span class="kn">from</span> <span class="nn">.composite_analysis</span> <span class="kn">import</span> <span class="n">CompositeAnalysis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">ClassicalRegister</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Clbit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.composite_experiment</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeExperiment</span><span class="p">,</span> <span class="n">BaseExperiment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.composite_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeAnalysis</span>
 
 
 <div class="viewcode-block" id="ParallelExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment">[docs]</a>
-<span class="k">class</span> <span class="nc">ParallelExperiment</span><span class="p">(</span><span class="n">CompositeExperiment</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelExperiment</span><span class="p">(</span><span class="n">CompositeExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine multiple experiments into a parallel experiment.</span>
 
 <span class="sd">    Parallel experiments combine individual experiments on disjoint subsets</span>
@@ -649,7 +649,7 @@
 <span class="sd">    documentation for additional information.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiments</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">],</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -686,14 +686,14 @@
 
 <div class="viewcode-block" id="ParallelExperiment.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment.circuits">[docs]</a>
-    <span class="k">def</span> <span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combined_circuits</span><span class="p">(</span><span class="n">device_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combined_circuits</span><span class="p">(</span><span class="n">device_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_combined_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_layout</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_combined_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_layout</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate combined parallel circuits from transpiled subcircuits.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">device_layout</span><span class="p">:</span>
             <span class="c1"># Num qubits will be computed from sub experiments</span>
@@ -783,7 +783,7 @@
                             <span class="s2">&quot;Component experiment has been transpiled outside of the &quot;</span>
                             <span class="s2">&quot;allowed physical qubits for that component. Check the &quot;</span>
                             <span class="s2">&quot;experiment is valid on the backends coupling map.&quot;</span>
-                        <span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
+                        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
                     <span class="n">circuit</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">mapped_qargs</span><span class="p">,</span> <span class="n">mapped_cargs</span><span class="p">)</span>
 
                 <span class="c1"># Add subcircuit metadata</span>
@@ -817,7 +817,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/01/03</div>
+              Last updated on 2025/02/27</div>
           </div>
           <div class="right-details">
             
@@ -832,7 +832,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=ec16d22d"></script>
+</div><script src="../../../../_static/documentation_options.js?v=dbee5847"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
