@@ -1,7 +1,7 @@
 ---
 fixes_expdata:
   - |
-    Fixed  :class:`~.ExperimentData` not reporting the correct job status when
+    Fixed :class:`~.ExperimentData` not reporting the correct job status when
     the job is of type :class:`~qiskit_ibm_runtime.RuntimeJobV2.
 developer:
   - |
