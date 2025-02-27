@@ -34,7 +34,6 @@ from qiskit.transpiler import InstructionProperties, Target
 from qiskit.utils import deprecate_func
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
-from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework.package_deps import HAS_DYNAMICS, version_is_at_least
 from qiskit_experiments.test.utils import FakeJob
 

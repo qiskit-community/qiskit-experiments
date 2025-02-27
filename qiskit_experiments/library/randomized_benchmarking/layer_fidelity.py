@@ -23,7 +23,7 @@ from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2Converter
-from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.providers.backend import Backend, BackendV1
 from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.framework import BaseExperiment, Options

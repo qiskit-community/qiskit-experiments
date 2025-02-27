@@ -13,14 +13,11 @@
 """Test ZZ Phase experiments."""
 
 from itertools import product
-from typing import Dict, List
 
 from test.base import QiskitExperimentsTestCase
 
-import numpy as np
 from ddt import ddt, idata, named_data, unpack
 
-from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
