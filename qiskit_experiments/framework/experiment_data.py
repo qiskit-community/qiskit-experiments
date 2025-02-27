@@ -107,6 +107,21 @@ def parse_utc_datetime(dt_str: str) -> datetime:
     return dt_utc
 
 
+def get_job_status(job: Job) -> JobStatus:
+    """Get job status in JobStatus format defined in:
+    `from qiskit.providers.jobstatus import JobStatus`"""
+    status = job.status()
+    if isinstance(status, str):
+        qe_job_status = getattr(JobStatus, status, None)
+        if qe_job_status is None:
+            raise QiskitError(
+                f"The status of job {job.job_id()} is {status} "
+                "which is not supported by qiskit-experiments."
+            )
+        status = qe_job_status
+    return status
+
+
 class ExperimentData:
     """Experiment data container class.
 
@@ -910,7 +925,7 @@ class ExperimentData:
             return jid, True
         except Exception as ex:  # pylint: disable=broad-except
             # Handle cancelled jobs
-            status = job.status()
+            status = get_job_status(job)
             if status == JobStatus.CANCELLED:
                 LOG.warning("Job was cancelled before completion [Job ID: %s]", jid)
                 return jid, False
@@ -1171,7 +1186,7 @@ class ExperimentData:
         # Add retrieved job objects to stored jobs and extract data
         for jid, job in retrieved_jobs.items():
             self._jobs[jid] = job
-            if job.status() in JOB_FINAL_STATES:
+            if get_job_status(job) in JOB_FINAL_STATES:
                 # Add job results synchronously
                 self._add_job_data(job)
             else:
@@ -1982,7 +1997,7 @@ class ExperimentData:
                 if ids and jid not in ids:
                     # Skip cancelling this callback
                     continue
-                if job and job.status() not in JOB_FINAL_STATES:
+                if job and get_job_status(job) not in JOB_FINAL_STATES:
                     try:
                         job.cancel()
                         LOG.warning("Cancelled job [Job ID: %s]", jid)
@@ -2259,7 +2274,7 @@ class ExperimentData:
             statuses = set()
             for job in self._jobs.values():
                 if job:
-                    statuses.add(job.status())
+                    statuses.add(get_job_status(job))
 
         # If any jobs are in non-DONE state return that state
         for stat in [
@@ -2310,7 +2325,7 @@ class ExperimentData:
 
         # Get any job errors
         for job in self._jobs.values():
-            if job and job.status() == JobStatus.ERROR:
+            if job and get_job_status(job) == JobStatus.ERROR:
                 if hasattr(job, "error_message"):
                     error_msg = job.error_message()
                 else:
