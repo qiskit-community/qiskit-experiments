@@ -130,7 +130,6 @@ Experiment Configuration Helper Classes
 
     BackendData
     BackendTiming
-    RestlessMixin
 
 """
 from qiskit.providers.options import Options
@@ -161,4 +160,3 @@ from .composite import (
 )
 from .json import ExperimentEncoder, ExperimentDecoder
 from .provider_interfaces import BaseJob, BaseProvider, ExtendedJob, IBMProvider, Job, Provider
-from .restless_mixin import RestlessMixin

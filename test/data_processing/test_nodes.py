@@ -12,6 +12,7 @@
 
 """Data processor tests."""
 
+import warnings
 from typing import Any, Dict, List
 from test.base import QiskitExperimentsTestCase
 
@@ -702,7 +703,13 @@ class TestRestless(QiskitExperimentsTestCase):
         previous_shot = "1"
         shot = "1"
 
-        restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
         self.assertEqual(restless_classified_shot, "0")
 
     def test_restless_classify_2(self):
@@ -713,7 +720,13 @@ class TestRestless(QiskitExperimentsTestCase):
         previous_shot = "11000110"
         shot = "11100010"
 
-        restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
         self.assertEqual(restless_classified_shot, "00100100")
 
     def test_restless_process_1(self):
@@ -721,7 +734,13 @@ class TestRestless(QiskitExperimentsTestCase):
         This example corresponds to running an X gate and a SX gate with four shots
         in an ideal restless setting."""
         n_qubits = 1
-        node = RestlessToCounts(n_qubits)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            node = RestlessToCounts(n_qubits)
 
         data = [["0x1", "0x1", "0x0", "0x0"], ["0x0", "0x1", "0x1", "0x0"]]
         processed_data = node(data=np.array(data))
@@ -736,7 +755,13 @@ class TestRestless(QiskitExperimentsTestCase):
         The first circuit applies an X gate to the first and a SX gate to the second qubit. The
         second circuit applies two identity gates."""
         n_qubits = 2
-        node = RestlessToCounts(n_qubits)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            node = RestlessToCounts(n_qubits)
 
         data = [["0x3", "0x1", "0x2", "0x0"], ["0x3", "0x1", "0x2", "0x0"]]
         processed_data = node(data=np.array(data))
@@ -747,7 +772,13 @@ class TestRestless(QiskitExperimentsTestCase):
 
     def test_restless_iq_process(self):
         """Test restless IQ data processing."""
-        node = RestlessToIQ()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            node = RestlessToIQ()
 
         # The shape of the IQ data is (2, 2, 1, 2) corresponding to
         # 2 circuits, 2 shots, 1 qubit and the respective IQ-point [I, Q].
@@ -762,7 +793,13 @@ class TestRestless(QiskitExperimentsTestCase):
 
     def test_restless_iq_process_2q(self):
         """Test two-qubit restless IQ data processing."""
-        node = RestlessToIQ()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Restless data processing nodes will be removed.*",
+                category=DeprecationWarning,
+            )
+            node = RestlessToIQ()
 
         # The shape of the IQ data is (2, 2, 2, 2) corresponding to
         # 2 circuits, 2 shots, 2 qubits and the respective IQ-point [I, Q].

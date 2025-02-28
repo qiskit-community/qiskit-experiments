@@ -37,7 +37,7 @@ def get_kerneled_processor(
             one dimension.
         meas_return: Type of data returned by the backend, i.e., averaged data or single-shot data.
         normalize: If True then normalize the output data to the interval ``[0, 1]``.
-        pre_nodes: any nodes to be applied first in the data processing chain such as restless nodes.
+        pre_nodes: any nodes to be applied first in the data processing chain
 
     Returns:
         An instance of DataProcessor capable of processing `meas_level=MeasLevel.KERNELED` data for
