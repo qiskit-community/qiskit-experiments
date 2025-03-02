@@ -17,9 +17,7 @@ import copy
 import numpy as np
 from ddt import ddt, data, unpack
 
-from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
-from qiskit.pulse import Schedule
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
 from qiskit_experiments.library.randomized_benchmarking import LayerFidelity, LayerFidelityAnalysis
 
@@ -141,27 +139,6 @@ class TestLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
         self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
         self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
-
-    # ### Tests for transpiled circuit generation ###
-    def test_calibrations_via_custom_backend(self):
-        """Test if calibrations given as custom backend show up in transpiled circuits."""
-        qubits = (2,)
-        my_sched = Schedule(name="custom_sx_gate")
-        my_backend = copy.deepcopy(FakeManilaV2())
-        my_backend.target["sx"][qubits].calibration = my_sched
-
-        exp = LayerFidelity(
-            physical_qubits=(0, 1, 2, 3),
-            two_qubit_layers=[[(1, 0), (2, 3)], [(1, 2)]],
-            lengths=[10, 20, 30],
-            seed=42,
-            backend=my_backend,
-        )
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
 
     def test_backend_with_directed_basis_gates(self):
         """Test if correct circuits are generated from backend with directed basis gates."""

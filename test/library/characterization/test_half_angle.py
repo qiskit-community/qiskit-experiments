@@ -13,11 +13,6 @@
 """Test the half angle experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import copy
-
-from qiskit import pulse, transpile
-from qiskit.pulse import InstructionScheduleMap
-from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQHalfAngleHelper as HalfAngleHelper
@@ -48,24 +43,12 @@ class TestHalfAngle(QiskitExperimentsTestCase):
 
         qubit = 1
 
-        inst_map = InstructionScheduleMap()
-        for inst in ["sx", "x"]:
-            inst_map.add(inst, (qubit,), pulse.Schedule(name=inst))
-
         hac = HalfAngle([qubit])
-        hac.set_transpile_options(inst_map=inst_map)
 
-        # mimic what will happen in the experiment.
-        transpile_opts = copy.copy(hac.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(hac._physical_qubits)
-        circuits = transpile(hac.circuits(), FakeAthensV2(), **transpile_opts)
-
-        for idx, circ in enumerate(circuits):
+        for idx, circ in enumerate(hac.circuits()):
             self.assertEqual(circ.count_ops()["sx"], idx * 2 + 2)
-            self.assertEqual(circ.calibrations["sx"][((qubit,), ())], pulse.Schedule(name="sx"))
             if idx > 0:
                 self.assertEqual(circ.count_ops()["x"], idx)
-                self.assertEqual(circ.calibrations["x"][((qubit,), ())], pulse.Schedule(name="x"))
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

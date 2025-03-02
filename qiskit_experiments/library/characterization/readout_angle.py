@@ -54,8 +54,13 @@ class ReadoutAngle(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+            from qiskit_experiments.test.mock_iq_helpers import MockIQReadoutAngleHelper
+
+
+            backend = MockIQBackend(
+                MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
+            )
 
         .. jupyter-execute::
 

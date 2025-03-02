@@ -17,7 +17,6 @@ Package Modules
     library
     data_processing
     curve_analysis
-    calibration_management
     database_service
     visualization
     test
@@ -28,9 +27,7 @@ Experiment Modules
 .. toctree::
     :maxdepth: 1
     
-    mod_calibration
     mod_characterization
-    mod_driven_freq_tuning
     mod_randomized_benchmarking
     mod_tomography
     mod_quantum_volume

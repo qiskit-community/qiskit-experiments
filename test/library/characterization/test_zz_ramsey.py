@@ -13,53 +13,16 @@
 """Test ZZ Phase experiments."""
 
 from itertools import product
-from typing import Dict, List
 
 from test.base import QiskitExperimentsTestCase
 
-import numpy as np
 from ddt import ddt, idata, named_data, unpack
 
-from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
 from qiskit_experiments.library import ZZRamsey
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
-
-
-class ZZRamseyHelper(MockIQExperimentHelper):
-    """A mock backend for the ZZRamsey experiment"""
-
-    def __init__(self, zz: float, readout_error: float = 0):
-        super().__init__()
-        self.zz_freq = zz
-        self.readout_error = readout_error
-
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
-        """Return the probability of the circuit."""
-
-        probabilities = []
-        for circuit in circuits:
-            series = circuit.metadata["series"]
-            delay = circuit.metadata["xval"]
-
-            if series == "0":
-                freq = (-1 * self.zz_freq) / 2
-            else:
-                freq = self.zz_freq / 2
-            circdata = next(i for i in circuit.data if i.operation.name == "u1")
-            rz = circdata.operation
-            phase = float(rz.params[0])
-
-            prob1 = 0.5 - 0.5 * np.cos(2 * np.pi * freq * delay + phase)
-
-            prob1 = prob1 * (1 - self.readout_error) + (1 - prob1) * self.readout_error
-
-            probabilities.append({"0": 1 - prob1, "1": prob1})
-
-        return probabilities
+from qiskit_experiments.test.zzramsey_test_backend import ZZRamseyTestBackend
 
 
 @ddt
@@ -99,11 +62,11 @@ class TestZZRamsey(QiskitExperimentsTestCase):
     @unpack
     def test_end_to_end(self, zz_freq, num_rotations):
         """Test that we can run on a mock backend and perform a fit."""
-        backend = MockIQBackend(ZZRamseyHelper(zz_freq))
-        # Use a small number of shots so that chi squared is low. For large
-        # number of shots, the uncertainty in the data points is very small and
-        # gives a large chi squared.
-        backend.options.shots = 40
+        backend = ZZRamseyTestBackend(
+            zz_frequency=zz_freq,
+            t2hahn=10e-6,
+            initialization_error=0.05,
+        )
 
         ramsey = ZZRamsey((0, 1), backend, num_rotations=num_rotations)
         test_data = ramsey.run()
