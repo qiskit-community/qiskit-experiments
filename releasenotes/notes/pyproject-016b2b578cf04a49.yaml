@@ -1,0 +1,10 @@
+---
+developer:
+  - |
+    The Python package configuration has been moved from ``setup.py`` to
+    ``pyproject.toml``. As part of this move, the separate requirements files
+    have also been moved into ``pyproject.toml``. See the ``CONTRIBUTING.md``
+    file in the `source repository
+    <https://github.com/qiskit-community/qiskit-experiments>`__ for information
+    on setting up a development environment if not using ``tox`` (which should
+    continue working the same way).

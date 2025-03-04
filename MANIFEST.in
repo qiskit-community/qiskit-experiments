@@ -1,6 +1,4 @@
-include LICENSE.txt
-include requirements.txt
-include requirements-extras.txt
-include qiskit_experiments/VERSION.txt
-include qiskit_experiments/library/randomized_benchmarking/data/*.npz
-exclude qiskit_experiments/library/randomized_benchmarking/data/generate_clifford_data.py
+prune docs/
+prune .github/
+prune releasenotes/
+prune tools/

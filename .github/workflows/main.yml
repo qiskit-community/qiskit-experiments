@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-
             ${{ runner.os }}-${{ matrix.python-version }}-pip-
@@ -49,7 +49,7 @@ jobs:
             stestr-${{ runner.os }}-
             stestr-
       - name: Install Deps
-        run: python -m pip install -U tox setuptools virtualenv wheel stestr
+        run: python -m pip install -U tox setuptools virtualenv wheel
       - name: Install and Run Tests (Windows and Linux)
         run: tox -e py
         if: runner.os != 'macOS'
@@ -59,7 +59,7 @@ jobs:
         env:
           TEST_TIMEOUT: 120
       - name: Clean up stestr cache
-        run: stestr history remove all
+        run: tox exec -epy -- stestr history remove all
 
   lint:
     if: github.repository_owner == 'Qiskit-Community'
@@ -75,7 +75,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('pyproject.toml') }}
       - name: Install Deps
         run: python -m pip install -U tox
       - name: Run lint
@@ -96,7 +96,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-docs-${{ hashFiles('setup.py','requirements.txt','requirements-extras.txt','requirements-dev.txt','constraints.txt') }}
+          key: ${{ runner.os }}-pip-docs-${{ hashFiles('pyproject.toml') }}
       - name: Install Deps
         run: |
           python -m pip install -U tox
