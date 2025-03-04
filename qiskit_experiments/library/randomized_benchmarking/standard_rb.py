@@ -25,11 +25,9 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier, Gate
 from qiskit.exceptions import QiskitError
-from qiskit.providers import BackendV2Converter
-from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.providers.backend import Backend, BackendV2
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
-from qiskit.transpiler import CouplingMap
 from qiskit_experiments.framework import BaseExperiment, Options
 from .clifford_utils import (
     CliffordUtils,
@@ -211,15 +209,6 @@ class StandardRB(BaseExperiment):
         """Default transpiler options for transpiling RB circuits."""
         return Options(optimization_level=1)
 
-    def _set_backend(self, backend: Backend):
-        """Set the backend V2 for RB experiments since RB experiments only support BackendV2
-        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
-        """
-        if isinstance(backend, BackendV1) and "simulator" not in backend.name():
-            super()._set_backend(BackendV2Converter(backend, add_delay=True))
-        else:
-            super()._set_backend(backend)
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
@@ -295,13 +284,6 @@ class StandardRB(BaseExperiment):
                             backend_cmap = reduced
                             # take the first non-global 2q gate if backend has multiple 2q gates
                             break
-                basis_gates = basis_gates if basis_gates else backend_basis_gates
-                coupling_map = coupling_map if coupling_map else backend_cmap
-            elif isinstance(self.backend, BackendV1):
-                backend_basis_gates = self.backend.configuration().basis_gates
-                backend_cmap = self.backend.configuration().coupling_map
-                if backend_cmap:
-                    backend_cmap = CouplingMap(backend_cmap).reduce(self.physical_qubits)
                 basis_gates = basis_gates if basis_gates else backend_basis_gates
                 coupling_map = coupling_map if coupling_map else backend_cmap
 

@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 
 from qiskit.providers.job import JobV1 as Job
 from qiskit.providers.jobstatus import JobStatus
-from qiskit.providers.backend import BackendV1 as Backend
+from qiskit.providers.backend import BackendV2 as Backend
 from qiskit.result import Result
 
 
