@@ -25,6 +25,13 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 
+try:
+    from qiskit.providers import BackendV2Converter
+    from qiskit.providers.backend import BackendV1
+except ImportError:
+    BackendV1 = None
+    BackendV2Converter = None
+
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
 
@@ -287,7 +294,10 @@ class LayerFidelity(BaseExperiment):
 
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2."""
-        super()._set_backend(backend)
+        if BackendV1 is not None and isinstance(backend, BackendV1):
+            super()._set_backend(BackendV2Converter(backend, add_delay=True))
+        else:
+            super()._set_backend(backend)
         self.__validate_basis_gates()
 
     def __validate_basis_gates(self) -> None:

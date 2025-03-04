@@ -13,8 +13,8 @@
 Backend data access helper class
 
 This class was introduced to unify backend data access to either `BackendV1` and `BackendV2`
-objects, wrapped by an object of this class. With the removal of `BackendV1` in Qiskit 2.0, 
-this class does not serve any useful purpose anymore and should be removed. 
+objects, wrapped by an object of this class. With the removal of `BackendV1` in Qiskit 2.0,
+this class will not serve any useful purpose once support for Qiskit 1 is dropped.
 
 TODO: remove this class 
 """
@@ -28,27 +28,22 @@ class BackendData:
         """Inits the backend and verifies version"""
 
         self._backend = backend
-
-        # Before BackendV1 removal, we also had a self._v1 flag. Since the properties
-        # below account for the case that the provided backend is not supported
-        # (i.e not a BackendV2 now) we keep this semantics but with only one flag
+        self._v1 = False
         self._v2 = isinstance(backend, BackendV2)
+        if not self._v2:
+            try:
+                from qiskit.providers import BackendV1
 
-        if self._v2:
-            self._parse_additional_data()
-
-    def _parse_additional_data(self):
-        # data specific parsing not done yet in upstream qiskit
-        if (
-            hasattr(self._backend, "_conf_dict") and self._backend._conf_dict["open_pulse"]
-        ):  # remove
-            if "u_channel_lo" not in self._backend._conf_dict:
-                self._backend._conf_dict["u_channel_lo"] = []  # to avoid qiskit bug
+                self._v1 = isinstance(backend, BackendV1)
+            except ImportError:
+                pass
 
     @property
     def name(self):
         """Returns the backend name"""
-        if self._v2:
+        if self._v1:
+            return self._backend.name()
+        elif self._v2:
             return self._backend.name
         return str(self._backend)
 
@@ -56,7 +51,9 @@ class BackendData:
     def granularity(self):
         """Returns the backend's time constraint granularity"""
         try:
-            if self._v2:
+            if self._v1:
+                return self._backend.configuration().timing_constraints.get("granularity", 1)
+            elif self._v2:
                 return self._backend.target.granularity
         except AttributeError:
             return 1
@@ -65,21 +62,30 @@ class BackendData:
     @property
     def dt(self):
         """Returns the backend's input time resolution"""
-        if self._v2:
+        if self._v1:
+            try:
+                return self._backend.configuration().dt
+            except AttributeError:
+                return None
+        elif self._v2:
             return self._backend.dt
         return None
 
     @property
     def max_circuits(self):
         """Returns the backend's max experiments value"""
-        if self._v2:
+        if self._v1:
+            return getattr(self._backend.configuration(), "max_experiments", None)
+        elif self._v2:
             return self._backend.max_circuits
         return None
 
     @property
     def coupling_map(self):
         """Returns the backend's coupling map"""
-        if self._v2:
+        if self._v1:
+            return getattr(self._backend.configuration(), "coupling_map", [])
+        elif self._v2:
             coupling_map = self._backend.coupling_map
             if coupling_map is None:
                 return coupling_map
@@ -89,7 +95,9 @@ class BackendData:
     @property
     def version(self):
         """Returns the backend's version"""
-        if self._v2:
+        if self._v1:
+            return getattr(self._backend, "version", None)
+        elif self._v2:
             return self._backend.version
         return None
 
@@ -97,7 +105,9 @@ class BackendData:
     def provider(self):
         """Returns the backend's provider"""
         try:
-            if self._v2:
+            if self._v1:
+                return self._backend.provider()
+            elif self._v2:
                 return self._backend.provider
         except AttributeError:
             return None
@@ -106,7 +116,9 @@ class BackendData:
     @property
     def num_qubits(self):
         """Returns the backend's number of qubits"""
-        if self._v2:
+        if self._v1:
+            return self._backend.configuration().num_qubits
+        elif self._v2:
             # meas_freq_est is currently not part of the BackendV2
             return self._backend.num_qubits
         return None
@@ -120,6 +132,8 @@ class BackendData:
         Returns:
             The T1 value
         """
+        if self._v1:
+            return self._backend.properties().qubit_property(qubit)["T1"][0]
         if self._v2:
             return self._backend.qubit_properties(qubit).t1
         return float("nan")
