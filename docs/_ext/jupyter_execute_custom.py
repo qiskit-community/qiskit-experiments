@@ -46,7 +46,7 @@ class TimedExecuteJupyterCells(ExecuteJupyterCells):
             # Only log for significant duration since this runs on every
             # document, even ones without jupyter content.
             logger.info(
-                f"Jupyter exeuction in {self.env.docname} took {execution_time:.2f} seconds"
+                f"Jupyter execution in {self.env.docname} took {execution_time:.2f} seconds"
             )
 
 
