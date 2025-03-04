@@ -13,10 +13,16 @@
 """
 Customizations of :mod:`jupyter-sphinx`.
 """
+import os
+import time
+
+from jupyter_sphinx.execute import ExecuteJupyterCells
 from jupyter_sphinx import JupyterCell
 from sphinx.application import Sphinx
-import os
+from sphinx.util import logging
 
+
+logger = logging.getLogger(__name__)
 
 class JupyterCellCheckEnv(JupyterCell):
     """This class overrides the JupyterCell class in :mod:`jupyter-sphinx`
@@ -31,6 +37,21 @@ class JupyterCellCheckEnv(JupyterCell):
         return [cell]
 
 
+class TimedExecuteJupyterCells(ExecuteJupyterCells):
+    def apply(self):
+        start_time = time.perf_counter()
+        super().apply()
+        execution_time = time.perf_counter() - start_time
+        if execution_time > 1:
+            # Only log for significant duration since this runs on every
+            # document, even ones without jupyter content.
+            logger.info(
+                f"Jupyter execution in {self.env.docname} took {execution_time:.2f} seconds"
+            )
+
+
 def setup(app: Sphinx):
     app.add_directive("jupyter-execute", JupyterCellCheckEnv, override=True)
+    app.registry.transforms.remove(ExecuteJupyterCells)
+    app.add_transform(TimedExecuteJupyterCells)
     return {"parallel_read_safe": True}
