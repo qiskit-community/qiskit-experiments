@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.characterization.fine_amplitude - Qiskit Experiments 0.8.0-16-geecce03b</title>
+        <title>qiskit_experiments.library.characterization.fine_amplitude - Qiskit Experiments 0.8.0-17-g167b51283</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-16-geecce03b</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-17-g167b51283</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-16-geecce03b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-17-g167b51283</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -228,7 +228,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/tphi.html">Tφ Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/measurement/restless_measurements.html">Restless Measurements</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -260,7 +259,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.RestlessMixin.html">RestlessMixin</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -550,15 +548,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecate_func</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcessor</span><span class="p">,</span> <span class="n">nodes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.restless_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">RestlessMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">FineAmplitudeAnalysis</span>
 
 
 <div class="viewcode-block" id="FineAmplitude">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html#qiskit_experiments.library.characterization.FineAmplitude">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FineAmplitude</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">RestlessMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FineAmplitude</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to determine the optimal pulse amplitude by amplifying gate errors.</span>
 
 <span class="sd">    # section: overview</span>
@@ -1012,50 +1008,7 @@
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_transpile_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">basis_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;szx&quot;</span><span class="p">]</span>
         <span class="n">options</span><span class="o">.</span><span class="n">inst_map</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">options</span>
-
-<div class="viewcode-block" id="FineZXAmplitude.enable_restless">
-<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html#qiskit_experiments.library.characterization.FineZXAmplitude.enable_restless">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">enable_restless</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">rep_delay</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">override_processor_by_restless</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">suppress_t1_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable restless measurements.</span>
-
-<span class="sd">        We wrap the method of the :class:`.RestlessMixin` to readout both qubits. This forces</span>
-<span class="sd">        the control qubit to be in either the 0 or 1 state before the next circuit starts</span>
-<span class="sd">        since restless measurements do not reset qubits.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            rep_delay: The repetition delay. This is the delay between a measurement</span>
-<span class="sd">                and the subsequent quantum circuit. Since the backends have</span>
-<span class="sd">                dynamic repetition rates, the repetition delay can be set to a small</span>
-<span class="sd">                value which is required for restless experiments. Typical values are</span>
-<span class="sd">                1 us or less.</span>
-<span class="sd">            override_processor_by_restless: If False, a data processor that is specified in the</span>
-<span class="sd">                analysis options of the experiment is not overridden by the restless data</span>
-<span class="sd">                processor. The default is True.</span>
-<span class="sd">            suppress_t1_error: If True, the default is False, then no error will be raised when</span>
-<span class="sd">                ``rep_delay`` is larger than the T1 times of the qubits. Instead, a warning will</span>
-<span class="sd">                be logged as restless measurements may have a large amount of noise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;11&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">enable_restless</span><span class="p">(</span><span class="n">rep_delay</span><span class="p">,</span> <span class="n">override_processor_by_restless</span><span class="p">,</span> <span class="n">suppress_t1_error</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_measurement_qubits</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_restless_processor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meas_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataProcessor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Marginalize the counts after the restless shot reordering.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">DataProcessor</span><span class="p">(</span>
-            <span class="s2">&quot;memory&quot;</span><span class="p">,</span>
-            <span class="p">[</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">RestlessToCounts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span><span class="p">),</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">MarginalizeCounts</span><span class="p">({</span><span class="mi">1</span><span class="p">}),</span>  <span class="c1"># keep only the target.</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">options</span></div>
 
 </pre></div>
         </article>
@@ -1075,7 +1028,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/02</div>
+              Last updated on 2025/03/04</div>
           </div>
           <div class="right-details">
             
@@ -1090,7 +1043,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3b9a3318"></script>
+</div><script src="../../../../_static/documentation_options.js?v=b78532d0"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

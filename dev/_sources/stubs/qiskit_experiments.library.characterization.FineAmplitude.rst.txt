@@ -36,7 +36,6 @@ FineAmplitude
    .. automethod:: FineAmplitude.circuits
    .. automethod:: FineAmplitude.config
    .. automethod:: FineAmplitude.copy
-   .. automethod:: FineAmplitude.enable_restless
    .. automethod:: FineAmplitude.from_config
    .. automethod:: FineAmplitude.job_info
    .. automethod:: FineAmplitude.run

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LocalReadoutError" href="qiskit_experiments.library.characterization.LocalReadoutError.html" /><link rel="prev" title="ZZRamsey" href="qiskit_experiments.library.characterization.ZZRamsey.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>FineZXAmplitude - Qiskit Experiments 0.8.0-16-geecce03b</title>
+        <title>FineZXAmplitude - Qiskit Experiments 0.8.0-17-g167b51283</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-16-geecce03b</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-17-g167b51283</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-16-geecce03b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-17-g167b51283</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -228,7 +228,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/tphi.html">Tφ Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../manuals/measurement/restless_measurements.html">Restless Measurements</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../apidocs/index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -260,7 +259,6 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.RestlessMixin.html">RestlessMixin</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -617,7 +615,7 @@ It was written work with a custom pulse calibration.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.library.characterization.FineZXAmplitude.analysis">
-<span class="sig-name descname"><span class="pre">analysis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.BaseAnalysis"><span class="pre">BaseAnalysis</span></a></em><a class="headerlink" href="#qiskit_experiments.library.characterization.FineZXAmplitude.analysis" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">analysis</span></span><a class="headerlink" href="#qiskit_experiments.library.characterization.FineZXAmplitude.analysis" title="Link to this definition">¶</a></dt>
 <dd><p>Return the analysis instance for the experiment</p>
 </dd></dl>
 
@@ -696,32 +694,6 @@ It was written work with a custom pulse calibration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.base_experiment.BaseExperiment"><em>BaseExperiment</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.library.characterization.FineZXAmplitude.enable_restless">
-<span class="sig-name descname"><span class="pre">enable_restless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rep_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_processor_by_restless</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_t1_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/characterization/fine_amplitude.html#FineZXAmplitude.enable_restless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.characterization.FineZXAmplitude.enable_restless" title="Link to this definition">¶</a></dt>
-<dd><p>Enable restless measurements.</p>
-<p>We wrap the method of the <a class="reference internal" href="qiskit_experiments.framework.RestlessMixin.html#qiskit_experiments.framework.RestlessMixin" title="qiskit_experiments.framework.RestlessMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessMixin</span></code></a> to readout both qubits. This forces
-the control qubit to be in either the 0 or 1 state before the next circuit starts
-since restless measurements do not reset qubits.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rep_delay</strong> (<em>float</em><em> | </em><em>None</em>) – The repetition delay. This is the delay between a measurement
-and the subsequent quantum circuit. Since the backends have
-dynamic repetition rates, the repetition delay can be set to a small
-value which is required for restless experiments. Typical values are
-1 us or less.</p></li>
-<li><p><strong>override_processor_by_restless</strong> (<em>bool</em>) – If False, a data processor that is specified in the
-analysis options of the experiment is not overridden by the restless data
-processor. The default is True.</p></li>
-<li><p><strong>suppress_t1_error</strong> (<em>bool</em>) – If True, the default is False, then no error will be raised when
-<code class="docutils literal notranslate"><span class="pre">rep_delay</span></code> is larger than the T1 times of the qubits. Instead, a warning will
-be logged as restless measurements may have a large amount of noise.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -891,7 +863,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/02</div>
+              Last updated on 2025/03/04</div>
           </div>
           <div class="right-details">
             
@@ -925,7 +897,6 @@ cancelling.</p></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.circuits"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.circuits()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.config"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.config()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.copy"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.copy()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.enable_restless"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.enable_restless()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.from_config"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.from_config()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.job_info"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.job_info()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.library.characterization.FineZXAmplitude.run"><code class="docutils literal notranslate"><span class="pre">FineZXAmplitude.run()</span></code></a></li>
@@ -945,7 +916,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3b9a3318"></script>
+</div><script src="../_static/documentation_options.js?v=b78532d0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

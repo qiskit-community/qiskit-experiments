@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.8.0-16-geecce03b</title>
+        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.8.0-17-g167b51283</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-16-geecce03b</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-17-g167b51283</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-16-geecce03b</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-17-g167b51283</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -228,7 +228,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../manuals/characterization/tphi.html">Tφ Characterization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../manuals/measurement/restless_measurements.html">Restless Measurements</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -260,7 +259,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.RestlessMixin.html">RestlessMixin</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -541,14 +539,12 @@
 
 <span class="sd">&quot;&quot;&quot;A mock IQ backend for testing.&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gate</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">SXGate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">Provider</span><span class="p">,</span> <span class="n">convert_to_target</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeOpenPulse2Q</span>
@@ -557,7 +553,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeJob</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcessorError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.mock_iq_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MockIQExperimentHelper</span><span class="p">,</span>
     <span class="n">MockIQParallelExperimentHelper</span><span class="p">,</span>
@@ -606,147 +601,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">MockRestlessBackend</span><span class="p">(</span><span class="n">FakeOpenPulse2QV2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract backend for testing that can mock restless data.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the backend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">rng_seed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_probabilities</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default options of the test backend.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
-            <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-            <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">,</span>
-            <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_state_strings</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate all state strings for the system.&quot;&quot;&quot;</span>
-        <span class="n">format_str</span> <span class="o">=</span> <span class="s2">&quot;{0:0&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;b}&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state_num</span><span class="p">)</span> <span class="k">for</span> <span class="n">state_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n_qubits</span><span class="p">))</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_outcome_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the probabilities of measuring 0 or 1 for each of the given</span>
-<span class="sd">         circuits based on the previous measurement shot.</span>
-
-<span class="sd">        This methods computes the dictionary self._precomputed_probabilities where</span>
-<span class="sd">        the keys are a tuple consisting of the circuit index and the previous outcome,</span>
-<span class="sd">        e.g. &quot;0&quot; or &quot;1&quot; for a single qubit. The values are the corresponding probabilities.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            circuits: The circuits from which to compute the probabilities.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the restless backend.&quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">)</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_outcome_probabilities</span><span class="p">(</span><span class="n">run_input</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">run_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is a two qubit mock device.&quot;</span><span class="p">)</span>
-
-        <span class="n">prev_outcome</span><span class="p">,</span> <span class="n">state_strings</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state_strings</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-        <span class="c1"># Setup the list of dicts where each dict corresponds to a circuit.</span>
-        <span class="n">sorted_memory</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">}</span> <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="n">run_input</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shots</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">circ_idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">run_input</span><span class="p">):</span>
-                <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_probabilities</span><span class="p">[(</span><span class="n">circ_idx</span><span class="p">,</span> <span class="n">prev_outcome</span><span class="p">)]</span>
-                <span class="c1"># Generate the next shot dependent on the pre-computed probabilities.</span>
-                <span class="n">outcome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">state_strings</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probs</span><span class="p">)</span>
-                <span class="c1"># Append the single shot to the memory of the corresponding circuit.</span>
-                <span class="n">sorted_memory</span><span class="p">[</span><span class="n">circ_idx</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-
-                <span class="n">prev_outcome</span> <span class="o">=</span> <span class="n">outcome</span>
-
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">run_input</span><span class="p">):</span>
-            <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">key1</span><span class="p">,</span> <span class="n">key2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;00&quot;</span><span class="p">,</span> <span class="s2">&quot;01&quot;</span><span class="p">,</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;11&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;0x0&quot;</span><span class="p">,</span> <span class="s2">&quot;0x1&quot;</span><span class="p">,</span> <span class="s2">&quot;0x2&quot;</span><span class="p">,</span> <span class="s2">&quot;0x3&quot;</span><span class="p">]):</span>
-                <span class="n">counts</span><span class="p">[</span><span class="n">key1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_memory</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">key2</span><span class="p">)</span>
-            <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
-                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
-                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
-                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span>
-                    <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="n">sorted_memory</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">],</span>
-                <span class="p">},</span>
-            <span class="p">}</span>
-
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">MockRestlessFineAmp</span><span class="p">(</span><span class="n">MockRestlessBackend</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for restless single-qubit fine amplitude experiments.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">angle_error</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle_per_gate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gate_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a mock backend to test the restless fine amplitude calibration.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            angle_error: The rotation error per gate.</span>
-<span class="sd">            angle_per_gate: The angle per gate.</span>
-<span class="sd">            gate_name: The name of the gate to find in the circuit.</span>
-<span class="sd">            rng_seed: The random bit generator seed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle_error</span> <span class="o">=</span> <span class="n">angle_error</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gate_name</span> <span class="o">=</span> <span class="n">gate_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_angle_per_gate</span> <span class="o">=</span> <span class="n">angle_per_gate</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">rng_seed</span><span class="o">=</span><span class="n">rng_seed</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">SXGate</span><span class="p">(),</span> <span class="n">properties</span><span class="o">=</span><span class="p">{(</span><span class="mi">0</span><span class="p">,):</span> <span class="kc">None</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="n">properties</span><span class="o">=</span><span class="p">{(</span><span class="mi">0</span><span class="p">,):</span> <span class="kc">None</span><span class="p">})</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_outcome_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the probabilities of being in the excited state or</span>
-<span class="sd">        ground state for all circuits.&quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_probabilities</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">circuits</span><span class="p">):</span>
-
-            <span class="n">n_ops</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">count_ops</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gate_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">angle</span> <span class="o">=</span> <span class="n">n_ops</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_angle_per_gate</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_error</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_name</span> <span class="o">!=</span> <span class="s2">&quot;sx&quot;</span><span class="p">:</span>
-                <span class="n">angle</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">circuit</span><span class="o">.</span><span class="n">count_ops</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_name</span> <span class="o">!=</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
-                <span class="n">angle</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">circuit</span><span class="o">.</span><span class="n">count_ops</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-            <span class="n">prob_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-            <span class="n">prob_0</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prob_1</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_probabilities</span><span class="p">[(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;00&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">prob_0</span><span class="p">,</span> <span class="n">prob_1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_precomputed_probabilities</span><span class="p">[(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;01&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">prob_1</span><span class="p">,</span> <span class="n">prob_0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="MockIQBackend">
@@ -1539,7 +1393,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/02</div>
+              Last updated on 2025/03/04</div>
           </div>
           <div class="right-details">
             
@@ -1554,7 +1408,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3b9a3318"></script>
+</div><script src="../../../_static/documentation_options.js?v=b78532d0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

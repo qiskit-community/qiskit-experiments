@@ -36,7 +36,6 @@ InterleavedRB
    .. automethod:: InterleavedRB.circuits
    .. automethod:: InterleavedRB.config
    .. automethod:: InterleavedRB.copy
-   .. automethod:: InterleavedRB.enable_restless
    .. automethod:: InterleavedRB.from_config
    .. automethod:: InterleavedRB.job_info
    .. automethod:: InterleavedRB.run

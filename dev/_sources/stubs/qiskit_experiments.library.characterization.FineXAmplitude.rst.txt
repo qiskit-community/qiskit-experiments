@@ -36,7 +36,6 @@ FineXAmplitude
    .. automethod:: FineXAmplitude.circuits
    .. automethod:: FineXAmplitude.config
    .. automethod:: FineXAmplitude.copy
-   .. automethod:: FineXAmplitude.enable_restless
    .. automethod:: FineXAmplitude.from_config
    .. automethod:: FineXAmplitude.job_info
    .. automethod:: FineXAmplitude.run
