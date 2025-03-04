@@ -28,7 +28,6 @@ from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 
 from .clifford_utils import (
     CliffordUtils,
@@ -52,7 +51,7 @@ GATE_NAME_MAP = get_standard_gate_name_mapping()
 NUM_1Q_CLIFFORD = CliffordUtils.NUM_CLIFFORD_1_QUBIT
 
 
-class LayerFidelity(BaseExperiment, RestlessMixin):
+class LayerFidelity(BaseExperiment):
     r"""A holistic benchmarking experiment to characterize the full quality of the devices at scale.
 
     # section: overview

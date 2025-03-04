@@ -62,11 +62,6 @@ Optionally, to allow configuring experiment and execution options, you can overr
             metadata["device_components"] = list(map(Resonator, self.physical_qubits))
             return metadata
 
-Furthermore, some characterization and calibration experiments can be run with restless
-measurements, i.e. measurements where the qubits are not reset and circuits are executed
-immediately after the previous measurement. Here, the :class:`.RestlessMixin` class
-can help to set the appropriate run options and data processing chain.
-
 Analysis subclassing
 --------------------
 

@@ -31,7 +31,6 @@ from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit.transpiler import CouplingMap
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
     CliffordUtils,
     DEFAULT_SYNTHESIS_METHOD,
@@ -52,7 +51,7 @@ LOG = logging.getLogger(__name__)
 SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
-class StandardRB(BaseExperiment, RestlessMixin):
+class StandardRB(BaseExperiment):
     """An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview

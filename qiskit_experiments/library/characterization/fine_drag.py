@@ -20,11 +20,10 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
-class FineDrag(BaseExperiment, RestlessMixin):
+class FineDrag(BaseExperiment):
     r"""An experiment that performs fine characterizations of DRAG pulse coefficients.
 
     # section: overview

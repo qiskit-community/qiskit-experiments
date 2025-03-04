@@ -192,8 +192,7 @@ processing connects the data returned by the backend to the data that
 the analysis classes need. Typically, you will not need to implement
 the data processing yourself since Qiskit Experiments has built-in
 methods that determine the correct instance of :class:`.DataProcessor` for
-your data. More advanced data processing includes, for example, handling
-:doc:`restless measurements </manuals/measurement/restless_measurements>`.
+your data.
 
 References
 ----------
@@ -202,8 +201,3 @@ References
     Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
     Programming Quantum Computers Through the Cloud with Pulses, Quantum
     Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755.
-
-See also
---------
-
-- Experiment manual: :doc:`/manuals/measurement/restless_measurements`

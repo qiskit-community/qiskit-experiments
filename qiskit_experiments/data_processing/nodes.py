@@ -23,6 +23,7 @@ import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
 from qiskit.result.postprocess import format_counts_memory
+from qiskit.utils import deprecate_func
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
@@ -910,6 +911,17 @@ class RestlessNode(DataAction, ABC):
     Once the shots have been ordered in this fashion the data can be post-processed.
     """
 
+    @deprecate_func(
+        since="0.9",
+        additional_msg=(
+            "Restless data processing nodes will be removed from "
+            "qiskit-experiments. Refer to the RestlessMixin code of "
+            "qiskit-experiment 0.8 and the code for RestlessToIQ and "
+            "RestlessToCounts for the way to use a custom restless "
+            "processor on an experiment."
+        ),
+        package_name="qiskit-experiments",
+    )
     def __init__(
         self, validate: bool = True, memory_allocation: ShotOrder = ShotOrder.circuit_first
     ):

@@ -1,0 +1,18 @@
+---
+upgrade:
+  - |
+    The previously deprecated support for running experiments with restless
+    measurements has been removed. The ``RestlessMixin`` class has been removed
+    from the package and thus has also been removed from classes like
+    :class:`.RamseyXY` and :class:`.StandardRB` on which it was previously
+    applied.
+deprecations:
+  - |
+    The data processing nodes :class:`.RestlessNode`,
+    :class:`.RestlessToCounts`, and :class:`.RestlessToIQ` have been
+    deprecated. These deprecations follow on the removal of ``RestlessMixin``
+    and complete the deprecation of restless measurement code from
+    qiskit-experiments. In principle, users may copy the code of these
+    deprecated nodes and use it to create a custom restless data processor for
+    use on experiments even without support in the base Qiskit Experiments
+    package.

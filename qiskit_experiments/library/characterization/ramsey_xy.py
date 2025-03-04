@@ -19,11 +19,10 @@ from qiskit.providers.backend import Backend
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 
-class RamseyXY(BaseExperiment, RestlessMixin):
+class RamseyXY(BaseExperiment):
     r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview

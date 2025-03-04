@@ -21,13 +21,11 @@ from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit.utils import deprecate_func
 
-from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 
-class FineAmplitude(BaseExperiment, RestlessMixin):
+class FineAmplitude(BaseExperiment):
     r"""An experiment to determine the optimal pulse amplitude by amplifying gate errors.
 
     # section: overview
@@ -470,43 +468,3 @@ class FineZXAmplitude(FineAmplitude):
         options.basis_gates = ["szx"]
         options.inst_map = None
         return options
-
-    def enable_restless(
-        self,
-        rep_delay: Optional[float] = None,
-        override_processor_by_restless: bool = True,
-        suppress_t1_error: bool = False,
-    ):
-        """Enable restless measurements.
-
-        We wrap the method of the :class:`.RestlessMixin` to readout both qubits. This forces
-        the control qubit to be in either the 0 or 1 state before the next circuit starts
-        since restless measurements do not reset qubits.
-
-        Args:
-            rep_delay: The repetition delay. This is the delay between a measurement
-                and the subsequent quantum circuit. Since the backends have
-                dynamic repetition rates, the repetition delay can be set to a small
-                value which is required for restless experiments. Typical values are
-                1 us or less.
-            override_processor_by_restless: If False, a data processor that is specified in the
-                analysis options of the experiment is not overridden by the restless data
-                processor. The default is True.
-            suppress_t1_error: If True, the default is False, then no error will be raised when
-                ``rep_delay`` is larger than the T1 times of the qubits. Instead, a warning will
-                be logged as restless measurements may have a large amount of noise.
-        """
-        self.analysis.set_options(outcome="11")
-        super().enable_restless(rep_delay, override_processor_by_restless, suppress_t1_error)
-        self._measurement_qubits = range(self.num_qubits)
-
-    def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:
-        """Marginalize the counts after the restless shot reordering."""
-        return DataProcessor(
-            "memory",
-            [
-                nodes.RestlessToCounts(self._num_qubits),
-                nodes.MarginalizeCounts({1}),  # keep only the target.
-                nodes.Probability("1"),
-            ],
-        )
