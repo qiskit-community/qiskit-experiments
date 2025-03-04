@@ -94,8 +94,39 @@ class HalfAngle(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from math import pi
+
+            import numpy as np
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, RZGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01
+
+            err_mat = (
+                RZGate(err).to_matrix()
+                @ RXGate(pi/2).to_matrix()
+                @ RZGate(-err).to_matrix()
+                @ RXGate(-pi/2).to_matrix()
+            )
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["sx"],
+            )
+            # Add neglibile x error becuase otherwise x gets dropped from the target and
+            # the x's get transpiled as two sx's, spoiling the calibration.
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error([[np.exp(1j * 1e-4), 0], [0, np.exp(-1j * 1e-4)]]),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 

@@ -13,7 +13,6 @@
 """Standard curve analysis library."""
 
 from .oscillation import OscillationAnalysis, DampedOscillationAnalysis
-from .resonance import ResonanceAnalysis
 from .gaussian import GaussianAnalysis
 from .error_amplification_analysis import ErrorAmplificationAnalysis
 from .decay import DecayAnalysis

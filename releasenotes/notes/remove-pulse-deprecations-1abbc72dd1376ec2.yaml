@@ -1,0 +1,69 @@
+---
+upgrade:
+  - |
+    Previously deprecated experiments involving pulse gate calibrations have
+    been removed, due to the upcoming `removal of Qiskit Pulse in Qiskit
+    2.0 <https://github.com/Qiskit/qiskit/issues/13063>`_. These experiments
+    include ``QubitSpectroscopy``, ``EFSpectroscopy``, ``Rabi``, ``EFRabi``,
+    ``ResonatorSpectroscopy``, ``RoughDrag``, ``StarkRamseyXY``,
+    ``StarkRamseyXYAmpScan``, ``StarkP1Spectroscopy``,
+    ``CrossResonanceHamiltonian``, ``EchoedCrossResonanceHamiltonian``,
+    ``BaseCalibrationExperiment``,
+    ``RoughFrequencyCal``, ``RoughEFFrequencyCal``, ``FrequencyCal``,
+    ``FineFrequencyCal``, ``RoughDragCal``, ``FineXDragCal``,
+    ``FineSXDragCal``, ``FineDragCal``, ``FineAmplitudeCal``,
+    ``FineXAmplitudeCal``, ``FineSXAmplitudeCal``, ``HalfAngleCal``,
+    ``RoughAmplitudeCal``, ``RoughXSXAmplitudeCal``, and
+    ``EFRoughXSXAmplitudeCal``. The associated analysis and helper classes like
+    ``ResonanceAnalysis``, ``CrossResonanceHamiltonianAnalysis``,
+    ``DragCalAnalysis``, ``ResonatorSpectroscopyAnalysis``, and
+    ``StarkCoefficients`` were also removed.
+  - |
+    Also due to the deprecation of Qiskit Pulse, support for providing pulse
+    gate calibrations to excite higher levels has been removed from
+    :class:`.MultiStateDiscrimination`.
+  - |
+    The ``Calibrations`` class and all of Qiskit Experiments' calibration
+    support (including gate libraries and calibration updaters and experiments)
+    has been removed. The calibrations features were based on adjusting
+    parameters of pulses used in gates. With the removal of pulse support in
+    Qiskit 2.0, it no longer was feasible to keep support for features that
+    rely on pulse gate  calibrations.
+  - |
+    The methods of :class:`.BackendData` and :class:`.BackendTiming` that
+    involved pulse gate features have been removed. The removed methods were
+    ``control_channel``, ``drive_channel``, ``measure_channel``,
+    ``acquire_channel``, ``min_length``, ``pulse_alignment``,
+    ``acquire_alignment``, ``drive_freqs``,  and ``meas_freqs`` of
+    ``BackendData`` and ``round_pulse`` and ``pulse_time`` of
+    ``BackendTiming``.
+  - |
+    The ability for :class:`.ExperimentEncoder` and :class:`.ExperimentDecoder`
+    to work with the pulse ``ScheduleBlock`` class has been removed.
+  - |
+    ``qiskit-dynamics`` has been removed from the ``extras`` extra of the
+    package. This means that ``pip install qiskit-experiments[extras]`` will no
+    longer install ``qiskit-dynamics``. :class:`.PulseBackend` and
+    :class:`.SingleTransmonTestBackend` still require ``qiskit-dynamics`` to be
+    installed, so it must be installed separately. The reason for this change
+    is that Qiskit Experiments aims to keep compatibility with the latest
+    Qiskit and so will not require a package that pins the Qiskit version while
+    Qiskit Dynamics plans to pin to Qiskit version 1.
+
+deprecation:
+  - |
+    :class:`.FineZXAmplitude` has been deprecated. It was not deprecated along
+    with the other pulse-related experiments in the previous Qiskit Experiments
+    release, but it requires an ``ZX`` rotation of :math:`\pi / 2` which is not
+    easily realizable on any known providers without pulse calibrations.
+
+  - |
+    :class:`.PulseBackend` and :class:`.SingleTransmonTestBackend` have been
+    deprecated. These backend classes use `Qiskit Dyanmics
+    <https://github.com/qiskit-community/qiskit-dynamics>`_ to simulate quantum
+    circuits using Qiskit Pulse with pulse-level simulation and were mainly
+    intended for testing purposes. With the removal of pulse features in Qiskit
+    2.0, these classes can no longer be maintained. Their deprecation was
+    missed in the previous round of pulse feature deprecation. While the
+    classes are kept for one more release cycle, they require Qiskit less than
+    2.0 in order to function.

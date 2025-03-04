@@ -54,22 +54,17 @@ class FineFrequency(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_ibm_runtime.fake_provider import FakePerth
-            from qiskit_aer import AerSimulator
-            backend =AerSimulator.from_backend(FakePerth())
+            from qiskit_experiments.test import T2HahnBackend
+
+            # AerSimulator can not mimic a freqeuncy offset
+            backend = T2HahnBackend(frequency=1e5)
+
 
         .. jupyter-execute::
 
             from qiskit_experiments.library.characterization import FineFrequency
 
-            repetitions = list(range(40))
-
-            exp = FineFrequency((0,),
-                                delay_duration=320,
-                                backend=backend,
-                                repetitions=repetitions)
-            exp.set_transpile_options(optimization_level=0, basis_gates=['sx', 'rz', 'delay'])
-
+            exp = FineFrequency([0], delay_duration=int(30e-9 / backend.dt), backend=backend)
             exp_data = exp.run().block_for_results()
             display(exp_data.figure(0))
             exp_data.analysis_results(dataframe=True)

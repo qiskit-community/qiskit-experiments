@@ -14,7 +14,6 @@
 
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
-import warnings
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
@@ -434,71 +433,6 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         return exp_circuits_list
 
 
-class MockIQDragHelper(MockIQExperimentHelper):
-    """Functions needed for test_drag"""
-
-    def __init__(
-        self,
-        gate_name: str = "Rp",
-        ideal_beta: float = 2.0,
-        frequency: float = 0.02,
-        max_probability: float = 1.0,
-        offset_probability: float = 0.0,
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
-    ):
-        """
-        Args:
-            gate_name: name of the gate to count when determining the number of gate repetitions,
-            i.e., positive rotation followed by negative rotation, in the circuit.
-            ideal_beta: the beta where the minimum of the Drag patterns will be.
-            frequency: controls the frequency of the oscillation in the measured Drag pattern.
-            max_probability:  a factor to scale the maximum probability of measuring an excited state to
-            allow tests to factor in non-ideal situations.
-            offset_probability: a constant offset applied to all probabilities to reflect non-ideal
-            measurement situations.
-            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
-            are different centers for different logical values of the qubit.
-            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
-        Raises:
-            ValueError: If probability value is not valid.
-        """
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-        if max_probability + offset_probability > 1:
-            raise ValueError("Probabilities need to be between 0 and 1.")
-
-        self.gate_name = gate_name
-        self.ideal_beta = ideal_beta
-        self.frequency = frequency
-        self.max_probability = max_probability
-        self.offset_probability = offset_probability
-
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
-        """Returns the probability based on the beta, number of gates, and leakage."""
-
-        gate_name = self.gate_name
-        ideal_beta = self.ideal_beta
-        freq = self.frequency
-        max_prob = self.max_probability
-        offset_prob = self.offset_probability
-
-        if max_prob + offset_prob > 1:
-            raise ValueError("Probabilities need to be between 0 and 1.")
-
-        output_dict_list = []
-        for circuit in circuits:
-            probability_output_dict = {}
-            n_gates = circuit.count_ops()[gate_name]
-            beta = next(iter(circuit.calibrations[gate_name].keys()))[1][0]
-
-            # Dictionary of output string vectors and their probability
-            prob = np.sin(2 * np.pi * n_gates * freq * (beta - ideal_beta) / 4) ** 2
-            probability_output_dict["1"] = max_prob * prob + offset_prob
-            probability_output_dict["0"] = 1 - probability_output_dict["1"]
-            output_dict_list.append(probability_output_dict)
-        return output_dict_list
-
-
 class MockIQFineDragHelper(MockIQExperimentHelper):
     """Functions needed for Fine Drag Experiment"""
 
@@ -525,48 +459,6 @@ class MockIQFineDragHelper(MockIQExperimentHelper):
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
         return output_dict_list
-
-
-class MockIQRabiHelper(MockIQExperimentHelper):
-    """Functions needed for Rabi experiment on mock IQ backend"""
-
-    def __init__(
-        self,
-        amplitude_to_angle: float = np.pi,
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
-    ):
-        """
-        Args:
-            amplitude_to_angle: maps a pulse amplitude to a rotation angle.
-        """
-        warnings.warn(
-            "MockIQRabiHelper has been deprecated. It will be removed "
-            "in Qiskit Experiments 0.5.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-        self.amplitude_to_angle = amplitude_to_angle
-
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
-        """Returns the probability based on the rotation angle and amplitude_to_angle."""
-        amplitude_to_angle = self.amplitude_to_angle
-        output_dict_list = []
-        for circuit in circuits:
-            probability_output_dict = {}
-            amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
-
-            # Dictionary of output string vectors and their probability
-            probability_output_dict["1"] = np.sin(amplitude_to_angle * amp) ** 2
-            probability_output_dict["0"] = 1 - probability_output_dict["1"]
-            output_dict_list.append(probability_output_dict)
-        return output_dict_list
-
-    def rabi_rate(self) -> float:
-        """Returns the rabi rate."""
-        return self.amplitude_to_angle / np.pi
 
 
 class MockIQFineFreqHelper(MockIQExperimentHelper):
@@ -709,66 +601,6 @@ class MockIQRamseyXYHelper(MockIQExperimentHelper):
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
         return output_dict_list
-
-
-class MockIQSpectroscopyHelper(MockIQExperimentHelper):
-    """Functions needed for Spectroscopy experiment on mock IQ backend"""
-
-    def __init__(
-        self,
-        gate_name: str = "Spec",
-        freq_offset: float = 0.0,
-        line_width: float = 2e6,
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
-    ):
-        """
-        Args:
-            gate_name: the gate name to look for when calculating frequency shift.
-            freq_offset: frequency offset from resonance that this mock backend will mimic.
-            line_width: line width of the resonance of the spectroscopy signal.
-        """
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-        self.freq_offset = freq_offset
-        self.line_width = line_width
-        self.gate_name = gate_name
-
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
-        """Returns the probability based on the parameters provided."""
-        freq_offset = self.freq_offset
-        line_width = self.line_width
-        output_dict_list = []
-        for circuit in circuits:
-            probability_output_dict = {}
-            if self.gate_name == "measure":
-                freq_shift = (
-                    next(iter(circuit.calibrations[self.gate_name].values())).blocks[0].frequency
-                )
-            elif self.gate_name == "Spec":
-                freq_shift = next(iter(circuit.calibrations[self.gate_name]))[1][0]
-            else:
-                raise ValueError(f"The gate name {str(self.gate_name)} isn't supported.")
-            delta_freq = freq_shift - freq_offset
-
-            probability_output_dict["1"] = np.abs(1 / (1 + 2.0j * delta_freq / line_width))
-            probability_output_dict["0"] = 1 - probability_output_dict["1"]
-            output_dict_list.append(probability_output_dict)
-        return output_dict_list
-
-    def iq_phase(self, circuits: List[QuantumCircuit]) -> List[float]:
-        """Add a phase to the IQ point depending on how far we are from the resonance.
-        This will cause the IQ points to rotate around in the IQ plane when we approach the
-        resonance, introducing extra complication that the data processor has to
-        properly handle.
-        """
-        delta_freq_list = [0.0] * len(circuits)
-        if self.gate_name == "measure":
-
-            for circ_idx, circ in enumerate(circuits):
-                freq_shift = next(iter(circ.calibrations["measure"].values())).blocks[0].frequency
-                delta_freq_list[circ_idx] = freq_shift - self.freq_offset
-        phase = [delta_freq / self.line_width for delta_freq in delta_freq_list]
-        return phase
 
 
 class MockIQReadoutAngleHelper(MockIQExperimentHelper):

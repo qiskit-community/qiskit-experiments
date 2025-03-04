@@ -182,9 +182,4 @@ class ParallelExperiment(CompositeExperiment):
                 circuit.metadata["composite_qubits"].append(qubits)
                 circuit.metadata["composite_clbits"].append(clbits)
 
-                # Add the calibrations
-                for gate, cals in sub_circ.calibrations.items():
-                    for key, sched in cals.items():
-                        circuit.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
-
         return joint_circuits
