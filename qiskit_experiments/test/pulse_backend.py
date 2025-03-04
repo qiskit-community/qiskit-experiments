@@ -18,25 +18,22 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
+import qiskit.version
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
 from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
+from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2, QubitProperties
-from qiskit.providers.models import PulseDefaults  # pylint: disable=no-name-in-module
-from qiskit.providers.models.pulsedefaults import Command
 from qiskit.providers.options import Options
-from qiskit.pulse import Schedule, ScheduleBlock
-from qiskit.pulse.transforms import block_to_schedule
-from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
+from qiskit.utils import deprecate_func
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
-from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework.package_deps import HAS_DYNAMICS, version_is_at_least
 from qiskit_experiments.test.utils import FakeJob
 
@@ -64,6 +61,14 @@ class PulseBackend(BackendV2):
         experiment without having to run on hardware.
     """
 
+    @deprecate_func(
+        since="0.9",
+        additional_msg=(
+            "Support for Qiskit Pulse has been discontinued. Pin to Qiskit 1 "
+            "and Qiskit Experiment 0.8 to use pulse experiments."
+        ),
+        package_name="qiskit-experiments",
+    )
     def __init__(
         self,
         static_hamiltonian: np.ndarray,
@@ -91,6 +96,10 @@ class PulseBackend(BackendV2):
             rtol: Relative tolerance during solving.
         """
         from qiskit_dynamics import Solver
+
+        qiskit_version = qiskit.version.get_version_info()
+        if qiskit_version.partition(".") not in ("0", "1"):
+            raise QiskitError(f"Pulse backends are not compatible with Qiskit {qiskit_version}")
 
         super().__init__(
             None,
@@ -326,16 +335,19 @@ class PulseBackend(BackendV2):
 
         return measurement_data, memory_data
 
-    def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
+    def solve(self, schedule, qubits: Tuple[int]) -> np.ndarray:
         """Solves for qubit dynamics under the action of a pulse instruction
 
         Args:
-            schedule: Pulse signal
+            schedule (Schedule | ScheduleBlock): Pulse signal
             qubits: (remove after multi-qubit gates is implemented)
 
         Returns:
             Time-evolution unitary operator
         """
+        from qiskit.pulse import ScheduleBlock
+        from qiskit.pulse.transforms import block_to_schedule
+
         if len(qubits) > 1:
             raise QiskitError("Multi qubit gates are not yet implemented.")
 
@@ -458,6 +470,14 @@ class SingleTransmonTestBackend(PulseBackend):
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
 
+    @deprecate_func(
+        since="0.9",
+        additional_msg=(
+            "Support for Qiskit Pulse has been discontinued. Pin to Qiskit 1 "
+            "and Qiskit Experiment 0.8 to use pulse experiments."
+        ),
+        package_name="qiskit-experiments",
+    )
     def __init__(
         self,
         qubit_frequency: float = 5e9,
@@ -483,6 +503,9 @@ class SingleTransmonTestBackend(PulseBackend):
             atol: Absolute tolerance during solving.
             rtol: Relative tolerance during solving.
         """
+        from qiskit.providers.models import PulseDefaults  # pylint: disable=no-name-in-module
+        from qiskit.providers.models.pulsedefaults import Command
+        from qiskit.qobj.pulse_qobj import PulseQobjInstruction
         from qiskit_dynamics.pulse import InstructionToSignals
 
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity

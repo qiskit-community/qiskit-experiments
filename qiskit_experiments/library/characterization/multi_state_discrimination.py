@@ -13,13 +13,12 @@
 """Multi state discrimination experiment."""
 
 import warnings
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
-from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
@@ -59,8 +58,10 @@ class MultiStateDiscrimination(BaseExperiment):
             :hide-code:
 
             # backend
-            from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
-            backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, 1e4, noise=False, seed=199)
+            from qiskit_experiments.test.mock_iq_backend import MockMultiStateBackend
+
+
+            backend = MockMultiStateBackend([1, 1j, -1 + 1j], iq_noise=0.2, state_noise=0.2)
 
         .. jupyter-execute::
 
@@ -94,14 +95,10 @@ class MultiStateDiscrimination(BaseExperiment):
 
         Experiment Options:
             n_states (int): The number of states to discriminate.
-            schedules (dict): A dictionary of the schedules for the gates in the experiment. Each key is
-                a gate name of the form ``xii+1`` which should implement an x-rotation between level
-                ``i`` and ``i+1``.
 
         """
         options = super()._default_experiment_options()
         options.n_states = 2
-        options.schedules = None
 
         return options
 
@@ -110,7 +107,7 @@ class MultiStateDiscrimination(BaseExperiment):
         physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         n_states: Optional[int] = None,
-        schedules: Optional[Dict[str, ScheduleBlock]] = None,
+        schedules: Optional[Dict[str, Any]] = None,
     ):
         """Setup an experiment to prepare different energy states on a given qubit.
 
@@ -119,14 +116,15 @@ class MultiStateDiscrimination(BaseExperiment):
                 experiment.
             backend: Optional, the backend to run the experiment on.
             n_states: The number of energy levels to prepare.
-            schedules: The schedules of the x gates between neighboring energy levels.
+            schedules: Deprecated and unused
         """
 
         super().__init__(
             physical_qubits, analysis=MultiStateDiscriminationAnalysis(), backend=backend
         )
 
-        self.experiment_options.schedules = schedules
+        if schedules:
+            warnings.warn("MultiStateDiscrimination no longer supports custom pulse schedules.")
 
         if n_states is not None:
             self.set_experiment_options(n_states=n_states)
@@ -138,14 +136,6 @@ class MultiStateDiscrimination(BaseExperiment):
         Returns:
             A list of circuits preparing the different energy states.
         """
-        warnings.warn(
-            (
-                "Setting pulse schedules for x gates is deprecated  as of "
-                "version 0.8 due to the deprecation of Qiskit Pulse. It will be "
-                "removed in a future release."
-            ),
-            DeprecationWarning,
-        )
         circuits = []
         for level in range(self.experiment_options.n_states):
             circuit = QuantumCircuit(1)
@@ -160,12 +150,6 @@ class MultiStateDiscrimination(BaseExperiment):
                     gate_name = f"x{idx}{idx + 1}"
                     gate = Gate(name=gate_name, num_qubits=1, params=[])
                     circuit.append(gate, (0,))
-                    if self.experiment_options.schedules is not None:
-                        circuit.add_calibration(
-                            gate_name,
-                            self._physical_qubits,
-                            self.experiment_options.schedules[gate_name],
-                        )
 
             # label the circuit
             circuit.metadata = {"label": level}

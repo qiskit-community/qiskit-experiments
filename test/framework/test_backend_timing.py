@@ -28,11 +28,8 @@ class TestBackendTiming(QiskitExperimentsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.acquire_alignment = 16
         cls.dt = 1 / 4.5e9
         cls.granularity = 16
-        cls.min_length = 64
-        cls.pulse_alignment = 1
 
     def setUp(self):
         super().setUp()
@@ -41,9 +38,6 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         # with the values assumed for the unit tests.
         self.backend = FakeNairobiV2()
         self.backend.target.dt = self.dt
-        self.backend.target.acquire_alignment = self.acquire_alignment
-        self.backend.target.pulse_alignment = self.pulse_alignment
-        self.backend.target.min_length = self.min_length
         self.backend.target.granularity = self.granularity
 
     @data((True, "s"), (False, "dt"))
@@ -62,14 +56,6 @@ class TestBackendTiming(QiskitExperimentsTestCase):
             timing.round_delay(time=self.dt * 16, samples=16)
         with self.assertRaises(QiskitError):
             timing.round_delay()
-
-    def test_round_pulse_args(self):
-        """Test argument checking in round_pulse"""
-        timing = BackendTiming(self.backend)
-        with self.assertRaises(QiskitError):
-            timing.round_pulse(time=self.dt * 64, samples=64)
-        with self.assertRaises(QiskitError):
-            timing.round_pulse()
 
     @data([14, 16], [16, 16], [18, 16], [64.5, 64])
     @unpack
@@ -94,22 +80,6 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         """Test delay calculation with samples input"""
         timing = BackendTiming(self.backend)
         self.assertEqual(timing.round_delay(samples=samples_in), samples_out)
-
-    @data([12, 64], [65, 64], [79, 80], [83, 80])
-    @unpack
-    def test_round_pulse(self, samples_in, samples_out):
-        """Test round pulse calculation with time input"""
-        time = self.dt * samples_in
-
-        timing = BackendTiming(self.backend)
-        self.assertEqual(timing.round_pulse(time=time), samples_out)
-
-    @data([12, 64], [65, 64], [79, 80], [83, 80], [80.5, 80])
-    @unpack
-    def test_round_pulse_samples_in(self, samples_in, samples_out):
-        """Test round pulse calculation with samples input"""
-        timing = BackendTiming(self.backend)
-        self.assertEqual(timing.round_pulse(samples=samples_in), samples_out)
 
     def test_delay_time(self):
         """Test delay_time calculation"""
@@ -137,45 +107,3 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         self.backend.target.dt = None
         timing = BackendTiming(self.backend)
         self.assertAlmostEqual(timing.delay_time(time=time_in), time_out, delta=1e-6 * self.dt)
-
-    def test_pulse_time(self):
-        """Test pulse_time calculation"""
-        time_in = self.dt * 85.1
-        time_out = self.dt * 80
-
-        timing = BackendTiming(self.backend)
-        self.assertAlmostEqual(timing.pulse_time(time=time_in), time_out, delta=1e-6 * self.dt)
-
-    def test_pulse_time_samples_in(self):
-        """Test pulse_time calculation"""
-        samples_in = 85.1
-        time_out = self.dt * 80
-
-        timing = BackendTiming(self.backend)
-        self.assertAlmostEqual(
-            timing.pulse_time(samples=samples_in), time_out, delta=1e-6 * self.dt
-        )
-
-    def test_round_pulse_no_dt_error(self):
-        """Test methods that don't work when dt is None raise exceptions"""
-        self.backend.target.dt = None
-        timing = BackendTiming(self.backend)
-
-        time = self.dt * 81
-
-        with self.assertRaises(QiskitError):
-            timing.round_pulse(time=time)
-
-    def test_unexpected_pulse_alignment(self):
-        """Test that a weird pulse_alignment parameter is caught"""
-        self.backend.target.pulse_alignment = 33
-        timing = BackendTiming(self.backend)
-        with self.assertRaises(QiskitError):
-            timing.round_pulse(samples=81)
-
-    def test_unexpected_acquire_alignment(self):
-        """Test that a weird acquire_alignment parameter is caught"""
-        self.backend.target.acquire_alignment = 33
-        timing = BackendTiming(self.backend)
-        with self.assertRaises(QiskitError):
-            timing.round_pulse(samples=81)
