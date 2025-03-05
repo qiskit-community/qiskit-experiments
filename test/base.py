@@ -133,13 +133,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
             )
-            # All of the pulse related code is going to be removed, so we just
-            # ignore its warnings for now.
-            warnings.filterwarnings(
-                "default",
-                message=".*Due to the deprecation of Qiskit Pulse.*",
-                category=DeprecationWarning,
-            )
 
             # Some functionality may be deprecated in Qiskit Experiments. If
             # the deprecation warnings aren't filtered, the tests will fail as
@@ -147,17 +140,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # default.
             # pylint: disable=invalid-name
             allow_deprecationwarning_message = [
-                ".*qiskit.providers.models.backendconfiguration.GateConfig.*",
-                ".*qiskit.qobj.pulse_qobj.PulseLibraryItem.*",
-                ".*qiskit.providers.models.backendconfiguration.UchannelLO.*",
-                ".*qiskit.providers.models.backendconfiguration.PulseBackendConfiguration.*",
-                ".*qiskit.qobj.pulse_qobj.PulseQobjInstruction.*",
-                ".*qiskit.providers.models.backendconfiguration.QasmBackendConfiguration.*",
-                ".*qiskit.qobj.common.QobjDictField.*",
-                ".*qiskit.providers.models.backendproperties.BackendProperties.*",
-                ".*qiskit.providers.fake_provider.fake_backend.FakeBackend.*",
-                ".*qiskit.providers.backend.BackendV1.*",
-                ".*The entire Qiskit Pulse package is being deprecated.*",
             ]
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)

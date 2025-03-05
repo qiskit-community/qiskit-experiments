@@ -17,36 +17,27 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit_experiments.library import FineFrequency
-from qiskit_experiments.framework import BackendData
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQFineFreqHelper as FineFreqHelper
+from qiskit_experiments.test import T2HahnBackend
 
 
 @ddt
 class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
     """Test the fine freq experiment."""
 
-    def setUp(self):
-        """Setup for the test."""
-        super().setUp()
-
-        self.sx_duration = 160
-
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):
         """Test the experiment end to end."""
-        exp_helper = FineFreqHelper(sx_duration=self.sx_duration, freq_shift=freq_shift)
-        backend = MockIQBackend(exp_helper)
-        exp_helper.dt = BackendData(backend).dt
+        backend = T2HahnBackend(frequency=freq_shift, dt=1e-9)
+        # Set delay to be 1% of a period of freqeuncy error
+        delay_dt = int(0.01 / abs(freq_shift) / backend.dt)
 
-        freq_exp = FineFrequency([0], 160, backend)
+        freq_exp = FineFrequency([0], delay_dt, backend)
 
         expdata = freq_exp.run(shots=100)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("d_theta")
         d_theta = result.value.n
-        dt = BackendData(backend).dt
-        d_freq = d_theta / (2 * np.pi * self.sx_duration * dt)
+        d_freq = d_theta / (2 * np.pi * (delay_dt * backend.dt))
 
         tol = 0.01e6
 

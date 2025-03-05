@@ -24,7 +24,7 @@ from qiskit.quantum_info import Statevector
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.result import Counts
 from qiskit.result.utils import marginal_counts
-from qiskit.providers.fake_provider import Fake5QV1
+from qiskit.providers.fake_provider import GenericBackendV2
 
 from qiskit_experiments.data_processing import (
     CorrelatedReadoutMitigator,
@@ -38,13 +38,55 @@ from qiskit_experiments.data_processing.mitigation import (
 )
 
 
+class Property:
+    """Class representing a single backend property with name and value"""
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+class Properties:
+    """Class holding backend properties in the qubits attribute"""
+    def __init__(self, probs):
+        self.probs = probs
+        self.qubits = [
+            [
+                Property("prob_meas1_prep0", q_probs[0]),
+                Property("prob_meas0_prep1", q_probs[1]),
+            ]
+            for q_probs in probs
+        ]
+
+class MitigatorTestBackend(GenericBackendV2):
+    """Custom backend with a .properties().qubits with readout error values
+
+    This backend's properties are formatted as qiskit-ibm-runtime is as of March 2025
+    """
+    def __init__(self, num_qubits: int, probs: list[tuple[float, float]]):
+        self.probs = probs
+        super().__init__(num_qubits=num_qubits)
+
+    def properties(self):
+        """Return backend properties"""
+        return Properties(self.probs)
+
+
 class TestReadoutMitigation(QiskitExperimentsTestCase):
     """Tests for correlated and local readout mitigation."""
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.rng = np.random.default_rng(42)
+    def setUp(self):
+        super().setUp()
+        self.rng = np.random.default_rng(42)
+
+        # Probabilities copied from Qiskit 1's qiskit.providers.fake_provider.Fake5QV1
+        probs = [
+            [0.049000000000000044, 0.0776],
+            [0.021399999999999975, 0.0408],
+            [0.09160000000000001, 0.1388],
+            [0.013, 0.04239999999999999],
+            [0.086, 0.49860000000000004],
+        ]
+
+        self.backend = MitigatorTestBackend(num_qubits=5, probs=probs)
 
     @staticmethod
     def compare_results(res1, res2):
@@ -70,13 +112,12 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         mitigators = [CRM, LRM]
         return mitigators
 
-    @staticmethod
-    def simulate_circuit(circuit, assignment_matrix, num_qubits, shots=1024):
+    def simulate_circuit(self, circuit, assignment_matrix, num_qubits, shots=1024):
         """Simulates the given circuit under the given readout noise"""
         probs = Statevector.from_instruction(circuit).probabilities()
         noisy_probs = assignment_matrix @ probs
         labels = [bin(a)[2:].zfill(num_qubits) for a in range(2**num_qubits)]
-        results = TestReadoutMitigation.rng.choice(labels, size=shots, p=noisy_probs)
+        results = self.rng.choice(labels, size=shots, p=noisy_probs)
         return Counts(dict(Counter(results)))
 
     @staticmethod
@@ -95,23 +136,21 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         c.h(0)
         return (c, "first_qubit_h_3_circuit", 3)
 
-    @staticmethod
-    def assignment_matrices():
+    def assignment_matrices(self):
         """A 3-qubit readout noise assignment matrices"""
-        return LocalReadoutMitigator(backend=Fake5QV1())._assignment_mats[0:3]
+        return LocalReadoutMitigator(backend=self.backend)._assignment_mats[0:3]
 
-    @staticmethod
-    def counts_data(circuit, assignment_matrices, shots=1024):
+    def counts_data(self, circuit, assignment_matrices, shots=1024):
         """Generates count data for the noisy and noiseless versions of the circuit simulation"""
         full_assignment_matrix = assignment_matrices[0]
         for m in assignment_matrices[1:]:
             full_assignment_matrix = np.kron(full_assignment_matrix, m)
         num_qubits = len(assignment_matrices)
         ideal_assignment_matrix = np.eye(2**num_qubits)
-        counts_ideal = TestReadoutMitigation.simulate_circuit(
+        counts_ideal = self.simulate_circuit(
             circuit, ideal_assignment_matrix, num_qubits, shots
         )
-        counts_noise = TestReadoutMitigation.simulate_circuit(
+        counts_noise = self.simulate_circuit(
             circuit, full_assignment_matrix, num_qubits, shots
         )
         probs_noise = {key: value / shots for key, value in counts_noise.items()}
@@ -120,11 +159,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
     def test_mitigation_improvement(self):
         """Test whether readout mitigation led to more accurate results"""
         shots = 1024
-        with self.assertWarns(DeprecationWarning):
-            # TODO self.assignment_matrices calls LocalReadoutMitigator,
-            #  which only supports BackendV1 at the moment:
-            #  https://github.com/Qiskit/qiskit/issues/12832
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices)
         circuit, circuit_name, num_qubits = self.ghz_3_circuit()
         counts_ideal, counts_noise, probs_noise = self.counts_data(
@@ -160,8 +195,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         """Test whether readout mitigation led to more accurate results
         and that its standard deviation is increased"""
         shots = 1024
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices)
         num_qubits = len(assignment_matrices)
         diagonals = []
@@ -203,8 +237,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
     def test_clbits_parameter(self):
         """Test whether the clbits parameter is handled correctly"""
         shots = 10000
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices)
         circuit, _, _ = self.first_qubit_h_3_circuit()
         counts_ideal, counts_noise, _ = self.counts_data(circuit, assignment_matrices, shots)
@@ -239,8 +272,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
     def test_qubits_parameter(self):
         """Test whether the qubits parameter is handled correctly"""
         shots = 10000
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices)
         circuit, _, _ = self.first_qubit_h_3_circuit()
         counts_ideal, counts_noise, _ = self.counts_data(circuit, assignment_matrices, shots)
@@ -288,8 +320,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
     def test_repeated_qubits_parameter(self):
         """Tests the order of mitigated qubits."""
         shots = 10000
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices, qubits=[0, 1, 2])
         circuit, _, _ = self.first_qubit_h_3_circuit()
         counts_ideal, counts_noise, _ = self.counts_data(circuit, assignment_matrices, shots)
@@ -327,8 +358,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         """Tests mitigation on a subset of the initial set of qubits."""
 
         shots = 10000
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices, qubits=[2, 4, 6])
         circuit, _, _ = self.first_qubit_h_3_circuit()
         counts_ideal, counts_noise, _ = self.counts_data(circuit, assignment_matrices, shots)
@@ -373,20 +403,12 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
 
     def test_from_backend(self):
         """Test whether a local mitigator can be created directly from backend properties"""
-        with self.assertWarns(DeprecationWarning):
-            backend = Fake5QV1()
-        num_qubits = len(backend.properties().qubits)
-        probs = TestReadoutMitigation.rng.random((num_qubits, 2))
-        for qubit_idx, qubit_prop in enumerate(backend.properties().qubits):
-            for prop in qubit_prop:
-                if prop.name == "prob_meas1_prep0":
-                    prop.value = probs[qubit_idx][0]
-                if prop.name == "prob_meas0_prep1":
-                    prop.value = probs[qubit_idx][1]
-        LRM_from_backend = LocalReadoutMitigator(backend=backend)
+
+        LRM_from_backend = LocalReadoutMitigator(backend=self.backend)
 
         mats = []
-        for qubit_idx in range(num_qubits):
+        probs = self.backend.probs
+        for qubit_idx in range(self.backend.num_qubits):
             mat = np.array(
                 [
                     [1 - probs[qubit_idx][0], probs[qubit_idx][1]],
@@ -432,8 +454,7 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
 
     def test_expectation_value_endian(self):
         """Test that endian for expval is little."""
-        with self.assertWarns(DeprecationWarning):
-            assignment_matrices = self.assignment_matrices()
+        assignment_matrices = self.assignment_matrices()
         mitigators = self.mitigators(assignment_matrices)
         counts = Counts({"10": 3, "11": 24, "00": 74, "01": 923})
         for mitigator in mitigators:
@@ -454,16 +475,10 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         quasi_dist = mitigator.quasi_probabilities(counts, shots=1025)
         self.assertEqual(quasi_dist.shots, 1025)
 
-
-class TestLocalReadoutMitigation(QiskitExperimentsTestCase):
-    """Tests specific to the local readout mitigator"""
-
-    def test_assignment_matrix(self):
+    def test_local_readout_assignment_matrix(self):
         """Tests that the local mitigator generates the full assignment matrix correctly"""
         qubits = [7, 2, 3]
-        with self.assertWarns(DeprecationWarning):
-            backend = Fake5QV1()
-        assignment_matrices = LocalReadoutMitigator(backend=backend)._assignment_mats[0:3]
+        assignment_matrices = LocalReadoutMitigator(backend=self.backend)._assignment_mats[0:3]
         expected_assignment_matrix = np.kron(
             np.kron(assignment_matrices[2], assignment_matrices[1]), assignment_matrices[0]
         )

@@ -18,13 +18,15 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
+from qiskit.circuit.library import XGate, SXGate, get_standard_gate_name_mapping
 from qiskit.result import Result
-from qiskit.providers import BackendV2, Provider, convert_to_target
-from qiskit.providers.fake_provider import FakeOpenPulse2Q
+from qiskit.providers import BackendV2, QubitProperties
+from qiskit.transpiler import InstructionProperties, Target
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import Provider
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQExperimentHelper,
@@ -33,8 +35,8 @@ from qiskit_experiments.test.mock_iq_helpers import (
 )
 
 
-class FakeOpenPulse2QV2(BackendV2):
-    """BackendV2 conversion of qiskit.providers.fake_provider.FakeOpenPulse2Q"""
+class BaseMockBackend(BackendV2):
+    """Simple two qubit BackendV2 implementation"""
 
     def __init__(
         self,
@@ -47,25 +49,37 @@ class FakeOpenPulse2QV2(BackendV2):
     ):
         super().__init__(provider, name, description, online_date, backend_version, **fields)
 
-        backend_v1 = FakeOpenPulse2Q()
-        # convert_to_target requires the description attribute
-        backend_v1._configuration.description = "A fake test backend with pulse defaults"
-
-        self._target = convert_to_target(
-            backend_v1.configuration(),
-            backend_v1.properties(),
-            backend_v1.defaults(),
-            add_delay=True,
+        self._target = Target(
+            num_qubits=2,
+            dt=1e-9,
+            qubit_properties=[
+                QubitProperties(t1=70e-6, t2=80e-6),
+                QubitProperties(t1=85e-6, t2=90e-6),
+            ],
         )
-        # See commented out defaults() method below
-        self._defaults = backend_v1._defaults
 
-    # This method is not defined in the base class as we would like to avoid
-    # relying on it as much as necessary. Individual tests should add it when
-    # necessary.
-    # def defaults(self):
-    #     """Pulse defaults"""
-    #     return self._defaults
+        gate_map = get_standard_gate_name_mapping()
+        inst_props = {
+            "cx": {"duration": 100e-9, "error": 3e-3},
+            "id": {"duration": 30e-9, "error": 4e-4},
+            "rz": {"duration": 0, "error": 0},
+            "sx": {"duration": 30e-9, "error": 4e-4},
+            "x": {"duration": 30e-9, "error": 4e-4},
+            "reset": {"duration": None, "error": None},
+            "delay": {"duration": None, "error": None},
+            "measure": {"duration": 700e-9, "error": 1e-2},
+        }
+
+        for iname, iprops in inst_props.items():
+            gate = gate_map[iname]
+            if gate.num_qubits == 2:
+                properties = {(0, 1): InstructionProperties(**iprops)}
+            else:
+                properties = {
+                    (q,): InstructionProperties(**iprops)
+                    for q in range(self._target.num_qubits)
+                }
+            self._target.add_instruction(gate, properties=properties, name=iname)
 
     @property
     def max_circuits(self):
@@ -76,7 +90,7 @@ class FakeOpenPulse2QV2(BackendV2):
         return self._target
 
 
-class MockIQBackend(FakeOpenPulse2QV2):
+class MockIQBackend(BaseMockBackend):
     """A mock backend for testing with IQ data."""
 
     def __init__(
@@ -629,7 +643,7 @@ class MockIQParallelBackend(MockIQBackend):
         return FakeJob(self, Result.from_dict(result))
 
 
-class MockMultiStateBackend(FakeOpenPulse2QV2):
+class MockMultiStateBackend(BaseMockBackend):
     """A mock backend for testing with multi-state IQ data.
 
     .. note::
