@@ -1,6 +1,105 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "qiskit-experiments"
+dynamic = ["version"]
+description = "Software for developing quantum computing programs"
+dependencies = [
+    "numpy>=1.17",
+    "scipy>=1.4",
+    "qiskit>=0.45",
+    "qiskit-ibm-experiment>=0.4.6",
+    "qiskit_ibm_runtime>=0.29.0",
+    "matplotlib>=3.4",
+    "uncertainties",
+    "lmfit",
+    "rustworkx",
+    "pandas>=1.1.5",
+    "packaging",
+]
+keywords = ["qiskit sdk quantum"]
+readme = "README.md"
+authors = [
+    {name = "Qiskit Development Team", email = "qiskit@us.ibm.com"},
+]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.9"
+license = {text = "Apache 2.0"}
+
+[project.urls]
+Homepage = "https://github.com/Qiskit-Community/qiskit-experiments"
+"Bug Tracker" = "https://github.com/Qiskit-Community/qiskit-experiments/issues"
+Documentation = "https://qiskit-community.github.io/qiskit-experiments"
+"Source Code" = "https://github.com/Qiskit-Community/qiskit-experiments"
+
+[project.optional-dependencies]
+extras = [
+    "cvxpy>=1.3.2", # for tomography
+    "scikit-learn", # for discriminators
+    "qiskit-aer>=0.13.2",
+    "qiskit-dynamics>=0.4.0", # for the PulseBackend
+]
+
+[project.entry-points."qiskit.synthesis"]
+"clifford.rb_default" = "qiskit_experiments.library.randomized_benchmarking.clifford_synthesis:RBDefaultCliffordSynthesis"
+
+[dependency-groups]
+dev = [
+    # Linters
+    "black~=22.0",
+    "pylint~=3.3.1",
+    "astroid~=3.3.4",  # Must be kept aligned to what pylint wants
+
+    # Test runner tools
+    "coverage>=5.5",
+    "ddt>=1.6.0",
+    "fixtures",
+    "stestr",
+    "testtools",
+
+    # Extra dependencies for tests/documentation code
+    "multimethod",
+    # qiskit-ibm-runtime 0.34 and qiskit 1.3 are needed to pass run options through
+    # qiskit_ibm_runtime.SamplerV2 to test backends' backend.run calls.
+    # Earlier versions work okay when using physical backends or not passing run
+    # options.
+    "qiskit-ibm-runtime>=0.34",  # see above
+    "qiskit>=1.3",  # see above
+
+    # Documentation tools
+    "arxiv",
+    "jupyter-sphinx>=0.4.0",
+    "nbsphinx",
+    "pylatexenc",
+    "qiskit-sphinx-theme",
+    "reno>=4.1.0",
+    "sphinx>=6.2.1,<8.2",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinx-remove-toctrees",
+]
+
+[tool.setuptools.packages.find]
+include = ["qiskit_experiments*"]
+
+[tool.setuptools.dynamic]
+version = {file = ["qiskit_experiments/VERSION.txt"]}
 
 [tool.black]
 line-length = 100

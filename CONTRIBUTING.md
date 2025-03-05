@@ -74,9 +74,10 @@ When submitting a pull request for review, please ensure that:
    etc.), you've added or updated a reno release note for that change and tagged the PR
    for the changelog.
 6. If your code requires a change to dependencies, you've updated the corresponding
-   requirements file: `requirements.txt` for core dependencies,
-   `requirements-extras.txt` for dependencies for optional features, and `requirements-dev.txt`
-   for dependencies required for running tests and building documentation.
+   sections of `pyproject.toml`: `project.dependencies` for core dependencies,
+   `project.optional-dependencies` for dependencies for optional features, and
+    `dependency-groups.dev` for dependencies required for running tests and
+    building documentation.
 
 The sections below go into more detail on the guidelines for each point.
 
@@ -119,6 +120,20 @@ tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData.test
 ```
 
 Note that tests will fail automatically if they do not finish execution within 60 seconds.
+
+#### Alternatives to `tox`
+
+If you prefer not to use `tox`, the required test environment dependencies can be installed by using the `extras` optional dependency specifier and the `dev` dependency group.
+With `pip` version 25.1, installing all of the dependencies could be done with:
+
+    pip install -e .[extras] --group dev
+
+Prior to `pip` 25.1, the `dev` group can be installed with
+
+    python -m dependency_groups dev
+
+after installing `dependency-groups` (`pip install dependency-groups`).
+The `tox` configuration should still be used as a reference for the preferred testing commands and environment variables.
 
 #### STDOUT/STDERR and logging capture
 
