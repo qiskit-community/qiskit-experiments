@@ -123,7 +123,6 @@ class FineFrequency(BaseExperiment):
     def _default_transpile_options(cls) -> Options:
         """Default transpiler options."""
         options = super()._default_transpile_options()
-        options.inst_map = None
         options.basis_gates = ["sx", "rz", "delay"]
         return options
 
