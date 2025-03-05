@@ -40,12 +40,15 @@ from qiskit_experiments.data_processing.mitigation import (
 
 class Property:
     """Class representing a single backend property with name and value"""
+
     def __init__(self, name, value):
         self.name = name
         self.value = value
 
+
 class Properties:
     """Class holding backend properties in the qubits attribute"""
+
     def __init__(self, probs):
         self.probs = probs
         self.qubits = [
@@ -56,11 +59,13 @@ class Properties:
             for q_probs in probs
         ]
 
+
 class MitigatorTestBackend(GenericBackendV2):
     """Custom backend with a .properties().qubits with readout error values
 
     This backend's properties are formatted as qiskit-ibm-runtime is as of March 2025
     """
+
     def __init__(self, num_qubits: int, probs: list[tuple[float, float]]):
         self.probs = probs
         super().__init__(num_qubits=num_qubits)
@@ -147,12 +152,8 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
             full_assignment_matrix = np.kron(full_assignment_matrix, m)
         num_qubits = len(assignment_matrices)
         ideal_assignment_matrix = np.eye(2**num_qubits)
-        counts_ideal = self.simulate_circuit(
-            circuit, ideal_assignment_matrix, num_qubits, shots
-        )
-        counts_noise = self.simulate_circuit(
-            circuit, full_assignment_matrix, num_qubits, shots
-        )
+        counts_ideal = self.simulate_circuit(circuit, ideal_assignment_matrix, num_qubits, shots)
+        counts_noise = self.simulate_circuit(circuit, full_assignment_matrix, num_qubits, shots)
         probs_noise = {key: value / shots for key, value in counts_noise.items()}
         return counts_ideal, counts_noise, probs_noise
 

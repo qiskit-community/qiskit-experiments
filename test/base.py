@@ -139,8 +139,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # ``QiskitTestCase`` sets all warnings to be treated as an error by
             # default.
             # pylint: disable=invalid-name
-            allow_deprecationwarning_message = [
-            ]
+            allow_deprecationwarning_message = []
             for msg in allow_deprecationwarning_message:
                 warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 

@@ -76,8 +76,7 @@ class BaseMockBackend(BackendV2):
                 properties = {(0, 1): InstructionProperties(**iprops)}
             else:
                 properties = {
-                    (q,): InstructionProperties(**iprops)
-                    for q in range(self._target.num_qubits)
+                    (q,): InstructionProperties(**iprops) for q in range(self._target.num_qubits)
                 }
             self._target.add_instruction(gate, properties=properties, name=iname)
 
