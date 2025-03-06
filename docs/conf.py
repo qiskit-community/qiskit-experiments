@@ -78,9 +78,7 @@ else:
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-# Manually add the gallery CSS file for now
-# TODO: Figure out why the styling is not working by default
-html_css_files = ["nbsphinx-gallery.css", "customstyles.css"]
+html_css_files = ["customstyles.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
