@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.circuit.library import XGate, get_standard_gate_name_mapping
+from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.result import Result
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.transpiler import InstructionProperties, Target
