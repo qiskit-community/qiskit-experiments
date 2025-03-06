@@ -1,0 +1,33 @@
+---
+features:
+  - |
+    Classes :class:`.MeasLevel` and :class:`.MeasReturnType` were added to
+    enumerate the expected measurement level (kerneled or classified) and
+    return type (averaged or not). Previously, private classes of Qiskit were
+    inadvertently used for these purposes but they were removed in Qiskit
+    2.0.
+fixes:
+  - |
+    In preparation for Qiskit 2.0, references to ``BackendV1`` have been
+    guarded so that they do not cause import errors. ``BackendV1`` is still
+    supported for now, but support will be removed in a future release.
+  - |
+    :class:`.LocalReadouMitigator` now provides a more specific warning if it
+    is used with a backend without a ``properties()`` method or with a backend
+    that does not the required readout error properties.
+  - |
+    :class:`.ExperimentData` was updated to handle changes to
+    :class:`qiskit.result.Result` in Qiskit 2.0. The result header is now a
+    dict instead of a custom class. Qiskit Experiments uses this header to
+    store metadata about experiments' circuits.
+  - |
+    A performance issue in :class:`.QuantumVolume` was addressed. When Qiskit
+    Aer is installed, :class:`.QuantumVolume` uses
+    :class:`qiskit_aer.AerSimulator` to simulate the outcomes of the quantum
+    volume circuits to determine the heavy output probabilities. In its default
+    instantiation, ``AerSimulator`` regenerates its
+    :class:`qiskit.transpiler.Target` every time it is accessed and this
+    generation takes an appreciable amount of time. Because the target was
+    being accessed separately for every circuit, this overhead could accumulate
+    to over a minute in the standard 100 circuit experiment. This overhead was
+    reduced by processing all the circuits in one pass.
