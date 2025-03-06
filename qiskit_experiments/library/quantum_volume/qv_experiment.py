@@ -173,7 +173,9 @@ class QuantumVolume(BaseExperiment):
             t_circuits = transpile(circuits, self._simulation_backend, optimization_level=0)
 
             result = self._simulation_backend.run(t_circuits, **run_options).result()
-            probabilities = [result.data(i).get("probabilities").tolist() for i, _ in enumerate(t_circuits)]
+            probabilities = [
+                result.data(i).get("probabilities").tolist() for i, _ in enumerate(t_circuits)
+            ]
         else:
             from qiskit.quantum_info import Statevector
 

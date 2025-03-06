@@ -147,7 +147,16 @@ from qiskit_experiments.framework.containers import (
     FigureData,
     FigureType,
 )
-from .provider_interfaces import BaseJob, BaseProvider, ExtendedJob, IBMProvider, Job, MeasLevel, MeasReturnType, Provider
+from .provider_interfaces import (
+    BaseJob,
+    BaseProvider,
+    ExtendedJob,
+    IBMProvider,
+    Job,
+    MeasLevel,
+    MeasReturnType,
+    Provider,
+)
 
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
