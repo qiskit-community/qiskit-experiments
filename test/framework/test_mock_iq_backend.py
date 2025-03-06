@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Tuple
 from itertools import product
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
+from qiskit_experiments.framework import MeasLevel, MeasReturnType
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 

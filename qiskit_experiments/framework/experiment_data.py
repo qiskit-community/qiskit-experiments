@@ -1069,8 +1069,13 @@ class ExperimentData:
                         # Format to Counts object rather than hex dict
                         data["counts"] = result.get_counts(i)
                     expr_result = result.results[i]
-                    if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                        data["metadata"] = expr_result.header.metadata
+                    if hasattr(expr_result, "header"):
+                        if hasattr(expr_result.header, "metadata"):
+                            data["metadata"] = expr_result.header.metadata
+                        elif isinstance(expr_result.header, dict):
+                            data["metadata"] = expr_result.header.get("metadata", {})
+                        else:
+                            data["metadata"] = {}
                     data["shots"] = expr_result.shots
                     data["meas_level"] = expr_result.meas_level
                     if hasattr(expr_result, "meas_return"):

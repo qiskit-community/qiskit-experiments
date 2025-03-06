@@ -16,7 +16,7 @@ Test readout angle experiment
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.framework import MeasLevel
 from qiskit_experiments.library import ReadoutAngle
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQReadoutAngleHelper

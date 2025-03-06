@@ -17,12 +17,11 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.circuit import Delay, Parameter
 from qiskit.circuit.library import CXGate, Measure, RXGate
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit.transpiler import InstructionProperties, Target
 from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-from qiskit_experiments.framework import ExperimentData, ParallelExperiment
+from qiskit_experiments.framework import ExperimentData, MeasLevel, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis, T1KerneledAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend

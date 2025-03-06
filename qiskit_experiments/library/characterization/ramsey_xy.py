@@ -16,9 +16,8 @@ from typing import List, Optional, Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Parameter
 from qiskit.providers.backend import Backend
-from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, Options, BackendTiming
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 

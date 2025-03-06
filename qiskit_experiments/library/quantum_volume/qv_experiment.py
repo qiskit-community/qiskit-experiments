@@ -146,35 +146,39 @@ class QuantumVolume(BaseExperiment):
 
         return options
 
-    def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
+    def _get_ideal_data(self, circuits: List[QuantumCircuit], **run_options) -> List[List[float]]:
         """Return ideal measurement probabilities.
 
         In case the user does not have Aer installed, use Qiskit's quantum info module
         to calculate the ideal state.
 
         Args:
-            circuit: the circuit to extract the ideal data from
+            circuits: the circuits to extract the ideal data from
             run_options: backend run options.
 
         Returns:
-            list: list of the probabilities for each state in the circuit.
+            list: list of lists of the probabilities for each state in each circuit.
         """
-        ideal_circuit = circuit.remove_final_measurements(inplace=False)
+        # NOTE: this code used to process a single circuit at a time but
+        # AerSimulator() generates a backend object that regenerates its Target
+        # on the fly each time and the overhead of regenerating the target for
+        # each transpile call was significant.
         if self._simulation_backend:
-            ideal_circuit.save_probabilities()
+            circuits = [c.copy() for c in circuits]
+            for circuit in circuits:
+                circuit.save_probabilities()
             # always transpile with optimization_level 0, even if the non ideal circuits will run
             # with different optimization level, because we need to compare the results to the
             # exact generated probabilities
-            ideal_circuit = transpile(ideal_circuit, self._simulation_backend, optimization_level=0)
+            t_circuits = transpile(circuits, self._simulation_backend, optimization_level=0)
 
-            ideal_result = self._simulation_backend.run(ideal_circuit, **run_options).result()
-            probabilities = ideal_result.data().get("probabilities")
+            result = self._simulation_backend.run(t_circuits, **run_options).result()
+            probabilities = [result.data(i).get("probabilities").tolist() for i, _ in enumerate(t_circuits)]
         else:
             from qiskit.quantum_info import Statevector
 
-            state_vector = Statevector(ideal_circuit)
-            probabilities = state_vector.probabilities()
-        return list(probabilities)
+            probabilities = [Statevector(c).probabilities().tolist() for c in circuits]
+        return probabilities
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
@@ -189,11 +193,14 @@ class QuantumVolume(BaseExperiment):
         # Note: the trials numbering in the metadata is starting from 1 for each new experiment run
         for trial in range(1, self.experiment_options.trials + 1):
             qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
-            qv_circ.measure_active()
             qv_circ.metadata = {
                 "depth": depth,
                 "trial": trial,
-                "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
             circuits.append(qv_circ)
+        all_probs = self._get_ideal_data(circuits)
+        for qv_circ, probs in zip(circuits, all_probs):
+            qv_circ.measure_active()
+            qv_circ.metadata["ideal_probabilities"] = probs
+
         return circuits

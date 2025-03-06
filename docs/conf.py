@@ -211,9 +211,12 @@ def setup(app):
 # Should come up with better way to address this
 
 from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.framework import MeasLevel, MeasReturnType
 
 
 def maybe_skip_member(app, what, name, obj, skip, options):
+    if skip:
+        return True
     skip_names = [
         "analysis",
         "set_run_options",
@@ -234,6 +237,11 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         ParameterRepr.repr,
         ParameterRepr.unit,
     ]
+    if (
+        not name.isupper() and
+        (getattr(MeasLevel, name, None) == obj or getattr(MeasReturnType, name, None) == obj)
+    ):
+        return True
     if not skip:
         return (name in skip_names or obj in skip_members) and what == "attribute"
     return skip

@@ -18,15 +18,13 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.circuit.library import XGate, SXGate, get_standard_gate_name_mapping
+from qiskit.circuit.library import XGate, get_standard_gate_name_mapping
 from qiskit.result import Result
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.transpiler import InstructionProperties, Target
-from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.exceptions import QiskitError
-from qiskit_experiments.framework import Options
-from qiskit_experiments.framework import Provider
+from qiskit_experiments.framework import MeasLevel, Options, Provider
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQExperimentHelper,

@@ -601,7 +601,7 @@ perfect symmetrical results between :math:`|0000\rangle` and :math:`|1111\rangle
 
 .. jupyter-execute::
 
-    expdata_ideal = exp.run(AerSimulator(), shots=shots)
+    expdata_ideal = exp.run(backend_ideal, shots=shots)
     counts_ideal = expdata_ideal.analysis_results("counts").value
     print(counts_ideal)
 

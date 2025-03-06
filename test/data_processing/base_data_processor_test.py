@@ -20,7 +20,6 @@ from typing import Any, List
 import qiskit.version
 from qiskit.result import Result
 
-from qiskit.qobj.common import QobjExperimentHeader
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit_experiments.framework import ExperimentData
 
@@ -47,12 +46,13 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
                     message=".*QobjDictField.*",
                     category=DeprecationWarning,
                 )
+                from qiskit.qobj.common import QobjExperimentHeader
                 self.header = QobjExperimentHeader(
                     memory_slots=2,
                     metadata={"experiment_type": "fake_test_experiment"},
                 )
         else:
-            self.header = {"memory_slots": 2, "experiment_type": "fake_test_experiment"}
+            self.header = {"memory_slots": 2, "metadata": {"experiment_type": "fake_test_experiment"}}
 
     def create_experiment_data(self, iq_data: List[Any], single_shot: bool = False):
         """Populate avg_iq_data to use it for testing.
