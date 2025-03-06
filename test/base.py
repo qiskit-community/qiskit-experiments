@@ -23,8 +23,6 @@ from typing import Any, Callable, Optional
 import fixtures
 import testtools
 import uncertainties
-from qiskit.utils.deprecation import deprecate_func
-import qiskit_aer.backends.aerbackend
 
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -32,14 +30,9 @@ from qiskit_experiments.framework import (
     ExperimentData,
 )
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
+from qiskit_experiments.framework.deprecation import deprecate_func
 from .extended_equality import is_equivalent
 
-
-# Workaround until https://github.com/Qiskit/qiskit-aer/pull/2142 is released
-try:
-    del qiskit_aer.backends.aerbackend.AerBackend.get_translation_stage_plugin
-except AttributeError:
-    pass
 
 # Fail tests that take longer than this
 TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
@@ -111,37 +104,12 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # assertWarns or warnings.catch_warnings.
             warnings.filterwarnings("error", module="qiskit_experiments")
             warnings.filterwarnings("error", module=r"test\.")
-            # Ideally, changes introducing pending deprecations should include
-            # alternative code paths and not need to generate warnings in the
-            # tests but until this exception is necessary until the use of the
-            # deprecated ScatterTable methods are removed.
-            warnings.filterwarnings(
-                "default",
-                module="qiskit_experiments",
-                message=".*Curve data uses dataframe representation.*",
-                category=PendingDeprecationWarning,
-            )
-            warnings.filterwarnings(
-                "default",
-                module="qiskit_experiments",
-                message=".*The curve data representation has been replaced by the `DataFrame` format.*",
-                category=PendingDeprecationWarning,
-            )
             warnings.filterwarnings(
                 "default",
                 module="qiskit_experiments",
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
             )
-
-            # Some functionality may be deprecated in Qiskit Experiments. If
-            # the deprecation warnings aren't filtered, the tests will fail as
-            # ``QiskitTestCase`` sets all warnings to be treated as an error by
-            # default.
-            # pylint: disable=invalid-name
-            allow_deprecationwarning_message = []
-            for msg in allow_deprecationwarning_message:
-                warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 
         def assertExperimentDone(
             self,

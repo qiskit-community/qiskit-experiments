@@ -19,9 +19,9 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit.utils import deprecate_func
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.deprecation import deprecate_func
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 

@@ -19,7 +19,6 @@ import asteval
 import lmfit
 import numpy as np
 import pandas as pd
-from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
 from uncertainties import unumpy
@@ -27,6 +26,7 @@ from uncertainties import unumpy
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.exceptions import AnalysisError, QiskitError
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.framework.deprecation import deprecate_func
 
 
 UNUMPY_FUNCS = {fn: getattr(unumpy, fn) for fn in unumpy.__all__}

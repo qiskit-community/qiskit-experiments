@@ -424,12 +424,11 @@ release notes.
 
 #### Adding deprecation warnings
 
-We use the deprecation wrappers in [Qiskit
-Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
+We use deprecation wrappers in `qiskit_experiments.framework.deprecation` to add warnings:
 
 ```python
 
-  from qiskit.utils.deprecation import deprecate_func
+  from qiskit_experiments.framework.deprecation import deprecate_func
 
   @deprecate_func(
       since="0.5",
