@@ -18,7 +18,13 @@ this class will not serve any useful purpose once support for Qiskit 1 is droppe
 
 TODO: remove this class 
 """
+import os
+import sys
+import warnings
+
 from qiskit.providers import BackendV2
+
+import qiskit_experiments
 
 
 class BackendData:
@@ -35,6 +41,24 @@ class BackendData:
                 from qiskit.providers import BackendV1
 
                 self._v1 = isinstance(backend, BackendV1)
+
+                if self._v1:
+                    if sys.version_info[:2] >= (3, 12):
+                        kwargs = {
+                            "skip_file_prefixes": (os.path.dirname(qiskit_experiments.__file__),)
+                        }
+                    else:
+                        kwargs = {}
+                    warnings.warn(
+                        (
+                            "Support for BackendV1 with Qiskit Experiments is "
+                            "deprecated and will be removed in a future release. "
+                            "Please update to using BackendV2 backends."
+                        ),
+                        DeprecationWarning,
+                        stacklevel=2,
+                        **kwargs,
+                    )
             except ImportError:
                 pass
 

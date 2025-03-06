@@ -31,3 +31,9 @@ fixes:
     being accessed separately for every circuit, this overhead could accumulate
     to over a minute in the standard 100 circuit experiment. This overhead was
     reduced by processing all the circuits in one pass.
+deprecations:
+  - |
+    Support for using ``BackendV1`` with Qiskit Experiments is deprecated. Some
+    code paths will generate warnings when using ``BackendV1`` but not all
+    cases are checked. Support is planned to be removed along all support for
+    Qiskit 1 in a future release near the end of support for Qiskit 1.4.
