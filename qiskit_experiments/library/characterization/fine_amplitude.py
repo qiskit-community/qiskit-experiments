@@ -19,9 +19,9 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit.utils import deprecate_func
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.deprecation import deprecate_func
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 
@@ -460,11 +460,7 @@ class FineZXAmplitude(FineAmplitude):
 
         Experiment Options:
             basis_gates: Set to :code:`["szx"]`.
-            inst_map: The instruction schedule map that will contain the schedule for the
-                Rzx(pi/2) gate. This schedule should be stored under the instruction name
-                ``szx``.
         """
         options = super()._default_transpile_options()
         options.basis_gates = ["szx"]
-        options.inst_map = None
         return options

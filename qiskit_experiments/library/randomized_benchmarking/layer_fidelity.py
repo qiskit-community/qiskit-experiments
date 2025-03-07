@@ -22,9 +22,15 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
-from qiskit.providers import BackendV2Converter
-from qiskit.providers.backend import Backend, BackendV1
+from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
+
+try:
+    from qiskit.providers import BackendV2Converter
+    from qiskit.providers.backend import BackendV1
+except ImportError:
+    BackendV1 = None
+    BackendV2Converter = None
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
@@ -287,10 +293,8 @@ class LayerFidelity(BaseExperiment):
         )
 
     def _set_backend(self, backend: Backend):
-        """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
-        If BackendV1 is provided, it is converted to V2 and stored.
-        """
-        if isinstance(backend, BackendV1):
+        """Set the backend V2 for RB experiments since RB experiments only support BackendV2."""
+        if BackendV1 is not None and isinstance(backend, BackendV1):
             super()._set_backend(BackendV2Converter(backend, add_delay=True))
         else:
             super()._set_backend(backend)

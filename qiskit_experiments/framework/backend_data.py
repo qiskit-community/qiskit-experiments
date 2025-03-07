@@ -12,12 +12,19 @@
 """
 Backend data access helper class
 
-Since `BackendV1` and `BackendV2` do not share the same interface, this
-class unifies data access for various data fields.
+This class was introduced to unify backend data access to either `BackendV1` and `BackendV2`
+objects, wrapped by an object of this class. With the removal of `BackendV1` in Qiskit 2.0,
+this class will not serve any useful purpose once support for Qiskit 1 is dropped.
+
+TODO: remove this class 
 """
+import os
+import sys
 import warnings
-from qiskit.providers.models import PulseBackendConfiguration  # pylint: disable=no-name-in-module
-from qiskit.providers import BackendV1, BackendV2
+
+from qiskit.providers import BackendV2
+
+import qiskit_experiments
 
 
 class BackendData:
@@ -27,22 +34,33 @@ class BackendData:
         """Inits the backend and verifies version"""
 
         self._backend = backend
-        self._v1 = isinstance(backend, BackendV1)
+        self._v1 = False
         self._v2 = isinstance(backend, BackendV2)
+        if not self._v2:
+            try:
+                from qiskit.providers import BackendV1
 
-        if self._v2:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore", message=".*qiskit.qobj.pulse_qobj.*", category=DeprecationWarning
-                )
-                self._parse_additional_data()
+                self._v1 = isinstance(backend, BackendV1)
 
-    def _parse_additional_data(self):
-        # data specific parsing not done yet in upstream qiskit
-        if hasattr(self._backend, "_conf_dict") and self._backend._conf_dict["open_pulse"]:
-            if "u_channel_lo" not in self._backend._conf_dict:
-                self._backend._conf_dict["u_channel_lo"] = []  # to avoid qiskit bug
-            self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
+                if self._v1:
+                    if sys.version_info[:2] >= (3, 12):
+                        kwargs = {
+                            "skip_file_prefixes": (os.path.dirname(qiskit_experiments.__file__),)
+                        }
+                    else:
+                        kwargs = {}
+                    warnings.warn(
+                        (
+                            "Support for BackendV1 with Qiskit Experiments is "
+                            "deprecated and will be removed in a future release. "
+                            "Please update to using BackendV2 backends."
+                        ),
+                        DeprecationWarning,
+                        stacklevel=2,
+                        **kwargs,
+                    )
+            except ImportError:
+                pass
 
     @property
     def name(self):

@@ -14,9 +14,8 @@
 
 import warnings
 from typing import Union, Optional, List
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData, MeasLevel, MeasReturnType, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.data_processor import DataProcessor

@@ -38,7 +38,6 @@ from qiskit.primitives import PrimitiveResult
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.utils.deprecation import deprecate_arg
 from qiskit.primitives import BitArray, SamplerPubResult
 
 from qiskit_ibm_experiment import (
@@ -61,6 +60,7 @@ from qiskit_experiments.framework.analysis_result_table import AnalysisResultTab
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
+from qiskit_experiments.framework.deprecation import deprecate_arg
 from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -1069,8 +1069,13 @@ class ExperimentData:
                         # Format to Counts object rather than hex dict
                         data["counts"] = result.get_counts(i)
                     expr_result = result.results[i]
-                    if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                        data["metadata"] = expr_result.header.metadata
+                    if hasattr(expr_result, "header"):
+                        if hasattr(expr_result.header, "metadata"):
+                            data["metadata"] = expr_result.header.metadata
+                        elif isinstance(expr_result.header, dict):
+                            data["metadata"] = expr_result.header.get("metadata", {})
+                        else:
+                            data["metadata"] = {}
                     data["shots"] = expr_result.shots
                     data["meas_level"] = expr_result.meas_level
                     if hasattr(expr_result, "meas_return"):

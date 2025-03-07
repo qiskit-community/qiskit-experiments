@@ -14,11 +14,12 @@
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
+import warnings
 from typing import Any, List
 
+import qiskit.version
 from qiskit.result import Result
 
-from qiskit.qobj.common import QobjExperimentHeader
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit_experiments.framework import ExperimentData
 
@@ -38,10 +39,24 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
             "success": True,
         }
 
-        self.header = QobjExperimentHeader(
-            memory_slots=2,
-            metadata={"experiment_type": "fake_test_experiment"},
-        )
+        if qiskit.version.get_version_info().partition(".")[0] in ("0", "1"):
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*QobjDictField.*",
+                    category=DeprecationWarning,
+                )
+                from qiskit.qobj.common import QobjExperimentHeader
+
+                self.header = QobjExperimentHeader(
+                    memory_slots=2,
+                    metadata={"experiment_type": "fake_test_experiment"},
+                )
+        else:
+            self.header = {
+                "memory_slots": 2,
+                "metadata": {"experiment_type": "fake_test_experiment"},
+            }
 
     def create_experiment_data(self, iq_data: List[Any], single_shot: bool = False):
         """Populate avg_iq_data to use it for testing.

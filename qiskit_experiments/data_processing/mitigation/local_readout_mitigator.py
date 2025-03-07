@@ -15,6 +15,7 @@ Readout mitigator class based on the 1-qubit local tensored mitigation method
 
 
 import math
+import warnings
 from typing import Optional, List, Tuple, Iterable, Callable, Union, Dict
 import numpy as np
 
@@ -53,6 +54,8 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         Raises:
             QiskitError: matrices sizes do not agree with number of qubits
         """
+        if assignment_matrices is None and backend is None:
+            raise QiskitError("Either assignment_matrices or backend must be provided.")
         if assignment_matrices is None:
             assignment_matrices = self._from_backend(backend, qubits)
         else:
@@ -293,7 +296,14 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
 
     def _from_backend(self, backend, qubits):
         """Calculates amats from backend properties readout_error"""
-        backend_qubits = backend.properties().qubits
+        try:
+            backend_qubits = backend.properties().qubits
+        except AttributeError as exc:
+            raise QiskitError(
+                "Either assignment_matrices must be passed or a backend "
+                "supporting backend.properties().qubits"
+            ) from exc
+
         if qubits is not None:
             if any(qubit >= len(backend_qubits) for qubit in qubits):
                 raise QiskitError("The chosen backend does not contain the specified qubits.")
@@ -304,13 +314,20 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         amats = np.zeros([num_qubits, 2, 2], dtype=float)
 
         for qubit_idx, qubit_prop in enumerate(backend_qubits):
+            props_to_find = {"prob_meas0_prep1", "prob_meas1_prep0"}
             for prop in qubit_prop:
                 if prop.name == "prob_meas0_prep1":
+                    props_to_find.discard(prop.name)
                     (amats[qubit_idx])[0, 1] = prop.value
                     (amats[qubit_idx])[1, 1] = 1 - prop.value
                 if prop.name == "prob_meas1_prep0":
+                    props_to_find.discard(prop.name)
                     (amats[qubit_idx])[1, 0] = prop.value
                     (amats[qubit_idx])[0, 0] = 1 - prop.value
+            if props_to_find:
+                warnings.warn(
+                    f"Expected readout error properties were missing: {','.join(props_to_find)}"
+                )
 
         return amats
 

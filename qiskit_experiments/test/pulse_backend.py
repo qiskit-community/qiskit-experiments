@@ -27,13 +27,13 @@ from qiskit.circuit.parameter import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.options import Options
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
-from qiskit.utils import deprecate_func
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
+from qiskit_experiments.framework import MeasLevel, MeasReturnType
+from qiskit_experiments.framework.deprecation import deprecate_func
 from qiskit_experiments.framework.package_deps import HAS_DYNAMICS, version_is_at_least
 from qiskit_experiments.test.utils import FakeJob
 

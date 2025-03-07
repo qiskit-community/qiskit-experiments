@@ -16,10 +16,9 @@ Readout Angle Experiment class.
 from typing import List, Optional, Sequence
 
 from qiskit.circuit import QuantumCircuit
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, Options
 from qiskit_experiments.library.characterization.analysis.readout_angle_analysis import (
     ReadoutAngleAnalysis,
 )

@@ -80,7 +80,12 @@ class TestCurveFitting(QiskitExperimentsTestCase):
         """Test version string generation."""
         thetas = thetas = np.linspace(0.5, 4 * np.pi - 0.5, 20)
         data = self.simulate_experiment_data(thetas)
-        xdata, ydata, _ = process_curve_data(data, data_processor=self.data_processor_p0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*The curve data representation has been replaced.*",
+            )
+            xdata, ydata, _ = process_curve_data(data, data_processor=self.data_processor_p0)
 
         xdiff = thetas - xdata
         ydiff = self.objective0(xdata, 0.5) - ydata

@@ -81,8 +81,7 @@ class CorrelatedReadoutError(BaseExperiment):
             from qiskit_aer import AerSimulator
 
             num_qubits=5
-            backend = AerSimulator.from_backend(GenericBackendV2(num_qubits=num_qubits,
-                                                                 calibrate_instructions=True))
+            backend = AerSimulator.from_backend(GenericBackendV2(num_qubits=num_qubits))
 
         .. jupyter-execute::
 

@@ -21,6 +21,7 @@ experiment results.
 """
 
 from __future__ import annotations
+from enum import Enum, IntEnum
 from typing import Protocol, Union
 
 from qiskit.result import Result
@@ -106,3 +107,18 @@ class IBMProvider(BaseProvider, Protocol):
 
 Provider = Union[BaseProvider, IBMProvider]
 """Union type of provider interfaces supported by Qiskit Experiments"""
+
+
+class MeasReturnType(str, Enum):
+    """Backend return types for Qobj and backend.run jobs"""
+
+    AVERAGE = "avg"
+    SINGLE = "single"
+
+
+class MeasLevel(IntEnum):
+    """Measurement level types for legacy Qobj and Sampler jobs"""
+
+    RAW = 0
+    KERNELED = 1
+    CLASSIFIED = 2

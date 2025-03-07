@@ -37,8 +37,7 @@ for qubit 0.
 .. jupyter-execute::
 
     import numpy as np
-    from qiskit.qobj.utils import MeasLevel
-    from qiskit_experiments.framework import ParallelExperiment
+    from qiskit_experiments.framework import MeasLevel, ParallelExperiment
     from qiskit_experiments.library import T1
     from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
 

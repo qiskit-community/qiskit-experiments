@@ -99,6 +99,8 @@ Experiment Data Classes
     Job
     BaseJob
     ExtendedJob
+    MeasLevel
+    MeasReturnType
 
 .. _composite-experiment:
 
@@ -145,6 +147,17 @@ from qiskit_experiments.framework.containers import (
     FigureData,
     FigureType,
 )
+from .provider_interfaces import (
+    BaseJob,
+    BaseProvider,
+    ExtendedJob,
+    IBMProvider,
+    Job,
+    MeasLevel,
+    MeasReturnType,
+    Provider,
+)
+
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
@@ -159,4 +172,3 @@ from .composite import (
     CompositeAnalysis,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
-from .provider_interfaces import BaseJob, BaseProvider, ExtendedJob, IBMProvider, Job, Provider

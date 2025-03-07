@@ -42,8 +42,6 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         error = -np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
-        backend.target.add_instruction(XGate(), properties={(0,): None})
-        backend.target.add_instruction(SXGate(), properties={(0,): None})
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -63,8 +61,6 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         error = np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
-        backend.target.add_instruction(XGate(), properties={(0,): None})
-        backend.target.add_instruction(SXGate(), properties={(0,): None})
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("d_theta")

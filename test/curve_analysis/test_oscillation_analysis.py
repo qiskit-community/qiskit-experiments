@@ -15,15 +15,14 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
-from qiskit.qobj.utils import MeasLevel
 from qiskit_aer import AerSimulator
 
-from qiskit_experiments.framework import ExperimentData
 
+from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.framework import ExperimentData, MeasLevel
 
 
 class TestOscillationAnalysis(QiskitExperimentsTestCase):

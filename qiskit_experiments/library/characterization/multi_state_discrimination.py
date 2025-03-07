@@ -19,8 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, MeasReturnType
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
