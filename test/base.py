@@ -22,7 +22,6 @@ from typing import Any, Callable, Optional
 
 import fixtures
 import testtools
-import uncertainties
 
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -30,7 +29,6 @@ from qiskit_experiments.framework import (
     ExperimentData,
 )
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
-from qiskit_experiments.framework.deprecation import deprecate_func
 from .extended_equality import is_equivalent
 
 
@@ -224,61 +222,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 self.assertTrue(check_func(obj, decoded), msg=f"{obj} != {decoded}")
             else:
                 self.assertEqualExtended(obj, decoded, strict_type=strict_type)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def json_equiv(cls, data1, data2) -> bool:
-            """Check if two experiments are equivalent by comparing their configs"""
-            return is_equivalent(data1, data2)
-
-        @staticmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def ufloat_equiv(data1: uncertainties.UFloat, data2: uncertainties.UFloat) -> bool:
-            """Check if two values with uncertainties are equal. No correlation is considered."""
-            return is_equivalent(data1, data2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def analysis_result_equiv(cls, result1, result2):
-            """Test two analysis results are equivalent"""
-            return is_equivalent(result1, result2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def curve_fit_data_equiv(cls, data1, data2):
-            """Test two curve fit result are equivalent."""
-            return is_equivalent(data1, data2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def experiment_data_equiv(cls, data1, data2):
-            """Check two experiment data containers are equivalent"""
-            return is_equivalent(data1, data2)
 
     return QETestCase
 

@@ -408,9 +408,8 @@ class ScatterTable:
 
     @property
     @deprecate_func(
-        since="0.6",
+        since="0.9",
         additional_msg="Curve data uses dataframe representation. Call .series_id instead.",
-        pending=True,
         package_name="qiskit-experiments",
         is_property=True,
     )
@@ -420,9 +419,8 @@ class ScatterTable:
 
     @property
     @deprecate_func(
-        since="0.6",
+        since="0.9",
         additional_msg="No alternative is provided. Use .series_name with set operation.",
-        pending=True,
         package_name="qiskit-experiments",
         is_property=True,
     )
@@ -433,9 +431,8 @@ class ScatterTable:
         return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
 
     @deprecate_func(
-        since="0.6",
+        since="0.9",
         additional_msg="Use filter method instead.",
-        pending=True,
         package_name="qiskit-experiments",
     )
     def get_subset_of(self, index: str | int) -> "ScatterTable":

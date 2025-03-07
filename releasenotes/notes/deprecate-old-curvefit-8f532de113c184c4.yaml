@@ -1,0 +1,25 @@
+---
+features:
+  - |
+    Curve analysis helper functions :class:`.utils.inverse_weighted_variance`,
+    :class:`.utils.sample_weighted_average`, and
+    :class:`.utils.shot_weighted_average` were documented as public. These
+    functions were present in previous releases but not documented as public.
+deprecations:
+  - |
+    Curve analysis utility functions
+    :func:`qiskit_experiments.curve_analysis.utils.filter_data`,
+    :func:`.mean_xy_data`, :func:`.multi_mean_xy_data`, and
+    :func:`qiskit_experiments.curve_analysis.utils.data_sort`` have been
+    deprecated. These methods were written to work with the previous
+    representation of curve data. Curve analysis now works with
+    :class:`.ScatterTable` which provides a ``filter`` method which can be used
+    with functions like :func:`.shot_weighted_average` to achieve similar
+    results to the deprecated functions.
+  - |
+    The :class:`.ScatterTable` properties ``data_allocation`` and
+    ``labels`` and method ``get_subset_of``have been deprecated.
+    ``data_allocation`` was renamed to ``series_id``. ``labels`` can be found
+    by looking at the ``series_name`` of the scatter table's ``dataframe``.
+    Data subsets can be obtained using :meth:`.ScatterTable.filter` in place of
+    ``get_subset_of``.

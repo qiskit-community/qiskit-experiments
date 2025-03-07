@@ -321,10 +321,9 @@ def sample_average(
 
 
 @deprecate_func(
-    since="0.6",
+    since="0.9",
     additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
-    pending=True,
 )
 def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     """Return the list of filtered data
@@ -354,10 +353,9 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 
 @deprecate_func(
-    since="0.6",
+    since="0.9",
     additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
-    pending=True,
 )
 def mean_xy_data(
     xdata: np.ndarray,
@@ -480,10 +478,9 @@ def mean_xy_data(
 
 
 @deprecate_func(
-    since="0.6",
+    since="0.9",
     additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
-    pending=True,
 )
 def multi_mean_xy_data(
     series: np.ndarray,
@@ -544,10 +541,9 @@ def multi_mean_xy_data(
 
 
 @deprecate_func(
-    since="0.6",
+    since="0.9",
     additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
     package_name="qiskit-experiments",
-    pending=True,
 )
 def data_sort(
     series: np.ndarray,
