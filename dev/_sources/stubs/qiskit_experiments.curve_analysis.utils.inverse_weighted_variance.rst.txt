@@ -1,0 +1,8 @@
+﻿
+
+inverse_weighted_variance
+=================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: inverse_weighted_variance

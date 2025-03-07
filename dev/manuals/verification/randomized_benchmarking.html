@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.8.0-21-g84611eb6f</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-21-g84611eb6f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-21-g84611eb6f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -350,16 +350,19 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.guess.max_height.html">max_height</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.guess.min_height.html">min_height</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html">oscillation_exp_decay</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html">analysis_result_to_repr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html">convert_lmfit_result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html">data_sort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html">eval_with_uncertainties</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.filter_data.html">filter_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.inverse_weighted_variance.html">inverse_weighted_variance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.mean_xy_data.html">mean_xy_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.multi_mean_xy_data.html">multi_mean_xy_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html">data_sort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html">level2_probability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.probability.html">probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.sample_average.html">sample_average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.shot_weighted_average.html">shot_weighted_average</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -661,48 +664,48 @@ interleaved RB experiment will always give you accurate error value <span class=
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 79
+ - number of function evals: 45
  - degree of freedom: 1
- - chi-square: 1.4665215275687762
- - reduced chi-square: 1.4665215275687762
- - Akaike info crit.: 1.986395711054671
- - Bayesian info crit.: 0.14527879441434255
+ - chi-square: 2.248969282186854
+ - reduced chi-square: 2.248969282186854
+ - Akaike info crit.: 3.696710613328794
+ - Bayesian info crit.: 1.8555936966884654
  - init params:
-  * a = 0.4714035859887814
-  * alpha = 0.9996095197424655
+  * a = 0.4728683673518347
+  * alpha = 0.9996078390195459
   * b = 0.5
  - fit params:
-  * a = 0.35560077621763947 ± 0.2025230894834672
-  * alpha = 0.9994460463871943 ± 0.00036197789082646195
-  * b = 0.616141689059541 ± 0.20307513388617862
+  * a = 0.42457575615890425 ± 0.32486479126715495
+  * alpha = 0.999540913975687 ± 0.0003961703676551404
+  * b = 0.5489250125789616 ± 0.32588488430037094
  - correlations:
-  * (a, b) = -0.9999701206670412
-  * (alpha, b) = -0.9989566760965776
-  * (a, alpha) = 0.998683886988108
+  * (a, b) = -0.9999813094281207
+  * (alpha, b) = -0.9989676973082176
+  * (a, alpha) = 0.9987462003883746
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9994+/-0.0004
-- χ²: 1.4665215275687762
+- value: 0.9995+/-0.0004
+- χ²: 2.248969282186854
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00028+/-0.00018
-- χ²: 1.4665215275687762
+- value: 0.00023+/-0.00020
+- χ²: 2.248969282186854
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00036+/-0.00023
-- χ²: 1.4665215275687762
+- value: 0.00030+/-0.00026
+- χ²: 2.248969282186854
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -710,15 +713,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 1.4665215275687762
+- χ²: 2.248969282186854
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00036+/-0.00023
-- χ²: 1.4665215275687762
+- value: 0.00030+/-0.00026
+- χ²: 2.248969282186854
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -824,56 +827,56 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
  - number of sub-models: 1
   * F_rb_decay(x) = a * alpha ** x + b
  - success: True
- - number of function evals: 20
+ - number of function evals: 24
  - degree of freedom: 4
- - chi-square: 3.27211785843006
- - reduced chi-square: 0.818029464607515
- - Akaike info crit.: 0.6766910253734011
- - Bayesian info crit.: 0.5144214725393406
+ - chi-square: 0.9250747864604594
+ - reduced chi-square: 0.23126869661511484
+ - Akaike info crit.: -8.166535904959934
+ - Bayesian info crit.: -8.328805457793994
  - init params:
-  * a = 0.6871297962905212
-  * alpha = 0.9786200918959045
+  * a = 0.6908784179622229
+  * alpha = 0.9790999498658987
   * b = 0.25
  - fit params:
-  * a = 0.6865593130201512 ± 0.005084774183389953
-  * alpha = 0.9758227620083351 ± 0.0006393561951991725
-  * b = 0.2521989841381386 ± 0.0037465061224091056
+  * a = 0.6858935589166971 ± 0.004507515065355149
+  * alpha = 0.9752568509518039 ± 0.000747953707804579
+  * b = 0.25732395951733306 ± 0.0032589307805528174
  - correlations:
-  * (alpha, b) = -0.7842630415368055
-  * (a, b) = -0.6251707622208929
-  * (a, alpha) = 0.34665446409444456
+  * (alpha, b) = -0.7668966529245214
+  * (a, b) = -0.600228990425985
+  * (a, alpha) = 0.3291514752189566
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9758+/-0.0006
-- χ²: 0.818029464607515
+- value: 0.9753+/-0.0007
+- χ²: 0.23126869661511484
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0181+/-0.0005
-- χ²: 0.818029464607515
+- value: 0.0186+/-0.0006
+- χ²: 0.23126869661511484
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0165+/-0.0006
-- χ²: 0.818029464607515
+- value: 0.0172+/-0.0007
+- χ²: 0.23126869661511484
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0117+/-0.0004
-- χ²: 0.818029464607515
+- value: 0.0122+/-0.0005
+- χ²: 0.23126869661511484
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -995,51 +998,51 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
  - success: True
  - number of function evals: 30
  - degree of freedom: 10
- - chi-square: 12.269652462929294
- - reduced chi-square: 1.2269652462929295
- - Akaike info crit.: 6.153002464074973
- - Bayesian info crit.: 8.709231782536007
+ - chi-square: 12.191920546747488
+ - reduced chi-square: 1.2191920546747488
+ - Akaike info crit.: 6.06402613461894
+ - Bayesian info crit.: 8.620255453079974
  - init params:
-  * a = 0.689624425699511
-  * alpha = 0.9674326167934911
+  * a = 0.6853902090862117
+  * alpha = 0.9796595981215027
   * b = 0.25
-  * alpha_c = 1.0
+  * alpha_c = 0.9930071767394213
  - fit params:
-  * a = 0.6900532725684523 ± 0.0035934302772642535
-  * alpha = 0.9756922691698501 ± 0.0004289970202503781
-  * b = 0.25082483562882424 ± 0.0018862166400562626
-  * alpha_c = 0.9844400964294323 ± 0.0008269519941556359
+  * a = 0.6899046634726645 ± 0.0036284977284718354
+  * alpha = 0.9754680134797734 ± 0.0005257164493991114
+  * b = 0.2521867548978551 ± 0.0018368574466192773
+  * alpha_c = 0.9852189259875285 ± 0.0010180705519976393
  - correlations:
-  * (alpha, b) = -0.560547393054079
-  * (a, b) = -0.42363797889593163
-  * (b, alpha_c) = -0.2786067146911291
-  * (alpha, alpha_c) = -0.16354300225134946
-  * (a, alpha) = 0.03237090517706458
-  * (a, alpha_c) = 0.06839759888375833
+  * (alpha, b) = -0.5098623077344666
+  * (a, b) = -0.39574497299696537
+  * (alpha, alpha_c) = -0.23787834783294948
+  * (b, alpha_c) = -0.21333429489656233
+  * (a, alpha) = -0.009393746397805056
+  * (a, alpha_c) = 0.037535511398791556
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha
-- value: 0.9757+/-0.0004
-- χ²: 1.2269652462929295
+- value: 0.9755+/-0.0005
+- χ²: 1.2191920546747488
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9844+/-0.0008
-- χ²: 1.2269652462929295
+- value: 0.9852+/-0.0010
+- χ²: 1.2191920546747488
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0117+/-0.0006
-- χ²: 1.2269652462929295
+- value: 0.0111+/-0.0008
+- χ²: 1.2191920546747488
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1166,7 +1169,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=4460e917"></script>
+</div><script src="../../_static/documentation_options.js?v=a6e001e0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

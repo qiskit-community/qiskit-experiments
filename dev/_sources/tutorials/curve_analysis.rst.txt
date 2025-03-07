@@ -526,10 +526,11 @@ boundary value can be a tuple of floats representing minimum and maximum values.
 Apart from user provided guesses, the analysis can systematically generate those values
 with the method :meth:`_generate_fit_guesses`, which is called with the :class:`.ScatterTable`
 class. If the analysis contains multiple model definitions, we can get the subset
-of curve data with :meth:`.ScatterTable.get_subset_of` using the name of the series. A
-developer can implement the algorithm to generate initial guesses and boundaries by
-using this curve data object, which will be provided to the fitter. Note that there are
-several common initial guess estimators available in :mod:`curve_analysis.guess`.
+of curve data with :meth:`.ScatterTable.filter` by passing the name of the
+series to the ``series`` argument. A developer can implement the algorithm to
+generate initial guesses and boundaries by using this curve data object, which
+will be provided to the fitter. Note that there are several common initial
+guess estimators available in :mod:`curve_analysis.guess`.
 
 The :meth:`_generate_fit_guesses` also receives the :class:`.FitOptions` instance
 ``user_opt``, which contains user provided guesses and boundaries. This is a
