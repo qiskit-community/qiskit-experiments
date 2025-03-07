@@ -203,6 +203,10 @@ def _get_version_label(current_version):
 def setup(app):
     app.connect("config-inited", _get_versions)
     app.connect("autodoc-skip-member", maybe_skip_member)
+    # Explicitly add nbsphinx-gallery.css to the app because it otherwise does
+    # not get added to the output html pages. Debugging shows that nbsphinx
+    # does call app.add_css_file itself but perhaps it calls it too late and
+    # there is a bug that could be reported upstream.
     app.add_css_file("nbsphinx-gallery.css")
 
 
