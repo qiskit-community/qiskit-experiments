@@ -297,7 +297,7 @@ supports can be set:
 
 .. jupyter-execute::
 
-  from qiskit.qobj.utils import MeasLevel
+  from qiskit_experiments.framework import MeasLevel
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)

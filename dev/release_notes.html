@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.8.0-19-g00f2533a7</title>
+        <title>Release Notes - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-19-g00f2533a7</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-19-g00f2533a7</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -251,6 +251,8 @@
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -538,10 +540,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-8-0-19">
-<span id="id1"></span><h2>0.8.0-19<a class="headerlink" href="#relnotes-0-8-0-19" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-8-0-20">
+<span id="id1"></span><h2>0.8.0-20<a class="headerlink" href="#relnotes-0-8-0-20" title="Link to this heading">¶</a></h2>
 <section id="new-features">
-<span id="relnotes-0-8-0-19-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>New <a class="reference internal" href="stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html#qiskit_experiments.data_processing.LocalReadoutMitigator" title="qiskit_experiments.data_processing.LocalReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> and
 <a class="reference internal" href="stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator" title="qiskit_experiments.data_processing.CorrelatedReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> classes have been added. These
@@ -550,9 +552,16 @@ classes were moved directly from Qiskit which deprecated them in Qiskit
 integrate with the readout error mitigation experiments
 <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a>.</p></li>
 </ul>
+<ul class="simple">
+<li><p>Classes <a class="reference internal" href="stubs/qiskit_experiments.framework.MeasLevel.html#qiskit_experiments.framework.MeasLevel" title="qiskit_experiments.framework.MeasLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasLevel</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.framework.MeasReturnType.html#qiskit_experiments.framework.MeasReturnType" title="qiskit_experiments.framework.MeasReturnType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeasReturnType</span></code></a> were added to
+enumerate the expected measurement level (kerneled or classified) and
+return type (averaged or not). Previously, private classes of Qiskit were
+inadvertently used for these purposes but they were removed in Qiskit
+2.0.</p></li>
+</ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-8-0-19-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The readout error mitigation experiments <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a> and
 <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a> have been updated to generate instances
@@ -630,7 +639,13 @@ applied.</p></li>
 </ul>
 </section>
 <section id="deprecation-notes">
-<span id="relnotes-0-8-0-19-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Support for using <code class="docutils literal notranslate"><span class="pre">BackendV1</span></code> with Qiskit Experiments is deprecated. Some
+code paths will generate warnings when using <code class="docutils literal notranslate"><span class="pre">BackendV1</span></code> but not all
+cases are checked. Support is planned to be removed along all support for
+Qiskit 1 in a future release near the end of support for Qiskit 1.4.</p></li>
+</ul>
 <ul class="simple">
 <li><p>The data processing nodes <a class="reference internal" href="stubs/qiskit_experiments.data_processing.RestlessNode.html#qiskit_experiments.data_processing.RestlessNode" title="qiskit_experiments.data_processing.RestlessNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessNode</span></code></a>,
 <a class="reference internal" href="stubs/qiskit_experiments.data_processing.RestlessToCounts.html#qiskit_experiments.data_processing.RestlessToCounts" title="qiskit_experiments.data_processing.RestlessToCounts"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessToCounts</span></code></a>, and <a class="reference internal" href="stubs/qiskit_experiments.data_processing.RestlessToIQ.html#qiskit_experiments.data_processing.RestlessToIQ" title="qiskit_experiments.data_processing.RestlessToIQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">RestlessToIQ</span></code></a> have been
@@ -643,7 +658,7 @@ package.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
-<span id="relnotes-0-8-0-19-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed  <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> not inferring the  credentials for the IBM
 experiment service from a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit-runtime-service" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a>
@@ -657,8 +672,36 @@ help with inferring the credentials.</p></li>
 <li><p>Fixed a bug where <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_data" title="qiskit_experiments.framework.ExperimentData.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_data()</span></code></a> would not work when
 passed a single <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.primitives.PrimitiveResult</span></code></a> object.</p></li>
 </ul>
+<ul class="simple">
+<li><p>In preparation for Qiskit 2.0, references to <code class="docutils literal notranslate"><span class="pre">BackendV1</span></code> have been
+guarded so that they do not cause import errors. <code class="docutils literal notranslate"><span class="pre">BackendV1</span></code> is still
+supported for now, but support will be removed in a future release.</p></li>
+</ul>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadouMitigator</span></code> now provides a more specific warning if it
+is used with a backend without a <code class="docutils literal notranslate"><span class="pre">properties()</span></code> method or with a backend
+that does not the required readout error properties.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> was updated to handle changes to
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.result.Result" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.result.Result</span></code></a> in Qiskit 2.0. The result header is now a
+dict instead of a custom class. Qiskit Experiments uses this header to
+store metadata about experiments’ circuits.</p></li>
+</ul>
+<ul class="simple">
+<li><p>A performance issue in <a class="reference internal" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html#qiskit_experiments.library.quantum_volume.QuantumVolume" title="qiskit_experiments.library.quantum_volume.QuantumVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolume</span></code></a> was addressed. When Qiskit
+Aer is installed, <a class="reference internal" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html#qiskit_experiments.library.quantum_volume.QuantumVolume" title="qiskit_experiments.library.quantum_volume.QuantumVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolume</span></code></a> uses
+<a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.16.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_aer.AerSimulator</span></code></a> to simulate the outcomes of the quantum
+volume circuits to determine the heavy output probabilities. In its default
+instantiation, <code class="docutils literal notranslate"><span class="pre">AerSimulator</span></code> regenerates its
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> every time it is accessed and this
+generation takes an appreciable amount of time. Because the target was
+being accessed separately for every circuit, this overhead could accumulate
+to over a minute in the standard 100 circuit experiment. This overhead was
+reduced by processing all the circuits in one pass.</p></li>
+</ul>
 <section id="experiment-data-fixes">
-<span id="relnotes-0-8-0-19-experiment-data-fixes"></span><h4>Experiment Data Fixes<a class="headerlink" href="#experiment-data-fixes" title="Link to this heading">¶</a></h4>
+<span id="relnotes-0-8-0-20-experiment-data-fixes"></span><h4>Experiment Data Fixes<a class="headerlink" href="#experiment-data-fixes" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p>Fixed <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> not reporting the correct job status when
 the job is of type <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/runtime-job-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeJobV2</span></code></a>.</p></li>
@@ -666,7 +709,7 @@ the job is of type <a class="reference external" href="https://docs.quantum.ibm.
 </section>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-8-0-19-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added a function that returns the job status as <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a>:
 <code class="xref py py-func docutils literal notranslate"><span class="pre">get_job_status()</span></code>.</p></li>
@@ -691,7 +734,7 @@ continue working the same way).</p></li>
 </ul>
 </section>
 <section id="other-notes">
-<span id="relnotes-0-8-0-19-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-20-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added minimal working code examples to the API pages for the experiments,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">EFSpectroscopy</span></code>,
@@ -3652,7 +3695,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/05</div>
+              Last updated on 2025/03/07</div>
           </div>
           <div class="right-details">
             
@@ -3674,7 +3717,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-8-0-19">0.8.0-19</a><ul>
+<li><a class="reference internal" href="#relnotes-0-8-0-20">0.8.0-20</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
 <li><a class="reference internal" href="#deprecation-notes">Deprecation Notes</a></li>
@@ -3823,7 +3866,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=fa03e7f5"></script>
+</div><script src="_static/documentation_options.js?v=4460e917"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

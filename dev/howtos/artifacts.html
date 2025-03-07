@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Save and load experiment data with the cloud service" href="cloud_service.html" /><link rel="prev" title="How-To Guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Work with experiment artifacts - Qiskit Experiments 0.8.0-19-g00f2533a7</title>
+        <title>Work with experiment artifacts - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-19-g00f2533a7</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-19-g00f2533a7</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -251,6 +251,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -573,10 +575,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=5b773065-af19-4649-9e02-560e3835b416, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=08fcc942-9d4e-4c70-a059-83e3fe2bcedd, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=47a9fb7e-dc04-4fb2-80c7-bec0faf85e6e, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=538e4d54-c821-4dd2-a6b4-074227085c96, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=0f4d7d19-450e-4a9c-978f-ca9d20da5db6, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=8dac847f-3cba-4b31-80d5-7d6fe19bf9ed, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=2e4c310e-e1a0-471a-9744-4d2e148a895f, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=4ab6b9a7-e76a-4b55-a445-64cfac517d3c, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -634,8 +636,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.943902</td>
-      <td>0.007184</td>
+      <td>0.960488</td>
+      <td>0.006082</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -645,8 +647,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.408293</td>
-      <td>0.015345</td>
+      <td>0.40439</td>
+      <td>0.015322</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -656,8 +658,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.198537</td>
-      <td>0.012453</td>
+      <td>0.18</td>
+      <td>0.011994</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -667,8 +669,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.095122</td>
-      <td>0.009159</td>
+      <td>0.079512</td>
+      <td>0.008446</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -678,8 +680,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.061951</td>
-      <td>0.007526</td>
+      <td>0.048293</td>
+      <td>0.006693</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -700,8 +702,8 @@ The first curve_data artifact:
     <tr>
       <th>119</th>
       <td>0.000529</td>
-      <td>0.031637</td>
-      <td>0.002228</td>
+      <td>0.029948</td>
+      <td>0.002147</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -711,8 +713,8 @@ The first curve_data artifact:
     <tr>
       <th>120</th>
       <td>0.000534</td>
-      <td>0.031628</td>
-      <td>0.002229</td>
+      <td>0.029943</td>
+      <td>0.002148</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -722,8 +724,8 @@ The first curve_data artifact:
     <tr>
       <th>121</th>
       <td>0.00054</td>
-      <td>0.031621</td>
-      <td>0.002229</td>
+      <td>0.029939</td>
+      <td>0.002148</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -733,8 +735,8 @@ The first curve_data artifact:
     <tr>
       <th>122</th>
       <td>0.000545</td>
-      <td>0.031614</td>
-      <td>0.00223</td>
+      <td>0.029935</td>
+      <td>0.002149</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -744,8 +746,8 @@ The first curve_data artifact:
     <tr>
       <th>123</th>
       <td>0.000551</td>
-      <td>0.031608</td>
-      <td>0.002231</td>
+      <td>0.029932</td>
+      <td>0.002149</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -809,7 +811,7 @@ Qiskit Experiments.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=67b00050-6b7b-4674-b486-244e83030b95, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=425f2582-7b5f-42ce-b7f8-484ad62f7ad1, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
@@ -843,13 +845,13 @@ by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- 08fcc942-9d4e-4c70-a059-83e3fe2bcedd.json
-|- 538e4d54-c821-4dd2-a6b4-074227085c96.json
+|- 8dac847f-3cba-4b31-80d5-7d6fe19bf9ed.json
+|- 4ab6b9a7-e76a-4b55-a445-64cfac517d3c.json
 curve_data.zip
-|- 5b773065-af19-4649-9e02-560e3835b416.json
-|- 47a9fb7e-dc04-4fb2-80c7-bec0faf85e6e.json
+|- 0f4d7d19-450e-4a9c-978f-ca9d20da5db6.json
+|- 2e4c310e-e1a0-471a-9744-4d2e148a895f.json
 experiment_notes.zip
-|- 67b00050-6b7b-4674-b486-244e83030b95.json
+|- 425f2582-7b5f-42ce-b7f8-484ad62f7ad1.json
 </pre></div>
 </div>
 </div>
@@ -910,7 +912,7 @@ these artifacts.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/05</div>
+              Last updated on 2025/03/07</div>
           </div>
           <div class="right-details">
             
@@ -951,7 +953,7 @@ these artifacts.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=fa03e7f5"></script>
+</div><script src="../_static/documentation_options.js?v=4460e917"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2 Hahn Characterization" href="t2hahn.html" /><link rel="prev" title="Quantum State Tomography" href="../verification/state_tomography.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T1 Characterization - Qiskit Experiments 0.8.0-19-g00f2533a7</title>
+        <title>T1 Characterization - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-19-g00f2533a7</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-19-g00f2533a7</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -251,6 +251,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -570,8 +572,7 @@ packages to run simulations.  You can install them with <code class="docutils li
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.qobj.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasLevel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelExperiment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasLevel</span><span class="p">,</span> <span class="n">ParallelExperiment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization.analysis.t1_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1KerneledAnalysis</span>
 
@@ -727,22 +728,22 @@ that is close to a logical value ‘0’.</p>
  - success: True
  - number of function evals: 24
  - degree of freedom: 22
- - chi-square: 0.0016265491601967787
- - reduced chi-square: 7.393405273621721e-05
- - Akaike info crit.: -235.00426032116496
- - Bayesian info crit.: -231.34763284656037
+ - chi-square: 0.0016269878246670737
+ - reduced chi-square: 7.395399203032152e-05
+ - Akaike info crit.: -234.9975189735947
+ - Bayesian info crit.: -231.34089149899012
  - init params:
   * amp = 1.0
   * tau = 4.95e-05
   * base = 0.0
  - fit params:
-  * amp = 1.0469535442726126 ± 0.011310466790860061
-  * tau = 4.394415455708184e-05 ± 1.035755542082525e-06
-  * base = -0.05146921117096622 ± 0.011431939576229254
+  * amp = 1.0468557677316592 ± 0.011308936638434117
+  * tau = 4.3930991961288156e-05 ± 1.0354778015281758e-06
+  * base = -0.05138063033469157 ± 0.011430314011650896
  - correlations:
-  * (amp, base) = -0.9835183492877463
-  * (tau, base) = -0.849316060844548
-  * (amp, tau) = 0.8027246629067045
+  * (amp, base) = -0.9835087827143939
+  * (tau, base) = -0.8492669960154353
+  * (amp, tau) = 0.8026539006165424
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -750,7 +751,7 @@ that is close to a logical value ‘0’.</p>
 AnalysisResult
 - name: T1
 - value: (4.39+/-0.10)e-05
-- χ²: 7.393405273621721e-05
+- χ²: 7.395399203032152e-05
 - quality: good
 - extra: &lt;3 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -803,7 +804,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/05</div>
+              Last updated on 2025/03/07</div>
           </div>
           <div class="right-details">
             
@@ -839,7 +840,7 @@ AnalysisResult
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=fa03e7f5"></script>
+</div><script src="../../_static/documentation_options.js?v=4460e917"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

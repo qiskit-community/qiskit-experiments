@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.8.0-19-g00f2533a7</title>
+        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-19-g00f2533a7</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-19-g00f2533a7</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -251,6 +251,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -545,13 +547,13 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_standard_gate_name_mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">Provider</span><span class="p">,</span> <span class="n">convert_to_target</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeOpenPulse2Q</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.qobj.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasLevel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">QubitProperties</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">InstructionProperties</span><span class="p">,</span> <span class="n">Target</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasLevel</span><span class="p">,</span> <span class="n">Options</span><span class="p">,</span> <span class="n">Provider</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeJob</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.mock_iq_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MockIQExperimentHelper</span><span class="p">,</span>
@@ -560,8 +562,8 @@
 <span class="p">)</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">FakeOpenPulse2QV2</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;BackendV2 conversion of qiskit.providers.fake_provider.FakeOpenPulse2Q&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseMockBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple two qubit BackendV2 implementation&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -574,25 +576,36 @@
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">online_date</span><span class="p">,</span> <span class="n">backend_version</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">)</span>
 
-        <span class="n">backend_v1</span> <span class="o">=</span> <span class="n">FakeOpenPulse2Q</span><span class="p">()</span>
-        <span class="c1"># convert_to_target requires the description attribute</span>
-        <span class="n">backend_v1</span><span class="o">.</span><span class="n">_configuration</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;A fake test backend with pulse defaults&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">convert_to_target</span><span class="p">(</span>
-            <span class="n">backend_v1</span><span class="o">.</span><span class="n">configuration</span><span class="p">(),</span>
-            <span class="n">backend_v1</span><span class="o">.</span><span class="n">properties</span><span class="p">(),</span>
-            <span class="n">backend_v1</span><span class="o">.</span><span class="n">defaults</span><span class="p">(),</span>
-            <span class="n">add_delay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+            <span class="n">num_qubits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">dt</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+            <span class="n">qubit_properties</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">QubitProperties</span><span class="p">(</span><span class="n">t1</span><span class="o">=</span><span class="mf">70e-6</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="mf">80e-6</span><span class="p">),</span>
+                <span class="n">QubitProperties</span><span class="p">(</span><span class="n">t1</span><span class="o">=</span><span class="mf">85e-6</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="mf">90e-6</span><span class="p">),</span>
+            <span class="p">],</span>
         <span class="p">)</span>
-        <span class="c1"># See commented out defaults() method below</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="n">backend_v1</span><span class="o">.</span><span class="n">_defaults</span>
 
-    <span class="c1"># This method is not defined in the base class as we would like to avoid</span>
-    <span class="c1"># relying on it as much as necessary. Individual tests should add it when</span>
-    <span class="c1"># necessary.</span>
-    <span class="c1"># def defaults(self):</span>
-    <span class="c1">#     &quot;&quot;&quot;Pulse defaults&quot;&quot;&quot;</span>
-    <span class="c1">#     return self._defaults</span>
+        <span class="n">gate_map</span> <span class="o">=</span> <span class="n">get_standard_gate_name_mapping</span><span class="p">()</span>
+        <span class="n">inst_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cx&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">100e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">3e-3</span><span class="p">},</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">&quot;rz&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="s2">&quot;sx&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">&quot;reset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="s2">&quot;delay&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="s2">&quot;measure&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">700e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">iname</span><span class="p">,</span> <span class="n">iprops</span> <span class="ow">in</span> <span class="n">inst_props</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">gate</span> <span class="o">=</span> <span class="n">gate_map</span><span class="p">[</span><span class="n">iname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">gate</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">properties</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="o">**</span><span class="n">iprops</span><span class="p">)}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="p">(</span><span class="n">q</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="o">**</span><span class="n">iprops</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">iname</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -605,7 +618,7 @@
 
 <div class="viewcode-block" id="MockIQBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQBackend.html#qiskit_experiments.test.MockIQBackend">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MockIQBackend</span><span class="p">(</span><span class="n">FakeOpenPulse2QV2</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockIQBackend</span><span class="p">(</span><span class="n">BaseMockBackend</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for testing with IQ data.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -1168,7 +1181,7 @@
 
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MockMultiStateBackend</span><span class="p">(</span><span class="n">FakeOpenPulse2QV2</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MockMultiStateBackend</span><span class="p">(</span><span class="n">BaseMockBackend</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for testing with multi-state IQ data.</span>
 
 <span class="sd">    .. note::</span>
@@ -1393,7 +1406,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/05</div>
+              Last updated on 2025/03/07</div>
           </div>
           <div class="right-details">
             
@@ -1408,7 +1421,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=fa03e7f5"></script>
+</div><script src="../../../_static/documentation_options.js?v=4460e917"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

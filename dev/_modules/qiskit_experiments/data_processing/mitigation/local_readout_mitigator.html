@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.data_processing.mitigation.local_readout_mitigator - Qiskit Experiments 0.8.0-19-g00f2533a7</title>
+        <title>qiskit_experiments.data_processing.mitigation.local_readout_mitigator - Qiskit Experiments 0.8.0-20-g974ad78d4</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-19-g00f2533a7</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-20-g974ad78d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-19-g00f2533a7</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-20-g974ad78d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -251,6 +251,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
@@ -542,6 +544,7 @@
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -582,6 +585,8 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: matrices sizes do not agree with number of qubits</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">assignment_matrices</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Either assignment_matrices or backend must be provided.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">assignment_matrices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">assignment_matrices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -837,7 +842,14 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_from_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">qubits</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates amats from backend properties readout_error&quot;&quot;&quot;</span>
-        <span class="n">backend_qubits</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">qubits</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">backend_qubits</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">qubits</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="s2">&quot;Either assignment_matrices must be passed or a backend &quot;</span>
+                <span class="s2">&quot;supporting backend.properties().qubits&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">qubit</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">backend_qubits</span><span class="p">)</span> <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;The chosen backend does not contain the specified qubits.&quot;</span><span class="p">)</span>
@@ -848,13 +860,20 @@
         <span class="n">amats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_qubits</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">qubit_idx</span><span class="p">,</span> <span class="n">qubit_prop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">backend_qubits</span><span class="p">):</span>
+            <span class="n">props_to_find</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;prob_meas0_prep1&quot;</span><span class="p">,</span> <span class="s2">&quot;prob_meas1_prep0&quot;</span><span class="p">}</span>
             <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">qubit_prop</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;prob_meas0_prep1&quot;</span><span class="p">:</span>
+                    <span class="n">props_to_find</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                     <span class="p">(</span><span class="n">amats</span><span class="p">[</span><span class="n">qubit_idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">value</span>
                     <span class="p">(</span><span class="n">amats</span><span class="p">[</span><span class="n">qubit_idx</span><span class="p">])[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prop</span><span class="o">.</span><span class="n">value</span>
                 <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;prob_meas1_prep0&quot;</span><span class="p">:</span>
+                    <span class="n">props_to_find</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                     <span class="p">(</span><span class="n">amats</span><span class="p">[</span><span class="n">qubit_idx</span><span class="p">])[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">value</span>
                     <span class="p">(</span><span class="n">amats</span><span class="p">[</span><span class="n">qubit_idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prop</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">props_to_find</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected readout error properties were missing: </span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">props_to_find</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">amats</span>
 
@@ -881,7 +900,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/05</div>
+              Last updated on 2025/03/07</div>
           </div>
           <div class="right-details">
             
@@ -896,7 +915,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=fa03e7f5"></script>
+</div><script src="../../../../_static/documentation_options.js?v=4460e917"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
