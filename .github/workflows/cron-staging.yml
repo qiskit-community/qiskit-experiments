@@ -26,25 +26,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Pip cache
-        uses: actions/cache@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-
-            ${{ runner.os }}-${{ matrix.python-version }}
-      - name: Install Deps
-        run: python -m pip install -U tox setuptools virtualenv wheel
-      - name: Install and Run Tests (Windows and Linux)
-        run: tox -e qiskit-main
-        if: runner.os != 'macOS'
-      - name: Install and Run Tests (Macs only)
-        run: tox -e qiskit-main
-        if: runner.os == 'macOS'
-        env:
-          TEST_TIMEOUT: 120
+          enable-cache: true
+          cache-dependency-glob: |
+            **/tox.ini
+            **/pyproject.toml
+          cache-suffix: testsqiskitmain
+      - name: Install and Run Tests
+        run: uvx --with tox-uv tox -e qiskit-main
   docs:
     if: github.repository_owner == 'Qiskit-Community'
     name: docs
@@ -57,17 +48,19 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-      - name: Pip cache
-        uses: actions/cache@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-docs-${{ hashFiles('pyproject.toml') }}
+          enable-cache: true
+          cache-dependency-glob: |
+            **/tox.ini
+            **/pyproject.toml
+          cache-suffix: docsqiskitmain
       - name: Install Deps
         run: |
-          python -m pip install -U tox
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
-        run: tox -edocs-qiskit-main
+        run: uvx --with tox-uv tox -edocs-qiskit-main
       - name: Compress Artifacts
         run: |
           mkdir artifacts
