@@ -148,8 +148,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             average_method (Literal["sample", "iwv", "shots_weighted"]): Method
                 to average the y values when the same x values
                 appear multiple times. One of "sample", "iwv" (i.e. inverse
-                weighted variance), "shots_weighted". See :func:`.mean_xy_data`
-                for details. Default to "shots_weighted".
+                weighted variance), "shots_weighted". See
+                :func:`.sample_average`, :func:`.inverse_weighted_variance`,
+                and :func:`.shot_weighted_average` for details. Default to
+                "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
