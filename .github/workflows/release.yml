@@ -15,13 +15,12 @@ jobs:
       - uses: actions/setup-python@v5
         name: Install Python
         with:
-          python-version: '3.9'
+          python-version: '3.12'
       - name: Install Deps
-        run: pip install -U wheel
+        run: pip install -U build
       - name: Build Artifacts
         run: |
-          python setup.py sdist
-          python setup.py bdist_wheel
+          python -m build
         shell: bash
       - uses: actions/upload-artifact@v4
         with:
