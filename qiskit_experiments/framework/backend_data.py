@@ -13,18 +13,14 @@
 Backend data access helper class
 
 This class was introduced to unify backend data access to either `BackendV1` and `BackendV2`
-objects, wrapped by an object of this class. With the removal of `BackendV1` in Qiskit 2.0,
-this class will not serve any useful purpose once support for Qiskit 1 is dropped.
-
-TODO: remove this class 
+objects, wrapped by an object of this class. This class remains useful as an
+interface to backend objects for adjusting to provider-specific quirks.
 """
-import os
-import sys
 import warnings
 
 from qiskit.providers import BackendV2
 
-import qiskit_experiments
+from qiskit_experiments.framework.deprecation import warn_from_qe
 
 
 class BackendData:
@@ -43,21 +39,13 @@ class BackendData:
                 self._v1 = isinstance(backend, BackendV1)
 
                 if self._v1:
-                    if sys.version_info[:2] >= (3, 12):
-                        kwargs = {
-                            "skip_file_prefixes": (os.path.dirname(qiskit_experiments.__file__),)
-                        }
-                    else:
-                        kwargs = {}
-                    warnings.warn(
+                    warn_from_qe(
                         (
                             "Support for BackendV1 with Qiskit Experiments is "
                             "deprecated and will be removed in a future release. "
                             "Please update to using BackendV2 backends."
                         ),
                         DeprecationWarning,
-                        stacklevel=2,
-                        **kwargs,
                     )
             except ImportError:
                 pass

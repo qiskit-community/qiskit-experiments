@@ -166,9 +166,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
             exp_data.add_figures(str.encode("hello world"))
-            res = mock.MagicMock()
-            res.result_id = str(uuid.uuid4())
-            exp_data.add_analysis_results(res)
+            exp_data.add_analysis_results(result_id=str(uuid.uuid4()))
             nonlocal called_back
             called_back = True
 
@@ -477,15 +475,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_add_get_analysis_result(self):
         """Test adding and getting analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        results = []
-        result_ids = list(map(str, range(5)))
+        result_ids = [str(uuid.uuid4()) for _ in range(5)]
         for idx in result_ids:
-            res = mock.MagicMock()
-            res.result_id = idx
-            results.append(res)
-            with self.assertWarns(UserWarning):
-                # This is invalid result ID string and cause a warning
-                exp_data.add_analysis_results(res)
+            exp_data.add_analysis_results(result_id=idx)
 
         # We cannot compare results with exp_data.analysis_results()
         # This test is too hacky since it tries to compare MagicMock with AnalysisResult.
@@ -507,18 +499,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test adding and getting a list of analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        result_ids = list(map(str, range(5)))
+        result_ids = [str(uuid.uuid4()) for _ in range(5)]
         for idx in result_ids:
-            res = mock.MagicMock()
-            res.result_id = idx
-            results.append(res)
-        with self.assertWarns(UserWarning):
-            # This is invalid result ID string and cause a warning
-            exp_data.add_analysis_results(results)
+            exp_data.add_analysis_results(result_id=idx)
         get_result_ids = [res.result_id for res in exp_data.analysis_results()]
 
-        # We cannot compare results with exp_data.analysis_results()
-        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
         self.assertEqual(get_result_ids, result_ids)
 
     def test_delete_analysis_result(self):
@@ -553,9 +538,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
-        analysis_result = mock.MagicMock()
-        analysis_result.result_id = str(uuid.uuid4())
-        exp_data.add_analysis_results(analysis_result)
+        exp_data.add_analysis_results(result_id=str(uuid.uuid4()))
         exp_data.service = service
         exp_data.save()
         service.create_or_update_experiment.assert_called_once()
@@ -567,9 +550,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
-        res = mock.MagicMock()
-        res.result_id = str(uuid.uuid4())
-        exp_data.add_analysis_results()
+        exp_data.add_analysis_results(result_id=str(uuid.uuid4()))
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
         exp_data.service = service
@@ -602,18 +583,18 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         subtests = [
             # update function, update parameters, service called
-            (exp_data.add_analysis_results, (mock_result,), mock_result.save),
-            (exp_data.add_figures, (str.encode("hello world"),), service.create_or_update_figure),
-            (exp_data.delete_figure, (0,), service.delete_figure),
-            (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (setattr, (exp_data, "tags", ["foo"]), service.create_or_update_experiment),
-            (setattr, (exp_data, "notes", "foo"), service.create_or_update_experiment),
-            (setattr, (exp_data, "share_level", "hub"), service.create_or_update_experiment),
+            (exp_data.add_analysis_results, (), {"result_id": str(uuid.uuid4())}, service.create_or_update_analysis_result),
+            (exp_data.add_figures, (str.encode("hello world"),), {}, service.create_or_update_figure),
+            (exp_data.delete_figure, (0,), {}, service.delete_figure),
+            (exp_data.delete_analysis_result, (0,), {}, service.delete_analysis_result),
+            (setattr, (exp_data, "tags", ["foo"]), {}, service.create_or_update_experiment),
+            (setattr, (exp_data, "notes", "foo"), {}, service.create_or_update_experiment),
+            (setattr, (exp_data, "share_level", "hub"), {}, service.create_or_update_experiment),
         ]
 
-        for func, params, called in subtests:
+        for func, params, kwargs, called in subtests:
             with self.subTest(func=func):
-                func(*params)
+                func(*params, **kwargs)
                 if called:
                     called.assert_called_once()
                 service.reset_mock()
@@ -963,8 +944,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback1(exp_data):
             """Callback function that call add_analysis_callback"""
             exp_data.add_analysis_callback(callback2)
-            result = AnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
-            exp_data.add_analysis_results(result)
+            exp_data.add_analysis_results(name="result_name", value=0, components=[Qubit(0)], experiment_id="experiment_id")
             figure = get_non_gui_ax().get_figure()
             exp_data.add_figures(figure, "figure.svg")
             exp_data.add_data({"key": 1.2})
@@ -1002,8 +982,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             """Callback function that calls add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
-            result = AnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
-            exp_data.add_analysis_results(result)
+            exp_data.add_analysis_results(name="RESULT1", value=True, components=["Q0"], experiment_id=exp_data.experiment_id)
 
         def callback2(exp_data):
             """Callback function that exercises status lookups"""
@@ -1014,8 +993,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback3(exp_data):
             """Callback function that exercises status lookups"""
             time.sleep(1)
-            result = AnalysisResult("RESULT2", True, ["Q0"], exp_data.experiment_id)
-            exp_data.add_analysis_results(result)
+            exp_data.add_analysis_results(name="RESULT2", value=True, components=["Q0"], experiment_id=exp_data.experiment_id)
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(callback1)

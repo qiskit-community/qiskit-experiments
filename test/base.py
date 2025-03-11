@@ -100,13 +100,19 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             # Tests should not generate any warnings unless testing those
             # warnings. In that case, the test should catch the warning
             # assertWarns or warnings.catch_warnings.
-            warnings.filterwarnings("error", module="qiskit_experiments")
-            warnings.filterwarnings("error", module=r"test\.")
+            warnings.filterwarnings("error", module=r"qiskit_experiments\..*")
+            warnings.filterwarnings("error", module=r"test\..*")
             warnings.filterwarnings(
                 "default",
                 module="qiskit_experiments",
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
+            )
+            warnings.filterwarnings(
+                "always",
+                module=r"test\.",
+                message="Leaving `dataframe` unset.*",
+                category=DeprecationWarning,
             )
 
         def assertExperimentDone(
