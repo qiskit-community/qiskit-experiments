@@ -252,8 +252,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
-            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``False``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
         """
@@ -261,7 +259,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
         options.update_options(
             plotter=CurvePlotter(MplDrawer()),
             plot=True,
-            return_fit_parameters=False,
             extra={},
         )
 
@@ -305,9 +302,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             analysis = source_analysis.copy()
             metadata = analysis.options.extra
             metadata["group"] = analysis.name
-            analysis.set_options(
-                plot=False, extra=metadata, return_fit_parameters=self.options.return_fit_parameters
-            )
+            analysis.set_options(plot=False, extra=metadata)
             results, _ = analysis._run_analysis(experiment_data)
             for res in results:
                 if isinstance(res, ArtifactData):
