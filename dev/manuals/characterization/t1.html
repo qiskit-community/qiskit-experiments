@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2 Hahn Characterization" href="t2hahn.html" /><link rel="prev" title="Quantum State Tomography" href="../verification/state_tomography.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T1 Characterization - Qiskit Experiments 0.8.0-22-ga7f6307e0</title>
+        <title>T1 Characterization - Qiskit Experiments 0.8.0-23-ga9a1ff5a1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-22-ga7f6307e0</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-23-ga9a1ff5a1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-22-ga7f6307e0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-23-ga9a1ff5a1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -621,35 +621,6 @@ packages to run simulations.  You can install them with <code class="docutils li
 <div class="cell_output docutils container">
 <img alt="../../_images/t1_0_0.png" src="../../_images/t1_0_0.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: @Parameters_T1Analysis
-- value: CurveFitResult:
- - fitting method: least_squares
- - number of sub-models: 1
-  * F_exp_decay(x) = amp * exp(-x/tau) + base
- - success: True
- - number of function evals: 20
- - degree of freedom: 3
- - chi-square: 2.0093912890351855
- - reduced chi-square: 0.6697970963450618
- - Akaike info crit.: -0.5635658057926642
- - Bayesian info crit.: -1.188287398108499
- - init params:
-  * amp = 0.9170731707317072
-  * tau = 5.607702037182498e-05
-  * base = 0.06585365853658537
- - fit params:
-  * amp = 1.0086868600245593 ± 0.015516360599905375
-  * tau = 5.857050868543882e-05 ± 2.8452247868322258e-06
-  * base = -0.008900903447908065 ± 0.015635835560472412
- - correlations:
-  * (amp, base) = -0.9367372951891404
-  * (tau, base) = -0.9216265221283944
-  * (amp, tau) = 0.825232199013559
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
 - name: T1
 - value: (5.86+/-0.28)e-05
 - χ²: 0.6697970963450618
@@ -723,35 +694,6 @@ that is close to a logical value ‘0’.</p>
 <div class="cell_output docutils container">
 <img alt="../../_images/t1_1_0.png" src="../../_images/t1_1_0.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: @Parameters_T1KerneledAnalysis
-- value: CurveFitResult:
- - fitting method: least_squares
- - number of sub-models: 1
-  * F_exp_decay(x) = amp * exp(-x/tau) + base
- - success: True
- - number of function evals: 24
- - degree of freedom: 22
- - chi-square: 0.0016269878246670737
- - reduced chi-square: 7.395399203032152e-05
- - Akaike info crit.: -234.9975189735947
- - Bayesian info crit.: -231.34089149899012
- - init params:
-  * amp = 1.0
-  * tau = 4.95e-05
-  * base = 0.0
- - fit params:
-  * amp = 1.0468557677316592 ± 0.011308936638434117
-  * tau = 4.3930991961288156e-05 ± 1.0354778015281758e-06
-  * base = -0.05138063033469157 ± 0.011430314011650896
- - correlations:
-  * (amp, base) = -0.9835087827143939
-  * (tau, base) = -0.8492669960154353
-  * (amp, tau) = 0.8026539006165424
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
 - name: T1
 - value: (4.39+/-0.10)e-05
 - χ²: 7.395399203032152e-05
@@ -807,7 +749,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/08</div>
+              Last updated on 2025/03/12</div>
           </div>
           <div class="right-details">
             
@@ -843,7 +785,7 @@ AnalysisResult
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a58c69eb"></script>
+</div><script src="../../_static/documentation_options.js?v=1c1e5340"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

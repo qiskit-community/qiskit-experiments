@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tφ Characterization" href="tphi.html" /><link rel="prev" title="T2 Hahn Characterization" href="t2hahn.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T2* Ramsey Characterization - Qiskit Experiments 0.8.0-22-ga7f6307e0</title>
+        <title>T2* Ramsey Characterization - Qiskit Experiments 0.8.0-23-ga9a1ff5a1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-22-ga7f6307e0</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-23-ga9a1ff5a1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-22-ga7f6307e0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-23-ga9a1ff5a1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -675,46 +675,6 @@ frequency.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: @Parameters_T2RamseyAnalysis
-- value: CurveFitResult:
- - fitting method: least_squares
- - number of sub-models: 1
-  * F_cos_decay(x) = amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base
- - success: True
- - number of function evals: 55
- - degree of freedom: 20
- - chi-square: 12.920802539385589
- - reduced chi-square: 0.6460401269692795
- - Akaike info crit.: -6.500930309783772
- - Bayesian info crit.: -0.406551185442769
- - init params:
-  * amp = 0.5
-  * tau = 0.00011350694107279987
-  * freq = 120071.20598218754
-  * phi = -1.5707963267948966
-  * base = 0.4761619190404797
- - fit params:
-  * amp = 0.4909535980577468 ± 0.004917675368751884
-  * tau = 0.00010246327619765823 ± 4.5024424121587285e-06
-  * freq = 99952.75284201081 ± 82.7276550564961
-  * phi = 0.003658666993158401 ± 0.012651839512890825
-  * base = 0.5009230629507393 ± 0.0018222013166011644
- - correlations:
-  * (freq, phi) = -0.8234936909699664
-  * (amp, tau) = -0.8140065430399878
-  * (freq, base) = -0.1713510143156256
-  * (amp, freq) = -0.11491601026425052
-  * (tau, phi) = -0.11201742411658946
-  * (amp, base) = -0.019330623607693696
-  * (tau, base) = 0.03640770514308672
-  * (tau, freq) = 0.06109075429281112
-  * (amp, phi) = 0.16116721298707007
-  * (phi, base) = 0.1637380874598672
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
 - name: Frequency
 - value: (9.995+/-0.008)e+04
 - χ²: 0.6460401269692795
@@ -779,46 +739,6 @@ computed for other qubits.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: @Parameters_T2RamseyAnalysis
-- value: CurveFitResult:
- - fitting method: least_squares
- - number of sub-models: 1
-  * F_cos_decay(x) = amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base
- - success: True
- - number of function evals: 30
- - degree of freedom: 20
- - chi-square: 12.920802539387553
- - reduced chi-square: 0.6460401269693776
- - Akaike info crit.: -6.500930309779967
- - Bayesian info crit.: -0.40655118543896407
- - init params:
-  * amp = 0.5
-  * tau = 0.00011350694107279987
-  * freq = 100088.96797153035
-  * phi = 0.0
-  * base = 0.4761619190404797
- - fit params:
-  * amp = 0.49095359392905114 ± 0.004917675333125186
-  * tau = 0.00010246328072257995 ± 4.502442770448915e-06
-  * freq = 99952.75286512234 ± 82.72765553370662
-  * phi = 0.0036586633504925546 ± 0.012651839431507947
-  * base = 0.5009230629493264 ± 0.0018222013158092263
- - correlations:
-  * (freq, phi) = -0.8234936908975428
-  * (amp, tau) = -0.814006541969214
-  * (freq, base) = -0.1713510116625593
-  * (amp, freq) = -0.11491600400581126
-  * (tau, phi) = -0.11201741490831482
-  * (amp, base) = -0.019330626803089217
-  * (tau, base) = 0.036407708240404874
-  * (tau, freq) = 0.06109074531017117
-  * (amp, phi) = 0.16116720649724417
-  * (phi, base) = 0.16373808501693632
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
 - name: Frequency
 - value: (9.995+/-0.008)e+04
 - χ²: 0.6460401269693776
@@ -882,7 +802,7 @@ AnalysisResult
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/08</div>
+              Last updated on 2025/03/12</div>
           </div>
           <div class="right-details">
             
@@ -919,7 +839,7 @@ AnalysisResult
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a58c69eb"></script>
+</div><script src="../../_static/documentation_options.js?v=1c1e5340"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
