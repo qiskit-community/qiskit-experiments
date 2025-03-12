@@ -108,12 +108,12 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
             )
-            warnings.filterwarnings(
-                "always",
-                module=r"test\.",
-                message="Leaving `dataframe` unset.*",
-                category=DeprecationWarning,
-            )
+            # warnings.filterwarnings(
+            #     "always",
+            #     module=r"test\.",
+            #     message="Leaving `dataframe` unset.*",
+            #     category=DeprecationWarning,
+            # )
 
         def assertExperimentDone(
             self,

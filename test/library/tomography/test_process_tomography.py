@@ -66,16 +66,16 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
-                results = fitdata.analysis_results()
+                results = fitdata.analysis_results(dataframe=True)
 
                 # Check state is density matrix
-                state = filter_results(results, "state").value
+                state = results[results.name == "state"].iloc[0].value
                 self.assertTrue(
                     isinstance(state, qi.Choi), msg=f"{fitter} fitted state is not a Choi matrix"
                 )
 
                 # Check fit state fidelity
-                fid = filter_results(results, "process_fidelity").value
+                fid = results[results.name == "process_fidelity"].iloc[0].value
                 self.assertGreater(fid, f_threshold, msg=f"{fitter} fit fidelity is low")
                 # Manually check fidelity
                 target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
@@ -94,7 +94,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertEqual(exp.analysis, None)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-        self.assertFalse(expdata.analysis_results())
+        self.assertTrue(expdata.analysis_results(dataframe=True).empty)
 
     def test_circuit_roundtrip_serializable(self):
         """Test simple circuit serialization"""
@@ -121,16 +121,16 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
 
-        results = expdata.analysis_results()
+        results = expdata.analysis_results(dataframe=True)
 
         # Check state is density matrix
-        state = filter_results(results, "state").value
+        state = results[results.name == "state"].iloc[0].value
         self.assertTrue(
             isinstance(state, qi.Choi), msg=f"{fitter} fitted state is not a Choi matrix"
         )
 
         # Check fit state fidelity
-        fid = filter_results(results, "process_fidelity").value
+        fid = results[results.name == "process_fidelity"].iloc[0].value
         self.assertGreater(fid, f_threshold, msg=f"{fitter} fit fidelity is low")
         # Manually check fidelity
         target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
@@ -196,14 +196,14 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Check Choi matrix
-        state = expdata.analysis_results("state").value
+        state = expdata.analysis_results("state", dataframe=True).iloc[0].value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
         self.assertEqual(state.input_dims(), (2,), msg="fitted state has wrong input dims")
         self.assertEqual(state.output_dims(), (2,), msg="fitted state has wrong output dims")
 
         # Check fit state fidelity
         f_threshold = 0.99
-        fid = expdata.analysis_results("process_fidelity").value
+        fid = expdata.analysis_results("process_fidelity", dataframe=True).iloc[0].value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
     @ddt.data([(0,), (1, 2)], [(2, 0), (2,)])
@@ -228,7 +228,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Check Choi matrix
-        state = expdata.analysis_results("state").value
+        state = expdata.analysis_results("state", dataframe=True).iloc[0].value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
         self.assertEqual(
             state.input_dims(), len(prep_qubits) * (2,), msg="fitted state has wrong input dims"
@@ -239,7 +239,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
 
         # Check fit state fidelity
         f_threshold = 0.98
-        fid = expdata.analysis_results("process_fidelity").value
+        fid = expdata.analysis_results("process_fidelity", dataframe=True).iloc[0].value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
     @ddt.data([0], [1], [1, 0])
@@ -266,17 +266,17 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp = ProcessTomography(circ, measurement_indices=qubits, preparation_indices=qubits)
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
-        results = expdata.analysis_results()
+        results = expdata.analysis_results(dataframe=True)
 
         # Check result
         f_threshold = 0.95
 
         # Check state is density matrix
-        state = filter_results(results, "state").value
+        state = results[results.name == "state"].iloc[0].value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
-        fid = filter_results(results, "process_fidelity").value
+        fid = results[results.name == "process_fidelity"].iloc[0].value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
@@ -293,13 +293,13 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         )
         expdata = exp.run(backend, shots=1000)
         self.assertExperimentDone(expdata)
-        results = expdata.analysis_results()
+        results = expdata.analysis_results(dataframe=True)
 
         # Check result
         f_threshold = 0.95
 
         # Check state is a Choi matrix
-        state = filter_results(results, "state").value
+        state = results[results.name == "state"].iloc[0].value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Manually check fidelity
@@ -318,13 +318,13 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         )
         expdata = exp.run(backend, shots=1000)
         self.assertExperimentDone(expdata)
-        results = expdata.analysis_results()
+        results = expdata.analysis_results(dataframe=True)
 
         # Check result
         f_threshold = 0.95
 
         # Check state is a Choi matrix
-        state = filter_results(results, "state").value
+        state = results[results.name == "state"].iloc[0].value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Target circuit
@@ -370,7 +370,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp = ProcessTomography(target, backend=backend, target=None)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-        state = expdata.analysis_results("state").value
+        state = expdata.analysis_results("state", dataframe=True).iloc[0].value
         self.assertTrue(
             isinstance(state, qi.Choi),
             msg="Fitted state is not Choi matrix",
@@ -378,7 +378,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         with self.assertRaises(
             ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"
         ):
-            expdata.analysis_results("process_fidelity")
+            expdata.analysis_results("process_fidelity", dataframe=True).iloc[0]
 
     def test_qpt_spam_mitigated_basis(self):
         """Test QPT with SPAM mitigation basis"""
@@ -432,7 +432,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp.backend = backend
         expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
-        fid = expdata.analysis_results("process_fidelity").value
+        fid = expdata.analysis_results("process_fidelity", dataframe=True).iloc[0].value
         self.assertGreater(fid, 0.95)
 
     def test_qpt_amat_pauli_basis(self):
@@ -461,7 +461,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp.backend = backend
         expdata = exp.run(shots=2000)
         self.assertExperimentDone(expdata)
-        fid = expdata.analysis_results("process_fidelity").value
+        fid = expdata.analysis_results("process_fidelity", dataframe=True).iloc[0].value
         self.assertGreater(fid, 0.95)
 
     @ddt.data((0,), (1,), (2,), (3,), (0, 1), (2, 0), (0, 3))
@@ -487,20 +487,20 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
                 # Should be 2 results, mitigated and unmitigated
-                states = fitdata.analysis_results("state")
+                states = fitdata.analysis_results("state", dataframe=True)
                 self.assertEqual(len(states), 2)
 
                 # Check state is density matrix
-                for state in states:
+                for state in states.value:
                     self.assertTrue(
-                        isinstance(state.value, qi.Choi),
+                        isinstance(state, qi.Choi),
                         msg=f"{fitter} fitted state is not density matrix for qubits {qubits}",
                     )
 
                 # Check fit state fidelity
-                fids = expdata.analysis_results("process_fidelity")
+                fids = expdata.analysis_results("process_fidelity", dataframe=True)
                 self.assertEqual(len(fids), 2)
-                mitfid, nomitfid = fids
+                mitfid, nomitfid = [row for row in fids.itertuples()]
                 # Check mitigation improves fidelity
                 self.assertTrue(
                     mitfid.value >= nomitfid.value,
@@ -514,8 +514,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     f_threshold,
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
-                self.assertTrue(mitfid.extra["mitigated"])
-                self.assertFalse(nomitfid.extra["mitigated"])
+                self.assertTrue(mitfid.mitigated)
+                self.assertFalse(nomitfid.mitigated)
 
     @ddt.data([0], [1], [0, 1], [1, 0])
     def test_qpt_conditional_circuit(self, circuit_clbits):
@@ -556,11 +556,11 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
-                states = fitdata.analysis_results("state")
+                states = fitdata.analysis_results("state", dataframe=True)
                 self.assertEqual(len(states), 2**num_cond)
-                for state in states:
-                    idx = state.extra.get("conditional_circuit_outcome", 0)
-                    prob = state.extra["conditional_probability"]
+                for state in states.itertuples():
+                    idx = getattr(state, "conditional_circuit_outcome", 0)
+                    prob = state.conditional_probability
 
                     self.assertTrue(
                         np.isclose(prob, prob_target, atol=1e-2),
@@ -594,15 +594,15 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     if "cvxpy" in fitter:
                         exp.analysis.set_options(fitter_options={"eps_abs": 3e-5})
                 fitdata = exp.analysis.run(expdata)
-                states = fitdata.analysis_results("state")
-                for state in states:
+                states = fitdata.analysis_results("state", dataframe=True)
+                for state in states.itertuples():
                     self.assertTrue(
                         isinstance(state.value, qi.Choi), msg="returned state is not a Choi matrix."
                     )
                     self.assertEqual(state.value.output_dims(), (1,))
-                    idx = state.extra["conditional_measurement_index"]
-                    outcome = state.extra["conditional_measurement_outcome"]
-                    prob = state.extra["conditional_probability"]
+                    idx = state.conditional_measurement_index
+                    outcome = state.conditional_measurement_outcome
+                    prob = state.conditional_probability
                     prob_target = 0.5
                     self.assertTrue(
                         np.isclose(prob, prob_target, atol=2e-2),
@@ -640,14 +640,14 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
-                states = fitdata.analysis_results("state")
-                for state in states:
+                states = fitdata.analysis_results("state", dataframe=True)
+                for state in states.itertuples():
                     self.assertTrue(
                         isinstance(state.value, qi.Choi), msg="returned state is not a Choi matrix."
                     )
                     self.assertEqual(state.value.input_dims(), (1,))
-                    idx = state.extra["conditional_preparation_index"]
-                    prob = state.extra["conditional_probability"]
+                    idx = state.conditional_preparation_index
+                    prob = state.conditional_probability
                     prob_target = 1
                     self.assertTrue(
                         np.isclose(prob, prob_target, atol=1e-2),
@@ -697,10 +697,10 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
-                states = fitdata.analysis_results("state")
-                for state in states:
-                    idx = state.extra["conditional_circuit_outcome"]
-                    prob = state.extra["conditional_probability"]
+                states = fitdata.analysis_results("state", dataframe=True)
+                for state in states.itertuples():
+                    idx = state.conditional_circuit_outcome
+                    prob = state.conditional_probability
                     self.assertTrue(
                         np.isclose(prob, target_probs[idx], atol=1e-2),
                         msg=(
@@ -748,10 +748,10 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
-                states = fitdata.analysis_results("state")
-                for state in states:
-                    idx = state.extra["conditional_measurement_outcome"]
-                    prob = state.extra["conditional_probability"]
+                states = fitdata.analysis_results("state", dataframe=True)
+                for state in states.itertuples():
+                    idx = state.conditional_measurement_outcome
+                    prob = state.conditional_probability
                     self.assertTrue(
                         np.isclose(prob, target_probs[idx], atol=1e-2),
                         msg=(
@@ -792,9 +792,9 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
-                results = fitdata.analysis_results()
+                results = fitdata.analysis_results(dataframe=True)
 
                 # Check fit state fidelity
-                fid = filter_results(results, "process_fidelity").value
+                fid = results[results.name == "process_fidelity"].iloc[0].value
                 self.assertTrue(isinstance(fid, UFloat))
                 self.assertGreater(fid.s, 0)

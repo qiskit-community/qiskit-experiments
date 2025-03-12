@@ -475,53 +475,51 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_add_get_analysis_result(self):
         """Test adding and getting analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        result_ids = [str(uuid.uuid4()) for _ in range(5)]
-        for idx in result_ids:
+        # Mangled uuid's to make sure they begin with unique values
+        full_result_ids = [str(i) + str(uuid.uuid4())[1:] for i in range(5)]
+        for idx in full_result_ids:
             exp_data.add_analysis_results(result_id=idx)
 
-        # We cannot compare results with exp_data.analysis_results()
-        # This test is too hacky since it tries to compare MagicMock with AnalysisResult.
-        self.assertEqual(
-            [res.result_id for res in exp_data.analysis_results()],
-            result_ids,
-        )
+        # Check ids reflect input result_ids
+        loaded_ids = exp_data.analysis_results(dataframe=True).index.tolist()
+        for full_id, loaded_id in zip(full_result_ids, loaded_ids):
+            self.assertEqual(full_id[:len(loaded_id)], loaded_id)
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(
                 exp_data.analysis_results(1).result_id,
-                result_ids[1],
+                full_result_ids[1],
             )
+        with self.assertWarns(DeprecationWarning):
             self.assertEqual(
                 [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
-                result_ids[2:4],
+                full_result_ids[2:4],
             )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        results = []
         result_ids = [str(uuid.uuid4()) for _ in range(5)]
         for idx in result_ids:
             exp_data.add_analysis_results(result_id=idx)
-        get_result_ids = [res.result_id for res in exp_data.analysis_results()]
+        get_result_ids = exp_data.analysis_results(dataframe=True).index.tolist()
 
-        self.assertEqual(get_result_ids, result_ids)
+        for full_id, loaded_id in zip(result_ids, get_result_ids):
+            self.assertEqual(full_id[:len(loaded_id)], loaded_id)
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        id_template = "result_{}"
-        for idx in range(3):
-            res = mock.MagicMock()
-            res.result_id = id_template.format(idx)
-            with self.assertWarns(UserWarning):
-                # This is invalid result ID string and cause a warning
-                exp_data.add_analysis_results(res)
+        for _ in range(3):
+            exp_data.add_analysis_results(result_id=str(uuid.uuid4()))
 
-        subtests = [(0, id_template.format(0)), (id_template.format(2), id_template.format(2))]
+        result_ids = exp_data.analysis_results(dataframe=True).index.tolist()
+        subtests = [(0, result_ids[0]), (result_ids[2], result_ids[2])]
         for del_key, res_id in subtests:
             with self.subTest(del_key=del_key):
                 exp_data.delete_analysis_result(del_key)
-                self.assertRaises(ExperimentEntryNotFound, exp_data.analysis_results, res_id)
+                self.assertNotIn(res_id, exp_data.analysis_results(dataframe=True).index.tolist())
+        results = exp_data.analysis_results(dataframe=True)
+        self.assertTrue(len(results) == 1)
 
     def test_save_metadata(self):
         """Test saving experiment metadata."""
@@ -955,7 +953,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.figure("figure.svg")
             exp_data.jobs()
 
-            exp_data.analysis_results("result_name", block=False)
+            exp_data.analysis_results("result_name", block=False, dataframe=True)
 
             exp_data.delete_figure("figure.svg")
             exp_data.delete_analysis_result("result_name")
@@ -998,7 +996,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(callback1)
         exp_data.block_for_results(timeout=10)
-        results = exp_data.analysis_results(block=False)
+        results = exp_data.analysis_results(block=False, dataframe=True)
 
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.ERROR)
         self.assertTrue("RuntimeError: YOU FAIL" in exp_data.analysis_errors())
@@ -1039,7 +1037,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_data(self._get_job_result(1))
         copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
-        self.assertFalse(copied.analysis_results())
+        self.assertTrue(copied.analysis_results(dataframe=True).empty)
         self.assertEqual(exp_data.provider, copied.provider)
 
     def test_copy_figure_artifacts(self):

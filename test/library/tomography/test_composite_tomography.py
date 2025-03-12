@@ -53,16 +53,16 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.child_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results(dataframe=True)
 
             # Check state is density matrix
-            state = filter_results(results, "state").value
+            state = results[results.name == "state"].iloc[0].value
             self.assertTrue(
                 isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
             )
 
             # Check fit state fidelity
-            fid = filter_results(results, "state_fidelity").value
+            fid = results[results.name == "state_fidelity"].iloc[0].value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -92,16 +92,16 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.child_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results(dataframe=True)
 
             # Check state is density matrix
-            state = filter_results(results, "state").value
+            state = results[results.name == "state"].iloc[0].value
             self.assertTrue(
                 isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
             )
 
             # Check fit state fidelity
-            fid = filter_results(results, "state_fidelity").value
+            fid = results[results.name == "state_fidelity"].iloc[0].value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -137,14 +137,14 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.child_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results(dataframe=True)
 
             # Check state is density matrix
-            state = filter_results(results, "state").value
+            state = results[results.name == "state"].iloc[0].value
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            fid = filter_results(results, "process_fidelity").value
+            fid = results[results.name == "process_fidelity"].iloc[0].value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -174,14 +174,14 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.child_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results(dataframe=True)
 
             # Check state is density matrix
-            state = filter_results(results, "state").value
+            state = results[results.name == "state"].iloc[0].value
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            fid = filter_results(results, "process_fidelity").value
+            fid = results[results.name == "process_fidelity"].iloc[0].value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -209,11 +209,11 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         f_threshold = 0.95
 
         # Check state tomo results
-        state_results = par_data.child_data(0).analysis_results()
-        state = filter_results(state_results, "state").value
+        state_results = par_data.child_data(0).analysis_results(dataframe=True)
+        state = state_results[state_results.name == "state"].iloc[0].value
 
         # Check fit state fidelity
-        state_fid = filter_results(state_results, "state_fidelity").value
+        state_fid = state_results[state_results.name == "state_fidelity"].iloc[0].value
         self.assertGreater(state_fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
@@ -221,11 +221,11 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         self.assertAlmostEqual(state_fid, target_fid, places=6, msg="result fidelity is incorrect")
 
         # Check process tomo results
-        chan_results = par_data.child_data(1).analysis_results()
-        chan = filter_results(chan_results, "state").value
+        chan_results = par_data.child_data(1).analysis_results(dataframe=True)
+        chan = chan_results[chan_results.name == "state"].iloc[0].value
 
         # Check fit process fidelity
-        chan_fid = filter_results(chan_results, "process_fidelity").value
+        chan_fid = chan_results[chan_results.name == "process_fidelity"].iloc[0].value
         self.assertGreater(chan_fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity

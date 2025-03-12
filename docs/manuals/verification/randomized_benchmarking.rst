@@ -109,14 +109,11 @@ interleaved RB experiment will always give you accurate error value :math:`e_i`.
     # Run an RB experiment on qubit 0
     exp1 = StandardRB(qubits, lengths, num_samples=num_samples, seed=seed)
     expdata1 = exp1.run(backend).block_for_results()
-    results1 = expdata1.analysis_results()
     
     # View result data
     print("Gate error ratio: %s" % expdata1.experiment.analysis.options.gate_error_ratio)
     display(expdata1.figure(0))
-    for result in results1:
-        print(result)
-
+    display(expdata1.analysis_results(dataframe=True))
 
 
 Running a 2-qubit RB experiment
@@ -193,7 +190,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
     
     # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
-    exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
+    exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results(dataframe=True))
     
     # Run the 2-qubit experiment
     expdata_2q = exp_2q.run(backend).block_for_results()
@@ -201,8 +198,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     # View result data
     print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
     display(expdata_2q.figure(0))
-    for result in expdata_2q.analysis_results():
-        print(result)
+    display(expdata_2q.analysis_results(dataframe=True))
 
 
 Note that ``EPC_corrected`` value is smaller than one of raw ``EPC``, which indicates
@@ -280,14 +276,13 @@ Let's run an interleaved RB experiment on two qubits:
         circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
     
     int_expdata2 = int_exp2.run(backend).block_for_results()
-    int_results2 = int_expdata2.analysis_results()
+    int_results2 = int_expdata2.analysis_results(dataframe=True)
 
 .. jupyter-execute::
 
     # View result data
     display(int_expdata2.figure(0))
-    for result in int_results2:
-        print(result)
+    display(int_results2)
 
 
 References
