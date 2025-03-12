@@ -99,15 +99,16 @@ specific python version such as 3.10: `tox run -epy310`. Using `tox run -epy`
 will run the tests with the same Python version as used to install `tox`.
 
 > [!TIP]
-> Install `tox` with `tox-uv` using `pip install tox tox-uv` (or `uv pip
-> install tox tox-uv`) for a smoother experience working with the Qiskit
-> Experiments `tox` environments. The `tox.ini` file defines several similar
-> environments because `tox` ties an environment to a single set of commands.
-> It can be slow to recreate each of these environments when switching between
-> commands and updating dependencies. `tox-uv` uses
-> [uv](https://docs.astral.sh/uv/) instead of `pip` for package installation.
-> `uv` makes much better use of caching and hardlinking to set up similar
-> environments much more quickly than `pip` does.
+> Install `tox` with [tox-uv](https://github.com/tox-dev/tox-uv) using `pip
+> install tox tox-uv` (or `uv pip install tox tox-uv`) for a smoother
+> experience working with the Qiskit Experiments `tox` environments. The
+> `tox.ini` file defines several similar environments because `tox` ties an
+> environment to a single set of commands.  It can be slow to recreate each of
+> these environments when switching between commands and updating dependencies.
+> When `tox-uv` is installed, `tox` uses [uv](https://docs.astral.sh/uv/)
+> instead of `pip` for package installation.  `uv` makes better use of caching
+> and hardlinking to set up similar environments much more quickly than `pip`
+> does.
 
 If you just want to run a subset of tests you can pass a selection regex to the test
 runner. For example, if you want to run all tests that have "dag" in the test id you can
