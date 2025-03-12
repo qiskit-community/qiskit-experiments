@@ -1,0 +1,12 @@
+---
+upgrade:
+  - |
+    The deprecated analysis option ``return_fit_parameters`` has been removed
+    from :class:`.CurveAnalysis` and :class:`.CompositeCurveAnalysis`. This
+    change means that the fit parameter analysis result that started with
+    ``@Parameters`` will no longer be included in the set of analysis results.
+    Code calling :meth:`.ExperimentData.analysis_results` with a numerical
+    index, rather than a result name or using ``dataframe=True`` (the
+    recommended pattern) may find a different result than it did before. Fit
+    parameters should be accessed using :meth:`.ExperimentData.artifacts` to
+    retrieve the ``fit_parameters`` artifact.

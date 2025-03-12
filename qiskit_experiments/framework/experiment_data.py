@@ -1707,14 +1707,7 @@ class ExperimentData:
                     auto_save=self._auto_save,
                 )
             )
-        if index == 0 and tmp_df.iloc[0]["name"].startswith("@"):
-            warnings.warn(
-                "Curve fit results have moved to experiment artifacts and will be removed "
-                "from analysis results in a future release. Use "
-                'expdata.artifacts("fit_summary").data to access curve fit results.',
-                DeprecationWarning,
-            )
-        elif isinstance(index, (int, slice)):
+        if isinstance(index, (int, slice)):
             warnings.warn(
                 "Accessing analysis results via a numerical index is deprecated and will be "
                 "removed in a future release. Use the ID or name of the analysis result "
