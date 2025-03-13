@@ -14,6 +14,7 @@
 
 import copy
 import uuid
+import warnings
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
@@ -974,11 +975,18 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
         the entire flow of `BaseExperiment.run`.
         """
-        backend = AerSimulator()
+        backend = AerSimulator(basis_gates=["h", "cx", "swap"])
         noise_model = noise.NoiseModel()
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
 
-        expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000, memory=True)
+        with warnings.catch_warnings():
+            # Ignore warning about transpiling with a coupling_map and a
+            # backend. We are specifically testing using different coupling
+            # maps on different subexperiments.
+            warnings.filterwarnings(
+                "error", message=".*coupling_map.*backend.*", category=UserWarning
+            )
+            expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000, memory=True)
         self.assertExperimentDone(expdata)
 
         self.assertEqual(expdata.child_data(0).analysis_results("non-zero counts").value, 8)
