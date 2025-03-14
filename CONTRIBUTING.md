@@ -95,11 +95,24 @@ python when running. Additionally, the environment that tox sets up matches the 
 environment more closely and it runs the tests in parallel (resulting in much faster
 execution). To run tests on all installed supported python versions and lint/style
 checks you can simply run `tox`. Or if you just want to run the tests once for a
-specific python version such as 3.10: `tox -epy310`.
+specific python version such as 3.10: `tox run -epy310`. Using `tox run -epy`
+will run the tests with the same Python version as used to install `tox`.
+
+> [!TIP]
+> Install `tox` with [tox-uv](https://github.com/tox-dev/tox-uv) using `pip
+> install tox tox-uv` (or `uv pip install tox tox-uv`) for a smoother
+> experience working with the Qiskit Experiments `tox` environments. The
+> `tox.ini` file defines several similar environments because `tox` ties an
+> environment to a single set of commands.  It can be slow to recreate each of
+> these environments when switching between commands and updating dependencies.
+> When `tox-uv` is installed, `tox` uses [uv](https://docs.astral.sh/uv/)
+> instead of `pip` for package installation.  `uv` makes better use of caching
+> and hardlinking to set up similar environments much more quickly than `pip`
+> does.
 
 If you just want to run a subset of tests you can pass a selection regex to the test
 runner. For example, if you want to run all tests that have "dag" in the test id you can
-run: `tox -- dag`. You can pass arguments directly to the test runner after the bare
+run: `tox run -epy -- dag`. You can pass arguments directly to the test runner after the bare
 `--`. To see all the options on test selection you can refer to the stestr manual:
 https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 
