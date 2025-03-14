@@ -101,7 +101,22 @@ class BackendData:
         if self._v1:
             return getattr(self._backend.configuration(), "max_experiments", None)
         elif self._v2:
-            return self._backend.max_circuits
+            with warnings.catch_warnings():
+                # qiskit-ibm-runtime deprecated max_circuits:
+                # https://github.com/Qiskit/qiskit-ibm-runtime/pull/2166
+                # Suppress the warning so that we don't trigger it for the user
+                # on every experiment run.
+                #
+                # Remove this warning filter if qiskit-ibm-runtime backends
+                # change to reporting max_circuits as None without a warning.
+                warnings.filterwarnings(
+                    "ignore",
+                    message=".*qiskit-ibm-runtime.*",
+                    category=DeprecationWarning,
+                )
+                max_circuits = getattr(self._backend, "max_circuits", None)
+
+            return max_circuits
         return None
 
     @property
