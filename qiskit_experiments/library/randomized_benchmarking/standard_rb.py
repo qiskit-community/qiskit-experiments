@@ -286,7 +286,10 @@ class StandardRB(BaseExperiment):
             coupling_map = coupling_map.reduce(self.physical_qubits)
         if not (basis_gates and coupling_map) and self.backend:
             if isinstance(self.backend, BackendV2) and "simulator" in self.backend.name:
-                basis_gates = basis_gates if basis_gates else self.backend.target.operation_names
+                if not basis_gates:
+                    basis_gates = [
+                        op.name for op in self.backend.target.operations if isinstance(op, Gate)
+                    ]
                 coupling_map = coupling_map if coupling_map else None
             elif isinstance(self.backend, BackendV2):
                 gate_ops = [op for op in self.backend.target.operations if isinstance(op, Gate)]
