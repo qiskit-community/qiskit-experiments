@@ -111,7 +111,7 @@ class BackendData:
                 # change to reporting max_circuits as None without a warning.
                 warnings.filterwarnings(
                     "ignore",
-                    message=".*max_circuits is deprecated in qiskit-ibm-runtime.*",
+                    message=".*qiskit-ibm-runtime.*",
                     category=DeprecationWarning,
                 )
                 max_circuits = getattr(self._backend, "max_circuits", None)
