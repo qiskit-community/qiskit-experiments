@@ -75,7 +75,7 @@ class StateTomography(TomographyExperiment):
             qstdata = qstexp.run(backend=backend,
                                  shots=1000,
                                  seed_simulator=100,).block_for_results()
-            state_result = qstdata.analysis_results("state")
+            state_result = qstdata.analysis_results("state", dataframe=True).iloc[0]
             plot_state_city(state_result.value, title="Density Matrix")
     """
 

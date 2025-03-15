@@ -26,14 +26,6 @@ FITTERS = [
 ]
 
 
-def filter_results(analysis_results, name):
-    """Filter list of analysis results by result name"""
-    for result in analysis_results:
-        if result.name == name:
-            return result
-    return None
-
-
 def teleport_circuit(flatten_creg=True):
     """Teleport qubit 0 to qubit 2"""
     if flatten_creg:

@@ -75,8 +75,7 @@ for qubit 0.
     
     # Print the result
     display(exp_data.figure(0))
-    for result in exp_data.analysis_results():
-        print(result)
+    print(exp_data.analysis_results(dataframe=True))
 
 
 :math:`T_1` experiments with kerneled measurement
@@ -135,8 +134,7 @@ that is close to a logical value '0'.
 
     # Displaying results
     display(expdataT1_kerneled.figure(0))
-    for result in expdataT1_kerneled.analysis_results():
-        print(result)
+    display(expdataT1_kerneled.analysis_results(dataframe=True))
 
 See also
 --------

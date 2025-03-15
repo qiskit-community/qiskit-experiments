@@ -45,7 +45,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results("d_theta")
+        result = expdata.analysis_results("d_theta", dataframe=True).iloc[0]
         d_theta = result.value.n
 
         tol = 0.04
@@ -63,7 +63,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results("d_theta")
+        result = expdata.analysis_results("d_theta", dataframe=True).iloc[0]
         d_theta = result.value.n
 
         tol = 0.04
@@ -95,7 +95,7 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
-        result = expdata.analysis_results("d_theta")
+        result = expdata.analysis_results("d_theta", dataframe=True).iloc[0]
         d_theta = result.value.n
 
         tol = 0.04

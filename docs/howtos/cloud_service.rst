@@ -67,51 +67,11 @@ Now we can display the figure from the loaded experiment data:
 
 .. image:: ./experiment_cloud_service/t1_loaded.png
 
-The analysis results have been retrieved as well:
+The analysis results have been retrieved as well and can be accessed normally.
 
 .. jupyter-input::
 
-    for result in load_expdata.analysis_results():
-        print(result)
-
-.. jupyter-output::
-
-    AnalysisResult
-    - name: T1
-    - value: 0.0001040+/-0.0000028
-    - χ²: 0.8523786276663019
-    - quality: good
-    - extra: <1 items>
-    - device_components: ['Q0']
-    - verified: False
-    AnalysisResult
-    - name: @Parameters_T1Analysis
-    - value: CurveFitResult:
-    - fitting method: least_squares
-    - number of sub-models: 1
-    * F_exp_decay(x) = amp * exp(-x/tau) + base
-    - success: True
-    - number of function evals: 9
-    - degree of freedom: 9
-    - chi-square: 7.671407648996717
-    - reduced chi-square: 0.8523786276663019
-    - Akaike info crit.: 0.6311217041870707
-    - Bayesian info crit.: 2.085841653551072
-    - init params:
-    * amp = 0.923076923076923
-    * tau = 0.00016946294665316433
-    * base = 0.033466533466533464
-    - fit params:
-    * amp = 0.9266620487665083 ± 0.007096409569790425
-    * tau = 0.00010401411623191737 ± 2.767679521974391e-06
-    * base = 0.036302726197354626 ± 0.0037184540724124844
-    - correlations:
-    * (tau, base) = -0.6740808746060173
-    * (amp, base) = -0.4231810882291163
-    * (amp, tau) = 0.09302612202500576
-    - quality: good
-    - device_components: ['Q0']
-    - verified: False
+    results = load_expdata.analysis_results(dataframe=True))
 
 Discussion
 ----------

@@ -271,8 +271,16 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(fit_data.params["amp"], 0.5, delta=0.1)
         self.assertAlmostEqual(fit_data.params["tau"], 0.3, delta=0.1)
 
-        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
-        self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
+        self.assertAlmostEqual(
+            result.analysis_results("amp", dataframe=True).iloc[0].value.nominal_value,
+            0.5,
+            delta=0.1,
+        )
+        self.assertAlmostEqual(
+            result.analysis_results("tau", dataframe=True).iloc[0].value.nominal_value,
+            0.3,
+            delta=0.1,
+        )
         self.assertEqual(len(result._figures), 0)
 
     def test_end_to_end_multi_objective(self):
@@ -336,10 +344,26 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(fit_data.params["phi"], phi, delta=0.1)
         self.assertAlmostEqual(fit_data.params["base"], base, delta=0.1)
 
-        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
-        self.assertAlmostEqual(result.analysis_results("freq").value.nominal_value, freq, delta=0.1)
-        self.assertAlmostEqual(result.analysis_results("phi").value.nominal_value, phi, delta=0.1)
-        self.assertAlmostEqual(result.analysis_results("base").value.nominal_value, base, delta=0.1)
+        self.assertAlmostEqual(
+            result.analysis_results("amp", dataframe=True).iloc[0].value.nominal_value,
+            amp,
+            delta=0.1,
+        )
+        self.assertAlmostEqual(
+            result.analysis_results("freq", dataframe=True).iloc[0].value.nominal_value,
+            freq,
+            delta=0.1,
+        )
+        self.assertAlmostEqual(
+            result.analysis_results("phi", dataframe=True).iloc[0].value.nominal_value,
+            phi,
+            delta=0.1,
+        )
+        self.assertAlmostEqual(
+            result.analysis_results("base", dataframe=True).iloc[0].value.nominal_value,
+            base,
+            delta=0.1,
+        )
 
     def test_end_to_end_single_function_with_fixed_parameter(self):
         """Integration test for fitting with fixed parameter."""
@@ -366,9 +390,15 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertEqual(fit_data.success, True)
         self.assertEqual(fit_data.params["amp"], 0.5)
 
-        self.assertEqual(result.analysis_results("amp").value.nominal_value, 0.5)
-        self.assertEqual(result.analysis_results("amp").value.std_dev, 0.0)
-        self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
+        self.assertEqual(
+            result.analysis_results("amp", dataframe=True).iloc[0].value.nominal_value, 0.5
+        )
+        self.assertEqual(result.analysis_results("amp", dataframe=True).iloc[0].value.std_dev, 0.0)
+        self.assertAlmostEqual(
+            result.analysis_results("tau", dataframe=True).iloc[0].value.nominal_value,
+            0.3,
+            delta=0.1,
+        )
 
     def test_end_to_end_compute_new_entry(self):
         """Integration test for computing new parameter with error propagation."""
@@ -407,7 +437,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = analysis.run(test_data)
         self.assertExperimentDone(result)
 
-        new_value = result.analysis_results("new_value").value
+        new_value = result.analysis_results("new_value", dataframe=True).iloc[0].value
 
         # Use ufloat_params in @Parameters dataclass.
         # This dataclass stores UFloat values with correlation.
@@ -462,8 +492,16 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         result = analysis.run(test_data)
         self.assertExperimentDone(result)
 
-        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
-        self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
+        self.assertAlmostEqual(
+            result.analysis_results("amp", dataframe=True).iloc[0].value.nominal_value,
+            0.5,
+            delta=0.1,
+        )
+        self.assertAlmostEqual(
+            result.analysis_results("tau", dataframe=True).iloc[0].value.nominal_value,
+            0.3,
+            delta=0.1,
+        )
 
     @data((False, "always", 0), (True, "never", 2), (None, "always", 2), (None, "never", 0))
     @unpack
@@ -536,14 +574,14 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         np.testing.assert_array_equal(data1.x[100:200], np.linspace(0, 1, 100))
         np.testing.assert_array_equal(data1.x[-100:], np.linspace(0, 1, 100))
 
-        amps = result.analysis_results("amp")
-        taus = result.analysis_results("tau")
+        amps = result.analysis_results("amp", dataframe=True)
+        taus = result.analysis_results("tau", dataframe=True)
 
-        self.assertAlmostEqual(amps[0].value.nominal_value, amp1, delta=0.1)
-        self.assertAlmostEqual(amps[1].value.nominal_value, amp2, delta=0.1)
+        self.assertAlmostEqual(amps.iloc[0].value.nominal_value, amp1, delta=0.1)
+        self.assertAlmostEqual(amps.iloc[1].value.nominal_value, amp2, delta=0.1)
 
-        self.assertAlmostEqual(taus[0].value.nominal_value, tau1, delta=0.1)
-        self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
+        self.assertAlmostEqual(taus.iloc[0].value.nominal_value, tau1, delta=0.1)
+        self.assertAlmostEqual(taus.iloc[1].value.nominal_value, tau2, delta=0.1)
 
         self.assertEqual(len(result._figures), n_figures)
 
@@ -581,7 +619,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         for res in result.child_data():
             # only generate a figure if the quality is bad
-            if res.analysis_results("amp").quality == "bad":
+            if res.analysis_results("amp", dataframe=True).iloc[0].quality == "bad":
                 self.assertEqual(len(res._figures), 1)
             else:
                 self.assertEqual(len(res._figures), 0)
@@ -636,7 +674,11 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 result.artifacts("curve_data").data.y[i], 0.5 / 10001
             )  # from Beta distribution estimate
 
-        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
+        self.assertAlmostEqual(
+            result.analysis_results("amp", dataframe=True).iloc[0].value.nominal_value,
+            amp,
+            delta=0.1,
+        )
 
     def test_get_init_params(self):
         """Integration test for getting initial parameter from overview entry."""
@@ -743,7 +785,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         result = group_analysis.run(expdata)
         self.assertExperimentDone(result)
-        amps = result.analysis_results("amp")
+        amps = result.analysis_results("amp", dataframe=True)
 
         fit_A = expdata.artifacts("fit_summary").data["group_A"]
         self.assertEqual(
@@ -787,10 +829,10 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         # two entries are generated for group A and group B
         self.assertEqual(len(amps), 2)
-        self.assertEqual(amps[0].extra["group"], "group_A")
-        self.assertEqual(amps[1].extra["group"], "group_B")
-        self.assertAlmostEqual(amps[0].value.n, amp1, delta=0.1)
-        self.assertAlmostEqual(amps[1].value.n, amp2, delta=0.1)
+        self.assertEqual(amps.iloc[0]["group"], "group_A")
+        self.assertEqual(amps.iloc[1]["group"], "group_B")
+        self.assertAlmostEqual(amps.iloc[0].value.n, amp1, delta=0.1)
+        self.assertAlmostEqual(amps.iloc[1].value.n, amp2, delta=0.1)
         self.assertEqual(len(result._figures), n_figures)
 
 

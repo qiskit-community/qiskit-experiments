@@ -124,16 +124,15 @@ class StandardRB(BaseExperiment):
             exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
 
             # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
-            exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
+            exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results(dataframe=True))
 
             expdata_2q = exp_2q.run(backend=backend).block_for_results()
-            results_2q = expdata_2q.analysis_results()
+            results_2q = expdata_2q.analysis_results(dataframe=True)
 
             print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
             display(expdata_2q.figure(0))
 
-            names = {result.name for result in results_2q}
-            print(f"Available results: {names}")
+            print(f"Available results: {set(results_2q.name)}")
     """
 
     def __init__(

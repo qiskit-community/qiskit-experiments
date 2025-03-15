@@ -335,7 +335,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 1 / 2 * self.p1q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
@@ -355,7 +355,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 3 / 4 * self.p2q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
@@ -379,7 +379,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 3 / 4 * self.pcz
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 

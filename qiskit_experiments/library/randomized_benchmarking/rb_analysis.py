@@ -16,6 +16,7 @@ from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
 import lmfit
+from pandas import DataFrame
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
@@ -90,9 +91,10 @@ class RBAnalysis(curve.CurveAnalysis):
                 The default value will use standard gate error ratios.
                 If you don't know accurate error ratio between your basis gates,
                 you can skip analysis of EPGs by setting this options to ``None``.
-            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
-                for individual single qubit gates. If this is provided, EPC of
-                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
+            epg_1_qubit (Union[List[AnalysisResult], DataFrame]): Analysis
+                results from previous RB experiments for individual single
+                qubit gates. If this is provided, EPC of 2Q RB is corrected to
+                exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(
@@ -173,7 +175,7 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Correction for 1Q depolarizing channel if EPGs are provided
-        if self.options.epg_1_qubit and num_qubits == 2:
+        if self.options.epg_1_qubit is not None and num_qubits == 2:
             epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
@@ -379,7 +381,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[AnalysisResult]],
+    extra_analyses: Optional[Union[List[AnalysisResult], DataFrame]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
@@ -394,14 +396,26 @@ def _exclude_1q_error(
     """
     # Extract EPC of non-measured qubits from previous experiments
     epg_1qs = {}
+    # Convert to list of results to handle legacy AnalysisResult case with same
+    # code
+    if isinstance(extra_analyses, DataFrame):
+        dataframe = True
+        extra_analyses = list(extra_analyses.itertuples())
+    else:
+        dataframe = False
+
     for analysis_data in extra_analyses:
+        if dataframe:
+            components = analysis_data.components
+        else:
+            components = analysis_data.device_components
         if (
             not analysis_data.name.startswith("EPG_")
-            or len(analysis_data.device_components) > 1
-            or not str(analysis_data.device_components[0]).startswith("Q")
+            or len(components) > 1
+            or not str(components[0]).startswith("Q")
         ):
             continue
-        qind = analysis_data.device_components[0].index
+        qind = components[0].index
         gate = analysis_data.name[4:]
         formatted_key = (qind,), gate
         epg_1qs[formatted_key] = analysis_data.value

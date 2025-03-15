@@ -45,9 +45,7 @@ to describe the preparation circuit.
     qstdata1 = qstexp1.run(backend, seed_simulation=100).block_for_results()
     
     # Print results
-    for result in qstdata1.analysis_results():
-        print(result)
-
+    display(qstdata1.analysis_results(dataframe=True))
 
 
 Tomography Results
@@ -58,7 +56,7 @@ The main result for tomography is the fitted state, which is stored as a
 
 .. jupyter-execute::
 
-    state_result = qstdata1.analysis_results("state")
+    state_result = qstdata1.analysis_results("state", dataframe=True).iloc[0]
     print(state_result.value)
 
 We can also visualize the density matrix:
@@ -66,7 +64,8 @@ We can also visualize the density matrix:
 .. jupyter-execute::
 
     from qiskit.visualization import plot_state_city
-    plot_state_city(qstdata1.analysis_results("state").value, title='Density Matrix')
+    state = qstdata1.analysis_results("state", dataframe=True).iloc[0].value
+    plot_state_city(state, title='Density Matrix')
 
 The state fidelity of the fitted state with the ideal state prepared by
 the input circuit is stored in the ``"state_fidelity"`` result field.
@@ -76,7 +75,7 @@ state cannot be automatically generated and this field will be set to
 
 .. jupyter-execute::
 
-    fid_result = qstdata1.analysis_results("state_fidelity")
+    fid_result = qstdata1.analysis_results("state_fidelity", dataframe=True).iloc[0]
     print("State Fidelity = {:.5f}".format(fid_result.value))
 
 
@@ -84,14 +83,11 @@ state cannot be automatically generated and this field will be set to
 Additional state metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Additional data is stored in the tomography under the
-``"state_metadata"`` field. This includes
+Additional data is stored in the tomography under additional fields. This includes
 
 - ``eigvals``: the eigenvalues of the fitted state 
 - ``trace``: the trace of the fitted state 
 - ``positive``: Whether the eigenvalues are all non-negative 
-- ``positive_delta``: the deviation from positivity given by 1-norm of negative
-  eigenvalues.
 
 If trace rescaling was performed this dictionary will also contain a ``raw_trace`` field
 containing the trace before rescaling. Futhermore, if the state was rescaled to be
@@ -100,7 +96,8 @@ eigenvalues before rescaling was performed.
 
 .. jupyter-execute::
 
-    state_result.extra
+    for col in ["eigvals", "trace", "positive"]:
+        print(f"{col}: {state_result[col]}")
 
 To see the effect of rescaling, we can perform a “bad” fit with very low
 counts:
@@ -109,14 +106,11 @@ counts:
 
     # QST Experiment
     bad_data = qstexp1.run(backend, shots=10, seed_simulation=100).block_for_results()
-    bad_state_result = bad_data.analysis_results("state")
+    bad_state_result = bad_data.analysis_results("state", dataframe=True).iloc[0]
     
     # Print result
-    print(bad_state_result)
-    
-    # Show extra data
-    bad_state_result.extra
-
+    for key, val in bad_state_result.items():
+        print(f"{key}: {val}")
 
 
 Tomography Fitters
@@ -144,11 +138,9 @@ PSD without requiring rescaling.
         # Re-run experiment
         qstdata2 = qstexp1.run(backend, seed_simulation=100).block_for_results()
     
-        state_result2 = qstdata2.analysis_results("state")
-        print(state_result2)   
-        print("\nextra:")
-        for key, val in state_result2.extra.items():
-            print(f"- {key}: {val}")
+        state_result2 = qstdata2.analysis_results("state", dataframe=True).iloc[0]
+        for key, val in state_result2.items():
+            print(f"{key}: {val}")
     
     except ModuleNotFoundError:
         print("CVXPY is not installed")
@@ -175,20 +167,14 @@ For example if we want to perform 1-qubit QST on several qubits at once:
     parexp = ParallelExperiment(subexps)
     pardata = parexp.run(backend, seed_simulation=100).block_for_results()
     
-    for result in pardata.analysis_results():
-        print(result)
+    display(pardata.analysis_results(dataframe=True))
 
-View component experiment analysis results:
+View experiment analysis results for one component:
 
 .. jupyter-execute::
 
-    for i, expdata in enumerate(pardata.child_data()):
-        state_result_i = expdata.analysis_results("state")
-        fid_result_i = expdata.analysis_results("state_fidelity")
-        
-        print(f'\nPARALLEL EXP {i}')
-        print("State Fidelity: {:.5f}".format(fid_result_i.value))
-        print("State: {}".format(state_result_i.value))
+    results = pardata.analysis_results(dataframe=True)
+    display(results[results.components.apply(lambda x: x == ["Q0"])])
 
 References
 ----------

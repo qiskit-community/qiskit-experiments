@@ -50,7 +50,7 @@ class TestTphi(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         self.assertRoundTripSerializable(expdata)
         self.assertRoundTripPickle(expdata)
-        result = expdata.analysis_results("T_phi")
+        result = expdata.analysis_results("T_phi", dataframe=True).iloc[0]
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
             result.value.nominal_value,

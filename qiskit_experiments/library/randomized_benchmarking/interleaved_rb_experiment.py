@@ -78,11 +78,10 @@ class InterleavedRB(StandardRB):
                 circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
 
             int_expdata2 = int_exp2.run(backend=backend).block_for_results()
-            int_results2 = int_expdata2.analysis_results()
+            int_results2 = int_expdata2.analysis_results(dataframe=True)
             display(int_expdata2.figure(0))
 
-            names = {result.name for result in int_results2}
-            print(f"Available results: {names}")
+            print(f"Available results: {set(int_results2.name)}")
     """
 
     def __init__(

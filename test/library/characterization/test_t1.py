@@ -48,10 +48,10 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         self.assertRoundTripSerializable(exp_data)
         self.assertRoundTripPickle(exp_data)
-        res = exp_data.analysis_results("T1")
+        res = exp_data.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.extra["unit"], "s")
+        self.assertEqual(res["unit"], "s")
 
     def test_t1_measurement_level_1(self):
         """
@@ -93,10 +93,10 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(expdata0)
         self.assertRoundTripPickle(expdata0)
 
-        res = expdata0.analysis_results("T1")
+        res = expdata0.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.extra["unit"], "s")
+        self.assertEqual(res["unit"], "s")
 
     def test_t1_parallel(self):
         """
@@ -121,7 +121,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertExperimentDone(res)
 
         for i, qb in enumerate(quantum_bit):
-            sub_res = res.child_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1", dataframe=True).iloc[0]
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
@@ -186,7 +186,7 @@ class TestT1(QiskitExperimentsTestCase):
 
         # Checking analysis
         for i, t1 in enumerate(t1s):
-            sub_res = res.child_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1", dataframe=True).iloc[0]
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1, delta=3)
 
@@ -209,7 +209,7 @@ class TestT1(QiskitExperimentsTestCase):
             )
 
         experiment_data = T1Analysis().run(data, plot=False)
-        result = experiment_data.analysis_results("T1")
+        result = experiment_data.analysis_results("T1", dataframe=True).iloc[0]
 
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
@@ -246,7 +246,7 @@ class TestT1(QiskitExperimentsTestCase):
             )
 
         experiment_data = T1Analysis().run(data, plot=False)
-        result = experiment_data.analysis_results("T1")
+        result = experiment_data.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(result.quality, "bad")
 
     def test_t1_parallel_exp_transpile(self):

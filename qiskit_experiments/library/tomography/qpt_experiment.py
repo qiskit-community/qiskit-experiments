@@ -74,7 +74,7 @@ class ProcessTomography(TomographyExperiment):
             qptdata = qptexp.run(backend=backend,
                                  shots=1000,
                                  seed_simulator=100,).block_for_results()
-            choi_out = qptdata.analysis_results("state").value
+            choi_out = qptdata.analysis_results("state", dataframe=True).iloc[0].value
 
             # extracting a densitymatrix from choi_out
             from qiskit.visualization import plot_state_city

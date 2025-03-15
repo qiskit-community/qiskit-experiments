@@ -88,8 +88,7 @@ class QuantumVolume(BaseExperiment):
             expdata = qv_exp.run(backend=backend).block_for_results()
             display(expdata.figure(0))
 
-            for result in expdata.analysis_results():
-                print(result)
+            display(expdata.analysis_results(dataframe=True))
     """
 
     def __init__(

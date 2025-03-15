@@ -39,7 +39,9 @@ class TestFineDrag(QiskitExperimentsTestCase):
         exp_data = FineXDrag([0]).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
-        self.assertEqual(exp_data.analysis_results("d_theta").quality, "good")
+        self.assertEqual(
+            exp_data.analysis_results("d_theta", dataframe=True).iloc[0].quality, "good"
+        )
 
     def test_circuits_roundtrip_serializable(self):
         """Test circuits serialization of the experiment."""

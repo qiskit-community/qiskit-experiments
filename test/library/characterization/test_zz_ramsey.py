@@ -72,7 +72,7 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         test_data = ramsey.run()
         self.assertExperimentDone(test_data)
 
-        result = test_data.analysis_results("zz")
+        result = test_data.analysis_results("zz", dataframe=True).iloc[0]
         meas_shift = result.value.n
         self.assertLess(abs(meas_shift - zz_freq), abs(self.test_tol * zz_freq))
         self.assertEqual(result.quality, "good")

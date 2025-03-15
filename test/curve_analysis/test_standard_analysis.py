@@ -73,5 +73,7 @@ class TestErrorAmplificationAnalysis(QiskitExperimentsTestCase):
         self.assertExperimentDone(fake_data)
 
         self.assertAlmostEqual(
-            fake_data.analysis_results("d_theta").value.n, d_theta_targ, delta=0.01
+            fake_data.analysis_results("d_theta", dataframe=True).iloc[0].value.n,
+            d_theta_targ,
+            delta=0.01,
         )

@@ -56,7 +56,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         test_data = ramsey.run()
         self.assertExperimentDone(test_data)
 
-        freq_est_data = test_data.analysis_results("freq")
+        freq_est_data = test_data.analysis_results("freq", dataframe=True).iloc[0]
         self.assertAlmostEqual(freq_est_data.value.n, freq_shift, delta=abs_tol)
         self.assertLess(freq_est_data.chisq, 3.0)
 

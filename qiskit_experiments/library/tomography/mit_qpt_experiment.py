@@ -78,7 +78,7 @@ class MitigatedProcessTomography(BatchExperiment):
             mitqptexp.set_run_options(shots=1000)
             mitqptdata = mitqptexp.run(backend=backend,
                                        seed_simulator=100,).block_for_results()
-            mitigated_choi_out = mitqptdata.analysis_results("state").value
+            mitigated_choi_out = mitqptdata.analysis_results("state", dataframe=True).iloc[0].value
 
             # extracting a densitymatrix from mitigated_choi_out
             from qiskit.visualization import plot_state_city

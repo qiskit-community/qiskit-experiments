@@ -602,7 +602,7 @@ perfect symmetrical results between :math:`|0000\rangle` and :math:`|1111\rangle
 .. jupyter-execute::
 
     expdata_ideal = exp.run(backend_ideal, shots=shots)
-    counts_ideal = expdata_ideal.analysis_results("counts").value
+    counts_ideal = expdata_ideal.analysis_results("counts", dataframe=True).iloc[0].value
     print(counts_ideal)
 
 Repeat the experiment on the backend with readout error and compare with results
@@ -612,7 +612,7 @@ from running GHZ circuit itself:
 
     # Run noisy randomized meas experiment with readout error
     expdata_noise = exp.run(noise_backend, shots=shots)
-    counts_noise = expdata_noise.analysis_results("counts").value
+    counts_noise = expdata_noise.analysis_results("counts", dataframe=True).iloc[0].value
 
     # Run noisy simulation of the original circuit without randomization
     meas_circ = qc.copy()

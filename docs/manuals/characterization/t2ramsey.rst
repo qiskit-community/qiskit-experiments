@@ -98,8 +98,7 @@ frequency.
 .. jupyter-execute::
 
     # Print results
-    for result in expdata1.analysis_results():
-        print(result)
+    display(expdata1.analysis_results(dataframe=True))
 
 
 Providing initial user estimates
@@ -137,8 +136,7 @@ computed for other qubits.
 .. jupyter-execute::
 
     # Print results
-    for result in expdata_with_p0.analysis_results():
-        print(result)
+    display(expdata_with_p0.analysis_results(dataframe=True))
 
 
 See also

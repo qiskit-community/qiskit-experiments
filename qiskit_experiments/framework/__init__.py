@@ -51,8 +51,7 @@ following pseudo-code illustrates the typical workflow in Qiskit Experiments for
     exp_data.save()
 
     # View analysis results
-    for result in exp_data.analysis_results():
-        print(result)
+    print(exp_data.analysis_results(dataframe=True))
 
 The experiment class contains information for generating circuits and analysis
 of results. These can typically be configured with a variety of options.
