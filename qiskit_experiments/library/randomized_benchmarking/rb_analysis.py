@@ -408,7 +408,7 @@ def _exclude_1q_error(
         if dataframe:
             components = analysis_data.components
         else:
-            components = analysis.device_components
+            components = analysis_data.device_components
         if (
             not analysis_data.name.startswith("EPG_")
             or len(components) > 1

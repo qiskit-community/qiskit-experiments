@@ -161,7 +161,9 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata2)
 
         self.assertEqualExtended(expdata1, expdata2)
-        self.assertEqualExtended(expdata1.analysis_results(dataframe=True), expdata2.analysis_results(dataframe=True))
+        self.assertEqualExtended(
+            expdata1.analysis_results(dataframe=True), expdata2.analysis_results(dataframe=True)
+        )
         result_ids2 = expdata2.analysis_results(dataframe=True).index.tolist()
         self.assertNotEqual(set(result_ids), set(result_ids2))
 

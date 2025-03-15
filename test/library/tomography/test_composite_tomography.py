@@ -19,7 +19,6 @@ import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
 from qiskit_experiments.library import StateTomography, ProcessTomography
-from .tomo_utils import filter_results
 
 
 class TestCompositeTomography(QiskitExperimentsTestCase):

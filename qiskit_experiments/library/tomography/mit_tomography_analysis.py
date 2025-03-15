@@ -99,10 +99,14 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
         roerror_analysis.run(roerror_data, replace_results=True).block_for_results()
 
         # Construct noisy measurement basis
-        mitigator = roerror_data.analysis_results(
-            "Local Readout Mitigator",
-            dataframe=True,
-        ).iloc[0].value
+        mitigator = (
+            roerror_data.analysis_results(
+                "Local Readout Mitigator",
+                dataframe=True,
+            )
+            .iloc[0]
+            .value
+        )
 
         # Run mitigated tomography analysis with noisy mitigated basis
         # Tomo analysis instance is internally copied by setting option with run.

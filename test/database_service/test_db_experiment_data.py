@@ -483,7 +483,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         # Check ids reflect input result_ids
         loaded_ids = exp_data.analysis_results(dataframe=True).index.tolist()
         for full_id, loaded_id in zip(full_result_ids, loaded_ids):
-            self.assertEqual(full_id[:len(loaded_id)], loaded_id)
+            self.assertEqual(full_id[: len(loaded_id)], loaded_id)
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(
                 exp_data.analysis_results(1).result_id,
@@ -504,7 +504,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         get_result_ids = exp_data.analysis_results(dataframe=True).index.tolist()
 
         for full_id, loaded_id in zip(result_ids, get_result_ids):
-            self.assertEqual(full_id[:len(loaded_id)], loaded_id)
+            self.assertEqual(full_id[: len(loaded_id)], loaded_id)
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
@@ -581,8 +581,18 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         subtests = [
             # update function, update parameters, service called
-            (exp_data.add_analysis_results, (), {"result_id": str(uuid.uuid4())}, service.create_or_update_analysis_result),
-            (exp_data.add_figures, (str.encode("hello world"),), {}, service.create_or_update_figure),
+            (
+                exp_data.add_analysis_results,
+                (),
+                {"result_id": str(uuid.uuid4())},
+                service.create_or_update_analysis_result,
+            ),
+            (
+                exp_data.add_figures,
+                (str.encode("hello world"),),
+                {},
+                service.create_or_update_figure,
+            ),
             (exp_data.delete_figure, (0,), {}, service.delete_figure),
             (exp_data.delete_analysis_result, (0,), {}, service.delete_analysis_result),
             (setattr, (exp_data, "tags", ["foo"]), {}, service.create_or_update_experiment),
@@ -942,7 +952,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback1(exp_data):
             """Callback function that call add_analysis_callback"""
             exp_data.add_analysis_callback(callback2)
-            exp_data.add_analysis_results(name="result_name", value=0, components=[Qubit(0)], experiment_id="experiment_id")
+            exp_data.add_analysis_results(
+                name="result_name", value=0, components=[Qubit(0)], experiment_id="experiment_id"
+            )
             figure = get_non_gui_ax().get_figure()
             exp_data.add_figures(figure, "figure.svg")
             exp_data.add_data({"key": 1.2})
@@ -980,7 +992,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             """Callback function that calls add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
-            exp_data.add_analysis_results(name="RESULT1", value=True, components=["Q0"], experiment_id=exp_data.experiment_id)
+            exp_data.add_analysis_results(
+                name="RESULT1", value=True, components=["Q0"], experiment_id=exp_data.experiment_id
+            )
 
         def callback2(exp_data):
             """Callback function that exercises status lookups"""
@@ -991,7 +1005,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback3(exp_data):
             """Callback function that exercises status lookups"""
             time.sleep(1)
-            exp_data.add_analysis_results(name="RESULT2", value=True, components=["Q0"], experiment_id=exp_data.experiment_id)
+            exp_data.add_analysis_results(
+                name="RESULT2", value=True, components=["Q0"], experiment_id=exp_data.experiment_id
+            )
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(callback1)

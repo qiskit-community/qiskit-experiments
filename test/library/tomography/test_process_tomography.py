@@ -33,7 +33,6 @@ from qiskit_experiments.library.tomography import ProcessTomographyAnalysis, bas
 
 from .tomo_utils import (
     FITTERS,
-    filter_results,
     teleport_circuit,
     teleport_bell_circuit,
     readout_noise_model,
@@ -378,7 +377,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         with self.assertRaises(
             ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"
         ):
-            expdata.analysis_results("process_fidelity", dataframe=True).iloc[0]
+            expdata.analysis_results("process_fidelity", dataframe=True)
 
     def test_qpt_spam_mitigated_basis(self):
         """Test QPT with SPAM mitigation basis"""
@@ -500,7 +499,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 # Check fit state fidelity
                 fids = expdata.analysis_results("process_fidelity", dataframe=True)
                 self.assertEqual(len(fids), 2)
-                mitfid, nomitfid = [row for row in fids.itertuples()]
+                mitfid, nomitfid = fids.itertuples()
                 # Check mitigation improves fidelity
                 self.assertTrue(
                     mitfid.value >= nomitfid.value,

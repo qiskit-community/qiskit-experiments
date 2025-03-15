@@ -129,13 +129,13 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         self.assertExperimentDone(result)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_s", dataframe=True).iloc[0]
+            result.analysis_results("EPG_s", dataframe=True)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_h", dataframe=True).iloc[0]
+            result.analysis_results("EPG_h", dataframe=True)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_x", dataframe=True).iloc[0]
+            result.analysis_results("EPG_x", dataframe=True)
 
     def test_with_custom_epg_ratio(self):
         """Calculate no EPGs with custom EPG ratio dictionary."""
@@ -189,7 +189,12 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         analysis_2qrb = rb.RBAnalysis()
         analysis_2qrb.set_options(
             outcome="00",
-            epg_1_qubit=pd.concat([result_q0.analysis_results(dataframe=True), result_q1.analysis_results(dataframe=True)]),
+            epg_1_qubit=pd.concat(
+                [
+                    result_q0.analysis_results(dataframe=True),
+                    result_q1.analysis_results(dataframe=True),
+                ]
+            ),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         analysis_2qrb._run_analysis(self.expdata_2qrb)

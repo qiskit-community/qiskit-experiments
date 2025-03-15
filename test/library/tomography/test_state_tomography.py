@@ -33,7 +33,6 @@ from qiskit_experiments.library import StateTomography, MitigatedStateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis, basis
 from .tomo_utils import (
     FITTERS,
-    filter_results,
     teleport_circuit,
     teleport_bell_circuit,
     readout_noise_model,
@@ -395,7 +394,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
                 # Check fit state fidelity
                 fids = expdata.analysis_results("state_fidelity", dataframe=True)
                 self.assertEqual(len(fids), 2)
-                mitfid, nomitfid = [r for r in fids.itertuples()]
+                mitfid, nomitfid = fids.itertuples()
                 # Check mitigation improves fidelity
                 self.assertTrue(
                     mitfid.value >= nomitfid.value,
