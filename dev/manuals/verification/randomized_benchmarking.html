@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.8.0-25-gdafc15b80</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.8.0-26-gbc20409a8</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-25-gdafc15b80</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-26-gbc20409a8</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-25-gdafc15b80</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-26-gbc20409a8</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -659,24 +659,24 @@ interleaved RB experiment will always give you accurate error value <span class=
 <img alt="../../_images/randomized_benchmarking_1_1.png" src="../../_images/randomized_benchmarking_1_1.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: alpha
-- value: 0.99966+/-0.00035
-- χ²: 1.8949308017696334
+- value: 0.9992+/-0.0004
+- χ²: 0.08849573523420298
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.00017+/-0.00018
-- χ²: 1.8949308017696334
+- value: 0.00040+/-0.00019
+- χ²: 0.08849573523420298
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_x
-- value: 0.00022+/-0.00023
-- χ²: 1.8949308017696334
+- value: 0.00051+/-0.00024
+- χ²: 0.08849573523420298
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -684,15 +684,15 @@ AnalysisResult
 AnalysisResult
 - name: EPG_rz
 - value: 0.0+/-0
-- χ²: 1.8949308017696334
+- χ²: 0.08849573523420298
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_sx
-- value: 0.00022+/-0.00023
-- χ²: 1.8949308017696334
+- value: 0.00051+/-0.00024
+- χ²: 0.08849573523420298
 - quality: good
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q0&#39;]
@@ -793,33 +793,33 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 <img alt="../../_images/randomized_benchmarking_3_1.png" src="../../_images/randomized_benchmarking_3_1.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: alpha
-- value: 0.9761+/-0.0007
-- χ²: 2.320293998073521
-- quality: good
+- value: 0.9773+/-0.0006
+- χ²: 4.657164696550936
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0179+/-0.0005
-- χ²: 2.320293998073521
-- quality: good
+- value: 0.0170+/-0.0004
+- χ²: 4.657164696550936
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC_corrected
-- value: 0.0172+/-0.0007
-- χ²: 2.320293998073521
-- quality: good
+- value: 0.0154+/-0.0007
+- χ²: 4.657164696550936
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPG_cx
-- value: 0.0122+/-0.0005
-- χ²: 2.320293998073521
-- quality: good
+- value: 0.0109+/-0.0005
+- χ²: 4.657164696550936
+- quality: bad
 - extra: &lt;2 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
@@ -932,24 +932,24 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
 <img alt="../../_images/randomized_benchmarking_8_0.png" src="../../_images/randomized_benchmarking_8_0.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
 - name: alpha
-- value: 0.9764+/-0.0004
-- χ²: 0.7142710179139378
+- value: 0.9765+/-0.0005
+- χ²: 0.6070223023493286
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: alpha_c
-- value: 0.9843+/-0.0008
-- χ²: 0.7142710179139378
+- value: 0.9845+/-0.0008
+- χ²: 0.6070223023493286
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
 - verified: False
 AnalysisResult
 - name: EPC
-- value: 0.0118+/-0.0006
-- χ²: 0.7142710179139378
+- value: 0.0116+/-0.0006
+- χ²: 0.6070223023493286
 - quality: good
 - extra: &lt;4 items&gt;
 - device_components: [&#39;Q1&#39;, &#39;Q2&#39;]
@@ -1036,7 +1036,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/14</div>
+              Last updated on 2025/03/17</div>
           </div>
           <div class="right-details">
             
@@ -1076,7 +1076,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=536a2dbc"></script>
+</div><script src="../../_static/documentation_options.js?v=77d838f6"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
