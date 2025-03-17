@@ -1459,7 +1459,7 @@ class ExperimentData:
 
         .. deprecated:: 0.9.0
 
-          Passing a value for the ``results`` method is deprecated and support
+          Passing a value for the ``results`` argument is deprecated and support
           will be removed in a future release. Instead, analysis results should
           be created by passing in the individual keyword argument fields.
 
