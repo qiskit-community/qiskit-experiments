@@ -12,12 +12,15 @@
 
 """Tests for base experiment framework."""
 
+import datetime
+import json
 import pickle
 from itertools import product
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
 import ddt
+from dateutil import tz
 
 from qiskit import QuantumCircuit
 from qiskit.providers.jobstatus import JobStatus
@@ -28,6 +31,8 @@ from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
+    ExperimentDecoder,
+    ExperimentEncoder,
     FigureData,
     BaseExperiment,
     BaseAnalysis,
@@ -148,6 +153,27 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata2 = analysis.run(expdata2, replace_results=True, seed=54321)
         self.assertExperimentDone(expdata2)
         self.assertEqualExtended(expdata1, expdata2)
+
+    def test_experiment_data_analysis_results_json_roundtrip(self):
+        """Test JSON roundtrip of analysis results in an ExperimentData """
+        expdata1 = ExperimentData()
+        expdata1.add_analysis_results(
+            name="TestResult",
+            value=0.5,
+            chisq=1.2,
+            quality="good",
+            components=[Qubit(1)],
+            experiment_id=expdata1.experiment_id,
+            experiment=expdata1.experiment_type,
+            backend="test_roundtrip",
+            run_time=2.1,
+            created_time=datetime.datetime.now(tz.tzlocal()),
+        )
+        result1 = next(expdata1.analysis_results(dataframe=True).itertuples())
+
+        expdata2 = json.loads(json.dumps(expdata1, cls=ExperimentEncoder), cls=ExperimentDecoder)
+        result2 = next(expdata2.analysis_results(dataframe=True).itertuples())
+        self.assertEqual(result1, result2)
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
