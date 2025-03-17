@@ -155,7 +155,7 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertEqualExtended(expdata1, expdata2)
 
     def test_experiment_data_analysis_results_json_roundtrip(self):
-        """Test JSON roundtrip of analysis results in an ExperimentData """
+        """Test JSON roundtrip of analysis results in an ExperimentData"""
         expdata1 = ExperimentData()
         expdata1.add_analysis_results(
             name="TestResult",
