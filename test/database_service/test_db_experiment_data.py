@@ -35,7 +35,7 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit.providers.backend import Backend
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.framework import ExperimentData, AnalysisResult, BackendData, ArtifactData
+from qiskit_experiments.framework import ExperimentData, BackendData, ArtifactData
 
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
