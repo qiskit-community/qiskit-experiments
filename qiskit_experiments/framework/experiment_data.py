@@ -1670,7 +1670,7 @@ class ExperimentData:
         block: bool = True,
         timeout: float | None = None,
         columns: str | list[str] = "default",
-        dataframe: bool = None,
+        dataframe: bool = False,
     ) -> AnalysisResult | list[AnalysisResult] | pd.DataFrame:
         """Return analysis results associated with this experiment.
 
@@ -1751,8 +1751,6 @@ class ExperimentData:
         Raises:
             ExperimentEntryNotFound: If the entry cannot be found.
         """
-        if dataframe is None:
-            dataframe = False
         if block:
             self._wait_for_futures(
                 self._analysis_futures.values(), name="analysis", timeout=timeout
