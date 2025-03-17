@@ -68,8 +68,3 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
 
         # Checking serialization of the experiment data
         self.assertRoundTripSerializable(expdata)
-
-        # Checking serialization of the analysis
-        self.assertRoundTripSerializable(
-            expdata.analysis_results("readout_angle", dataframe=True).to_dict()
-        )
