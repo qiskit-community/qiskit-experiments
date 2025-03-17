@@ -1437,6 +1437,61 @@ class ExperimentData:
                 return num_bytes
         return figure_data
 
+    def add_analysis_result(
+        self,
+        *,
+        name: Optional[str] = None,
+        value: Optional[Any] = None,
+        quality: Optional[str] = None,
+        components: Optional[List[DeviceComponent]] = None,
+        experiment: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        result_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        backend: Optional[str] = None,
+        run_time: Optional[datetime] = None,
+        created_time: Optional[datetime] = None,
+        **extra_values,
+    ) -> None:
+        """Save the analysis result.
+
+        .. note::
+            This method is wrapper around
+            :meth:`.ExperimentData.add_analysis_results` which could originally
+            accept multiple analysis results in a list. The supported mode
+            going forward is to call this method with only a single result at a
+            time.
+
+        Args:
+            name: Name of the result entry.
+            value: Analyzed quantity.
+            quality: Quality of the data.
+            components: Associated device components.
+            experiment: String identifier of the associated experiment.
+            experiment_id: ID of the associated experiment.
+            result_id: ID of this analysis entry. If not set a random UUID is generated.
+            tags: List of arbitrary tags.
+            backend: Name of associated backend.
+            run_time: The date time when the experiment started to run on the device.
+            created_time: The date time when this analysis is performed.
+            extra_values: Arbitrary keyword arguments for supplementary information.
+                New dataframe columns are created in the analysis result table with added keys.
+        """
+        self.add_analysis_results(
+            name=name,
+            value=value,
+            quality=quality,
+            components=components,
+            experiment=experiment,
+            experiment_id=experiment_id,
+            result_id=result_id,
+            tags=tags,
+            backend=backend,
+            run_time=run_time,
+            created_time=created_time,
+            **extra_values,
+        )
+
     @do_auto_save
     def add_analysis_results(
         self,
