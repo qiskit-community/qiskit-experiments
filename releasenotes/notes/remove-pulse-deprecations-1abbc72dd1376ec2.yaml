@@ -25,7 +25,7 @@ upgrade:
   - |
     The ``Calibrations`` class and all of Qiskit Experiments' calibration
     support (including gate libraries and calibration updaters and experiments)
-    has been removed. The calibrations features were based on adjusting
+    have been removed. The calibrations features were based on adjusting
     parameters of pulses used in gates. With the removal of pulse support in
     Qiskit 2.0, it no longer was feasible to keep support for features that
     rely on pulse gate  calibrations.
@@ -59,7 +59,7 @@ deprecations:
 
   - |
     :class:`.PulseBackend` and :class:`.SingleTransmonTestBackend` have been
-    deprecated. These backend classes use `Qiskit Dyanmics
+    deprecated. These backend classes use `Qiskit Dynamics
     <https://github.com/qiskit-community/qiskit-dynamics>`_ to simulate quantum
     circuits using Qiskit Pulse with pulse-level simulation and were mainly
     intended for testing purposes. With the removal of pulse features in Qiskit

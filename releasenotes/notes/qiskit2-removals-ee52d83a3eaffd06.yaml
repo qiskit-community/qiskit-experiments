@@ -2,11 +2,11 @@
 features:
   - |
     Classes :class:`.MeasLevel` and :class:`.MeasReturnType` were added to
-    enumerate the expected measurement level (kerneled or classified) and
-    return type (averaged or not). Previously, private classes of Qiskit were
-    inadvertently used for these purposes but they were removed in Qiskit
-    2.0.
-fixes:
+    enumerate the supported measurement levels (kerneled or classified) and
+    return types (averaged or not) for the results of jobs run by experiments.
+    Previously, private classes of Qiskit were inadvertently used for these
+    purposes but they were removed in Qiskit 2.0.
+upgrade:
   - |
     In preparation for Qiskit 2.0, references to ``BackendV1`` have been
     guarded so that they do not cause import errors. ``BackendV1`` is still
@@ -14,12 +14,13 @@ fixes:
   - |
     :class:`.LocalReadouMitigator` now provides a more specific warning if it
     is used with a backend without a ``properties()`` method or with a backend
-    that does not the required readout error properties.
+    that does not the require readout error properties.
   - |
     :class:`.ExperimentData` was updated to handle changes to
-    :class:`qiskit.result.Result` in Qiskit 2.0. The result header is now a
-    dict instead of a custom class. Qiskit Experiments uses this header to
-    store metadata about experiments' circuits.
+    :class:`qiskit.result.Result` in Qiskit 2.0. With Qiskit 2.0, the result
+    header is a dict instead of a custom class. Qiskit Experiments uses this
+    header to store metadata about experiments' circuits and now handles both
+    the dict and class forms.
   - |
     A performance issue in :class:`.QuantumVolume` was addressed. When Qiskit
     Aer is installed, :class:`.QuantumVolume` uses
