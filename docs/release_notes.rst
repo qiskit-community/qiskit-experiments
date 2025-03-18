@@ -2483,7 +2483,7 @@ Upgrade Notes
 - The data format of analysis result data value has been replaced from
   :class:`FitVal` to ``uncertainties.ufloat`` from the Python
   `uncertainties <https://pythonhosted.org/uncertainties/>`__ package to support
-  error propatation for post analysis computation.
+  error propagation for post analysis computation.
   
   .. code-block:: python
   

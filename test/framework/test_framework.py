@@ -12,12 +12,15 @@
 
 """Tests for base experiment framework."""
 
+import datetime
+import json
 import pickle
 from itertools import product
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
 import ddt
+from dateutil import tz
 
 from qiskit import QuantumCircuit
 from qiskit.providers.jobstatus import JobStatus
@@ -28,6 +31,8 @@ from qiskit_experiments.database_service import Qubit
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
+    ExperimentDecoder,
+    ExperimentEncoder,
     FigureData,
     BaseExperiment,
     BaseAnalysis,
@@ -149,6 +154,27 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata2)
         self.assertEqualExtended(expdata1, expdata2)
 
+    def test_experiment_data_analysis_results_json_roundtrip(self):
+        """Test JSON roundtrip of analysis results in an ExperimentData"""
+        expdata1 = ExperimentData()
+        expdata1.add_analysis_results(
+            name="TestResult",
+            value=0.5,
+            chisq=1.2,
+            quality="good",
+            components=[Qubit(1)],
+            experiment_id=expdata1.experiment_id,
+            experiment=expdata1.experiment_type,
+            backend="test_roundtrip",
+            run_time=2.1,
+            created_time=datetime.datetime.now(tz.tzlocal()),
+        )
+        result1 = next(expdata1.analysis_results(dataframe=True).itertuples())
+
+        expdata2 = json.loads(json.dumps(expdata1, cls=ExperimentEncoder), cls=ExperimentDecoder)
+        result2 = next(expdata2.analysis_results(dataframe=True).itertuples())
+        self.assertEqual(result1, result2)
+
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
         analysis = FakeAnalysis()
@@ -156,13 +182,16 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata1.add_data(self.fake_job_data())
         expdata1 = analysis.run(expdata1, seed=54321)
         self.assertExperimentDone(expdata1)
-        result_ids = [res.result_id for res in expdata1.analysis_results()]
+        result_ids = expdata1.analysis_results(dataframe=True).index.tolist()
         expdata2 = analysis.run(expdata1, replace_results=True, seed=12345)
         self.assertExperimentDone(expdata2)
 
         self.assertEqualExtended(expdata1, expdata2)
-        self.assertEqualExtended(expdata1.analysis_results(), expdata2.analysis_results())
-        self.assertEqual(result_ids, list(expdata2._deleted_analysis_results))
+        self.assertEqualExtended(
+            expdata1.analysis_results(dataframe=True), expdata2.analysis_results(dataframe=True)
+        )
+        result_ids2 = expdata2.analysis_results(dataframe=True).index.tolist()
+        self.assertNotEqual(set(result_ids), set(result_ids2))
 
     def test_analysis_replace_results_true_new_figure(self):
         """Test running analysis with replace_results=True keeps figure data consistent"""
@@ -200,7 +229,9 @@ class TestFramework(QiskitExperimentsTestCase):
 
         self.assertNotEqual(expdata1, expdata2)
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
-        self.assertNotEqual(expdata1.analysis_results(), expdata2.analysis_results())
+        result1 = expdata1.analysis_results(dataframe=True)
+        result2 = expdata2.analysis_results(dataframe=True)
+        self.assertFalse(result1.equals(result2))
 
     def test_analysis_config(self):
         """Test analysis config dataclass"""
@@ -261,9 +292,9 @@ class TestFramework(QiskitExperimentsTestCase):
             expdata1, replace_results=True, seed=12345
         ).block_for_results()
         # check that the analysis is empty for the answer of the failed analysis.
-        self.assertEqual(expdata2.analysis_results(), [])
+        self.assertTrue(expdata2.analysis_results(dataframe=True).empty)
         # confirming original analysis results is empty due to 'replace_results=True'
-        self.assertEqual(expdata1.analysis_results(), [])
+        self.assertTrue(expdata1.analysis_results(dataframe=True).empty)
 
     def test_failed_analysis_replace_results_false(self):
         """Test running analysis with replace_results=False"""
@@ -283,9 +314,9 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
 
         # check that the analysis is empty for the answer of the failed analysis.
-        self.assertEqual(expdata2.analysis_results(), [])
+        self.assertTrue(expdata2.analysis_results(dataframe=True).empty)
         # confirming original analysis results isn't empty due to 'replace_results=False'
-        self.assertNotEqual(expdata1.analysis_results(), [])
+        self.assertFalse(expdata1.analysis_results(dataframe=True).empty)
 
     def test_after_job_fail(self):
         """Verify that analysis is cancelled in case of job failure"""
@@ -331,8 +362,8 @@ class TestFramework(QiskitExperimentsTestCase):
         backend = MyBackend()
         exp = MyExp([0])
         expdata = exp.run(backend=backend)
-        res = expdata.analysis_results()
-        self.assertEqual(len(res), 0)
+        res = expdata.analysis_results(dataframe=True)
+        self.assertTrue(res.empty)
         self.assertEqual(expdata.analysis_status(), AnalysisStatus.CANCELLED)
 
     @ddt.data(None, 1, 10, 100)

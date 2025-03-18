@@ -60,7 +60,7 @@ from qiskit_experiments.framework.analysis_result_table import AnalysisResultTab
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
-from qiskit_experiments.framework.deprecation import deprecate_arg
+from qiskit_experiments.framework.deprecation import warn_from_qe
 from qiskit_experiments.framework.package_deps import qiskit_version
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
@@ -1437,13 +1437,61 @@ class ExperimentData:
                 return num_bytes
         return figure_data
 
-    @deprecate_arg(
-        name="results",
-        since="0.6",
-        additional_msg="Use keyword arguments rather than creating an AnalysisResult object.",
-        package_name="qiskit-experiments",
-        pending=True,
-    )
+    def add_analysis_result(
+        self,
+        *,
+        name: Optional[str] = None,
+        value: Optional[Any] = None,
+        quality: Optional[str] = None,
+        components: Optional[List[DeviceComponent]] = None,
+        experiment: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        result_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        backend: Optional[str] = None,
+        run_time: Optional[datetime] = None,
+        created_time: Optional[datetime] = None,
+        **extra_values,
+    ) -> None:
+        """Save the analysis result.
+
+        .. note::
+            This method is wrapper around
+            :meth:`.ExperimentData.add_analysis_results` which could originally
+            accept multiple analysis results in a list. The supported mode
+            going forward is to call this method with only a single result at a
+            time.
+
+        Args:
+            name: Name of the result entry.
+            value: Analyzed quantity.
+            quality: Quality of the data.
+            components: Associated device components.
+            experiment: String identifier of the associated experiment.
+            experiment_id: ID of the associated experiment.
+            result_id: ID of this analysis entry. If not set a random UUID is generated.
+            tags: List of arbitrary tags.
+            backend: Name of associated backend.
+            run_time: The date time when the experiment started to run on the device.
+            created_time: The date time when this analysis is performed.
+            extra_values: Arbitrary keyword arguments for supplementary information.
+                New dataframe columns are created in the analysis result table with added keys.
+        """
+        self.add_analysis_results(
+            name=name,
+            value=value,
+            quality=quality,
+            components=components,
+            experiment=experiment,
+            experiment_id=experiment_id,
+            result_id=result_id,
+            tags=tags,
+            backend=backend,
+            run_time=run_time,
+            created_time=created_time,
+            **extra_values,
+        )
+
     @do_auto_save
     def add_analysis_results(
         self,
@@ -1464,6 +1512,12 @@ class ExperimentData:
     ) -> None:
         """Save the analysis result.
 
+        .. deprecated:: 0.9.0
+
+          Passing a value for the ``results`` argument is deprecated and support
+          will be removed in a future release. Instead, analysis results should
+          be created by passing in the individual keyword argument fields.
+
         Args:
             results: Analysis results to be saved.
             name: Name of the result entry.
@@ -1481,7 +1535,18 @@ class ExperimentData:
                 New dataframe columns are created in the analysis result table with added keys.
         """
         if results is not None:
-            # TODO deprecate this path
+            # NOTE: this path is deprecated
+            warn_from_qe(
+                (
+                    "Calling ExperimentData.add_analysis_results() with a "
+                    "`results` argument is deprecated as of qiskit-experiments "
+                    "0.9.0. Code should be updated to pass the keyword "
+                    "arguments of `add_analysis_results` "
+                    "directly for each result. The `results` argument will be "
+                    "removed in a future release."
+                ),
+                DeprecationWarning,
+            )
             if not isinstance(results, list):
                 results = [results]
             for result in results:
@@ -1521,7 +1586,7 @@ class ExperimentData:
                 name=name,
                 value=value,
                 quality=quality,
-                components=components,
+                components=components or [],
                 experiment=experiment,
                 experiment_id=experiment_id,
                 tags=tags or [],
@@ -1598,14 +1663,6 @@ class ExperimentData:
                     **extra,
                 )
 
-    @deprecate_arg(
-        name="dataframe",
-        deprecation_description="Setting ``dataframe`` to False in analysis_results",
-        since="0.6",
-        package_name="qiskit-experiments",
-        pending=True,
-        predicate=lambda dataframe: not dataframe,
-    )
     def analysis_results(
         self,
         index: int | slice | str | None = None,
@@ -1617,10 +1674,18 @@ class ExperimentData:
     ) -> AnalysisResult | list[AnalysisResult] | pd.DataFrame:
         """Return analysis results associated with this experiment.
 
-        .. caution::
+        .. deprecated:: 0.6.0
             Retrieving analysis results by a numerical index, whether an integer or a slice,
             is deprecated as of 0.6 and will be removed in a future release. Use the name
             or ID of the result instead.
+
+        .. deprecated:: 0.9.0
+            Not setting the ``dataframe`` argument to ``True`` when calling
+            this method is deprecated. Currently, not doing results in the old
+            path of returning :class:`.AnalysisResult` objects but future
+            releases might change the default to behave as though ``dataframe``
+            had been passed as ``True`` and remove support for setting
+            ``dataframe`` to ``False``.
 
         When this method is called with ``dataframe=True`` you will receive
         matched result entries with the ``index`` condition in the dataframe format.
@@ -1695,6 +1760,16 @@ class ExperimentData:
         if dataframe:
             return self._analysis_results.get_data(index, columns=columns)
 
+        warn_from_qe(
+            (
+                "Leaving `dataframe` unset or setting it to `False` for "
+                "`ExperimentData.analysis_results` is deprecated as of "
+                "qiskit-experiments 0.9.0. Future releases may change the "
+                "default to `True` and remove the option to set the value to "
+                "`False`."
+            ),
+            DeprecationWarning,
+        )
         # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
         # This will be removed in future version.
         tmp_df = self._analysis_results.get_data(index, columns="all")
@@ -1708,7 +1783,7 @@ class ExperimentData:
                 )
             )
         if isinstance(index, (int, slice)):
-            warnings.warn(
+            warn_from_qe(
                 "Accessing analysis results via a numerical index is deprecated and will be "
                 "removed in a future release. Use the ID or name of the analysis result "
                 "instead.",

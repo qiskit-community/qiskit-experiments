@@ -15,10 +15,50 @@
 from __future__ import annotations
 
 import functools
-import inspect
+import os
+import sys
 import warnings
 from collections.abc import Callable
-from typing import Any, Type
+from typing import Type
+
+
+def warn_from_qe(message: str, category: Warning, stacklevel: int = 2):
+    """Issue a warning, blaming the code calling Qiskit Experiments if possible
+
+    For Python 3.12+, this function uses ``skip_file_prefixes`` to blame the
+    function outside of Qiskit Experiments that is calling a Qiskit Experiments
+    function leading to the warning being issued. For older Python versions,
+    the ``stacklevel`` is used.
+
+    Args:
+        message: Warning message to emit
+        category: Warning category to use
+        stacklevel: The stacklevel to use for the warning, relative to the
+            caller of this function. This option is only used for Python 3.11
+            and earlier. For Python 3.12, ``skip_file_prefixes`` is used and
+            the ``stacklevel`` is fixed to blame the first caller outside of
+            ``qiskit_experiments``.
+    """
+    # qiskit_experiments import is delayed to avoid cyclic imports
+    import qiskit_experiments
+
+    if sys.version_info[:2] >= (3, 12):
+        # stacklevel is weirder than usual with skip_file_prefixes. It still
+        # counts the frame of this function as stacklevel 0 even though it
+        # would be filtered by the skip_file_prefixes filter, but then it
+        # doesn't count anything else matched by skip_file_prefixes, so we need
+        # 2 here to match the first outside caller. We do not want higher
+        # because that will call higher levels of outside callers, and our goal
+        # is to let the stacklevel argument try to get the right level for
+        # Python 3.11 and older where it is counting internal stack levels.
+        kwargs = {
+            "skip_file_prefixes": (os.path.dirname(qiskit_experiments.__file__),),
+            "stacklevel": 2,
+        }
+    else:
+        # Add 1 to make up for this level
+        kwargs = {"stacklevel": stacklevel + 1}
+    warnings.warn(message, category, **kwargs)
 
 
 def deprecate_func(
@@ -100,143 +140,6 @@ def deprecate_func(
         return wrapper
 
     return decorator
-
-
-def deprecate_arg(
-    name: str,
-    *,
-    since: str,
-    additional_msg: str | None = None,
-    deprecation_description: str | None = None,
-    pending: bool = False,
-    package_name: str = "Qiskit",
-    new_alias: str | None = None,
-    predicate: Callable[[Any], bool] | None = None,
-    removal_timeline: str = "no earlier than 3 months after the release date",
-):
-    """Decorator to indicate an argument has been deprecated in some way.
-
-    This decorator may be used multiple times on the same function, once per deprecated argument.
-    It should be placed beneath other decorators like ``@staticmethod`` and property decorators.
-
-    Args:
-        name: The name of the deprecated argument.
-        since: The version the deprecation started at. If the deprecation is pending, set
-            the version to when that started; but later, when switching from pending to
-            deprecated, update `since` to the new version.
-        deprecation_description: What is being deprecated? E.g. "Setting my_func()'s `my_arg`
-            argument to `None`." If not set, will default to "{func_name}'s argument `{name}`".
-        additional_msg: Put here any additional information, such as what to use instead
-            (if new_alias is not set). For example, "Instead, use the argument `new_arg`,
-            which is similar but does not impact the circuit's setup."
-        pending: Set to `True` if the deprecation is still pending.
-        package_name: The package name shown in the deprecation message (e.g. the PyPI package name).
-        new_alias: If the arg has simply been renamed, set this to the new name. The decorator will
-            dynamically update the `kwargs` so that when the user sets the old arg, it will be
-            passed in as the `new_alias` arg.
-        predicate: Only log the runtime warning if the predicate returns True. This is useful to
-            deprecate certain values or types for an argument, e.g.
-            `lambda my_arg: isinstance(my_arg, dict)`. Regardless of if a predicate is set, the
-            runtime warning will only log when the user specifies the argument.
-        removal_timeline: How soon can this deprecation be removed? Expects a value
-            like "no sooner than 6 months after the latest release" or "in release 9.99".
-
-    Returns:
-        Callable: The decorated callable.
-    """
-
-    def decorator(func):
-        # For methods, `__qualname__` includes the class name.
-        func_name = f"{func.__module__}.{func.__qualname__}()"
-        deprecated_entity = deprecation_description or f"``{func_name}``'s argument ``{name}``"
-
-        if new_alias:
-            alias_msg = f"Instead, use the argument ``{new_alias}``, which behaves identically."
-            if additional_msg:
-                final_additional_msg = f"{alias_msg}. {additional_msg}"
-            else:
-                final_additional_msg = alias_msg
-        else:
-            final_additional_msg = additional_msg
-
-        msg, category = _write_deprecation_msg(
-            deprecated_entity=deprecated_entity,
-            package_name=package_name,
-            since=since,
-            pending=pending,
-            additional_msg=final_additional_msg,
-            removal_timeline=removal_timeline,
-        )
-
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            _maybe_warn_and_rename_kwarg(
-                args,
-                kwargs,
-                func_name=func_name,
-                original_func_co_varnames=wrapper.__original_func_co_varnames,
-                old_arg_name=name,
-                new_alias=new_alias,
-                warning_msg=msg,
-                category=category,
-                predicate=predicate,
-            )
-            return func(*args, **kwargs)
-
-        # When decorators get called repeatedly, `func` refers to the result of the prior
-        # decorator, not the original underlying function. This trick allows us to record the
-        # original function's variable names regardless of how many decorators are used.
-        #
-        # If it's the very first decorator call, we also check that *args and **kwargs are not used.
-        if hasattr(func, "__original_func_co_varnames"):
-            wrapper.__original_func_co_varnames = func.__original_func_co_varnames
-        else:
-            wrapper.__original_func_co_varnames = func.__code__.co_varnames
-            param_kinds = {param.kind for param in inspect.signature(func).parameters.values()}
-            if inspect.Parameter.VAR_POSITIONAL in param_kinds:
-                raise ValueError(
-                    "@deprecate_arg cannot be used with functions that take variable *args. Use "
-                    "warnings.warn() directly instead."
-                )
-
-        add_deprecation_to_docstring(wrapper, msg, since=since, pending=pending)
-        return wrapper
-
-    return decorator
-
-
-def _maybe_warn_and_rename_kwarg(
-    args: tuple[Any, ...],
-    kwargs: dict[str, Any],
-    *,
-    func_name: str,
-    original_func_co_varnames: tuple[str, ...],
-    old_arg_name: str,
-    new_alias: str | None,
-    warning_msg: str,
-    category: Type[Warning],
-    predicate: Callable[[Any], bool] | None,
-) -> None:
-    # In Python 3.10+, we should set `zip(strict=False)` (the default). That is, we want to
-    # stop iterating once `args` is done, since some args may have not been explicitly passed as
-    # positional args.
-    arg_names_to_values = {name: val for val, name in zip(args, original_func_co_varnames)}
-    arg_names_to_values.update(kwargs)
-
-    if old_arg_name not in arg_names_to_values:
-        return
-    if new_alias and new_alias in arg_names_to_values:
-        raise TypeError(f"{func_name} received both {new_alias} and {old_arg_name} (deprecated).")
-
-    val = arg_names_to_values[old_arg_name]
-    if predicate and not predicate(val):
-        return
-    warnings.warn(warning_msg, category=category, stacklevel=3)
-
-    # Finally, if there's a new_alias, add its value dynamically to kwargs so that the code author
-    # only has to deal with the new_alias in their logic.
-    if new_alias is not None:
-        kwargs[new_alias] = val
 
 
 def _write_deprecation_msg(

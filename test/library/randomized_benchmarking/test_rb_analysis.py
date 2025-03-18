@@ -14,6 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+import pandas as pd
 
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
@@ -109,9 +110,9 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result = analysis.run(self.expdata_1qrb_q0, replace_results=False)
         self.assertExperimentDone(result)
 
-        s_epg = result.analysis_results("EPG_s")
-        h_epg = result.analysis_results("EPG_h")
-        x_epg = result.analysis_results("EPG_x")
+        s_epg = result.analysis_results("EPG_s", dataframe=True).iloc[0]
+        h_epg = result.analysis_results("EPG_h", dataframe=True).iloc[0]
+        x_epg = result.analysis_results("EPG_x", dataframe=True).iloc[0]
 
         self.assertEqual(s_epg.value.n, 0.0)
 
@@ -128,13 +129,13 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         self.assertExperimentDone(result)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_s")
+            result.analysis_results("EPG_s", dataframe=True)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_h")
+            result.analysis_results("EPG_h", dataframe=True)
 
         with self.assertRaises(ExperimentEntryNotFound):
-            result.analysis_results("EPG_x")
+            result.analysis_results("EPG_x", dataframe=True)
 
     def test_with_custom_epg_ratio(self):
         """Calculate no EPGs with custom EPG ratio dictionary."""
@@ -143,8 +144,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result = analysis.run(self.expdata_1qrb_q0, replace_results=False)
         self.assertExperimentDone(result)
 
-        h_epg = result.analysis_results("EPG_h")
-        x_epg = result.analysis_results("EPG_x")
+        h_epg = result.analysis_results("EPG_h", dataframe=True).iloc[0]
+        x_epg = result.analysis_results("EPG_x", dataframe=True).iloc[0]
 
         self.assertAlmostEqual(x_epg.value.n, self.p_x * 0.5, delta=0.005)
         self.assertAlmostEqual(h_epg.value.n, self.p_h * 0.5, delta=0.005)
@@ -160,7 +161,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result = analysis.run(self.expdata_2qrb, replace_results=False)
         self.assertExperimentDone(result)
 
-        cx_epg = result.analysis_results("EPG_cx")
+        cx_epg = result.analysis_results("EPG_cx", dataframe=True).iloc[0]
 
         self.assertGreater(cx_epg.value.n, self.p_cx * 0.75)
 
@@ -183,16 +184,22 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
-        cx_epg_raw = result_2qrb.analysis_results("EPG_cx")
+        cx_epg_raw = result_2qrb.analysis_results("EPG_cx", dataframe=True).iloc[0]
 
         analysis_2qrb = rb.RBAnalysis()
         analysis_2qrb.set_options(
             outcome="00",
-            epg_1_qubit=result_q0.analysis_results() + result_q1.analysis_results(),
+            epg_1_qubit=pd.concat(
+                [
+                    result_q0.analysis_results(dataframe=True),
+                    result_q1.analysis_results(dataframe=True),
+                ]
+            ),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
+        analysis_2qrb._run_analysis(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
-        cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
+        cx_epg_corrected = result_2qrb.analysis_results("EPG_cx", dataframe=True).iloc[0]
         self.assertLess(
             np.abs(cx_epg_corrected.value.n - self.p_cx * 0.75),
             np.abs(cx_epg_raw.value.n - self.p_cx * 0.75),

@@ -100,17 +100,7 @@ Extra data included in the analysis results includes
     # View result data
     display(expdata.figure(0))
     
-    for result in expdata.analysis_results():
-        print(result)
-
-
-.. jupyter-execute::
-
-    # Print extra data
-    for result in expdata.analysis_results():
-        print(f"\n{result.name} extra:")
-        for key, val in result.extra.items():
-            print(f"- {key}: {val}")
+    display(expdata.analysis_results(dataframe=True))
 
 
 Adding trials
@@ -131,8 +121,7 @@ re-running the experiment.
     
     # View result data
     display(expdata2.figure(0))
-    for result in expdata2.analysis_results():
-        print(result)
+    display(expdata2.analysis_results(dataframe=True))
 
 
 Calculating Quantum Volume using a batch experiment
@@ -157,10 +146,7 @@ Extracting the maximum Quantum Volume.
 
 .. jupyter-execute::
 
-    qv_values = [
-        batch_expdata.analysis_results("quantum_volume")[i].value
-        for i in range(batch_exp.num_experiments)
-    ]
+    qv_values = batch_expdata.analysis_results("quantum_volume", dataframe=True).value.tolist()
     
     print(f"Max quantum volume is: {max(qv_values)}")
 
@@ -170,8 +156,7 @@ Extracting the maximum Quantum Volume.
     for i in range(batch_exp.num_experiments):
         print(f"\nComponent experiment {i}")
         display(batch_expdata.figure(i))
-    for result in batch_expdata.analysis_results():
-        print(result)
+    display(batch_expdata.analysis_results(dataframe=True))
 
 References
 ----------

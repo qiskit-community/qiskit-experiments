@@ -85,7 +85,7 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
             experiment_data, data_processor=data_processor, plot=False
         ).block_for_results()
 
-        result = experiment_data.analysis_results("rabi_rate")
+        result = experiment_data.analysis_results("rabi_rate", dataframe=True).iloc[0]
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value, expected_rate, delta=test_tol)
 
@@ -113,6 +113,6 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
             plot=False,
         ).block_for_results()
 
-        result = experiment_data.analysis_results("rabi_rate")
+        result = experiment_data.analysis_results("rabi_rate", dataframe=True).iloc[0]
 
         self.assertEqual(result.quality, "bad")

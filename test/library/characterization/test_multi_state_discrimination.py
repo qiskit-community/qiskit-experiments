@@ -71,14 +71,13 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
 
         exp_data = exp.run()
 
-        fidelity = exp_data.analysis_results("fidelity").value
+        fidelity = exp_data.analysis_results("fidelity", dataframe=True)
 
-        self.assertGreaterEqual(fidelity, 0.93)
+        self.assertGreaterEqual(fidelity.value.iloc[0], 0.93)
 
         # check that the discriminator differentiates n different states
-        discrim_lbls = exp_data.analysis_results("discriminator_config").value["attributes"][
-            "classes_"
-        ]
+        discrim_table = exp_data.analysis_results("discriminator_config", dataframe=True)
+        discrim_lbls = discrim_table.value.iloc[0]["attributes"]["classes_"]
         self.assertEqual(len(discrim_lbls), n_states)
 
     def test_circuit_roundtrip_serializable(self):

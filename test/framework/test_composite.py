@@ -98,7 +98,7 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check no child data was saved
         self.assertEqual(len(expdata.child_data()), 0)
         # Check right number of analysis results is returned
-        self.assertEqual(len(expdata.analysis_results()), 30)
+        self.assertEqual(len(expdata.analysis_results(dataframe=True)), 30)
         self.assertEqual(len(expdata.artifacts()), 20)
 
     def test_flatten_results_partial(self):
@@ -118,7 +118,7 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
-        self.assertEqual(len(expdata.analysis_results()), 0)
+        self.assertEqual(len(expdata.analysis_results(dataframe=True)), 0)
         self.assertEqual(len(expdata.artifacts()), 0)
 
         # check inner experiments were flattened
@@ -127,8 +127,8 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertEqual(len(child0.child_data()), 0)
         self.assertEqual(len(child1.child_data()), 0)
         # Check right number of analysis results is returned
-        self.assertEqual(len(child0.analysis_results()), 9)
-        self.assertEqual(len(child1.analysis_results()), 6)
+        self.assertEqual(len(child0.analysis_results(dataframe=True)), 9)
+        self.assertEqual(len(child1.analysis_results(dataframe=True)), 6)
         self.assertEqual(len(child0.artifacts()), 6)
         self.assertEqual(len(child1.artifacts()), 4)
 
@@ -888,8 +888,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp_data = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(exp_data)
         # when flattening, individual analysis result share exp id
-        for result in exp_data.analysis_results():
-            self.assertEqual(result.experiment_id, exp_data.experiment_id)
+        for expt_id in exp_data.analysis_results(
+            dataframe=True, columns=["experiment_id"]
+        ).experiment_id:
+            self.assertEqual(expt_id, exp_data.experiment_id)
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=False)
         exp_data = batch_exp.run(backend=self.backend)
         self.assertExperimentDone(exp_data)
@@ -989,12 +991,25 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
             expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000, memory=True)
         self.assertExperimentDone(expdata)
 
-        self.assertEqual(expdata.child_data(0).analysis_results("non-zero counts").value, 8)
         self.assertEqual(
-            expdata.child_data(1).child_data(0).analysis_results("non-zero counts").value, 16
+            expdata.child_data(0).analysis_results("non-zero counts", dataframe=True).iloc[0].value,
+            8,
         )
         self.assertEqual(
-            expdata.child_data(1).child_data(1).analysis_results("non-zero counts").value, 4
+            expdata.child_data(1)
+            .child_data(0)
+            .analysis_results("non-zero counts", dataframe=True)
+            .iloc[0]
+            .value,
+            16,
+        )
+        self.assertEqual(
+            expdata.child_data(1)
+            .child_data(1)
+            .analysis_results("non-zero counts", dataframe=True)
+            .iloc[0]
+            .value,
+            4,
         )
 
     def test_separate_jobs(self):

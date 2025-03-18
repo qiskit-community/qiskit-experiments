@@ -107,34 +107,28 @@ class AnalysisResultData:
         """Return iterator of data fields (attr, value)"""
         return iter((field.name, getattr(self, field.name)) for field in dataclasses.fields(self))
 
+    def as_table_element(self) -> Dict[str, Any]:
+        """Python dataclass as_dict-like function to return
+        canonical data for analysis AnalysisResultTable.
 
-def as_table_element(
-    result_data: AnalysisResultData,
-) -> Dict[str, Any]:
-    """Python dataclass as_dict-like function to return
-    canonical data for analysis AnalysisResultTable.
+        Returns:
+            Formatted data representation in dictionary format.
+        """
+        out = {
+            "name": self.name,
+            "experiment": self.experiment,
+            "components": self.device_components,
+            "value": self.value,
+            "quality": self.quality,
+            "experiment_id": self.experiment_id,
+            "result_id": self.result_id,
+            "tags": self.tags,
+            "backend": self.backend,
+            "run_time": self.run_time,
+            "created_time": self.created_time,
+        }
+        if self.chisq is not None:
+            out["chisq"] = self.chisq
+        out.update(self.extra)
 
-    Args:
-        result_data: AnalysisResultData dataclass to format.
-
-    Returns:
-        Formatted data representation in dictionary format.
-    """
-    out = {
-        "name": result_data.name,
-        "experiment": result_data.experiment,
-        "components": result_data.device_components,
-        "value": result_data.value,
-        "quality": result_data.quality,
-        "experiment_id": result_data.experiment_id,
-        "result_id": result_data.result_id,
-        "tags": result_data.tags,
-        "backend": result_data.backend,
-        "run_time": result_data.run_time,
-        "created_time": result_data.created_time,
-    }
-    if result_data.chisq is not None:
-        out["chisq"] = result_data.chisq
-    out.update(result_data.extra)
-
-    return out
+        return out

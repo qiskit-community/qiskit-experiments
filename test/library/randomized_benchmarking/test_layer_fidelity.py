@@ -16,6 +16,7 @@ from test.library.randomized_benchmarking.mixin import RBTestMixin
 import copy
 import numpy as np
 from ddt import ddt, data, unpack
+from uncertainties import unumpy as unp
 
 from qiskit.exceptions import QiskitError
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
@@ -177,8 +178,8 @@ class TestRunLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
         expdata = exp.run()
         self.assertExperimentDone(expdata)
 
-        lf = expdata.analysis_results("LF").value.n
-        slfs = [res.value.n for res in expdata.analysis_results("SingleLF")]
+        lf = expdata.analysis_results("LF", dataframe=True).iloc[0].value.n
+        slfs = unp.nominal_values(expdata.analysis_results("SingleLF", dataframe=True).value)
         self.assertAlmostEqual(lf, np.prod(slfs))
 
     def test_expdata_serialization(self):

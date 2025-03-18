@@ -28,7 +28,7 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.containers import FigureData, FigureType
 from qiskit_experiments.framework.configs import AnalysisConfig
-from qiskit_experiments.framework.analysis_result_data import AnalysisResultData, as_table_element
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -193,7 +193,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                             result.run_time = expdata.running_time
 
                         # To canonical kwargs to add to the analysis table.
-                        table_format = as_table_element(result)
+                        table_format = result.as_table_element()
 
                         # Remove result_id to make sure the id is unique in the scope of the container.
                         # This will let the container generate a unique id.

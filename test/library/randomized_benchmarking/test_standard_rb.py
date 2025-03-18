@@ -229,7 +229,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # The number of physical gate per Clifford will distribute
         # from 0 to 2, i.e. arbitrary U gate can be decomposed into up to 2 SX with RZs.
         # We may want to expect the average number of SX is (0 + 1 + 2) / 3 = 1.0.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
@@ -254,7 +254,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
         # average number of CX gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
@@ -278,7 +278,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(8) can be decomposed with [0,...,7] CX gates, the expected
         # average number of CX gate per Clifford is 3.5.
         # Since this is three qubit RB, the dep-parameter is factored by 7/8.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
@@ -328,8 +328,8 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata2)
 
         self.assertLess(
-            expdata2.analysis_results("EPC").value.s,
-            expdata1.analysis_results("EPC").value.s,
+            expdata2.analysis_results("EPC", dataframe=True).iloc[0].value.s,
+            expdata1.analysis_results("EPC", dataframe=True).iloc[0].value.s,
         )
 
     def test_poor_experiment_result(self):
@@ -395,7 +395,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(par_expdata)
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         for i in range(2):
-            epc = par_expdata.child_data(i).analysis_results("EPC")
+            epc = par_expdata.child_data(i).analysis_results("EPC", dataframe=True).iloc[0]
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit_parallel(self):
@@ -417,7 +417,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(par_expdata)
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         for i in range(2):
-            epc = par_expdata.child_data(i).analysis_results("EPC")
+            epc = par_expdata.child_data(i).analysis_results("EPC", dataframe=True).iloc[0]
             # Allow for 30 percent tolerance since we ignore 1q gate contribution
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
@@ -445,7 +445,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CZ gates, the expected
         # average number of CZ gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
 
         # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5

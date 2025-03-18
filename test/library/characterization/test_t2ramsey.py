@@ -80,14 +80,14 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             self.assertRoundTripSerializable(expdata)
             self.assertRoundTripPickle(expdata)
 
-            result = expdata.analysis_results("T2star")
+            result = expdata.analysis_results("T2star", dataframe=True).iloc[0]
             self.assertAlmostEqual(
                 result.value.n,
                 estimated_t2ramsey[0],
                 delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
-            result = expdata.analysis_results("Frequency")
+            result = expdata.analysis_results("Frequency", dataframe=True).iloc[0]
             self.assertAlmostEqual(
                 result.value.n,
                 estimated_freq,
@@ -141,7 +141,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         for i, qb in enumerate(par_exp_qubits):
-            res_t2star = expdata.child_data(i).analysis_results("T2star")
+            res_t2star = expdata.child_data(i).analysis_results("T2star", dataframe=True).iloc[0]
             self.assertAlmostEqual(
                 res_t2star.value.n,
                 t2ramsey[qb],
@@ -150,7 +150,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             self.assertEqual(
                 res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
-            res_freq = expdata.child_data(i).analysis_results("Frequency")
+            res_freq = expdata.child_data(i).analysis_results("Frequency", dataframe=True).iloc[0]
             self.assertAlmostEqual(
                 res_freq.value.n,
                 estimated_freq[qb],
@@ -185,7 +185,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000, seed_simulator=1)
         self.assertExperimentDone(expdata0)
-        res_t2star_0 = expdata0.analysis_results("T2star")
+        res_t2star_0 = expdata0.analysis_results("T2star", dataframe=True).iloc[0]
 
         # second experiment
         delays1 = list(range(2, 65, 2))
@@ -197,8 +197,8 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 
-        res_t2star_1 = expdata1.analysis_results("T2star")
-        res_freq_1 = expdata1.analysis_results("Frequency")
+        res_t2star_1 = expdata1.analysis_results("T2star", dataframe=True).iloc[0]
+        res_freq_1 = expdata1.analysis_results("Frequency", dataframe=True).iloc[0]
 
         self.assertAlmostEqual(
             res_t2star_1.value.n,
