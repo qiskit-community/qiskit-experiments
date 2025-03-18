@@ -24,7 +24,7 @@ from packaging.version import InvalidVersion, Version
 from qiskit.utils.lazy_tester import LazyImportTester
 
 
-__all__ = ["HAS_SKLEARN", "HAS_DYNAMICS", "qiskit_version", "version_is_at_least"]
+__all__ = ["HAS_SKLEARN", "qiskit_version", "version_is_at_least"]
 
 
 HAS_SKLEARN = LazyImportTester(
@@ -36,12 +36,6 @@ HAS_SKLEARN = LazyImportTester(
     },
     name="scikit-learn",
     install="pip install scikit-learn",
-)
-
-HAS_DYNAMICS = LazyImportTester(
-    "qiskit_dynamics",
-    name="qiskit-dynamics",
-    install="pip install qiskit-dynamics",
 )
 
 
