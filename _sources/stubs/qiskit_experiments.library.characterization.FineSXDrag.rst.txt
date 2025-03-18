@@ -36,7 +36,6 @@ FineSXDrag
    .. automethod:: FineSXDrag.circuits
    .. automethod:: FineSXDrag.config
    .. automethod:: FineSXDrag.copy
-   .. automethod:: FineSXDrag.enable_restless
    .. automethod:: FineSXDrag.from_config
    .. automethod:: FineSXDrag.job_info
    .. automethod:: FineSXDrag.run

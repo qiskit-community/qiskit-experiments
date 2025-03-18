@@ -193,37 +193,15 @@ results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format
 
     exp_data.analysis_results(dataframe=True)
 
-Alternatively, analysis results can be accessed via the legacy list format:
-
-.. jupyter-execute::
-
-    for result in exp_data.analysis_results():
-        print(result)
-
-Individual results can be retrieved using their name or their long or short IDs, which will all
-return the corresponding :class:`AnalysisResult` object:
-
-.. jupyter-execute::
-    :hide-code:
-
-    result_id = exp_data.analysis_results("T1").result_id
-    short_id = result_id.split("-")[0]
-    print(f"exp_data.analysis_results(\"T1\")")
-    print(f"exp_data.analysis_results(\"{result_id}\")")
-    print(f"exp_data.analysis_results(\"{short_id}\")")
-
-.. attention::
-    Retrieving analysis results by a numerical index, whether an integer or a slice, is deprecated
-    as of 0.6 and will be removed in a future release.
-
 Each analysis
 result value is a ``UFloat`` object from the ``uncertainties`` package. The nominal
 value and standard deviation of each value can be accessed as follows:
 
 .. jupyter-execute::
 
-    print(exp_data.analysis_results("T1").value.nominal_value)
-    print(exp_data.analysis_results("T1").value.std_dev)
+    t1 = exp_data.analysis_results("T1", dataframe=True).iloc[0]
+    print(t1.value.nominal_value)
+    print(t1.value.std_dev)
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
@@ -297,7 +275,7 @@ supports can be set:
 
 .. jupyter-execute::
 
-  from qiskit.qobj.utils import MeasLevel
+  from qiskit_experiments.framework import MeasLevel
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)

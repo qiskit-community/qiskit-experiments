@@ -36,7 +36,6 @@ FineZXAmplitude
    .. automethod:: FineZXAmplitude.circuits
    .. automethod:: FineZXAmplitude.config
    .. automethod:: FineZXAmplitude.copy
-   .. automethod:: FineZXAmplitude.enable_restless
    .. automethod:: FineZXAmplitude.from_config
    .. automethod:: FineZXAmplitude.job_info
    .. automethod:: FineZXAmplitude.run

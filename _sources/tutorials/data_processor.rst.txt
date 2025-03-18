@@ -61,12 +61,8 @@ of the data processor. Crucially, the output of one node in the
 list is the input to the next node in the list.
 
 To illustrate the data processing module, we consider an example
-in which we measure a rabi oscillation with different data levels.
-The code below sets up the Rabi experiment.
-
-.. note::
-    This tutorial requires the :mod:`qiskit_dynamics` package to run simulations.
-    You can install it with ``python -m pip install qiskit-dynamics``.
+in which we measure qubit relaxation with different data levels.
+The code below sets up the :class:`.T1` experiment.
 
 .. jupyter-execute::
     :hide-code:
@@ -88,29 +84,21 @@ The code below sets up the Rabi experiment.
 
     import numpy as np
 
-    from qiskit import pulse
-    from qiskit.circuit import Parameter
-
-    from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+    from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+    from qiskit_experiments.test.mock_iq_helpers import MockIQT1Helper
     from qiskit_experiments.data_processing import DataProcessor, nodes
-    from qiskit_experiments.library import Rabi
+    from qiskit_experiments.library import T1
 
-    with pulse.build() as sched:
-        pulse.play(
-            pulse.Gaussian(160, Parameter("amp"), sigma=40),
-            pulse.DriveChannel(0)
-        )
 
-    backend = SingleTransmonTestBackend(seed=100)
+    backend = MockIQBackend(MockIQT1Helper(t1=90e-6, iq_cluster_centers=[((-1, 1), (1, 1))]))
 
-    exp = Rabi(
+    exp = T1(
         physical_qubits=(0,),
         backend=backend,
-        schedule=sched,
-        amplitudes=np.linspace(-0.1, 0.1, 21)
+        delays=np.linspace(0, 400e-6, 21),
     )
 
-We now run the Rabi experiment twice, once with level 1 data and
+We now run the T1 experiment twice, once with level 1 data and
 once with level 2 data. Here, we manually configure two data
 processors but note that typically you do not need to do this
 yourself. We begin with single-shot IQ data.
@@ -154,7 +142,6 @@ in the code block below.
             f"Circuit {idx}",
             points=np.array(exp_data.data(idx)["memory"]).squeeze(),
         )
-
     plotter.figure()
 
 Now we turn to counts data and see how the
@@ -205,8 +192,7 @@ processing connects the data returned by the backend to the data that
 the analysis classes need. Typically, you will not need to implement
 the data processing yourself since Qiskit Experiments has built-in
 methods that determine the correct instance of :class:`.DataProcessor` for
-your data. More advanced data processing includes, for example, handling
-:doc:`restless measurements </manuals/measurement/restless_measurements>`.
+your data.
 
 References
 ----------
@@ -215,8 +201,3 @@ References
     Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
     Programming Quantum Computers Through the Cloud with Pulses, Quantum
     Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755.
-
-See also
---------
-
-- Experiment manual: :doc:`/manuals/measurement/restless_measurements`

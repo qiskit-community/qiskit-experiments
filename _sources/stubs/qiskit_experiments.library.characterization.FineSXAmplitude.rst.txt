@@ -36,7 +36,6 @@ FineSXAmplitude
    .. automethod:: FineSXAmplitude.circuits
    .. automethod:: FineSXAmplitude.config
    .. automethod:: FineSXAmplitude.copy
-   .. automethod:: FineSXAmplitude.enable_restless
    .. automethod:: FineSXAmplitude.from_config
    .. automethod:: FineSXAmplitude.job_info
    .. automethod:: FineSXAmplitude.run

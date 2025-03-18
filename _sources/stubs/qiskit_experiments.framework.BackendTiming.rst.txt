@@ -31,15 +31,11 @@ BackendTiming
    
          
          
-         
-         
 
    
    .. rubric:: Methods
    
    .. automethod:: BackendTiming.delay_time
-   .. automethod:: BackendTiming.pulse_time
    .. automethod:: BackendTiming.round_delay
-   .. automethod:: BackendTiming.round_pulse
 
    

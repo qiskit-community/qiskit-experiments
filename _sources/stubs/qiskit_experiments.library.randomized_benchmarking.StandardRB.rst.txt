@@ -36,7 +36,6 @@ StandardRB
    .. automethod:: StandardRB.circuits
    .. automethod:: StandardRB.config
    .. automethod:: StandardRB.copy
-   .. automethod:: StandardRB.enable_restless
    .. automethod:: StandardRB.from_config
    .. automethod:: StandardRB.job_info
    .. automethod:: StandardRB.run

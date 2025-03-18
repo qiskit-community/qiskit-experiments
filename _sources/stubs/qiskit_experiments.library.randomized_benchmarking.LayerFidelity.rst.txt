@@ -37,7 +37,6 @@ LayerFidelity
    .. automethod:: LayerFidelity.circuits_generator
    .. automethod:: LayerFidelity.config
    .. automethod:: LayerFidelity.copy
-   .. automethod:: LayerFidelity.enable_restless
    .. automethod:: LayerFidelity.from_config
    .. automethod:: LayerFidelity.job_info
    .. automethod:: LayerFidelity.run

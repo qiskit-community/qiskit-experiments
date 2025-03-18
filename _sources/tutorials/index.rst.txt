@@ -24,7 +24,6 @@ Exploring Modules
 .. toctree::
     :maxdepth: 1
 
-    calibrations
     data_processor
     curve_analysis
     visualization

@@ -36,7 +36,6 @@ RamseyXY
    .. automethod:: RamseyXY.circuits
    .. automethod:: RamseyXY.config
    .. automethod:: RamseyXY.copy
-   .. automethod:: RamseyXY.enable_restless
    .. automethod:: RamseyXY.from_config
    .. automethod:: RamseyXY.job_info
    .. automethod:: RamseyXY.run
