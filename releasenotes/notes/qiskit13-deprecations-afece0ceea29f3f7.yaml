@@ -1,6 +1,0 @@
----
-upgrade:
-  - |
-    Minor adjustments were made to Qiskit Experiments internals to avoid
-    deprecation warnings when using Qiskit 1.3. See `#1482
-    <https://github.com/qiskit-community/qiskit-experiments/pull/1482>`__.

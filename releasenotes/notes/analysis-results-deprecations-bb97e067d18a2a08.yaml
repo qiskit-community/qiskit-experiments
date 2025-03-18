@@ -20,7 +20,7 @@ upgrade:
     with upgrading those pending deprecations to full deprecations.
   - |
     :class:`.RBAnalysis` has been updated so that it accepts for the
-    ``epg_1_qubit`` option the from of analysis results returned by
+    ``epg_1_qubit`` option the form of analysis results returned by
     :meth:`.ExperimentData.analysis_results` when passing ``dataframe=True``.
 deprecations:
   - |
@@ -41,3 +41,22 @@ deprecations:
     future release could change the default to ``True``.  Because this is a
     major change to the interface, it is not planned that the default will
     change in the next three months (the shortest allowed deprecation cycle).
+
+    A previously common pattern was to retrieve a single result by name from an
+    :class:`.ExperimentData` object ``expdata`` like:
+
+    .. code-block:: python
+
+       result = expdata.analysis_results("T1")
+       print(f"T1 is {result.value}")
+
+    which makes use of implicit returning the result directly instead of a list
+    when there is only one match. With ``dataframe=True``, the dataframe is not
+    implicitly truncated so the first match must be selected.
+    :attr:`pandas.DataFrame.iloc` can be used to select the first match. The
+    following block is equivalent to the previous example:
+
+    .. code-block:: python
+
+       result = expdata.analysis_results("T1", dataframe=True)
+       print(f"T1 is {result.iloc[0].value}")

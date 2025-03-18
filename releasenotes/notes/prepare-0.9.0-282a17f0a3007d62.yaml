@@ -1,0 +1,11 @@
+---
+prelude: >
+  The Qiskit Experiments 0.9.0 release primarily provides compatibility
+  with version 2.0 of the [Qiskit SDK](https://www.ibm.com/quantum/qiskit). A
+  major change is the removal the previously deprecated support for pulse
+  experiments and calibration due to the removal of Qiskit Pulse in Qiskit 2.0.
+  Some other smaller changes were also needed to adapt to Qiskit 2.0 as
+  described below. Additionally, previously deprecated code related curve
+  fitting and restless measurements was removed. Some additional code paths
+  have been marked as deprecated, particularly relating to
+  :meth:`.ExperimentData.analysis_results` as described below.

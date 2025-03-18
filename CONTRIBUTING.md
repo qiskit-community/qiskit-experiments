@@ -324,7 +324,7 @@ example you would write a release note with a link to issue 12345 as:
 fixes:
   - |
     Fixed a race condition in the function ``foo()``. Refer to
-    `#12345 <https://github.com/Qiskit-Community/qiskit-experiments/issues/12345>` for more
+    `#12345 <https://github.com/Qiskit-Community/qiskit-experiments/issues/12345>`__ for more
     details.
 ```
 

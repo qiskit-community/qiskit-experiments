@@ -5,6 +5,272 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.8.0
 
+.. _Release Notes_0.8.2:
+
+0.8.2
+=====
+
+.. _Release Notes_0.8.2_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prelude-0.8.2-da9fc8763bcd5d4c.yaml @ b'f0d4a782ff0775e6dc409895c955707ff8819f5f'
+
+Qiskit Experiments 0.8.2 is a minor update to 0.8.1 to fix an issue with tracking the job status of Qiskit IBM Runtime jobs.
+
+
+.. _Release Notes_0.8.2_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/fix-jobv2-status-4cf3443e2f3a16b9.yaml @ b'f0d4a782ff0775e6dc409895c955707ff8819f5f'
+
+- This release contains a single fix for :class:`~.ExperimentData` job status handling.
+
+
+.. _Release Notes_0.8.2_Experiment Data Fixes:
+
+Experiment Data Fixes
+^^^^^^^^^^^^^^^^^^^^^
+
+.. releasenotes/notes/fix-jobv2-status-4cf3443e2f3a16b9.yaml @ b'f0d4a782ff0775e6dc409895c955707ff8819f5f'
+
+- Fixed :class:`~.ExperimentData` not reporting the correct job status when
+  the job is of type :class:`~qiskit_ibm_runtime.RuntimeJobV2`. See `#1512
+  <https://github.com/qiskit-community/qiskit-experiments/pull/1512>`__.
+
+
+.. _Release Notes_0.8.2_API Changes for Experiment Authors:
+
+API Changes for Experiment Authors
+----------------------------------
+
+.. releasenotes/notes/fix-jobv2-status-4cf3443e2f3a16b9.yaml @ b'f0d4a782ff0775e6dc409895c955707ff8819f5f'
+
+- Added a function that returns the job status as :class:`qiskit.providers.jobstatus.JobStatus`:
+  :meth:`~qiskit_experiments.framework.experiment_data.get_job_status`.
+
+
+.. _Release Notes_0.8.1:
+
+0.8.1
+=====
+
+.. _Release Notes_0.8.1_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prelude-0.8.1-d98e520584b5d73e.yaml @ b'aecea7b3e6ee565feb904275fb1142d221307c01'
+
+Qiskit Experiments 0.8.1 is a minor update to 0.8.0 to improve compatibility with dependencies Qiskit and CVXPY. References to code in these dependencies were updated to avoid triggering deprecation warnings, so that the code will continue to work as new versions of Qiskit and CVXPY are released. Additional examples were added to the documentation, and some typos were corrected.
+
+
+.. _Release Notes_0.8.1_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/adopt-mitigators-d7ad0e2f3cd2fa57.yaml @ b'd2b41d69fdce990b7829f392012878c926ef41d4'
+
+- New :class:`~.LocalReadoutMitigator` and
+  :class:`~.CorrelatedReadoutMitigator` classes have been added. These
+  classes were moved directly from Qiskit which deprecated them in Qiskit
+  1.3. They provide utility methods for applying readout error mitigation and
+  integrate with the readout error mitigation experiments
+  :class:`~.LocalReadoutError` and :class:`~.CorrelatedReadoutError`.
+
+
+.. _Release Notes_0.8.1_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/adopt-mitigators-d7ad0e2f3cd2fa57.yaml @ b'd2b41d69fdce990b7829f392012878c926ef41d4'
+
+- The readout error mitigation experiments :class:`~.LocalReadoutError` and
+  :class:`~.CorrelatedReadoutError` have been updated to generate instances
+  of the new :class:`~.LocalReadoutMitigator` and
+  :class:`~.CorrelatedReadoutMitigator` classes. The experiments should
+  continue to work as before, but any code that was using, for example,
+  ``isinstance()`` to check object type would need to be updated to check
+  against the Qiskit Experiments classes instead of the old Qiskit classes.
+
+.. releasenotes/notes/qiskit13-deprecations-afece0ceea29f3f7.yaml @ b'aecea7b3e6ee565feb904275fb1142d221307c01'
+
+- Minor adjustments were made to Qiskit Experiments internals to avoid
+  deprecation warnings when using Qiskit 1.3. See `#1482
+  <https://github.com/qiskit-community/qiskit-experiments/pull/1482>`__ and
+  `#1491 <https://github.com/qiskit-community/qiskit-experiments/pull/1491>`__.
+
+
+.. _Release Notes_0.8.1_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/provider-service-types-47c262d5434047e5.yaml @ b'a0429edfeecb6292de05001aba2ad293c0067262'
+
+- Fixed  :class:`~.ExperimentData` not inferring the  credentials for the IBM
+  experiment service from a :class:`~qiskit_ibm_runtime.QiskitRuntimeService`
+  instance as it used to do for ``qiskit-ibm-provider``. Previously, the IBM
+  experiment service was set up in the :class:`~.ExperimentData` constructor,
+  but now it is done on first attempt to use the service, allowing more time
+  for the service to be set explicitly or for other attributes to be set that
+  help with inferring the credentials.
+
+.. releasenotes/notes/provider-service-types-47c262d5434047e5.yaml @ b'a0429edfeecb6292de05001aba2ad293c0067262'
+
+- Fixed a bug where :meth:`.ExperimentData.add_data` would not work when
+  passed a single :class:`qiskit.primitives.PrimitiveResult` object.
+
+
+.. _Release Notes_0.8.1_API Changes for Experiment Authors:
+
+API Changes for Experiment Authors
+----------------------------------
+
+.. releasenotes/notes/provider-service-types-47c262d5434047e5.yaml @ b'a0429edfeecb6292de05001aba2ad293c0067262'
+
+- Added classes
+  :class:`~qiskit_experiments.framework.BaseJob`,
+  :class:`~qiskit_experiments.framework.ExtendedJob`,
+  :class:`~qiskit_experiments.framework.Job`,
+  :class:`~qiskit_experiments.framework.BaseProvider`,
+  :class:`~qiskit_experiments.framework.IBMProvider`, and
+  :class:`~qiskit_experiments.framework.Provider` to document the interfaces
+  needed by :class:`~.ExperimentData` to work with jobs and results.
+
+
+.. _Release Notes_0.8.1_Other Notes:
+
+Other Notes
+-----------
+
+.. releasenotes/notes/add-examples-to-experiments-api-docs-31f3e3c3369a6f3d.yaml @ b'1bb808910166276e9e857fe9ec862d500efae8c9'
+
+- Added minimal working code examples to the API pages for the experiments,
+  :class:`~.EFSpectroscopy`,
+  :class:`~.EFRabi`,
+  :class:`~.FineAmplitudeCal`,
+  :class:`~.FineXAmplitudeCal`,
+  :class:`~.FineSXAmplitudeCal`,
+  :class:`~.FineDragCal`,
+  :class:`~.FineXDragCal`,
+  :class:`~.FineSXDragCal`,
+  :class:`~.FineFrequencyCal`,
+  :class:`~.FrequencyCal`,
+  :class:`~.HalfAngleCal`,
+  :class:`~.RoughAmplitudeCal`,
+  :class:`~.RoughXSXAmplitudeCal`,
+  :class:`~.EFRoughXSXAmplitudeCal`,
+  :class:`~.RoughDragCal`,
+  :class:`~.RoughFrequencyCal`,
+  :class:`~.QuantumVolume`,
+  :class:`~.InterleavedRB`,
+  :class:`~.LayerFidelity`,
+  :class:`~.StandardRB`,
+  :class:`~.MitigatedProcessTomography`,
+  :class:`~.MitigatedStateTomography`,
+  :class:`~.ProcessTomography` and
+  :class:`~.StateTomography`.
+  The backends used in the code examples are simulators 
+  such as, ``SingleTransmonTestBackend()`` and
+  ``AerSimulator(FakePerth())``.
+
+
+.. _Release Notes_0.8.0:
+
+0.8.0
+=====
+
+.. _Release Notes_0.8.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/0.8/primitives_add-1a3bcbb2f189d18e.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+In this release we added support for the Qiskit primitives. Qiskit Experiments will execute circuits using :class:`qiskit_ibm_runtime.SamplerV2` by default. 
+
+
+.. _Release Notes_0.8.0_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/0.8/primitives_add-1a3bcbb2f189d18e.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- When only a ``backend`` is set on an experiment, :meth:`qiskit_experiments.framework.BaseExperiment.run`
+  now defaults to wrapping the ``backend`` in a :class:`qiskit_ibm_runtime.SamplerV2` and
+  using that to execute the circuits. A new ``sampler`` argument is also
+  accepted by ``run()`` to allow for a custom :class:`qiskit.primitives.BaseSamplerV2`
+  instance to be used for circuit execution. ``run()`` also accepts a ``backend_run``
+  option which will cause the old ``backend.run`` path to be used for circuit execution.
+  However, the ``backend.run()`` method is scheduled to be removed from
+  qiskit-ibm-runtime in the near future.  
+
+
+.. _Release Notes_0.8.0_Deprecation Notes:
+
+Deprecation Notes
+-----------------
+
+.. releasenotes/notes/0.8/deprecate-pulse-2a13fc783985ac27.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- Experiments involving pulse gate calibrations have been deprecated, due to
+  the upcoming `deprecation of Qiskit Pulse in Qiskit 2.0
+  <https://github.com/Qiskit/qiskit/issues/13063>`_. These experiments
+  include ``QubitSpectroscopy``, ``EFSpectroscopy``, ``Rabi``, ``EFRabi``,
+  ``ResonatorSpectroscopy``, ``RoughDrag``, ``StarkRamseyXY``,
+  ``StarkRamseyXYAmpScan``, ``StarkP1Spectroscopy``,
+  ``CrossResonanceHamiltonian``, ``EchoedCrossResonanceHamiltonian``,
+  ``RoughFrequencyCal``, ``RoughEFFrequencyCal``, ``FrequencyCal``,
+  ``FineFrequencyCal``, ``RoughDragCal``, ``FineXDragCal``,
+  ``FineSXDragCal``, ``FineDragCal``, ``FineAmplitudeCal``,
+  ``FineXAmplitudeCal``, ``FineSXAmplitudeCal``, ``HalfAngleCal``,
+  ``RoughAmplitudeCal``, ``RoughXSXAmplitudeCal``, and
+  ``EFRoughXSXAmplitudeCal``.
+
+.. releasenotes/notes/0.8/deprecate-pulse-2a13fc783985ac27.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- Also due to the deprecation of Qiskit Pulse, support for providing pulse
+  gate calibrations to excite higher levels has been deprecated from
+  :class:`.MultiStateDiscrimination`.
+
+.. releasenotes/notes/0.8/deprecate-pulse-2a13fc783985ac27.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- The ``Calibrations`` class and all of Qiskit Experiments' calibration
+  support is deprecated. The calibrations features were based on adjusting
+  parameters of pulses used in gates. With the deprecation of Qiskit Pulse,
+  these features are now also deprecated.
+
+.. releasenotes/notes/0.8/deprecate-pulse-2a13fc783985ac27.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- Support for running experiments in restless mode using the
+  ``RestlessMixin`` is deprecated. With improvements in the reliability of
+  IBM Quantum's qubit initialization, circuit exectuion has already become
+  reasonably fast and restless measurements do not add much performance
+  improvement. It is expected that the restless features are little used as
+  there has been no recent user feedback about them.
+
+
+.. _Release Notes_0.8.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/0.8/fixes_qiskit_1_2-6d60334235081088.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
+
+- Qiskit Experiments was updated to be compatible with Qiskit 1.2, 
+  including removing references to ``QuantumCircuit._parameter_table``
+  which prevented randomized benchmarking and layer fidelity 
+  experiments from running.
+
+
+
 .. _Release Notes_0.7.0:
 
 0.7.0
@@ -3492,5 +3758,4 @@ API Changes for Experiment Authors
   :class:`qiskit_experiments.curve_analysis.SeriesDef` dataclass. This field
   stores the string representation of the fit model of the curve and will be
   stored in the experiments analysis result extra field.
-
 
