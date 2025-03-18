@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentStatus" href="qiskit_experiments.framework.ExperimentStatus.html" /><link rel="prev" title="Experiment Framework (qiskit_experiments.framework)" href="../apidocs/framework.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ExperimentData - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>ExperimentData - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -896,11 +896,46 @@ keyword arguments passed to this method.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_analysis_result">
+<span class="sig-name descname"><span class="pre">add_analysis_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_result" title="Link to this definition">¶</a></dt>
+<dd><p>Save the analysis result.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is wrapper around
+<a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a> which could originally
+accept multiple analysis results in a list. The supported mode
+going forward is to call this method with only a single result at a
+time.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the result entry.</p></li>
+<li><p><strong>value</strong> (<em>Any</em><em> | </em><em>None</em>) – Analyzed quantity.</p></li>
+<li><p><strong>quality</strong> (<em>str</em><em> | </em><em>None</em>) – Quality of the data.</p></li>
+<li><p><strong>components</strong> (<em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em>] </em><em>| </em><em>None</em>) – Associated device components.</p></li>
+<li><p><strong>experiment</strong> (<em>str</em><em> | </em><em>None</em>) – String identifier of the associated experiment.</p></li>
+<li><p><strong>experiment_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the associated experiment.</p></li>
+<li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of this analysis entry. If not set a random UUID is generated.</p></li>
+<li><p><strong>tags</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of arbitrary tags.</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em> | </em><em>None</em>) – Name of associated backend.</p></li>
+<li><p><strong>run_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when the experiment started to run on the device.</p></li>
+<li><p><strong>created_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when this analysis is performed.</p></li>
+<li><p><strong>extra_values</strong> – Arbitrary keyword arguments for supplementary information.
+New dataframe columns are created in the analysis result table with added keys.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.add_analysis_results">
 <span class="sig-name descname"><span class="pre">add_analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.add_analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="Link to this definition">¶</a></dt>
 <dd><p>Save the analysis result.</p>
 <div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.6_pending: </span><code class="docutils literal notranslate"><span class="pre">qiskit_experiments.framework.experiment_data.ExperimentData.add_analysis_results()</span></code>’s argument <code class="docutils literal notranslate"><span class="pre">results</span></code> is pending deprecation as of qiskit-experiments 0.6. It will be marked deprecated in a future release, and then removed no earlier than 3 months after the release date. Use keyword arguments rather than creating an AnalysisResult object.</p>
+<p><span class="versionmodified deprecated">Deprecated since version 0.9.0: </span>Passing a value for the <code class="docutils literal notranslate"><span class="pre">results</span></code> argument is deprecated and support
+will be removed in a future release. Instead, analysis results should
+be created by passing in the individual keyword argument fields.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1052,11 +1087,18 @@ kwarg of <a class="reference internal" href="#qiskit_experiments.framework.Exper
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.analysis_results">
 <span class="sig-name descname"><span class="pre">analysis_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.analysis_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.analysis_results" title="Link to this definition">¶</a></dt>
 <dd><p>Return analysis results associated with this experiment.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>Retrieving analysis results by a numerical index, whether an integer or a slice,
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.6.0: </span>Retrieving analysis results by a numerical index, whether an integer or a slice,
 is deprecated as of 0.6 and will be removed in a future release. Use the name
 or ID of the result instead.</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.9.0: </span>Not setting the <code class="docutils literal notranslate"><span class="pre">dataframe</span></code> argument to <code class="docutils literal notranslate"><span class="pre">True</span></code> when calling
+this method is deprecated. Currently, not doing results in the old
+path of returning <a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.AnalysisResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResult</span></code></a> objects but future
+releases might change the default to behave as though <code class="docutils literal notranslate"><span class="pre">dataframe</span></code>
+had been passed as <code class="docutils literal notranslate"><span class="pre">True</span></code> and remove support for setting
+<code class="docutils literal notranslate"><span class="pre">dataframe</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </div>
 <p>When this method is called with <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code> you will receive
 matched result entries with the <code class="docutils literal notranslate"><span class="pre">index</span></code> condition in the dataframe format.
@@ -1087,9 +1129,6 @@ f62042a7  res1       MyExp    [Q2, Q3]      2     good    test1  2024-02-06 13:4
 </pre></div>
 </div>
 <p>See the pandas <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">DataFrame</a> documentation for the tips about data handling.</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 0.6_pending: </span>Setting <code class="docutils literal notranslate"><span class="pre">dataframe</span></code> to False in analysis_results is pending deprecation as of qiskit-experiments 0.6. It will be marked deprecated in a future release, and then removed no earlier than 3 months after the release date.</p>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1715,6 +1754,7 @@ remaining jobs.</p>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.tags"><code class="docutils literal notranslate"><span class="pre">ExperimentData.tags</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.updated_datetime"><code class="docutils literal notranslate"><span class="pre">ExperimentData.updated_datetime</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_callback"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_callback()</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_result"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_result()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_artifacts"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.add_child_data"><code class="docutils literal notranslate"><span class="pre">ExperimentData.add_child_data()</span></code></a></li>
@@ -1761,7 +1801,7 @@ remaining jobs.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="../_static/documentation_options.js?v=6109d99e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

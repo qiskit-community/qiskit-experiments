@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T1 Characterization" href="../characterization/t1.html" /><link rel="prev" title="Randomized Benchmarking" href="randomized_benchmarking.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Quantum State Tomography - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>Quantum State Tomography - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -590,44 +590,100 @@ to describe the preparation circuit.</p>
 <span class="n">qstdata1</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="c1"># Print results</span>
-<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.47412109+0.j        , -0.00472005-0.00309245j,
-                 0.00667318+0.0078125j , -0.00244141-0.43994141j],
-               [-0.00472005+0.00309245j,  0.03271484+0.j        ,
-                -0.00732422-0.01025391j, -0.00309245-0.01269531j],
-               [ 0.00667318-0.0078125j , -0.00732422+0.01025391j,
-                 0.02001953+0.j        ,  0.0069987 -0.00992839j],
-               [-0.00244141+0.43994141j, -0.00309245+0.01269531j,
-                 0.0069987 +0.00992839j,  0.47314453+0.j        ]],
-              dims=(2, 2))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9135742187499998
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
-- verified: False
-</pre></div>
-</div>
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>trace</th>
+      <th>eigvals</th>
+      <th>raw_eigvals</th>
+      <th>rescaled_psd</th>
+      <th>fitter_metadata</th>
+      <th>conditional_probability</th>
+      <th>positive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>47e746da</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q0, Q1]</td>
+      <td>DensityMatrix([[ 0.47981771+0.j        ,  0.00...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9012593345887753, 0.046991339692706385, 0.0...</td>
+      <td>[0.9012593345887753, 0.046991339692706385, 0.0...</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>78a469fa</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q0, Q1]</td>
+      <td>0.900391</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1be3cb34</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q0, Q1]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 <section id="tomography-results">
 <h2>Tomography Results<a class="headerlink" href="#tomography-results" title="Link to this heading">¶</a></h2>
@@ -635,20 +691,20 @@ AnalysisResult
 <code class="docutils literal notranslate"><span class="pre">DensityMatrix</span></code> object:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">state_result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.47412109+0.j        , -0.00472005-0.00309245j,
-                 0.00667318+0.0078125j , -0.00244141-0.43994141j],
-               [-0.00472005+0.00309245j,  0.03271484+0.j        ,
-                -0.00732422-0.01025391j, -0.00309245-0.01269531j],
-               [ 0.00667318-0.0078125j , -0.00732422+0.01025391j,
-                 0.02001953+0.j        ,  0.0069987 -0.00992839j],
-               [-0.00244141+0.43994141j, -0.00309245+0.01269531j,
-                 0.0069987 +0.00992839j,  0.47314453+0.j        ]],
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.47981771+0.j        ,  0.00716146+0.01269531j,
+                 0.00260417+0.00374349j, -0.00097656-0.42822266j],
+               [ 0.00716146-0.01269531j,  0.03483073+0.j        ,
+                 0.00585938-0.00537109j, -0.02083333-0.00895182j],
+               [ 0.00260417-0.00374349j,  0.00585938+0.00537109j,
+                 0.02083333+0.j        ,  0.00227865+0.00097656j],
+               [-0.00097656+0.42822266j, -0.02083333+0.00895182j,
+                 0.00227865-0.00097656j,  0.46451823+0.j        ]],
               dims=(2, 2))
 </pre></div>
 </div>
@@ -658,7 +714,8 @@ AnalysisResult
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_state_city</span>
-<span class="n">plot_state_city</span><span class="p">(</span><span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Density Matrix&#39;</span><span class="p">)</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">plot_state_city</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Density Matrix&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -673,27 +730,24 @@ state cannot be automatically generated and this field will be set to
 <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fid_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state_fidelity&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fid_result</span> <span class="o">=</span> <span class="n">qstdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state_fidelity&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State Fidelity = </span><span class="si">{:.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fid_result</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.91357
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.90039
 </pre></div>
 </div>
 </div>
 </div>
 <section id="additional-state-metadata">
 <h3>Additional state metadata<a class="headerlink" href="#additional-state-metadata" title="Link to this heading">¶</a></h3>
-<p>Additional data is stored in the tomography under the
-<code class="docutils literal notranslate"><span class="pre">&quot;state_metadata&quot;</span></code> field. This includes</p>
+<p>Additional data is stored in the tomography under additional fields. This includes</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: the eigenvalues of the fitted state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trace</span></code>: the trace of the fitted state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">positive</span></code>: Whether the eigenvalues are all non-negative</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">positive_delta</span></code>: the deviation from positivity given by 1-norm of negative
-eigenvalues.</p></li>
 </ul>
 <p>If trace rescaling was performed this dictionary will also contain a <code class="docutils literal notranslate"><span class="pre">raw_trace</span></code> field
 containing the trace before rescaling. Futhermore, if the state was rescaled to be
@@ -701,21 +755,15 @@ positive or trace 1 an additional field <code class="docutils literal notranslat
 eigenvalues before rescaling was performed.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">state_result</span><span class="o">.</span><span class="n">extra</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;eigvals&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;positive&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">state_result</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.000000000000002,
- &#39;eigvals&#39;: array([0.91376993, 0.05391069, 0.0216939 , 0.01062547]),
- &#39;raw_eigvals&#39;: array([0.91376993, 0.05391069, 0.0216939 , 0.01062547]),
- &#39;rescaled_psd&#39;: False,
- &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
-  &#39;fitter_time&#39;: 0.0035147666931152344},
- &#39;conditional_probability&#39;: 1.0,
- &#39;positive&#39;: True,
- &#39;experiment&#39;: &#39;StateTomography&#39;,
- &#39;run_time&#39;: None}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>eigvals: [0.90125933 0.04699134 0.03632776 0.01542156]
+trace: 1.000000000000002
+positive: True
 </pre></div>
 </div>
 </div>
@@ -726,44 +774,37 @@ counts:</p>
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># QST Experiment</span>
 <span class="n">bad_data</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">bad_state_result</span> <span class="o">=</span> <span class="n">bad_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+<span class="n">bad_state_result</span> <span class="o">=</span> <span class="n">bad_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="c1"># Print result</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">bad_state_result</span><span class="p">)</span>
-
-<span class="c1"># Show extra data</span>
-<span class="n">bad_state_result</span><span class="o">.</span><span class="n">extra</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">bad_state_result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.40355268+0.00000000e+00j, -0.02250726-4.30627232e-02j,
-                -0.00347094+9.63198704e-03j, -0.08344708-3.96562789e-01j],
-               [-0.02250726+4.30627232e-02j,  0.00744452-4.33680869e-19j,
-                 0.01201544-5.57852402e-03j,  0.0559293 +8.45860195e-03j],
-               [-0.00347094-9.63198704e-03j,  0.01201544+5.57852402e-03j,
-                 0.11752863+0.00000000e+00j,  0.07739771-6.67144475e-03j],
-               [-0.08344708+3.96562789e-01j,  0.0559293 -8.45860195e-03j,
-                 0.07739771+6.67144475e-03j,  0.47147417+0.00000000e+00j]],
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>name: state
+experiment: StateTomography
+components: [&lt;Qubit(Q0)&gt;, &lt;Qubit(Q1)&gt;]
+value: DensityMatrix([[ 0.43627495+0.00000000e+00j,  0.03763893+1.33504116e-02j,
+                 0.08825337-9.08898221e-02j,  0.00355336-3.69746972e-01j],
+               [ 0.03763893-1.33504116e-02j,  0.05489734+1.73472348e-18j,
+                 0.03502203-2.75192079e-02j, -0.03185839+4.85832337e-02j],
+               [ 0.08825337+9.08898221e-02j,  0.03502203+2.75192079e-02j,
+                 0.06019905+0.00000000e+00j,  0.03876331-3.34822496e-02j],
+               [ 0.00355336+3.69746972e-01j, -0.03185839-4.85832337e-02j,
+                 0.03876331+3.34822496e-02j,  0.44862865-1.08420217e-19j]],
               dims=(2, 2))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
-- verified: False
-</pre></div>
-</div>
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;trace&#39;: 1.0000000000000007,
- &#39;eigvals&#39;: array([0.85441053, 0.14558947, 0.        , 0.        ]),
- &#39;raw_eigvals&#39;: array([ 0.97303884,  0.26421777, -0.05315934, -0.18409727]),
- &#39;rescaled_psd&#39;: True,
- &#39;fitter_metadata&#39;: {&#39;fitter&#39;: &#39;linear_inversion&#39;,
-  &#39;fitter_time&#39;: 0.002811431884765625},
- &#39;conditional_probability&#39;: 1.0,
- &#39;positive&#39;: True,
- &#39;experiment&#39;: &#39;StateTomography&#39;,
- &#39;run_time&#39;: None}
+quality: None
+backend: aer_simulator_from(fake_perth)
+run_time: None
+trace: 1.0000000000000002
+eigvals: [0.83387626 0.16612374 0.         0.        ]
+raw_eigvals: [ 0.92709837  0.25934585  0.0075054  -0.19394962]
+rescaled_psd: True
+fitter_metadata: {&#39;fitter&#39;: &#39;linear_inversion&#39;, &#39;fitter_time&#39;: 0.0027647018432617188}
+conditional_probability: 1.0
+positive: True
 </pre></div>
 </div>
 </div>
@@ -790,11 +831,9 @@ PSD without requiring rescaling.</p>
     <span class="c1"># Re-run experiment</span>
     <span class="n">qstdata2</span> <span class="o">=</span> <span class="n">qstexp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
-    <span class="n">state_result2</span> <span class="o">=</span> <span class="n">qstdata2</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">state_result2</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">extra:&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state_result2</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">state_result2</span> <span class="o">=</span> <span class="n">qstdata2</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state_result2</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CVXPY is not installed&quot;</span><span class="p">)</span>
@@ -802,32 +841,28 @@ PSD without requiring rescaling.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.4895816 +0.j        ,  0.01080685-0.00702295j,
-                -0.00795596-0.00059732j, -0.00427355-0.43677662j],
-               [ 0.01080685+0.00702295j,  0.02523177+0.j        ,
-                 0.01269018-0.00394965j,  0.00200621+0.0042115j ],
-               [-0.00795596+0.00059732j,  0.01269018+0.00394965j,
-                 0.03022829+0.j        , -0.00114337+0.00959809j],
-               [-0.00427355+0.43677662j,  0.00200621-0.0042115j ,
-                -0.00114337-0.00959809j,  0.45495834+0.j        ]],
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>name: state
+experiment: StateTomography
+components: [&lt;Qubit(Q0)&gt;, &lt;Qubit(Q1)&gt;]
+value: DensityMatrix([[ 4.82101900e-01+0.j        , -6.74122728e-03+0.01106304j,
+                -6.05423603e-03+0.00107617j, -3.90123249e-03-0.44330862j],
+               [-6.74122728e-03-0.01106304j,  3.62716992e-02+0.j        ,
+                 1.05930935e-03-0.00060445j,  4.15204735e-05+0.00452968j],
+               [-6.05423603e-03-0.00107617j,  1.05930935e-03+0.00060445j,
+                 2.26386525e-02+0.j        ,  1.72430206e-03-0.00478587j],
+               [-3.90123249e-03+0.44330862j,  4.15204735e-05-0.00452968j,
+                 1.72430206e-03+0.00478587j,  4.58987748e-01+0.j        ]],
               dims=(2, 2))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;, &#39;Q1&#39;]
-- verified: False
-
-extra:
-- trace: 0.9999999951067404
-- eigvals: [0.90965706 0.04777726 0.0310408  0.01152487]
-- raw_eigvals: [0.90965706 0.04777726 0.0310408  0.01152487]
-- rescaled_psd: False
-- fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.030449867248535156}
-- conditional_probability: 1.0
-- positive: True
-- experiment: StateTomography
-- run_time: None
+quality: None
+backend: aer_simulator_from(fake_perth)
+run_time: None
+trace: 1.0000000046095245
+eigvals: [0.91416682 0.04163986 0.02885394 0.01533937]
+raw_eigvals: [0.91416682 0.04163986 0.02885394 0.01533937]
+rescaled_psd: False
+fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.030229806900024414}
+conditional_probability: 1.0
+positive: True
 </pre></div>
 </div>
 </div>
@@ -852,146 +887,403 @@ run subsystem tomography on multiple qubits in parallel.</p>
 <span class="n">parexp</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">(</span><span class="n">subexps</span><span class="p">)</span>
 <span class="n">pardata</span> <span class="o">=</span> <span class="n">parexp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulation</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
-<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">pardata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">pardata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: state
-- value: DensityMatrix([[0.96582031+0.j        , 0.00097656+0.00976562j],
-               [0.00097656-0.00976562j, 0.03417969+0.j        ]],
-              dims=(2,))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9658203125000003
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.82128906+0.j        , -0.02148438+0.33984375j],
-               [-0.02148438-0.33984375j,  0.17871094+0.j        ]],
-              dims=(2,))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q1&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9674914949836847
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q1&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q1&#39;]
-- verified: False
-AnalysisResult
-- name: state
-- value: DensityMatrix([[0.50585938+0.j        , 0.00292969+0.47070312j],
-               [0.00292969-0.47070312j, 0.49414063+0.j        ]],
-              dims=(2,))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q2&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9707031250000004
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q2&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q2&#39;]
-- verified: False
-AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.15429688+0.j        , -0.01757812+0.31738281j],
-               [-0.01757812-0.31738281j,  0.84570312+0.j        ]],
-              dims=(2,))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q3&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9688725629156892
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q3&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q3&#39;]
-- verified: False
-AnalysisResult
-- name: state
-- value: DensityMatrix([[ 0.02929688+0.j        , -0.00097656+0.01464844j],
-               [-0.00097656-0.01464844j,  0.97070312+0.j        ]],
-              dims=(2,))
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q4&#39;]
-- verified: False
-AnalysisResult
-- name: state_fidelity
-- value: 0.9707031249999993
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q4&#39;]
-- verified: False
-AnalysisResult
-- name: positive
-- value: True
-- quality: unknown
-- extra: &lt;9 items&gt;
-- device_components: [&#39;Q4&#39;]
-- verified: False
-</pre></div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>trace</th>
+      <th>eigvals</th>
+      <th>raw_eigvals</th>
+      <th>rescaled_psd</th>
+      <th>fitter_metadata</th>
+      <th>conditional_probability</th>
+      <th>positive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>cc13106e</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>DensityMatrix([[0.98339844+0.j        , 0.0205...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9839751531355085, 0.016024846864492306]</td>
+      <td>[0.9839751531355085, 0.016024846864492306]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>9d933feb</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>0.983398</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>5cdfd3e1</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>404ab8e0</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q1]</td>
+      <td>DensityMatrix([[ 0.82910156+0.j        , -0.02...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9679894953795917, 0.03201050462040937]</td>
+      <td>[0.9679894953795917, 0.03201050462040937]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>e01a384c</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q1]</td>
+      <td>0.967491</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>cccfd6ab</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q1]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>d09e8070</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q2]</td>
+      <td>DensityMatrix([[0.49707031+0.j        , 0.0058...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9619605139830596, 0.03803948601694143]</td>
+      <td>[0.9619605139830596, 0.03803948601694143]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>d8c42add</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q2]</td>
+      <td>0.961914</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>8f648cc5</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q2]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>c3f869c7</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q3]</td>
+      <td>DensityMatrix([[0.13964844+0.j        , 0.0029...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9919966070166727, 0.008003392983328389]</td>
+      <td>[0.9919966070166727, 0.008003392983328389]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>79ed25c8</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q3]</td>
+      <td>0.99166</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>a0c8ea10</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q3]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>d89ce4d8</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q4]</td>
+      <td>DensityMatrix([[0.03320313+0.j        , 0.0263...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.96759093353906, 0.032409066460940876]</td>
+      <td>[0.96759093353906, 0.032409066460940876]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>936216da</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q4]</td>
+      <td>0.966797</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>60c1401a</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q4]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
-</div>
-</div>
-<p>View component experiment analysis results:</p>
+<p>View experiment analysis results for one component:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">expdata</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pardata</span><span class="o">.</span><span class="n">child_data</span><span class="p">()):</span>
-    <span class="n">state_result_i</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
-    <span class="n">fid_result_i</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state_fidelity&quot;</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">PARALLEL EXP </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State Fidelity: </span><span class="si">{:.5f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fid_result_i</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;State: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state_result_i</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">pardata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;Q0&quot;</span><span class="p">])])</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>trace</th>
+      <th>eigvals</th>
+      <th>raw_eigvals</th>
+      <th>rescaled_psd</th>
+      <th>fitter_metadata</th>
+      <th>conditional_probability</th>
+      <th>positive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>cc13106e</th>
+      <td>state</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>DensityMatrix([[0.98339844+0.j        , 0.0205...</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>1.0</td>
+      <td>[0.9839751531355085, 0.016024846864492306]</td>
+      <td>[0.9839751531355085, 0.016024846864492306]</td>
+      <td>False</td>
+      <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
+      <td>1.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>9d933feb</th>
+      <td>state_fidelity</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>0.983398</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>5cdfd3e1</th>
+      <td>positive</td>
+      <td>StateTomography</td>
+      <td>[Q0]</td>
+      <td>True</td>
+      <td>None</td>
+      <td>aer_simulator_from(fake_perth)</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 <section id="references">
@@ -1092,7 +1384,7 @@ AnalysisResult
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="../../_static/documentation_options.js?v=6109d99e"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

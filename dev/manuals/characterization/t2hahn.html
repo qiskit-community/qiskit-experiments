@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2* Ramsey Characterization" href="t2ramsey.html" /><link rel="prev" title="T1 Characterization" href="t1.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T2 Hahn Characterization - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>T2 Hahn Characterization - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -668,23 +668,56 @@ specifically for this experiment.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print results</span>
-<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: T2
-- value: (1.98+/-0.08)e-05
-- χ²: 1.1337013885164642
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-</pre></div>
-</div>
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>chisq</th>
+      <th>unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>6b3fdb58</th>
+      <td>T2</td>
+      <td>T2Hahn</td>
+      <td>[Q0]</td>
+      <td>(1.98+/-0.08)e-05</td>
+      <td>good</td>
+      <td>T2Hahn_simulator</td>
+      <td>None</td>
+      <td>1.133701</td>
+      <td>s</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 <section id="providing-initial-user-estimates">
@@ -718,23 +751,56 @@ computed for other qubits.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print results</span>
-<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>AnalysisResult
-- name: T2
-- value: (1.98+/-0.08)e-05
-- χ²: 1.1337013885177014
-- quality: good
-- extra: &lt;3 items&gt;
-- device_components: [&#39;Q0&#39;]
-- verified: False
-</pre></div>
-</div>
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>chisq</th>
+      <th>unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>25280751</th>
+      <td>T2</td>
+      <td>T2Hahn</td>
+      <td>[Q0]</td>
+      <td>(1.98+/-0.08)e-05</td>
+      <td>good</td>
+      <td>T2Hahn_simulator</td>
+      <td>None</td>
+      <td>1.133701</td>
+      <td>s</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 <section id="number-of-echoes">
@@ -939,7 +1005,7 @@ is close to the estimate of the one echo experiment.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="../../_static/documentation_options.js?v=6109d99e"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

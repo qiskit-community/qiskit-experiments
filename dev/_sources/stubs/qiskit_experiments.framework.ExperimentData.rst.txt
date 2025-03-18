@@ -111,11 +111,13 @@ ExperimentData
          
          
          
+         
 
    
    .. rubric:: Methods
    
    .. automethod:: ExperimentData.add_analysis_callback
+   .. automethod:: ExperimentData.add_analysis_result
    .. automethod:: ExperimentData.add_analysis_results
    .. automethod:: ExperimentData.add_artifacts
    .. automethod:: ExperimentData.add_child_data

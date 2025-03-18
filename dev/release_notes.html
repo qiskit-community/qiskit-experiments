@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>Release Notes - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -543,10 +543,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-8-0-27">
-<span id="id1"></span><h2>0.8.0-27<a class="headerlink" href="#relnotes-0-8-0-27" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-8-0-28">
+<span id="id1"></span><h2>0.8.0-28<a class="headerlink" href="#relnotes-0-8-0-28" title="Link to this heading">¶</a></h2>
 <section id="new-features">
-<span id="relnotes-0-8-0-27-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>New <a class="reference internal" href="stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html#qiskit_experiments.data_processing.LocalReadoutMitigator" title="qiskit_experiments.data_processing.LocalReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutMitigator</span></code></a> and
 <a class="reference internal" href="stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator" title="qiskit_experiments.data_processing.CorrelatedReadoutMitigator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutMitigator</span></code></a> classes have been added. These
@@ -570,7 +570,7 @@ inadvertently used for these purposes but they were removed in Qiskit
 </ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-8-0-27-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The readout error mitigation experiments <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.LocalReadoutError.html#qiskit_experiments.library.characterization.LocalReadoutError" title="qiskit_experiments.library.characterization.LocalReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalReadoutError</span></code></a> and
 <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html#qiskit_experiments.library.characterization.CorrelatedReadoutError" title="qiskit_experiments.library.characterization.CorrelatedReadoutError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelatedReadoutError</span></code></a> have been updated to generate instances
@@ -579,6 +579,31 @@ of the new <a class="reference internal" href="stubs/qiskit_experiments.data_pro
 continue to work as before, but any code that was using, for example,
 <code class="docutils literal notranslate"><span class="pre">isinstance()</span></code> to check object type would need to be updated to check
 against the Qiskit Experiments classes instead of the old Qiskit classes.</p></li>
+</ul>
+<ul class="simple">
+<li><p>To aid with the deprecation of the <code class="docutils literal notranslate"><span class="pre">results</span></code> argument to
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a> (see Deprecation Notes),
+<a class="reference internal" href="stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData.as_table_element" title="qiskit_experiments.framework.AnalysisResultData.as_table_element"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AnalysisResultData.as_table_element()</span></code></a> was added to
+<a class="reference internal" href="stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a>. The new method allows for a result to be
+passed directly to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a> through
+Python dictionary unpacking like
+<code class="docutils literal notranslate"><span class="pre">expdata.add_analysis_result(**result.as_table_element())</span></code>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>The way that warnings about deprecated arguments are issued has been
+updated to be more reliable. Previously, warnings would not be issued for
+deprecated arguments that were left with their default values or that were
+used in internal calls by other functions in the package. The result of the
+old behavior was mainly that arguments to
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a> and
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a> that should have previously been
+issuing pending deprecation warnings did not. This release still proceeds
+with upgrading those pending deprecations to full deprecations.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html#qiskit_experiments.library.randomized_benchmarking.RBAnalysis" title="qiskit_experiments.library.randomized_benchmarking.RBAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBAnalysis</span></code></a> has been updated so that it accepts for the
+<code class="docutils literal notranslate"><span class="pre">epg_1_qubit</span></code> option the from of analysis results returned by
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a> when passing <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code>.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Minor adjustments were made to Qiskit Experiments internals to avoid
@@ -659,7 +684,27 @@ retrieve the <code class="docutils literal notranslate"><span class="pre">fit_pa
 </ul>
 </section>
 <section id="deprecation-notes">
-<span id="relnotes-0-8-0-27-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">results</span></code> argument to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a>,
+which had previously been marked as pending deprecation, has now been
+marked as deprecated. The preferred form going forward is to create
+analysis results by passing individual properties directly as keyword
+arguments to the method rather than creating separate analysis result
+objects and passing them to the method. To reflect the fact that a single
+result is added per call in this way, the method
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_result" title="qiskit_experiments.framework.ExperimentData.add_analysis_result"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_result()</span></code></a> has been added as an
+alternative to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Passing <code class="docutils literal notranslate"><span class="pre">False</span></code> to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a> for the
+<code class="docutils literal notranslate"><span class="pre">dataframe</span></code> argument has been deprecated. Previously, passing
+<code class="docutils literal notranslate"><span class="pre">False</span></code> had been marked as pending deprecation. To preserve backwards
+compatibility, the default value of <code class="docutils literal notranslate"><span class="pre">dataframe</span></code> remains <code class="docutils literal notranslate"><span class="pre">False</span></code> but a
+future release could change the default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.  Because this is a
+major change to the interface, it is not planned that the default will
+change in the next three months (the shortest allowed deprecation cycle).</p></li>
+</ul>
 <ul class="simple">
 <li><p>Curve analysis utility functions
 <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.utils.filter_data.html#qiskit_experiments.curve_analysis.utils.filter_data" title="qiskit_experiments.curve_analysis.utils.filter_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis.utils.filter_data()</span></code></a>,
@@ -697,7 +742,7 @@ package.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
-<span id="relnotes-0-8-0-27-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed  <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> not inferring the  credentials for the IBM
 experiment service from a <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit-runtime-service" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a>
@@ -740,7 +785,7 @@ to over a minute in the standard 100 circuit experiment. This overhead was
 reduced by processing all the circuits in one pass.</p></li>
 </ul>
 <section id="experiment-data-fixes">
-<span id="relnotes-0-8-0-27-experiment-data-fixes"></span><h4>Experiment Data Fixes<a class="headerlink" href="#experiment-data-fixes" title="Link to this heading">¶</a></h4>
+<span id="relnotes-0-8-0-28-experiment-data-fixes"></span><h4>Experiment Data Fixes<a class="headerlink" href="#experiment-data-fixes" title="Link to this heading">¶</a></h4>
 <ul class="simple">
 <li><p>Fixed <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> not reporting the correct job status when
 the job is of type <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/runtime-job-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeJobV2</span></code></a>.</p></li>
@@ -748,7 +793,7 @@ the job is of type <a class="reference external" href="https://docs.quantum.ibm.
 </section>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-8-0-27-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added a function that returns the job status as <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a>:
 <code class="xref py py-func docutils literal notranslate"><span class="pre">get_job_status()</span></code>.</p></li>
@@ -773,7 +818,7 @@ continue working the same way).</p></li>
 </ul>
 </section>
 <section id="other-notes">
-<span id="relnotes-0-8-0-27-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-8-0-28-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Added minimal working code examples to the API pages for the experiments,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">EFSpectroscopy</span></code>,
@@ -2846,7 +2891,7 @@ error for your fit values.</p></li>
 <li><p>The data format of analysis result data value has been replaced from
 <code class="xref py py-class docutils literal notranslate"><span class="pre">FitVal</span></code> to <code class="docutils literal notranslate"><span class="pre">uncertainties.ufloat</span></code> from the Python
 <a class="reference external" href="https://pythonhosted.org/uncertainties/">uncertainties</a> package to support
-error propatation for post analysis computation.</p>
+error propagation for post analysis computation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">expdata</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 <span class="n">fit_t1</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
@@ -3756,7 +3801,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-8-0-27">0.8.0-27</a><ul>
+<li><a class="reference internal" href="#relnotes-0-8-0-28">0.8.0-28</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
 <li><a class="reference internal" href="#deprecation-notes">Deprecation Notes</a></li>
@@ -3905,7 +3950,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="_static/documentation_options.js?v=6109d99e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

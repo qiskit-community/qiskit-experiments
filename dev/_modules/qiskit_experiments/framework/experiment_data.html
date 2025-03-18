@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>qiskit_experiments.framework.experiment_data - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -592,7 +592,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentStatus</span><span class="p">,</span> <span class="n">AnalysisStatus</span><span class="p">,</span> <span class="n">AnalysisCallback</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecate_arg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn_from_qe</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.package_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">qiskit_version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ExperimentDataError</span><span class="p">,</span>
@@ -1998,15 +1998,66 @@
         <span class="k">return</span> <span class="n">figure_data</span></div>
 
 
+<div class="viewcode-block" id="ExperimentData.add_analysis_result">
+<a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_analysis_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">quality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">DeviceComponent</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">result_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">created_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">extra_values</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the analysis result.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method is wrapper around</span>
+<span class="sd">            :meth:`.ExperimentData.add_analysis_results` which could originally</span>
+<span class="sd">            accept multiple analysis results in a list. The supported mode</span>
+<span class="sd">            going forward is to call this method with only a single result at a</span>
+<span class="sd">            time.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the result entry.</span>
+<span class="sd">            value: Analyzed quantity.</span>
+<span class="sd">            quality: Quality of the data.</span>
+<span class="sd">            components: Associated device components.</span>
+<span class="sd">            experiment: String identifier of the associated experiment.</span>
+<span class="sd">            experiment_id: ID of the associated experiment.</span>
+<span class="sd">            result_id: ID of this analysis entry. If not set a random UUID is generated.</span>
+<span class="sd">            tags: List of arbitrary tags.</span>
+<span class="sd">            backend: Name of associated backend.</span>
+<span class="sd">            run_time: The date time when the experiment started to run on the device.</span>
+<span class="sd">            created_time: The date time when this analysis is performed.</span>
+<span class="sd">            extra_values: Arbitrary keyword arguments for supplementary information.</span>
+<span class="sd">                New dataframe columns are created in the analysis result table with added keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_analysis_results</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+            <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
+            <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
+            <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
+            <span class="n">result_id</span><span class="o">=</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+            <span class="n">run_time</span><span class="o">=</span><span class="n">run_time</span><span class="p">,</span>
+            <span class="n">created_time</span><span class="o">=</span><span class="n">created_time</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">extra_values</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ExperimentData.add_analysis_results">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results">[docs]</a>
-    <span class="nd">@deprecate_arg</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">,</span>
-        <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
-        <span class="n">additional_msg</span><span class="o">=</span><span class="s2">&quot;Use keyword arguments rather than creating an AnalysisResult object.&quot;</span><span class="p">,</span>
-        <span class="n">package_name</span><span class="o">=</span><span class="s2">&quot;qiskit-experiments&quot;</span><span class="p">,</span>
-        <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
     <span class="nd">@do_auto_save</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2027,6 +2078,12 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the analysis result.</span>
 
+<span class="sd">        .. deprecated:: 0.9.0</span>
+
+<span class="sd">          Passing a value for the ``results`` argument is deprecated and support</span>
+<span class="sd">          will be removed in a future release. Instead, analysis results should</span>
+<span class="sd">          be created by passing in the individual keyword argument fields.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            results: Analysis results to be saved.</span>
 <span class="sd">            name: Name of the result entry.</span>
@@ -2044,7 +2101,18 @@
 <span class="sd">                New dataframe columns are created in the analysis result table with added keys.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># TODO deprecate this path</span>
+            <span class="c1"># NOTE: this path is deprecated</span>
+            <span class="n">warn_from_qe</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;Calling ExperimentData.add_analysis_results() with a &quot;</span>
+                    <span class="s2">&quot;`results` argument is deprecated as of qiskit-experiments &quot;</span>
+                    <span class="s2">&quot;0.9.0. Code should be updated to pass the keyword &quot;</span>
+                    <span class="s2">&quot;arguments of `add_analysis_results` &quot;</span>
+                    <span class="s2">&quot;directly for each result. The `results` argument will be &quot;</span>
+                    <span class="s2">&quot;removed in a future release.&quot;</span>
+                <span class="p">),</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">results</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -2084,7 +2152,7 @@
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
-                <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
+                <span class="n">components</span><span class="o">=</span><span class="n">components</span> <span class="ow">or</span> <span class="p">[],</span>
                 <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
                 <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
                 <span class="n">tags</span><span class="o">=</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">[],</span>
@@ -2167,14 +2235,6 @@
 
 <div class="viewcode-block" id="ExperimentData.analysis_results">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results">[docs]</a>
-    <span class="nd">@deprecate_arg</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
-        <span class="n">deprecation_description</span><span class="o">=</span><span class="s2">&quot;Setting ``dataframe`` to False in analysis_results&quot;</span><span class="p">,</span>
-        <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.6&quot;</span><span class="p">,</span>
-        <span class="n">package_name</span><span class="o">=</span><span class="s2">&quot;qiskit-experiments&quot;</span><span class="p">,</span>
-        <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">predicate</span><span class="o">=</span><span class="k">lambda</span> <span class="n">dataframe</span><span class="p">:</span> <span class="ow">not</span> <span class="n">dataframe</span><span class="p">,</span>
-    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2186,10 +2246,18 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisResult</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return analysis results associated with this experiment.</span>
 
-<span class="sd">        .. caution::</span>
+<span class="sd">        .. deprecated:: 0.6.0</span>
 <span class="sd">            Retrieving analysis results by a numerical index, whether an integer or a slice,</span>
 <span class="sd">            is deprecated as of 0.6 and will be removed in a future release. Use the name</span>
 <span class="sd">            or ID of the result instead.</span>
+
+<span class="sd">        .. deprecated:: 0.9.0</span>
+<span class="sd">            Not setting the ``dataframe`` argument to ``True`` when calling</span>
+<span class="sd">            this method is deprecated. Currently, not doing results in the old</span>
+<span class="sd">            path of returning :class:`.AnalysisResult` objects but future</span>
+<span class="sd">            releases might change the default to behave as though ``dataframe``</span>
+<span class="sd">            had been passed as ``True`` and remove support for setting</span>
+<span class="sd">            ``dataframe`` to ``False``.</span>
 
 <span class="sd">        When this method is called with ``dataframe=True`` you will receive</span>
 <span class="sd">        matched result entries with the ``index`` condition in the dataframe format.</span>
@@ -2264,6 +2332,16 @@
         <span class="k">if</span> <span class="n">dataframe</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
+        <span class="n">warn_from_qe</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;Leaving `dataframe` unset or setting it to `False` for &quot;</span>
+                <span class="s2">&quot;`ExperimentData.analysis_results` is deprecated as of &quot;</span>
+                <span class="s2">&quot;qiskit-experiments 0.9.0. Future releases may change the &quot;</span>
+                <span class="s2">&quot;default to `True` and remove the option to set the value to &quot;</span>
+                <span class="s2">&quot;`False`.&quot;</span>
+            <span class="p">),</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># Convert back into List[AnalysisResult] which is payload for IBM experiment service.</span>
         <span class="c1"># This will be removed in future version.</span>
         <span class="n">tmp_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_results</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
@@ -2277,7 +2355,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">)):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="n">warn_from_qe</span><span class="p">(</span>
                 <span class="s2">&quot;Accessing analysis results via a numerical index is deprecated and will be &quot;</span>
                 <span class="s2">&quot;removed in a future release. Use the ID or name of the analysis result &quot;</span>
                 <span class="s2">&quot;instead.&quot;</span><span class="p">,</span>
@@ -3584,7 +3662,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="../../../_static/documentation_options.js?v=6109d99e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

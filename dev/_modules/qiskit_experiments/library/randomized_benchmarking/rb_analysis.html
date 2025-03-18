@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.8.0-27-g346706977</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.8.0-28-ga9e2422d4</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-27-g346706977</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.8.0-28-ga9e2422d4</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-27-g346706977</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-28-ga9e2422d4</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -548,6 +548,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrame</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">qiskit_experiments.curve_analysis</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">curve</span>
@@ -624,9 +625,10 @@
 <span class="sd">                The default value will use standard gate error ratios.</span>
 <span class="sd">                If you don&#39;t know accurate error ratio between your basis gates,</span>
 <span class="sd">                you can skip analysis of EPGs by setting this options to ``None``.</span>
-<span class="sd">            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments</span>
-<span class="sd">                for individual single qubit gates. If this is provided, EPC of</span>
-<span class="sd">                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.</span>
+<span class="sd">            epg_1_qubit (Union[List[AnalysisResult], DataFrame]): Analysis</span>
+<span class="sd">                results from previous RB experiments for individual single</span>
+<span class="sd">                qubit gates. If this is provided, EPC of 2Q RB is corrected to</span>
+<span class="sd">                exclude the depolarization of underlying 1Q channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
@@ -707,7 +709,7 @@
         <span class="p">)</span>
 
         <span class="c1"># Correction for 1Q depolarizing channel if EPGs are provided</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">epg_1_qubit</span> <span class="ow">and</span> <span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">epg_1_qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">epc</span> <span class="o">=</span> <span class="n">_exclude_1q_error</span><span class="p">(</span>
                 <span class="n">epc</span><span class="o">=</span><span class="n">epc</span><span class="p">,</span>
                 <span class="n">qubits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">,</span>
@@ -914,7 +916,7 @@
     <span class="n">epc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">],</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">gate_counts_per_clifford</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">QubitGateTuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-    <span class="n">extra_analyses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">]],</span>
+    <span class="n">extra_analyses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">],</span> <span class="n">DataFrame</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper method to exclude contribution of single qubit gates from 2Q EPC.</span>
 
@@ -929,14 +931,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract EPC of non-measured qubits from previous experiments</span>
     <span class="n">epg_1qs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Convert to list of results to handle legacy AnalysisResult case with same</span>
+    <span class="c1"># code</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_analyses</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">extra_analyses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra_analyses</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="kc">False</span>
+
     <span class="k">for</span> <span class="n">analysis_data</span> <span class="ow">in</span> <span class="n">extra_analyses</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dataframe</span><span class="p">:</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">components</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">device_components</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;EPG_&quot;</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">analysis_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">analysis_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">qind</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">qind</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
         <span class="n">gate</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
         <span class="n">formatted_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">qind</span><span class="p">,),</span> <span class="n">gate</span>
         <span class="n">epg_1qs</span><span class="p">[</span><span class="n">formatted_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">value</span>
@@ -990,7 +1004,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=44d108fd"></script>
+</div><script src="../../../../_static/documentation_options.js?v=6109d99e"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>

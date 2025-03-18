@@ -66,21 +66,20 @@ Run the experiment and print results:
 .. jupyter-execute::
 
     expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
-    result = expdata.analysis_results("T_phi")
-    print(result)
+    display(expdata.analysis_results("T_phi", dataframe=True))
 
 You can also retrieve the results and figures of the constituent experiments. :class:`.T1`:
 
 .. jupyter-execute::
 
-    print(expdata.analysis_results("T1"))
+    display(expdata.analysis_results("T1", dataframe=True))
     display(expdata.figure(0))
 
 And :class:`.T2Hahn`:
 
 .. jupyter-execute::
 
-    print(expdata.analysis_results("T2"))
+    display(expdata.analysis_results("T2", dataframe=True))
     display(expdata.figure(1))
 
 Let's now run the experiment with :class:`.T2Ramsey` by setting the ``t2type`` option to
@@ -102,7 +101,7 @@ Run and display results:
 .. jupyter-execute::
 
     expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
-    print(expdata.analysis_results("T_phi"))
+    display(expdata.analysis_results("T_phi", dataframe=True))
     display(expdata.figure(1))
 
 Because we are using a simulator that doesn't model inhomogeneous broadening, the

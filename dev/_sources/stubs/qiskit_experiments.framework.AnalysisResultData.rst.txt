@@ -32,10 +32,12 @@ AnalysisResultData
    
    
          
+         
 
    
    .. rubric:: Methods
    
+   .. automethod:: AnalysisResultData.as_table_element
    .. automethod:: AnalysisResultData.from_table_element
 
    
