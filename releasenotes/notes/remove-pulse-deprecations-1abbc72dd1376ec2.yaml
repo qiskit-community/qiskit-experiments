@@ -50,7 +50,7 @@ upgrade:
     Qiskit and so will not require a package that pins the Qiskit version while
     Qiskit Dynamics plans to pin to Qiskit version 1.
 
-deprecation:
+deprecations:
   - |
     :class:`.FineZXAmplitude` has been deprecated. It was not deprecated along
     with the other pulse-related experiments in the previous Qiskit Experiments
