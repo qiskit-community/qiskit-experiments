@@ -1,0 +1,1291 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>qiskit_experiments.library.randomized_benchmarking.clifford_utils - Qiskit Experiments 0.9.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-gallery.css?v=26227f6e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/customstyles.css?v=5690b376" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.9.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0</span>
+  
+</a>
+<form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Qiskit Experiments Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/data_processor.html">Data Processor: Wrangling data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/curve_analysis.html">Curve Analysis: Fitting your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/visualization.html">Visualization: Creating figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/custom_experiment.html">Writing your own experiment</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/artifacts.html">Work with experiment artifacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/experiment_times.html">Get experiment timing information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/figure_generation.html">Control figure generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../manuals/index.html">Experiment Manuals</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/verification/quantum_volume.html">Quantum Volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/verification/randomized_benchmarking.html">Randomized Benchmarking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/verification/state_tomography.html">Quantum State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/t1.html">T1 Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/t2hahn.html">T2 Hahn Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/characterization/tphi.html">Tφ Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../apidocs/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidocs/main.html">Qiskit Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments</span></code>)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/framework.html">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Experiment Framework (qiskit_experiments.framework)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExperimentData.html">ExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExperimentStatus.html">ExperimentStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.AnalysisStatus.html">AnalysisStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.AnalysisResult.html">AnalysisResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.AnalysisResultData.html">AnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html">AnalysisResultTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExperimentConfig.html">ExperimentConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/data_processing.html">Data Processing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.data_processing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Data Processing (qiskit_experiments.data_processing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.DataProcessor.html">DataProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.DataAction.html">DataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.TrainableDataAction.html">TrainableDataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.Probability.html">Probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.MarginalizeCounts.html">MarginalizeCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.ToImag.html">ToImag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.ToReal.html">ToReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.SVD.html">SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.DiscriminatorNode.html">DiscriminatorNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.MemoryToCounts.html">MemoryToCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.AverageData.html">AverageData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.BasisExpectationValue.html">BasisExpectationValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.MinMaxNormalize.html">MinMaxNormalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.ShotOrder.html">ShotOrder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.RestlessNode.html">RestlessNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.RestlessToCounts.html">RestlessToCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.RestlessToIQ.html">RestlessToIQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.BaseReadoutMitigator.html">BaseReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html">LocalReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html">CorrelatedReadoutMitigator</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.OscillationAnalysis.html">OscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.GaussianAnalysis.html">GaussianAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis.html">ErrorAmplificationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos.html">cos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.cos_decay.html">cos_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.exponential_decay.html">exponential_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.gaussian.html">gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian.html">sqrt_lorentzian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin.html">sin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.fit_function.sin_decay.html">sin_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset.html">constant_sinusoidal_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.constant_spectral_offset.html">constant_spectral_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.exp_decay.html">exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.rb_decay.html">rb_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.full_width_half_max.html">full_width_half_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.frequency.html">frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.max_height.html">max_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.min_height.html">min_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html">oscillation_exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html">analysis_result_to_repr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html">convert_lmfit_result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html">data_sort</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html">eval_with_uncertainties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.filter_data.html">filter_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.inverse_weighted_variance.html">inverse_weighted_variance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.mean_xy_data.html">mean_xy_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.multi_mean_xy_data.html">multi_mean_xy_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html">level2_probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.probability.html">probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.sample_average.html">sample_average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.curve_analysis.utils.shot_weighted_average.html">shot_weighted_average</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.DeviceComponent.html">DeviceComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.Qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/visualization.html">Visualization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.visualization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Visualization (qiskit_experiments.visualization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html">BasePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.CurvePlotter.html">CurvePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.IQPlotter.html">IQPlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html">BaseDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html">MplDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.visualization.PlotStyle.html">PlotStyle</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/test.html">Test Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.test</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Test Utilities (qiskit_experiments.test)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.PulseBackend.html">PulseBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.SingleTransmonTestBackend.html">SingleTransmonTestBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.MockIQBackend.html">MockIQBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.MockIQParallelBackend.html">MockIQParallelBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.T2HahnBackend.html">T2HahnBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.NoisyDelayAerBackend.html">NoisyDelayAerBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.MockIQExperimentHelper.html">MockIQExperimentHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.test.MockIQParallelExperimentHelper.html">MockIQParallelExperimentHelper</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_characterization.html">Characterization Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Characterization Experiments (qiskit_experiments.library.characterization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T1Analysis.html">T1Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html">T1KerneledAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2RamseyAnalysis.html">T2RamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.T2HahnAnalysis.html">T2HahnAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.TphiAnalysis.html">TphiAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.FineAmplitudeAnalysis.html">FineAmplitudeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.RamseyXYAnalysis.html">RamseyXYAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngleAnalysis.html">ReadoutAngleAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis.html">LocalReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis.html">CorrelatedReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.ZZRamseyAnalysis.html">ZZRamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis.html">MultiStateDiscriminationAnalysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_tomography.html">Tomography Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Tomography Experiments (qiskit_experiments.library.tomography)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyAnalysis.html">TomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomographyAnalysis.html">StateTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomographyAnalysis.html">ProcessTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedTomographyAnalysis.html">MitigatedTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.fitters.linear_inversion.html">linear_inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html">cvxpy_gaussian_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq.html">cvxpy_linear_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.PauliMeasurementBasis.html">PauliMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.PauliPreparationBasis.html">PauliPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis.html">Pauli6PreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html">LocalMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html">LocalPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.MeasurementBasis.html">MeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.tomography.basis.PreparationBasis.html">PreparationBasis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/mod_quantum_volume.html">Quantum Volume Experiment (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.quantum_volume</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of Quantum Volume Experiment (qiskit_experiments.library.quantum_volume)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html">QuantumVolumeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html">QuantumVolumePlotter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+</ul>
+
+</div><div class="qiskit-previous-releases-container">
+    <input id="previous-releases-checkbox" name="previous-releases-checkbox" role="switch" type="checkbox">
+    <div class="qiskit-previous-releases-header-container"><label for="previous-releases-checkbox">
+            <p role="note">Previous Releases</p>
+            <div class="qiskit-previous-releases-toggle-container">
+                <div class="visually-hidden">Toggle navigation of Previous Releases</div>
+                <i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i>
+            </div>
+        </label>
+    </div>
+    <div class="qiskit-previous-releases-list-container">
+        <ul>
+        
+            <li><a href="/qiskit-experiments/stable/0.8/index.html" rel="nofollow noindex">0.8</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.7/index.html" rel="nofollow noindex">0.7</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
+        
+        </ul>
+    </div>
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for qiskit_experiments.library.randomized_benchmarking.clifford_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2021, 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for using the Clifford group in randomized benchmarking.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Integral</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">Qubit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">Instruction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">QuantumRegister</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">SdgGate</span><span class="p">,</span> <span class="n">HGate</span><span class="p">,</span> <span class="n">SGate</span><span class="p">,</span> <span class="n">XGate</span><span class="p">,</span> <span class="n">YGate</span><span class="p">,</span> <span class="n">ZGate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.compiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">transpile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">Clifford</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CouplingMap</span><span class="p">,</span> <span class="n">PassManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.passes.synthesis.high_level_synthesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">HLSConfig</span><span class="p">,</span> <span class="n">HighLevelSynthesis</span>
+
+<span class="n">DEFAULT_SYNTHESIS_METHOD</span> <span class="o">=</span> <span class="s2">&quot;rb_default&quot;</span>
+
+<span class="n">_DATA_FOLDER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<span class="n">_CLIFFORD_COMPOSE_1Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_compose_1q.npz&quot;</span><span class="p">)[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
+<span class="n">_CLIFFORD_INVERSE_1Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_inverse_1q.npz&quot;</span><span class="p">)[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
+<span class="n">_CLIFFORD_INVERSE_2Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_inverse_2q.npz&quot;</span><span class="p">)[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
+<span class="n">_clifford_compose_2q_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_compose_2q_dense_selected.npz&quot;</span><span class="p">)</span>
+<span class="n">_CLIFFORD_COMPOSE_2Q_DENSE</span> <span class="o">=</span> <span class="n">_clifford_compose_2q_data</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
+<span class="c1"># valid indices for the columns of the _CLIFFORD_COMPOSE_2Q_DENSE table</span>
+<span class="n">_valid_sparse_indices</span> <span class="o">=</span> <span class="n">_clifford_compose_2q_data</span><span class="p">[</span><span class="s2">&quot;valid_sparse_indices&quot;</span><span class="p">]</span>
+<span class="c1"># map a clifford number to the index of _CLIFFORD_COMPOSE_2Q_DENSE</span>
+<span class="n">_clifford_num_to_dense_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span> <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_valid_sparse_indices</span><span class="p">)}</span>
+<span class="n">_CLIFFORD_TENSOR_1Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_DATA_FOLDER</span><span class="si">}</span><span class="s2">/clifford_tensor_1q.npz&quot;</span><span class="p">)[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
+
+
+<span class="c1"># Transpilation utilities</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transpile_clifford_circuit</span><span class="p">(</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="c1"># Simplified transpile that only decomposes Clifford circuits and creates the layout.</span>
+    <span class="k">return</span> <span class="n">_apply_qubit_layout</span><span class="p">(</span><span class="n">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">),</span> <span class="n">physical_qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="c1"># Simplified QuantumCircuit.decompose, which decomposes only Clifford ops</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">copy_empty_like</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="s2">&quot;_parameter_table&quot;</span><span class="p">):</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
+    <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">circuit</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Clifford&quot;</span><span class="p">):</span>  <span class="c1"># Decompose</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">qubits</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">global_phase</span><span class="p">:</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">global_phase</span> <span class="o">+=</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">definition</span><span class="o">.</span><span class="n">global_phase</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">CircuitInstruction</span><span class="p">(</span>
+                        <span class="n">operation</span><span class="o">=</span><span class="n">rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span>
+                        <span class="n">qubits</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">qubits</span><span class="p">,</span>
+                        <span class="n">clbits</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">clbits</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_circuit_compose</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Keep the original instruction</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_qubit_layout</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="c1"># Mapping qubits in circuit to physical qubits (layout)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">add_bits</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">clbits</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">:</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">add_register</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+    <span class="n">_circuit_compose</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="s2">&quot;_parameter_table&quot;</span><span class="p">):</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">_parameter_table</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">_parameter_table</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circuit_compose</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Qubit</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="c1"># Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False</span>
+    <span class="c1"># without any validation, parameter_table/calibrations updates and copy of operations</span>
+    <span class="c1"># The input circuit `self` is changed inplace.</span>
+    <span class="n">qubit_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">other</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">instr</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">CircuitInstruction</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="n">instr</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span>
+                <span class="n">qubits</span><span class="o">=</span><span class="p">[</span><span class="n">qubit_map</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">instr</span><span class="o">.</span><span class="n">qubits</span><span class="p">],</span>
+                <span class="n">clbits</span><span class="o">=</span><span class="n">instr</span><span class="o">.</span><span class="n">clbits</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">global_phase</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">global_phase</span>
+    <span class="k">return</span> <span class="bp">self</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_synthesize_clifford</span><span class="p">(</span>
+    <span class="n">clifford</span><span class="p">:</span> <span class="n">Clifford</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synthesize a circuit of a Clifford element. The resulting circuit contains only</span>
+<span class="sd">    ``basis_gates`` and it complies with ``coupling_tuple``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        clifford: Clifford element to be converted</span>
+<span class="sd">        basis_gates: basis gates to use in the conversion</span>
+<span class="sd">        coupling_tuple: coupling map to use in the conversion in the form of tuple of edges</span>
+<span class="sd">        synthesis_method: conversion algorithm name</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Synthesized circuit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">clifford</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">clifford</span><span class="p">))</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clifford</span><span class="p">,</span> <span class="n">qc</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_synthesize_clifford_circuit</span><span class="p">(</span>
+        <span class="n">qc</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="o">=</span><span class="n">coupling_tuple</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_synthesize_clifford_circuit</span><span class="p">(</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Clifford circuit into one composed of ``basis_gates`` with</span>
+<span class="sd">    satisfying ``coupling_tuple`` using the specified synthesis method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        circuit: Clifford circuit to be converted</span>
+<span class="sd">        basis_gates: basis gates to use in the conversion</span>
+<span class="sd">        coupling_tuple: coupling map to use in the conversion in the form of tuple of edges</span>
+<span class="sd">        synthesis_method: name of Clifford synthesis algorithm to use</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Synthesized circuit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">basis_gates</span><span class="p">:</span>
+        <span class="n">basis_gates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">)</span>
+    <span class="n">coupling_map</span> <span class="o">=</span> <span class="n">CouplingMap</span><span class="p">(</span><span class="n">coupling_tuple</span><span class="p">)</span> <span class="k">if</span> <span class="n">coupling_tuple</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># special handling for 1q or 2q case for speed</span>
+    <span class="k">if</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">synthesis_method</span> <span class="o">==</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">transpile</span><span class="p">(</span>
+                <span class="n">circuit</span><span class="p">,</span>
+                <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+                <span class="n">coupling_map</span><span class="o">=</span><span class="n">coupling_map</span><span class="p">,</span>
+                <span class="n">optimization_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Provided custom synthesis method, re-synthesize Clifford circuit</span>
+            <span class="c1"># convert the circuit back to a Clifford object and then call the synthesis plugin</span>
+            <span class="n">new_circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">new_circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Clifford</span><span class="p">(</span><span class="n">circuit</span><span class="p">),</span> <span class="n">new_circuit</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+            <span class="n">circuit</span> <span class="o">=</span> <span class="n">new_circuit</span>
+
+    <span class="c1"># for 3q+ or custom synthesis method, synthesizes clifford circuit</span>
+    <span class="n">hls_config</span> <span class="o">=</span> <span class="n">HLSConfig</span><span class="p">(</span><span class="n">clifford</span><span class="o">=</span><span class="p">[(</span><span class="n">synthesis_method</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">:</span> <span class="n">basis_gates</span><span class="p">})])</span>
+    <span class="n">pm</span> <span class="o">=</span> <span class="n">PassManager</span><span class="p">([</span><span class="n">HighLevelSynthesis</span><span class="p">(</span><span class="n">hls_config</span><span class="o">=</span><span class="n">hls_config</span><span class="p">,</span> <span class="n">coupling_map</span><span class="o">=</span><span class="n">coupling_map</span><span class="p">)])</span>
+    <span class="n">circuit</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">circuit</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_1q_int_to_instruction</span><span class="p">(</span>
+    <span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">CliffordUtils</span><span class="o">.</span><span class="n">clifford_1_qubit_circuit</span><span class="p">(</span>
+        <span class="n">num</span><span class="p">,</span> <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span> <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_2q_int_to_instruction</span><span class="p">(</span>
+    <span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">CliffordUtils</span><span class="o">.</span><span class="n">clifford_2_qubit_circuit</span><span class="p">(</span>
+        <span class="n">num</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="o">=</span><span class="n">coupling_tuple</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hash_cliff</span><span class="p">(</span><span class="n">cliff</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cliff</span><span class="o">.</span><span class="n">tableau</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span> <span class="n">cliff</span><span class="o">.</span><span class="n">tableau</span><span class="o">.</span><span class="n">shape</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dehash_cliff</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">):</span>
+    <span class="n">tableau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Clifford</span><span class="p">(</span><span class="n">tableau</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_to_instruction</span><span class="p">(</span>
+    <span class="n">clifford</span><span class="p">:</span> <span class="n">Clifford</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_cached_clifford_to_instruction</span><span class="p">(</span>
+        <span class="n">_hash_cliff</span><span class="p">(</span><span class="n">clifford</span><span class="p">),</span>
+        <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="o">=</span><span class="n">coupling_tuple</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cached_clifford_to_instruction</span><span class="p">(</span>
+    <span class="n">cliff_hash</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_synthesize_clifford</span><span class="p">(</span>
+        <span class="n">_dehash_cliff</span><span class="p">(</span><span class="n">cliff_hash</span><span class="p">),</span>
+        <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="o">=</span><span class="n">coupling_tuple</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
+
+
+<span class="c1"># The classes VGate and WGate are not actually used in the code - we leave them here to give</span>
+<span class="c1"># a better understanding of the composition of the layers for 2-qubit Cliffords.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;V Gate used in Clifford synthesis.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new V Gate.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;V Gate definition.&quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">)</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">SdgGate</span><span class="p">(),</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[]),</span> <span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">qc</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WGate</span><span class="p">(</span><span class="n">Gate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;W Gate used in Clifford synthesis.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new W Gate.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;W Gate definition.&quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">QuantumRegister</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">)</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[]),</span> <span class="p">(</span><span class="n">SGate</span><span class="p">(),</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">qc</span>
+
+
+<div class="viewcode-block" id="CliffordUtils">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CliffordUtils</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utilities for generating one- and two-qubit Clifford circuits and elements.&quot;&quot;&quot;</span>
+
+    <span class="n">NUM_CLIFFORD_1_QUBIT</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">NUM_CLIFFORD_2_QUBIT</span> <span class="o">=</span> <span class="mi">11520</span>
+    <span class="n">CLIFFORD_1_QUBIT_SIG</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">CLIFFORD_2_QUBIT_SIGS</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># TODO: deprecate</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="CliffordUtils.clifford_1_qubit">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_1_qubit">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_1_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 1-qubit clifford element corresponding to `num`</span>
+<span class="sd">        where `num` is between 0 and 23.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Clifford</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">clifford_1_qubit_circuit</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CliffordUtils.clifford_2_qubit">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_2_qubit">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_2_qubit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit clifford element corresponding to ``num``,</span>
+<span class="sd">        where ``num`` is between 0 and 11519.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Clifford</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">clifford_2_qubit_circuit</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CliffordUtils.clifford_1_qubit_circuit">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_1_qubit_circuit">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_1_qubit_circuit</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">num</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 1-qubit clifford circuit corresponding to ``num``,</span>
+<span class="sd">        where ``num`` is between 0 and 23.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unpacked</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_unpack_num</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">CLIFFORD_1_QUBIT_SIG</span><span class="p">)</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">unpacked</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">unpacked</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">unpacked</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Clifford-1Q(</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">sxdg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">z</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">basis_gates</span><span class="p">:</span>
+            <span class="n">qc</span> <span class="o">=</span> <span class="n">_synthesize_clifford_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">,</span> <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">qc</span></div>
+
+
+<div class="viewcode-block" id="CliffordUtils.clifford_2_qubit_circuit">
+<a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html#qiskit_experiments.library.randomized_benchmarking.CliffordUtils.clifford_2_qubit_circuit">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">11520</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clifford_2_qubit_circuit</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">num</span><span class="p">,</span>
+        <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit clifford circuit corresponding to `num`</span>
+<span class="sd">        where `num` is between 0 and 11519.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Clifford-2Q(</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_layer_indices_from_num</span><span class="p">(</span><span class="n">num</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">basis_gates</span><span class="p">:</span>
+                <span class="n">layer_circ</span> <span class="o">=</span> <span class="n">_transformed_clifford_layer</span><span class="p">(</span>
+                    <span class="n">layer</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">basis_gates</span><span class="p">,</span> <span class="n">coupling_tuple</span><span class="p">,</span> <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">layer_circ</span> <span class="o">=</span> <span class="n">_CLIFFORD_LAYER</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">_circuit_compose</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">layer_circ</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">qc</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unpack_num</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns a tuple :math:`(a_1, \ldots, a_n)` where</span>
+<span class="sd">        :math:`0 \le a_i \le \sigma_i` where</span>
+<span class="sd">        sig=:math:`(\sigma_1, \ldots, \sigma_n)` and num is the sequential</span>
+<span class="sd">        number of the tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">num</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">num</span> <span class="o">//=</span> <span class="n">k</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="c1"># Constant mapping from 1Q single Clifford gate to 1Q Clifford numerical identifier.</span>
+<span class="c1"># This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`, or,</span>
+<span class="c1"># equivalently, correspond to the ordering implicitly defined by CliffUtils.clifford_1_qubit_circuit.</span>
+<span class="n">_CLIFF_SINGLE_GATE_MAP_1Q</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sxdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">18</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">22</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="c1"># Constant mapping from 2Q single Clifford gate to 2Q Clifford numerical identifier.</span>
+<span class="c1"># This table must be generated using `data.generate_clifford_data.gen_cliff_single_2q_gate_map`, or,</span>
+<span class="c1"># equivalently, correspond to the ordering defined by _layer_indices_from_num and _CLIFFORD_LAYER.</span>
+<span class="n">_CLIFF_SINGLE_GATE_MAP_2Q</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">5760</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">2880</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sxdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">6720</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sxdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">3200</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">7680</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">3520</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">6724</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">3201</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)):</span> <span class="mi">7692</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;sdg&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span> <span class="mi">3523</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;cx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;cx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span> <span class="mi">2336</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;cz&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span> <span class="mi">368</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;cz&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span> <span class="mi">368</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1">########</span>
+<span class="c1"># Functions for 1-qubit integer Clifford operations</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_1q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the composition of 1-qubit clifford integers.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CLIFFORD_COMPOSE_1Q</span><span class="p">[</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inverse_1q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the inverse of a 1-qubit clifford integer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CLIFFORD_INVERSE_1Q</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">num_from_1q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 1-qubit Clifford circuit to the corresponding integer.</span>
+
+<span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_1Q`,</span>
+<span class="sd">    RZGate, Delay and Barrier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">qc</span><span class="p">:</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="p">)</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="n">_CLIFFORD_COMPOSE_1Q</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="n">rhs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">num</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_1q_gate</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a given 1-qubit clifford operation to the corresponding integer.</span>
+<span class="sd">    Note that supported operations are limited to ones in :const:`_CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        op: operation to be converted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An integer representing a Clifford consisting of a single operation.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        QiskitError: If the input instruction is not a Clifford instruction.</span>
+<span class="sd">        QiskitError: If rz is given with a angle that is not Clifford.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_deparameterized_name</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_CLIFF_SINGLE_GATE_MAP_1Q</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))]</span>
+    <span class="k">except</span> <span class="n">QiskitError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Parameterized instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deparameterized_name</span><span class="p">(</span><span class="n">inst</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rz&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;z&quot;</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;s&quot;</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;sdg&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrong param </span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> for rz in clifford&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span>
+
+
+<span class="c1">########</span>
+<span class="c1"># Functions for 2-qubit integer Clifford operations</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_2q</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the composition of 2-qubit clifford integers.&quot;&quot;&quot;</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">lhs</span>
+    <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_layer_indices_from_num</span><span class="p">(</span><span class="n">rhs</span><span class="p">)):</span>
+        <span class="n">gate_numbers</span> <span class="o">=</span> <span class="n">_CLIFFORD_LAYER_NUMS</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">gate_numbers</span><span class="p">:</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">_CLIFFORD_COMPOSE_2Q_DENSE</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="n">_clifford_num_to_dense_index</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">num</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inverse_2q</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the inverse of a 2-qubit clifford integer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CLIFFORD_INVERSE_2Q</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">num_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given 2-qubit Clifford circuit to the corresponding integer.</span>
+
+<span class="sd">    Note: The circuit must consist of gates in :const:`_CLIFF_SINGLE_GATE_MAP_2Q`,</span>
+<span class="sd">    RZGate, Delay and Barrier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lhs</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">rhs</span> <span class="ow">in</span> <span class="n">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">):</span>
+        <span class="n">lhs</span> <span class="o">=</span> <span class="n">_CLIFFORD_COMPOSE_2Q_DENSE</span><span class="p">[</span><span class="n">lhs</span><span class="p">,</span> <span class="n">_clifford_num_to_dense_index</span><span class="p">[</span><span class="n">rhs</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">lhs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_2q_gate</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a given 1-qubit clifford operation to the corresponding integer.</span>
+<span class="sd">    Note that supported operations are limited to ones in `_CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        op: operation of instruction to be converted.</span>
+<span class="sd">        qubits: qubits to which the operation applies</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An integer representing a Clifford consisting of a single operation.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        QiskitError: If the input instruction is not a Clifford instruction.</span>
+<span class="sd">        QiskitError: If rz is given with a angle that is not Clifford.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="n">qubits</span> <span class="o">=</span> <span class="n">qubits</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_deparameterized_name</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_CLIFF_SINGLE_GATE_MAP_2Q</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="n">QiskitError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Parameterized instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Instruction </span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">qubits</span><span class="si">}</span><span class="s2"> could not be converted to integer Clifford&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">vw0</span><span class="p">,</span> <span class="n">vw1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">vw0</span> <span class="o">==</span> <span class="s2">&quot;v&quot;</span><span class="p">:</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">sdg</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">vw0</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vw1</span> <span class="o">==</span> <span class="s2">&quot;v&quot;</span><span class="p">:</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">sdg</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">vw1</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_0</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.</span>
+<span class="sd">    Number of Cliffords == 36.&quot;&quot;&quot;</span>
+    <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">num_h</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">v_w_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">h0</span><span class="p">,</span> <span class="n">h1</span><span class="p">,</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">num_h</span><span class="p">,</span> <span class="n">num_h</span><span class="p">,</span> <span class="n">v_w_gates</span><span class="p">,</span> <span class="n">v_w_gates</span><span class="p">):</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h0</span><span class="p">):</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h1</span><span class="p">):</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
+        <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">circuits</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_1</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 1 consists of one of the following:</span>
+<span class="sd">    - nothing</span>
+<span class="sd">    - cx(0,1) followed by 0/1/2 V gates on each qubit</span>
+<span class="sd">    - cx(0,1), cx(1,0) followed by 0/1/2 V gates on each qubit</span>
+<span class="sd">    - cx(0,1), cx(1,0), cx(0,1)</span>
+<span class="sd">    Number of Cliffords == 20.&quot;&quot;&quot;</span>
+    <span class="n">circuits</span> <span class="o">=</span> <span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>  <span class="c1"># identity at the beginning</span>
+
+    <span class="n">v_w_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">v_w_gates</span><span class="p">,</span> <span class="n">v_w_gates</span><span class="p">):</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
+        <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">v_w_gates</span><span class="p">,</span> <span class="n">v_w_gates</span><span class="p">):</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">_append_v_w</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
+        <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+
+    <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># swap at the end</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">circuits</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_cliff_2q_layer_2</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.</span>
+<span class="sd">    Number of Cliffords == 16.&quot;&quot;&quot;</span>
+    <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pauli</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="n">XGate</span><span class="p">(),</span> <span class="n">YGate</span><span class="p">(),</span> <span class="n">ZGate</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">pauli</span><span class="p">,</span> <span class="n">pauli</span><span class="p">):</span>
+        <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p0</span> <span class="o">!=</span> <span class="s2">&quot;i&quot;</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">p1</span> <span class="o">!=</span> <span class="s2">&quot;i&quot;</span><span class="p">:</span>
+            <span class="n">qc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">circuits</span>
+
+
+<span class="n">_CLIFFORD_LAYER</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">_create_cliff_2q_layer_0</span><span class="p">(),</span>
+    <span class="n">_create_cliff_2q_layer_1</span><span class="p">(),</span>
+    <span class="n">_create_cliff_2q_layer_2</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">_NUM_LAYER_1</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">_NUM_LAYER_2</span> <span class="o">=</span> <span class="mi">16</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Integral</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield Clifford numbers that represents the 2Q Clifford circuit.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">qc</span><span class="p">:</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">qc</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">inst</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">_num_from_2q_gate</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">)</span>
+
+
+<span class="c1"># Construct mapping from Clifford layers to series of Clifford numbers</span>
+<span class="n">_CLIFFORD_LAYER_NUMS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">_clifford_2q_nums_from_2q_circuit</span><span class="p">(</span><span class="n">qc</span><span class="p">))</span> <span class="k">for</span> <span class="n">qc</span> <span class="ow">in</span> <span class="n">_CLIFFORD_LAYER</span><span class="p">[</span><span class="n">layer</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">]</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transformed_clifford_layer</span><span class="p">(</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">index</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span>
+    <span class="n">basis_gates</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">coupling_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">synthesis_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="c1"># Return the index-th quantum circuit of the layer translated with the basis_gates.</span>
+    <span class="c1"># The result is cached for speed.</span>
+    <span class="k">return</span> <span class="n">_synthesize_clifford_circuit</span><span class="p">(</span>
+        <span class="n">_CLIFFORD_LAYER</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="n">index</span><span class="p">],</span>
+        <span class="n">basis_gates</span><span class="o">=</span><span class="n">basis_gates</span><span class="p">,</span>
+        <span class="n">coupling_tuple</span><span class="o">=</span><span class="n">coupling_tuple</span><span class="p">,</span>
+        <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_method</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_from_layer_indices</span><span class="p">(</span><span class="n">triplet</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the clifford number corresponding to the input triplet.&quot;&quot;&quot;</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">_NUM_LAYER_1</span> <span class="o">*</span> <span class="n">_NUM_LAYER_2</span> <span class="o">+</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">_NUM_LAYER_2</span> <span class="o">+</span> <span class="n">triplet</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">num</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_layer_indices_from_num</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Integral</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the triplet of layer indices corresponding to the input number.&quot;&quot;&quot;</span>
+    <span class="n">idx2</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="n">_NUM_LAYER_2</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">//</span> <span class="n">_NUM_LAYER_2</span>
+    <span class="n">idx1</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="n">_NUM_LAYER_1</span>
+    <span class="n">idx0</span> <span class="o">=</span> <span class="n">num</span> <span class="o">//</span> <span class="n">_NUM_LAYER_1</span>
+    <span class="k">return</span> <span class="n">idx0</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tensor_1q_nums</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Integral</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Integral</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the 2-qubit Clifford integer that is the tensor product of 1-qubit Cliffords.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CLIFFORD_TENSOR_1Q</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">]</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2025, Qiskit Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            <div class="last-updated">
+              Last updated on 2025/03/18</div>
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

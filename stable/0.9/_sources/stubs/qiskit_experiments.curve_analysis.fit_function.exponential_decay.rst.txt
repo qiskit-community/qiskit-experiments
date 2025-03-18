@@ -1,0 +1,8 @@
+﻿
+
+exponential_decay
+================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.fit_function
+
+.. autofunction:: exponential_decay

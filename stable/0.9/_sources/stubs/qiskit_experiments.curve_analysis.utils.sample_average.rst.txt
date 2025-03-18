@@ -1,0 +1,8 @@
+﻿
+
+sample_average
+======================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: sample_average

@@ -1,0 +1,38 @@
+﻿
+
+MitigatedTomographyAnalysis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoanalysis:: MitigatedTomographyAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: MitigatedTomographyAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: MitigatedTomographyAnalysis.component_analysis
+   .. automethod:: MitigatedTomographyAnalysis.config
+   .. automethod:: MitigatedTomographyAnalysis.copy
+   .. automethod:: MitigatedTomographyAnalysis.from_config
+   .. automethod:: MitigatedTomographyAnalysis.run
+   .. automethod:: MitigatedTomographyAnalysis.set_options
+   
+
+   
+   

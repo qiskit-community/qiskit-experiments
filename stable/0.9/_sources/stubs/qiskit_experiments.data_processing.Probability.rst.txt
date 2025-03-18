@@ -1,0 +1,32 @@
+﻿
+
+Probability
+==============================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: Probability
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: Probability.__call__
+
+   
