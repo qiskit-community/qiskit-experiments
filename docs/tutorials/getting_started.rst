@@ -39,7 +39,9 @@ cloning the repository:
     python -m pip install -e "qiskit-experiments[extras]"
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
-changes.
+changes. See also the `contributing document
+<https://github.com/qiskit-community/qiskit-experiments/blob/main/CONTRIBUTING.md>`__
+in the source code repository for more information on developing the package.
 
 Upgrading Qiskit Experiments
 ----------------------------
