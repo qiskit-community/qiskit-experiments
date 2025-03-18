@@ -31,7 +31,6 @@ Experiments
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
-    FineZXAmplitude
     RamseyXY
     FineFrequency
     ReadoutAngle
@@ -86,7 +85,7 @@ from .t2ramsey import T2Ramsey
 from .t2hahn import T2Hahn
 from .tphi import Tphi
 from .half_angle import HalfAngle
-from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude, FineZXAmplitude
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 from .fine_frequency import FineFrequency
 from .readout_angle import ReadoutAngle
