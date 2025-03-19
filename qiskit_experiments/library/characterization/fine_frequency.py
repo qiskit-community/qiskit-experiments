@@ -119,13 +119,6 @@ class FineFrequency(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpiler options."""
-        options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "rz", "delay"]
-        return options
-
     def _pre_circuit(self) -> QuantumCircuit:
         """A method that subclasses can override to perform gates before the main sequence."""
         return QuantumCircuit(1)
