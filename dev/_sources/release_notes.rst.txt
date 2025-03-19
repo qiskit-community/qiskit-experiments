@@ -3,7 +3,7 @@ Release Notes
 =============
 
 .. release-notes::
-   :earliest-version: 0.8.0
+   :earliest-version: 0.9.0
 
 .. _Release Notes_0.8.2:
 

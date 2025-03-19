@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.8.0-29-gfd279872e</title>
+        <title>Release Notes - Qiskit Experiments 0.9.0-1-gde338e3e9</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.8.0-29-gfd279872e</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.9.0-1-gde338e3e9</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.8.0-29-gfd279872e</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0-1-gde338e3e9</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -490,6 +490,8 @@
     <div class="qiskit-previous-releases-list-container">
         <ul>
         
+            <li><a href="/qiskit-experiments/stable/0.8/index.html" rel="nofollow noindex">0.8</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.7/index.html" rel="nofollow noindex">0.7</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
@@ -543,14 +545,14 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-8-0-29">
-<span id="id1"></span><h2>0.8.0-29<a class="headerlink" href="#relnotes-0-8-0-29" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-9-0">
+<span id="id1"></span><h2>0.9.0<a class="headerlink" href="#relnotes-0-9-0" title="Link to this heading">¶</a></h2>
 <section id="prelude">
-<span id="relnotes-0-8-0-29-prelude"></span><h3>Prelude<a class="headerlink" href="#prelude" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-9-0-prelude"></span><h3>Prelude<a class="headerlink" href="#prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.9.0 release primarily provides compatibility with version 2.0 of the [Qiskit SDK](<a class="reference external" href="https://www.ibm.com/quantum/qiskit">https://www.ibm.com/quantum/qiskit</a>). A major change is the removal the previously deprecated support for pulse experiments and calibration due to the removal of Qiskit Pulse in Qiskit 2.0. Some other smaller changes were also needed to adapt to Qiskit 2.0 as described below. Additionally, previously deprecated code related curve fitting and restless measurements was removed. Some additional code paths have been marked as deprecated, particularly relating to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.analysis_results" title="qiskit_experiments.framework.ExperimentData.analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.analysis_results()</span></code></a> as described below.</p>
 </section>
 <section id="new-features">
-<span id="relnotes-0-8-0-29-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-9-0-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Curve analysis helper functions <code class="xref py py-class docutils literal notranslate"><span class="pre">utils.inverse_weighted_variance</span></code>,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">utils.sample_weighted_average</span></code>, and
@@ -566,7 +568,7 @@ purposes but they were removed in Qiskit 2.0.</p></li>
 </ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-8-0-29-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-9-0-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>To aid with the deprecation of the <code class="docutils literal notranslate"><span class="pre">results</span></code> argument to
 <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a> (see Deprecation Notes),
@@ -696,7 +698,7 @@ retrieve the <code class="docutils literal notranslate"><span class="pre">fit_pa
 </ul>
 </section>
 <section id="deprecation-notes">
-<span id="relnotes-0-8-0-29-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-9-0-deprecation-notes"></span><h3>Deprecation Notes<a class="headerlink" href="#deprecation-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">results</span></code> argument to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_analysis_results" title="qiskit_experiments.framework.ExperimentData.add_analysis_results"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_analysis_results()</span></code></a>,
 which had previously been marked as pending deprecation, has now been
@@ -786,7 +788,7 @@ package.</p></li>
 </ul>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-8-0-29-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-9-0-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The Python package configuration has been moved from <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to
 <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. As part of this move, the separate requirements files
@@ -3849,7 +3851,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/18</div>
+              Last updated on 2025/03/19</div>
           </div>
           <div class="right-details">
             
@@ -3871,7 +3873,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-8-0-29">0.8.0-29</a><ul>
+<li><a class="reference internal" href="#relnotes-0-9-0">0.9.0</a><ul>
 <li><a class="reference internal" href="#prelude">Prelude</a></li>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
@@ -4034,7 +4036,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d6626207"></script>
+</div><script src="_static/documentation_options.js?v=88779783"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
