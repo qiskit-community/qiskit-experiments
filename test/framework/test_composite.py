@@ -346,7 +346,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp4 = BatchExperiment([exp3, exp1], flatten_results=False)
         exp5 = ParallelExperiment([exp4, FakeExperiment([4])], flatten_results=False)
         nested_exp = BatchExperiment([exp5, exp3], flatten_results=False)
-        expdata = nested_exp.run(FakeBackend(num_qubits=4))
+        expdata = nested_exp.run(FakeBackend(num_qubits=5))
         self.assertExperimentDone(expdata)
 
     def test_analysis_replace_results_true(self):

@@ -82,4 +82,7 @@ class FakeExperiment(BaseExperiment):
 
     def circuits(self):
         """Fake circuits."""
-        return [QuantumCircuit(len(self.physical_qubits))]
+        circ = QuantumCircuit(len(self.physical_qubits))
+        # Add measurement to avoid warnings about no measurements
+        circ.measure_all()
+        return [circ]

@@ -60,7 +60,7 @@ class TestFramework(QiskitExperimentsTestCase):
 
     def test_metadata(self):
         """Test the metadata of a basic experiment."""
-        backend = FakeBackend(num_qubits=2)
+        backend = FakeBackend(num_qubits=3)
         exp = FakeExperiment((0, 2))
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
