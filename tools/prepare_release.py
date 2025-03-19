@@ -90,11 +90,11 @@ def main():
             f"Could not find previous version tag for current version {version}:\n{proc.stdout}"
         )
 
-    print(f"Starting from commit {orig_commit[:8]} (branch {prep_branch})\n")
+    print(f"Starting from commit {orig_commit[:8]} (branch {prep_branch})...\n")
 
     # Switch to previous release to render notes file and get list of
     # individual notes to remove
-    print("Temporarily switching git to previous release commit:")
+    print("Temporarily switching git to previous release commit...")
     run(["git", "-c", "advice.detachedHead=False", "checkout", str(previous_version)], check=True)
     print("")
 
@@ -104,7 +104,7 @@ def main():
     old_note_files = set((git_root / "releasenotes/notes").iterdir())
 
     # Back to prep branch to apply notes updates
-    print(f"Switching git to {prep_branch} branch:")
+    print(f"Switching git to {prep_branch} branch...")
     run(["git", "checkout", prep_branch], check=True)
     print("")
 
@@ -133,7 +133,7 @@ def main():
     )
     print(
         f"Updating {release_notes_file.relative_to(git_root)} to include notes "
-        f"from {previous_version}\n"
+        f"from {previous_version}...\n"
     )
     release_notes_file.write_text(updated_notes)
 
@@ -146,7 +146,7 @@ def main():
             else:
                 print(f"What is this file? {path}")
 
-    print(f"Create a new release note with name starting with prepare-{version}.")
+    print(f"Creating a new release note with name starting with prepare-{version}...")
     run(["reno", "new", f"prepare-{version}"], check=True)
 
     print("\n*********\n")
