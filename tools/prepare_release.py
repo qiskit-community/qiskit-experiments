@@ -90,9 +90,13 @@ def main():
             f"Could not find previous version tag for current version {version}:\n{proc.stdout}"
         )
 
+    print(f"Starting from commit {orig_commit[:8]} (branch {prep_branch})\n")
+
     # Switch to previous release to render notes file and get list of
     # individual notes to remove
-    run(["git", "checkout", str(previous_version)], check=True)
+    print("Temporarily switching git to previous release commit:")
+    run(["git", "-c", "advice.detachedHead=False", "checkout", str(previous_version)], check=True)
+    print("")
 
     proc = run(["reno", "report"], check=True, capture_output=True, text=True)
     notes_last_release = proc.stdout
@@ -100,7 +104,9 @@ def main():
     old_note_files = set((git_root / "releasenotes/notes").iterdir())
 
     # Back to prep branch to apply notes updates
+    print(f"Switching git to {prep_branch} branch:")
     run(["git", "checkout", prep_branch], check=True)
+    print("")
 
     # Do some surgery to cut note content from current notes file and the file
     # generated on the last release tag and join the two together with one
@@ -125,6 +131,10 @@ def main():
             *notes_older.splitlines()[insert_idx:],
         ]
     )
+    print(
+        f"Updating {release_notes_file.relative_to(git_root)} to include notes "
+        f"from {previous_version}\n"
+    )
     release_notes_file.write_text(updated_notes)
 
     for path in (git_root / "releasenotes/notes").iterdir():
@@ -136,6 +146,7 @@ def main():
             else:
                 print(f"What is this file? {path}")
 
+    print(f"Create a new release note with name starting with prepare-{version}.")
     run(["reno", "new", f"prepare-{version}"], check=True)
 
     print("\n*********\n")
