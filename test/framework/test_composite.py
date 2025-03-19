@@ -986,7 +986,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
             # backend. We are specifically testing using different coupling
             # maps on different subexperiments.
             warnings.filterwarnings(
-                "error", message=".*coupling_map.*backend.*", category=UserWarning
+                "ignore", message=".*coupling_map.*backend.*", category=UserWarning
             )
             expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000, memory=True)
         self.assertExperimentDone(expdata)
