@@ -23,7 +23,8 @@ import rustworkx as rx
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier, Gate
+from qiskit.circuit import CircuitInstruction, QuantumCircuit, Instruction, Barrier
+from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend, BackendV2
 from qiskit.quantum_info import Clifford
@@ -55,6 +56,7 @@ LOG = logging.getLogger(__name__)
 
 
 SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
+STANDARD_GATE_NAMES = set(get_standard_gate_name_mapping())
 
 
 class StandardRB(BaseExperiment):
@@ -287,11 +289,17 @@ class StandardRB(BaseExperiment):
             if isinstance(self.backend, BackendV2) and "simulator" in self.backend.name:
                 if not basis_gates:
                     basis_gates = [
-                        op.name for op in self.backend.target.operations if isinstance(op, Gate)
+                        op.name
+                        for op in self.backend.target.operations
+                        if getattr(op, "name", None) in STANDARD_GATE_NAMES
                     ]
                 coupling_map = coupling_map if coupling_map else None
             elif isinstance(self.backend, BackendV2):
-                gate_ops = [op for op in self.backend.target.operations if isinstance(op, Gate)]
+                gate_ops = [
+                    op
+                    for op in self.backend.target.operations
+                    if getattr(op, "name", None) in STANDARD_GATE_NAMES
+                ]
                 backend_basis_gates = [op.name for op in gate_ops if op.num_qubits != 2]
                 backend_cmap = None
                 for op in gate_ops:
