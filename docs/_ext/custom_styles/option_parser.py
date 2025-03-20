@@ -151,28 +151,33 @@ def _flatten_option_docs(
         return [], set()
 
     indent = len(docstring_lines[line_ind]) - len(docstring_lines[line_ind].lstrip())
-    tmp = ""
     parsed_lines = []
     added_args = set()
-    for line in docstring_lines[line_ind:]:
-        if line[indent:].startswith(" "):
+    idx = line_ind
+    while idx < len(docstring_lines):
+        arg_entry = docstring_lines[idx]
+        idx = idx + 1
+        while idx < len(docstring_lines):
             # Remove linefeed and turn multi-line description into single-line
-            tmp += " " + line.lstrip()
-        else:
-            if tmp:
-                matched = _parameter_doc_regex.match(tmp)
-                if not matched:
-                    raise ValueError(
-                        f"Option documentation '{tmp}' doesn't conform to the "
-                        "expected documentation style. "
-                        "Use '<name> (<type>): <description>' format."
-                    )
-                opt_name = matched.group(1).strip()
-                if target_args and opt_name in target_args:
-                    parsed_lines.append(tmp.lstrip())
-                    added_args.add(opt_name)
-            # Start new line
-            tmp = line
+            if docstring_lines[idx][indent:].startswith(" "):
+                arg_entry += " " + docstring_lines[idx].strip()
+                idx += 1
+            else:
+                break
+        if not arg_entry.strip():
+            # Skip blank lines
+            continue
+        matched = _parameter_doc_regex.match(arg_entry)
+        if not matched:
+            raise ValueError(
+                f"Option documentation '{arg_entry}' doesn't conform to the "
+                "expected documentation style. "
+                "Use '<name> (<type>): <description>' format."
+            )
+        opt_name = matched.group(1).strip()
+        if target_args and opt_name in target_args:
+            parsed_lines.append(arg_entry.lstrip())
+            added_args.add(opt_name)
 
     return parsed_lines, added_args
 
