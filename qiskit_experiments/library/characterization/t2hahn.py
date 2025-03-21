@@ -49,9 +49,9 @@ class T2Hahn(BaseExperiment):
 
         for each *t* from the specified delay times
         and the delays are specified by the user.
-        The delays that are specified are delay for each delay gate while
-        the delay in the metadata is the total delay which is delay * (num_echoes +1)
-        The circuits are run on the device or on a simulator backend.
+        The delays that are specified in the experiment options and
+        the delay in the metadata both represent the sum of all delay gates in
+        the circuit.
 
     # section: manual
         :doc:`/manuals/characterization/t2hahn`
@@ -80,7 +80,7 @@ class T2Hahn(BaseExperiment):
             import numpy as np
             from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 
-            delays = np.linspace(0, 50, 51)*1e-6
+            delays = np.linspace(0, 50e-6, 11)
 
             exp = T2Hahn(physical_qubits=(0, ),
                          delays=delays,

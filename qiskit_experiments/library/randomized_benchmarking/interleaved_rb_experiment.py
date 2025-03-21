@@ -58,9 +58,13 @@ class InterleavedRB(StandardRB):
 
             # backend
             from qiskit_aer import AerSimulator
-            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
 
-            backend = AerSimulator.from_backend(FakePerth())
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -69,8 +73,8 @@ class InterleavedRB(StandardRB):
             from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
             import qiskit.circuit.library as circuits
 
-            lengths = np.arange(1, 200, 30)
-            num_samples = 10
+            lengths = [1, 2, 4, 8] + np.arange(10, 80, 10).tolist()
+            num_samples = 3
             seed = 1010
             qubits = (1, 2)
 

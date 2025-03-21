@@ -94,7 +94,7 @@ class RamseyXY(BaseExperiment):
             import numpy as np
             from qiskit_experiments.library.characterization import RamseyXY
 
-            delays = np.linspace(0, 10.e-7, 101)
+            delays = np.linspace(0, 10.e-7, 21)
             exp = RamseyXY((0,), backend=backend, delays=delays, osc_freq=2.0e6)
 
             exp_data = exp.run().block_for_results()
