@@ -34,25 +34,9 @@ Generating and customizing a figure using a plotter
 First, we display the default figure from a :class:`.T1` experiment as a starting point:
 
 .. note::
-    This tutorial requires the :mod:`qiskit_dynamics`, :external+qiskit_aer:doc:`qiskit-aer <index>`, and
-    :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` packages to run simulations.  You can install them
-    with ``python -m pip install qiskit-dynamics qiskit-aer qiskit-ibm-runtime``.
-
-.. jupyter-execute::
-    :hide-code:
-
-    import warnings
-
-    warnings.filterwarnings(
-        "ignore",
-        message=".*Due to the deprecation of Qiskit Pulse.*",
-        category=DeprecationWarning,
-    )
-    warnings.filterwarnings(
-        "ignore",
-        message=".*The entire Qiskit Pulse package is being deprecated.*",
-        category=DeprecationWarning,
-    )
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>`
+    package to run simulations.  You can install it
+    with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
 

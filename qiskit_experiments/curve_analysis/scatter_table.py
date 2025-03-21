@@ -23,8 +23,6 @@ from itertools import product
 import numpy as np
 import pandas as pd
 
-from qiskit.utils import deprecate_func
-
 
 LOG = logging.getLogger(__name__)
 
@@ -405,46 +403,6 @@ class ScatterTable:
                 "You may want to filter the data by a specific analysis name.",
                 UserWarning,
             )
-
-    @property
-    @deprecate_func(
-        since="0.9",
-        additional_msg="Curve data uses dataframe representation. Call .series_id instead.",
-        package_name="qiskit-experiments",
-        is_property=True,
-    )
-    def data_allocation(self) -> np.ndarray:
-        """Index of corresponding fit model."""
-        return self.series_id
-
-    @property
-    @deprecate_func(
-        since="0.9",
-        additional_msg="No alternative is provided. Use .series_name with set operation.",
-        package_name="qiskit-experiments",
-        is_property=True,
-    )
-    def labels(self) -> list[str]:
-        """List of model names."""
-        # Order sensitive
-        name_id_tups = self.dataframe.groupby(["series_name", "series_id"]).groups.keys()
-        return [k[0] for k in sorted(name_id_tups, key=lambda k: k[1])]
-
-    @deprecate_func(
-        since="0.9",
-        additional_msg="Use filter method instead.",
-        package_name="qiskit-experiments",
-    )
-    def get_subset_of(self, index: str | int) -> "ScatterTable":
-        """Filter data by series name or index.
-
-        Args:
-            index: Series index of name.
-
-        Returns:
-            A subset of data corresponding to a particular series.
-        """
-        return self.filter(series=index)
 
     def __len__(self):
         """Return the number of data points stored in the table."""
