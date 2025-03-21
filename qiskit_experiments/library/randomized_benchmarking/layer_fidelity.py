@@ -86,8 +86,13 @@ class LayerFidelity(BaseExperiment):
 
             # backend
             from qiskit_aer import AerSimulator
-            from qiskit_ibm_runtime.fake_provider import FakePerth
-            backend = AerSimulator.from_backend(FakePerth())
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -95,10 +100,10 @@ class LayerFidelity(BaseExperiment):
             from qiskit_experiments.library import StandardRB
             from qiskit_experiments.library.randomized_benchmarking import LayerFidelity
 
-            lengths = np.arange(1, 800, 200)
+            lengths = np.arange(1, 80, 10)
             two_qubit_layers=[[(0, 1), (3, 5)], [(1, 3), (5, 6)]]
 
-            num_samples = 6
+            num_samples = 3
             seed = 106
 
             exp = LayerFidelity(

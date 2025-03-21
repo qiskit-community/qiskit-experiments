@@ -65,22 +65,6 @@ in which we measure qubit relaxation with different data levels.
 The code below sets up the :class:`.T1` experiment.
 
 .. jupyter-execute::
-    :hide-code:
-
-    import warnings
-
-    warnings.filterwarnings(
-        "ignore",
-        message=".*Due to the deprecation of Qiskit Pulse.*",
-        category=DeprecationWarning,
-    )
-    warnings.filterwarnings(
-        "ignore",
-        message=".*The entire Qiskit Pulse package is being deprecated.*",
-        category=DeprecationWarning,
-    )
-
-.. jupyter-execute::
 
     import numpy as np
 
