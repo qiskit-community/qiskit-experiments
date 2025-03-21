@@ -63,13 +63,14 @@ and can analytically extract the desired values.
 
     qubit = 0
     conversion_factor = 1e-6 # our delay will be in micro-sec
-    delays = list(range(0, 50, 1) )
-    delays = [float(_) * conversion_factor for _ in delays]
+    delays = list(range(0, 51, 5) )
+    # Round so that the delay gates in the circuit display does not have trailing 9999's
+    delays = [round(float(_) * conversion_factor, ndigits=6) for _ in delays]
     number_of_echoes = 1
     
     # Create a T2Hahn experiment. Print the first circuit as an example
     exp1 = T2Hahn(physical_qubits=(qubit,), delays=delays, num_echoes=number_of_echoes)
-    print(exp1.circuits()[0])
+    print(exp1.circuits()[1])
 
 
 We run the experiment on a simple simulated backend tailored
@@ -118,7 +119,7 @@ curve is expected to decay toward :math:`0.5`, the natural choice for
 parameter :math:`B` is :math:`0.5`. When there is no :math:`T_2` error,
 we would expect that the probability to measure ``1`` is :math:`100\%`,
 therefore we will guess that A is :math:`0.5`. In this experiment,
-``t2hahn`` is the parameter of interest. Good estimate for it is the
+``t2hahn`` is the parameter of interest. A good estimate for it is the
 value computed in previous experiments on this qubit or a similar value
 computed for other qubits.
 
@@ -143,61 +144,35 @@ Number of echoes
 ----------------
 
 The user can provide the number of echoes that the circuit will perform.
-This will determine the amount of delay and echo gates. As the number of
-echoes increases, the total time of the circuit will grow. The echoes
+This will determine the amount of delay and echo gates.
+The echoes
 decrease the effects of :math:`T_{1}` noise and frequency inaccuracy
 estimation. Due to that, the Hahn Echo experiment improves our estimate
 for :math:`T_{2}`. In the following code, we will compare results of the
 Hahn experiment with ``0`` echoes and ``1`` echo. The analysis should
 fail for the circuit with ``0`` echoes. In order to see it, we will add
 frequency to the qubit and see how it affect the estimated :math:`T_2`.
-The list ``delays`` is the times provided to each delay gate, not the
-total delay time.
 
 .. jupyter-execute::
 
     import numpy as np
     
     qubit2 = 0
-    # set the desired delays
-    conversion_factor = 1e-6
-    
-    # The delays aren't equally spaced due the behavior of the exponential
-    # decay curve where the change in the result during earlier times is 
-    # larger than later times. In addition, since the total delay is 
-    # 'delay * 2 * num_of_echoes', the construction of the delays for 
-    # each experiment will be different such that their total length
-    # will be the same.
-    
-    # Delays for Hahn Echo Experiment with 0 echoes
-    delays2 = np.append(
-                        (np.linspace(0.0, 51.0, num=26)).astype(float),
-                        (np.linspace(53, 100.0, num=25)).astype(float),
-                    )
-    
-    delays2 = [float(_) * conversion_factor for _ in delays2]
-    
-    # Delays for Hahn Echo Experiment with 1 echo
-    delays3 = np.append(
-                        (np.linspace(0.0, 25.5, num=26)).astype(float),
-                        (np.linspace(26.5, 50, num=25)).astype(float),
-                    )  
-    delays3 = [float(_) * conversion_factor for _ in delays3]
     
     num_echoes = 1
-    estimated_t2hahn2 = 30 * conversion_factor
+    estimated_t2hahn2 = 30e-6
     
     # Create a T2Hahn experiment with 0 echoes
-    exp2_0echoes = T2Hahn((qubit2,), delays2, num_echoes=0)
+    exp2_0echoes = T2Hahn((qubit2,), delays, num_echoes=0)
     exp2_0echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
-    print("The first circuit of hahn echo experiment with 0 echoes:")
-    print(exp2_0echoes.circuits()[0])
+    print("The second circuit of hahn echo experiment with 0 echoes:")
+    print(exp2_0echoes.circuits()[1])
     
     # Create a T2Hahn experiment with 1 echo. Print the first circuit as an example
-    exp2_1echoes = T2Hahn((qubit2,), delays3, num_echoes=num_echoes)
+    exp2_1echoes = T2Hahn((qubit2,), delays, num_echoes=num_echoes)
     exp2_1echoes.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn2, "base": 0.5})
-    print("The first circuit of hahn echo experiment with 1 echo:")
-    print(exp2_1echoes.circuits()[0])
+    print("The second circuit of hahn echo experiment with 1 echo:")
+    print(exp2_1echoes.circuits()[1])
     
 
 

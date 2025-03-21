@@ -97,9 +97,13 @@ class StandardRB(BaseExperiment):
 
             # backend
             from qiskit_aer import AerSimulator
-            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
 
-            backend = AerSimulator.from_backend(FakePerth())
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
@@ -108,9 +112,9 @@ class StandardRB(BaseExperiment):
             from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
             import qiskit.circuit.library as circuits
 
-            lengths_2_qubit = np.arange(1, 200, 30)
-            lengths_1_qubit = np.arange(1, 800, 200)
-            num_samples = 10
+            lengths_2_qubit = np.arange(1, 70, 10)
+            lengths_1_qubit = np.arange(1, 400, 80)
+            num_samples = 3
             seed = 1010
             qubits = (1, 2)
 
