@@ -11,20 +11,17 @@
 # that they have been altered from the originals.
 
 """Test the fine amplitude characterization and calibration experiments."""
-import warnings
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data
 
-from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit_ibm_runtime.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import (
     FineXAmplitude,
     FineSXAmplitude,
-    FineZXAmplitude,
 )
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQFineAmpHelper as FineAmpHelper
@@ -76,41 +73,6 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         backend = FakeArmonkV2()
         amp_exp = FineXAmplitude([0], backend=backend)
         self.assertRoundTripSerializable(amp_exp._transpiled_circuits())
-
-
-@ddt
-class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
-    """Test the fine amplitude experiment."""
-
-    @data(-0.08, -0.03, -0.02, 0.02, 0.06, 0.07)
-    def test_end_to_end(self, pi_ratio):
-        """Test the experiment end to end."""
-
-        error = -np.pi * pi_ratio
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=r".*Qiskit 2\.0.*")
-            amp_exp = FineZXAmplitude((0, 1))
-        backend = MockIQBackend(FineAmpHelper(error, np.pi / 2, "szx"))
-        backend.target.add_instruction(Gate("szx", 2, []), properties={(0, 1): None})
-
-        expdata = amp_exp.run(backend)
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results("d_theta", dataframe=True).iloc[0]
-        d_theta = result.value.n
-
-        tol = 0.04
-
-        self.assertAlmostEqual(d_theta, error, delta=tol)
-        self.assertEqual(result.quality, "good")
-
-    def test_experiment_config(self):
-        """Test converting to and from config works"""
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=r".*Qiskit 2\.0.*")
-            exp = FineZXAmplitude((0, 1))
-            loaded_exp = FineZXAmplitude.from_config(exp.config())
-        self.assertNotEqual(exp, loaded_exp)
-        self.assertEqualExtended(exp, loaded_exp)
 
 
 class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
@@ -179,15 +141,3 @@ class TestSpecializations(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FineSXAmplitude([0])
         self.assertRoundTripSerializable(exp)
-
-    @data((2, 3), (3, 1), (0, 1))
-    def test_measure_qubits(self, qubits):
-        """Test that the measurement is on the logical qubits."""
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=r".*Qiskit 2\.0.*")
-            fine_amp = FineZXAmplitude(qubits)
-        for circuit in fine_amp.circuits():
-            self.assertEqual(circuit.num_qubits, 2)
-            self.assertEqual(circuit.data[-1].operation.name, "measure")
-            self.assertEqual(circuit.data[-1].qubits[0], circuit.qregs[0][1])
