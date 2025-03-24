@@ -155,17 +155,18 @@ class LayerFidelity(BaseExperiment):
             one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
                             If not specified (but ``backend`` is supplied),
                             all 1q-gates supported in the backend are automatically set.
-            layer_barrier: Optional, enforce a barrier across the whole layer. Default is True
-            which is the defined protocol for layer fidelity. If this is set to false the code runs
-            simultaneous direct 1+2Q RB without a barrier across all qubits.
+            layer_barrier (bool): Optional, enforce a barrier across the whole layer.
+                Default is True, which is the defined protocol for layer fidelity.
+                If this is set to false the code runs
+                simultaneous direct 1+2Q RB without a barrier across all qubits.
             min_delay: Optional. Define a minimum delay in each 2Q layer in units of dt. This
-            delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
-            in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
-            testing by removing a gate from the layer without changing the layer duration. If not
-            None then is a list equal in length to the number of two_qubit_layers.  Note that
-            this options requires at least one 1Q edge (a qubit in physical_qubits but
-            not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
-            if layer_barrier=False.
+                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
+                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
+                testing by removing a gate from the layer without changing the layer duration. If not
+                None then is a list equal in length to the number of two_qubit_layers.  Note that
+                this options requires at least one 1Q edge (a qubit in physical_qubits but
+                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
+                if layer_barrier=False.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -269,13 +270,15 @@ class LayerFidelity(BaseExperiment):
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
                 for building circuits of RB sequences.
-            layer_barrier (bool): Optional, enforce a barrier across the whole layer. Default is True
-            which is the defined protocol for layer fidelity. If this is set to false the code runs
-            simultaneous direct 1+2Q RB without a barrier across all qubits.
-            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt. This
-            delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
-            in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
-            testing by removing a gate from the layer without changing the layer duration.
+            layer_barrier (bool): Optional, enforce a barrier across the whole layer.
+                Default is True, which is the defined protocol for layer fidelity.
+                If this is set to false the code runs
+                simultaneous direct 1+2Q RB without a barrier across all qubits.
+            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt.
+                This delay operation will be applied in any 1Q edge of the layer during
+                the 2Q gate layer in order to enforce a minimum duration of the 2Q layer.
+                This enables some crosstalk testing by removing a gate from the layer without
+                changing the layer duration.
         """
         options = super()._default_experiment_options()
         options.update_options(
