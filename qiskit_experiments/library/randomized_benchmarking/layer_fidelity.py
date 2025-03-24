@@ -163,8 +163,9 @@ class LayerFidelity(BaseExperiment):
             in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
             testing by removing a gate from the layer without changing the layer duration. If not
             None then is a list equal in length to the number of two_qubit_layers.  Note that
-            this options requires at least one 1Q edge (a qubit in physical_qubits but not in two_qubit_layers)
-            to be applied. Also will not have an impact on the 2Q gates if layer_barrier=False.
+            this options requires at least one 1Q edge (a qubit in physical_qubits but
+            not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
+            if layer_barrier=False.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
