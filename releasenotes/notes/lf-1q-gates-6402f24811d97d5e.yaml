@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    :class:`.LayerFidelity` now filters out non-standard one qubit gates from
+    the target when choosing the set to use for transpiling the one qubit
+    Clifford gates. Previously, it would use all one qubit gates in the
+    backend's target. With Qiskit 2.0, transpiling with a non-standard gate in
+    the way that :class:`.LayerFidelity` does leads to an exception. A warning
+    is emitted if a non-standard one qubit gate is filtered out.
