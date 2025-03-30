@@ -14,6 +14,7 @@ Layer Fidelity RB Experiment class.
 """
 import functools
 import logging
+import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
 from numpy.random import Generator, default_rng
@@ -202,7 +203,15 @@ class LayerFidelity(BaseExperiment):
             one_qubit_basis_gates = []
             for op in self.backend.target.operations:
                 if isinstance(op, Gate) and op.num_qubits == 1:
-                    one_qubit_basis_gates.append(op.name)
+                    if op.name in GATE_NAME_MAP:
+                        one_qubit_basis_gates.append(op.name)
+                    else:
+                        warnings.warn(
+                            f'Not using single qubit gate "{op.name}". Please '
+                            "open an issue if support for using gates outside "
+                            "of Qiskit's standard gates is needed for layer "
+                            "fidelity."
+                        )
             LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
             if not one_qubit_basis_gates:
                 raise QiskitError(
