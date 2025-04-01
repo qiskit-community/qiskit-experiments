@@ -274,11 +274,14 @@ class LayerFidelity(BaseExperiment):
                 Default is True, which is the defined protocol for layer fidelity.
                 If this is set to false the code runs
                 simultaneous direct 1+2Q RB without a barrier across all qubits.
-            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt.
-                This delay operation will be applied in any 1Q edge of the layer during
-                the 2Q gate layer in order to enforce a minimum duration of the 2Q layer.
-                This enables some crosstalk testing by removing a gate from the layer without
-                changing the layer duration.
+            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt. This
+                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
+                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
+                testing by removing a gate from the layer without changing the layer duration. If not
+                None then is a list equal in length to the number of two_qubit_layers.  Note that
+                this options requires at least one 1Q edge (a qubit in physical_qubits but
+                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
+                if layer_barrier=False.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -394,6 +397,11 @@ class LayerFidelity(BaseExperiment):
         else:
             gate2q = GATE_NAME_MAP[opts.two_qubit_gate]
         gate2q_cliff = num_from_2q_circuit(Clifford(gate2q).to_circuit())
+
+        # warn if min delay is not None and barrier is false
+        if opts.min_delay is not None and not opts.layer_barrier:
+            warnings.warn("Min delay applied when layer_barrier is False.")
+
         # Circuit generation
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
@@ -497,6 +505,11 @@ class LayerFidelity(BaseExperiment):
         barrier_inst_lst,
         min_delay=None,
     ):
+
+        # warn if min_delay is not none and one_qubits is empty
+        if min_delay is not None and len(one_qubits) == 0:
+            warnings.warn("Min delay will not be applied because there are no 1Q edges.")
+
         # initialize cliffords and a ciruit (0: identity clifford)
         cliffs_2q = [0] * len(two_qubit_layer)
         cliffs_1q = [0] * len(one_qubits)
