@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.9.0-10-gea34d61ce</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.9.0-11-g4c7f2b448</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.9.0-10-gea34d61ce</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.9.0-11-g4c7f2b448</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0-10-gea34d61ce</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0-11-g4c7f2b448</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -668,6 +668,8 @@
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">SeedSequence</span><span class="p">,</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">Generator</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">two_qubit_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">one_qubit_basis_gates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">layer_barrier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">min_delay</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a layer fidelity experiment.</span>
 
@@ -689,6 +691,18 @@
 <span class="sd">            one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.</span>
 <span class="sd">                            If not specified (but ``backend`` is supplied),</span>
 <span class="sd">                            all 1q-gates supported in the backend are automatically set.</span>
+<span class="sd">            layer_barrier (bool): Optional, enforce a barrier across the whole layer.</span>
+<span class="sd">                Default is True, which is the defined protocol for layer fidelity.</span>
+<span class="sd">                If this is set to false the code runs</span>
+<span class="sd">                simultaneous direct 1+2Q RB without a barrier across all qubits.</span>
+<span class="sd">            min_delay: Optional. Define a minimum delay in each 2Q layer in units of dt. This</span>
+<span class="sd">                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer</span>
+<span class="sd">                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk</span>
+<span class="sd">                testing by removing a gate from the layer without changing the layer duration. If not</span>
+<span class="sd">                None then is a list equal in length to the number of two_qubit_layers.  Note that</span>
+<span class="sd">                this options requires at least one 1Q edge (a qubit in physical_qubits but</span>
+<span class="sd">                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates</span>
+<span class="sd">                if layer_barrier=False.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If any invalid argument is supplied.</span>
@@ -767,6 +781,8 @@
             <span class="n">two_qubit_layers</span><span class="o">=</span><span class="n">two_qubit_layers</span><span class="p">,</span>
             <span class="n">two_qubit_gate</span><span class="o">=</span><span class="n">two_qubit_gate</span><span class="p">,</span>
             <span class="n">one_qubit_basis_gates</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">one_qubit_basis_gates</span><span class="p">),</span>
+            <span class="n">layer_barrier</span><span class="o">=</span><span class="n">layer_barrier</span><span class="p">,</span>
+            <span class="n">min_delay</span><span class="o">=</span><span class="n">min_delay</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Verify two_qubit_gate and one_qubit_basis_gates</span>
@@ -790,6 +806,18 @@
 <span class="sd">            one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.</span>
 <span class="sd">            clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use</span>
 <span class="sd">                for building circuits of RB sequences.</span>
+<span class="sd">            layer_barrier (bool): Optional, enforce a barrier across the whole layer.</span>
+<span class="sd">                Default is True, which is the defined protocol for layer fidelity.</span>
+<span class="sd">                If this is set to false the code runs</span>
+<span class="sd">                simultaneous direct 1+2Q RB without a barrier across all qubits.</span>
+<span class="sd">            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt. This</span>
+<span class="sd">                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer</span>
+<span class="sd">                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk</span>
+<span class="sd">                testing by removing a gate from the layer without changing the layer duration. If not</span>
+<span class="sd">                None then is a list equal in length to the number of two_qubit_layers.  Note that</span>
+<span class="sd">                this options requires at least one 1Q edge (a qubit in physical_qubits but</span>
+<span class="sd">                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates</span>
+<span class="sd">                if layer_barrier=False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
@@ -800,6 +828,8 @@
             <span class="n">two_qubit_gate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">one_qubit_basis_gates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">clifford_synthesis_method</span><span class="o">=</span><span class="n">DEFAULT_SYNTHESIS_METHOD</span><span class="p">,</span>
+            <span class="n">layer_barrier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">min_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">options</span>
 
@@ -914,6 +944,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">gate2q</span> <span class="o">=</span> <span class="n">GATE_NAME_MAP</span><span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="p">]</span>
         <span class="n">gate2q_cliff</span> <span class="o">=</span> <span class="n">num_from_2q_circuit</span><span class="p">(</span><span class="n">Clifford</span><span class="p">(</span><span class="n">gate2q</span><span class="p">)</span><span class="o">.</span><span class="n">to_circuit</span><span class="p">())</span>
+
+        <span class="c1"># warn if min delay is not None and barrier is false</span>
+        <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">min_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">layer_barrier</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Min delay applied when layer_barrier is False.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Circuit generation</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">i_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">num_samples</span><span class="p">):</span>
@@ -927,9 +962,32 @@
                 <span class="n">composite_clbits</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                     <span class="p">[(</span><span class="n">c</span><span class="p">,)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">num_2q_gates</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">num_2q_gates</span> <span class="o">+</span> <span class="n">num_1q_gates</span><span class="p">)]</span>
                 <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">min_delay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">min_delay</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">min_delay</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">min_delay</span><span class="p">[</span><span class="n">i_set</span><span class="p">]</span>
+
                 <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">lengths</span><span class="p">:</span>
                     <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">num_qubits</span><span class="p">)</span>
-                    <span class="n">barrier_inst</span> <span class="o">=</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">Barrier</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">),</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+                    <span class="c1"># define the barrier instruction</span>
+                    <span class="n">full_barrier_inst</span> <span class="o">=</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">Barrier</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">),</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">layer_barrier</span><span class="p">:</span>
+                        <span class="c1"># we want separate barriers for each qubit so define them individually</span>
+                        <span class="n">barrier_inst_gate</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">two_q_gate</span> <span class="ow">in</span> <span class="n">two_qubit_layer</span><span class="p">:</span>
+                            <span class="n">barrier_inst_gate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">CircuitInstruction</span><span class="p">(</span>
+                                    <span class="n">Barrier</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                                    <span class="p">[</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">two_q_gate</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">two_q_gate</span><span class="p">[</span><span class="mi">1</span><span class="p">]]],</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">one_q</span> <span class="ow">in</span> <span class="n">one_qubits</span><span class="p">:</span>
+                            <span class="n">barrier_inst_gate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">one_q</span><span class="p">]])</span>
+                            <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">barrier_inst_gate</span> <span class="o">=</span> <span class="p">[</span><span class="n">full_barrier_inst</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__circuit_body</span><span class="p">(</span>
                         <span class="n">circ</span><span class="p">,</span>
                         <span class="n">length</span><span class="p">,</span>
@@ -940,10 +998,11 @@
                         <span class="n">_to_gate_2q</span><span class="p">,</span>
                         <span class="n">gate2q</span><span class="p">,</span>
                         <span class="n">gate2q_cliff</span><span class="p">,</span>
-                        <span class="n">barrier_inst</span><span class="p">,</span>
+                        <span class="n">barrier_inst_gate</span><span class="p">,</span>
+                        <span class="n">min_delay</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="c1"># add the measurements</span>
-                    <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">barrier_inst</span><span class="p">)</span>
+                    <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">full_barrier_inst</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">clbits</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">composite_qubits</span><span class="p">,</span> <span class="n">composite_clbits</span><span class="p">):</span>
                         <span class="n">circ</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">clbits</span><span class="p">)</span>
                     <span class="c1"># store composite structure in metadata</span>
@@ -991,8 +1050,14 @@
         <span class="n">_to_gate_2q</span><span class="p">,</span>
         <span class="n">gate2q</span><span class="p">,</span>
         <span class="n">gate2q_cliff</span><span class="p">,</span>
-        <span class="n">barrier_inst</span><span class="p">,</span>
+        <span class="n">barrier_inst_lst</span><span class="p">,</span>
+        <span class="n">min_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+
+        <span class="c1"># warn if min_delay is not none and one_qubits is empty</span>
+        <span class="k">if</span> <span class="n">min_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_qubits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Min delay will not be applied because there are no 1Q edges.&quot;</span><span class="p">)</span>
+
         <span class="c1"># initialize cliffords and a ciruit (0: identity clifford)</span>
         <span class="n">cliffs_2q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">two_qubit_layer</span><span class="p">)</span>
         <span class="n">cliffs_1q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_qubits</span><span class="p">)</span>
@@ -1011,7 +1076,8 @@
                 <span class="n">sample</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">NUM_1Q_CLIFFORD</span><span class="p">)</span>
                 <span class="n">cliffs_1q</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">compose_1q</span><span class="p">(</span><span class="n">cliffs_1q</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">sample</span><span class="p">)</span>
                 <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">_to_gate_1q</span><span class="p">(</span><span class="n">sample</span><span class="p">),</span> <span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">q</span><span class="p">],),</span> <span class="p">())</span>
-            <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">barrier_inst</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">barrier_inst</span> <span class="ow">in</span> <span class="n">barrier_inst_lst</span><span class="p">:</span>
+                <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">barrier_inst</span><span class="p">)</span>
             <span class="c1"># add two qubit gates</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">two_qubit_layer</span><span class="p">):</span>
                 <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">gate2q</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpair</span><span class="p">),</span> <span class="p">())</span>
@@ -1019,8 +1085,12 @@
                 <span class="c1"># TODO: add dd if necessary</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">one_qubits</span><span class="p">):</span>
                 <span class="c1"># TODO: add dd if necessary</span>
-                <span class="k">pass</span>
-            <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">barrier_inst</span><span class="p">)</span>
+                <span class="c1"># if there is a min_delay, just need</span>
+                <span class="c1"># to add to one of the qubits</span>
+                <span class="k">if</span> <span class="n">min_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">circ</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">min_delay</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">barrier_inst</span> <span class="ow">in</span> <span class="n">barrier_inst_lst</span><span class="p">:</span>
+                <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">barrier_inst</span><span class="p">)</span>
         <span class="c1"># add the last inverse</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">two_qubit_layer</span><span class="p">):</span>
             <span class="n">inv</span> <span class="o">=</span> <span class="n">inverse_2q</span><span class="p">(</span><span class="n">cliffs_2q</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
@@ -1087,7 +1157,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=8f310174"></script>
+</div><script src="../../../../_static/documentation_options.js?v=026f327b"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
