@@ -1,5 +1,5 @@
 ---
-Features:
+features:
   - |
     :class:`.LayerFidelity` has two new options, ``layer_barrier`` and ``min_delay``. 
     ``layer_barrier`` turns off the barrier between all qubits in the layer, 
