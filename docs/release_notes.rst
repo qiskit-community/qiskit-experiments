@@ -5,6 +5,320 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.9.0
 
+.. _Release Notes_0.9.0:
+
+0.9.0
+=====
+
+.. _Release Notes_0.9.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prepare-0.9.0-282a17f0a3007d62.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+The Qiskit Experiments 0.9.0 release primarily provides compatibility with
+version 2.0 of the `Qiskit SDK <https://www.ibm.com/quantum/qiskit>`__. A major
+change is the removal the previously deprecated support for pulse experiments
+and calibration due to the removal of Qiskit Pulse in Qiskit 2.0. Some other
+smaller changes were also needed to adapt to Qiskit 2.0 as described below.
+Additionally, previously deprecated code related curve fitting and restless
+measurements was removed. Some additional code paths have been marked as
+deprecated, particularly relating to :meth:`.ExperimentData.analysis_results`
+as described below.
+
+
+.. _Release Notes_0.9.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/deprecate-old-curvefit-8f532de113c184c4.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Curve analysis helper functions :class:`.utils.inverse_weighted_variance`,
+  :class:`.utils.sample_weighted_average`, and
+  :class:`.utils.shot_weighted_average` were documented as public. These
+  functions were present in previous releases but not documented as public.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Classes :class:`.MeasLevel` and :class:`.MeasReturnType` were added to
+  enumerate the supported measurement levels (kerneled or classified) and
+  return types (averaged or not) for the results of jobs run by experiments.
+  Previously, private classes of Qiskit were inadvertently used for these
+  purposes but they were removed in Qiskit 2.0.
+
+
+.. _Release Notes_0.9.0_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/analysis-results-deprecations-bb97e067d18a2a08.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- To aid with the deprecation of the ``results`` argument to
+  :meth:`.ExperimentData.add_analysis_results` (see Deprecation Notes),
+  :meth:`.AnalysisResultData.as_table_element` was added to
+  :class:`.AnalysisResultData`. The new method allows for a result to be
+  passed directly to :meth:`.ExperimentData.add_analysis_results` through
+  Python dictionary unpacking like
+  ``expdata.add_analysis_result(**result.as_table_element())``.
+
+.. releasenotes/notes/analysis-results-deprecations-bb97e067d18a2a08.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The way that warnings about deprecated arguments are issued has been
+  updated to be more reliable. Previously, warnings would not be issued for
+  deprecated arguments that were left with their default values or that were
+  used in internal calls by other functions in the package. The result of the
+  old behavior was mainly that arguments to
+  :meth:`.ExperimentData.add_analysis_results` and
+  :meth:`.ExperimentData.analysis_results` that should have previously been
+  issuing pending deprecation warnings did not. This release still proceeds
+  with upgrading those pending deprecations to full deprecations.
+
+.. releasenotes/notes/analysis-results-deprecations-bb97e067d18a2a08.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- :class:`.RBAnalysis` has been updated so that it accepts for the
+  ``epg_1_qubit`` option the form of analysis results returned by
+  :meth:`.ExperimentData.analysis_results` when passing ``dataframe=True``.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- In preparation for Qiskit 2.0, references to ``BackendV1`` have been
+  guarded so that they do not cause import errors. ``BackendV1`` is still
+  supported for now, but support will be removed in a future release.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- :class:`.LocalReadouMitigator` now provides a more specific warning if it
+  is used with a backend without a ``properties()`` method or with a backend
+  that does not the require readout error properties.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- :class:`.ExperimentData` was updated to handle changes to
+  :class:`qiskit.result.Result` in Qiskit 2.0. With Qiskit 2.0, the result
+  header is a dict instead of a custom class. Qiskit Experiments uses this
+  header to store metadata about experiments' circuits and now handles both
+  the dict and class forms.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- A performance issue in :class:`.QuantumVolume` was addressed. When Qiskit
+  Aer is installed, :class:`.QuantumVolume` uses
+  :class:`qiskit_aer.AerSimulator` to simulate the outcomes of the quantum
+  volume circuits to determine the heavy output probabilities. In its default
+  instantiation, ``AerSimulator`` regenerates its
+  :class:`qiskit.transpiler.Target` every time it is accessed and this
+  generation takes an appreciable amount of time. Because the target was
+  being accessed separately for every circuit, this overhead could accumulate
+  to over a minute in the standard 100 circuit experiment. This overhead was
+  reduced by processing all the circuits in one pass.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Previously deprecated experiments involving pulse gate calibrations have
+  been removed, due to the upcoming `removal of Qiskit Pulse in Qiskit
+  2.0 <https://github.com/Qiskit/qiskit/issues/13063>`_. These experiments
+  include ``QubitSpectroscopy``, ``EFSpectroscopy``, ``Rabi``, ``EFRabi``,
+  ``ResonatorSpectroscopy``, ``RoughDrag``, ``StarkRamseyXY``,
+  ``StarkRamseyXYAmpScan``, ``StarkP1Spectroscopy``,
+  ``CrossResonanceHamiltonian``, ``EchoedCrossResonanceHamiltonian``,
+  ``BaseCalibrationExperiment``,
+  ``RoughFrequencyCal``, ``RoughEFFrequencyCal``, ``FrequencyCal``,
+  ``FineFrequencyCal``, ``RoughDragCal``, ``FineXDragCal``,
+  ``FineSXDragCal``, ``FineDragCal``, ``FineAmplitudeCal``,
+  ``FineXAmplitudeCal``, ``FineSXAmplitudeCal``, ``HalfAngleCal``,
+  ``RoughAmplitudeCal``, ``RoughXSXAmplitudeCal``, and
+  ``EFRoughXSXAmplitudeCal``. The associated analysis and helper classes like
+  ``ResonanceAnalysis``, ``CrossResonanceHamiltonianAnalysis``,
+  ``DragCalAnalysis``, ``ResonatorSpectroscopyAnalysis``, and
+  ``StarkCoefficients`` were also removed.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Also due to the deprecation of Qiskit Pulse, support for providing pulse
+  gate calibrations to excite higher levels has been removed from
+  :class:`.MultiStateDiscrimination`.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The ``Calibrations`` class and all of Qiskit Experiments' calibration
+  support (including gate libraries and calibration updaters and experiments)
+  have been removed. The calibrations features were based on adjusting
+  parameters of pulses used in gates. With the removal of pulse support in
+  Qiskit 2.0, it no longer was feasible to keep support for features that
+  rely on pulse gate  calibrations.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The methods of :class:`.BackendData` and :class:`.BackendTiming` that
+  involved pulse gate features have been removed. The removed methods were
+  ``control_channel``, ``drive_channel``, ``measure_channel``,
+  ``acquire_channel``, ``min_length``, ``pulse_alignment``,
+  ``acquire_alignment``, ``drive_freqs``,  and ``meas_freqs`` of
+  ``BackendData`` and ``round_pulse`` and ``pulse_time`` of
+  ``BackendTiming``.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The ability for :class:`.ExperimentEncoder` and :class:`.ExperimentDecoder`
+  to work with the pulse ``ScheduleBlock`` class has been removed.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- ``qiskit-dynamics`` has been removed from the ``extras`` extra of the
+  package. This means that ``pip install qiskit-experiments[extras]`` will no
+  longer install ``qiskit-dynamics``. :class:`.PulseBackend` and
+  :class:`.SingleTransmonTestBackend` still require ``qiskit-dynamics`` to be
+  installed, so it must be installed separately. The reason for this change
+  is that Qiskit Experiments aims to keep compatibility with the latest
+  Qiskit and so will not require a package that pins the Qiskit version while
+  Qiskit Dynamics plans to pin to Qiskit version 1.
+
+.. releasenotes/notes/remove-restless-43e2c683bd7a4d1d.yaml @ b'167b51283f3c700def4c4cbe4f93f8f2cf1c5f48'
+
+- The previously deprecated support for running experiments with restless
+  measurements has been removed. The ``RestlessMixin`` class has been removed
+  from the package and thus has also been removed from classes like
+  :class:`.RamseyXY` and :class:`.StandardRB` on which it was previously
+  applied.
+
+.. releasenotes/notes/remove-return-fit-parameters-1c96a70a1bcf99a1.yaml @ b'a9a1ff5a191d8647cece73473d2f71faca46979c'
+
+- The deprecated analysis option ``return_fit_parameters`` has been removed
+  from :class:`.CurveAnalysis` and :class:`.CompositeCurveAnalysis`. This
+  change means that the fit parameter analysis result that started with
+  ``@Parameters`` will no longer be included in the set of analysis results.
+  Code calling :meth:`.ExperimentData.analysis_results` with a numerical
+  index, rather than a result name or using ``dataframe=True`` (the
+  recommended pattern) may find a different result than it did before. Fit
+  parameters should be accessed using :meth:`.ExperimentData.artifacts` to
+  retrieve the ``fit_parameters`` artifact.
+
+
+.. _Release Notes_0.9.0_Deprecation Notes:
+
+Deprecation Notes
+-----------------
+
+.. releasenotes/notes/analysis-results-deprecations-bb97e067d18a2a08.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The ``results`` argument to :meth:`.ExperimentData.add_analysis_results`,
+  which had previously been marked as pending deprecation, has now been
+  marked as deprecated. The preferred form going forward is to create
+  analysis results by passing individual properties directly as keyword
+  arguments to the method rather than creating separate analysis result
+  objects and passing them to the method. To reflect the fact that a single
+  result is added per call in this way, the method
+  :meth:`.ExperimentData.add_analysis_result` has been added as an
+  alternative to :meth:`.ExperimentData.add_analysis_results`.
+
+.. releasenotes/notes/analysis-results-deprecations-bb97e067d18a2a08.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Passing ``False`` to :meth:`.ExperimentData.analysis_results` for the
+  ``dataframe`` argument has been deprecated. Previously, passing
+  ``False`` had been marked as pending deprecation. To preserve backwards
+  compatibility, the default value of ``dataframe`` remains ``False`` but a
+  future release could change the default to ``True``.  Because this is a
+  major change to the interface, it is not planned that the default will
+  change in the next three months (the shortest allowed deprecation cycle).
+
+  A previously common pattern was to retrieve a single result by name from an
+  :class:`.ExperimentData` object ``expdata`` like:
+
+  .. code-block:: python
+
+     result = expdata.analysis_results("T1")
+     print(f"T1 is {result.value}")
+
+  which makes use of implicit returning the result directly instead of a list
+  when there is only one match. With ``dataframe=True``, the dataframe is not
+  implicitly truncated so the first match must be selected.
+  :attr:`pandas.DataFrame.iloc` can be used to select the first match. The
+  following block is equivalent to the previous example:
+
+  .. code-block:: python
+
+     result = expdata.analysis_results("T1", dataframe=True)
+     print(f"T1 is {result.iloc[0].value}")
+
+.. releasenotes/notes/deprecate-old-curvefit-8f532de113c184c4.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Curve analysis utility functions
+  :func:`.filter_data`,
+  :func:`.mean_xy_data`, :func:`.multi_mean_xy_data`, and
+  :func:`.data_sort` have been
+  deprecated. These methods were written to work with the previous
+  representation of curve data. Curve analysis now works with
+  :class:`.ScatterTable` which provides a ``filter`` method which can be used
+  with functions like :func:`.shot_weighted_average` to achieve similar
+  results to the deprecated functions.
+
+.. releasenotes/notes/deprecate-old-curvefit-8f532de113c184c4.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The :class:`.ScatterTable` properties ``data_allocation`` and
+  ``labels`` and method ``get_subset_of`` have been deprecated.
+  ``data_allocation`` was renamed to ``series_id``. ``labels`` can be found
+  by looking at the ``series_name`` of the scatter table's ``dataframe``.
+  Data subsets can be obtained using :meth:`.ScatterTable.filter` in place of
+  ``get_subset_of``.
+
+.. releasenotes/notes/qiskit2-removals-ee52d83a3eaffd06.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- Support for using ``BackendV1`` with Qiskit Experiments is deprecated. Some
+  code paths will generate warnings when using ``BackendV1`` but not all
+  cases are checked. Support is planned to be removed along all support for
+  Qiskit 1 in a future release near the end of support for Qiskit 1.4.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- :class:`.FineZXAmplitude` has been deprecated. It was not deprecated along
+  with the other pulse-related experiments in the previous Qiskit Experiments
+  release, but it requires an ``ZX`` rotation of :math:`\pi / 2` which is not
+  easily realizable on any known providers without pulse calibrations.
+
+.. releasenotes/notes/remove-pulse-deprecations-1abbc72dd1376ec2.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- :class:`.PulseBackend` and :class:`.SingleTransmonTestBackend` have been
+  deprecated. These backend classes use `Qiskit Dynamics
+  <https://github.com/qiskit-community/qiskit-dynamics>`_ to simulate quantum
+  circuits using Qiskit Pulse with pulse-level simulation and were mainly
+  intended for testing purposes. With the removal of pulse features in Qiskit
+  2.0, these classes can no longer be maintained. Their deprecation was
+  missed in the previous round of pulse feature deprecation. While the
+  classes are kept for one more release cycle, they require Qiskit less than
+  2.0 in order to function.
+
+.. releasenotes/notes/remove-restless-43e2c683bd7a4d1d.yaml @ b'167b51283f3c700def4c4cbe4f93f8f2cf1c5f48'
+
+- The data processing nodes :class:`.RestlessNode`,
+  :class:`.RestlessToCounts`, and :class:`.RestlessToIQ` have been
+  deprecated. These deprecations follow on the removal of ``RestlessMixin``
+  and complete the deprecation of restless measurement code from
+  qiskit-experiments. In principle, users may copy the code of these
+  deprecated nodes and use it to create a custom restless data processor for
+  use on experiments even without support in the base Qiskit Experiments
+  package.
+
+
+.. _Release Notes_0.9.0_API Changes for Experiment Authors:
+
+API Changes for Experiment Authors
+----------------------------------
+
+.. releasenotes/notes/pyproject-016b2b578cf04a49.yaml @ b'fd279872e9236539ab15df16077a0a764e4bdf66'
+
+- The Python package configuration has been moved from ``setup.py`` to
+  ``pyproject.toml``. As part of this move, the separate requirements files
+  have also been moved into ``pyproject.toml``. See the `CONTRIBUTING.md file
+  <https://github.com/qiskit-community/qiskit-experiments/blob/main/CONTRIBUTING.md>`_
+  in the `source repository
+  <https://github.com/qiskit-community/qiskit-experiments>`__ for information
+  on setting up a development environment if not using ``tox`` (which should
+  continue working the same way).
+
+
 .. _Release Notes_0.8.2:
 
 0.8.2
@@ -176,7 +490,7 @@ Other Notes
   :class:`~.MitigatedStateTomography`,
   :class:`~.ProcessTomography` and
   :class:`~.StateTomography`.
-  The backends used in the code examples are simulators 
+  The backends used in the code examples are simulators
   such as, ``SingleTransmonTestBackend()`` and
   ``AerSimulator(FakePerth())``.
 
@@ -193,7 +507,7 @@ Prelude
 
 .. releasenotes/notes/0.8/primitives_add-1a3bcbb2f189d18e.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
 
-In this release we added support for the Qiskit primitives. Qiskit Experiments will execute circuits using :class:`qiskit_ibm_runtime.SamplerV2` by default. 
+In this release we added support for the Qiskit primitives. Qiskit Experiments will execute circuits using :class:`qiskit_ibm_runtime.SamplerV2` by default.
 
 
 .. _Release Notes_0.8.0_Upgrade Notes:
@@ -210,7 +524,7 @@ Upgrade Notes
   instance to be used for circuit execution. ``run()`` also accepts a ``backend_run``
   option which will cause the old ``backend.run`` path to be used for circuit execution.
   However, the ``backend.run()`` method is scheduled to be removed from
-  qiskit-ibm-runtime in the near future.  
+  qiskit-ibm-runtime in the near future.
 
 
 .. _Release Notes_0.8.0_Deprecation Notes:
@@ -264,9 +578,9 @@ Bug Fixes
 
 .. releasenotes/notes/0.8/fixes_qiskit_1_2-6d60334235081088.yaml @ b'182a6aee495cf3456fd1f14e34af05881c96b4e6'
 
-- Qiskit Experiments was updated to be compatible with Qiskit 1.2, 
+- Qiskit Experiments was updated to be compatible with Qiskit 1.2,
   including removing references to ``QuantumCircuit._parameter_table``
-  which prevented randomized benchmarking and layer fidelity 
+  which prevented randomized benchmarking and layer fidelity
   experiments from running.
 
 
@@ -296,21 +610,21 @@ New Features
 - Add a new experiment class :class:`.LayerFidelity` to measure
   `layer fidelity and EPLG (error per layered gate) <https://arxiv.org/abs/2311.05933>`_,
   which is a holistic benchmark to characterize the full quality of the devices at scale.
-  
+
   It has an experimental feature: its :meth:`circuits`
   exceptionally returns circuits on physical qubits (not virtual qubits as usual).
   Its analysis class :class:`.LayerFidelityAnalysis` returns :class:`.AnalysisResultData`
   which contains several ``extra`` entries to help additional analyses: e.g.
   ``qubits`` to ease the query of sub-analysis results and
   ``reason`` to tell users why the ``quality`` of the analysis was ``"bad"``.
-  
+
   For example, the syntax for pulling out the individual fidelities looks like below.
-  
+
   .. code-block:: python
-  
+
     df = exp_data.analysis_results(dataframe=True)
     df[(df.name=="ProcessFidelity") & (df.qubits==(59, 60))].value
-  
+
   See `an example notebook
   <https://github.com/qiskit-community/qiskit-device-benchmarking/blob/main/notebooks/layer_fidelity.ipynb>`_
   for more examples such as how to select a best possible qubit chain to measure and
@@ -318,11 +632,11 @@ New Features
 
 .. releasenotes/notes/0.7/residuals_plot-377aabb9193a5a98.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
 
-- Added an option to plot residuals for single-figure experiments, which is enable by setting ``plot_residuals`` to ``True``. 
+- Added an option to plot residuals for single-figure experiments, which is enable by setting ``plot_residuals`` to ``True``.
 
 .. releasenotes/notes/0.7/residuals_plot-377aabb9193a5a98.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
 
-- Introduced ``sub_plot_heights_list`` and ``sub_plot_widths_list`` attributes in :class:`.PlotStyle` for customizable 
+- Introduced ``sub_plot_heights_list`` and ``sub_plot_widths_list`` attributes in :class:`.PlotStyle` for customizable
   subplot sizes where each list needs to sum up to 1. This feature currently works only for experiments with
   no subplots.
 
@@ -335,7 +649,7 @@ Known Issues
 .. releasenotes/notes/0.7/0_6_deprecations-9a399c48c2d461f1.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
 
 - Fit parameters are not populated in composite curve analysis results and are
-  found only in the fit summary artifact. In a future release, they will be 
+  found only in the fit summary artifact. In a future release, they will be
   removed from all analysis result objects and live in the artifacts only.
 
 
@@ -358,7 +672,7 @@ Package Upgrades
 .. releasenotes/notes/0.7/0_6_deprecations-9a399c48c2d461f1.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
 
 - Several deprecated modules, methods, functions, and options have been removed and will no longer work:
-  
+
   * The visualization module of :mod:`.CurveAnalysis` has been replaced by the
     standalone :mod:`.visualization` module. The ``LegacyCurveCompatDrawer`` has
     been removed from :mod:`.visualization`.
@@ -404,7 +718,7 @@ Bug Fixes
 
 .. releasenotes/notes/0.7/fix-epg-gatecount-60777f7a3f3566bc.yaml @ b'517532eb307897896d549f7e3de69485801d67a8'
 
-- The gate counting for EPG in the RB analysis code was not including the 
+- The gate counting for EPG in the RB analysis code was not including the
   inverse, so that the total number of operations per Clifford was incorrect,
   leading to incorrect reporting of EPG from EPC. Fixed by adding +1 for the
   inverse gate.
@@ -475,7 +789,7 @@ Bug Fixes
 
 .. releasenotes/notes/remove_backendv2-b608a2f380698710.yaml @ b'5c6f4b2c8226bca2276c5eecfab5193748a8e524'
 
-- Removed a ``FakeBackendV2`` import path which would have been incompatible with Qiskit 1.1 and above. See 
+- Removed a ``FakeBackendV2`` import path which would have been incompatible with Qiskit 1.1 and above. See
   `#1420 <https://github.com/Qiskit-Community/qiskit-experiments/pull/1420>`_.
 
 
@@ -523,7 +837,7 @@ New Experiments
 .. releasenotes/notes/0.6/mod-stark-1f1afb538a94fe9a.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - New experiment :class:`.StarkRamseyXY` has been added.
-  This is a variant of the :class:`.RamseyXY` experiment that characterizes 
+  This is a variant of the :class:`.RamseyXY` experiment that characterizes
   the qubit frequency offset under a Stark tone drive.
 
 .. releasenotes/notes/0.6/mod-stark-1f1afb538a94fe9a.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -537,9 +851,9 @@ New Experiments
 .. releasenotes/notes/0.6/mod-stark-1f1afb538a94fe9a.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - New experiment :class:`.StarkP1Spectroscopy` has been added.
-  This is a variant of :class:`.T1` experiment to conduct spectroscopy of 
+  This is a variant of :class:`.T1` experiment to conduct spectroscopy of
   qubit relaxation at different qubit frequencies.
-  The spectroscopy data is just visualized with the dedicated analysis 
+  The spectroscopy data is just visualized with the dedicated analysis
   :class:`.StarkP1SpectAnalysis`. A developer may subclass this analysis class to
   perform custom analysis on the spectroscopy data.
 
@@ -594,9 +908,9 @@ Analysis Class Features
 
 .. releasenotes/notes/0.6/broadcasting-option-8a3b72bfc1df9668.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- Added a ``broadcast`` option to :class:`.CompositeAnalysis`. When ``broadcast=True`` is passed, 
+- Added a ``broadcast`` option to :class:`.CompositeAnalysis`. When ``broadcast=True`` is passed,
   this option will be applied to child experiment analyses within the class. This means it will iterate
-  through the child analysis classes and apply the given option to each of 
+  through the child analysis classes and apply the given option to each of
   them.
 
 .. releasenotes/notes/0.6/selective-figure-generation-0864216f34d3486f.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -620,41 +934,41 @@ Experiment Data Features
 
 .. releasenotes/notes/0.6/add-dataframe-analysis-results-ec8863e826a70621.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- :class:`.ExperimentData` has been upgraded to store analysis result data in 
-  a table format with the new inline container :class:`.AnalysisResultTable`. 
-  In this release, the :meth:`.ExperimentData.analysis_results` method still returns 
-  a conventional list of :class:`.AnalysisResult` for backward compatibility, 
+- :class:`.ExperimentData` has been upgraded to store analysis result data in
+  a table format with the new inline container :class:`.AnalysisResultTable`.
+  In this release, the :meth:`.ExperimentData.analysis_results` method still returns
+  a conventional list of :class:`.AnalysisResult` for backward compatibility,
   however, when you call the method with new argument ``dataframe=True`` it returns
   analysis results all in one piece with the table format. For example,
-  
+
   .. code-block:: python
-  
+
     exp = StandardRB((0,), lengths, backend)
     experiment_data = exp.run().block_for_results()
-    
+
     experiment_data.analysis_results(dataframe=True, columns="default")
-  
+
   Information contained in the returned table can be filtered with ``columns`` argument,
   which may take either ``all``, ``default``, ``minimal``, or list of column names.
   Returning a list of :class:`.AnalysisResult` will be deprecated in a future release
   along with the ``dataframe`` option.
-  
+
   Related to this update, :meth:`.ExperimentData.add_analysis_results` method now takes
   keyword arguments keyed on the table column names, in addition to the argument of
   ``results`` which is either :class:`.AnalysisResult` or a list of it.
   This allows users and developers to bypass creation of :class:`.AnalysisResult` instance
   for registering new entry in the :class:`.ExperimentData` instance.
-  
-  Note that the conventional :class:`.AnalysisResult` is originally a payload object for 
-  saving an analysis result in a remote database, as it implements a REST API 
-  for the IBM Experiment Service, which is not necessary at all in 
+
+  Note that the conventional :class:`.AnalysisResult` is originally a payload object for
+  saving an analysis result in a remote database, as it implements a REST API
+  for the IBM Experiment Service, which is not necessary at all in
   the context of experiment data analysis.
   In a future release, :class:`.AnalysisResult` will be hidden from Qiskit Experiments users.
 
 .. releasenotes/notes/0.6/experiment-artifacts-c481f4e07226ce9e.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - An artifact class has been introduced to store long-form data generated by experiments.
-  The :class:`.CurveFitResult` and :class:`.ScatterTable` generated by experiments 
+  The :class:`.CurveFitResult` and :class:`.ScatterTable` generated by experiments
   are now stored in artifacts in the :class:`.ExperimentData` class. :meth:`.add_artifacts`
   and :meth:`.delete_artifact` have been added to manipulate the artifacts. These will be uploaded
   to the cloud service in JSON form along with the rest of the :class:`.ExperimentData` object
@@ -709,9 +1023,9 @@ Curve Fit Features
 .. releasenotes/notes/0.6/add-dataframe-curve-data-a8905c450748b281.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - :class:`.ScatterTable` has been introduced as a drop-in replacement of :class:`.CurveData`.
-  
+
   This is a data format to store intermediate data in curve analysis built on top of
-  the pandas :class:`~pandas:pandas.DataFrame`. Each table row corresponds to a single data point, 
+  the pandas :class:`~pandas:pandas.DataFrame`. Each table row corresponds to a single data point,
   and the table contains all data points generated by the :class:`.CurveAnalysis`.
   All properties and methods of :class:`.CurveData` are implemented for backward compatibility,
   but these will be removed in the future release.
@@ -719,7 +1033,7 @@ Curve Fit Features
 .. releasenotes/notes/0.6/add-dataframe-curve-data-a8905c450748b281.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - New analysis option ``fit_category`` is added to :class:`.CurveAnalysis` subclasses.
-  This option controls which data subset within the :class:`.ScatterTable` 
+  This option controls which data subset within the :class:`.ScatterTable`
   is used for the curve fitting.
 
 
@@ -731,7 +1045,7 @@ Calibration Features
 .. releasenotes/notes/0.6/feature-support-calibrations-roundtrip-47f09bd9ff803479.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - A JSON data format has been added for saving a :class:`.Calibrations` instance.
-  This leverages a custom JSON encoder and decoder to serialize 
+  This leverages a custom JSON encoder and decoder to serialize
   the entire calibration data including user provided schedule templates.
   Output JSON data is formatted into the standard data model which is intentionally
   agnostic to the calibration data structure.
@@ -746,7 +1060,7 @@ Visualization Features
 
 - The :class:`.MplDrawer` visualization backend has been upgraded so that
   it can take list of options for ``xlim``, ``ylim``, ``xval_unit``, ``yval_unit``,
-  ``xval_unit_scale``, and ``yval_unit_scale``. New figure options 
+  ``xval_unit_scale``, and ``yval_unit_scale``. New figure options
   ``sharex`` and ``sharey`` are also added. The new options are used to unkink the
   configuration of sub axes, and default to ``True`` for backward compatibility.
   By disabling these options, an experiment author can write an analysis class that
@@ -809,12 +1123,12 @@ Package Upgrades
 .. releasenotes/notes/0.6/0.5_deprecations-4188ada026cb682b.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Several deprecated methods and options have been removed and will no longer work:
-  
+
   * Passing the ``qubits`` keyword argument or an integer qubit index to experiments is no longer
     allowed. Use ``physical_qubits`` keyword argument with a sequence type input.
   * The ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` fitters for the
     :class:`.StateTomographyAnalysis` and :class:`.ProcessTomographyAnalysis`
-    classes have been removed. Use the :func:`.cvxpy_linear_lstsq` 
+    classes have been removed. Use the :func:`.cvxpy_linear_lstsq`
     and :func:`.cvxpy_gaussian_lstsq` fitters instead.
   * Curve fit solvers ``curve_fit()`` and ``multi_curve_fit()`` as well as fit functions
     ``bloch_oscillation_x()``, ``bloch_oscillation_y()``, and ``bloch_oscillation_z()`` have been
@@ -856,17 +1170,17 @@ Experiment Library Upgrades
 
 .. releasenotes/notes/0.6/adjust-symbolic-pulses-amp-angle-representation-f5c40007416cf938.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- :class:`.HalfAngleCal` was changed from updating the complex amplitude of 
+- :class:`.HalfAngleCal` was changed from updating the complex amplitude of
   the pulse, to updating the angle in the (``amp``, ``angle``) representation. When used with
-  the :class:`.FixedFrequencyTransmon` library, it will continue to work seamlessly 
+  the :class:`.FixedFrequencyTransmon` library, it will continue to work seamlessly
   in the new representation. However, when the experiment is used with custom
   built pulses, which rely on the old convention of complex ``amp`` (with no
   angle parameter) - the experiment will fail. Most reasonable cases will raise
   a detailed ``CalibrationError`` explaining the change and the way to adjust
   to it. Some edge cases - like a custom built pulse with an ``angle`` parameter
-  which doesn't conform to the naming convention of Qiskit's 
-  ``ScalableSymbolicPulse`` class, or using a loaded calibration with ``complex`` 
-  ``amp`` - will result in updating the wrong parameter. 
+  which doesn't conform to the naming convention of Qiskit's
+  ``ScalableSymbolicPulse`` class, or using a loaded calibration with ``complex``
+  ``amp`` - will result in updating the wrong parameter.
 
 
 .. _Release Notes_0.6.0_Experiment Class Upgrades:
@@ -877,9 +1191,9 @@ Experiment Class Upgrades
 .. releasenotes/notes/0.6/upgrade-remove-circuit-metadata-ec7d3c6b08781184.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Removed unnecessary circuit metadata from the builtin experiment classes.
-  Circuit metadata such as the associated qubit indices and experiment type 
+  Circuit metadata such as the associated qubit indices and experiment type
   are separately stored in the experiment metadata, and never used in the analysis.
-  Removal of unnecessary circuit metadata compresses the job payload and 
+  Removal of unnecessary circuit metadata compresses the job payload and
   thus is expected to benefit scalability.
 
 
@@ -890,11 +1204,11 @@ Curve Fit Upgrades
 
 .. releasenotes/notes/0.6/add-dataframe-curve-data-a8905c450748b281.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- The behavior of :class:`.CurveAnalysis` data processing was changed. 
+- The behavior of :class:`.CurveAnalysis` data processing was changed.
   It used to raise ``DataProcessorError`` error when it encounters an experiment result
-  which cannot be classified into any fit model, but this restriction was relaxed 
+  which cannot be classified into any fit model, but this restriction was relaxed
   and the analysis continues with unclassified data.
-  Unclassified data is just stored as-is in the :class:`.ScatterTable` with 
+  Unclassified data is just stored as-is in the :class:`.ScatterTable` with
   the null class ID assigned. Such data is ignored in the rest of analysis steps
   such as formatting, fitting, and visualization.
 
@@ -906,7 +1220,7 @@ Calibration Upgrades
 
 .. releasenotes/notes/0.6/adjust-symbolic-pulses-amp-angle-representation-f5c40007416cf938.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- The representation of pulses in the :class:`.FixedFrequencyTransmon` library 
+- The representation of pulses in the :class:`.FixedFrequencyTransmon` library
   was changed from complex amplitude to (``amp``, ``angle``) representation. All pulses
   now include an ``angle`` parameter, and the default values of ``amp`` are set
   as type ``float`` instead of ``complex``.
@@ -917,9 +1231,9 @@ Calibration Upgrades
   have been removed from :class:`.Calibrations`. These variables were given special
   treatment which is inconsistent with the framework. To replace them a
   mechanism to define and add parameters without a schedule has been added to
-  the basis gate library. This has the added benefit of making the API of 
+  the basis gate library. This has the added benefit of making the API of
   frequency calibration experiments more consistent with the other calibration
-  experiments. Calibration developers can now add parameters to their library that are not 
+  experiments. Calibration developers can now add parameters to their library that are not
   attached to a schedule in a meaningful way.
 
 
@@ -931,7 +1245,7 @@ Deprecation Notes
 .. releasenotes/notes/0.6/deprecate-flatten-result-false-026a89c09cc7a004.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Executing composite experiment and composite analysis with ``flatten_results=False``
-  by default was deprecated. To create child experiment data, please explicitly 
+  by default was deprecated. To create child experiment data, please explicitly
   set ``flatten_results=False``. The default value of ``flatten_results`` will be
   changed to ``True`` in the next release.
 
@@ -984,14 +1298,14 @@ Deprecation Notes
 - :meth:`.Calibrations.load_parameter_values` was deprecated.
   Since saving :class:`.Calibrations` instance into the CSV format was deprecated,
   the required data file to invoke this method will be no longer generated
-  in future calibrations instance. Full calibration instance roundtrip 
+  in future calibrations instance. Full calibration instance roundtrip
   is now supported with the save and load method.
 
 .. releasenotes/notes/0.6/feature-support-calibrations-roundtrip-47f09bd9ff803479.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - :meth:`.Calibrations.config` and :meth:`.Calibrations.from_config` were deprecated.
   Now canonical data representation is generated for calibration by the
-  newly introduced :mod:`~qiskit_experiments.calibration_management.save_utils` module, 
+  newly introduced :mod:`~qiskit_experiments.calibration_management.save_utils` module,
   and the legacy configuration dictionary is no longer used for JSON encoding.
 
 
@@ -1037,7 +1351,7 @@ Experiment Library Fixes
 
 .. releasenotes/notes/0.6/rabi-and-qv-bugfix-34636baee6651af1.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- Resolved a serialization issue that affected Rabi experiments when running it through 
+- Resolved a serialization issue that affected Rabi experiments when running it through
   the backend provider using custom amplitudes provided as a numpy array.
 
 .. releasenotes/notes/0.6/rabi-and-qv-bugfix-34636baee6651af1.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -1057,7 +1371,7 @@ Experiment Data Fixes
 
 .. releasenotes/notes/0.6/bugfix_expdata_copy-2c73a21ad720858d.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- The :meth:`.ExperimentData.copy` method now copies the provider. 
+- The :meth:`.ExperimentData.copy` method now copies the provider.
 
 .. releasenotes/notes/0.6/exp-data-pickle-61511b6e926e3198.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
@@ -1070,7 +1384,7 @@ Experiment Data Fixes
 
 .. releasenotes/notes/0.6/experiment_data_fixes-f69c3569a8ba1342.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- Fixed a bug in :meth:`.ExperimentData._add_job_data` that caused job id 
+- Fixed a bug in :meth:`.ExperimentData._add_job_data` that caused job id
   related test fails.
 
 .. releasenotes/notes/0.6/experiment_data_metadata_save_fix-912b7180a28cfb03.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
@@ -1105,13 +1419,13 @@ API Changes for Experiment Authors
 
 - Added the :meth:`~.CurveAnalysis._create_figures` method to the :class:`.CurveAnalysis` base class.
   A curve analysis subclass can overwrite this method to customize the output figures.
-  The method is called with the :class:`.ScatterTable` containing all intermediate data points 
+  The method is called with the :class:`.ScatterTable` containing all intermediate data points
   generated during the curve analysis.
 
 .. releasenotes/notes/0.6/add-test-equality-checker-dbe5762d2b6a967f.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Added the :meth:`QiskitExperimentsTestCase.assertEqualExtended` method for generic equality checks
-  of Qiskit Experiments class instances in unittests. This is a drop-in replacement of 
+  of Qiskit Experiments class instances in unittests. This is a drop-in replacement of
   calling the assertTrue with :meth:`QiskitExperimentsTestCase.json_equiv`.
   Note that some Qiskit Experiments classes may not officially implement equality check logic,
   although objects may be compared during unittests. Extended equality check is used
@@ -1120,22 +1434,22 @@ API Changes for Experiment Authors
 .. releasenotes/notes/0.6/add-test-equality-checker-dbe5762d2b6a967f.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - The following unittest test case methods will be deprecated:
-  
+
     * :meth:`QiskitExperimentsTestCase.json_equiv`
     * :meth:`QiskitExperimentsTestCase.ufloat_equiv`
     * :meth:`QiskitExperimentsTestCase.analysis_result_equiv`
     * :meth:`QiskitExperimentsTestCase.curve_fit_data_equiv`
     * :meth:`QiskitExperimentsTestCase.experiment_data_equiv`
-  
+
   One can now use the :func:`~test.extended_equality.is_equivalent` function instead.
   This function internally dispatches the logic for equality check.
 
 .. releasenotes/notes/0.6/add-test-equality-checker-dbe5762d2b6a967f.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
-- The default behavior of :meth:`QiskitExperimentsTestCase.assertRoundTripSerializable` and 
-  :meth:`QiskitExperimentsTestCase.assertRoundTripPickle` when ``check_func`` is not 
+- The default behavior of :meth:`QiskitExperimentsTestCase.assertRoundTripSerializable` and
+  :meth:`QiskitExperimentsTestCase.assertRoundTripPickle` when ``check_func`` is not
   provided was upgraded. These methods now compare the decoded instance with
-  :func:`~test.extended_equality.is_equivalent`, rather than 
+  :func:`~test.extended_equality.is_equivalent`, rather than
   delegating to the native ``assertEqual`` unittest method.
   One writing a unittest for serialization no longer need to explicitly set checker function.
 
@@ -1162,13 +1476,13 @@ Other Notes
   in the Pulse module. Mainly, all library symbolic pulses were converted
   from complex amplitude representation to a duo of real (float) parameters
   (``amp``, ``angle``). To avoid problems, Qiskit Experiments adopted this convention.
-  
+
   Changes were made to :class:`.FixedFrequencyTransmon` and :class:`.HalfAngleCal`
-  (see upgrade section). With the exception of :class:`.HalfAngleCal`, all 
-  library experiments should continue to function as they did before (even with 
-  complex ``amp``). When used with the :class:`.FixedFrequencyTransmon` library, 
+  (see upgrade section). With the exception of :class:`.HalfAngleCal`, all
+  library experiments should continue to function as they did before (even with
+  complex ``amp``). When used with the :class:`.FixedFrequencyTransmon` library,
   :class:`.HalfAngleCal` will also continue working as before.
-  
+
   Eventually, support for complex parameters will be dropped altogether, and it is
   thus pending deprecation - including for saving and loading calibration data with
   complex values.
@@ -1217,10 +1531,10 @@ Bug Fixes
 .. releasenotes/notes/fix-curve-fit-weights-fb43d3aa5ed1c91c.yaml @ b'8bf58e97a005fbdf10cf1eee8f455bd23d746177'
 
 - Fixed calculation of weight for curve fitting. Previously the weights of data points to obtain
-  the residual of fit curve were computed by the inverse of the error bars of y data. 
+  the residual of fit curve were computed by the inverse of the error bars of y data.
   This may yield significant weights on certain data points when their error bar is small or zero,
-  and this can cause the local overfit to these data points. 
-  To avoid this edge case of small error bars, computed weights are now clipped at 90 percentile. 
+  and this can cause the local overfit to these data points.
+  To avoid this edge case of small error bars, computed weights are now clipped at 90 percentile.
   This update might slightly change the outcome of fit.
 
 .. releasenotes/notes/rb-v2-none-coupling-fda2b22afdef507b.yaml @ b'ab07b8e3ddb8844a9a481c2c98688d9291d2edb6'
@@ -1341,7 +1655,7 @@ Other Notes
 .. releasenotes/notes/0.5/0_5_2_release-3be0f1395ff73aed.yaml @ b'cc74e355d1e76f8903876c9a02baa190385cc685'
 
 - The performance of experiment analysis for parallel experiments has been improved
-  significantly due to improved results marginalization. See PR 
+  significantly due to improved results marginalization. See PR
   `#1144 <https://github.com/Qiskit/qiskit-experiments/pull/1144>`_ for more details.
 
 
@@ -1357,7 +1671,7 @@ Prelude
 
 .. releasenotes/notes/0.5/0_5_1_release-e445b6cc64742cc0.yaml @ b'99105a682d0f14bb9b6046430d83a30b86168c25'
 
-Qiskit Experiments 0.5.1 is a minor bug fix release.  
+Qiskit Experiments 0.5.1 is a minor bug fix release.
 
 .. _Release Notes_0.5.1_Bug Fixes:
 
@@ -1414,7 +1728,7 @@ New Features
 
 .. releasenotes/notes/0.5/add-new-visualization-module-9c6a84f2813459a7.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Added a new IQ plotting class :class:`.IQPlotter` for plotting IQ/level-1 data (individual 
+- Added a new IQ plotting class :class:`.IQPlotter` for plotting IQ/level-1 data (individual
   shots and their average) and a discriminator that classifies the data into
   states.
 
@@ -1458,10 +1772,10 @@ New Features
 .. releasenotes/notes/0.5/pulse-backend-for-test-tutorials-fad8b77615ff09e5.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - Added pulse simulator backends :class:`.PulseBackend` and subclass :class:`.SingleTransmonTestBackend`
-  that use Qiskit Dynamics to simulate pulse schedules included in 
-  the calibrations attached to transpiled quantum circuits. The backend is capable of 
-  simulating level one (IQ) and level two (counts) data. The main purpose of this 
-  backend is to make the test suite more realistic and allow for tutorials that 
+  that use Qiskit Dynamics to simulate pulse schedules included in
+  the calibrations attached to transpiled quantum circuits. The backend is capable of
+  simulating level one (IQ) and level two (counts) data. The main purpose of this
+  backend is to make the test suite more realistic and allow for tutorials that
   do not require hardware backends.
 
 .. releasenotes/notes/0.5/py311-49f08e1e0350c6b7.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1473,7 +1787,7 @@ New Features
 .. releasenotes/notes/0.5/ramsey_xy-4123317b014db3b0.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - The algorithm to estimate fit parameter guesses in :class:`.RamseyXYAnalysis`
-  has been upgraded. 
+  has been upgraded.
   The previous algorithm was not robust to experiment outcomes with low frequency,
   where Ramsey X and Y curves almost remain at P=1.0 and 0.5, respectively.
   The new algorithm also offers reliable initial guesses for such situations.
@@ -1514,12 +1828,12 @@ New Features
   tomography basis classes support for initializing a noisy basis for
   performing state preparation and measurement error mitigated
   :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
-  
+
   For preparation bases, a noisy reset operation on a specific qubit,
   or subset of qubits, can now be input as a quantum channel, and the
   noisy prepared states are generated by applying the ideal instructions
   to the noisy initial state.
-  
+
   For measurement bases, a noisy POVM or quantum channel can be supplied for
   the 0-index basis (typically the Z-basis), and other bases index POVMs will
   be generated by applying the ideal inverse instructions to the noisy POVMS.
@@ -1531,8 +1845,8 @@ New Features
   :class:`~qiskit.result.LocalReadoutMitigator` to construct a readout error mitigated
   basis for use with :class:`.StateTomography` and
   :class:`.ProcessTomography` experiments.
-  
-  The :class:`.LocalReadoutError` experiment can be run to obtain the 
+
+  The :class:`.LocalReadoutError` experiment can be run to obtain the
   :class:`~qiskit.result.LocalReadoutMitigator` from its analysis results.
 
 .. releasenotes/notes/0.5/tomography-b091ce13d6983bc1.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1547,23 +1861,23 @@ New Features
 
 - Added support for conditional tomographic reconstruction to the
   :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
-  
+
   There are three types of conditioning that can be used independently
   or together in any combination for reconstruction of a state or
   channel as a list of components conditional on these values.
-  
+
   The ``conditional_circuit_clbits`` init option can be used to
   specify any subset of clbits in an tomography circuit containing
   clbits to be conditioned on when peforming the tomographic
   reconstruction. The conditioning outcome value of the clbits is
   stored in the analysis results ``extra`` field.
-  
+
   The ``conditional_measurement_indices`` analysis option can be used
   to condition on the measurement basis index and outcome value of a
   specific subset of tomographic basis measurements. The conditioning
   basis index and outcome value are both stored in the analysis
   results ``extra`` field.
-  
+
   The ``conditional_preparation_indices`` analysis option can be used
   to condition on the preparation basis index of a specific subset of
   tomographic basis preprations. The conditioning basis index is stored
@@ -1575,7 +1889,7 @@ New Features
   :class:`~.ProcessTomographyAnalysis` to bootstrap error bars on state
   and process fidelity analysis results. This can be activated by setting
   the ``target_bootstrap_samples`` analysis option to a value.
-  
+
   Note that bootstrapping involves re-running the full tomography fit on
   re-samples of tomography outcome data for each measurement basis and
   hence the total analysis time will increase linearly with the number
@@ -1593,16 +1907,16 @@ New Features
   User can update these option values as well as provide full ``durations``
   to tailor experiment settings to their device.
   Total durations should be carefully chosen not to overflow the waveform memory
-  when the experiment is run on a real hardware. With this update, 
+  when the experiment is run on a real hardware. With this update,
   the minimum example code to run this experiment might be
-  
+
   .. code-block:: python
-  
+
     from qiskit_experiments.library.characterization import CrossResonanceHamiltonian
-    
+
     expr = CrossResonanceHamiltonian(qubits=(0, 1), amp=0.3, backend=backend)
     exp_data = expr.run()
-  
+
   where the durations to scan are implicitly set by experiment options.
 
 .. releasenotes/notes/0.5/zz-220e3c0894dd9076.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1629,37 +1943,37 @@ Upgrade Notes
 .. releasenotes/notes/0.5/0_4_deprecations-6e5efbaeeb870184.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - Several deprecated methods and options have been removed and will no longer work:
-  
+
   * ``BaseExperiment.analysis_options`` has been removed. ``experiment.analysis.options``
     should be used instead.
   * The ``__analysis_class__`` attribute of :class:`.BaseAnalysis` has been removed.
-    Use the ``analysis`` kwarg of ``BaseExperiment.__init__`` to specify a default 
+    Use the ``analysis`` kwarg of ``BaseExperiment.__init__`` to specify a default
     analysis class.
-  * The ``component_experiment_data()`` method has been removed from 
+  * The ``component_experiment_data()`` method has been removed from
     :class:`.ExperimentData` and replaced by :meth:`.ExperimentData.child_data`.
-  * The ``CompositeExperiment.component_analysis`` method has been removed. Component 
-    analysis classes should be directly accessed using 
+  * The ``CompositeExperiment.component_analysis`` method has been removed. Component
+    analysis classes should be directly accessed using
     :meth:`.CompositeAnalysis.component_analysis`.
-  * The ``library`` argument to :class:`.Calibrations` has been removed and replaced by 
+  * The ``library`` argument to :class:`.Calibrations` has been removed and replaced by
     ``libraries``.
   * The class attribute ``CurveAnalysis.__fixed_parameters__`` has been removed.
     The ``fixed_parameters`` analysis option should be set instead.
   * The method ``CurveAnalysis._data()`` has been removed.
-  * The :class:`.CurveAnalysis` attribute ``__series__`` has been removed and is 
+  * The :class:`.CurveAnalysis` attribute ``__series__`` has been removed and is
     replaced by the constructor argument.
   * The ``FineDragAnalysis``, ``FineFrequencyAnalysis``, and ``FineHalfAngleAnalysis``
-    analysis classes have been removed and replaced by 
+    analysis classes have been removed and replaced by
     :class:`.ErrorAmplificationAnalysis`.
-  * Randomized benchmarking utility functions ``get_error_dict_from_backend()``, 
-    ``count_ops()``, ``gates_per_clifford()``, ``calculate_1q_epg()``, and 
-    ``calculate_2q_epg()`` have been removed from :class:`.RBUtils` and replaced by 
-    methods in the RB experiment and analysis themselves. 
-  * The ``error_dict`` analysis option of :class:`.RBAnalysis` has been removed and 
+  * Randomized benchmarking utility functions ``get_error_dict_from_backend()``,
+    ``count_ops()``, ``gates_per_clifford()``, ``calculate_1q_epg()``, and
+    ``calculate_2q_epg()`` have been removed from :class:`.RBUtils` and replaced by
+    methods in the RB experiment and analysis themselves.
+  * The ``error_dict`` analysis option of :class:`.RBAnalysis` has been removed and
     merged into the analysis option ``gate_error_ratio``.
 
 .. releasenotes/notes/0.5/cal_transpiling-467fa52cde966fbf.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Transpilation in the calibration experiments has been upgraded. Calibration 
+- Transpilation in the calibration experiments has been upgraded. Calibration
   experiments define a carefully chosen set of gates and pulses
   that the transpiler should not modify. If these gates are modified by
   transpilation the results may be unusable. :class:`.BaseCalibrationExperiment`
@@ -1682,7 +1996,7 @@ Upgrade Notes
 
 - ``qiskit-ibmq-provider`` is deprecated and has been dropped as a requirement. Interactions
   with IBM backends should use the ``qiskit-ibm-provider`` package instead (must be installed
-  separately; see the 
+  separately; see the
   `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_
   for more details).
 
@@ -1728,10 +2042,10 @@ Upgrade Notes
 
 .. releasenotes/notes/0.5/tphi-option-025f02c2c843c74f.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- The :class:`.Tphi` has been changed to use :class:`.T2Hahn` as the default T2 
+- The :class:`.Tphi` has been changed to use :class:`.T2Hahn` as the default T2
   estimate because it provides a more meaningful measurement on superconducting
   devices. An option ``t2type`` has been added to allow the user to toggle between
-  using :math:`T_2^*` from :class:`.T2Ramsey` by specifying "ramsey" or :math:`T_2` 
+  using :math:`T_2^*` from :class:`.T2Ramsey` by specifying "ramsey" or :math:`T_2`
   from :class:`.T2Hahn`, which is the default value "hahn".
 
 
@@ -1747,9 +2061,9 @@ Deprecation Notes
 
 .. releasenotes/notes/0.5/curve-analysis-4bcc10cf3a39a85d.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Providing ``data_sort_key`` directly to the LMFIT model to instantiate :class:`.CurveAnalysis` 
+- Providing ``data_sort_key`` directly to the LMFIT model to instantiate :class:`.CurveAnalysis`
   has been deprecated. This option is not officially supported by the LMFIT,
-  and thus curve analysis cannot guarantee this option is properly managed 
+  and thus curve analysis cannot guarantee this option is properly managed
   in all LMFIT model subclasses.
 
 .. releasenotes/notes/0.5/pulse-backend-for-test-tutorials-fad8b77615ff09e5.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1775,8 +2089,8 @@ Deprecation Notes
 
 .. releasenotes/notes/0.5/update-cr-hamtomo-with-duration-380da3452045cd0c.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- The ``flat_top_widths`` argument and experiment option of 
-  :class:`.CrossResonanceHamiltonian` experiment and its subclass 
+- The ``flat_top_widths`` argument and experiment option of
+  :class:`.CrossResonanceHamiltonian` experiment and its subclass
   have been deprecated and will be removed in Qiskit Experiments 0.6.
 
 .. releasenotes/notes/0.5/update-number-to-2q-clifford-mapping-c28f1f29b0205d57.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1794,7 +2108,7 @@ Bug Fixes
 .. releasenotes/notes/0.5/analysis-replace-results-bug-fix-2d1a77921f5ec22e.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - Fixed a bug where old analysis results were saved in the case of a failed analysis. Now analysis
-  results will be cleared before running :meth:`~.BaseAnalysis._run_analysis`. As a result, when analysis fails, an 
+  results will be cleared before running :meth:`~.BaseAnalysis._run_analysis`. As a result, when analysis fails, an
   empty analysis result will be saved to the database service.
 
 .. releasenotes/notes/0.5/calibration-backendv2-e564f466eb1c9999.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -1819,13 +2133,13 @@ Bug Fixes
 
 .. releasenotes/notes/0.5/fix-missing_calibration_updator_call-a255b28dd1449ea4.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Fixed a bug where :class:`.Calibrations` was not updated when calibration 
+- Fixed a bug where :class:`.Calibrations` was not updated when calibration
   experiments were run through the composite experiment framework.
 
 .. releasenotes/notes/0.5/readout-error-c95b99ae5a6ba7ac.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - Fixed a bug in the :class:`~.LocalReadoutError` experiment where analysis
-  would fail when run on an ideal simulator with no readout error. See 
+  would fail when run on an ideal simulator with no readout error. See
   `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
   for additional details.
 
@@ -1864,7 +2178,7 @@ Bug Fixes
   with multiple classical registers the tomography measurement circuits
   would contain incorrect conditionals due to a bug in the
   :meth:`qiskit.circuit.QuantumCircuit.compose` method.
-  
+
   See `Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
   for additional details.
 
@@ -1876,7 +2190,7 @@ Bug Fixes
 
 .. releasenotes/notes/0.5/update-cr-hamtomo-with-duration-380da3452045cd0c.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Fixed a bug where the :class:`.EchoedCrossResonanceHamiltonian` experiment 
+- Fixed a bug where the :class:`.EchoedCrossResonanceHamiltonian` experiment
   overestimated Hamiltonian coefficients by a factor of 2.
 
 
@@ -1888,14 +2202,14 @@ API Changes for Experiment Authors
 .. releasenotes/notes/0.5/curve-analysis-4bcc10cf3a39a85d.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - To map experiment result data to a particular LMFIT model in :class:`.CurveAnalysis`,
-  an author must provide the ``data_subfit_map`` analysis option rather than directly binding 
-  ``data_sort_key`` with the target LMFIT model. 
+  an author must provide the ``data_subfit_map`` analysis option rather than directly binding
+  ``data_sort_key`` with the target LMFIT model.
   The ``data_subfit_map`` option is a dictionary keyed on the model name. For example,
-  
+
   .. code-block:: python3
-  
+
     class MyAnalysis(CurveAnalysis):
-      
+
       def __init__(self):
         super().__init__(
           models=[
@@ -1903,14 +2217,14 @@ API Changes for Experiment Authors
             lmfit.models.ExpressionModel(expr="x+a1", name="expr2"),
           ]
         )
-      
+
       @classmethod
       def _default_options(cls) -> Options:
         options = super()._default_options()
         options.data_subfit_map = {"expr1": {"tag": "1"}, "expr2": {"tag": "2"}}
         return options
-    
-  As shown in above, the dictionary that had been attached to each LMFIT model 
+
+  As shown in above, the dictionary that had been attached to each LMFIT model
   is now moved to the ``data_subfit_map`` option.
 
 
@@ -1947,9 +2261,9 @@ Other Notes
 
 - Improved the performance of circuit generation in 1Q/2Q randomized benchmarking experiments (about 10x speedup).
   That is mainly achieved by the following two updates in their implementation:
-  
+
   * Custom transpilation of circuits (mapping circuits to physical qubits without using transpile),
-  
+
   * Integer-based Clifford operations (especially sparse lookup table with triplet decomposition
     for 2Q Clifford circuits).
 
@@ -1997,7 +2311,7 @@ New Features
 .. releasenotes/notes/0.4/backend_data_class-270cec767b463e97.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - Added a new class, :class:`.BackendData`, which provides a common access inferface
-  for both :class:`~qiskit.providers.backend.BackendV1` and 
+  for both :class:`~qiskit.providers.backend.BackendV1` and
   :class:`~qiskit.providers.backend.BackendV2` data fields, since those
   classes do not share the same interface. The :class:`.BackendData` can be called
   on a backend and used immediately, and it is also automatically stored as the
@@ -2012,8 +2326,8 @@ New Features
   `LMFIT <https://lmfit.github.io/lmfit-py/>`_ package. Fit curves are specified using
   `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
   a list of models can be used.
-  
-  A new analysis option ``fit_method`` has been added to allow a user to select the fitting 
+
+  A new analysis option ``fit_method`` has been added to allow a user to select the fitting
   algorithm used by the LMFIT `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
   The default fit method is ``"least_squares"``.
   Analysis class author can flexibly define new analysis instance
@@ -2023,10 +2337,10 @@ New Features
 
 - New curve analysis baseclass :class:`.CompositeCurveAnalysis` has been added.
   This curve analysis variant offers a framework to fit experiment outcomes
-  with different independent fit models. 
-  For example, if you define an experiment scanning a parameter with different conditions, 
-  e.g. with different control qubit states in some two-qubit gate experiment, 
-  the composite curve analysis can implement the experiment with simpler code 
+  with different independent fit models.
+  For example, if you define an experiment scanning a parameter with different conditions,
+  e.g. with different control qubit states in some two-qubit gate experiment,
+  the composite curve analysis can implement the experiment with simpler code
   compared with writing a conventional batch experment.
   See class documentation for more details.
 
@@ -2044,34 +2358,34 @@ New Features
 
 .. releasenotes/notes/0.4/curve-analysis-02a702a81e014adf.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- The ``figure_title`` option has been added. This allows user to show an arbitrary string 
+- The ``figure_title`` option has been added. This allows user to show an arbitrary string
   in the output figure title. See the example code below to learn how to set the option.
-  
+
   .. code-block:: python
-  
+
     exp = MyExperiment(...)
     exp.analysis.drawer.set_options(figure_title="Qubit0")
 
 .. releasenotes/notes/0.4/curve-analysis-02a702a81e014adf.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
 - ``plot_options`` has been added. This was conventionally included
-  in the :class:`.SeriesDef` dataclass, which was static and not configurable. 
+  in the :class:`.SeriesDef` dataclass, which was static and not configurable.
   Now end-user can update visual representation of curves through this option.
   This option is a dictionary that defines three properties, for example,
-  
+
   .. code-block:: python
-  
+
     exp = MyExperiment(...)
     exp.analysis.drawer.set_options(
       plot_options={
         "curve1": {"color": "r", "symbol": "o", "canvas": 0},
         "curve2": {"color": "b", "symbol": "x", "canvas": 1},
       }
-    )  
-  
+    )
+
   The dictionary is keyed on the curve name that should match with the ``name`` property
   of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
-  color and marker of the curves and the scatter plots, respectively. 
+  color and marker of the curves and the scatter plots, respectively.
   ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
 
 .. releasenotes/notes/0.4/data-processor-e13a17d4c6b8dc99.yaml @ b'e6636bee289005debdd3f9bfde6455fc7b42cf38'
@@ -2086,7 +2400,7 @@ New Features
 
 .. releasenotes/notes/0.4/data-processor-e13a17d4c6b8dc99.yaml @ b'e6636bee289005debdd3f9bfde6455fc7b42cf38'
 
-- A new data processing node :class:`.RestlessToIQ` is added to 
+- A new data processing node :class:`.RestlessToIQ` is added to
   process restless level one data, i.e., IQ data, in addition to the existing abstract
   class :class:`.RestlessNode` and :class:`.RestlessToCounts`
   for processing restless counts.
@@ -2100,46 +2414,46 @@ Upgrade Notes
 .. releasenotes/notes/0.4/0_3_deprecations-45cc3cbb0d175332.yaml @ b'e6636bee289005debdd3f9bfde6455fc7b42cf38'
 
 - Several deprecated methods and options have been removed and will no longer work:
-    
-  * :meth:`.BaseExperiment.set_analysis_options` has been removed and should be 
+
+  * :meth:`.BaseExperiment.set_analysis_options` has been removed and should be
     replaced with :meth:`.BaseAnalysis.set_options`.
-  * The ``curve_plotter`` option for :meth:`.CurveAnalysis.set_options` has been 
+  * The ``curve_plotter`` option for :meth:`.CurveAnalysis.set_options` has been
     removed and replaced with ``curve_drawer``.
-  * The ``curve_fitter`` option for :meth:`.CurveAnalysis.set_options` has been 
-    removed, now you can directly override :meth:`~CurveAnalysis._run_curve_fit` 
+  * The ``curve_fitter`` option for :meth:`.CurveAnalysis.set_options` has been
+    removed, now you can directly override :meth:`~CurveAnalysis._run_curve_fit`
     instead.
   * Setting ``style`` and drawer options with :meth:`.CurveAnalysis.set_options`
     has been disabled. Analyses should use ``drawer.set_options`` instead.
   * The ``FitVal`` class has been removed and replaced with the uncertainties package.
-  * Boolean values for the analysis kwarg in :meth:`.BaseExperiment.run` have 
-    been disabled. Use ``analysis=default`` instead of ``analysis=True``, and 
+  * Boolean values for the analysis kwarg in :meth:`.BaseExperiment.run` have
+    been disabled. Use ``analysis=default`` instead of ``analysis=True``, and
     ``analysis=None`` instead of ``analysis=False``.
-  * :meth:`.BaseExperiment.run_analysis` has been removed. Use 
+  * :meth:`.BaseExperiment.run_analysis` has been removed. Use
     :meth:`.BaseAnalysis.run` instead.
-  * :meth:`.BaseExperiment._postprocess_transpiled_circuits` is removed. Use 
+  * :meth:`.BaseExperiment._postprocess_transpiled_circuits` is removed. Use
     :meth:`.BaseExperiment._transpiled_circuits` instead.
-  * :meth:`.BaseExperiment.set_analysis_options` method has been deprecated, use 
-    the :meth:`.BaseAnalysis.set_options` method for the experiments analysis 
-    class instead.   
+  * :meth:`.BaseExperiment.set_analysis_options` method has been deprecated, use
+    the :meth:`.BaseAnalysis.set_options` method for the experiments analysis
+    class instead.
   * The ``timeout`` kwarg of :meth:`.ExperimentData.add_data` has been removed.
     Timeout for adding jobs is now handled by the :meth:`.ExperimentData.add_jobs`
     method.
   * Adding data from jobs using :meth:`.ExperimentData.add_data` has been
     disabled. This method should now only be used to add data from Qiskit
-    :class:`~qiskit.result` objects or raw data dicts. Job data should now be added 
+    :class:`~qiskit.result` objects or raw data dicts. Job data should now be added
     using :meth:`.ExperimentData.add_jobs` instead.
 
 .. releasenotes/notes/0.4/curve-analysis-02a702a81e014adf.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- A new result class :class:`.CurveFitResult` is introduced. 
+- A new result class :class:`.CurveFitResult` is introduced.
   This class stores a richer context of curve fitting overview with several extra statistics.
   This is the minimum attributes of the LMFIT ``MinimizerResult`` with some extention.
   Fit parameters in UFloat representation are also stored while keeping
   the correlation information, which is accessible with the ``.ufloat_params`` property.
-  Note that the value of the first analysis result entry titled with ``@Parameters_*`` 
-  has been replaced with this data format. This entry had been just a list of fit values 
+  Note that the value of the first analysis result entry titled with ``@Parameters_*``
+  has been replaced with this data format. This entry had been just a list of fit values
   in Python float format with covariance matrix separately stored in ``.extra`` metadata.
-  Comparing with the conventional data, new class :class:`.CurveFitResult` provides users with 
+  Comparing with the conventional data, new class :class:`.CurveFitResult` provides users with
   a better understanding of the analysis outcome. New object has prettyprint mechanism.
 
 .. releasenotes/notes/0.4/curve-analysis-02a702a81e014adf.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -2163,9 +2477,9 @@ Upgrade Notes
 .. releasenotes/notes/0.4/experiment_data_refactor-1bb5ba366fb09bc5.yaml @ b'e6636bee289005debdd3f9bfde6455fc7b42cf38'
 
 - The handling of communication with the database has been transferred to the
-  new `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ 
-  package and does not rely on the soon to be deprecated 
-  `qiskit-ibmq-provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_ package. 
+  new `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_
+  package and does not rely on the soon to be deprecated
+  `qiskit-ibmq-provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_ package.
   In addition, The :class:`.ExperimentData` and
   :class:`.DbExperimentData` classes were merged, and the inner handling of experiment
   data was somewhat simplified. This should not have any effect on the current
@@ -2176,7 +2490,7 @@ Upgrade Notes
 - Added a :class:`.FigureData` class for adding metadata to analysis result figures. Figures added to
   :class:`.ExperimentData` are now stored using this class. The raw image object (SVG or matplotlib.Figure)
   can be accessed using the :attr:`.FigureData.figure` attribute.
-  
+
   Note that currently metadata is only stored locally and will be discarded when saved to the cloud
   experiment service database.
 
@@ -2195,7 +2509,7 @@ Deprecation Notes
 
 - Multiple methods, classes and functions in curve analysis have been deprecated and
   replaced with using functionality of the LMFIT library. These include:
-  
+
   * Curve fit solver :func:`.curve_fit` and :func:`.multi_curve_fit`
   * Dataclass of the curve fit result :func:`.FitData`
   * Some fit functions dedicated to a particular curve analysis in the module
@@ -2208,11 +2522,11 @@ Deprecation Notes
 - The ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` fitters for the
   :class:`.StateTomographyAnalysis` and :class:`.ProcessTomographyAnalysis`
   classes have been deprecated.
-  
+
   The unweighted, unconstrained least-squares fitting performed by
   ``scipy_linear_lstsq`` is equivalent to the :func:`.linear_inversion`
   fitter, but with worse performance and memory usage.
-  
+
   For weighted least-squares fitting the CVXPY fitters
   :func:`.cvxpy_linear_lstsq` or :func:`.cvxpy_gaussian_lstsq`, which also
   support support PSD and CPTP constraints, should be used instead.
@@ -2341,13 +2655,13 @@ New Features
 
 .. releasenotes/notes/0.3/0_3_release-ba3ac7fef95aa042.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Added an ``analysis`` kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment` 
-  and :class:`.ParallelExperiment` to allow a user to supply a custom 
+- Added an ``analysis`` kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment`
+  and :class:`.ParallelExperiment` to allow a user to supply a custom
   :class:`.CompositeAnalysis` instance.
 
 .. releasenotes/notes/0.3/cleanup-rb-experiment-f17b6e674ae4e473.yaml @ b'eca6ce2a9c64f0b0b02d7434acf44e299c361613'
 
-- The curve fit parameter guess function :func:`~.guess.rb_decay` has been added. 
+- The curve fit parameter guess function :func:`~.guess.rb_decay` has been added.
   This improves the initial parameter estimation of randomized benchmark experiments.
 
 .. releasenotes/notes/0.3/composite-analysis-c3119d5d2e64ce78.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -2363,7 +2677,7 @@ New Features
   results and figures from component experiment analysis into the main
   :class:`.ExperimentData` container, and does not save the individual
   child data components.
-  
+
   Note that for nested composite experiments setting ``flatten_results=True``
   will recursively set the same value for all component experiments that
   are also composite experiments.
@@ -2371,7 +2685,7 @@ New Features
 .. releasenotes/notes/0.3/curve-analysis-drawer-instance-bcfa18570915db2c.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
 - :class:`MplCurveDrawer` has been added for curve analysis visualization.
-  This class instance is JSON serializable with the experiment encoder and 
+  This class instance is JSON serializable with the experiment encoder and
   it implements public methods to draw analysis results in several different formats.
   Its instance is attached to :class:`CurveAnalysis` instance as an analysis options ``curve_plotter``.
   This class is a drop-in replacement of :class:`MplDrawSingleCanvas` and :class:`MplDrawMultiCanvasVstack`.
@@ -2389,7 +2703,7 @@ New Features
   which is after configuring any runtime options, backend, or analysis
   classes but before generation and execution of experiment
   circuits during :class:`.BaseExperiment.run`.
-  
+
   This method is intended to be overridden in experiment subclasses if they
   need to configure any analysis or runtime options based on a combination
   of properties of the experiment, for example some combination of backend,
@@ -2442,13 +2756,13 @@ New Features
 
 .. releasenotes/notes/0.3/fake-service-e8b22e1a3394c136.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
-- Exposed and expanded the class :class:`~qiskit_experiments.test.FakeService`. 
+- Exposed and expanded the class :class:`~qiskit_experiments.test.FakeService`.
   The fake service will allow enhanced testing of qiskit-experiments and external packages.
 
 .. releasenotes/notes/0.3/fineZXamp-restless-e0dbed212676957f.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
 - A new mixin class :mod:`~qiskit_experiments.framework.RestlessMixin` is added
-  that enables experiments to run in restless measurement mode, where the qubits 
+  that enables experiments to run in restless measurement mode, where the qubits
   are not reset after each measurement.
 
 .. releasenotes/notes/0.3/fineZXamp-restless-e0dbed212676957f.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
@@ -2489,7 +2803,7 @@ New Features
 - Added support for JSON serialization of :class:`.ExperimentData` objects.
   These objects can be serialized using the :class:`.ExperimentEncoder`
   and :class:`.ExperimentDecoder` classes.
-  
+
   Note that serialization of general experiment results requires that the
   individual option values and analysis result types are themselves JSON
   serializable using the encoder and decoder classes.
@@ -2501,12 +2815,12 @@ New Features
 
 .. releasenotes/notes/0.3/t2-hahn-experiment-84fb05d71b5ef250.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Added a :class:`~qiskit_experiments.library.characterization.T2Hahn` 
+- Added a :class:`~qiskit_experiments.library.characterization.T2Hahn`
   class for composing and running Hahn Echo experiment to estimate T2.
 
 .. releasenotes/notes/0.3/t2-hahn-experiment-84fb05d71b5ef250.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Added a :class:`~qiskit_experiments.library.characterization.analysis.T2HahnAnalysis` 
+- Added a :class:`~qiskit_experiments.library.characterization.analysis.T2HahnAnalysis`
   class for analyzing experiment data from :class:`~qiskit_experiments.library.characterization.T2Hahn`.
 
 .. releasenotes/notes/0.3/t2-hahn-experiment-84fb05d71b5ef250.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -2516,7 +2830,7 @@ New Features
 
 .. releasenotes/notes/0.3/tomo-bases-e702b4094d717047.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
-- Added new tomography basis classes :class:`.LocalPreparationBasis` and 
+- Added new tomography basis classes :class:`.LocalPreparationBasis` and
   :class:`.LocalMeasurementBasis` for constructing N-qubit bases from the
   tensor product of 1-qubit instructions. These classes can optionally be
   initialized with custom qubit-specific density matrix or POVM element
@@ -2528,13 +2842,13 @@ New Features
   :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`.
   It is implemented as a composite experiment with sub-experiments
   T1 and T2Ramsey. The new classes are:
-  :class:`~qiskit_experiments.library.characterization.Tphi` - class defining the Tphi 
+  :class:`~qiskit_experiments.library.characterization.Tphi` - class defining the Tphi
   experiment.
-  
+
   :class:`~qiskit_experiments.library.characterization.analysis.TphiAnalysis` - class
   for Tphi analysis.
-  
-  :class:`~qiskit_experiments.test.TphiBackend` - fake backend for running a Tphi 
+
+  :class:`~qiskit_experiments.test.TphiBackend` - fake backend for running a Tphi
   experiment, based on the fake backends for T1 and T2Ramsey.
 
 .. releasenotes/notes/0.3/transpile-617bd3a4e6f1c0d8.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -2581,9 +2895,9 @@ Upgrade Notes
 
 - :class:`.BaseCurveAnalysis` class has been added as a superclass of :class:`.CurveAnalysis`.
   The new base class doesn't define the :meth:`_run_analysis` abstract method
-  and it cannot conduct analysis by itself, however it defines several subroutines 
+  and it cannot conduct analysis by itself, however it defines several subroutines
   that can be combined to build a custom fitting process in the subclass.
-  This allows more flexibility to write custom curve analysis by 
+  This allows more flexibility to write custom curve analysis by
   directly inheriting from the new base class. See :class:`.BaseCurveAnalysis` for details.
   See also `Issue 737 <https://github.com/Qiskit/qiskit-experiments/issues/737>`_ for discussion.
 
@@ -2605,11 +2919,11 @@ Upgrade Notes
 - The computation of error per gates (EPGs) from EPC in :class:`RBAnalysis` has been upgraded.
   To compute these values from a single EPC value obtained by the experiment,
   we should provide a guess of contribution per basis gate to the depolarization.
-  This ratio has been extracted from backend properties with 
-  :meth:`RBUtils.get_error_dict_from_backend`, but this approach may result in 
+  This ratio has been extracted from backend properties with
+  :meth:`RBUtils.get_error_dict_from_backend`, but this approach may result in
   unreproducible EPG outcomes under certain circumstances.
   See `PR 762 <https://github.com/Qiskit/qiskit-experiments/pull/762>`_ for more details.
-  Not this error ratio is provided from a hard-coded lookup table, 
+  Not this error ratio is provided from a hard-coded lookup table,
   and the user can still provide custom values with analysis option ``gate_error_ratio``.
   One can skip computation of EPGs by setting the option to ``False``.
 
@@ -2642,8 +2956,8 @@ Upgrade Notes
   respective component experiments
   :meth:`~.BaseExperiment.transpile_options` before being combined into
   the composite circuits returned by the :class:`.BaseExperiment.circuits`
-  method. 
-  
+  method.
+
   Any transpile options set directly on the :class:`.ParallelExperiment`
   or :class:`.BatchExperiment` will also be applied as a transpile option
   to each component experiment.
@@ -2689,7 +3003,7 @@ Upgrade Notes
 
 .. releasenotes/notes/0.3/get-processor-multiple-qubits-dbf8767d22eadccc.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
-- The processing of ``meas_level=2`` data in the function :func:`get_processor` is generalized 
+- The processing of ``meas_level=2`` data in the function :func:`get_processor` is generalized
   to data processing of experiments with more than one qubit.
 
 .. releasenotes/notes/0.3/kids-in-analysis-df7b4dcbeb5b3125.yaml @ b'2008d3391ca10586c0c819c2474760322e20ec9a'
@@ -2703,7 +3017,7 @@ Upgrade Notes
 
 - The RB data processing flow is updated to align it with the recent
   refactoring of the :func:`get_processor` function. The RB analysis
-  will now use the :func:`get_processor` function to choose the 
+  will now use the :func:`get_processor` function to choose the
   suitable data processor.
 
 .. releasenotes/notes/0.3/remove-job-metadata-74ecfaa02f6182e1.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
@@ -2711,8 +3025,8 @@ Upgrade Notes
 - The ``job_metadata`` field has been removed from
   :class:`.BaseExperiment`. Experiments which needed job metadata for
   analysis should now directly override the ``.BaseExperiment._metadata``
-  method to store the required job metadata. 
-  
+  method to store the required job metadata.
+
   Individual experiments using :class:`.CurveAnalysis` based analysis
   have been updated to store the ``meas_level`` and ``meas_return``
   run options in metadata if they have been set in the experiment for
@@ -2750,23 +3064,23 @@ Upgrade Notes
   :class:`FitVal` to ``uncertainties.ufloat`` from the Python
   `uncertainties <https://pythonhosted.org/uncertainties/>`__ package to support
   error propagation for post analysis computation.
-  
+
   .. code-block:: python
-  
+
     expdata = T1(0, delays, backend).run()
     fit_t1 = expdata.analysis_results("T1").value
-  
+
     assert isinstance(fit_t1, UFloat)
-  
+
     new_value = fit_t1 / 2
     new_value.std_dev  # show new standard error value
-  
+
   Now ``fit_t1`` value is an ``uncertainties.ufloat`` instance with
   new properties :attr:`.nominal_value` and :attr:`.std_dev`,
   and you can directly apply mathematical operation to this object.
   The new error value is predicted by linear error propagation theory.
   Note that you no longer need to separately compute the standard error.
-  
+
   This computation is offered by the `uncertainties <https://pythonhosted.org/uncertainties/>`__
   package which is a requirement since from Qiskit Experiments v0.2.
   The functions supporting error propagation is also available in ``uncertainties.umath``.
@@ -2796,7 +3110,7 @@ Deprecation Notes
 
 .. releasenotes/notes/0.3/cleanup-rb-experiment-f17b6e674ae4e473.yaml @ b'eca6ce2a9c64f0b0b02d7434acf44e299c361613'
 
-- Calling :class:`RBUtils` methods have been deprecated and will be removed after 0.4. 
+- Calling :class:`RBUtils` methods have been deprecated and will be removed after 0.4.
 
 .. releasenotes/notes/0.3/composite-analysis-c3119d5d2e64ce78.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
@@ -2810,7 +3124,7 @@ Deprecation Notes
 - Conventional curve visualization classes :class:`MplDrawSingleCanvas`,
   :class:`MplDrawMultiCanvasVstack` and the stylesheet :class:`PlotterStyle` have been deprecated
   and now replaced with :class:`MplCurveDrawer`.
-  These classes had been attached to the analysis instance as a ``curve_plotter`` which is a string 
+  These classes had been attached to the analysis instance as a ``curve_plotter`` which is a string
   and mapped to the class method ``.draw`` at runtime via :FitResultPlotters: Enum.
   It was almost impossible to track the code and hurted the readability.
   In addition, this implementation was problematic due to dependency on the
@@ -2921,7 +3235,7 @@ Bug Fixes
   channel analysis option was computed incorrectly if not all qubits were
   prepared and measured, and the preparations and measurements were applied
   to different subsets of qubits.
-  
+
   See `Issue 758 <https://github.com/Qiskit/qiskit-experiments/issues/758>`_
   for details.
 
@@ -2930,7 +3244,7 @@ Bug Fixes
 - Fixed a bug with the :class:`.ProcessTomographyAnalysis` where analysis
   would raise an exception if the number of prepared and measurement qubits
   are not equal.
-  
+
   See `Issue 757 <https://github.com/Qiskit/qiskit-experiments/issues/757>`_
   for details.
 
@@ -2948,8 +3262,8 @@ Bug Fixes
 
 .. releasenotes/notes/0.3/fix-decay-init-guess-22903624c6b7490e.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
-- The initial guess function :func:`exp_decay`, which estimates an exponent of the 
-  decay curve by taking the natural logarithm of the y values, has been updated to 
+- The initial guess function :func:`exp_decay`, which estimates an exponent of the
+  decay curve by taking the natural logarithm of the y values, has been updated to
   handle exceptions when some y values are negative.
 
 .. releasenotes/notes/0.3/fix-json-main-bedf4b9b18c851ac.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
@@ -3004,12 +3318,12 @@ Bug Fixes
   fit function. Furthermore, the Gaussian fitting capability is preserved by moving
   the Gaussian fitting to a new class called GaussianAnalysis. Note that the
   previous analysis can be used by doing:
-  
+
   .. code:: python
-  
+
     spec = ResonatorSpectroscopy(qubit, backend)
     spec.analysis = GaussianAnalysis()
-  
+
   where :code:`GaussianAnalysis` is imported from ``curve_analysis``.
 
 .. releasenotes/notes/0.3/svd-node-fix-bec02332e1db96ec.yaml @ b'2008d3391ca10586c0c819c2474760322e20ec9a'
@@ -3124,12 +3438,12 @@ New Features
 - Added the ``replace_results`` kwarg to
   :meth:`~qiskit_experiments.framework.BaseAnalysis.run` with default
   value of ``replace_results=False``.
-  
+
   If analysis is run with ``replace_results=True`` then any analysis results
   and figures in the experiment data will be cleared and replaced with the
   new analysis results. Saving this experiment data will replace any
   previously saved data in a database service using the same experiment ID.
-  
+
   If analysis is run with ``replace_results=False`` and the experiment data
   being analyzed has already been saved to a database service, or already
   contains analysis results or figures, a copy with a unique experiment ID
@@ -3161,7 +3475,7 @@ New Features
   and retrieved from the experiment object after construction using the
   :meth:`~qiskit_experiments.framework.BaseExperiment.backend`
   property and setter.
-  
+
   When using the ``backend`` kwarg of
   :meth:`~qiskit_experiments.framework.BaseExperiment.run` to specify
   a backend this will temporarily override any currently set backends
@@ -3196,7 +3510,7 @@ New Features
 - Simplified the update library for calibration experiments by merging
   this functionality into the
   :class:`qiskit_experiments.calibration_management.BaseCalibrationExperiment`.
-  
+
   Future releases may fully deprecate the
   :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`
   in favour of moving its functionality into the
@@ -3229,7 +3543,7 @@ New Features
   returning results. This prevents issues where trying to retrieve analysis
   results before analysis was finished would raise an error that the result
   could not be found.
-  
+
   Note that in the case of
   :class:`~qiskit-experiments.framework.ParallelExperiment` and
   :class:`~qiskit-experiments.framework.BatchExperiment` blocking or
@@ -3243,7 +3557,7 @@ New Features
 - The :class:`~qiskit_experiments.framework.ExperimentData` class
   can now store child ``ExperimentData`` containers.
   Child data can either be added at initialization using the
-  ``child_data`` kwarg or added later using the 
+  ``child_data`` kwarg or added later using the
   :meth:`~qiskit_experiments.framework.ExperimentData.add_child_data`
   method. Child ``ExperimentData`` can be accessed using the
   :meth:`~qiskit_experiments.framework.ExperimentData.child_data`
@@ -3256,7 +3570,7 @@ New Features
   allows making a copy of an experiment data container with a new
   experiment ID, new result IDs, and new figure names, generated for
   the copy.
-  
+
   This method has a kwarg option ``copy_results`` that can be set to
   ``False`` to only copy the experiment
   :meth:`~qiskit_experiments.framework.ExperimentData.data` and
@@ -3279,7 +3593,7 @@ New Features
   and all component experiment data and results from the IBM experiments
   database service. Changing the share level of the parent composite
   experiment will also change the share level of all component experiments.
-  
+
   When saving composite experiments each component experiment analysis
   results and figures will be saved under a unique experiment ID. Note that
   these component experiments do not save any of the marginalized circuit
@@ -3291,88 +3605,88 @@ New Features
 - Added a collection of experiments for performing single-qubit gate
   :mod:`~qiskit_experiments.library.characterization` and
   :mod:`~qiskit_experiments.library.calibration`. The new experiments are
-  
-  * :class:`~qiskit_experiments.library.characterization.Rabi`: 
+
+  * :class:`~qiskit_experiments.library.characterization.Rabi`:
     This experiment scans the amplitude of a pulse and measures the qubit
     population. This allows us to determine the amplitude that creates,
     for example, an ``X`` gate and/or a ``SX`` gate.
-    
+
   * :class:`~qiskit_experiments.library.calibration.RoughXSXAmplitudeCal`:
     The calibration version of :class:`~qiskit_experiments.library.characterization.Rabi`.
     It extracts the amplitudes needed to implement an ``X`` gate an a ``SX`` gate.
     This type of calibration is a rough amplitude calibration since the resulting
     parameter value is typically not very precises.
-  
+
   * :class:`~qiskit_experiments.library.characterization.FineAmplitude`: This experiment repeats
     a rotation a variable number of times to amplify over- and under-rotations.
     The resulting ping-pong pattern in the qubit population is fit to determine
     the error in the rotation angle.
-    This experiment has specializations for X 
-    (:class:`~qiskit_experiments.library.characterization.FineXAmplitude`) and SX 
+    This experiment has specializations for X
+    (:class:`~qiskit_experiments.library.characterization.FineXAmplitude`) and SX
     (:class:`~qiskit_experiments.library.characterization.FineSXAmplitude`) gates.
-  
+
   * :class:`~qiskit_experiments.library.calibration.FineAmplitudeCal`: The calibration version
     of :class:`~qiskit_experiments.library.characterization.FineAmplitude`.
     It will update the amplitude of the pulse according to the measurred deviation.
-    This experiment has specializations for X 
-    (:class:`~qiskit_experiments.library.calibration.FineXAmplitudeCal`) and SX 
+    This experiment has specializations for X
+    (:class:`~qiskit_experiments.library.calibration.FineXAmplitudeCal`) and SX
     (:class:`~qiskit_experiments.library.calibration.FineSXAmplitudeCal`) gates.
-  
+
   * :class:`~qiskit_experiments.library.characterization.RoughDrag`:
     This experiment scans the DRAG parameter of a repeated
     sequence of rotation and anti-rotation. If the DRAG parameter does not have
     the correct value phase errors will accumulate and the repeated sequece of
     gates will not return the qubit to the ground state.
-    
+
   * :class:`~qiskit_experiments.library.calibration.RoughDragCal`: The calibration version of
     :class:`~qiskit_experiments.library.characterization.RoughDrag`.
-  
+
   * :class:`~qiskit_experiments.library.characterization.FineDrag`: This experiment iterates the
     gate sequence Rp - Rm where Rp is a rotation around an axis and Rm is the same
     rotation but in the opposite direction. This sequence amplifies phase errors due
     to the presence of higher excited states.
-    This experiment has specializations for X 
-    (:class:`~qiskit_experiments.library.characterization.FineXDrag`) and SX 
+    This experiment has specializations for X
+    (:class:`~qiskit_experiments.library.characterization.FineXDrag`) and SX
     (:class:`~qiskit_experiments.library.characterization.FineSXDrag`) gates.
-  
+
   * :class:`~qiskit_experiments.library.calibration.FineDragCal`: The calibration version of
     :class:`~qiskit_experiments.library.characterization.FineDrag`.
     This will update the DRAG parameter in the instance of the
     :class:`:class:`~qiskit_experiments.calibration_management.Calibrations` class.
-    This experiment has specializations for X 
-    (:class:`~qiskit_experiments.library.calibration.FineXDragCal`) and SX 
+    This experiment has specializations for X
+    (:class:`~qiskit_experiments.library.calibration.FineXDragCal`) and SX
     (:class:`~qiskit_experiments.library.calibration.FineSXDragCal`) gates.
-  
+
   * :class:`~qiskit_experiments.library.characterization.QubitSpectroscopy`: This experiment
     performs spectroscopy by applying a frequency shift to a long pulse. This experiment
     is typically used to identify the resonance frequency of the qubit.
-    
+
   * :class:`~qiskit_experiments.library.calibration.RoughFrequencyCal` the calibration
     version of :class:`~qiskit_experiments.library.characterization.QubitSpectroscopy`.
     This gives us a first rough estimate of the qubits frequency.
-  
+
   * :class:`~qiskit_experiments.library.characterization.RamseyXY`: This experiment
     performs a Ramsey-XY experiment which allows us to measure the frequency of the qubit.
     This experiment is sensitive to the sign of the frequency offset from the main transition.
     It is a more precise measurement than spectroscopy.
-    
+
   * :class:`~qiskit_experiments.library.calibration.FrequencyCal`: This is the calibration
     version of :class:`~qiskit_experiments.library.characterization.RamseyXY`.
-  
+
   * :class:`~qiskit_experiments.library.characterization.FineFrequency`:
     This experiment performs an error amplifying sequence to measure the frequency of the qubit.
     This is done with delay instructions with a variable length and RZ gates.
-    
+
   * :class:`~qiskit_experiments.library.calibration.FineFrequencyCal`:
     This is the calibration version of
     :class:`~qiskit_experiments.library.characterization.FineFrequency`.
-  
+
   * :class:`~qiskit_experiments.library.characterization.HalfAngle`:
     This experiment measures the amount by which the SX and X gates are not parallel.
     Such errors can occur due to phase errors. For example,
     the non-linearities in the mixer's skew for :math:`\pi/2` pulses may be
     different from the :math:`\pi` pulse.
-  
+
   * :class:`~qiskit_experiments.library.calibration.HalfAngleCal`:
     This is the calibration version of
     :class:`~qiskit_experiments.library.characterization.HalfAngle`.
@@ -3381,10 +3695,10 @@ New Features
 
 - Two cross-resonance Hamiltonian tomography experiments have been
   added to the :mod:`qiskit_experiments.library`.
-  
+
   * :class:`qiskit_experiments.library.CrossResonanceHamiltonian`
   * :class:`qiskit_experiments.library.EchoedCrossResonanceHamiltonian`
-  
+
   These experiments estimates the IX, IY, IZ, ZX, ZY, ZZ Hamiltonian term
   coefficients of the cross-resonance Hamiltonian, using either a single-tone
   cross-resonance gate
@@ -3441,7 +3755,7 @@ Upgrade Notes
 .. releasenotes/notes/0.2/base-analysis-b261afaa40518b53.yaml @ b'770a3dffd30d9093ec20ad85676f0b2f92393c4a'
 
 - Changed :meth:`~qiskit_experiments.framework.BaseAnalysis.run` to run
-  asynchronously using the 
+  asynchronously using the
   :meth:`~qiskit_experiments.framework.ExperimentData.add_analysis_callback`.
   Previously analysis was only run asynchronously if it was done as part of
   an experiments :meth:`~qiskit_experiments.framework.BaseExperiment.run`.
@@ -3502,7 +3816,7 @@ Upgrade Notes
   default, this means it is no longer necessary to call the
   :meth:`~qiskit_experiments.framework.ExperimentData.block_for_results`
   method first before accessing analysis results.
-  
+
   To disable blocking this can be set to run with ``block=False``.
   This should be used
   :meth:`~qiskit_experiments.framework.ExperimentData.analysis_results`
@@ -3533,7 +3847,7 @@ Upgrade Notes
   :class:`~qiskit_experiments.library.InterleavedRb`,
   :class:`~qiskit_experiments.library.QuantumVolume`,
   :class:`~qiskit_experiments.library.StateTomography`,
-  and 
+  and
   :class:`~qiskit_experiments.library.ProcessTomography`
   no longer accepts interger values for specifying a range of qubits.
   and  must now contain an explicit sequence of qubits.
@@ -3545,14 +3859,14 @@ Upgrade Notes
   :class:`~qiskit_experiments.library.InterleavedStandardRB`,
   :class:`~qiskit_experiments.library.QuantumVolume` experiments has
   been modified.
-  
+
   In the new version the ``seed`` value is used as to initialize a Numpy
   random number generator object as ``numpy.random.default_rng(seed=seed)``
   each time the experiments ``circuits`` method is called. This change means
   that using a fixed seed value will result in the same circuits being
   generated each time an experiment is run, if no other
   experiment options are changed.
-  
+
   To generate different new random circuits each time an experiment is run
   the (default) value of ``seed=None`` should be used. To reproduce
   equivalent functionality to the previous version behavior of differnet
@@ -3572,7 +3886,7 @@ Deprecation Notes
   method has been deprecated, use the
   :meth:`qiskit_experiments.framework.BaseAnalysis.set_options` method
   for the experiments analysis class instead. This can be accessed from the
-  experiment instance using the 
+  experiment instance using the
   :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property as
   ``experiment.analysis.set_options(**options)``.
 
@@ -3582,7 +3896,7 @@ Deprecation Notes
   property has been deprecated, use the
   :meth:`qiskit_experiments.framework.BaseAnalysis.options` property
   for the experiments analysis class instead. This can be accessed from the
-  experiment instance using the 
+  experiment instance using the
   :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property as
   ``experiment.analysis.options``.
 
@@ -3592,7 +3906,7 @@ Deprecation Notes
   method has been deprecated, use the
   :meth:`qiskit_experiments.framework.BaseAnalysis.run` method
   for the experiments analysis class instead. This can be accessed from the
-  experiment instance using the 
+  experiment instance using the
   :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property as
   ``experiment.analysis.run(**kwargs)``.
 
@@ -3627,8 +3941,8 @@ Bug Fixes
 
 .. releasenotes/notes/0.2/experiment-data-5465208160fe6b6a.yaml @ b'd04d99e73a6eee1af570cecc45bab8a3e8abc687'
 
-- Fixed a bug where the 
-  :meth:`qiskit_experiments.framework.ExperimentData.load` method 
+- Fixed a bug where the
+  :meth:`qiskit_experiments.framework.ExperimentData.load` method
   would return an
   :class:`~qiskit_experiments.database_service.DbExperimentDataV1` object
   instead of a :class:`~qiskit_experiments.framework.ExperimentData` object.
@@ -3645,7 +3959,7 @@ Bug Fixes
   :class:`~qiskit_experiments.library.InterleavedRB` where the variance in
   the estimated error per Clifford did not scale correctly with the number
   of sampled RB sequences.
-  
+
   See `Issue 428 <https://github.com/Qiskit/qiskit-experiments/issues/428>`_
   for details.
 
@@ -3669,14 +3983,14 @@ API Changes for Experiment Authors
 
 - The :class:`qiskit_experiments.framework.BaseAnalysis` class has
   been changed to be an initialized class.
-  
+
   This class now stores its set analysis options using the
   :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options` and
   :meth:`~qiskit_experiments.framework.BaseAnalysis.options` and
   ``_default_options`` methods.
   The signature of the abstract method ``_run_analysis`` that must be
   implemented by subclasses has been changed to remove the ``**kwargs``.
-  
+
   Note that the state of this class should only be used to store option
   values and derived configuration. The
   :meth:`~qiskit_experiments.framework.BaseAnalysis.run` and
@@ -3707,12 +4021,12 @@ API Changes for Experiment Authors
 - :mod:`~qiskit_experiments.library.calibration` experiments have been changed
   so that each experiment is a subclass of a
   :mod:`~qiskit_experiments.library.characterization` experiment.
-  
+
   Calibration experiments should now be constructed as subclasses of both
   the relevant characterization experiment and the new
   :class:`qiskit_experiments.calibration_management.BaseCalibrationExperiment`
   abstract base class.
-  
+
   This new base class implements the functionality to manage schedules
   stored in instances of the
   :class:`qiskit_experiments.calibration_management.Calibrations` class and
@@ -3725,29 +4039,29 @@ API Changes for Experiment Authors
 - There have been several changes to the
   :class:`qiskit_experiments.curve_analysis.CurveAnalysis` class which may
   effect developers implementing experiments using curve analysis.
-  
+
   These include:
-  
+
   * Default data pre-processing for curve fit data has been added to
     :class:`~qiskit_experiments.curve_analysis.CurveAnalysis`. The input data
     to the analysis is averaged over the same x values and sorted by x values.
     This processing is necessary to correctly analyze an experimental data which
     has duplicate x values.
-  
+
   * The handling of user provided initial guesses and fit boundaries has been
     changed so that subclasses no longer need to use user provided option values.
     Propagation of user values is now handled by the base class.
-    
+
   * The subclass method name to provide these initial guesses for curve fitting
     has bee changed from ``_setup_fitting`` to
     :meth:`~qiskit_experiments.curve_analysis.CurveAnalysis._generate_fit_guesses`.
     See the documentation for more details.
-  
+
   * Tick labels and fit parameters shown in the fit result plot generated by
     :class:`qiskit_experiments.curve_analysis.CurveAnalysis`
     subclasses are formatted with unit with prefactor scalings.
     For example, 1e7 can now be displayed as 10 MHz.
-  
+
     To enable this change, all experiments using
     :class:`~qiskit_experiments.curve_analysis.CurveAnalysis` or a subclass
     analysis class should set analysis options ``xval_unit`` and ``yval_unit``.
@@ -3758,4 +4072,3 @@ API Changes for Experiment Authors
   :class:`qiskit_experiments.curve_analysis.SeriesDef` dataclass. This field
   stores the string representation of the fit model of the curve and will be
   stored in the experiments analysis result extra field.
-
