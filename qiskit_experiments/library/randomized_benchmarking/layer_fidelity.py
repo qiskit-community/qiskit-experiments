@@ -132,6 +132,8 @@ class LayerFidelity(BaseExperiment):
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         two_qubit_gate: Optional[str] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
+        layer_barrier: Optional[bool] = True,
+        min_delay: Optional[Sequence[int]] = None,
     ):
         """Initialize a layer fidelity experiment.
 
@@ -153,6 +155,18 @@ class LayerFidelity(BaseExperiment):
             one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
                             If not specified (but ``backend`` is supplied),
                             all 1q-gates supported in the backend are automatically set.
+            layer_barrier (bool): Optional, enforce a barrier across the whole layer.
+                Default is True, which is the defined protocol for layer fidelity.
+                If this is set to false the code runs
+                simultaneous direct 1+2Q RB without a barrier across all qubits.
+            min_delay: Optional. Define a minimum delay in each 2Q layer in units of dt. This
+                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
+                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
+                testing by removing a gate from the layer without changing the layer duration. If not
+                None then is a list equal in length to the number of two_qubit_layers.  Note that
+                this options requires at least one 1Q edge (a qubit in physical_qubits but
+                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
+                if layer_barrier=False.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -231,6 +245,8 @@ class LayerFidelity(BaseExperiment):
             two_qubit_layers=two_qubit_layers,
             two_qubit_gate=two_qubit_gate,
             one_qubit_basis_gates=tuple(one_qubit_basis_gates),
+            layer_barrier=layer_barrier,
+            min_delay=min_delay,
         )
 
         # Verify two_qubit_gate and one_qubit_basis_gates
@@ -254,6 +270,18 @@ class LayerFidelity(BaseExperiment):
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
                 for building circuits of RB sequences.
+            layer_barrier (bool): Optional, enforce a barrier across the whole layer.
+                Default is True, which is the defined protocol for layer fidelity.
+                If this is set to false the code runs
+                simultaneous direct 1+2Q RB without a barrier across all qubits.
+            min_delay (List[int]): Optional. Define a minimum delay in each 2Q layer in units of dt. This
+                delay operation will be applied in any 1Q edge of the layer during the 2Q gate layer
+                in order to enforce a minimum duration of the 2Q layer. This enables some crosstalk
+                testing by removing a gate from the layer without changing the layer duration. If not
+                None then is a list equal in length to the number of two_qubit_layers.  Note that
+                this options requires at least one 1Q edge (a qubit in physical_qubits but
+                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
+                if layer_barrier=False.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -264,6 +292,8 @@ class LayerFidelity(BaseExperiment):
             two_qubit_gate=None,
             one_qubit_basis_gates=None,
             clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
+            layer_barrier=True,
+            min_delay=None,
         )
         return options
 
@@ -367,6 +397,11 @@ class LayerFidelity(BaseExperiment):
         else:
             gate2q = GATE_NAME_MAP[opts.two_qubit_gate]
         gate2q_cliff = num_from_2q_circuit(Clifford(gate2q).to_circuit())
+
+        # warn if min delay is not None and barrier is false
+        if opts.min_delay is not None and not opts.layer_barrier:
+            warnings.warn("Min delay applied when layer_barrier is False.")
+
         # Circuit generation
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
@@ -380,9 +415,32 @@ class LayerFidelity(BaseExperiment):
                 composite_clbits.extend(
                     [(c,) for c in range(2 * num_2q_gates, 2 * num_2q_gates + num_1q_gates)]
                 )
+
+                if opts.min_delay is None:
+                    min_delay = None
+                else:
+                    min_delay = opts.min_delay[i_set]
+
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
-                    barrier_inst = CircuitInstruction(Barrier(num_qubits), circ.qubits)
+                    # define the barrier instruction
+                    full_barrier_inst = CircuitInstruction(Barrier(num_qubits), circ.qubits)
+                    if not opts.layer_barrier:
+                        # we want separate barriers for each qubit so define them individually
+                        barrier_inst_gate = []
+                        for two_q_gate in two_qubit_layer:
+                            barrier_inst_gate.append(
+                                CircuitInstruction(
+                                    Barrier(2),
+                                    [circ.qubits[two_q_gate[0]], circ.qubits[two_q_gate[1]]],
+                                )
+                            )
+                        for one_q in one_qubits:
+                            barrier_inst_gate.append(
+                                CircuitInstruction(Barrier(1), [circ.qubits[one_q]])
+                            )
+                    else:
+                        barrier_inst_gate = [full_barrier_inst]
                     self.__circuit_body(
                         circ,
                         length,
@@ -393,10 +451,11 @@ class LayerFidelity(BaseExperiment):
                         _to_gate_2q,
                         gate2q,
                         gate2q_cliff,
-                        barrier_inst,
+                        barrier_inst_gate,
+                        min_delay,
                     )
                     # add the measurements
-                    circ._append(barrier_inst)
+                    circ._append(full_barrier_inst)
                     for qubits, clbits in zip(composite_qubits, composite_clbits):
                         circ.measure(qubits, clbits)
                     # store composite structure in metadata
@@ -443,8 +502,14 @@ class LayerFidelity(BaseExperiment):
         _to_gate_2q,
         gate2q,
         gate2q_cliff,
-        barrier_inst,
+        barrier_inst_lst,
+        min_delay=None,
     ):
+
+        # warn if min_delay is not none and one_qubits is empty
+        if min_delay is not None and len(one_qubits) == 0:
+            warnings.warn("Min delay will not be applied because there are no 1Q edges.")
+
         # initialize cliffords and a ciruit (0: identity clifford)
         cliffs_2q = [0] * len(two_qubit_layer)
         cliffs_1q = [0] * len(one_qubits)
@@ -463,7 +528,8 @@ class LayerFidelity(BaseExperiment):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
                 cliffs_1q[k] = compose_1q(cliffs_1q[k], sample)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-            circ._append(barrier_inst)
+            for barrier_inst in barrier_inst_lst:
+                circ._append(barrier_inst)
             # add two qubit gates
             for j, qpair in enumerate(two_qubit_layer):
                 circ._append(gate2q, tuple(circ.qubits[q] for q in qpair), ())
@@ -471,8 +537,12 @@ class LayerFidelity(BaseExperiment):
                 # TODO: add dd if necessary
             for k, q in enumerate(one_qubits):
                 # TODO: add dd if necessary
-                pass
-            circ._append(barrier_inst)
+                # if there is a min_delay, just need
+                # to add to one of the qubits
+                if min_delay is not None and k == 0:
+                    circ.delay(min_delay, q)
+            for barrier_inst in barrier_inst_lst:
+                circ._append(barrier_inst)
         # add the last inverse
         for j, qpair in enumerate(two_qubit_layer):
             inv = inverse_2q(cliffs_2q[j])

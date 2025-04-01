@@ -147,6 +147,9 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         alpha = fit_data.ufloat_params["alpha"]
         pf = (1 + (d * d - 1) * alpha) / (d * d)
 
+        # calculate error per layer
+        epl = (1 - alpha) * (d - 1) / d
+
         quality, reason = self._evaluate_quality_with_reason(fit_data)
 
         metadata["qubits"] = self._physical_qubits
@@ -156,6 +159,15 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
             AnalysisResultData(
                 name="ProcessFidelity",
                 value=pf,
+                chisq=fit_data.reduced_chisq,
+                quality=quality,
+                extra=metadata,
+            )
+        )
+        outcomes.append(
+            AnalysisResultData(
+                name="EPL",
+                value=epl,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra=metadata,
