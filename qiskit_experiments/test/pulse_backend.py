@@ -345,8 +345,11 @@ class PulseBackend(BackendV2):
         Returns:
             Time-evolution unitary operator
         """
+        # pylint: disable=import-error,no-name-in-module
         from qiskit.pulse import ScheduleBlock
         from qiskit.pulse.transforms import block_to_schedule
+
+        # pylint: enable=import-error,no-name-in-module
 
         if len(qubits) > 1:
             raise QiskitError("Multi qubit gates are not yet implemented.")
@@ -503,9 +506,12 @@ class SingleTransmonTestBackend(PulseBackend):
             atol: Absolute tolerance during solving.
             rtol: Relative tolerance during solving.
         """
+        # pylint: disable=import-error,no-name-in-module
         from qiskit.providers.models import PulseDefaults  # pylint: disable=no-name-in-module
         from qiskit.providers.models.pulsedefaults import Command
         from qiskit.qobj.pulse_qobj import PulseQobjInstruction
+
+        # pylint: enable=import-error,no-name-in-module
         from qiskit_dynamics.pulse import InstructionToSignals
 
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity

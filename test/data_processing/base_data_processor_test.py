@@ -46,7 +46,10 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
                     message=".*QobjDictField.*",
                     category=DeprecationWarning,
                 )
+                # pylint: disable=import-error,no-name-in-module
                 from qiskit.qobj.common import QobjExperimentHeader
+
+                # pylint: enable=no-name-in-module
 
                 self.header = QobjExperimentHeader(
                     memory_slots=2,
