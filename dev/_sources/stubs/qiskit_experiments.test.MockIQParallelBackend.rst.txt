@@ -32,7 +32,6 @@ MockIQParallelBackend
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -42,7 +41,6 @@ MockIQParallelBackend
    .. autoattribute:: MockIQParallelBackend.dtm
    .. autoattribute:: MockIQParallelBackend.experiment_helper
    .. autoattribute:: MockIQParallelBackend.instruction_durations
-   .. autoattribute:: MockIQParallelBackend.instruction_schedule_map
    .. autoattribute:: MockIQParallelBackend.instructions
    .. autoattribute:: MockIQParallelBackend.max_circuits
    .. autoattribute:: MockIQParallelBackend.meas_map
@@ -66,18 +64,10 @@ MockIQParallelBackend
          
          
          
-         
-         
-         
-         
 
    
    .. rubric:: Methods
    
-   .. automethod:: MockIQParallelBackend.acquire_channel
-   .. automethod:: MockIQParallelBackend.control_channel
-   .. automethod:: MockIQParallelBackend.drive_channel
-   .. automethod:: MockIQParallelBackend.measure_channel
    .. automethod:: MockIQParallelBackend.qubit_properties
    .. automethod:: MockIQParallelBackend.run
    .. automethod:: MockIQParallelBackend.set_options

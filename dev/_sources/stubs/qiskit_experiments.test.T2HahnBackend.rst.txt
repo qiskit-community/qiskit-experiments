@@ -31,7 +31,6 @@ T2HahnBackend
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -40,7 +39,6 @@ T2HahnBackend
    .. autoattribute:: T2HahnBackend.dt
    .. autoattribute:: T2HahnBackend.dtm
    .. autoattribute:: T2HahnBackend.instruction_durations
-   .. autoattribute:: T2HahnBackend.instruction_schedule_map
    .. autoattribute:: T2HahnBackend.instructions
    .. autoattribute:: T2HahnBackend.max_circuits
    .. autoattribute:: T2HahnBackend.meas_map
@@ -64,18 +62,10 @@ T2HahnBackend
          
          
          
-         
-         
-         
-         
 
    
    .. rubric:: Methods
    
-   .. automethod:: T2HahnBackend.acquire_channel
-   .. automethod:: T2HahnBackend.control_channel
-   .. automethod:: T2HahnBackend.drive_channel
-   .. automethod:: T2HahnBackend.measure_channel
    .. automethod:: T2HahnBackend.qubit_properties
    .. automethod:: T2HahnBackend.run
    .. automethod:: T2HahnBackend.set_options

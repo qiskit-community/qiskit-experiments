@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.test.pulse_backend - Qiskit Experiments 0.9.0-9-g388dec711</title>
+        <title>qiskit_experiments.test.pulse_backend - Qiskit Experiments 0.9.0-10-gea34d61ce</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.9.0-9-g388dec711</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.9.0-10-gea34d61ce</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0-9-g388dec711</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0-10-gea34d61ce</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -886,8 +886,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Time-evolution unitary operator</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=import-error,no-name-in-module</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.pulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduleBlock</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.pulse.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">block_to_schedule</span>
+
+        <span class="c1"># pylint: enable=import-error,no-name-in-module</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Multi qubit gates are not yet implemented.&quot;</span><span class="p">)</span>
@@ -1051,9 +1054,12 @@
 <span class="sd">            atol: Absolute tolerance during solving.</span>
 <span class="sd">            rtol: Relative tolerance during solving.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=import-error,no-name-in-module</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseDefaults</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.models.pulsedefaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.qobj.pulse_qobj</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseQobjInstruction</span>
+
+        <span class="c1"># pylint: enable=import-error,no-name-in-module</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_dynamics.pulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">InstructionToSignals</span>
 
         <span class="n">qubit_frequency_02</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">qubit_frequency</span> <span class="o">+</span> <span class="n">anharmonicity</span>
@@ -1221,7 +1227,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/30</div>
+              Last updated on 2025/04/01</div>
           </div>
           <div class="right-details">
             
@@ -1236,7 +1242,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3579c010"></script>
+</div><script src="../../../_static/documentation_options.js?v=8f310174"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

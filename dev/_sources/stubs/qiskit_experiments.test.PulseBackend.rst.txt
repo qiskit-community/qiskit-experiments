@@ -33,7 +33,6 @@ PulseBackend
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -44,7 +43,6 @@ PulseBackend
    .. autoattribute:: PulseBackend.dt
    .. autoattribute:: PulseBackend.dtm
    .. autoattribute:: PulseBackend.instruction_durations
-   .. autoattribute:: PulseBackend.instruction_schedule_map
    .. autoattribute:: PulseBackend.instructions
    .. autoattribute:: PulseBackend.max_circuits
    .. autoattribute:: PulseBackend.meas_map
@@ -70,19 +68,11 @@ PulseBackend
          
          
          
-         
-         
-         
-         
 
    
    .. rubric:: Methods
    
-   .. automethod:: PulseBackend.acquire_channel
-   .. automethod:: PulseBackend.control_channel
    .. automethod:: PulseBackend.defaults
-   .. automethod:: PulseBackend.drive_channel
-   .. automethod:: PulseBackend.measure_channel
    .. automethod:: PulseBackend.qubit_properties
    .. automethod:: PulseBackend.run
    .. automethod:: PulseBackend.set_options

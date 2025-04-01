@@ -31,7 +31,6 @@ NoisyDelayAerBackend
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -40,7 +39,6 @@ NoisyDelayAerBackend
    .. autoattribute:: NoisyDelayAerBackend.dt
    .. autoattribute:: NoisyDelayAerBackend.dtm
    .. autoattribute:: NoisyDelayAerBackend.instruction_durations
-   .. autoattribute:: NoisyDelayAerBackend.instruction_schedule_map
    .. autoattribute:: NoisyDelayAerBackend.instructions
    .. autoattribute:: NoisyDelayAerBackend.max_circuits
    .. autoattribute:: NoisyDelayAerBackend.meas_map
@@ -72,23 +70,15 @@ NoisyDelayAerBackend
          
          
          
-         
-         
-         
-         
 
    
    .. rubric:: Methods
    
-   .. automethod:: NoisyDelayAerBackend.acquire_channel
    .. automethod:: NoisyDelayAerBackend.available_devices
    .. automethod:: NoisyDelayAerBackend.available_methods
    .. automethod:: NoisyDelayAerBackend.clear_options
    .. automethod:: NoisyDelayAerBackend.configuration
-   .. automethod:: NoisyDelayAerBackend.control_channel
-   .. automethod:: NoisyDelayAerBackend.drive_channel
    .. automethod:: NoisyDelayAerBackend.from_backend
-   .. automethod:: NoisyDelayAerBackend.measure_channel
    .. automethod:: NoisyDelayAerBackend.properties
    .. automethod:: NoisyDelayAerBackend.qubit_properties
    .. automethod:: NoisyDelayAerBackend.run
