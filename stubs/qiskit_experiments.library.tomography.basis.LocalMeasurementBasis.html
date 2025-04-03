@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LocalPreparationBasis" href="qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html" /><link rel="prev" title="Pauli6PreparationBasis" href="qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>LocalMeasurementBasis - Qiskit Experiments 0.9.0</title>
+        <title>LocalMeasurementBasis - Qiskit Experiments 0.10.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.9.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.9.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -490,6 +490,8 @@
     <div class="qiskit-previous-releases-list-container">
         <ul>
         
+            <li><a href="/qiskit-experiments/stable/0.9/index.html" rel="nofollow noindex">0.9</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.8/index.html" rel="nofollow noindex">0.8</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.7/index.html" rel="nofollow noindex">0.7</a></li>
@@ -552,10 +554,10 @@ measurement.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – a name to identity the basis.</p></li>
-<li><p><strong>instructions</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v1.4)"><em>Instruction</em></a><em>] </em><em>| </em><em>None</em>) – list of instructions for rotating a desired
+<li><p><strong>instructions</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.Instruction" title="(in Qiskit v2.0)"><em>Instruction</em></a><em>] </em><em>| </em><em>None</em>) – list of instructions for rotating a desired
 measurement basis to the standard <span class="math notranslate nohighlight">\(Z^{\otimes n}\)</span>
 computational basis measurement.</p></li>
-<li><p><strong>default_povms</strong> (<em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.4)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.4)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>] </em><em>| </em><em>None</em>) – Optional, list if positive operators valued measures (POVM)
+<li><p><strong>default_povms</strong> (<em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v2.0)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>] </em><em>| </em><em>None</em>) – Optional, list if positive operators valued measures (POVM)
 for of the measurement basis instructions. A POVM can be
 input as a list of effects (Statevector or DensityMatrix)
 for each possible measurement outcome of that basis, or as
@@ -563,7 +565,7 @@ a single QuantumChannel. For the channel case the effects
 will be calculated by evolving the computation basis states
 by the adjoint of the channel. If None the input instructions
 will be used as the POVM channel.</p></li>
-<li><p><strong>qubit_povms</strong> (<em>Dict</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v1.4)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v1.4)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional, a dict with physical qubit keys and a list of POVMs
+<li><p><strong>qubit_povms</strong> (<em>Dict</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>, </em><em>Sequence</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><em>Statevector</em></a><em>] </em><em>| </em><em>List</em><em>[</em><a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.DensityMatrix" title="(in Qiskit v2.0)"><em>DensityMatrix</em></a><em>] </em><em>| </em><em>QuantumChannel</em><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional, a dict with physical qubit keys and a list of POVMs
 corresponding to each basis measurement instruction for the
 specific qubit. The default POVMs will be used for any qubits
 not specified in this dict.</p></li>
@@ -720,7 +722,7 @@ length N index.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/03/18</div>
+              Last updated on 2025/04/03</div>
           </div>
           <div class="right-details">
             
@@ -762,7 +764,7 @@ length N index.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+</div><script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

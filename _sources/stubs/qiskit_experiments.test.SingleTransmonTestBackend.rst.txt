@@ -33,7 +33,6 @@ SingleTransmonTestBackend
          
          
          
-         
 
    
    .. rubric:: Attributes
@@ -44,7 +43,6 @@ SingleTransmonTestBackend
    .. autoattribute:: SingleTransmonTestBackend.dt
    .. autoattribute:: SingleTransmonTestBackend.dtm
    .. autoattribute:: SingleTransmonTestBackend.instruction_durations
-   .. autoattribute:: SingleTransmonTestBackend.instruction_schedule_map
    .. autoattribute:: SingleTransmonTestBackend.instructions
    .. autoattribute:: SingleTransmonTestBackend.max_circuits
    .. autoattribute:: SingleTransmonTestBackend.meas_map
@@ -70,19 +68,11 @@ SingleTransmonTestBackend
          
          
          
-         
-         
-         
-         
 
    
    .. rubric:: Methods
    
-   .. automethod:: SingleTransmonTestBackend.acquire_channel
-   .. automethod:: SingleTransmonTestBackend.control_channel
    .. automethod:: SingleTransmonTestBackend.defaults
-   .. automethod:: SingleTransmonTestBackend.drive_channel
-   .. automethod:: SingleTransmonTestBackend.measure_channel
    .. automethod:: SingleTransmonTestBackend.qubit_properties
    .. automethod:: SingleTransmonTestBackend.run
    .. automethod:: SingleTransmonTestBackend.set_options
