@@ -1,0 +1,7 @@
+---
+prelude: >
+    The Qiskit Experiments 0.10.0 release adds new features to
+    :class:`.LayerFidelity` that allow it to be used as a parallel direct
+    randomized benchmarking experiment as well. It also includes some small
+    changes to address the way :func:`~qiskit.compiler.transpile` handles the
+    ``basis_gates`` argument in Qiskit 2.0.
