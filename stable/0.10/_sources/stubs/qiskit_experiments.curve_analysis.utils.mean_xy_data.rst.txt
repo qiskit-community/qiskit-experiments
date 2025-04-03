@@ -1,0 +1,8 @@
+﻿
+
+mean_xy_data
+====================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: mean_xy_data

@@ -1,0 +1,47 @@
+﻿
+
+CorrelatedReadoutMitigator
+=============================================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: CorrelatedReadoutMitigator
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: CorrelatedReadoutMitigator.qubits
+   .. autoattribute:: CorrelatedReadoutMitigator.settings
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: CorrelatedReadoutMitigator.assignment_matrix
+   .. automethod:: CorrelatedReadoutMitigator.expectation_value
+   .. automethod:: CorrelatedReadoutMitigator.mitigation_matrix
+   .. automethod:: CorrelatedReadoutMitigator.quasi_probabilities
+   .. automethod:: CorrelatedReadoutMitigator.stddev_upper_bound
+
+   

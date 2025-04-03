@@ -1,0 +1,8 @@
+﻿
+
+shot_weighted_average
+=============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: shot_weighted_average

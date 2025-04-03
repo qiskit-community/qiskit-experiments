@@ -1,0 +1,43 @@
+﻿
+
+AnalysisResultData
+===============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisResultData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisResultData.value
+   .. autoattribute:: AnalysisResultData.tags
+   .. autoattribute:: AnalysisResultData.extra
+   
+
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AnalysisResultData.as_table_element
+   .. automethod:: AnalysisResultData.from_table_element
+
+   
