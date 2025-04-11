@@ -117,16 +117,13 @@ computed for other qubits.
 .. jupyter-execute::
 
     user_p0={
-        "A": 0.5,
-        "T2star": 20e-6,
-        "f": 110000,
+        "amp": 0.5,
+        "tau": 20e-6,
+        "freq": 110000,
         "phi": 0,
-        "B": 0.5
-            }
-    exp_with_p0 = T2Ramsey((qubit,), delays, osc_freq=1e5)
-    exp_with_p0.analysis.set_options(p0=user_p0)
-    exp_with_p0.set_transpile_options(scheduling_method='asap')
-    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
+        "base": 0.5
+    }
+    expdata_with_p0 = exp1.analysis.run(expdata1, p0=user_p0)
     expdata_with_p0.block_for_results()
     
     # Display fit figure

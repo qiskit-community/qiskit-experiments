@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tφ Characterization" href="tphi.html" /><link rel="prev" title="T2 Hahn Characterization" href="t2hahn.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T2* Ramsey Characterization - Qiskit Experiments 0.10.0-1-g9acc61f1d</title>
+        <title>T2* Ramsey Characterization - Qiskit Experiments 0.10.0-2-g2e8fbc771</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-1-g9acc61f1d</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-2-g2e8fbc771</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-1-g9acc61f1d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-2-g2e8fbc771</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -708,7 +708,7 @@ frequency.</p>
   </thead>
   <tbody>
     <tr>
-      <th>427401c1</th>
+      <th>a20e4281</th>
       <td>Frequency</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -720,7 +720,7 @@ frequency.</p>
       <td>Hz</td>
     </tr>
     <tr>
-      <th>8c1f0822</th>
+      <th>2aa48f98</th>
       <td>T2star</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -749,16 +749,13 @@ computed for other qubits.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">user_p0</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="s2">&quot;T2star&quot;</span><span class="p">:</span> <span class="mf">20e-6</span><span class="p">,</span>
-    <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="mi">110000</span><span class="p">,</span>
+    <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="mf">20e-6</span><span class="p">,</span>
+    <span class="s2">&quot;freq&quot;</span><span class="p">:</span> <span class="mi">110000</span><span class="p">,</span>
     <span class="s2">&quot;phi&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
-        <span class="p">}</span>
-<span class="n">exp_with_p0</span> <span class="o">=</span> <span class="n">T2Ramsey</span><span class="p">((</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
-<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="n">user_p0</span><span class="p">)</span>
-<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">)</span>
-<span class="n">expdata_with_p0</span> <span class="o">=</span> <span class="n">exp_with_p0</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+    <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+<span class="p">}</span>
+<span class="n">expdata_with_p0</span> <span class="o">=</span> <span class="n">exp1</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">expdata1</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">user_p0</span><span class="p">)</span>
 <span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="c1"># Display fit figure</span>
@@ -809,7 +806,7 @@ computed for other qubits.</p>
   </thead>
   <tbody>
     <tr>
-      <th>9dd39860</th>
+      <th>5510db88</th>
       <td>Frequency</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -821,7 +818,7 @@ computed for other qubits.</p>
       <td>Hz</td>
     </tr>
     <tr>
-      <th>395d8687</th>
+      <th>0dd8d880</th>
       <td>T2star</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -880,7 +877,7 @@ computed for other qubits.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/04/03</div>
+              Last updated on 2025/04/11</div>
           </div>
           <div class="right-details">
             
@@ -917,7 +914,7 @@ computed for other qubits.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=4754bd2c"></script>
+</div><script src="../../_static/documentation_options.js?v=f829eada"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

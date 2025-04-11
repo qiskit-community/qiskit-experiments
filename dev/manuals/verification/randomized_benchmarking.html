@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.10.0-1-g9acc61f1d</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.10.0-2-g2e8fbc771</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-1-g9acc61f1d</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-2-g2e8fbc771</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-1-g9acc61f1d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-2-g2e8fbc771</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -557,9 +557,9 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. <a class="footnote-reference brackets" href="#id8" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#id9" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
-packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
-<span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a>
+package to run simulations.  You can install it with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
+<span class="pre">install</span> <span class="pre">qiskit-aer</span></code>.</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -570,9 +570,13 @@ packages to run simulations.  You can install them with <code class="docutils li
 
 <span class="c1"># For simulation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakePerth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer.noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">depolarizing_error</span>
 
-<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
+<span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">()</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;rz&quot;</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;cx&quot;</span><span class="p">])</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="p">(</span><span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -596,6 +600,13 @@ sampled for all lengths. If <code class="docutils literal notranslate"><span cla
 sequences are constructed by appending additional Clifford samples to
 shorter sequences. The default is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the examples here, the sequence lengths and number of samples are chosen
+to be as low as possible while still producing typical results in order to
+minimize the simulation times. For accurate results, larger numbers may be
+necessary.</p>
+</div>
 <p>The analysis results of the RB Experiment may include:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EPC</span></code>: The estimated Error Per Clifford</p></li>
@@ -638,8 +649,8 @@ If you have multiple kinds of basis gates with unclear error ratio <span class="
 interleaved RB experiment will always give you accurate error value <span class="math notranslate nohighlight">\(e_i\)</span>.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">150</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">1010</span>
 <span class="n">qubits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -689,59 +700,59 @@ interleaved RB experiment will always give you accurate error value <span class=
   </thead>
   <tbody>
     <tr>
-      <th>555a6c86</th>
+      <th>b73dd129</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.9993+/-0.0004</td>
+      <td>0.99579+/-0.00009</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.244332</td>
+      <td>1.363607</td>
     </tr>
     <tr>
-      <th>2291d733</th>
+      <th>dadd2c35</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00036+/-0.00020</td>
+      <td>0.00210+/-0.00005</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.244332</td>
+      <td>1.363607</td>
     </tr>
     <tr>
-      <th>493fdb16</th>
+      <th>98c90a68</th>
       <td>EPG_x</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00047+/-0.00026</td>
+      <td>0.00246+/-0.00005</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.244332</td>
+      <td>1.363607</td>
     </tr>
     <tr>
-      <th>f0f5e621</th>
+      <th>e0356e90</th>
       <td>EPG_rz</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
       <td>0.0+/-0</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.244332</td>
+      <td>1.363607</td>
     </tr>
     <tr>
-      <th>73793c50</th>
+      <th>549a1c04</th>
       <td>EPG_sx</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00047+/-0.00026</td>
+      <td>0.00246+/-0.00005</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.244332</td>
+      <td>1.363607</td>
     </tr>
   </tbody>
 </table>
@@ -793,9 +804,9 @@ The corrected EPC must be closer to the outcome of interleaved RB.
 The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths_2_qubit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-<span class="n">lengths_1_qubit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths_2_qubit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">lengths_1_qubit</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">150</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">1010</span>
 <span class="n">qubits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
@@ -866,48 +877,48 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
   </thead>
   <tbody>
     <tr>
-      <th>2370b83d</th>
+      <th>38db8391</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9764+/-0.0006</td>
+      <td>0.9171+/-0.0034</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>1.538576</td>
+      <td>2.210438</td>
     </tr>
     <tr>
-      <th>27c316c2</th>
+      <th>c6de9f1a</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0177+/-0.0004</td>
+      <td>0.0622+/-0.0025</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>1.538576</td>
+      <td>2.210438</td>
     </tr>
     <tr>
-      <th>ab590629</th>
+      <th>1f1a2979</th>
       <td>EPC_corrected</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0163+/-0.0007</td>
+      <td>0.0524+/-0.0026</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>1.538576</td>
+      <td>2.210438</td>
     </tr>
     <tr>
-      <th>272c62d5</th>
+      <th>433b2c37</th>
       <td>EPG_cx</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0116+/-0.0005</td>
+      <td>0.0348+/-0.0017</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>1.538576</td>
+      <td>2.210438</td>
     </tr>
   </tbody>
 </table>
@@ -988,8 +999,8 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
 <p>Let’s run an interleaved RB experiment on two qubits:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">1010</span>
 <span class="n">qubits</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
@@ -999,22 +1010,15 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
 
 <span class="n">int_expdata2</span> <span class="o">=</span> <span class="n">int_exp2</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 <span class="n">int_results2</span> <span class="o">=</span> <span class="n">int_expdata2</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-</div>
-</div>
-<div class="jupyter_cell jupyter_container docutils container">
-<div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># View result data</span>
+
+<span class="c1"># View result data</span>
 <span class="n">display</span><span class="p">(</span><span class="n">int_expdata2</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">int_results2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/randomized_benchmarking_8_0.png" src="../../_images/randomized_benchmarking_8_0.png" />
+<img alt="../../_images/randomized_benchmarking_7_0.png" src="../../_images/randomized_benchmarking_7_0.png" />
 <div class="output text_html"><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1047,43 +1051,43 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   </thead>
   <tbody>
     <tr>
-      <th>fe3af3df</th>
+      <th>8e667c70</th>
       <td>alpha</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9756+/-0.0005</td>
+      <td>0.9155+/-0.0026</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.940489</td>
+      <td>2.960942</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>a92c45aa</th>
+      <th>a2517fad</th>
       <td>alpha_c</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9844+/-0.0008</td>
+      <td>0.953+/-0.004</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.940489</td>
+      <td>2.960942</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>8600d06d</th>
+      <th>356102c8</th>
       <td>EPC</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0117+/-0.0006</td>
+      <td>0.0350+/-0.0030</td>
       <td>good</td>
-      <td>aer_simulator_from(fake_perth)</td>
+      <td>aer_simulator</td>
       <td>None</td>
-      <td>0.940489</td>
-      <td>0.024913</td>
-      <td>[0, 0.036607591651872606]</td>
+      <td>2.960942</td>
+      <td>0.091743</td>
+      <td>[0, 0.12675389848900415]</td>
     </tr>
   </tbody>
 </table>
@@ -1167,7 +1171,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/04/03</div>
+              Last updated on 2025/04/11</div>
           </div>
           <div class="right-details">
             
@@ -1207,7 +1211,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=4754bd2c"></script>
+</div><script src="../../_static/documentation_options.js?v=f829eada"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

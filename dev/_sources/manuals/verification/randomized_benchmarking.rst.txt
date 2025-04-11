@@ -12,9 +12,9 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. note::
-    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
-    packages to run simulations.  You can install them with ``python -m pip
-    install qiskit-aer qiskit-ibm-runtime``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>`
+    package to run simulations.  You can install it with ``python -m pip
+    install qiskit-aer``.
 
 .. jupyter-execute::
 
@@ -25,9 +25,13 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit_ibm_runtime.fake_provider import FakePerth
-    
-    backend = AerSimulator.from_backend(FakePerth())
+    from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+    backend = AerSimulator(noise_model=noise_model)
 
 Standard RB experiment
 ----------------------
@@ -50,6 +54,12 @@ in order to generate the RB circuits and run them on a backend:
    sampled for all lengths. If ``False`` for sample of lengths longer
    sequences are constructed by appending additional Clifford samples to
    shorter sequences. The default is ``False``
+
+.. note::
+   In the examples here, the sequence lengths and number of samples are chosen
+   to be as low as possible while still producing typical results in order to
+   minimize the simulation times. For accurate results, larger numbers may be
+   necessary.
 
 The analysis results of the RB Experiment may include:
 
@@ -101,8 +111,8 @@ interleaved RB experiment will always give you accurate error value :math:`e_i`.
 
 .. jupyter-execute::
 
-    lengths = np.arange(1, 800, 200)
-    num_samples = 10
+    lengths = [1, 10, 30, 80, 150] + np.arange(200, 1100, 200).tolist()
+    num_samples = 5
     seed = 1010
     qubits = [0]
     
@@ -168,9 +178,9 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
 
-    lengths_2_qubit = np.arange(1, 200, 30)
-    lengths_1_qubit = np.arange(1, 800, 200)
-    num_samples = 10
+    lengths_2_qubit = np.arange(1, 80, 10)
+    lengths_1_qubit = [1, 10, 30, 80, 150] + np.arange(200, 1100, 200).tolist()
+    num_samples = 5
     seed = 1010
     qubits = (1, 2)
 
@@ -266,8 +276,8 @@ Let's run an interleaved RB experiment on two qubits:
 
 .. jupyter-execute::
 
-    lengths = np.arange(1, 200, 30)
-    num_samples = 10
+    lengths = [1, 2, 4, 8] + np.arange(10, 80, 10).tolist()
+    num_samples = 3
     seed = 1010
     qubits = (1, 2)
     
@@ -277,8 +287,6 @@ Let's run an interleaved RB experiment on two qubits:
     
     int_expdata2 = int_exp2.run(backend).block_for_results()
     int_results2 = int_expdata2.analysis_results(dataframe=True)
-
-.. jupyter-execute::
 
     # View result data
     display(int_expdata2.figure(0))

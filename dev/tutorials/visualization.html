@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Writing your own experiment" href="custom_experiment.html" /><link rel="prev" title="Curve Analysis: Fitting your data" href="curve_analysis.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Visualization: Creating figures - Qiskit Experiments 0.10.0-1-g9acc61f1d</title>
+        <title>Visualization: Creating figures - Qiskit Experiments 0.10.0-2-g2e8fbc771</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-1-g9acc61f1d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-2-g2e8fbc771</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-1-g9acc61f1d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-2-g2e8fbc771</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -575,13 +575,9 @@ generate figures with the alternative backend.</p>
 <p>First, we display the default figure from a <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a> experiment as a starting point:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit-community.github.io/qiskit-dynamics/apidocs/index.html#module-qiskit_dynamics" title="(in Qiskit Dynamics)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_dynamics</span></code></a>, <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a>, and
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a> and
 <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> packages to run simulations.  You can install them
-with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-dynamics</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
-</div>
-<div class="jupyter_cell docutils container">
-<div class="cell_output docutils container">
-</div>
+with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -590,7 +586,6 @@ with <code class="docutils literal notranslate"><span class="pre">python</span> 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeManilaV2</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcessor</span><span class="p">,</span> <span class="n">nodes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1</span>
 
 
@@ -598,15 +593,15 @@ with <code class="docutils literal notranslate"><span class="pre">python</span> 
 <span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakeManilaV2</span><span class="p">())</span>
 
 <span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="mf">300.e-6</span><span class="p">,</span> <span class="mf">30.e-6</span><span class="p">)</span>
-<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="n">t1_exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
-<span class="n">t1_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">t1_data</span> <span class="o">=</span> <span class="n">t1_exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 <span class="n">t1_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_1_0.png" src="../_images/visualization_1_0.png" />
+<img alt="../_images/visualization_0_0.png" src="../_images/visualization_0_0.png" />
 </div>
 </div>
 <p>This is the default figure generated by <a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1Analysis.html#qiskit_experiments.library.characterization.T1Analysis" title="qiskit_experiments.library.characterization.T1Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1Analysis</span></code></a>, the data analysis
@@ -624,7 +619,7 @@ the color, symbols, and size of our plot, as well as change the axis labels for 
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve the plotter from the analysis instance</span>
-<span class="n">plotter</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">t1_exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
 
 <span class="c1"># Change the x-axis unit values</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
@@ -646,7 +641,7 @@ the color, symbols, and size of our plot, as well as change the axis labels for 
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_3_0.png" src="../_images/visualization_3_0.png" />
+<img alt="../_images/visualization_2_0.png" src="../_images/visualization_2_0.png" />
 </div>
 </div>
 <p>Plotters have two sets of options that customize their behavior and figure content:
@@ -657,16 +652,16 @@ figure itself, such as axis labels and series colors.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set to ``True`` analysis option for residual plot</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">plot_residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">t1_exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">plot_residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="c1"># Run experiment</span>
-<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Re-run analysis</span>
+<span class="n">t1_data_res</span> <span class="o">=</span> <span class="n">t1_exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t1_data</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">t1_data_res</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_4_0.png" src="../_images/visualization_4_0.png" />
+<img alt="../_images/visualization_3_0.png" src="../_images/visualization_3_0.png" />
 </div>
 </div>
 <p>This option works for experiments without subplots in their figures.</p>
@@ -685,7 +680,7 @@ to see what the default figure looks like:</p>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">T2HahnBackend</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
-<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.e-7</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.e-7</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">RamseyXY</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">2.0e6</span><span class="p">)</span>
 
 <span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
@@ -694,15 +689,13 @@ to see what the default figure looks like:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_5_0.png" src="../_images/visualization_5_0.png" />
+<img alt="../_images/visualization_4_0.png" src="../_images/visualization_4_0.png" />
 </div>
 </div>
-<p>Now we specify the figure options before running the experiment for a second time:</p>
+<p>Now we specify the figure options before running the analysis for a second time:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">RamseyXY</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="mf">2.0e6</span><span class="p">)</span>
-
-<span class="c1"># Set plotter options</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set plotter options</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
 
 <span class="c1"># Update series parameters</span>
@@ -730,13 +723,13 @@ to see what the default figure looks like:</p>
 <span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;symbol_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;legend_loc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;upper center&quot;</span>
 
-<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">exp_data2</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">exp_data</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">exp_data2</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_6_0.png" src="../_images/visualization_6_0.png" />
+<img alt="../_images/visualization_5_0.png" src="../_images/visualization_5_0.png" />
 </div>
 </div>
 <p>As can be seen in the figure, the different series generated by the experiment
@@ -744,23 +737,12 @@ were styled differently according to the <code class="docutils literal notransla
 <p>By default, the supported figure options are <code class="docutils literal notranslate"><span class="pre">xlabel</span></code>, <code class="docutils literal notranslate"><span class="pre">ylabel</span></code>, <code class="docutils literal notranslate"><span class="pre">xlim</span></code>, <code class="docutils literal notranslate"><span class="pre">ylim</span></code>,
 <code class="docutils literal notranslate"><span class="pre">xval_unit</span></code>, <code class="docutils literal notranslate"><span class="pre">yval_unit</span></code>, <code class="docutils literal notranslate"><span class="pre">xval_unit_scale</span></code>, <code class="docutils literal notranslate"><span class="pre">yval_unit_scale</span></code>, <code class="docutils literal notranslate"><span class="pre">xscale</span></code>, <code class="docutils literal notranslate"><span class="pre">yscale</span></code>,
 <code class="docutils literal notranslate"><span class="pre">figure_title</span></code>, and <code class="docutils literal notranslate"><span class="pre">series_params</span></code>; see <a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer" title="qiskit_experiments.visualization.MplDrawer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MplDrawer</span></code></a> for details on how to set these
-options. The following T1 experiment provides examples to options that have not been demonstrated
-until now in this tutorial:</p>
+options. The following block uses the previous T1 experiment to provide examples
+of options that have not been demonstrated until now in this tutorial:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AerSimulator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime.fake_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakePerth</span>
-
-<span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="o">.</span><span class="n">from_backend</span><span class="p">(</span><span class="n">FakePerth</span><span class="p">())</span>
-
-<span class="n">t1</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span>
-    <span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
-    <span class="n">delays</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">300e-6</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
-    <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">plotter</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t1_exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">plot_residuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">t1_exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span>
 
 <span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
     <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Prob to measure 1&quot;</span><span class="p">,</span>
@@ -768,13 +750,12 @@ until now in this tutorial:</p>
     <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span>
 <span class="p">)</span>
 
-<span class="n">t1_data</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">t1_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/visualization_7_0.png" src="../_images/visualization_7_0.png" />
+<img alt="../_images/visualization_6_0.png" src="../_images/visualization_6_0.png" />
 </div>
 </div>
 </section>
@@ -818,57 +799,57 @@ series over the axis area. For a similar working example, see
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyIQAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-    <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
-    <span class="c1"># We create the plotter and create an option for it.</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">IQPlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;In-phase&quot;</span><span class="p">,</span>
-        <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Quadrature&quot;</span><span class="p">,</span>
-        <span class="n">figure_title</span><span class="o">=</span><span class="s2">&quot;My IQ Analysis Figure&quot;</span><span class="p">,</span>
-        <span class="n">series_params</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|0&gt;&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|1&gt;&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|2&gt;&quot;</span><span class="p">},</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">options</span>
-
-<span class="nd">@property</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_analysis_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datum</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisResult</span><span class="p">:</span>
-    <span class="c1"># Analysis result calculation can be done here</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_train_discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BaseDiscriminator</span><span class="p">:</span>
-    <span class="c1"># Discriminator training can be done here</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
-    <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="c1"># Analysis code</span>
-        <span class="n">analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_result</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span>
-
-        <span class="c1"># Plotting code</span>
-        <span class="n">series_name</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
-        <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
-            <span class="n">series_name</span><span class="p">,</span>
-            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
-            <span class="n">centroid</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="c1"># We create the plotter and create an option for it.</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">IQPlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;In-phase&quot;</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Quadrature&quot;</span><span class="p">,</span>
+            <span class="n">figure_title</span><span class="o">=</span><span class="s2">&quot;My IQ Analysis Figure&quot;</span><span class="p">,</span>
+            <span class="n">series_params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|0&gt;&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|1&gt;&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;|2&gt;&quot;</span><span class="p">},</span>
+            <span class="p">},</span>
         <span class="p">)</span>
+        <span class="k">return</span> <span class="n">options</span>
 
-    <span class="c1"># Add discriminator to IQPlotter</span>
-    <span class="n">discriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_discriminator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="n">discriminator</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span>
 
-    <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analysis_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datum</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisResult</span><span class="p">:</span>
+        <span class="c1"># Analysis result calculation can be done here</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_train_discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BaseDiscriminator</span><span class="p">:</span>
+        <span class="c1"># Discriminator training can be done here</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># Analysis code</span>
+            <span class="n">analysis_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_analysis_result</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span>
+
+            <span class="c1"># Plotting code</span>
+            <span class="n">series_name</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+            <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
+                <span class="n">series_name</span><span class="p">,</span>
+                <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                <span class="n">centroid</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Add discriminator to IQPlotter</span>
+        <span class="n">discriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_discriminator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">discriminator</span><span class="o">=</span><span class="n">discriminator</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
 </pre></div>
 </div>
 </div>
@@ -934,7 +915,7 @@ overriding the <code class="xref py py-meth docutils literal notranslate"><span 
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/04/03</div>
+              Last updated on 2025/04/11</div>
           </div>
           <div class="right-details">
             
@@ -971,7 +952,7 @@ overriding the <code class="xref py py-meth docutils literal notranslate"><span 
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=4754bd2c"></script>
+</div><script src="../_static/documentation_options.js?v=f829eada"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
