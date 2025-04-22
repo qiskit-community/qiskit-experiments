@@ -1,0 +1,16 @@
+---
+fixes:
+  - |
+    Warnings from the `Uncertainties
+    <https://uncertainties.readthedocs.io/en/latest/>`__ library related to a
+    standard deviation of zero have been suppressed where a standard deviation
+    of zero is expected and can not be avoided. One case involves the fixed fit
+    parameters included in :class:`.CurveFitResult`. Since these are fixed
+    parameters, they have no uncertainty. The other case involves the `lmfit
+    <https://lmfit.github.io/lmfit-py/>`__ library's handling of fixed fit
+    parameters and will be addressed by lmfit directly in the future. In some
+    cases, Uncertainties will propagate the error in a variable and produce a
+    non-finite result when the error should be zero since the variable zero
+    error. For example, the operation ``y ** 0.5`` could lead to 0 with ``inf``
+    standard deviation rather than 0 standard deviation when the nominal value
+    and standard deviation of ``y`` are both 0.
