@@ -15,6 +15,7 @@ Curve data classes.
 """
 import dataclasses
 import itertools
+import warnings
 from typing import Any, Dict, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
@@ -132,7 +133,24 @@ class CurveFitResult:
                     uind = self.var_names.index(name)
                     ufloat_params[name] = ufloat_fitvals[uind]
                 except ValueError:
-                    ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
+                    with warnings.catch_warnings():
+                        # As of Uncertainties 3.2.3, ufloat() warns about std_dev=0
+                        # We want to return UFloats uniformly (not a mix of
+                        # UFloats and plain floats) so we need to ignore this
+                        # warning and trust the user not to use the results
+                        # with std_dev==0 in a way that causes problems.
+                        #
+                        # In Uncertainties 3.2.3, the module of the warning is
+                        # uncertainties.core. Once
+                        # https://github.com/lmfit/uncertainties/pull/305 is
+                        # released, the module will be curve_data.py in
+                        # qiskit_experiments and the uncertainties part can be
+                        # removed from the module expression.
+                        warnings.filterwarnings(
+                            "ignore",
+                            module=r"(qiskit_experiments|uncertainties)\.",
+                        )
+                        ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
 
         setattr(self, "_ufloat_params", ufloat_params)
         return ufloat_params
