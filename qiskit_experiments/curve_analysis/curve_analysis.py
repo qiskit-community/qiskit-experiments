@@ -505,14 +505,28 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             try:
                 with np.errstate(all="ignore"):
-                    new = lmfit.minimize(
-                        fcn=lambda x: np.concatenate([p(x) for p in partial_weighted_residuals]),
-                        params=guess_params,
-                        method=self.options.fit_method,
-                        scale_covar=not valid_uncertainty,
-                        nan_policy="omit",
-                        **fit_option.fitter_opts,
-                    )
+                    with warnings.catch_warnings():
+                        # Temporary workaround to avoid lmfit generate an
+                        # Uncertainties warning about std_dev==0 when there are
+                        # fixed parameters in the fit.
+                        #
+                        # This warning filter can be removed after
+                        # https://github.com/lmfit/lmfit-py/pull/1000 is
+                        # released.
+                        warnings.filterwarnings(
+                            "ignore",
+                            message="Using UFloat objects with std_dev==0.*",
+                        )
+                        new = lmfit.minimize(
+                            fcn=lambda x: np.concatenate(
+                                [p(x) for p in partial_weighted_residuals]
+                            ),
+                            params=guess_params,
+                            method=self.options.fit_method,
+                            scale_covar=not valid_uncertainty,
+                            nan_policy="omit",
+                            **fit_option.fitter_opts,
+                        )
             except Exception:  # pylint: disable=broad-except
                 continue
 
