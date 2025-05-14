@@ -64,4 +64,5 @@ from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 from .clifford_synthesis import RBDefaultCliffordSynthesis
 from .layer_fidelity import LayerFidelity
+from .layer_fidelity_unitary import LayerFidelityUnitary
 from .layer_fidelity_analysis import LayerFidelityAnalysis

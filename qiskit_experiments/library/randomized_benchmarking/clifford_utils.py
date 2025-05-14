@@ -55,13 +55,14 @@ def _transpile_clifford_circuit(
     return _apply_qubit_layout(_decompose_clifford_ops(circuit), physical_qubits=physical_qubits)
 
 
-def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
+def _decompose_clifford_ops(circuit: QuantumCircuit, all_circs: bool = False) -> QuantumCircuit:
     # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
     res = circuit.copy_empty_like()
     if hasattr(circuit, "_parameter_table"):
         res._parameter_table = circuit._parameter_table
     for inst in circuit:
-        if inst.operation.name.startswith("Clifford"):  # Decompose
+        if (inst.operation.name.startswith("Clifford") or 
+            (all_circs and inst.operation.name.startswith("circuit"))):  # Decompose
             rule = inst.operation.definition.data
             if len(rule) == 1 and len(inst.qubits) == len(rule[0].qubits):
                 if inst.operation.definition.global_phase:
