@@ -27,7 +27,7 @@ from qiskit.compiler import transpile
 from qiskit.transpiler import CouplingMap
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.quantum_info import Clifford
+from qiskit.quantum_info import Operator
 
 try:
     from qiskit.providers import BackendV2Converter
@@ -38,8 +38,6 @@ except ImportError:
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
-
-from qiskit.quantum_info import Operator
 
 from .clifford_utils import (
     CliffordUtils,
@@ -158,8 +156,9 @@ class LayerFidelityUnitary(BaseExperiment):
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:~.LayerFidelity.circuits` is called.
-            two_qubit_gates: A list of two qubit circuits that will be in the entangling
-                            layer. If more than one than they are sampled from this list.
+            two_qubit_gates: A list of two qubit circuits instructions that will be in the entangling
+                            layer. If more than one than they are sampled from this list. These are
+                            assumed to be the backend ISA already.
             two_qubit_basis_gates: Optional, 2q-gates to use for transpiling the inverse.
                             If not specified (but ``backend`` is supplied),
                             all 2q-gates supported in the backend are automatically set.
@@ -221,11 +220,6 @@ class LayerFidelityUnitary(BaseExperiment):
                     break
             if not two_qubit_basis_gates:
                 raise QiskitError("two_qubit_gate is not provided and failed to set from backend.")
-        else:
-            if self.backend is None:
-                for two_q_gate in two_qubit_basis_gates:
-                    if two_q_gate not in GATE_NAME_MAP:
-                        raise QiskitError(f"Unknown two_qubit_gate: {two_qubit_gate}.")
 
         if one_qubit_basis_gates is None:
             if self.backend is None:
