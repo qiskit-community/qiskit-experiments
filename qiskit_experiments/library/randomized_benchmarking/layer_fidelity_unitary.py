@@ -17,6 +17,7 @@ import logging
 import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
+import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -38,11 +39,14 @@ except ImportError:
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
 
+from qiskit.quantum_info import Operator
+
 from .clifford_utils import (
     CliffordUtils,
     DEFAULT_SYNTHESIS_METHOD,
     _clifford_1q_int_to_instruction,
     _decompose_clifford_ops,
+    _tensor_1q_nums,
 )
 from .layer_fidelity_analysis import LayerFidelityAnalysis
 
@@ -57,9 +61,9 @@ class LayerFidelityUnitary(BaseExperiment):
     r"""A holistic benchmarking experiment to characterize the full quality of the devices at scale.
 
     # section: overview
-        Layer Fidelity (LF) is a method to estimate the fidelity of
-        a connecting set of two-qubit gates over :math:`N` qubits by measuring gate errors
-        using simultaneous direct randomized benchmarking (RB) in disjoint layers.
+        Unitary Layer Fidelity (ULF) is a method to estimate the fidelity of
+        a connecting set of arbitrary two-qubit gates over :math:`N` qubits by measuring gate errors
+        using simultaneous direct unitary randomized benchmarking (RB) in disjoint layers.
         LF can easily be expressed as a layer size independent quantity, error per layered gate (EPLG):
         :math:`EPLG = 1 - LF^{1/N_{2Q}}` where :math:`N_{2Q}` is number of 2-qubit gates in the layers.
 
@@ -70,7 +74,7 @@ class LayerFidelityUnitary(BaseExperiment):
         LF is calculated as the product of the 2-qubit (or 1-qubit) process fidelities.
         See Ref. [1] for details.
 
-        This particular version allows artibrary 2Q gates
+        This unitary version allows artibrary 2Q gates
 
     # section: analysis_ref
         :class:`LayerFidelityAnalysis`
@@ -95,8 +99,9 @@ class LayerFidelityUnitary(BaseExperiment):
         .. jupyter-execute::
 
             import numpy as np
+            from qiskit import QuantumCircuit
             from qiskit_experiments.library import StandardRB
-            from qiskit_experiments.library.randomized_benchmarking import LayerFidelity
+            from qiskit_experiments.library.randomized_benchmarking import LayerFidelityUnitary
 
             lengths = np.arange(1, 80, 10)
             two_qubit_layers=[[(0, 1), (3, 5)], [(1, 3), (5, 6)]]
@@ -104,7 +109,10 @@ class LayerFidelityUnitary(BaseExperiment):
             num_samples = 3
             seed = 106
 
-            exp = LayerFidelity(
+            qc = QuantumCircuit(2)
+            qc.rzz(0.5,0,1)
+
+            exp = LayerFidelityUnitary(
                     physical_qubits=[0, 1, 3, 5, 6],
                     two_qubit_layers=two_qubit_layers,
                     lengths=lengths,
@@ -112,7 +120,6 @@ class LayerFidelityUnitary(BaseExperiment):
                     num_samples=num_samples,
                     seed=seed,
                     two_qubit_gates=[qc.to_instruction()],
-                    one_qubit_basis_gates=None,
             )
 
             exp_data = exp.run().block_for_results()
@@ -138,7 +145,7 @@ class LayerFidelityUnitary(BaseExperiment):
         layer_barrier: Optional[bool] = True,
         min_delay: Optional[Sequence[int]] = None,
     ):
-        """Initialize a layer fidelity experiment.
+        """Initialize a unitary layer fidelity experiment.
 
         Args:
             physical_qubits: List of physical qubits for the experiment.
@@ -398,6 +405,11 @@ class LayerFidelityUnitary(BaseExperiment):
             synthesis_method=opts.clifford_synthesis_method,
         )
 
+        #matrices for the two qubit gates
+        two_q_gate_mats = []
+        for two_q_gate in opts.two_qubit_gates:
+            two_q_gate_mats.append(Operator(two_q_gate).to_matrix())
+
         # warn if min delay is not None and barrier is false
         if opts.min_delay is not None and not opts.layer_barrier:
             warnings.warn("Min delay applied when layer_barrier is False.")
@@ -449,6 +461,7 @@ class LayerFidelityUnitary(BaseExperiment):
                         rng,
                         _to_gate_1q,
                         opts.two_qubit_gates,
+                        two_q_gate_mats,
                         opts.two_qubit_basis_gates + opts.one_qubit_basis_gates,
                         barrier_inst_gate,
                         min_delay,
@@ -499,6 +512,7 @@ class LayerFidelityUnitary(BaseExperiment):
         rng,
         _to_gate_1q,
         two_qubit_gates,
+        two_q_gate_mats,
         basis_gates,
         barrier_inst_lst,
         min_delay=None,
@@ -508,29 +522,34 @@ class LayerFidelityUnitary(BaseExperiment):
         if min_delay is not None and len(one_qubits) == 0:
             warnings.warn("Min delay will not be applied because there are no 1Q edges.")
 
-        # initialize cliffords and a circuit (0: identity clifford)
-        circs_2q = [QuantumCircuit(2) for ii in  range(len(two_qubit_layer))]
-        circs_1q = [QuantumCircuit(1) for ii in range(len(one_qubits))]
+        # start with a set of identity matrices
+        circs_2q = [np.eye(4,dtype=complex) for ii in  range(len(two_qubit_layer))]
+        circs_1q = [np.eye(2,dtype=complex) for ii in range(len(one_qubits))]
         for _ in range(length):
             # sample random 1q-Clifford layer
             for j, qpair in enumerate(two_qubit_layer):
                 # sample product of two 1q-Cliffords as 2q interger Clifford
                 samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
-                for sample_i, sample in enumerate(samples):
-                    circs_2q[j]._append(_to_gate_1q(sample), (circs_2q[j].qubits[sample_i],), ())
+                np.dot(CliffordUtils.clifford_2_qubit(_tensor_1q_nums(samples[1],samples[0])).to_matrix(),
+                    circs_2q[j],
+                    out=circs_2q[j])
                 for sample, q in zip(samples, qpair):
                     circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
             for k, q in enumerate(one_qubits):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-                circs_1q[k]._append(_to_gate_1q(sample), (circs_1q[k].qubits[0],), ())
+                np.dot(CliffordUtils.clifford_1_qubit(sample).to_matrix(),
+                    circs_1q[k],
+                    out=circs_1q[k])
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
             # add two qubit gates
             for j, qpair in enumerate(two_qubit_layer):
                 sample = rng.integers(len(two_qubit_gates))
                 circ._append(two_qubit_gates[sample], tuple(circ.qubits[q] for q in qpair), ())
-                circs_2q[j]._append(two_qubit_gates[sample], tuple(circs_2q[j].qubits[q] for q in range(2)), ())
+                np.dot(two_q_gate_mats[sample],
+                       circs_2q[j],
+                       out=circs_2q[j])
                 # TODO: add dd if necessary
             for k, q in enumerate(one_qubits):
                 # TODO: add dd if necessary
@@ -540,25 +559,33 @@ class LayerFidelityUnitary(BaseExperiment):
                     circ.delay(min_delay, q)
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
-        # add the last inverse
+
+        #add the last inverse
+        #invert the unitary matrix and transpile to a proper
+        #circuit
         for j, qpair in enumerate(two_qubit_layer):
-            circ_inv = circs_2q[j].inverse().copy()
-            circ_inv = transpile(
-                circ_inv,
-                basis_gates=basis_gates,
-                coupling_map=CouplingMap(((0,1),)),
-                optimization_level=2,
-            )
-            circ._append(circ_inv.to_instruction(), tuple(circ.qubits[q] for q in qpair), ())
+
+            qc_tmp = QuantumCircuit(2)
+            qc_tmp.unitary(circs_2q[j].conjugate().transpose(),[0,1],label='test')
+            qc_tmp = transpile(
+                    qc_tmp,
+                    basis_gates=basis_gates,
+                    coupling_map=CouplingMap(((0,1),)),
+                    optimization_level=1,
+                )
+            circ._append(qc_tmp.to_instruction(), tuple(circ.qubits[q] for q in qpair), ())
+
         for k, q in enumerate(one_qubits):
-            circ_inv = circs_1q[k].inverse()
-            circ_inv = transpile(
-                circ_inv,
-                basis_gates=basis_gates,
-                coupling_map=None,
-                optimization_level=2,
-            )
-            circ._append(circ_inv.to_instruction(), (circ.qubits[q],), ())
+            qc_tmp = QuantumCircuit(1)
+            qc_tmp.unitary(circs_1q[k].conjugate().transpose(),[0],label='test')
+            qc_tmp = transpile(
+                    qc_tmp,
+                    basis_gates=basis_gates,
+                    coupling_map=None,
+                    optimization_level=1,
+                )
+            circ._append(qc_tmp.to_instruction(), (circ.qubits[q],), ())
+
         return circ
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
