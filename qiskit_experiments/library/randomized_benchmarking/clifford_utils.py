@@ -61,8 +61,9 @@ def _decompose_clifford_ops(circuit: QuantumCircuit, all_circs: bool = False) ->
     if hasattr(circuit, "_parameter_table"):
         res._parameter_table = circuit._parameter_table
     for inst in circuit:
-        if (inst.operation.name.startswith("Clifford") or 
-            (all_circs and inst.operation.name.startswith("circuit"))):  # Decompose
+        if inst.operation.name.startswith("Clifford") or (
+            all_circs and inst.operation.name.startswith("circuit")
+        ):  # Decompose
             rule = inst.operation.definition.data
             if len(rule) == 1 and len(inst.qubits) == len(rule[0].qubits):
                 if inst.operation.definition.global_phase:
