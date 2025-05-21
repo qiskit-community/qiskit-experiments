@@ -14,7 +14,7 @@ Solution
 .. note::
     This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
     For how to migrate from the older ``qiskit-ibm-provider`` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
-    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
+    consult the `migration guide <https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-runtime-from-ibm-provider>`_.\
 
 Once you recreate the exact experiment you ran and all of its parameters and options,
 you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="T1" href="qiskit_experiments.library.characterization.T1.html" /><link rel="prev" title="MitigatedProcessTomography" href="qiskit_experiments.library.tomography.MitigatedProcessTomography.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>QuantumVolume - Qiskit Experiments 0.10.0-4-g8591da4f1</title>
+        <title>QuantumVolume - Qiskit Experiments 0.10.0-5-g3de4cc2c0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-4-g8591da4f1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-5-g3de4cc2c0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-4-g8591da4f1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-5-g3de4cc2c0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -562,11 +562,11 @@ have higher quantum volumes.</p>
 and equals to <span class="math notranslate nohighlight">\(2^{d_{max}}\)</span>.
 See the <a class="reference external" href="https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/measuring-quantum-volume.ipynb">Qiskit Textbook</a>
 for an explanation on the QV protocol.</p>
-<p>In the QV experiment we generate <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.QuantumVolume" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolume</span></code></a> circuits on
+<p>In the QV experiment we generate <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.QuantumVolume" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolume</span></code></a> circuits on
 <span class="math notranslate nohighlight">\(d\)</span> qubits, which contain <span class="math notranslate nohighlight">\(d\)</span> layers, where each layer consists of random 2-qubit
 unitary gates from <span class="math notranslate nohighlight">\(SU(4)\)</span>, followed by a random permutation on the <span class="math notranslate nohighlight">\(d\)</span> qubits.
 Then these circuits run on the quantum backend and on an ideal simulator (either
-<a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.16.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AerSimulator</span></code></a> or <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>).</p>
+<a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.16.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AerSimulator</span></code></a> or <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statevector</span></code></a>).</p>
 <p>A depth <span class="math notranslate nohighlight">\(d\)</span> QV circuit is successful if it has <cite>mean heavy-output probability</cite> &gt; 2/3 with
 confidence level &gt; 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.</p>
 <p>See <a class="reference internal" href="qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html#qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis" title="qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolumeAnalysis</span></code></a> documentation for additional
@@ -670,7 +670,7 @@ information on QV experiment analysis.</p>
   </thead>
   <tbody>
     <tr>
-      <th>80f5a16f</th>
+      <th>8b1649ed</th>
       <td>mean_HOP</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -678,15 +678,15 @@ information on QV experiment analysis.</p>
       <td>bad</td>
       <td>aer_simulator_from(fake_sydney)</td>
       <td>None</td>
-      <td>[0.656, 0.698, 0.768, 0.7, 0.768, 0.75, 0.751,...</td>
-      <td>0.088629</td>
+      <td>[0.629, 0.664, 0.764, 0.713, 0.774, 0.76, 0.75...</td>
+      <td>0.088643</td>
       <td>4</td>
       <td>100</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>8d97ac5f</th>
+      <th>1da9f28f</th>
       <td>quantum_volume</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -699,7 +699,7 @@ information on QV experiment analysis.</p>
       <td>4</td>
       <td>100</td>
       <td>False</td>
-      <td>0.928487</td>
+      <td>0.928022</td>
     </tr>
   </tbody>
 </table>
@@ -711,16 +711,16 @@ information on QV experiment analysis.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>physical_qubits</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>) – list of physical qubits for the experiment.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run the experiment on.</p></li>
 <li><p><strong>trials</strong> (<em>int</em><em> | </em><em>None</em>) – The number of trials to run the quantum volume circuit.</p></li>
 <li><p><strong>seed</strong> (<em>int</em><em> | </em><em>SeedSequence</em><em> | </em><em>BitGenerator</em><em> | </em><em>Generator</em><em> | </em><em>None</em>) – Optional, seed used to initialize <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code>
 when generating circuits. The <code class="docutils literal notranslate"><span class="pre">default_rng</span></code> will be initialized
 with this seed value every time <a class="reference internal" href="#qiskit_experiments.library.quantum_volume.QuantumVolume.circuits" title="qiskit_experiments.library.quantum_volume.QuantumVolume.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">circuits()</span></code></a> is called.</p></li>
-<li><p><strong>simulation_backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – The simulator backend to use to generate
+<li><p><strong>simulation_backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – The simulator backend to use to generate
 the expected results. the simulator must have a ‘save_probabilities’
 method. If None, the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.16.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_aer.AerSimulator</span></code></a> simulator will be used
 (in case <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a> is not
-installed, <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.quantum_info.Statevector</span></code></a> will be used).</p></li>
+installed, <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.quantum_info.Statevector" title="(in Qiskit v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.quantum_info.Statevector</span></code></a> will be used).</p></li>
 </ul>
 </dd>
 </dl>
@@ -783,7 +783,7 @@ installed, <a class="reference external" href="https://docs.quantum.ibm.com/api/
 <dd class="field-odd"><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>List</em>[<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.0)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-even"><p><em>List</em>[<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.0)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -828,7 +828,7 @@ installed, <a class="reference external" href="https://docs.quantum.ibm.com/api/
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -862,8 +862,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.0)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.0)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -975,7 +975,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/04/28</div>
+              Last updated on 2025/05/21</div>
           </div>
           <div class="right-details">
             
@@ -1028,7 +1028,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=f02bc0bc"></script>
+</div><script src="../_static/documentation_options.js?v=d548844d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
