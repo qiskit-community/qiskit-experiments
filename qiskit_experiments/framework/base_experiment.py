@@ -383,7 +383,7 @@ class BaseExperiment(ABC, StoreInitArgs):
                 sampler = Sampler(self.backend)
 
                 # have to hand set some of these options
-                # see https://docs.quantum.ibm.com/api/qiskit-ibm-runtime
+                # see https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime
                 # /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
                 if "init_qubits" in run_options:
                     sampler.options.execution.init_qubits = run_options["init_qubits"]
