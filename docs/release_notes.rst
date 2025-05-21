@@ -1150,7 +1150,7 @@ Package Upgrades
   from 0.24 for ``qiskit-terra`` to 0.45 for ``qiskit``. For more information on
   the renaming of Qiskit, see the `Qiskit repository renaming plan
   <https://github.com/Qiskit/RFCs/blob/5793e78dc8e4d8d17f8ef7fad789c6c5ebd3a061/0011-repo-rename.md>`__
-  and the `Qiskit 1.0 migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-1.0>`__.
+  and the `Qiskit 1.0 migration guide <https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-1.0>`__.
 
 .. releasenotes/notes/0.6/runtime-provider-support-5358b72ec0035419.yaml @ b'3b039c5df784748597261d38599c1c7cb2074377'
 
@@ -1158,7 +1158,7 @@ Package Upgrades
   ``qiskit-ibm-provider`` is now deprecated and will be removed
   in the next release. Users should migrate to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` following the
   `runtime migration guide
-  <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.
+  <https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-runtime-from-ibm-provider>`_.
   :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` is not listed as a dependency for compatibility reasons, but users
   will need it to run experiments on IBM backends.
 
