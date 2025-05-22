@@ -44,7 +44,6 @@ from .clifford_utils import (
     DEFAULT_SYNTHESIS_METHOD,
     _clifford_1q_int_to_instruction,
     _decompose_clifford_ops,
-    _tensor_1q_nums,
 )
 from .layer_fidelity_analysis import LayerFidelityAnalysis
 
@@ -427,6 +426,9 @@ class LayerFidelityUnitary(BaseExperiment):
                 else:
                     min_delay = opts.min_delay[i_set]
 
+                # cache the 1Q cliffords
+                oneq_cliff_mats = [CliffordUtils.clifford_1_qubit(i).to_matrix() for i in range(24)]
+
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
                     # define the barrier instruction
@@ -458,6 +460,7 @@ class LayerFidelityUnitary(BaseExperiment):
                         two_q_gate_mats,
                         opts.two_qubit_basis_gates + opts.one_qubit_basis_gates,
                         barrier_inst_gate,
+                        oneq_cliff_mats,
                         min_delay,
                     )
                     # add the measurements
@@ -509,6 +512,7 @@ class LayerFidelityUnitary(BaseExperiment):
         two_q_gate_mats,
         basis_gates,
         barrier_inst_lst,
+        oneq_cliff_mats,
         min_delay=None,
     ):
 
@@ -519,15 +523,15 @@ class LayerFidelityUnitary(BaseExperiment):
         # start with a set of identity matrices
         circs_2q = [np.eye(4, dtype=complex) for ii in range(len(two_qubit_layer))]
         circs_1q = [np.eye(2, dtype=complex) for ii in range(len(one_qubits))]
+
         for _ in range(length):
             # sample random 1q-Clifford layer
             for j, qpair in enumerate(two_qubit_layer):
                 # sample product of two 1q-Cliffords as 2q interger Clifford
                 samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
+                # multiply unitaries for the 1Q cliffords we sampled
                 np.dot(
-                    CliffordUtils.clifford_2_qubit(
-                        _tensor_1q_nums(samples[1], samples[0])
-                    ).to_matrix(),
+                    np.kron(oneq_cliff_mats[samples[1]], oneq_cliff_mats[samples[0]]),
                     circs_2q[j],
                     out=circs_2q[j],
                 )
@@ -536,9 +540,7 @@ class LayerFidelityUnitary(BaseExperiment):
             for k, q in enumerate(one_qubits):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
-                np.dot(
-                    CliffordUtils.clifford_1_qubit(sample).to_matrix(), circs_1q[k], out=circs_1q[k]
-                )
+                np.dot(oneq_cliff_mats[sample], circs_1q[k], out=circs_1q[k])
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
             # add two qubit gates
