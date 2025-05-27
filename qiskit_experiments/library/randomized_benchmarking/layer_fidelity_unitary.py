@@ -208,7 +208,7 @@ class LayerFidelityUnitary(BaseExperiment):
 
         if two_qubit_basis_gates is None:
             if self.backend is None:
-                raise QiskitError("two_qubit_basis_gate or backend must be supplied.")
+                raise QiskitError("two_qubit_basis_gates or backend must be supplied.")
             # Try to set default two_qubit_gate from backend
             two_qubit_basis_gates = []
             for op in self.backend.target.operations:
