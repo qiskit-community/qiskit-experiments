@@ -344,10 +344,7 @@ class LayerFidelityUnitary(BaseExperiment):
 
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2."""
-        if BackendV1 is not None and isinstance(backend, BackendV1):
-            super()._set_backend(BackendV2Converter(backend, add_delay=True))
-        else:
-            super()._set_backend(backend)
+        super()._set_backend(backend)
         self.__validate_basis_gates()
 
     def __validate_basis_gates(self) -> None:
