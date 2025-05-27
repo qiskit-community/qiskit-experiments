@@ -385,7 +385,7 @@ class LayerFidelityUnitary(BaseExperiment):
             A generator of :class:`QuantumCircuit`\s.
         """
         opts = self.experiment_options
-        residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
+        residual_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
         rng = default_rng(seed=opts.seed)
         # define functions and variables for speed
         _to_gate_1q = functools.partial(
