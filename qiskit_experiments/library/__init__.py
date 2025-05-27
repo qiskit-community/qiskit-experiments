@@ -123,7 +123,7 @@ from .characterization import (
     MultiStateDiscrimination,
 )
 from .randomized_benchmarking import (
-    StandardRB, 
+    StandardRB,
     InterleavedRB,
     LayerFidelity,
     LayerFidelityUnitary,
