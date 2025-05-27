@@ -90,7 +90,7 @@ class LayerFidelityUnitary(BaseExperiment):
             noise_model = NoiseModel()
             noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
             noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
-            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["rzz"])
             backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
