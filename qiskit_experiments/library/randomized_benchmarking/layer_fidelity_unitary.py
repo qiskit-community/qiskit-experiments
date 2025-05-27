@@ -97,7 +97,6 @@ class LayerFidelityUnitary(BaseExperiment):
 
             import numpy as np
             from qiskit import QuantumCircuit
-            from qiskit_experiments.library import StandardRB
             from qiskit_experiments.library.randomized_benchmarking import LayerFidelityUnitary
 
             lengths = np.arange(1, 80, 10)
