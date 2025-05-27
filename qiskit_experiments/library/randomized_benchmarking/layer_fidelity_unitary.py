@@ -338,7 +338,7 @@ class LayerFidelityUnitary(BaseExperiment):
             QiskitError: If `set_transpile_options` is called.
         """
         raise QiskitError(
-            "Custom transpile options is not supported for LayerFidelity experiments."
+            "Custom transpile options are not supported for LayerFidelity experiments."
         )
 
     def _set_backend(self, backend: Backend):
