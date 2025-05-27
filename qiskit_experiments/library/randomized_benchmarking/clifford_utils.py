@@ -56,7 +56,9 @@ def _transpile_clifford_circuit(
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit, all_circs: bool = False) -> QuantumCircuit:
-    # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
+    # Simplified QuantumCircuit.decompose, which decomposes Clifford
+    # ops into the underlying circuit elements. If all_circs is True then this will
+    # also decompose operations starting with "circuit" 
     res = circuit.copy_empty_like()
     if hasattr(circuit, "_parameter_table"):
         res._parameter_table = circuit._parameter_table
