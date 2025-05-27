@@ -29,13 +29,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Operator
 
-try:
-    from qiskit.providers import BackendV2Converter
-    from qiskit.providers.backend import BackendV1
-except ImportError:
-    BackendV1 = None
-    BackendV2Converter = None
-
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
 
