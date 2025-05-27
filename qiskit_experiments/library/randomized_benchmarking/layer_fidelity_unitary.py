@@ -407,7 +407,7 @@ class LayerFidelityUnitary(BaseExperiment):
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
             for i_set, (two_qubit_layer, one_qubits) in enumerate(
-                zip(opts.two_qubit_layers, residal_qubits_by_layer)
+                zip(opts.two_qubit_layers, residual_qubits_by_layer)
             ):
                 num_2q_gates = len(two_qubit_layer)
                 num_1q_gates = len(one_qubits)
