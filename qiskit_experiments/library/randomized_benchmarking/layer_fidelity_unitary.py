@@ -577,6 +577,7 @@ class LayerFidelityUnitary(BaseExperiment):
         )
 
         # Add the fold rzz angle pass
+        # pylint: disable=no-member
         pass_manager_2q.translation._tasks.append([FoldRzzAngle()])
 
         pass_manager_1q = generate_preset_pass_manager(
