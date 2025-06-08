@@ -23,7 +23,6 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
-from qiskit.compiler import transpile
 from qiskit.transpiler import CouplingMap, generate_preset_pass_manager
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
@@ -152,9 +151,9 @@ class LayerFidelityUnitary(BaseExperiment):
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:~.LayerFidelity.circuits` is called.
-            two_qubit_gates: A list of two qubit circuit instructions or gates that will be in the entangling
-                            layer. If more than one than they are sampled from this list. These are
-                            assumed to be the backend ISA already.
+            two_qubit_gates: A list of two qubit circuit instructions or gates that will be in the
+                            entangling layer. If more than one than they are sampled from this list.
+                            These are assumed to be the backend ISA already.
             two_qubit_basis_gates: Optional, 2q-gates to use for transpiling the inverse.
                             If not specified (but ``backend`` is supplied),
                             all 2q-gates supported in the backend are automatically set.
@@ -372,7 +371,8 @@ class LayerFidelityUnitary(BaseExperiment):
 
                         if circ_instr.operation.name not in self.backend.target.operation_names:
                             raise QiskitError(
-                                f"{circ_instr.operation.name} in two_qubit_gates is not in backend.target"
+                                f"{circ_instr.operation.name} in two_qubit_gates is "
+                                + "not in backend.target"
                             )
 
                         if circ_instr.operation.num_qubits == 1:
@@ -380,7 +380,10 @@ class LayerFidelityUnitary(BaseExperiment):
                                 if not self.backend.target.instruction_supported(
                                     circ_instr.operation.name, (q,)
                                 ):
-                                    raise QiskitError(f"{gate}({q}) is not in backend.target")
+                                    raise QiskitError(
+                                        f"{circ_instr.operation.name}({q}) is not "
+                                        + "in backend.target"
+                                    )
 
                         if circ_instr.operation.num_qubits == 2:
                             for two_q_layer in opts.two_qubit_layers:
@@ -389,7 +392,8 @@ class LayerFidelityUnitary(BaseExperiment):
                                         circ_instr.operation.name, qpair
                                     ):
                                         raise QiskitError(
-                                            f"{circ_instr.operation.name}{qpair} is not in backend.target"
+                                            f"{circ_instr.operation.name}{qpair} is not in "
+                                            + "backend.target"
                                         )
 
         # validate two_qubit_basis_gates if it is set
