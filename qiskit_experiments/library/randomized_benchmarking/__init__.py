@@ -26,6 +26,7 @@ Experiments
     StandardRB
     InterleavedRB
     LayerFidelity
+    LayerFidelityUnitary
 
 
 Analysis
