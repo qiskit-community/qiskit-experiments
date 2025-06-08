@@ -351,6 +351,10 @@ class LayerFidelityUnitary(BaseExperiment):
         # validate two_qubit_gates list
         if opts.two_qubit_gates:
             for twoq_gate in opts.two_qubit_gates:
+
+                if twoq_gate.num_qubits != 2:
+                    raise QiskitError(f"{twoq_gate.name} in two_qubit_gates is not a 2Q object")
+
                 if isinstance(twoq_gate, Gate):
                     if twoq_gate.name not in self.backend.target.operation_names:
                         raise QiskitError(
@@ -578,7 +582,7 @@ class LayerFidelityUnitary(BaseExperiment):
 
         # Add the fold rzz angle pass
         # pylint: disable=no-member
-        pass_manager_2q.translation._tasks.append([FoldRzzAngle()])
+        pass_manager_2q.translation.append([FoldRzzAngle()])
 
         pass_manager_1q = generate_preset_pass_manager(
             optimization_level=1, basis_gates=basis_gates, coupling_map=None
