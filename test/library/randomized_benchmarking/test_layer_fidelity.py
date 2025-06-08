@@ -19,8 +19,14 @@ from ddt import ddt, data, unpack
 from uncertainties import unumpy as unp
 
 from qiskit.exceptions import QiskitError
+from qiskit.circuit.library import RZZGate
+from qiskit import QuantumCircuit
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
-from qiskit_experiments.library.randomized_benchmarking import LayerFidelity, LayerFidelityAnalysis
+from qiskit_experiments.library.randomized_benchmarking import (
+    LayerFidelity,
+    LayerFidelityAnalysis,
+    LayerFidelityUnitary,
+)
 
 
 @ddt
@@ -195,3 +201,67 @@ class TestRunLayerFidelity(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
         self.assertRoundTripSerializable(expdata)
         self.assertRoundTripPickle(expdata)
+
+
+@ddt
+class TestLayerFidelityUnitary(QiskitExperimentsTestCase, RBTestMixin):
+    """Test for running LayerFidelityUnitary."""
+
+    @data(
+        [(1, 2), [[(1, 2)]]],
+        [(1, 3, 4), [[(3, 4)]]],
+        [(4, 3, 2, 1, 0), [[(0, 1), (3, 2)], [(1, 2), (3, 4)]]],
+    )
+    @unpack
+    def test_generate_circuits_gates(self, qubits, two_qubit_layers):
+        """Test Layer circuit unitary generation"""
+
+        exp = LayerFidelityUnitary(
+            physical_qubits=qubits,
+            two_qubit_layers=two_qubit_layers,
+            lengths=[1, 2, 3],
+            seed=42,
+            two_qubit_gates=[RZZGate(0.5), RZZGate(0.1)],
+            two_qubit_basis_gates=["rzz"],
+            one_qubit_basis_gates=["rz", "sx", "x"],
+        )
+        circuits = exp.circuits()
+        self.assertAllIdentity(circuits)
+
+        trans_circuits = exp._transpiled_circuits()
+        for tcirc in trans_circuits:
+            tcirc_ops = tcirc.count_ops()
+            self.assertTrue(tcirc_ops.get("rzz", 0) > 0)
+            self.assertTrue(tcirc_ops.get("cx", 0) == 0)
+            self.assertTrue(tcirc_ops.get("cz", 0) == 0)
+
+    @data(
+        [(1, 2), [[(1, 2)]]],
+        [(1, 3, 4), [[(3, 4)]]],
+        [(4, 3, 2, 1, 0), [[(0, 1), (3, 2)], [(1, 2), (3, 4)]]],
+    )
+    @unpack
+    def test_generate_circuits_instr(self, qubits, two_qubit_layers):
+        """Test Layer circuit unitary generation"""
+
+        qc = QuantumCircuit(2)
+        qc.cx(0, 1)
+
+        exp = LayerFidelityUnitary(
+            physical_qubits=qubits,
+            two_qubit_layers=two_qubit_layers,
+            lengths=[1, 2, 3],
+            seed=42,
+            two_qubit_gates=[qc.to_instruction()],
+            two_qubit_basis_gates=["cx"],
+            one_qubit_basis_gates=["rz", "sx", "x"],
+        )
+        circuits = exp.circuits()
+        self.assertAllIdentity(circuits)
+
+        trans_circuits = exp._transpiled_circuits()
+        for tcirc in trans_circuits:
+            tcirc_ops = tcirc.count_ops()
+            self.assertTrue(tcirc_ops.get("rzz", 0) == 0)
+            self.assertTrue(tcirc_ops.get("cx", 0) > 0)
+            self.assertTrue(tcirc_ops.get("cz", 0) == 0)
