@@ -169,13 +169,13 @@ def _synthesize_clifford_circuit(
     coupling_map = CouplingMap(coupling_tuple) if coupling_tuple else None
 
     # special handling that does a basis change only
-    if synthesis_method == 'basis_only':
+    if synthesis_method == "basis_only":
         return transpile(
-                circuit,
-                basis_gates=basis_gates,
-                coupling_map=coupling_map,
-                optimization_level=0,
-            )
+            circuit,
+            basis_gates=basis_gates,
+            coupling_map=coupling_map,
+            optimization_level=0,
+        )
 
     # special handling for 1q or 2q case for speed
     if circuit.num_qubits <= 2:
@@ -352,11 +352,10 @@ class CliffordUtils:
         if p == 3:
             qc.z(0)
 
-        if synthesis_method=='1Q_fixed':
-            qc = OneQubitEulerDecomposer(basis='PSX')(Operator(qc),simplify=False)
-            synthesis_method = 'basis_only'
-            qc.name=f"Clifford-1Q({num})"
-
+        if synthesis_method == "1Q_fixed":
+            qc = OneQubitEulerDecomposer(basis="PSX")(Operator(qc), simplify=False)
+            synthesis_method = "basis_only"
+            qc.name = f"Clifford-1Q({num})"
 
         if basis_gates:
             qc = _synthesize_clifford_circuit(qc, basis_gates, synthesis_method=synthesis_method)
@@ -376,7 +375,7 @@ class CliffordUtils:
         where `num` is between 0 and 11519.
         """
 
-        if synthesis_method == '1Q_fixed':
+        if synthesis_method == "1Q_fixed":
             synthesis_method = DEFAULT_SYNTHESIS_METHOD
 
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
