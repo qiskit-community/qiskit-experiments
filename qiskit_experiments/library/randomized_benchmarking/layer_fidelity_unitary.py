@@ -129,10 +129,10 @@ class LayerFidelityUnitary(BaseExperiment):
         physical_qubits: Sequence[int],
         two_qubit_layers: Sequence[Sequence[Tuple[int, int]]],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        two_qubit_gates: Sequence[Instruction | Gate],
         num_samples: int = 6,
+        backend: Optional[Backend] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        two_qubit_gates: Union[Sequence[Instruction], Sequence[Gate]] = None,
         two_qubit_basis_gates: Optional[Sequence[str]] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
         layer_barrier: Optional[bool] = True,
@@ -145,15 +145,15 @@ class LayerFidelityUnitary(BaseExperiment):
             two_qubit_layers: List of two-qubit gate layers to run on. Each two-qubit
                     gate layer must be given as a list of directed qubit pairs.
             lengths: A list of layer lengths (the number of depth points).
-            backend: The backend to run the experiment on. Note that either ``backend`` or
-                    ``two_qubit_gate`` and ``one_qubit_basis_gates`` must be set at instantiation.
-            num_samples: Number of samples (i.e. circuits) to generate for each layer length.
-            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
-                  when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value every time :meth:~.LayerFidelity.circuits` is called.
             two_qubit_gates: A list of two qubit circuit instructions or gates that will be in the
                             entangling layer. If more than one than they are sampled from this list.
                             These are assumed to be the backend ISA already.
+            num_samples: Number of samples (i.e. circuits) to generate for each layer length.
+            backend: Optional, the backend to run the experiment on. Note that either ``backend`` or
+                    ``two_qubit_gate`` and ``one_qubit_basis_gates`` must be set at instantiation.
+            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value every time :meth:~.LayerFidelity.circuits` is called.
             two_qubit_basis_gates: Optional, 2q-gates to use for transpiling the inverse.
                             If not specified (but ``backend`` is supplied),
                             all 2q-gates supported in the backend are automatically set.
@@ -575,19 +575,6 @@ class LayerFidelityUnitary(BaseExperiment):
         circs_2q = [np.eye(4, dtype=complex) for ii in range(len(two_qubit_layer))]
         circs_1q = [np.eye(2, dtype=complex) for ii in range(len(one_qubits))]
 
-        # generate the pass manager
-        pass_manager_2q = generate_preset_pass_manager(
-            optimization_level=1, basis_gates=basis_gates, coupling_map=CouplingMap(((0, 1),))
-        )
-
-        # Add the fold rzz angle pass
-        # pylint: disable=no-member
-        pass_manager_2q.translation.append([FoldRzzAngle()])
-
-        pass_manager_1q = generate_preset_pass_manager(
-            optimization_level=1, basis_gates=basis_gates, coupling_map=None
-        )
-
         for _ in range(length):
             # sample random 1q-Clifford layer
             for j, qpair in enumerate(two_qubit_layer):
@@ -621,6 +608,20 @@ class LayerFidelityUnitary(BaseExperiment):
                     circ.delay(min_delay, q)
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
+
+        # generate the pass manager
+        pass_manager_2q = generate_preset_pass_manager(
+            optimization_level=1, basis_gates=basis_gates, coupling_map=CouplingMap(((0, 1),))
+        )
+
+        # Add the fold rzz angle pass
+        # pylint: disable=no-member
+        if "rzz" in basis_gates:
+            pass_manager_2q.translation.append([FoldRzzAngle()])
+
+        pass_manager_1q = generate_preset_pass_manager(
+            optimization_level=1, basis_gates=basis_gates, coupling_map=None
+        )
 
         # add the last inverse
         # invert the unitary matrix and transpile to a proper

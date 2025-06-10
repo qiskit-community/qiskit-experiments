@@ -21,7 +21,7 @@ from uncertainties import unumpy as unp
 from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import RZZGate
 from qiskit import QuantumCircuit
-from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+from qiskit_ibm_runtime.fake_provider import FakeManilaV2, FakeFractionalBackend
 from qiskit_experiments.library.randomized_benchmarking import (
     LayerFidelity,
     LayerFidelityAnalysis,
@@ -210,7 +210,7 @@ class TestLayerFidelityUnitary(QiskitExperimentsTestCase, RBTestMixin):
     @data(
         [(1, 2), [[(1, 2)]]],
         [(1, 3, 4), [[(3, 4)]]],
-        [(4, 3, 2, 1, 0), [[(0, 1), (3, 2)], [(1, 2), (3, 4)]]],
+        [(4, 2, 3, 1, 0), [[(0, 1), (3, 4)], [(1, 2), (3, 4)]]],
     )
     @unpack
     def test_generate_circuits_gates(self, qubits, two_qubit_layers):
@@ -221,9 +221,9 @@ class TestLayerFidelityUnitary(QiskitExperimentsTestCase, RBTestMixin):
             two_qubit_layers=two_qubit_layers,
             lengths=[1, 2, 3],
             seed=42,
+            backend=FakeFractionalBackend(),
             two_qubit_gates=[RZZGate(0.5), RZZGate(0.1)],
             two_qubit_basis_gates=["rzz"],
-            one_qubit_basis_gates=["rz", "sx", "x"],
         )
         circuits = exp.circuits()
         self.assertAllIdentity(circuits)
@@ -238,7 +238,7 @@ class TestLayerFidelityUnitary(QiskitExperimentsTestCase, RBTestMixin):
     @data(
         [(1, 2), [[(1, 2)]]],
         [(1, 3, 4), [[(3, 4)]]],
-        [(4, 3, 2, 1, 0), [[(0, 1), (3, 2)], [(1, 2), (3, 4)]]],
+        [(4, 3, 2, 1, 0), [[(0, 1), (3, 4)], [(1, 2), (3, 4)]]],
     )
     @unpack
     def test_generate_circuits_instr(self, qubits, two_qubit_layers):
@@ -252,9 +252,9 @@ class TestLayerFidelityUnitary(QiskitExperimentsTestCase, RBTestMixin):
             two_qubit_layers=two_qubit_layers,
             lengths=[1, 2, 3],
             seed=42,
+            backend=FakeFractionalBackend(),
             two_qubit_gates=[qc.to_instruction()],
             two_qubit_basis_gates=["cx"],
-            one_qubit_basis_gates=["rz", "sx", "x"],
         )
         circuits = exp.circuits()
         self.assertAllIdentity(circuits)
