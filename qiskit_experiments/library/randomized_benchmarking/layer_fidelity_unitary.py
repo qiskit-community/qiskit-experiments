@@ -129,7 +129,7 @@ class LayerFidelityUnitary(BaseExperiment):
         physical_qubits: Sequence[int],
         two_qubit_layers: Sequence[Sequence[Tuple[int, int]]],
         lengths: Iterable[int],
-        two_qubit_gates: Sequence[Instruction | Gate],
+        two_qubit_gates: Sequence[Union[Instruction, Gate]],
         num_samples: int = 6,
         backend: Optional[Backend] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
