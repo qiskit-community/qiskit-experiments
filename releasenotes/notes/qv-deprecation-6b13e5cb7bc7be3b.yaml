@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    The minimum version of Qiskit was raised from 0.45 to 1.3.
+fixes:
+  - |
+    :class:`~.QuantumVolume` was updated to avoid using the deprecated
+    :class:`qiskit.circuit.library.QuantumVolume` class. The experiment should
+    continue to behave as it has before.

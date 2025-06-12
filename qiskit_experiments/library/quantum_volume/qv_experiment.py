@@ -14,13 +14,14 @@ Quantum Volume Experiment class.
 """
 
 from typing import Union, Sequence, Optional, List
+import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.utils.optionals import HAS_AER
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
+from qiskit.circuit.library import quantum_volume
 from qiskit import transpile
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -193,7 +194,12 @@ class QuantumVolume(BaseExperiment):
 
         # Note: the trials numbering in the metadata is starting from 1 for each new experiment run
         for trial in range(1, self.experiment_options.trials + 1):
-            qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
+            # Maximum possible seed to send to quantum_volume()
+            # This is a workound that can be replaced with seed=rng once we
+            # drop support for qiskit<2.2
+            # See https://github.com/Qiskit/qiskit/pull/14586
+            max_value = np.iinfo(np.int64).max
+            qv_circ = quantum_volume(depth, depth, seed=rng.integers(max_value, dtype=np.int64))
             qv_circ.metadata = {
                 "depth": depth,
                 "trial": trial,
