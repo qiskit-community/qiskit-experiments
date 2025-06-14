@@ -484,7 +484,7 @@ class LayerFidelityUnitary(BaseExperiment):
                     basis_gates=opts.two_qubit_basis_gates + opts.one_qubit_basis_gates,
                     coupling_map=CouplingMap(((0, 1),)),
                 )
-                pass_manager_2Q = generate_preset_pass_manager(
+                pass_manager_2q = generate_preset_pass_manager(
                     optimization_level=1,
                     target=target,
                     backend=self.backend,
@@ -494,7 +494,7 @@ class LayerFidelityUnitary(BaseExperiment):
                     basis_gates=opts.one_qubit_basis_gates,
                     coupling_map=None,
                 )
-                pass_manager_1Q = generate_preset_pass_manager(
+                pass_manager_1q = generate_preset_pass_manager(
                     optimization_level=1,
                     target=target,
                     backend=self.backend,
@@ -531,8 +531,8 @@ class LayerFidelityUnitary(BaseExperiment):
                         two_q_gate_mats,
                         barrier_inst_gate,
                         oneq_cliff_mats,
-                        pass_manager_2Q,
-                        pass_manager_1Q,
+                        pass_manager_2q,
+                        pass_manager_1q,
                         min_delay,
                     )
                     # add the measurements
@@ -584,8 +584,8 @@ class LayerFidelityUnitary(BaseExperiment):
         two_q_gate_mats,
         barrier_inst_lst,
         oneq_cliff_mats,
-        pass_manager_2Q,
-        pass_manager_1Q,
+        pass_manager_2q,
+        pass_manager_1q,
         min_delay=None,
     ):
 
@@ -638,13 +638,13 @@ class LayerFidelityUnitary(BaseExperiment):
 
             qc_tmp = QuantumCircuit(2)
             qc_tmp.unitary(circs_2q[j].conjugate().transpose(), [0, 1], label="test")
-            qc_tmp = pass_manager_2Q.run(qc_tmp)
+            qc_tmp = pass_manager_2q.run(qc_tmp)
             circ._append(qc_tmp.to_instruction(), tuple(circ.qubits[q] for q in qpair), ())
 
         for k, q in enumerate(one_qubits):
             qc_tmp = QuantumCircuit(1)
             qc_tmp.unitary(circs_1q[k].conjugate().transpose(), [0], label="test")
-            qc_tmp = pass_manager_1Q.run(qc_tmp)
+            qc_tmp = pass_manager_1q.run(qc_tmp)
             circ._append(qc_tmp.to_instruction(), (circ.qubits[q],), ())
 
         return circ
