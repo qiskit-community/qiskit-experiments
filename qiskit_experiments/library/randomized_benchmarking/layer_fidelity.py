@@ -347,21 +347,22 @@ class LayerFidelity(BaseExperiment):
         if not self.backend:
             return
         opts = self.experiment_options
+        target = self.backend.target
         # validate two_qubit_gate if it is set
         if opts.two_qubit_gate:
-            if opts.two_qubit_gate not in self.backend.target.operation_names:
+            if opts.two_qubit_gate not in target.operation_names:
                 raise QiskitError(f"two_qubit_gate {opts.two_qubit_gate} is not in backend.target")
             for two_q_layer in opts.two_qubit_layers:
                 for qpair in two_q_layer:
-                    if not self.backend.target.instruction_supported(opts.two_qubit_gate, qpair):
+                    if not target.instruction_supported(opts.two_qubit_gate, qpair):
                         raise QiskitError(f"{opts.two_qubit_gate}{qpair} is not in backend.target")
         # validate one_qubit_basis_gates if it is set
         for gate in opts.one_qubit_basis_gates or []:
-            if gate not in self.backend.target.operation_names:
+            if gate not in target.operation_names:
                 raise QiskitError(f"{gate} in one_qubit_basis_gates is not in backend.target")
         for gate in opts.one_qubit_basis_gates or []:
             for q in self.physical_qubits:
-                if not self.backend.target.instruction_supported(gate, (q,)):
+                if not target.instruction_supported(gate, (q,)):
                     raise QiskitError(f"{gate}({q}) is not in backend.target")
 
     def __residual_qubits(self, two_qubit_layer):
