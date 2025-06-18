@@ -8,6 +8,8 @@ features:
     circuit is the identity and this is analyzed using the same analysis class 
     :class:`.LayerFidelityAnalysis`.
 
+fixes:
+  - |
     Updated the validation function for both :class:`.LayerFidelityUnitary` and
-    :class:`.LayerFidelity` that fixes a slowdown for ibm-qiskit-runtime versions
+    :class:`.LayerFidelity` that to fix a slowdown for ibm-qiskit-runtime versions
     less than 0.40.0
