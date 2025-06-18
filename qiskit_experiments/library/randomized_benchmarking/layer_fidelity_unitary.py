@@ -10,28 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Layer Fidelity RB Experiment class.
+Layer Fidelity Unitary RB Experiment class.
 """
 import functools
 import logging
 import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
 
+import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
+from qiskit.circuit import QuantumCircuit, Instruction, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
+from qiskit.transpiler import CouplingMap, generate_preset_pass_manager, Target
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.quantum_info import Clifford
-
-try:
-    from qiskit.providers import BackendV2Converter
-    from qiskit.providers.backend import BackendV1
-except ImportError:
-    BackendV1 = None
-    BackendV2Converter = None
+from qiskit.quantum_info import Operator
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.configs import ExperimentConfig
@@ -39,14 +34,7 @@ from qiskit_experiments.framework.configs import ExperimentConfig
 from .clifford_utils import (
     CliffordUtils,
     DEFAULT_SYNTHESIS_METHOD,
-    compose_1q,
-    compose_2q,
-    inverse_1q,
-    inverse_2q,
-    num_from_2q_circuit,
-    _tensor_1q_nums,
     _clifford_1q_int_to_instruction,
-    _clifford_2q_int_to_instruction,
     _decompose_clifford_ops,
 )
 from .layer_fidelity_analysis import LayerFidelityAnalysis
@@ -58,13 +46,13 @@ GATE_NAME_MAP = get_standard_gate_name_mapping()
 NUM_1Q_CLIFFORD = CliffordUtils.NUM_CLIFFORD_1_QUBIT
 
 
-class LayerFidelity(BaseExperiment):
+class LayerFidelityUnitary(BaseExperiment):
     r"""A holistic benchmarking experiment to characterize the full quality of the devices at scale.
 
     # section: overview
-        Layer Fidelity (LF) is a method to estimate the fidelity of
-        a connecting set of two-qubit gates over :math:`N` qubits by measuring gate errors
-        using simultaneous direct randomized benchmarking (RB) in disjoint layers.
+        Unitary Layer Fidelity (ULF) is a method to estimate the fidelity of
+        a connecting set of arbitrary two-qubit gates over :math:`N` qubits by measuring gate errors
+        using simultaneous direct unitary randomized benchmarking (RB) in disjoint layers.
         LF can easily be expressed as a layer size independent quantity, error per layered gate (EPLG):
         :math:`EPLG = 1 - LF^{1/N_{2Q}}` where :math:`N_{2Q}` is number of 2-qubit gates in the layers.
 
@@ -74,6 +62,8 @@ class LayerFidelity(BaseExperiment):
         the process fidelity of the subsystem from the rate.
         LF is calculated as the product of the 2-qubit (or 1-qubit) process fidelities.
         See Ref. [1] for details.
+
+        This unitary version allows artibrary 2Q gates
 
     # section: analysis_ref
         :class:`LayerFidelityAnalysis`
@@ -92,14 +82,15 @@ class LayerFidelity(BaseExperiment):
             noise_model = NoiseModel()
             noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
             noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
-            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["rzz"])
             backend = AerSimulator(noise_model=noise_model)
 
         .. jupyter-execute::
 
             import numpy as np
-            from qiskit_experiments.library import StandardRB
-            from qiskit_experiments.library.randomized_benchmarking import LayerFidelity
+            from qiskit import QuantumCircuit
+            from qiskit.circuit.library import RZZGate
+            from qiskit_experiments.library.randomized_benchmarking import LayerFidelityUnitary
 
             lengths = np.arange(1, 80, 10)
             two_qubit_layers=[[(0, 1), (3, 5)], [(1, 3), (5, 6)]]
@@ -107,15 +98,19 @@ class LayerFidelity(BaseExperiment):
             num_samples = 3
             seed = 106
 
-            exp = LayerFidelity(
+            # Can load this way if benchmarking a generic circuit
+            # qc = QuantumCircuit(2)
+            # qc.rzz(0.5,0,1)
+            # two_qubit_gates=[qc.to_instruction()]
+
+            exp = LayerFidelityUnitary(
                     physical_qubits=[0, 1, 3, 5, 6],
                     two_qubit_layers=two_qubit_layers,
                     lengths=lengths,
                     backend=backend,
                     num_samples=num_samples,
                     seed=seed,
-                    two_qubit_gate=None,
-                    one_qubit_basis_gates=None,
+                    two_qubit_gates=[RZZGate(0.5)],
             )
 
             exp_data = exp.run().block_for_results()
@@ -132,31 +127,34 @@ class LayerFidelity(BaseExperiment):
         physical_qubits: Sequence[int],
         two_qubit_layers: Sequence[Sequence[Tuple[int, int]]],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        two_qubit_gates: Sequence[Union[Instruction, Gate]],
         num_samples: int = 6,
+        backend: Optional[Backend] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        two_qubit_gate: Optional[str] = None,
+        two_qubit_basis_gates: Optional[Sequence[str]] = None,
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
         layer_barrier: Optional[bool] = True,
         min_delay: Optional[Sequence[int]] = None,
     ):
-        """Initialize a layer fidelity experiment.
+        """Initialize a unitary layer fidelity experiment.
 
         Args:
             physical_qubits: List of physical qubits for the experiment.
             two_qubit_layers: List of two-qubit gate layers to run on. Each two-qubit
                     gate layer must be given as a list of directed qubit pairs.
             lengths: A list of layer lengths (the number of depth points).
-            backend: The backend to run the experiment on. Note that either ``backend`` or
-                    ``two_qubit_gate`` and ``one_qubit_basis_gates`` must be set at instantiation.
+            two_qubit_gates: A list of two qubit circuit instructions or gates that will be in the
+                            entangling layer. If more than one than they are sampled from this list.
+                            These are assumed to be the backend ISA already.
             num_samples: Number of samples (i.e. circuits) to generate for each layer length.
+            backend: Optional, the backend to run the experiment on. Note that either ``backend`` or
+                    ``two_qubit_gate`` and ``one_qubit_basis_gates`` must be set at instantiation.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value every time :meth:~.LayerFidelity.circuits` is called.
-            two_qubit_gate: Optional, 2q-gate name (e.g. "cx", "cz", "ecr")
-                            of which the two qubit layers consist.
+            two_qubit_basis_gates: Optional, 2q-gates to use for transpiling the inverse.
                             If not specified (but ``backend`` is supplied),
-                            one of 2q-gates supported in the backend is automatically set.
+                            all 2q-gates supported in the backend are automatically set.
             one_qubit_basis_gates: Optional, 1q-gates to use for implementing 1q-Clifford operations.
                             If not specified (but ``backend`` is supplied),
                             all 1q-gates supported in the backend are automatically set.
@@ -200,20 +198,21 @@ class LayerFidelity(BaseExperiment):
         if num_samples <= 0:
             raise QiskitError(f"The number of samples {num_samples} should be positive.")
 
-        if two_qubit_gate is None:
+        if two_qubit_gates is None:
+            raise QiskitError("Must specify a set of two qubit gate circuits.")
+
+        if two_qubit_basis_gates is None:
             if self.backend is None:
-                raise QiskitError("two_qubit_gate or backend must be supplied.")
-            # Try to set default two_qubit_gate from backend
+                raise QiskitError("two_qubit_basis_gates or backend must be supplied.")
+            # Try to set default two qubit basis gate from backend
+            two_qubit_basis_gates = []
             for op in self.backend.target.operations:
                 if isinstance(op, Gate) and op.num_qubits == 2:
-                    two_qubit_gate = op.name
+                    two_qubit_basis_gates.append(op.name)
                     LOG.info("%s is set for two_qubit_gate", op.name)
                     break
-            if not two_qubit_gate:
+            if not two_qubit_basis_gates:
                 raise QiskitError("two_qubit_gate is not provided and failed to set from backend.")
-        else:
-            if self.backend is None and two_qubit_gate not in GATE_NAME_MAP:
-                raise QiskitError(f"Unknown two_qubit_gate: {two_qubit_gate}.")
 
         if one_qubit_basis_gates is None:
             if self.backend is None:
@@ -248,7 +247,8 @@ class LayerFidelity(BaseExperiment):
             num_samples=num_samples,
             seed=seed,
             two_qubit_layers=two_qubit_layers,
-            two_qubit_gate=two_qubit_gate,
+            two_qubit_gates=two_qubit_gates,
+            two_qubit_basis_gates=tuple(two_qubit_basis_gates),
             one_qubit_basis_gates=tuple(one_qubit_basis_gates),
             layer_barrier=layer_barrier,
             min_delay=min_delay,
@@ -270,8 +270,8 @@ class LayerFidelity(BaseExperiment):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value every time
                 :meth:`circuits` is called.
-            two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr")
-                of which the two qubit layers consist.
+            two_qubit_gates (list of gates or circuit instructions): Two qubit circuits
+            two_qubit_basis_gates (Tuple[str]): Two-qubit gates to use for implementing inverse.
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
                 for building circuits of RB sequences.
@@ -294,7 +294,8 @@ class LayerFidelity(BaseExperiment):
             num_samples=None,
             seed=None,
             two_qubit_layers=None,
-            two_qubit_gate=None,
+            two_qubit_gates=None,
+            two_qubit_basis_gates=None,
             one_qubit_basis_gates=None,
             clifford_synthesis_method=DEFAULT_SYNTHESIS_METHOD,
             layer_barrier=True,
@@ -332,30 +333,83 @@ class LayerFidelity(BaseExperiment):
             QiskitError: If `set_transpile_options` is called.
         """
         raise QiskitError(
-            "Custom transpile options is not supported for LayerFidelity experiments."
+            "Custom transpile options are not supported for LayerFidelity experiments."
         )
 
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2."""
-        if BackendV1 is not None and isinstance(backend, BackendV1):
-            super()._set_backend(BackendV2Converter(backend, add_delay=True))
-        else:
-            super()._set_backend(backend)
+        super()._set_backend(backend)
         self.__validate_basis_gates()
 
     def __validate_basis_gates(self) -> None:
         if not self.backend:
             return
         opts = self.experiment_options
+
         target = self.backend.target
-        # validate two_qubit_gate if it is set
-        if opts.two_qubit_gate:
-            if opts.two_qubit_gate not in target.operation_names:
-                raise QiskitError(f"two_qubit_gate {opts.two_qubit_gate} is not in backend.target")
+
+        # validate two_qubit_gates list
+        if opts.two_qubit_gates:
+            for twoq_gate in opts.two_qubit_gates:
+
+                if twoq_gate.num_qubits != 2:
+                    raise QiskitError(f"{twoq_gate.name} in two_qubit_gates is not a 2Q object")
+
+                if isinstance(twoq_gate, Gate):
+                    if twoq_gate.name not in target.operation_names:
+                        raise QiskitError(
+                            f"{twoq_gate.name} in two_qubit_gates is not in backend.target"
+                        )
+                    for two_q_layer in opts.two_qubit_layers:
+                        for qpair in two_q_layer:
+                            if not target.instruction_supported(twoq_gate.name, qpair):
+                                raise QiskitError(
+                                    f"{twoq_gate.name}{qpair} is not in backend.target"
+                                )
+                elif isinstance(twoq_gate, Instruction):
+                    for circ_instr in twoq_gate.definition:
+                        if not isinstance(circ_instr, CircuitInstruction):
+                            raise QiskitError(
+                                f"{twoq_gate.name} does not decompose into CircuitInstruction objects."
+                            )
+
+                        if circ_instr.operation.name not in target.operation_names:
+                            raise QiskitError(
+                                f"{circ_instr.operation.name} in two_qubit_gates is "
+                                + "not in backend.target"
+                            )
+
+                        if circ_instr.operation.num_qubits == 1:
+                            for q in self.physical_qubits:
+                                if not target.instruction_supported(
+                                    circ_instr.operation.name, (q,)
+                                ):
+                                    raise QiskitError(
+                                        f"{circ_instr.operation.name}({q}) is not "
+                                        + "in backend.target"
+                                    )
+
+                        if circ_instr.operation.num_qubits == 2:
+                            for two_q_layer in opts.two_qubit_layers:
+                                for qpair in two_q_layer:
+                                    if not target.instruction_supported(
+                                        circ_instr.operation.name, qpair
+                                    ):
+                                        raise QiskitError(
+                                            f"{circ_instr.operation.name}{qpair} is not in "
+                                            + "backend.target"
+                                        )
+
+        # validate two_qubit_basis_gates if it is set
+        for gate in opts.two_qubit_basis_gates or []:
+            if gate not in target.operation_names:
+                raise QiskitError(f"{gate} in two_qubit_basis_gates is not in backend.target")
+        for gate in opts.two_qubit_basis_gates or []:
             for two_q_layer in opts.two_qubit_layers:
                 for qpair in two_q_layer:
-                    if not target.instruction_supported(opts.two_qubit_gate, qpair):
-                        raise QiskitError(f"{opts.two_qubit_gate}{qpair} is not in backend.target")
+                    if not target.instruction_supported(gate, qpair):
+                        raise QiskitError(f"{gate}{qpair} is not in backend.target")
+
         # validate one_qubit_basis_gates if it is set
         for gate in opts.one_qubit_basis_gates or []:
             if gate not in target.operation_names:
@@ -384,7 +438,9 @@ class LayerFidelity(BaseExperiment):
             A generator of :class:`QuantumCircuit`\s.
         """
         opts = self.experiment_options
-        residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
+        residual_qubits_by_layer = [
+            self.__residual_qubits(layer) for layer in opts.two_qubit_layers
+        ]
         rng = default_rng(seed=opts.seed)
         # define functions and variables for speed
         _to_gate_1q = functools.partial(
@@ -392,17 +448,11 @@ class LayerFidelity(BaseExperiment):
             basis_gates=opts.one_qubit_basis_gates,
             synthesis_method=opts.clifford_synthesis_method,
         )
-        _to_gate_2q = functools.partial(
-            _clifford_2q_int_to_instruction,
-            basis_gates=(opts.two_qubit_gate,) + opts.one_qubit_basis_gates,
-            coupling_tuple=((0, 1),),
-            synthesis_method=opts.clifford_synthesis_method,
-        )
-        if self.backend:
-            gate2q = self.backend.target.operation_from_name(opts.two_qubit_gate)
-        else:
-            gate2q = GATE_NAME_MAP[opts.two_qubit_gate]
-        gate2q_cliff = num_from_2q_circuit(Clifford(gate2q).to_circuit())
+
+        # matrices for the two qubit gates
+        two_q_gate_mats = []
+        for two_q_gate in opts.two_qubit_gates:
+            two_q_gate_mats.append(Operator(two_q_gate).to_matrix())
 
         # warn if min delay is not None and barrier is false
         if opts.min_delay is not None and not opts.layer_barrier:
@@ -412,7 +462,7 @@ class LayerFidelity(BaseExperiment):
         num_qubits = max(self.physical_qubits) + 1
         for i_sample in range(opts.num_samples):
             for i_set, (two_qubit_layer, one_qubits) in enumerate(
-                zip(opts.two_qubit_layers, residal_qubits_by_layer)
+                zip(opts.two_qubit_layers, residual_qubits_by_layer)
             ):
                 num_2q_gates = len(two_qubit_layer)
                 num_1q_gates = len(one_qubits)
@@ -426,6 +476,31 @@ class LayerFidelity(BaseExperiment):
                     min_delay = None
                 else:
                     min_delay = opts.min_delay[i_set]
+
+                # cache the 1Q cliffords
+                oneq_cliff_mats = [CliffordUtils.clifford_1_qubit(i).to_matrix() for i in range(24)]
+
+                # generate the pass manager
+                target = Target.from_configuration(
+                    num_qubits=2,
+                    basis_gates=opts.two_qubit_basis_gates + opts.one_qubit_basis_gates,
+                    coupling_map=CouplingMap(((0, 1),)),
+                )
+                pass_manager_2q = generate_preset_pass_manager(
+                    optimization_level=1,
+                    target=target,
+                    backend=self.backend,
+                )
+                target = Target.from_configuration(
+                    num_qubits=1,
+                    basis_gates=opts.one_qubit_basis_gates,
+                    coupling_map=None,
+                )
+                pass_manager_1q = generate_preset_pass_manager(
+                    optimization_level=1,
+                    target=target,
+                    backend=self.backend,
+                )
 
                 for length in opts.lengths:
                     circ = QuantumCircuit(num_qubits, num_qubits)
@@ -454,10 +529,12 @@ class LayerFidelity(BaseExperiment):
                         one_qubits,
                         rng,
                         _to_gate_1q,
-                        _to_gate_2q,
-                        gate2q,
-                        gate2q_cliff,
+                        opts.two_qubit_gates,
+                        two_q_gate_mats,
                         barrier_inst_gate,
+                        oneq_cliff_mats,
+                        pass_manager_2q,
+                        pass_manager_1q,
                         min_delay,
                     )
                     # add the measurements
@@ -505,10 +582,12 @@ class LayerFidelity(BaseExperiment):
         one_qubits,
         rng,
         _to_gate_1q,
-        _to_gate_2q,
-        gate2q,
-        gate2q_cliff,
+        two_qubit_gates,
+        two_q_gate_mats,
         barrier_inst_lst,
+        oneq_cliff_mats,
+        pass_manager_2q,
+        pass_manager_1q,
         min_delay=None,
     ):
 
@@ -516,30 +595,34 @@ class LayerFidelity(BaseExperiment):
         if min_delay is not None and len(one_qubits) == 0:
             warnings.warn("Min delay will not be applied because there are no 1Q edges.")
 
-        # initialize cliffords and a ciruit (0: identity clifford)
-        cliffs_2q = [0] * len(two_qubit_layer)
-        cliffs_1q = [0] * len(one_qubits)
+        # start with a set of identity matrices
+        circs_2q = [np.eye(4, dtype=complex) for ii in range(len(two_qubit_layer))]
+        circs_1q = [np.eye(2, dtype=complex) for ii in range(len(one_qubits))]
+
         for _ in range(length):
             # sample random 1q-Clifford layer
             for j, qpair in enumerate(two_qubit_layer):
                 # sample product of two 1q-Cliffords as 2q interger Clifford
                 samples = rng.integers(NUM_1Q_CLIFFORD, size=2)
-                cliffs_2q[j] = compose_2q(cliffs_2q[j], _tensor_1q_nums(*samples))
-                # For Clifford 1 (x) Clifford 2, in its circuit representation,
-                # Clifford 1 acts on the 2nd qubit and Clifford 2 acts on the 1st qubit.
-                # That's why the qpair is reversed here.
-                for sample, q in zip(samples, reversed(qpair)):
+                # multiply unitaries for the 1Q cliffords we sampled
+                np.dot(
+                    np.kron(oneq_cliff_mats[samples[1]], oneq_cliff_mats[samples[0]]),
+                    circs_2q[j],
+                    out=circs_2q[j],
+                )
+                for sample, q in zip(samples, qpair):
                     circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
             for k, q in enumerate(one_qubits):
                 sample = rng.integers(NUM_1Q_CLIFFORD)
-                cliffs_1q[k] = compose_1q(cliffs_1q[k], sample)
                 circ._append(_to_gate_1q(sample), (circ.qubits[q],), ())
+                np.dot(oneq_cliff_mats[sample], circs_1q[k], out=circs_1q[k])
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
             # add two qubit gates
             for j, qpair in enumerate(two_qubit_layer):
-                circ._append(gate2q, tuple(circ.qubits[q] for q in qpair), ())
-                cliffs_2q[j] = compose_2q(cliffs_2q[j], gate2q_cliff)
+                sample = rng.integers(len(two_qubit_gates))
+                circ._append(two_qubit_gates[sample], tuple(circ.qubits[q] for q in qpair), ())
+                np.dot(two_q_gate_mats[sample], circs_2q[j], out=circs_2q[j])
                 # TODO: add dd if necessary
             for k, q in enumerate(one_qubits):
                 # TODO: add dd if necessary
@@ -549,18 +632,28 @@ class LayerFidelity(BaseExperiment):
                     circ.delay(min_delay, q)
             for barrier_inst in barrier_inst_lst:
                 circ._append(barrier_inst)
+
         # add the last inverse
+        # invert the unitary matrix and transpile to a proper
+        # circuit
         for j, qpair in enumerate(two_qubit_layer):
-            inv = inverse_2q(cliffs_2q[j])
-            circ._append(_to_gate_2q(inv), tuple(circ.qubits[q] for q in qpair), ())
+
+            qc_tmp = QuantumCircuit(2)
+            qc_tmp.unitary(circs_2q[j].conjugate().transpose(), [0, 1], label="test")
+            qc_tmp = pass_manager_2q.run(qc_tmp)
+            circ._append(qc_tmp.to_instruction(), tuple(circ.qubits[q] for q in qpair), ())
+
         for k, q in enumerate(one_qubits):
-            inv = inverse_1q(cliffs_1q[k])
-            circ._append(_to_gate_1q(inv), (circ.qubits[q],), ())
+            qc_tmp = QuantumCircuit(1)
+            qc_tmp.unitary(circs_1q[k].conjugate().transpose(), [0], label="test")
+            qc_tmp = pass_manager_1q.run(qc_tmp)
+            circ._append(qc_tmp.to_instruction(), (circ.qubits[q],), ())
+
         return circ
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        transpiled = [_decompose_clifford_ops(circ) for circ in self.circuits()]
+        transpiled = [_decompose_clifford_ops(circ, True) for circ in self.circuits()]
 
         return transpiled
 

@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Added a class :class:`.LayerFidelityUnitary` which allows for layer style RB with arbitrary
+    two-qubit gates or circuits in the 2Q layer. A list of qiskit :class:`qiskit.circuit.Gate` 
+    or :class:`qiskit.circuit.CircuitInstruction` objects can be passed into class and then each layer is 
+    randomly sampled from that list. A final SU(2) inversion gate is appended so that the full 
+    circuit is the identity and this is analyzed using the same analysis class 
+    :class:`.LayerFidelityAnalysis`.
+
+fixes:
+  - |
+    Updated the validation function for both :class:`.LayerFidelityUnitary` and
+    :class:`.LayerFidelity` that to fix a slowdown for ibm-qiskit-runtime versions
+    less than 0.40.0
