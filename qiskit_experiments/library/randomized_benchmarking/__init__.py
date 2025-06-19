@@ -68,7 +68,9 @@ There are a few built-in options for the Clifford synthesis method:
 
 * ``clifford_synthesis_method='basis_only'`` will use ``optimization_level=0``.
 
-* ``clifford_synthesis_method='1Q_fixed`` will use a ``rz-sx-rz-sx-rz`` decomposition for the 1Q Cliffords and the default for the 2Q cliffords. This is most relevant for :class:`.LayerFidelity` experiments because it will keep a fixed structure.
+* ``clifford_synthesis_method='1Q_fixed`` will use a ``rz-sx-rz-sx-rz`` decomposition for the 1Q 
+  Cliffords and the default for the 2Q cliffords. This is most relevant for :class:`.LayerFidelity` 
+  experiments because it will keep a fixed structure.
 
 """
 from .standard_rb import StandardRB
