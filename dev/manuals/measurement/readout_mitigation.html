@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="API Reference" href="../../apidocs/index.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.10.0-5-g3de4cc2c0</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.10.0-6-gff4828a69</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-5-g3de4cc2c0</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0-6-gff4828a69</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-5-g3de4cc2c0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-6-gff4828a69</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -267,6 +267,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -434,6 +435,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
@@ -573,7 +575,7 @@ assignment matrix, meaning it can only be used for small values of
 experiments to generate the corresponding mitigators.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.16.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
+<p>This tutorial requires the <a class="reference external" href="https://qiskit.github.io/qiskit-aer/index.html" title="(in Qiskit Aer v0.17.1)"><span class="xref std std-doc">qiskit-aer</span></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>
 packages to run simulations.  You can install them with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span>
 <span class="pre">install</span> <span class="pre">qiskit-aer</span> <span class="pre">qiskit-ibm-runtime</span></code>.</p>
 </div>
@@ -671,17 +673,17 @@ the identity.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Qubit: 0
-[[ 1.03115265 -0.03219107]
- [-0.03115265  1.03219107]]
+[[ 1.02481903 -0.03412616]
+ [-0.02481903  1.03412616]]
 Qubit: 1
-[[ 1.02889577 -0.02786378]
- [-0.02889577  1.02786378]]
+[[ 1.02147239 -0.02556237]
+ [-0.02147239  1.02556237]]
 Qubit: 2
-[[ 1.02821317 -0.04179728]
- [-0.02821317  1.04179728]]
+[[ 1.02688728 -0.03205791]
+ [-0.02688728  1.03205791]]
 Qubit: 3
-[[ 1.03014553 -0.03430353]
- [-0.03014553  1.03430353]]
+[[ 1.02789256 -0.02995868]
+ [-0.02789256  1.02995868]]
 </pre></div>
 </div>
 </div>
@@ -757,7 +759,7 @@ Qubit: 3
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fe6c5dcca40&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7ff3adde47d0&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_6_1.png" src="../../_images/readout_mitigation_6_1.png" />
@@ -861,7 +863,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/05/21</div>
+              Last updated on 2025/06/18</div>
           </div>
           <div class="right-details">
             
@@ -903,7 +905,7 @@ meas: 2/═════════╩══╩═
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d548844d"></script>
+</div><script src="../../_static/documentation_options.js?v=9eb1426a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
