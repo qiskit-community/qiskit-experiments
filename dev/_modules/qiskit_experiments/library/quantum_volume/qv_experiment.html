@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.quantum_volume.qv_experiment - Qiskit Experiments 0.10.0-6-gff4828a69</title>
+        <title>qiskit_experiments.library.quantum_volume.qv_experiment - Qiskit Experiments 0.10.0-7-g4c5d05c4d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.10.0-6-gff4828a69</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.10.0-7-g4c5d05c4d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-6-gff4828a69</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-7-g4c5d05c4d</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
@@ -552,13 +552,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">default_rng</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random.bit_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">SeedSequence</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils.optionals</span><span class="w"> </span><span class="kn">import</span> <span class="n">HAS_AER</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumVolume</span> <span class="k">as</span> <span class="n">QuantumVolumeCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantum_volume</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">transpile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
@@ -735,7 +736,12 @@
 
         <span class="c1"># Note: the trials numbering in the metadata is starting from 1 for each new experiment run</span>
         <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">trials</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">qv_circ</span> <span class="o">=</span> <span class="n">QuantumVolumeCircuit</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+            <span class="c1"># Maximum possible seed to send to quantum_volume()</span>
+            <span class="c1"># This is a workound that can be replaced with seed=rng once we</span>
+            <span class="c1"># drop support for qiskit&lt;2.2</span>
+            <span class="c1"># See https://github.com/Qiskit/qiskit/pull/14586</span>
+            <span class="n">max_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+            <span class="n">qv_circ</span> <span class="o">=</span> <span class="n">quantum_volume</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
             <span class="n">qv_circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
                 <span class="s2">&quot;trial&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="p">,</span>
@@ -767,7 +773,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/06/18</div>
+              Last updated on 2025/06/19</div>
           </div>
           <div class="right-details">
             
@@ -782,7 +788,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=9eb1426a"></script>
+</div><script src="../../../../_static/documentation_options.js?v=dfb7e12a"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
