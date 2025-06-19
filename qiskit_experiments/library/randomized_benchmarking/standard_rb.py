@@ -204,7 +204,7 @@ class StandardRB(BaseExperiment):
                 all lengths. If False for sample of lengths longer sequences are constructed
                 by appending additional Clifford samples to shorter sequences.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
-                for building circuits of RB sequences.
+                for building circuits of RB sequences. See :ref:`synth-methods-lbl`.
         """
         options = super()._default_experiment_options()
         options.update_options(
