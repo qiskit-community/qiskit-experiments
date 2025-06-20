@@ -18,7 +18,7 @@ from test.fake_experiment import FakeExperiment
 import ddt
 import numpy as np
 from qiskit.circuit import Instruction
-from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
+from qiskit.circuit.library import SXGate, RZXGate, Barrier, Measure, quantum_volume
 import qiskit.quantum_info as qi
 from qiskit_experiments.curve_analysis import CurveFitResult
 
@@ -88,7 +88,7 @@ class TestJSON(QiskitExperimentsTestCase):
 
     def test_roundtrip_quantum_circuit(self):
         """Test round-trip serialization of a circuits"""
-        obj = QuantumVolume(4)
+        obj = quantum_volume(4)
         self.assertRoundTripSerializable(obj)
 
     def test_roundtrip_operator(self):
