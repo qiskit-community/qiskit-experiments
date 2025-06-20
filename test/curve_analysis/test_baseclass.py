@@ -13,8 +13,6 @@
 # pylint: disable=invalid-name
 
 """Test curve fitting base class."""
-import warnings
-
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
@@ -116,55 +114,6 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             ]
         )
         self.assertListEqual(analysis.parameters, ["par0", "par1", "par2"])
-
-    def test_data_extraction(self):
-        """A testcase for extracting data."""
-        x = np.linspace(0, 1, 10)
-        y1 = 0.1 * x + 0.3
-        y2 = 0.2 * x + 0.4
-        expdata1 = self.single_sampler(x, y1, shots=1000000, series=1)
-        expdata2 = self.single_sampler(x, y2, shots=1000000, series=2)
-
-        analysis = CurveAnalysis(
-            models=[
-                ExpressionModel(
-                    expr="par0 * x + par1",
-                    name="s1",
-                ),
-                ExpressionModel(
-                    expr="par2 * x + par3",
-                    name="s2",
-                ),
-            ]
-        )
-        analysis.set_options(
-            data_processor=DataProcessor("counts", [Probability("1")]),
-            data_subfit_map={
-                "s1": {"series": 1},
-                "s2": {"series": 2},
-            },
-        )
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=".*ScatterTable.labels.*")
-            warnings.filterwarnings("ignore", message=".*ScatterTable.get_subset_of.*")
-            warnings.filterwarnings("ignore", message=".*ScatterTable.data_allocation.*")
-            curve_data = analysis._run_data_processing(raw_data=expdata1.data() + expdata2.data())
-            self.assertListEqual(curve_data.labels, ["s1", "s2"])
-
-            # check data of series1
-            sub1 = curve_data.get_subset_of("s1")
-            self.assertListEqual(sub1.labels, ["s1"])
-            np.testing.assert_array_equal(sub1.x, x)
-            np.testing.assert_array_almost_equal(sub1.y, y1, decimal=3)
-            np.testing.assert_array_equal(sub1.data_allocation, np.full(x.size, 0))
-
-            # check data of series2
-            sub2 = curve_data.get_subset_of("s2")
-            self.assertListEqual(sub2.labels, ["s2"])
-            np.testing.assert_array_equal(sub2.x, x)
-            np.testing.assert_array_almost_equal(sub2.y, y2, decimal=3)
-            np.testing.assert_array_equal(sub2.data_allocation, np.full(x.size, 1))
 
     def test_create_result(self):
         """A testcase for creating analysis result data from fit data."""

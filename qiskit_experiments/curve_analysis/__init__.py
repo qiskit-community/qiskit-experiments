@@ -93,13 +93,9 @@ Utilities
 
     utils.analysis_result_to_repr
     utils.convert_lmfit_result
-    utils.data_sort
     utils.eval_with_uncertainties
-    utils.filter_data
     utils.inverse_weighted_variance
     utils.is_error_not_significant
-    utils.mean_xy_data
-    utils.multi_mean_xy_data
     utils.level2_probability
     utils.probability
     utils.sample_average
@@ -114,10 +110,6 @@ from .curve_data import (
     CurveFitResult,
     FitOptions,
     ParameterRepr,
-)
-from .curve_fit import (
-    process_curve_data,
-    process_multi_curve_data,
 )
 from . import guess
 from . import fit_function
