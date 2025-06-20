@@ -64,7 +64,9 @@ Synthesis Methods
 
 There are a few built-in options for the Clifford synthesis method:
 
-* ``by_default`` for n<=2 Cliffords these rb methods will transpile using ``optimization_level=1``.
+* ``rb_default`` (default) for n<=2 Cliffords this methods will transpile using ``optimization_level=1``. 
+  For 3 or more qubits the behavior is similar but a custom transpilation sequence is used to avoid
+  the transpiler changing the layout of the circuit.
 
 * ``clifford_synthesis_method='basis_only'`` will use ``optimization_level=0``.
 
