@@ -27,9 +27,10 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info import Clifford
+from qiskit.quantum_info import Clifford, Operator
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.passes.synthesis.high_level_synthesis import HLSConfig, HighLevelSynthesis
+from qiskit.synthesis import OneQubitEulerDecomposer
 
 DEFAULT_SYNTHESIS_METHOD = "rb_default"
 
@@ -166,6 +167,15 @@ def _synthesize_clifford_circuit(
     if basis_gates:
         basis_gates = list(basis_gates)
     coupling_map = CouplingMap(coupling_tuple) if coupling_tuple else None
+
+    # special handling that does a basis change only
+    if synthesis_method == "basis_only":
+        return transpile(
+            circuit,
+            basis_gates=basis_gates,
+            coupling_map=coupling_map,
+            optimization_level=0,
+        )
 
     # special handling for 1q or 2q case for speed
     if circuit.num_qubits <= 2:
@@ -342,6 +352,11 @@ class CliffordUtils:
         if p == 3:
             qc.z(0)
 
+        if synthesis_method == "1Q_fixed":
+            qc = OneQubitEulerDecomposer(basis="PSX")(Operator(qc), simplify=False)
+            synthesis_method = "basis_only"
+            qc.name = f"Clifford-1Q({num})"
+
         if basis_gates:
             qc = _synthesize_clifford_circuit(qc, basis_gates, synthesis_method=synthesis_method)
 
@@ -359,6 +374,10 @@ class CliffordUtils:
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
+
+        if synthesis_method == "1Q_fixed":
+            synthesis_method = DEFAULT_SYNTHESIS_METHOD
+
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
         for layer, idx in enumerate(_layer_indices_from_num(num)):
             if basis_gates:

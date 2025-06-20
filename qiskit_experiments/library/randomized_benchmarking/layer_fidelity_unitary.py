@@ -274,7 +274,7 @@ class LayerFidelityUnitary(BaseExperiment):
             two_qubit_basis_gates (Tuple[str]): Two-qubit gates to use for implementing inverse.
             one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.
             clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use
-                for building circuits of RB sequences.
+                for building circuits of RB sequences. See :ref:`synth-methods-lbl`.
             layer_barrier (bool): Optional, enforce a barrier across the whole layer.
                 Default is True, which is the defined protocol for layer fidelity.
                 If this is set to false the code runs
