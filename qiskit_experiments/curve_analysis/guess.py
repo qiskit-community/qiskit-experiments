@@ -370,13 +370,13 @@ def rb_decay(
 
     .. math::
 
-        y'(x+dx) = a \alpha^x \alpha^dx.
+        y'(x+dx) = a \alpha^x \alpha^{dx}.
 
     By considering the ratio of y values at :math:`x+dx` to :math:`x`,
 
     .. math::
 
-        ry = \frac{a \alpha^x \alpha^dx}{a \alpha^x} = \alpha^dx.
+        ry = \frac{y'(x+dx)}{y(x)} = \frac{a \alpha^x \alpha^{dx}}{a \alpha^x} = \alpha^{dx}.
 
     From this relationship, we can estimate :math:`\alpha` as
 
