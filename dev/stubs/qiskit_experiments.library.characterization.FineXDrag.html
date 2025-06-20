@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FineSXDrag" href="qiskit_experiments.library.characterization.FineSXDrag.html" /><link rel="prev" title="FineDrag" href="qiskit_experiments.library.characterization.FineDrag.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>FineXDrag - Qiskit Experiments 0.10.0-7-g4c5d05c4d</title>
+        <title>FineXDrag - Qiskit Experiments 0.10.0-8-gbfb403730</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-7-g4c5d05c4d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-8-gbfb403730</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-7-g4c5d05c4d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-8-gbfb403730</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -641,15 +641,15 @@ released.</p>
   </thead>
   <tbody>
     <tr>
-      <th>a3ab6278</th>
+      <th>51057f67</th>
       <td>d_theta</td>
       <td>FineXDrag</td>
       <td>[Q0]</td>
-      <td>0.0099+/-0.0012</td>
+      <td>0.0098+/-0.0012</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>1.166858</td>
+      <td>0.881381</td>
     </tr>
   </tbody>
 </table>
@@ -722,7 +722,7 @@ released.</p>
 <dd class="field-odd"><p>A list of circuits with a variable number of gates.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>List</em>[<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.0)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-even"><p><em>List</em>[<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.1)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -767,7 +767,7 @@ released.</p>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.1)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -801,8 +801,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.0)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.1)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.1)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -914,7 +914,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/06/19</div>
+              Last updated on 2025/06/20</div>
           </div>
           <div class="right-details">
             
@@ -967,7 +967,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dfb7e12a"></script>
+</div><script src="../_static/documentation_options.js?v=c5a7dd4d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

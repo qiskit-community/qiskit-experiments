@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LayerFidelity" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html" /><link rel="prev" title="StandardRB" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>InterleavedRB - Qiskit Experiments 0.10.0-7-g4c5d05c4d</title>
+        <title>InterleavedRB - Qiskit Experiments 0.10.0-8-gbfb403730</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-7-g4c5d05c4d</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.10.0-8-gbfb403730</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-7-g4c5d05c4d</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0-8-gbfb403730</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -562,6 +562,7 @@ After running the two sequences on a backend, it calculates the probabilities to
 the ground state, fits the two exponentially decaying curves, and estimates
 the interleaved gate error. See Ref. [1] for details.</p>
 <p class="rubric">References</p>
+<p>[1] Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow, Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki, Mark B. Ketchen, M. Steffen, <em>Efficient measurement of quantum gate error by interleaved randomized benchmarking</em>, Phys. Rev. Lett. 109, 080505 (2012), doi: 10.1103/PhysRevLett.109.080505 <a class="reference external" href="http://arxiv.org/abs/1203.4550v2">(open)</a></p>
 <p class="rubric">User manual</p>
 <p><a class="reference internal" href="../manuals/verification/randomized_benchmarking.html"><span class="doc">Randomized Benchmarking</span></a></p>
 <p class="rubric">Analysis class reference</p>
@@ -609,7 +610,7 @@ the interleaved gate error. See Ref. [1] for details.</p>
 <li><p><strong>clifford_synthesis_method</strong> (str)</p>
 <div class="line-block">
 <div class="line">Default value: <code class="docutils literal notranslate"><span class="pre">&quot;rb_default&quot;</span></code></div>
-<div class="line">The name of the Clifford synthesis plugin to use for building circuits of RB sequences.</div>
+<div class="line">The name of the Clifford synthesis plugin to use for building circuits of RB sequences. See <a class="reference internal" href="../apidocs/mod_randomized_benchmarking.html#synth-methods-lbl"><span class="std std-ref">Synthesis Methods</span></a>.</div>
 </div>
 </li>
 </ul>
@@ -657,7 +658,7 @@ the interleaved gate error. See Ref. [1] for details.</p>
 </div>
 <div class="cell_output docutils container">
 <img alt="../_images/qiskit_experiments.library.randomized_benchmarking.InterleavedRB_1_0.png" src="../_images/qiskit_experiments.library.randomized_benchmarking.InterleavedRB_1_0.png" />
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Available results: {&#39;EPC&#39;, &#39;alpha_c&#39;, &#39;alpha&#39;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Available results: {&#39;alpha_c&#39;, &#39;alpha&#39;, &#39;EPC&#39;}
 </pre></div>
 </div>
 </div>
@@ -671,7 +672,7 @@ the interleaved gate error. See Ref. [1] for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>interleaved_element</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.0)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v2.0)"><em>Gate</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/circuit#qiskit.circuit.Delay" title="(in Qiskit v2.0)"><em>Delay</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.quantum_info.Clifford" title="(in Qiskit v2.0)"><em>Clifford</em></a>) – The element to interleave,
+<li><p><strong>interleaved_element</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.1)"><em>QuantumCircuit</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v2.1)"><em>Gate</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/circuit#qiskit.circuit.Delay" title="(in Qiskit v2.1)"><em>Delay</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.quantum_info.Clifford" title="(in Qiskit v2.1)"><em>Clifford</em></a>) – The element to interleave,
 given either as a Clifford element, gate, delay or circuit.
 All instructions in the element must be supported in the <code class="docutils literal notranslate"><span class="pre">backend``(``target</span></code>).
 If it is/contains a delay, its duration and unit must comply with
@@ -681,7 +682,7 @@ is useful to obtain valid delays).
 Parameterized circuits/instructions are not allowed.</p></li>
 <li><p><strong>physical_qubits</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>) – list of physical qubits for the experiment.</p></li>
 <li><p><strong>lengths</strong> (<em>Iterable</em><em>[</em><em>int</em><em>]</em>) – A list of RB sequences lengths.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.1)"><em>Backend</em></a><em> | </em><em>None</em>) – The backend to run the experiment on.</p></li>
 <li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to generate for each sequence length.</p></li>
 <li><p><strong>seed</strong> (<em>int</em><em> | </em><em>SeedSequence</em><em> | </em><em>BitGenerator</em><em> | </em><em>Generator</em><em> | </em><em>None</em>) – Optional, seed used to initialize <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code>.
 when generating circuits. The <code class="docutils literal notranslate"><span class="pre">default_rng</span></code> will be initialized
@@ -767,7 +768,7 @@ Clifford samples to shorter sequences.</p></li>
 <dd class="field-even"><p><strong>QiskitError</strong> – If interleaved_element has non-supported instruction in the backend.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.0)"><em>QuantumCircuit</em></a>]</p>
+<dd class="field-odd"><p><em>List</em>[<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.1)"><em>QuantumCircuit</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -812,7 +813,7 @@ Clifford samples to shorter sequences.</p></li>
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.1)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -846,8 +847,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.0)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.0)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.1)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.1)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -959,7 +960,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/06/19</div>
+              Last updated on 2025/06/20</div>
           </div>
           <div class="right-details">
             
@@ -1012,7 +1013,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dfb7e12a"></script>
+</div><script src="../_static/documentation_options.js?v=c5a7dd4d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
