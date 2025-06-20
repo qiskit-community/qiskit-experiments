@@ -21,7 +21,6 @@ from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.deprecation import deprecate_func
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 
@@ -392,75 +391,4 @@ class FineSXAmplitude(FineAmplitude):
         options.add_cal_circuits = False
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
 
-        return options
-
-
-class FineZXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment for the :code:`RZXGate(np.pi / 2)`.
-
-    # section: overview
-
-        :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
-        the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
-
-        .. note::
-
-            This experiment assumes a gate named ``szx`` which is not standard.
-            It was written work with a custom pulse calibration.
-
-    """
-
-    @deprecate_func(
-        since="0.9",
-        additional_msg=(
-            "This experiment requires an RZXGate which is not standard and had "
-            "previously been implemented using Qiskit Pulse which was removed "
-            "in Qiskit 2.0."
-        ),
-        package_name="qiskit-experiments",
-    )
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
-        """Initialize the experiment."""
-
-        # We cannot use RZXGate since it has a parameter so we redefine the gate.
-        # Failing to do so causes issues with QuantumCircuit.calibrations.
-        gate = Gate("szx", 2, [])
-
-        super().__init__(
-            physical_qubits, gate, backend=backend, measurement_qubits=[physical_qubits[1]]
-        )
-        # Set default analysis options
-        self.analysis.set_options(
-            fixed_parameters={
-                "angle_per_gate": np.pi / 2,
-                "phase_offset": np.pi,
-            },
-            outcome="1",
-        )
-
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
-
-        Experiment Options:
-            add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
-                will be added. This option is set to False by default for ``FineZXAmplitude``
-                since the amplitude calibration can be achieved with two RZX gates and this is
-                included in the repetitions.
-            repetitions (List[int]): A list of the number of times that the gate is repeated.
-        """
-        options = super()._default_experiment_options()
-        options.add_cal_circuits = False
-        options.repetitions = [0, 1, 2, 3, 4, 5, 7, 9, 11, 13]
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options for the fine amplitude experiment.
-
-        Experiment Options:
-            basis_gates: Set to :code:`["szx"]`.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["szx"]
         return options

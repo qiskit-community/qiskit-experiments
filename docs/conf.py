@@ -161,7 +161,6 @@ intersphinx_mapping = {
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "pandas": ("http://pandas.pydata.org/docs/", None),
     "qiskit_aer": ("https://qiskit.github.io/qiskit-aer/", None),
-    "qiskit_dynamics": ("https://qiskit-community.github.io/qiskit-dynamics/", None),
     "qiskit_ibm_runtime": ("https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/", None),
 }
 
