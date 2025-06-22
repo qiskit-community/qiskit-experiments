@@ -388,7 +388,7 @@ class CliffordUtils:
                 layer_circ = _CLIFFORD_LAYER[layer][idx]
             _circuit_compose(qc, layer_circ, qubits=(0, 1))
 
-        if synthesis_method == DEFAULT_SYNTHESIS_METHOD:
+        if synthesis_method == DEFAULT_SYNTHESIS_METHOD and basis_gates:
             coupling_map = CouplingMap(coupling_tuple) if coupling_tuple else None
             return transpile(
                 qc,
