@@ -84,7 +84,6 @@ Experiments for characterization of properties of two qubit interactions.
     :template: autosummary/experiment.rst
 
     ~characterization.ZZRamsey
-    ~characterization.FineZXAmplitude
 
 .. _characterization-mitigation:
 
@@ -113,7 +112,6 @@ from .characterization import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    FineZXAmplitude,
     RamseyXY,
     FineFrequency,
     ReadoutAngle,

@@ -69,9 +69,6 @@ Data Processing Nodes
     BasisExpectationValue
     MinMaxNormalize
     ShotOrder
-    RestlessNode
-    RestlessToCounts
-    RestlessToIQ
 
 
 Discriminators
@@ -106,9 +103,6 @@ from .nodes import (
     BasisExpectationValue,
     MinMaxNormalize,
     ShotOrder,
-    RestlessNode,
-    RestlessToCounts,
-    RestlessToIQ,
 )
 
 from .data_processor import DataProcessor

@@ -13,8 +13,8 @@
 Definitions of interfaces for classes working with circuit execution
 
 Qiskit Experiments tries to maintain the flexibility to work with multiple
-providers of quantum circuit execution, like Qiskit IBM Runtime, Qiskit
-Dynamics, and Qiskit Aer. These different circuit execution providers do not
+providers of quantum circuit execution, like Qiskit IBM Runtime
+and Qiskit Aer. These different circuit execution providers do not
 follow exactly the same interface. This module provides definitions of the
 subset of the interfaces that Qiskit Experiments needs in order to analyze
 experiment results.
