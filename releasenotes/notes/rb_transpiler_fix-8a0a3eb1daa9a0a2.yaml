@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Adds an extra transpilation step to the 2Q Clifford generation
+    code which reduces the number of single qubit gates per 
+    Clifford. 

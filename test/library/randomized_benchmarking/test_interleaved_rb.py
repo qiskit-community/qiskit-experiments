@@ -369,7 +369,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             interleaved_element=CZGate(),
             physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
-            seed=1234,
+            seed=1235,
             backend=self.backend,
         )
         exp.set_transpile_options(**transpiler_options)
