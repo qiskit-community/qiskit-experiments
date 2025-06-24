@@ -36,3 +36,16 @@ jobs:
         with:
           folder: docs/_build/html
           target-folder: stable/${{ env.version }}
+      - name: Check current tag is the latest
+        id: check-latest
+        run: |
+          python tools/check_latest_version.py
+        continue-on-error: true
+      - name: Deploy top level
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs/_build/html/
+          clean-exclude: |
+            stable/*
+            dev/*
+        if: steps.check-latest.outcome == "success"
