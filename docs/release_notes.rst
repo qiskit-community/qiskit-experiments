@@ -5,6 +5,64 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.10.0
 
+.. _Release Notes_0.10.0:
+
+0.10.0
+======
+
+.. _Release Notes_0.10.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prelude0.10-39fb8503056ee261.yaml @ b'c7d41beb5693db3b719fb00f7f9611433ac61c15'
+
+The Qiskit Experiments 0.10.0 release adds new features to :class:`.LayerFidelity` that allow it to be used as a parallel direct randomized benchmarking experiment as well. It also includes some small changes to address the way :func:`~qiskit.compiler.transpile` handles the ``basis_gates`` argument in Qiskit 2.0.
+
+
+.. _Release Notes_0.10.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/layerfid_opt_add-a42d6e727e5d44b9.yaml @ b'4c7f2b448d603c2d36e93dfa212d14f05dd8763f'
+
+- :class:`.LayerFidelity` has two new options, ``layer_barrier`` and ``min_delay``.
+  ``layer_barrier`` turns off the barrier between all qubits in the layer,
+  so that layer run becomes simultaneous direct RB. ``min_delay`` allows the
+  user to enforce a minimum delay during the two-qubit layer using a qubit
+  that is not part of the two-qubit gate list. Also added the EPL
+  (error per layer) calculation to the layer analysis output and to the figure.
+
+
+.. _Release Notes_0.10.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/fine-freq-basis-gates-0c8d6a6f895b0ed5.yaml @ b'a4001c2dd407c11ed648df529c8f99751b5966fb'
+
+- The :class:`.FineFrequency` experiment was modified so that it no longer sets
+  the ``basis_gates`` in its transpile options to default to the gates used
+  in its ``circuits()`` method. If these gates were already in the backend's
+  target, there should be no change in behavior. If the gates were not in the
+  backend's target, then the experiment would have been producing transpiled
+  circuits that did not match the backend's instruction set and so would not
+  run. The ``basis_gates`` setting was a remnant from the previous support
+  for pulse calibrations for which the calibration experient would use the
+  ``basis_gates`` option to know which pulse gate calibrations to attach to
+  the circuits.
+
+.. releasenotes/notes/lf-1q-gates-6402f24811d97d5e.yaml @ b'388dec711df9f3182e922199f9b2c4072aaa35f6'
+
+- :class:`.LayerFidelity` now filters out non-standard one qubit gates from
+  the target when choosing the set to use for transpiling the one qubit
+  Clifford gates. Previously, it would use all one qubit gates in the
+  backend's target. With Qiskit 2.0, transpiling with a non-standard gate in
+  the way that :class:`.LayerFidelity` does leads to an exception. A warning
+  is emitted if a non-standard one qubit gate is filtered out.
+
+
 .. _Release Notes_0.9.0:
 
 0.9.0

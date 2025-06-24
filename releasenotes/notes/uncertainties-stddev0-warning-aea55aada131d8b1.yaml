@@ -1,5 +1,5 @@
 ---
-fixes:
+upgrade:
   - |
     Warnings from the `Uncertainties
     <https://uncertainties.readthedocs.io/en/latest/>`__ library related to a

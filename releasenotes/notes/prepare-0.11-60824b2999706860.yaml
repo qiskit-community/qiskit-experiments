@@ -1,0 +1,7 @@
+---
+prelude: >
+    Qiskit Experiments 0.11.0 introduces new device benchmarking features,
+    namely a new layer fidelity variant (:class:`.LayerFidelityUnitary`) and a
+    new Clifford synthesis option for the various benchmarking experiments. It
+    also removes several previously deprecated functions and classes and
+    provides some minor fixes and changes in behavior.
