@@ -1,6 +1,6 @@
 ---
-fixes:
+upgrade:
   - |
-    Adds an extra transpilation step to the 2Q Clifford generation
-    code which reduces the number of single qubit gates per 
-    Clifford. 
+    An extra transpilation step was added to the 2Q Clifford generation
+    code which reduces the number of single qubit gates per two qubit
+    Clifford in the :class:`.StandardRB` and :class:`.InterleavedRB` experiments.

@@ -1,9 +1,0 @@
----
-features:
-  - |
-    :class:`.LayerFidelity` has two new options, ``layer_barrier`` and ``min_delay``.
-    ``layer_barrier`` turns off the barrier between all qubits in the layer,
-    so that layer run becomes simultaneous direct RB. ``min_delay`` allows the
-    user to enforce a minimum delay during the two-qubit layer using a qubit
-    that is not part of the two-qubit gate list. Also added the EPL
-    (error per layer) calculation to the layer analysis output and to the figure.
