@@ -1,8 +1,0 @@
-﻿
-
-data_sort
-=================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis.utils
-
-.. autofunction:: data_sort

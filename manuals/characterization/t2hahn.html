@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T2* Ramsey Characterization" href="t2ramsey.html" /><link rel="prev" title="T1 Characterization" href="t1.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>T2 Hahn Characterization - Qiskit Experiments 0.10.0</title>
+        <title>T2 Hahn Characterization - Qiskit Experiments 0.11.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.10.0</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.11.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.10.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.11.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -267,6 +267,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
@@ -289,7 +290,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
 </ul>
@@ -309,9 +309,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.BasisExpectationValue.html">BasisExpectationValue</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.MinMaxNormalize.html">MinMaxNormalize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.ShotOrder.html">ShotOrder</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.RestlessNode.html">RestlessNode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.RestlessToCounts.html">RestlessToCounts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.RestlessToIQ.html">RestlessToIQ</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
@@ -352,13 +349,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html">oscillation_exp_decay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html">analysis_result_to_repr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html">convert_lmfit_result</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.data_sort.html">data_sort</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html">eval_with_uncertainties</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.filter_data.html">filter_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.inverse_weighted_variance.html">inverse_weighted_variance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.mean_xy_data.html">mean_xy_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.multi_mean_xy_data.html">multi_mean_xy_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html">level2_probability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.probability.html">probability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.curve_analysis.utils.sample_average.html">sample_average</a></li>
@@ -386,8 +379,6 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../apidocs/test.html">Test Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.test</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Test Utilities (qiskit_experiments.test)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.test.PulseBackend.html">PulseBackend</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.test.SingleTransmonTestBackend.html">SingleTransmonTestBackend</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.test.MockIQBackend.html">MockIQBackend</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.test.MockIQParallelBackend.html">MockIQParallelBackend</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.test.T2HahnBackend.html">T2HahnBackend</a></li>
@@ -405,7 +396,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineZXAmplitude.html">FineZXAmplitude</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
@@ -434,6 +424,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
@@ -499,6 +490,8 @@
             <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.10/index.html" rel="nofollow noindex">0.10</a></li>
         
         </ul>
     </div>
@@ -604,22 +597,28 @@ and can analytically extract the desired values.</p>
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">conversion_factor</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="c1"># our delay will be in micro-sec</span>
-<span class="n">delays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
-<span class="n">delays</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">delays</span><span class="p">]</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="p">)</span>
+<span class="c1"># Round so that the delay gates in the circuit display does not have trailing 9999&#39;s</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="o">*</span> <span class="n">conversion_factor</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">delays</span><span class="p">]</span>
 <span class="n">number_of_echoes</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="c1"># Create a T2Hahn experiment. Print the first circuit as an example</span>
 <span class="n">exp1</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="n">number_of_echoes</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">exp1</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp1</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>     ┌─────────┐┌───────────────┐┌───────┐┌───────────────┐┌─────────┐┌─┐
-  q: ┤ Rx(π/2) ├┤ Delay(0.0[s]) ├┤ Rx(π) ├┤ Delay(0.0[s]) ├┤ Rx(π/2) ├┤M├
-     └─────────┘└───────────────┘└───────┘└───────────────┘└─────────┘└╥┘
-c: 1/══════════════════════════════════════════════════════════════════╩═
-                                                                       0 
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>     ┌─────────┐┌───────────────────┐┌───────┐┌───────────────────┐┌─────────┐»
+  q: ┤ Rx(π/2) ├┤ Delay(2.5e-06[s]) ├┤ Rx(π) ├┤ Delay(2.5e-06[s]) ├┤ Rx(π/2) ├»
+     └─────────┘└───────────────────┘└───────┘└───────────────────┘└─────────┘»
+c: 1/═════════════════════════════════════════════════════════════════════════»
+                                                                              »
+«     ┌─┐
+«  q: ┤M├
+«     └╥┘
+«c: 1/═╩═
+«      0 
 </pre></div>
 </div>
 </div>
@@ -702,15 +701,15 @@ specifically for this experiment.</p>
   </thead>
   <tbody>
     <tr>
-      <th>b5088b62</th>
+      <th>6f6f8c78</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
-      <td>(1.98+/-0.08)e-05</td>
+      <td>(2.11+/-0.16)e-05</td>
       <td>good</td>
       <td>T2Hahn_simulator</td>
       <td>None</td>
-      <td>1.133701</td>
+      <td>1.062618</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -727,7 +726,7 @@ curve is expected to decay toward <span class="math notranslate nohighlight">\(0
 parameter <span class="math notranslate nohighlight">\(B\)</span> is <span class="math notranslate nohighlight">\(0.5\)</span>. When there is no <span class="math notranslate nohighlight">\(T_2\)</span> error,
 we would expect that the probability to measure <code class="docutils literal notranslate"><span class="pre">1</span></code> is <span class="math notranslate nohighlight">\(100\%\)</span>,
 therefore we will guess that A is <span class="math notranslate nohighlight">\(0.5\)</span>. In this experiment,
-<code class="docutils literal notranslate"><span class="pre">t2hahn</span></code> is the parameter of interest. Good estimate for it is the
+<code class="docutils literal notranslate"><span class="pre">t2hahn</span></code> is the parameter of interest. A good estimate for it is the
 value computed in previous experiments on this qubit or a similar value
 computed for other qubits.</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -785,15 +784,15 @@ computed for other qubits.</p>
   </thead>
   <tbody>
     <tr>
-      <th>3b1f1af0</th>
+      <th>4e52b75d</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
-      <td>(1.98+/-0.08)e-05</td>
+      <td>(2.11+/-0.16)e-05</td>
       <td>good</td>
       <td>T2Hahn_simulator</td>
       <td>None</td>
-      <td>1.133701</td>
+      <td>1.062618</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -804,76 +803,55 @@ computed for other qubits.</p>
 <section id="number-of-echoes">
 <h2>Number of echoes<a class="headerlink" href="#number-of-echoes" title="Link to this heading">¶</a></h2>
 <p>The user can provide the number of echoes that the circuit will perform.
-This will determine the amount of delay and echo gates. As the number of
-echoes increases, the total time of the circuit will grow. The echoes
+This will determine the amount of delay and echo gates.
+The echoes
 decrease the effects of <span class="math notranslate nohighlight">\(T_{1}\)</span> noise and frequency inaccuracy
 estimation. Due to that, the Hahn Echo experiment improves our estimate
 for <span class="math notranslate nohighlight">\(T_{2}\)</span>. In the following code, we will compare results of the
 Hahn experiment with <code class="docutils literal notranslate"><span class="pre">0</span></code> echoes and <code class="docutils literal notranslate"><span class="pre">1</span></code> echo. The analysis should
 fail for the circuit with <code class="docutils literal notranslate"><span class="pre">0</span></code> echoes. In order to see it, we will add
-frequency to the qubit and see how it affect the estimated <span class="math notranslate nohighlight">\(T_2\)</span>.
-The list <code class="docutils literal notranslate"><span class="pre">delays</span></code> is the times provided to each delay gate, not the
-total delay time.</p>
+frequency to the qubit and see how it affect the estimated <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">qubit2</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="c1"># set the desired delays</span>
-<span class="n">conversion_factor</span> <span class="o">=</span> <span class="mf">1e-6</span>
-
-<span class="c1"># The delays aren&#39;t equally spaced due the behavior of the exponential</span>
-<span class="c1"># decay curve where the change in the result during earlier times is</span>
-<span class="c1"># larger than later times. In addition, since the total delay is</span>
-<span class="c1"># &#39;delay * 2 * num_of_echoes&#39;, the construction of the delays for</span>
-<span class="c1"># each experiment will be different such that their total length</span>
-<span class="c1"># will be the same.</span>
-
-<span class="c1"># Delays for Hahn Echo Experiment with 0 echoes</span>
-<span class="n">delays2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">51.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">26</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
-                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">53</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">25</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
-                <span class="p">)</span>
-
-<span class="n">delays2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">delays2</span><span class="p">]</span>
-
-<span class="c1"># Delays for Hahn Echo Experiment with 1 echo</span>
-<span class="n">delays3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">25.5</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">26</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
-                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">26.5</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">25</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
-                <span class="p">)</span>
-<span class="n">delays3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="o">*</span> <span class="n">conversion_factor</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">delays3</span><span class="p">]</span>
 
 <span class="n">num_echoes</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">estimated_t2hahn2</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">conversion_factor</span>
+<span class="n">estimated_t2hahn2</span> <span class="o">=</span> <span class="mf">30e-6</span>
 
 <span class="c1"># Create a T2Hahn experiment with 0 echoes</span>
-<span class="n">exp2_0echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays2</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">exp2_0echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The first circuit of hahn echo experiment with 0 echoes:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The second circuit of hahn echo experiment with 0 echoes:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="c1"># Create a T2Hahn experiment with 1 echo. Print the first circuit as an example</span>
-<span class="n">exp2_1echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays3</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="n">num_echoes</span><span class="p">)</span>
+<span class="n">exp2_1echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="n">num_echoes</span><span class="p">)</span>
 <span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The first circuit of hahn echo experiment with 1 echo:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The second circuit of hahn echo experiment with 1 echo:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The first circuit of hahn echo experiment with 0 echoes:
-     ┌─────────┐┌───────────────┐┌──────────┐┌─┐
-  q: ┤ Rx(π/2) ├┤ Delay(0.0[s]) ├┤ Rx(-π/2) ├┤M├
-     └─────────┘└───────────────┘└──────────┘└╥┘
-c: 1/═════════════════════════════════════════╩═
-                                              0 
-The first circuit of hahn echo experiment with 1 echo:
-     ┌─────────┐┌───────────────┐┌───────┐┌───────────────┐┌─────────┐┌─┐
-  q: ┤ Rx(π/2) ├┤ Delay(0.0[s]) ├┤ Rx(π) ├┤ Delay(0.0[s]) ├┤ Rx(π/2) ├┤M├
-     └─────────┘└───────────────┘└───────┘└───────────────┘└─────────┘└╥┘
-c: 1/══════════════════════════════════════════════════════════════════╩═
-                                                                       0 
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>The second circuit of hahn echo experiment with 0 echoes:
+     ┌─────────┐┌─────────────────┐┌──────────┐┌─┐
+  q: ┤ Rx(π/2) ├┤ Delay(5e-06[s]) ├┤ Rx(-π/2) ├┤M├
+     └─────────┘└─────────────────┘└──────────┘└╥┘
+c: 1/═══════════════════════════════════════════╩═
+                                                0 
+The second circuit of hahn echo experiment with 1 echo:
+     ┌─────────┐┌───────────────────┐┌───────┐┌───────────────────┐┌─────────┐»
+  q: ┤ Rx(π/2) ├┤ Delay(2.5e-06[s]) ├┤ Rx(π) ├┤ Delay(2.5e-06[s]) ├┤ Rx(π/2) ├»
+     └─────────┘└───────────────────┘└───────┘└───────────────────┘└─────────┘»
+c: 1/═════════════════════════════════════════════════════════════════════════»
+                                                                              »
+«     ┌─┐
+«  q: ┤M├
+«     └╥┘
+«c: 1/═╩═
+«      0 
 </pre></div>
 </div>
 </div>
@@ -966,7 +944,7 @@ is close to the estimate of the one echo experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/04/03</div>
+              Last updated on 2025/06/25</div>
           </div>
           <div class="right-details">
             
@@ -1003,7 +981,7 @@ is close to the estimate of the one echo experiment.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=82662543"></script>
+</div><script src="../../_static/documentation_options.js?v=f3b36f1a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

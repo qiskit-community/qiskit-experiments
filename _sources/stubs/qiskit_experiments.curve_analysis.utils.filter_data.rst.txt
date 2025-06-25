@@ -1,8 +1,0 @@
-﻿
-
-filter_data
-===================================================
-
-.. currentmodule:: qiskit_experiments.curve_analysis.utils
-
-.. autofunction:: filter_data

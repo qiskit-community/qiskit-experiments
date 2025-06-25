@@ -19,7 +19,7 @@ In this example, we will pass in a :class:`qiskit_ibm_runtime.SamplerV2` object 
 
 .. note::
     If a sampler object is passed to :meth:`qiskit_experiments.framework.BaseExperiment.run` then the `run options 
-    <https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/qiskit_ibm_runtime.options.SamplerExecutionOptionsV2>`_ of the 
+    <https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/options-sampler-execution-options-v2>`_ of the 
     sampler object are used. The execution options set by the experiment are ignored.
 
 .. jupyter-input::

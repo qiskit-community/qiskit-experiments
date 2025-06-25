@@ -25,8 +25,6 @@ ScatterTable
          
          
          
-         
-         
 
    
    .. rubric:: Attributes
@@ -35,9 +33,7 @@ ScatterTable
    .. autoattribute:: ScatterTable.DTYPES
    .. autoattribute:: ScatterTable.analysis
    .. autoattribute:: ScatterTable.category
-   .. autoattribute:: ScatterTable.data_allocation
    .. autoattribute:: ScatterTable.dataframe
-   .. autoattribute:: ScatterTable.labels
    .. autoattribute:: ScatterTable.series_id
    .. autoattribute:: ScatterTable.series_name
    .. autoattribute:: ScatterTable.shots
@@ -60,7 +56,6 @@ ScatterTable
          
          
          
-         
 
    
    .. rubric:: Methods
@@ -69,7 +64,6 @@ ScatterTable
    .. automethod:: ScatterTable.add_row
    .. automethod:: ScatterTable.filter
    .. automethod:: ScatterTable.from_dataframe
-   .. automethod:: ScatterTable.get_subset_of
    .. automethod:: ScatterTable.iter_by_series_id
    .. automethod:: ScatterTable.iter_groups
    .. automethod:: ScatterTable.xvals
