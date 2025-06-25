@@ -48,4 +48,4 @@ jobs:
           clean-exclude: |
             stable/*
             dev/*
-        if: steps.check-latest.outcome == "success"
+        if: ${{ steps.check-latest.outcome == 'success' }}
