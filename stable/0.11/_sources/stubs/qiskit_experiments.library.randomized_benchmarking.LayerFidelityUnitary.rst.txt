@@ -1,0 +1,49 @@
+﻿
+
+LayerFidelityUnitary
+=======================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoexperiment:: LayerFidelityUnitary
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: LayerFidelityUnitary.analysis
+   .. autoattribute:: LayerFidelityUnitary.backend
+   .. autoattribute:: LayerFidelityUnitary.experiment_options
+   .. autoattribute:: LayerFidelityUnitary.experiment_type
+   .. autoattribute:: LayerFidelityUnitary.num_qubits
+   .. autoattribute:: LayerFidelityUnitary.physical_qubits
+   .. autoattribute:: LayerFidelityUnitary.run_options
+   .. autoattribute:: LayerFidelityUnitary.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: LayerFidelityUnitary.circuits
+   .. automethod:: LayerFidelityUnitary.circuits_generator
+   .. automethod:: LayerFidelityUnitary.config
+   .. automethod:: LayerFidelityUnitary.copy
+   .. automethod:: LayerFidelityUnitary.from_config
+   .. automethod:: LayerFidelityUnitary.job_info
+   .. automethod:: LayerFidelityUnitary.run
+   .. automethod:: LayerFidelityUnitary.set_experiment_options
+   .. automethod:: LayerFidelityUnitary.set_run_options
+   .. automethod:: LayerFidelityUnitary.set_transpile_options
+   
+
+   
+   

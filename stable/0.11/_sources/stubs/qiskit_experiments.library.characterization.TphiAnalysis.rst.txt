@@ -1,0 +1,38 @@
+﻿
+
+TphiAnalysis
+========================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: TphiAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: TphiAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: TphiAnalysis.component_analysis
+   .. automethod:: TphiAnalysis.config
+   .. automethod:: TphiAnalysis.copy
+   .. automethod:: TphiAnalysis.from_config
+   .. automethod:: TphiAnalysis.run
+   .. automethod:: TphiAnalysis.set_options
+   
+
+   
+   

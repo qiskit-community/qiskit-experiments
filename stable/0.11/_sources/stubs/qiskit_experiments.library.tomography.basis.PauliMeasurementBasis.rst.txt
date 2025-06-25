@@ -1,0 +1,45 @@
+﻿
+
+PauliMeasurementBasis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: PauliMeasurementBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: PauliMeasurementBasis.name
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PauliMeasurementBasis.circuit
+   .. automethod:: PauliMeasurementBasis.index_shape
+   .. automethod:: PauliMeasurementBasis.matrix
+   .. automethod:: PauliMeasurementBasis.matrix_shape
+   .. automethod:: PauliMeasurementBasis.outcome_shape
+
+   

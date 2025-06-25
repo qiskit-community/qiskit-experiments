@@ -1,0 +1,47 @@
+﻿
+
+CompositeAnalysis
+==============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: CompositeAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: CompositeAnalysis.options
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: CompositeAnalysis.component_analysis
+   .. automethod:: CompositeAnalysis.config
+   .. automethod:: CompositeAnalysis.copy
+   .. automethod:: CompositeAnalysis.from_config
+   .. automethod:: CompositeAnalysis.run
+   .. automethod:: CompositeAnalysis.set_options
+
+   
