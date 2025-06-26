@@ -491,7 +491,7 @@ When it is time to release a new minor version of qiskit-experiments, we will:
     the main release notes file.
 2.  Add a release notes prelude and any final release notes edits.
 3.  Open a PR to `main` with the release notes updates.
-4.  Create a new `X.Y.0` tag from `main` and push it to github.
+4.  After merging the PR, create a new `X.Y.0` tag from `main` and push it to github.
 
 The release automation processes will be triggered by the new tag and perform the
 following steps:
@@ -499,15 +499,19 @@ following steps:
 1.  Create a stable branch for the new minor version from the release tag on the `main`
     branch
 2.  Build and upload binary wheels to PyPI
-3.  Create a github release page with a generated changelog
+3.  Create a github release page with a generated changelog if changelog tags
+    were used on pull requests. Usually, by hand we also edit in a top line to
+the GitHub Releases entry with a link to the documentation release notes page.
+
+After the release automation creates the stable branch, the following steps
+should be performed:
+
+1. Bump the version numbers in the `main` branch. This update can be done by
+   running `tox run -ebumpversion` and then committing the resulting changes.
+2. Open and merge a pull request with the version bump changes.
 
 The `stable/*` branches should only receive changes in the form of bug fixes.
 If you're making a bug fix PR that you believe should be backported to the
 current stable release, tag it with `backport stable potential`. Producing a
 new patch releaes can be done just by adding a new tag to the `stabel/*` to
 trigger the release automation.
-
-After a new release is tagged and the automation runs, the version numbers in
-the `main` branch should be updated. This update can be done by running `tox
-run -ebumpversion` and then committing the resulting changes.
-
