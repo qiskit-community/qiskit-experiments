@@ -9,9 +9,9 @@ description = "Software for developing quantum computing programs"
 dependencies = [
     "numpy>=1.17",
     "scipy>=1.4",
-    "qiskit>=0.45",
+    "qiskit>=1.3",
     "qiskit-ibm-experiment>=0.4.6",
-    "qiskit_ibm_runtime>=0.29.0",
+    "qiskit_ibm_runtime>=0.34.0",
     "matplotlib>=3.4",
     "uncertainties",
     "lmfit",
@@ -54,7 +54,6 @@ extras = [
     "cvxpy>=1.3.2", # for tomography
     "scikit-learn", # for discriminators
     "qiskit-aer>=0.13.2",
-    "qiskit-dynamics>=0.4.0", # for the PulseBackend
 ]
 
 [project.entry-points."qiskit.synthesis"]
@@ -62,15 +61,7 @@ extras = [
 
 [dependency-groups]
 formatting = ["black~=22.0"]
-devbase = [
-    # Extra dependencies for tests/documentation code
-    # qiskit-ibm-runtime 0.34 and qiskit 1.3 are needed to pass run options through
-    # qiskit_ibm_runtime.SamplerV2 to test backends' backend.run calls.
-    # Earlier versions work okay when using physical backends or not passing run
-    # options.
-    "qiskit-ibm-runtime>=0.34",  # see above
-    "qiskit>=1.3",  # see above
-]
+devbase = []
 testing = [
     {include-group = "devbase"},
     # Test runner tools
