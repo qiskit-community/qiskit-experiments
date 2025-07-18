@@ -187,7 +187,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "BaseExperiment":
         """Initialize an experiment from experiment config"""
         if isinstance(config, dict):
-            config = ExperimentConfig(**dict)
+            config = ExperimentConfig(**config)
         ret = cls(*config.args, **config.kwargs)
         if config.experiment_options:
             ret.set_experiment_options(**config.experiment_options)
