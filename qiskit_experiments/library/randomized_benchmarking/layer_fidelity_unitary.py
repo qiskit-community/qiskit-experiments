@@ -666,7 +666,7 @@ class LayerFidelityUnitary(BaseExperiment):
     def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "LayerFidelity":
         """Initialize an experiment from experiment config"""
         if isinstance(config, dict):
-            config = ExperimentConfig(**dict)
+            config = ExperimentConfig(**config)
         ret = cls(*config.args, **config.kwargs)
         if config.run_options:
             ret.set_run_options(**config.run_options)
