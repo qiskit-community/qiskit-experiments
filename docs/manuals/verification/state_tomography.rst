@@ -128,6 +128,16 @@ details). For example, if ``cvxpy`` is installed we can use the
 PSD without requiring rescaling.
 
 .. jupyter-execute::
+    :hide-code:
+
+    import warnings
+    # Hide warning from scs from output; is there a way to avoid the warning?
+    # Full warning line:
+    #   /.tox/docs/lib/python3.13/site-packages/scs/__init__.py:83: UserWarning: 
+    #   Converting A to a CSC (compressed sparse column) matrix; may take a while.
+    warnings.filterwarnings("ignore", module=r"scs", message="Converting A to a CSC")
+
+.. jupyter-execute::
 
     try:
         import cvxpy
