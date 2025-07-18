@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    A bug that prevented passing a ``dict`` to
+    :meth:`.BaseExperiment.from_config` from working has been fixed (`#1577
+    <https://github.com/qiskit-community/qiskit-experiments/issues/1577>`__).
