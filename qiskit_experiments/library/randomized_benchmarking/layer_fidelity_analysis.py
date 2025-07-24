@@ -60,7 +60,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         .. ref_arxiv:: 1 2311.05933
     """
 
-    def __init__(self, physical_qubits):
+    def __init__(self, physical_qubits, benchmark_suffix=""):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
@@ -77,6 +77,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         self.plotter.set_figure_options(
             figure_title=f"Simultaneous Direct RB on Qubit{physical_qubits}",
         )
+        self.benchmark_suffix=benchmark_suffix
 
     @classmethod
     def _default_options(cls):
@@ -157,7 +158,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         metadata.update(fit_data.params)
         outcomes.append(
             AnalysisResultData(
-                name="ProcessFidelity",
+                name="ProcessFidelity" + self.benchmark_suffix,
                 value=pf,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
@@ -166,7 +167,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         )
         outcomes.append(
             AnalysisResultData(
-                name="EPL",
+                name="EPL" + self.benchmark_suffix,
                 value=epl,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
@@ -188,7 +189,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
                 traceback.format_exc(),
             )
             failed_result = AnalysisResultData(
-                name="ProcessFidelity",
+                name="ProcessFidelity" + self.benchmark_suffix,
                 value=None,
                 quality="bad",
                 extra={"qubits": self._physical_qubits, "reason": "analysis_failure"},
@@ -234,15 +235,16 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 class _SingleLayerFidelityAnalysis(CompositeAnalysis):
     """A class to estimate a process fidelity per disjoint layer."""
 
-    def __init__(self, layer, analyses=None):
+    def __init__(self, layer, analyses=None, benchmark_suffix=""):
         if analyses:
             if len(layer) != len(analyses):
                 raise AnalysisError("'analyses' must have the same length with 'layer'")
         else:
-            analyses = [_ProcessFidelityAnalysis(qubits) for qubits in layer]
+            analyses = [_ProcessFidelityAnalysis(qubits, benchmark_suffix=benchmark_suffix) for qubits in layer]
 
         super().__init__(analyses, flatten_results=True)
         self._layer = layer
+        self.benchmark_suffix = benchmark_suffix
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -251,12 +253,12 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate single layer fidelity from process fidelities of subsystems
-            pf_results = [res for res in analysis_results if res.name == "ProcessFidelity"]
+            pf_results = [res for res in analysis_results if res.name == "ProcessFidelity" + self.benchmark_suffix]
             pfs = [res.value for res in pf_results]
             slf = np.prod(pfs)
             quality_slf = "good" if all(sub.quality == "good" for sub in pf_results) else "bad"
             slf_result = AnalysisResultData(
-                name="SingleLF",
+                name="SingleLF" + self.benchmark_suffix,
                 value=slf,
                 quality=quality_slf,
                 extra={"qubits": [q for qubits in self._layer for q in qubits]},
@@ -267,7 +269,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
         except Exception:  # pylint: disable=broad-except
             LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_result = AnalysisResultData(
-                name="SingleLF",
+                name="SingleLF" + self.benchmark_suffix,
                 value=None,
                 quality="bad",
                 extra={
@@ -295,7 +297,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         .. ref_arxiv:: 1 2311.05933
     """
 
-    def __init__(self, layers, analyses=None):
+    def __init__(self, layers, analyses=None, benchmark_suffix=""):
         if analyses:
             if len(layers) != len(analyses):
                 raise AnalysisError("'analyses' must have the same length with 'layers'")
@@ -305,6 +307,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         super().__init__(analyses, flatten_results=True)
         self.num_layers = len(layers)
         self.num_2q_gates = sum(1 if len(qs) == 2 else 0 for lay in layers for qs in lay)
+        self.benchmark_suffix=benchmark_suffix
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -328,18 +331,18 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate full layer fidelity from single layer fidelities
-            slf_results = [res for res in analysis_results if res.name == "SingleLF"]
+            slf_results = [res for res in analysis_results if res.name == "SingleLF" + self.benchmark_suffix]
             slfs = [res.value for res in slf_results]
             lf = np.prod(slfs)
             quality_lf = "good" if all(sub.quality == "good" for sub in slf_results) else "bad"
             lf_result = AnalysisResultData(
-                name="LF",
+                name="LF" + self.benchmark_suffix,
                 value=lf,
                 quality=quality_lf,
             )
             eplg = 1 - (lf ** (1 / self.num_2q_gates))
             eplg_result = AnalysisResultData(
-                name="EPLG",
+                name="EPLG" + self.benchmark_suffix,
                 value=eplg,
                 quality=quality_lf,
             )
@@ -350,13 +353,13 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             LOG.error("%s failed: %s", self.__class__.__name__, traceback.format_exc())
             failed_results = [
                 AnalysisResultData(
-                    name="LF",
+                    name="LF" + self.benchmark_suffix,
                     value=None,
                     quality="bad",
                     extra={"reason": "analysis_failure"},
                 ),
                 AnalysisResultData(
-                    name="EPLG",
+                    name="EPLG" + self.benchmark_suffix,
                     value=None,
                     quality="bad",
                     extra={"reason": "analysis_failure"},
