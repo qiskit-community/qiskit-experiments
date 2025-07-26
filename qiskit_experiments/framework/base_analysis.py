@@ -44,7 +44,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     This method should not have side-effects on the analysis class itself
     since it could potentially be called asynchronously in multiple threads.
     Any configurable option values should be specified in the `_default_options`
-    class method. These values can be overriden by a user by calling the
+    class method. These values can be overridden by a user by calling the
     `set_options` method or for a single-run can be specified by passing kwarg
     options to the :meth:`run` method.
     """
@@ -84,7 +84,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         """Return a copy of the analysis"""
         # We want to avoid a deep copy be default for performance so we
         # need to also copy the Options structures so that if they are
-        # updated on the copy they don't effect the original.
+        # updated on the copy they don't affect the original.
         ret = copy.copy(self)
         ret._options = copy.copy(self._options)
         ret._set_options = copy.copy(self._set_options)
