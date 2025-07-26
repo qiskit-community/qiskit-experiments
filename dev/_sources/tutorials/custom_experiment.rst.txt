@@ -69,7 +69,7 @@ To create an analysis subclass, one only needs to implement the abstract
 :meth:`.BaseAnalysis._run_analysis` method. This method takes an
 :class:`.ExperimentData` container and kwarg analysis options. If any
 kwargs are used, the :meth:`.BaseAnalysis._default_options` method should be
-overriden to define default values for these options. You can also write a custom
+overridden to define default values for these options. You can also write a custom
 analysis class for an existing experiment class and then run ``exp.analysis = NewAnalysis()``
 after instantiating the experiment object ``exp`` to override its default analysis class.
 
