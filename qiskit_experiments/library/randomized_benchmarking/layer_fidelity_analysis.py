@@ -77,7 +77,15 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         self.plotter.set_figure_options(
             figure_title=f"Simultaneous Direct RB on Qubit{physical_qubits}",
         )
-        self.benchmark_suffix=benchmark_suffix
+        self._benchmark_suffix = benchmark_suffix
+
+    @property
+    def benchmark_suffix(self):
+        return self._benchmark_suffix
+
+    @benchmark_suffix.setter
+    def benchmark_suffix(self, value):
+        self._benchmark_suffix = value
 
     @classmethod
     def _default_options(cls):
@@ -240,11 +248,29 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             if len(layer) != len(analyses):
                 raise AnalysisError("'analyses' must have the same length with 'layer'")
         else:
-            analyses = [_ProcessFidelityAnalysis(qubits, benchmark_suffix=benchmark_suffix) for qubits in layer]
+            analyses = [
+                _ProcessFidelityAnalysis(qubits, benchmark_suffix=benchmark_suffix)
+                for qubits in layer
+            ]
 
         super().__init__(analyses, flatten_results=True)
         self._layer = layer
-        self.benchmark_suffix = benchmark_suffix
+        self._benchmark_suffix = benchmark_suffix
+        self._set_benchmark_suffix_on_subanalyses(benchmark_suffix)
+
+    @property
+    def benchmark_suffix(self):
+        return self._benchmark_suffix
+
+    @benchmark_suffix.setter
+    def benchmark_suffix(self, value):
+        self._benchmark_suffix = value
+        self._set_benchmark_suffix_on_subanalyses(value)
+
+    def _set_benchmark_suffix_on_subanalyses(self, value):
+        for subanalysis in self._analyses:
+            if hasattr(subanalysis, "benchmark_suffix"):
+                subanalysis.benchmark_suffix = value
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -253,7 +279,11 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate single layer fidelity from process fidelities of subsystems
-            pf_results = [res for res in analysis_results if res.name == "ProcessFidelity" + self.benchmark_suffix]
+            pf_results = [
+                res
+                for res in analysis_results
+                if res.name == "ProcessFidelity" + self.benchmark_suffix
+            ]
             pfs = [res.value for res in pf_results]
             slf = np.prod(pfs)
             quality_slf = "good" if all(sub.quality == "good" for sub in pf_results) else "bad"
@@ -307,7 +337,21 @@ class LayerFidelityAnalysis(CompositeAnalysis):
         super().__init__(analyses, flatten_results=True)
         self.num_layers = len(layers)
         self.num_2q_gates = sum(1 if len(qs) == 2 else 0 for lay in layers for qs in lay)
-        self.benchmark_suffix=benchmark_suffix
+        self._benchmark_suffix = benchmark_suffix
+
+    @property
+    def benchmark_suffix(self):
+        return self._benchmark_suffix
+
+    @benchmark_suffix.setter
+    def benchmark_suffix(self, value):
+        self._benchmark_suffix = value
+        self._set_benchmark_suffix_on_subanalyses(value)
+
+    def _set_benchmark_suffix_on_subanalyses(self, value):
+        for subanalysis in self._analyses:
+            if hasattr(subanalysis, "benchmark_suffix"):
+                subanalysis.benchmark_suffix = value
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -331,7 +375,9 @@ class LayerFidelityAnalysis(CompositeAnalysis):
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
             # Calculate full layer fidelity from single layer fidelities
-            slf_results = [res for res in analysis_results if res.name == "SingleLF" + self.benchmark_suffix]
+            slf_results = [
+                res for res in analysis_results if res.name == "SingleLF" + self.benchmark_suffix
+            ]
             slfs = [res.value for res in slf_results]
             lf = np.prod(slfs)
             quality_lf = "good" if all(sub.quality == "good" for sub in slf_results) else "bad"
