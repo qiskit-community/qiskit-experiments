@@ -159,7 +159,9 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         my_backend = copy.deepcopy(self.backend)
         del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
 
-        exp = rb.StandardRB(physical_qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend)
+        exp = rb.StandardRB(
+            physical_qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend, seed=123
+        )
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
             self.assertTrue(qc.count_ops().get("cx", 0) > 0)
