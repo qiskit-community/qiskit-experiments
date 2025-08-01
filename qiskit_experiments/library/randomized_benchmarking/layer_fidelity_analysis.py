@@ -81,10 +81,12 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
     @property
     def benchmark_suffix(self):
+        """Getter function for benchmark suffix parameter."""
         return self._benchmark_suffix
 
     @benchmark_suffix.setter
     def benchmark_suffix(self, value):
+        """Setter function for benchmark suffix parameter."""
         self._benchmark_suffix = value
 
     @classmethod
@@ -260,10 +262,12 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
 
     @property
     def benchmark_suffix(self):
+        """Getter function for benchmark suffix parameter."""
         return self._benchmark_suffix
 
     @benchmark_suffix.setter
     def benchmark_suffix(self, value):
+        """Setter function for benchmark suffix parameter."""
         self._benchmark_suffix = value
         self._set_benchmark_suffix_on_subanalyses(value)
 
@@ -341,10 +345,12 @@ class LayerFidelityAnalysis(CompositeAnalysis):
 
     @property
     def benchmark_suffix(self):
+        """Getter function for benchmark suffix parameter."""
         return self._benchmark_suffix
 
     @benchmark_suffix.setter
     def benchmark_suffix(self, value):
+        """Setter function for benchmark suffix parameter."""
         self._benchmark_suffix = value
         self._set_benchmark_suffix_on_subanalyses(value)
 
