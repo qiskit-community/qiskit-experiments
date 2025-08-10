@@ -1,0 +1,7 @@
+---
+
+fixes:
+  - |
+    Removed references to hub, group, project in :class:`.ExperimentData` as
+    these are no longer a part of the qiskit-ibm-runtime syntax in the 
+    new cloud platform. 

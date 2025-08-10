@@ -2,9 +2,9 @@ Save and load experiment data with the cloud service
 ====================================================
 
 .. note::
-    This guide is only for those who have access to the cloud service. You can 
-    check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
+    The cloud service at `database <https://quantum.ibm.com/experiments>` has been 
+    sunset in the move to the new IBM Quantum cloud platform. Saving and loading 
+    to the cloud will not work. We are working on a local saving solution.
 
 Problem
 -------

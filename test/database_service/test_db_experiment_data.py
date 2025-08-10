@@ -1198,15 +1198,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         ]
         self.assertTrue(exp_data._metadata_too_large())
 
-    def test_hgp_setter(self):
-        """Tests usage of the hgp setter"""
-        exp_data = ExperimentData()
-        exp_data.hgp = "ibm-q-internal/deployed/default"
-        self.assertEqual("ibm-q-internal/deployed/default", exp_data.hgp)
-        self.assertEqual("ibm-q-internal", exp_data.hub)
-        self.assertEqual("deployed", exp_data.group)
-        self.assertEqual("default", exp_data.project)
-
     def test_add_delete_artifact(self):
         """Tests adding an artifact and a list of artifacts. Tests deleting an artifact
         by name, ID, and index and ID. Test the metadata is correctly tracking additions

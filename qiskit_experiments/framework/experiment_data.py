@@ -427,36 +427,6 @@ class ExperimentData:
         self._db_data.end_datetime = new_end_datetime
 
     @property
-    def hub(self) -> str:
-        """Return the hub of this experiment data.
-
-        Returns:
-            The hub of this experiment data.
-
-        """
-        return self._db_data.hub
-
-    @property
-    def group(self) -> str:
-        """Return the group of this experiment data.
-
-        Returns:
-            The group of this experiment data.
-
-        """
-        return self._db_data.group
-
-    @property
-    def project(self) -> str:
-        """Return the project of this experiment data.
-
-        Returns:
-            The project of this experiment data.
-
-        """
-        return self._db_data.project
-
-    @property
     def experiment_id(self) -> str:
         """Return experiment ID
 
@@ -598,23 +568,9 @@ class ExperimentData:
         self._db_data.backend = self._backend_data.name
         if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        if hasattr(self._backend, "_instance") and self._backend._instance:
-            self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
-
-    @property
-    def hgp(self) -> str:
-        """Returns Hub/Group/Project data as a formatted string"""
-        return f"{self.hub}/{self.group}/{self.project}"
-
-    @hgp.setter
-    def hgp(self, new_hgp: str) -> None:
-        """Sets the Hub/Group/Project data from a formatted string"""
-        if re.match(r"[^/]*/[^/]*/[^/]*$", new_hgp) is None:
-            raise QiskitError("hgp can be only given in a <hub>/<group>/<project> format")
-        self._db_data.hub, self._db_data.group, self._db_data.project = new_hgp.split("/")
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
