@@ -15,7 +15,6 @@ Experiment Data class
 
 from __future__ import annotations
 import logging
-import re
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime, timezone
 from concurrent import futures

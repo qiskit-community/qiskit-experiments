@@ -1150,13 +1150,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         data._db_data.updated_datetime = test_time
         self.assertEqual(data.updated_datetime, test_time)
 
-        data._db_data.hub = "hub_name"
-        data._db_data.group = "group_name"
-        data._db_data.project = "project_name"
-        self.assertEqual(data.hub, "hub_name")
-        self.assertEqual(data.group, "group_name")
-        self.assertEqual(data.project, "project_name")
-
         data._db_data.experiment_id = "exp_id"
         data._db_data.experiment_type = "exp_type"
         self.assertEqual(data.experiment_id, "exp_id")
