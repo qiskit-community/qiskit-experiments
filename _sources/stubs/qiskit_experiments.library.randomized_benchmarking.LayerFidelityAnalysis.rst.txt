@@ -16,6 +16,7 @@ LayerFidelityAnalysis
    .. rubric:: Attributes
 
    
+   .. autoattribute:: LayerFidelityAnalysis.benchmark_suffix
    .. autoattribute:: LayerFidelityAnalysis.options
    
    

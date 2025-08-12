@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="TomographyExperiment" href="qiskit_experiments.library.tomography.TomographyExperiment.html" /><link rel="prev" title="LayerFidelity" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>LayerFidelityUnitary - Qiskit Experiments 0.11.0</title>
+        <title>LayerFidelityUnitary - Qiskit Experiments 0.12.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.11.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.11.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -491,6 +491,8 @@
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
+            <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.10/index.html" rel="nofollow noindex">0.10</a></li>
         
         </ul>
@@ -536,7 +538,7 @@
 <h1>LayerFidelityUnitary<a class="headerlink" href="#layerfidelityunitary" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LayerFidelityUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_gates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_basis_gates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_qubit_basis_gates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_barrier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/randomized_benchmarking/layer_fidelity_unitary.html#LayerFidelityUnitary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LayerFidelityUnitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_qubits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_gates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_qubit_basis_gates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_qubit_basis_gates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_barrier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/randomized_benchmarking/layer_fidelity_unitary.html#LayerFidelityUnitary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary" title="Link to this definition">¶</a></dt>
 <dd><p>A holistic benchmarking experiment to characterize the full quality of the devices at scale.</p>
 <p class="rubric">Overview</p>
 <p>Unitary Layer Fidelity (ULF) is a method to estimate the fidelity of
@@ -716,11 +718,11 @@ See Ref. [1] for details.</p>
   </thead>
   <tbody>
     <tr>
-      <th>a7022d66</th>
+      <th>b7d14b6c</th>
       <td>EPLG</td>
       <td>LayerFidelityUnitary</td>
       <td>[Q0, Q1, Q3, Q5, Q6]</td>
-      <td>0.0559+/-0.0009</td>
+      <td>0.0643+/-0.0009</td>
       <td>bad</td>
       <td>aer_simulator</td>
       <td>None</td>
@@ -733,7 +735,7 @@ See Ref. [1] for details.</p>
     </tr>
   </tbody>
 </table>
-</div></div><div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Available results: {&#39;EPLG&#39;, &#39;ProcessFidelity&#39;, &#39;alpha&#39;, &#39;SingleLF&#39;, &#39;LF&#39;, &#39;EPL&#39;}
+</div></div><div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Available results: {&#39;EPLG&#39;, &#39;alpha&#39;, &#39;LF&#39;, &#39;EPL&#39;, &#39;ProcessFidelity&#39;, &#39;SingleLF&#39;}
 </pre></div>
 </div>
 </div>
@@ -774,6 +776,9 @@ None then is a list equal in length to the number of two_qubit_layers.  Note tha
 this options requires at least one 1Q edge (a qubit in physical_qubits but
 not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
 if layer_barrier=False.</p></li>
+<li><p><strong>benchmark_suffix</strong> (<em>str</em>) – Optional. Suffix string to be appended to the end of the names of the
+associated analysis results. Intended to allow for easier bookeeping if multiple types of
+gates are being tracked.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -1038,7 +1043,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/06/25</div>
+              Last updated on 2025/08/12</div>
           </div>
           <div class="right-details">
             
@@ -1092,7 +1097,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=f3b36f1a"></script>
+</div><script src="../_static/documentation_options.js?v=61ccb1f1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

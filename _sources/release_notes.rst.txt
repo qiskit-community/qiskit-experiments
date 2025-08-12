@@ -3,7 +3,7 @@ Release Notes
 =============
 
 .. release-notes::
-   :earliest-version: 0.10.0
+   :earliest-version: 0.11.0
 
 .. _Release Notes_0.10.0:
 
@@ -3156,7 +3156,7 @@ Deprecation Notes
 
 .. releasenotes/notes/0.3/cleanup-curve-analysis-96d7ff706cae5b4e.yaml @ b'a03eb85832e5b10ff32e71e9725b307fd0f1ada4'
 
-- Several protected methods of :class:`.CurveAnalysis` intended to be overriden
+- Several protected methods of :class:`.CurveAnalysis` intended to be overridden
   or directly be used by subclass have been deprecated.
   :meth:`CurveAnalysis._data` has been deprecated without alternative method
   to make :class:`.CurveAnalysis` state cleaner. Now relevent curve analysis methods

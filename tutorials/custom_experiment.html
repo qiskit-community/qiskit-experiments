@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-To Guides" href="../howtos/index.html" /><link rel="prev" title="Visualization: Creating figures" href="visualization.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Writing your own experiment - Qiskit Experiments 0.11.0</title>
+        <title>Writing your own experiment - Qiskit Experiments 0.12.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.11.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.11.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -491,6 +491,8 @@
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
+            <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.10/index.html" rel="nofollow noindex">0.10</a></li>
         
         </ul>
@@ -599,13 +601,13 @@ an example for an experiment that takes in <a class="reference internal" href=".
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method. This method takes an
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> container and kwarg analysis options. If any
 kwargs are used, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._default_options()</span></code> method should be
-overriden to define default values for these options. You can also write a custom
+overridden to define default values for these options. You can also write a custom
 analysis class for an existing experiment class and then run <code class="docutils literal notranslate"><span class="pre">exp.analysis</span> <span class="pre">=</span> <span class="pre">NewAnalysis()</span></code>
 after instantiating the experiment object <code class="docutils literal notranslate"><span class="pre">exp</span></code> to override its default analysis class.</p>
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method should return a pair
 <code class="code docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">figures)</span></code>, where <code class="docutils literal notranslate"><span class="pre">results</span></code> is a list of
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects and <code class="docutils literal notranslate"><span class="pre">figures</span></code> is a list of
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
 <p>The <a class="reference internal" href="data_processor.html"><span class="doc">Data Processor</span></a> module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.</p>
@@ -1047,7 +1049,7 @@ perfect symmetrical results between <span class="math notranslate nohighlight">\
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0000&#39;: 49815, &#39;1111&#39;: 50185}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 50172, &#39;0000&#39;: 49828}
 </pre></div>
 </div>
 </div>
@@ -1144,7 +1146,7 @@ unaffected by the added randomized measurements, which use its own classical reg
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/06/25</div>
+              Last updated on 2025/08/12</div>
           </div>
           <div class="right-details">
             
@@ -1181,7 +1183,7 @@ unaffected by the added randomized measurements, which use its own classical reg
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=f3b36f1a"></script>
+</div><script src="../_static/documentation_options.js?v=61ccb1f1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
