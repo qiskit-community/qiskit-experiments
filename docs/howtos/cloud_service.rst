@@ -2,8 +2,8 @@ Save and load experiment data with the cloud service
 ====================================================
 
 .. note::
-    The cloud service at `database <https://quantum.ibm.com/experiments>` has been 
-    sunset in the move to the new IBM Quantum cloud platform. Saving and loading 
+    The cloud service at `database <https://quantum.ibm.com/experiments>` has been
+    sunset in the move to the new IBM Quantum cloud platform. Saving and loading
     to the cloud will not work. We are working on a local saving solution.
 
 Problem
