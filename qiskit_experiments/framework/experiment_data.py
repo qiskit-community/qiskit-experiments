@@ -598,8 +598,6 @@ class ExperimentData:
         self._db_data.backend = self._backend_data.name
         if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        if hasattr(self._backend, "_instance") and self._backend._instance:
-            self.hgp = self._backend._instance
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
@@ -607,6 +605,8 @@ class ExperimentData:
     @property
     def hgp(self) -> str:
         """Returns Hub/Group/Project data as a formatted string"""
+        if self.hub is None or self.group is None or self.project is None:
+            raise QiskitError("Hub, group, and/or project are not set!")
         return f"{self.hub}/{self.group}/{self.project}"
 
     @hgp.setter

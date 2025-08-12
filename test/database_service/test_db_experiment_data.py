@@ -1150,13 +1150,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         data._db_data.updated_datetime = test_time
         self.assertEqual(data.updated_datetime, test_time)
 
-        data._db_data.hub = "hub_name"
-        data._db_data.group = "group_name"
-        data._db_data.project = "project_name"
-        self.assertEqual(data.hub, "hub_name")
-        self.assertEqual(data.group, "group_name")
-        self.assertEqual(data.project, "project_name")
-
         data._db_data.experiment_id = "exp_id"
         data._db_data.experiment_type = "exp_type"
         self.assertEqual(data.experiment_id, "exp_id")
@@ -1197,15 +1190,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             for n in range(metadata_size)
         ]
         self.assertTrue(exp_data._metadata_too_large())
-
-    def test_hgp_setter(self):
-        """Tests usage of the hgp setter"""
-        exp_data = ExperimentData()
-        exp_data.hgp = "ibm-q-internal/deployed/default"
-        self.assertEqual("ibm-q-internal/deployed/default", exp_data.hgp)
-        self.assertEqual("ibm-q-internal", exp_data.hub)
-        self.assertEqual("deployed", exp_data.group)
-        self.assertEqual("default", exp_data.project)
 
     def test_add_delete_artifact(self):
         """Tests adding an artifact and a list of artifacts. Tests deleting an artifact
