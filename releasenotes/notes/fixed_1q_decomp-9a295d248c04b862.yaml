@@ -1,9 +1,0 @@
----
-features:
-  - |
-    For benchmarking classes (such as :class:`.LayerFidelity`) that use the
-    helper methods of :class:`.CliffordUtils`,
-    a synthesis option was added to decompose the 1Q cliffords into
-    a fixed gate structure using the syntax
-    ``rb_obj.experiment_options.clifford_synthesis_method = '1Q_fixed'``
-    using :class:`qiskit.synthesis.OneQubitEulerDecomposer`
